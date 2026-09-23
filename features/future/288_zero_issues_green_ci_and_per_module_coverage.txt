@@ -4748,3 +4748,21 @@ stops before any model creation or output. No coverage gates or baselines
 changed. Receipt288_timeflows_model_boundaries_2026-09-23.json records exact
 source hash and remaining lines/branches. These are contract fixtures, not
 pretrained accuracy results or the unfinished end-to-end426 acceptance.
+
+2026-09-23 — PLAQUE PREVIEW IO/MODEL CONTRACTS REACH90.12PERCENT
+After the468selection-recovery fix,29additional cases give172pass66.84s.
+Current plaque_preview coverage rises83.84 ->90.12percent combined:
+1984/2136statements,442/556branches. Branch-only coverage is79.50percent;
+the configured floor measures combined statements and branches. No baseline,
+gate or exemption change. Receipt288_plaque_preview_io_contracts_2026-09-23.
+
+Real TIFF/channel reads and decoder fallback, local-only checkpoint lookup,
+one-model cache retention, missing/corrupt model errors, label/flow resizing,
+figure OCR/offsets, download failure/retry and source-propagation recovery
+now have behavioral checks. These uncovered a real public helper drift:
+figure_pass called model.eval(crop) directly, ignoring the settings honored
+by plaque_pass and segment_well. It now uses segment_plaque_image, and tests
+observe diameter37,flow_threshold0.27,CP_prob-2.5 and channel_axis at the actual
+model-call boundary for all three paths. No public signature/docstring,
+caption or setting change. Pretrained accuracy/network transfer are not
+claimed. Full current CI/ratchet acceptance remains separate and open.

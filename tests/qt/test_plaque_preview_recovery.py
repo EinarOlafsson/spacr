@@ -111,3 +111,82 @@ def test_stale_callback_cannot_enable_run_during_a_new_preview(panel):
     panel._on_result(old, {"error": "old failure"})
     assert not panel._run_btn.isEnabled() and panel._cancel_btn.isEnabled()
     assert "old failure" not in panel.preview_status()
+
+
+def test_model_download_failure_can_be_retried_without_automatic_inference(panel, tmp_path, monkeypatch):
+    import types
+
+    from PySide6.QtCore import QObject, Signal
+    from spacr.qt import model_install
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    created = []
+
+    class Download(QObject):
+        progressed = Signal(int, int)
+        finished = Signal(bool, str)
+
+        def __init__(self, entry, folder):
+            super().__init__()
+            self.entry, self.folder, self.started = entry, folder, False
+            created.append(self)
+
+        def start(self):
+            self.started = True
+
+    monkeypatch.setattr(model_install, "CheckpointDownload", Download)
+    ready = []
+    panel.preview_ready.connect(ready.append)
+    panel._offer_download(None)
+    panel._start_download()
+    assert not created and panel._download_btn.isHidden()
+    entry = types.SimpleNamespace(key="missing-plaque", name="model.pt")
+    panel._offer_download(entry)
+    assert "missing-plaque" in panel._download_btn.text()
+    panel._download_btn.click()
+    first = created[0]
+    assert first.entry is entry and first.started
+    assert first.folder == str(tmp_path / ".spacr/models")
+    assert not panel._download_btn.isEnabled()
+    first.progressed.emit(1024, 0)
+    assert "?" in panel.preview_status()
+    first.progressed.emit(1024, 2048)
+    assert "?" not in panel.preview_status()
+    first.finished.emit(False, "transfer interrupted")
+    assert "transfer interrupted" in panel.preview_status()
+    assert panel._download_btn.isEnabled() and not panel._download_btn.isHidden()
+    panel._download_btn.click()
+    assert len(created) == 2 and created[1].started
+    created[1].finished.emit(True, str(tmp_path / ".spacr/models/model.pt"))
+    assert panel._download_btn.isEnabled() and panel._download_btn.isHidden()
+    assert "Press Run preview" in panel.preview_status() and not ready
+
+
+def test_unchanged_source_refresh_keeps_existing_mask_and_selection(panel, tmp_path):
+    source = _image(tmp_path / "a.png")
+    assert not panel.load_source_async("")
+    assert panel.load_source_async(source)
+    assert panel.run_preview(segment=lambda path: np.ones((40, 50), np.int32))
+    previous = panel._plaque_result
+    assert panel.load_source_async(source)
+    assert panel._plaque_result is previous and panel.current_path() == source
+    assert "unchanged" in panel.preview_status()
+
+
+def test_fetched_paper_still_loads_when_form_propagation_fails(panel, tmp_path):
+    source = _image(tmp_path / "a.png")
+    propagated = []
+
+    def cannot_write(settings):
+        propagated.append(settings)
+        raise RuntimeError("closed form")
+
+    panel.set_propagate_callback(cannot_write)
+    assert not panel.fetch_paper("", tmp_path)
+    assert not panel.fetch_paper("paper", "")
+    panel._on_paper_fetched({"paper": "fixture", "figures": 0})
+    assert panel.current_path() is None
+    assert panel.fetch_paper("fixture", tmp_path, fetch=lambda *args:
+                             {"folder": str(tmp_path), "paper": "fixture", "figures": 1})
+    assert propagated == [{"src": str(tmp_path)}]
+    assert panel.current_path() == source and panel._paper_btn.isEnabled()

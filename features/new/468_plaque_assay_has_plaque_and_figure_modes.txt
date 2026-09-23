@@ -318,3 +318,16 @@ and the reachable closed-switch/open-card placement already implemented.
 No AppScreen change, new caption/setting or public signature/docstring change.
 Receipt468_preview_selection_recovery_2026-09-23.json. The broader288 coverage
 floor is still open: current plaque_preview combined coverage is83.84percent.
+
+2026-09-23 — PUBLIC FIGURE PASS NOW HONORS PLAQUE SETTINGS
+figure_pass's default crop segmenter used a bare model.eval(crop), bypassing
+diameter,flow_threshold,CP_prob and the shared channel-axis policy. It now
+uses segment_plaque_image like plaque_pass and segment_well. Regression
+cases run the real shared helper and capture all four values at the model
+boundary.172focused tests pass66.84s including real TIFF/channel reads,
+local checkpoint lookup, no-partial-result model errors, source selection,
+OCR/offsets, download retry and existing GUI/layout behavior. The source
+module reaches90.12percent combined coverage. API signature/prose/captions
+unchanged; behavior now matches the stated settings contract. Receipt:
+288_plaque_preview_io_contracts_2026-09-23.json. Models/downloads are injected
+boundaries; this does not replace real pretrained acceptance.

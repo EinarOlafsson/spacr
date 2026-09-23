@@ -890,7 +890,7 @@ def figure_pass(path: Any, settings: Dict[str, Any], *,
 
         def segment(crop: np.ndarray) -> np.ndarray:
             """The Cellpose label mask of one plaque-well crop."""
-            return np.asarray(model.eval(crop)[0])
+            return segment_plaque_image(model, crop, settings)
 
     image = _load_image(path)
     regions = find_plaque_regions(
