@@ -465,39 +465,35 @@ def test_calculate_recruitment_computes_every_ratio_column():
 
     assert out is df  # annotates in place and hands the same frame back
 
-    assert out["pathogen_cell_mean_mean"].tolist() == [10.0, 4.0]
-    assert out["pathogen_cytoplasm_mean_mean"].tolist() == [20.0, 8.0]
-    assert out["pathogen_nucleus_mean_mean"].tolist() == [25.0, 25.0]
+    assert out["pathogen_channel_1_cell_mean_ratio"].tolist() == [10.0, 4.0]
+    assert out["pathogen_channel_1_cytoplasm_mean_ratio"].tolist() == [20.0, 8.0]
+    assert out["pathogen_channel_1_nucleus_mean_ratio"].tolist() == [25.0, 25.0]
 
-    assert out["pathogen_cell_q75_mean"].tolist() == [30.0, 8.0]
-    assert out["pathogen_cytoplasm_q75_mean"].tolist() == [60.0, 16.0]
-    assert out["pathogen_nucleus_q75_mean"].tolist() == [75.0, 50.0]
+    assert out["pathogen_channel_1_cell_q75_ratio"].tolist() == [30.0, 8.0]
+    assert out["pathogen_channel_1_cytoplasm_q75_ratio"].tolist() == [60.0, 16.0]
+    assert out["pathogen_channel_1_nucleus_q75_ratio"].tolist() == [75.0, 50.0]
 
-    assert out["pathogen_outside_cell_mean_mean"].tolist() == [2.0, 0.6]
-    assert out["pathogen_outside_cytoplasm_mean_mean"].tolist() == [4.0, 1.2]
-    assert out["pathogen_outside_nucleus_mean_mean"].tolist() == [5.0, 3.75]
+    assert out["pathogen_channel_1_cell_outside_mean_ratio"].tolist() == [2.0, 0.6]
+    assert out["pathogen_channel_1_cytoplasm_outside_mean_ratio"].tolist() == [4.0, 1.2]
+    assert out["pathogen_channel_1_nucleus_outside_mean_ratio"].tolist() == [5.0, 3.75]
 
-    assert out["pathogen_outside_cell_q75_mean"].tolist() == [6.0, 1.8]
-    assert out["pathogen_outside_cytoplasm_q75_mean"].tolist() == [12.0, 3.6]
-    assert out["pathogen_outside_nucleus_q75_mean"].tolist() == [15.0, 11.25]
+    assert out["pathogen_channel_1_cell_outside_q75_ratio"].tolist() == [6.0, 1.8]
+    assert out["pathogen_channel_1_cytoplasm_outside_q75_ratio"].tolist() == [12.0, 3.6]
+    assert out["pathogen_channel_1_nucleus_outside_q75_ratio"].tolist() == [15.0, 11.25]
 
-    assert out["pathogen_periphery_cell_mean_mean"].tolist() == [0.8, 0.32]
-    assert out["pathogen_periphery_cytoplasm_mean_mean"].tolist() == [1.6, 0.64]
-    assert out["pathogen_periphery_nucleus_mean_mean"].tolist() == [2.0, 2.0]
+    assert out["pathogen_channel_1_cell_periphery_mean_ratio"].tolist() == [0.8, 0.32]
+    assert out["pathogen_channel_1_cytoplasm_periphery_mean_ratio"].tolist() == [1.6, 0.64]
+    assert out["pathogen_channel_1_nucleus_periphery_mean_ratio"].tolist() == [2.0, 2.0]
 
 
-def test_calculate_recruitment_adds_placeholder_slope_columns():
+def test_calculate_recruitment_does_not_fabricate_spatial_slopes():
     from spacr.utils import _calculate_recruitment
 
-    out = _calculate_recruitment(_recruitment_df(channel=0), channel=0)
-
-    for obj in ("pathogen", "nucleus"):
-        for chan in (0, 1, 2, 3):
-            col = f"{obj}_slope_channel_{chan}"
-            assert col in out.columns
-            assert out[col].tolist() == [1, 1]
-    # cell/cytoplasm slopes are deliberately not emitted
-    assert "cell_slope_channel_0" not in out.columns
+    source = _recruitment_df(channel=0)
+    source['pathogen_slope_channel_0'] = [2.3, 5.4]
+    out = _calculate_recruitment(source, channel=0)
+    assert out['pathogen_slope_channel_0'].tolist() == [2.3, 5.4]
+    assert [key for key in out if 'slope_channel_' in key] == ['pathogen_slope_channel_0']
 
 
 def test_calculate_recruitment_propagates_zero_denominator_as_inf():
@@ -508,8 +504,8 @@ def test_calculate_recruitment_propagates_zero_denominator_as_inf():
 
     out = _calculate_recruitment(df, channel=2)
 
-    assert np.isinf(out.loc[0, "pathogen_nucleus_mean_mean"])
-    assert out.loc[1, "pathogen_nucleus_mean_mean"] == 25.0
+    assert np.isinf(out.loc[0, "pathogen_channel_2_nucleus_mean_ratio"])
+    assert out.loc[1, "pathogen_channel_2_nucleus_mean_ratio"] == 25.0
 
 
 def test_calculate_recruitment_missing_column_raises_key_error():

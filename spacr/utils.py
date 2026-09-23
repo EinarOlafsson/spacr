@@ -3443,6 +3443,14 @@ def _split_data(df, group_by, object_type):
 def _calculate_recruitment(df, channel):
     """Add pathogen-to-compartment recruitment ratio columns for the given intensity channel.
 
+    Each output identifies its channel, compartment and numerator statistic,
+    e.g. ``pathogen_channel_2_cytoplasm_mean_ratio``. Repeated calls preserve
+    previously computed channels. No spatial slope is inferred or fabricated.
+
+    :param df: measurement frame, augmented in place.
+    :param channel: intensity channel to compare within each compartment.
+    :returns: the input frame with fifteen channel-specific ratio columns.
+
     The frame is canonicalised first, so a table written before the ring
     percentiles were renamed (``outside_75_percentile``) divides correctly
     rather than raising ``KeyError`` on the new name. A database read through
@@ -3450,34 +3458,16 @@ def _calculate_recruitment(df, channel):
     not.
     """
     canonicalize_measurement_columns(df)
-    df['pathogen_cell_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_mean_intensity']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_cell_q75_mean'] = df[f'pathogen_channel_{channel}_percentile_75']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_cytoplasm_q75_mean'] = df[f'pathogen_channel_{channel}_percentile_75']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_nucleus_q75_mean'] = df[f'pathogen_channel_{channel}_percentile_75']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_outside_cell_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_outside_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_outside_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_outside_mean']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_outside_cell_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_outside_cytoplasm_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_outside_nucleus_q75_mean'] = df[f'pathogen_channel_{channel}_outside_percentile_75']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    df['pathogen_periphery_cell_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'cell_channel_{channel}_mean_intensity']
-    df['pathogen_periphery_cytoplasm_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'cytoplasm_channel_{channel}_mean_intensity']
-    df['pathogen_periphery_nucleus_mean_mean'] = df[f'pathogen_channel_{channel}_periphery_mean']/df[f'nucleus_channel_{channel}_mean_intensity']
-
-    channels = [0,1,2,3]
-    object_type = 'pathogen'
-    for chan in channels:
-        df[f'{object_type}_slope_channel_{chan}'] = 1
-
-    object_type = 'nucleus'
-    for chan in channels:
-        df[f'{object_type}_slope_channel_{chan}'] = 1
+    statistics = {
+        'mean': 'mean_intensity', 'q75': 'percentile_75',
+        'outside_mean': 'outside_mean', 'outside_q75': 'outside_percentile_75',
+        'periphery_mean': 'periphery_mean',
+    }
+    for compartment in ('cell', 'cytoplasm', 'nucleus'):
+        denominator = df[f'{compartment}_channel_{channel}_mean_intensity']
+        for name, source in statistics.items():
+            output = f'pathogen_channel_{channel}_{compartment}_{name}_ratio'
+            df[output] = df[f'pathogen_channel_{channel}_{source}'] / denominator
 
     return df
     

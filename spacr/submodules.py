@@ -1041,7 +1041,7 @@ def analyze_recruitment(settings):
        
     df['recruitment'] = df[f"pathogen_channel_{settings['channel_of_interest']}_mean_intensity"]/df[f"cytoplasm_channel_{settings['channel_of_interest']}_mean_intensity"]
     
-    for chan in settings['channel_dims']:
+    for chan in dict.fromkeys([*settings['channel_dims'], settings['channel_of_interest']]):
         df = _calculate_recruitment(df, channel=chan)
     print(f'calculated recruitment for: {len(df)} rows')
     

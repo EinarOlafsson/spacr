@@ -29,3 +29,18 @@ Explicitly skipped: z-plane-aware recruitment scoring.
 The pasted evaluation is design input, not an accuracy benchmark for spaCR.
 Exact runtime/API/settings contracts go to the documentation session via325.
 Continue the pre-existing new/future feature lists after these requests.
+
+2026-09-23 — PART1 COMPLETE: CHANNEL-SPECIFIC RATIOS / REAL OUTPUTS ONLY
+_calculate_recruitment writes fifteen ratios per requested channel, named
+pathogen_channel_<channel>_<compartment>_<statistic>_ratio. Statistics are
+mean, q75, outside_mean, outside_q75 and periphery_mean; the denominator is
+that channel's compartment mean. Multi-channel calls no longer overwrite.
+Constant-one slope outputs are no longer generated. Existing genuine slope
+columns supplied by a caller are preserved; no synthetic gradient is inferred.
+The dedicated recruitment score remains channel_of_interest. The plots now
+explicitly select that same channel's auxiliary ratios. CSV output names have
+changed; API/tutorial consumers must use the channel-qualified names.
+Validation: 71 scoped recruitment checks passed initially; two stale plot
+fixture/label expectations were updated and both retested successfully. A
+new multi-channel check verifies thirty distinct ratios, repeated-call safety,
+input preservation and absence of fabricated slopes.

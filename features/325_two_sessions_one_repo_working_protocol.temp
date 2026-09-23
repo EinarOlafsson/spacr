@@ -13799,3 +13799,18 @@ Please update APIs/tutorials for the changed _ZoomView._apply_zoom signature
 (position optional), new shared helper and OrthoView.wheelEvent semantics.
 Filed feature484 for all six accepted HRMAn-inspired items; z-plane scoring is
 explicitly skipped. Feature485 records the cursor-zoom implementation.
+
+2026-09-23 — IMPLEMENTATION HANDOFF:484 PART1 RECRUITMENT FIXED
+Changed utils._calculate_recruitment and its plot._plot_recruitment consumer.
+New outputs: pathogen_channel_<channel>_<cell|cytoplasm|nucleus>_<stat>_ratio,
+with stat mean/q75/outside_mean/outside_q75/periphery_mean. Each denominator
+is the same-channel compartment mean; all channels persist independently.
+No new constant-one pathogen/nucleus slope columns. Caller-supplied real
+slope columns are preserved. Recruitment's channel_of_interest score is
+unchanged. Auxiliary calculations include channel_of_interest even if omitted
+from channel_dims, so plots always request a computed channel. Updated
+channel_dims tooltip removes the old documented overwrite defect; please
+refresh that translation source and API/tutorial output-column examples.
+71 scoped checks plus2 repaired plot-contract checks pass; new regression
+explicitly uses two deliberately different channel ratios. New TTA helper
+in progress, not yet wired or claimed complete.
