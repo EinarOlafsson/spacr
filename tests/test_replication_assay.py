@@ -1154,3 +1154,33 @@ def test_seeding_wells_from_cells_can_be_switched_off(tmp_path):
     wells = analyze_replication(
         settings_for(src, seed_wells_from_cells=False))["wells"]
     assert set(wells["prc"]) == {"plate1_r1_c1"}
+
+
+def test_method_selector_dispatches_size_proxy_without_reinterpreting_counts(monkeypatch):
+    seen = []
+    sentinel = pd.DataFrame({'pathogen_volume_bin': ['size bin']})
+    monkeypatch.setattr(spacr.submodules, 'analyze_endodyogeny',
+                        lambda settings: seen.append(settings) or {'data': sentinel})
+    settings = {'src': '/unused', 'replication_method': 'size_proxy', 'min_area_bin': 100}
+    output = spacr.submodules.analyze_replication(settings)
+    assert output['data'] is sentinel
+    assert output['replication_method'] == 'size_proxy'
+    assert 'vacuoles' not in output
+    assert seen == [settings] and seen[0] is not settings
+
+
+def test_forthcoming_replication_model_refuses_to_run_before_io(tmp_path):
+    root = tmp_path / 'never_created'
+    with pytest.raises(NotImplementedError, match='model coming soon'):
+        spacr.submodules.analyze_replication({
+            'src': str(root), 'replication_method': 'deep_learning_coming_soon'})
+    assert not root.exists()
+    with pytest.raises(ValueError, match='Unknown replication_method'):
+        spacr.submodules.analyze_replication({'src': str(root), 'replication_method': 'unknown'})
+
+
+def test_replication_method_defaults_keep_direct_counts_and_expose_proxy_controls():
+    settings = spacr.settings.set_analyze_replication_defaults({})
+    assert settings['replication_method'] == 'direct_count'
+    assert settings['min_area_bin'] == 500
+    assert settings['max_bins'] is None

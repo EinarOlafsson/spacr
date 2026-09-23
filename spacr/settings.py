@@ -3445,6 +3445,7 @@ expected_types = {
     "parasite_table": str,
     "compartment": str,
     "vacuole_key": str,
+    'replication_method': str,
     "vacuole_link_distance": (int, float, type(None)),
     "vacuole_link_factor": (int, float),
     "parasite_count_column": (str, type(None)),
@@ -4664,6 +4665,7 @@ tooltips = {
     'outside_threshold_method': "(str) - Method used to derive the outside-stain threshold from each field when neither a fixed value nor control wells are supplied: 'otsu', 'triangle', 'li', 'yen', or 'mean'. These methods identify a partition but do not test whether the distribution is bimodal; that evaluation is performed separately. 'triangle' is appropriate for a strongly skewed distribution with a small stained minority, whereas 'otsu' is appropriate for a more balanced distribution. Default 'otsu'.",
     'parasite_table': "(str) - Table in measurements/measurements.db holding one row per segmented parasite. It is read directly rather than through the usual merge, because that merge collapses pathogen rows onto their host cell and would sum several parasites' stain intensities into a single row. Change it only if measure_crop wrote the parasite objects under a non-standard name. Default 'pathogen'.",
     'vacuole_key': "(str) - Rule used to group individually segmented parasites into vacuoles. 'auto' prefers an explicit vacuole-ID column, otherwise spatially clusters centroids, then falls back to host cell or one parasite per vacuole with a warning. Set 'spatial', 'cell_id', 'object', or an explicit column name to make that biological assumption reproducible. Default 'auto'.",
+    'replication_method': '(str) - Readout for spacr.submodules.analyze_replication. direct_count counts individually segmented parasites per assigned vacuole. size_proxy delegates to the existing area-derived endodyogeny analysis, which aggregates pathogen area per host cell and assumes one vacuole per host for a vacuole interpretation; it does not count parasites or measure volume. deep_learning_coming_soon is reserved for the forthcoming whole-vacuole classification model and cannot run yet. Default direct_count.',
     'vacuole_link_distance': "(float or None) - Maximum centroid-to-centroid distance in pixels for spatially linking parasites into the same vacuole. None derives the distance from median parasite diameter times vacuole_link_factor; set a calibrated value when magnification or segmentation scale varies between plates. Too large merges separate vacuoles and too small splits one rosette. Default None.",
     'vacuole_link_factor': "(float) - Multiplier applied to the median segmented-parasite diameter when vacuole_link_distance is derived automatically. Increasing it joins wider rosettes but also raises the risk of merging nearby vacuoles; decreasing it does the reverse. It is ignored when an explicit link distance or vacuole-ID column is used. Default 1.5.",
     'parasite_count_column': "(str or None) - Optional column that already stores the number of parasites represented by each segmented row. When set, the assay sums that column per vacuole instead of counting rows, which is required if one row can represent several parasites. None treats every retained row as one parasite. Default None.",
@@ -4964,6 +4966,7 @@ categories = {
 
     "Plot": ["cmap", "figuresize", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
     "Replication Assay": [
+        'replication_method',
         "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
         "parasite_count_column", "max_parasites_per_vacuole",
         "require_host_cell", "non_power_of_two_warn",
@@ -6073,6 +6076,11 @@ def set_analyze_replication_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    settings.setdefault('replication_method', 'direct_count')
+    for key, value in set_analyze_endodyogeny_defaults({}).items():
+        if key in ('tables', 'min_area_bin', 'max_area', 'max_bins', 'um_per_px',
+                   'pathogen_limit', 'nuclei_limit', 'group_by_class', 'class_column'):
+            settings.setdefault(key, value)
     settings.setdefault('src', 'path')
     settings.setdefault('parasite_table', 'pathogen')
     settings.setdefault('compartment', 'pathogen')

@@ -3257,6 +3257,13 @@ def _replication_stacked_bars(settings, vacuoles, group_column, prc_column,
 def analyze_replication(settings):
     """Replication assay: count parasites per vacuole and compare the distributions.
 
+    ``replication_method='direct_count'`` is the default described below.
+    ``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its
+    area-derived, host-aggregated readout instead. Both return the selected
+    method in ``replication_method``. ``'deep_learning_coming_soon'`` raises
+    :class:`NotImplementedError` before any data are read or outputs written;
+    the whole-vacuole classification model is not available yet.
+
     *Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside
     a mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites —
     a power of two. The readout of a replication assay is therefore the
@@ -3328,6 +3335,22 @@ def analyze_replication(settings):
         :func:`analyze_endodyogeny` — the size-proxy version, for fused
         rosettes that cannot be resolved into single parasites.
     """
+    method = settings.get('replication_method', 'direct_count')
+    if method == 'deep_learning_coming_soon':
+        raise NotImplementedError(
+            'Whole-vacuole deep learning classification model coming soon. '
+            'No trained model is available yet. Choose direct parasite counts '
+            'or the area-derived size proxy to run replication analysis.')
+    if method not in ('direct_count', 'size_proxy'):
+        raise ValueError(f'Unknown replication_method: {method!r}')
+    if method == 'size_proxy':
+        print('Replication size proxy: host-cell aggregated pathogen area, '
+              'not direct parasite counts or measured volume. Multiple vacuoles '
+              'in one host cell are combined by this legacy method.')
+        output = analyze_endodyogeny(dict(settings))
+        output['replication_method'] = method
+        return output
+
     from .utils import annotate_conditions, save_settings
     from .io import _read_db
     from . import settings as settings_module
@@ -3517,6 +3540,7 @@ def analyze_replication(settings):
 
     output = {
         'vacuoles': vacuoles,
+        'replication_method': method,
         'wells': wells,
         'summary': summary,
         'comparisons': comparisons,

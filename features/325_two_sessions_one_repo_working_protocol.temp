@@ -13911,3 +13911,17 @@ Intel-XPU/Microsoft/NVIDIA primary docs, checked2026-09-23. Clearly separates
 conditional/legacy/experimental support from spaCR routes. Please include this
 new page/link in translated docs and installation tutorials. Isolated Sphinx
 HTML build uses warnings as errors; no full documentation build or media job.
+
+2026-09-23 — IMPLEMENTATION HANDOFF:484 REPLICATION METHOD SELECTION
+replication_method defaults direct_count. Replication's new Method category
+also offers size_proxy, delegating to analyze_endodyogeny with its existing
+host-aggregated area readout and controls in Size Proxy (Legacy). This is not
+a parasite count or measured volume; multiple vacuoles in a host are combined.
+Whole-vacuole deep learning classification is explicitly coming soon; choosing
+it raises before input/output access because the user's model is not ready.
+Both available routes return replication_method metadata. Please update the
+setting/category/dropdown translations and API/tut examples. Existing direct
+count behavior is preserved. Timelapse now places inherited pre-Mask Image
+Quality settings in a named category, matching Mask. New Host–Pathogen code
+is in progress with separate vacuole/host denominators and unknown measurements;
+no claim that it already replaces all Recruitment functionality.

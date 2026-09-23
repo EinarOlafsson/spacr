@@ -1157,6 +1157,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
+        ('Image Quality', ('@Image Quality',)),
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
@@ -1490,7 +1491,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
     ),
     "replication": (
+        ('Replication Method', ('replication_method',)),
         ("Assay Inputs", ("src", "parasite_table", "compartment")),
+        ('Size Proxy (Legacy)', ('tables', 'min_area_bin', 'max_area', 'max_bins',
+                                 'um_per_px', 'pathogen_limit', 'nuclei_limit',
+                                 'group_by_class', 'class_column')),
         ("Vacuole Assignment", (
             "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
             "parasite_count_column", "require_host_cell",

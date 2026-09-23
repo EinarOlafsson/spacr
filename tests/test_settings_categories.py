@@ -1364,6 +1364,7 @@ def _rendered_sections(app_key):
         ]),
             ("mask", [
                 "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+                'Image Quality',
                 "Illumination Correction",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
@@ -1395,6 +1396,7 @@ def _rendered_sections(app_key):
         ]),
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+                'Image Quality',
                 "Illumination Correction",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
@@ -1452,7 +1454,8 @@ def _rendered_sections(app_key):
             "Map Display", "Map Quantification", "Output & Runtime",
         ]),
         ("replication", [
-            "Assay Inputs", "Vacuole Assignment", "Condition Metadata",
+            "Replication Method", "Assay Inputs", "Size Proxy (Legacy)",
+            "Vacuole Assignment", "Condition Metadata",
             "Object Filtering", "Replication Scoring", "Assay Output",
             "Runtime & Reliability",
         ]),

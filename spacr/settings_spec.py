@@ -272,6 +272,11 @@ def convert_settings_dict_for_gui(settings):
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),
+        'replication_method': ('combo', [
+            ('direct_count', 'Direct parasite counts'),
+            ('size_proxy', 'Area-derived size proxy (legacy)'),
+            ('deep_learning_coming_soon', 'Whole-vacuole deep learning classification — coming soon'),
+        ], 'direct_count'),
         'strict_errors': ('combo', [None, True, False], None),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
         'agg_type': ('combo', ['mean', 'median'], 'mean'),

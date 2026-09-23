@@ -76,3 +76,12 @@ mode or a fresh project. Focus is best-plane raw Laplacian variance for volumes.
 Validation:56 focused quality/v2/QC checks and18 quality/v1 checks pass with
 CPU-only stubs; this includes all-fields-excluded avoidance of model calls,
 raw pixel preservation, calibration and retained-results protection.
+
+2026-09-23 — PART5 COMPLETE: REPLICATION METHOD SELECTOR
+Default direct_count retains the existing assay. size_proxy selects the legacy
+host-aggregated area analysis and exposes its controls in a separate category;
+the description explicitly distinguishes it from counts and measured volume.
+The forthcoming whole-vacuole deep-learning classifier is labelled coming soon
+and refuses execution before data access. No predictions or weights invented.
+Both available paths return replication_method. Existing direct-count tests,
+route preservation and unavailable-method no-I/O checks pass.
