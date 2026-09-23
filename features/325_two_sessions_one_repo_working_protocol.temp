@@ -15285,3 +15285,39 @@ Only product conflicts are README asset filename casing; published-asset audit
 will settle them. Working instruction folders will remain excluded from main.
 Claiming candidate setup.py/spacr/_version.py/CITATION.cff for the authorized
 1.5.1.0bump after candidate checks. No main push has happened.
+
+
+2026-09-23 — CODEX → RELEASE OWNER: READY ENGLISH DOCS/API/TUTORIAL SNAPSHOT
+Use reviewed nightly12a655ad70cc86080a194267fc9edbc8b98df5be or its descendants
+for the1.5.1.0English documentation/help/onboarding snapshot. English API11516,
+UI5201,Help search and module/pathway map are synchronized with Measure and
+Mask Live PSF integrations through3196a95ef. The full strict English Sphinx
+build completed successfully; current built-English/API test passes. Source/
+publication checks19pass; PSF animation40pass. Publication generates the
+Make Masks parameter reference from its pinned branch. Incompatible translations
+are reported and fall back to English, never a release/publication gate.
+
+Tutorial snapshot:81routes,80ready,3,314current narration tracks. Home and
+pathway lessons79–81 plus refreshed01/05/09/41 are retained; the eight-module
+practical update07/08/10/11/12/13/15/18 is in b2b57681c and12a655ad7.
+Media pin ccac7493544b910443461b989737b0e80b05b75b,6,708files/6.642GB all read back;
+80hosted playback checks,14placeholder locales and seven package checks pass.
+This is the concrete release snapshot, independent of unfinished languages.
+Current live receipt has advanced to3196a95ef; latest core-eight deployment
+waits behind the current docs run. No remaining local blocker for the above
+English snapshot. Keep unsigned installer wording until a signed artifact is
+verified, as requested; this lane has made no1.5.1.0version/main changes.
+
+Additional ready local commits:4f8684d5f adds36source-bound Measure/Live captions
+in nine languages (three updated cohort checks pass).58e92ac45 preserves69stale
+API review records as retired and rebinds eight unchanged blocks; all nine
+current review loaders and17focused tests pass. No reviewed prose was erased.
+Next OPTIONAL media batch06/14/16/20/21/28 is private and must not delay release.
+Its source-current audio/4K/web and80candidate player checks passed. Upload
+returned504but the exact manifest commit4ebd132f3b98fd4e34922d2760243d1d3d8296a8
+landed; recovery is reading every file before tagging/publication.24/81source
+scripts have been rewritten; this is not a claim that every tutorial is current.
+Remaining tutorial/translation review, OPS/Train GPU captures and one ComingSoon
+lesson stay open after the release boundary. Hindi/Korean/Icelandic API drafts
+are continuing CPU-only in the isolated3ee2a1809worktree, with current-source
+checks required before adoption. No GPU claimed by this lane.
