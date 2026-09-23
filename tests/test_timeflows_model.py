@@ -138,6 +138,10 @@ def test_cli_trains_with_pair_weights_and_records_them(tmp_path, monkeypatch, mi
     record = json.loads(target.with_suffix(".pt.json").read_text())
     assert record["sampling"]["strategy"] == "inverse_frequency_displacement_bins"
     assert record["sampling"]["bins"] == 5
+    assert record["window_supervision"] == {
+        "policy": "complete_source_and_present_successor_masks",
+        "tile_size": tm.TILE, "maximum_attempts_per_step": 32,
+        "full_frame_disappearances_supervised": True}
     np.testing.assert_allclose(record["sampling"]["weights"], expected)
 
 

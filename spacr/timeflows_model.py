@@ -423,6 +423,34 @@ class _Pair:
     labels_t1: np.ndarray
 
 
+def _training_window(pair: _Pair, rng: np.random.Generator
+                     ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
+    """Crop a pair and remove source supervision corrupted by the crop.
+
+    A source mask must be complete so its diameter remains correct. If its
+    successor exists in the full target frame, that mask must also remain
+    complete: a cut centroid is wrong and a missing crop is not a death.
+    Genuine full-frame disappearances remain supervised. Images and target
+    masks are retained; only unusable source labels are removed from a copy.
+    This does not establish the correctness of the supplied full-frame labels.
+    """
+    frames, labels = random_window([pair.frame_t, pair.frame_t1],
+                                   [pair.labels_t, pair.labels_t1], rng)
+    source_counts = dict(zip(*np.unique(pair.labels_t, return_counts=True)))
+    target_counts = dict(zip(*np.unique(pair.labels_t1, return_counts=True)))
+    cropped_target_counts = dict(zip(*np.unique(labels[1], return_counts=True)))
+    excluded = []
+    for label, count in zip(*np.unique(labels[0], return_counts=True)):
+        if label and (count != source_counts[label] or (
+                label in target_counts and
+                cropped_target_counts.get(label, 0) != target_counts[label])):
+            excluded.append(label)
+    if excluded:
+        labels[0] = labels[0].copy()
+        labels[0][np.isin(labels[0], excluded)] = 0
+    return frames, labels
+
+
 def _training_pair_sampling_weights(pairs: Sequence[_Pair], bins: int = 5
                                     ) -> np.ndarray:
     """Measure each pair's own endpoints, including mixed-size movies.
@@ -499,9 +527,14 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
         optimiser = torch.optim.AdamW(params, lr=lr)
         net.train()
         for step in range(steps):
-            pair = pairs[int(rng.choice(len(pairs), p=probs))]
-            frames, labels = random_window([pair.frame_t, pair.frame_t1],
-                                           [pair.labels_t, pair.labels_t1], rng)
+            for _attempt in range(32):
+                pair = pairs[int(rng.choice(len(pairs), p=probs))]
+                frames, labels = _training_window(pair, rng)
+                if np.any(labels[0]):
+                    break
+            else:
+                raise ValueError("No usable temporal supervision in 32 sampled windows; "
+                                 "check full masks and motion relative to the training tile")
             frames, labels = augment_pair(frames, labels, rng)
             target = time_targets(labels[0], labels[1])
             batch = {k: torch.from_numpy(v)[None].to(device) for k, v in target.items()}
@@ -773,6 +806,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
                    "sampling": {"strategy": "inverse_frequency_displacement_bins",
                                 "bins": 5, "weights": weights.tolist()},
+                   "window_supervision": {
+                       "policy": "complete_source_and_present_successor_masks",
+                       "tile_size": TILE, "maximum_attempts_per_step": 32,
+                       "full_frame_disappearances_supervised": True},
                    "final_loss": losses[-1] if losses else None}, handle, indent=2)
     print(f"saved {args.out} ({len(pairs)} pairs, final loss {losses[-1]:.4f})")
     return 0

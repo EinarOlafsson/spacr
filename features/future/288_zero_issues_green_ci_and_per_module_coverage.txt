@@ -4818,3 +4818,15 @@ Receipt288_normalized_archive_recovery_2026-09-23.json. No baseline/gate
 change. Header metadata checks do not claim a full pixel CRC scan; quarantine
 resolution uses readable coverage of the existing stack inventory or a valid
 same-name archive replacement. API behavior handoff sent to the other lane.
+
+2026-09-23 — TIMEFLOWS CROP-SUPERVISION REGRESSION VERIFIED
+426 reproduced six training failures at the actual loss boundary: cropped
+successors became false deaths and partial masks biased temporal targets.
+Ten new checks cover the correction, retry/exhaustion without parameter
+updates, padded masks and preservation of contiguous source views. Combined
+Timeflows cohort: 146 pass in 28.42 seconds. timeflows_model covers 360/361
+statements and 90/92 branches, 99.34 percent combined, retaining the existing
+1-line/2-branch gap. No baseline/floor/exemption change. The real-data audit
+covers 576 windows from 36 pairs, with checkpoint and input hashes preserved.
+Receipt426_training_crop_supervision_2026-09-23.json. No pretrained accuracy,
+GPU training or full-tree green-CI claim.

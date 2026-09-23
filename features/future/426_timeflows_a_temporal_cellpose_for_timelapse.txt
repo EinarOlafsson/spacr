@@ -538,3 +538,45 @@ and segmentation/whole-movie stable-ID/division/gap integration. The 426goal
 remains open. Receipt426_timeflows_v1_stratified_sim_evaluation_2026-09-23.json
 contains full stratified summaries, per-gap/per-pair results, hashes, all
 input paths, exclusions, execution evidence and explicit limits.
+
+2026-09-23 — CROPPED TRAINING TARGETS NO LONGER INVENT DISAPPEARANCES
+Six loss-boundary regressions reproduced a second training defect. Targets
+were built after the shared crop: an existing successor outside that crop
+became a false disappearance; cut source/target masks distorted diameter or
+centroid targets. New _training_window compares full/cropped mask areas and
+censors source supervision for partial sources or partial/outside successors.
+Images and target masks remain intact. Absences in the supplied full-frame
+labels remain supervised; this does not establish those labels as truth.
+
+Training retries crops without usable source supervision, with a limit of
+32 attempts per step. Exhaustion raises before any optimizer update for that
+step, rather than treating empty supervision as successful learning. Both
+head-only and full-network stages use this path. Existing raw random_window
+and time_targets APIs/signatures are unchanged. Checkpoint metadata now
+records window_supervision policy, tile size, attempt limit and full-frame
+absence handling. The old v1 checkpoint/metadata are NOT rewritten.
+
+Real audit: 36 evenly selected pairs from both sequences of all six recorded
+v1 training datasets, 16 deterministic crops per pair, 576 windows total.
+9850 source-object occurrences included 77 false disappearances, 2060 partial
+sources and 1969 partial targets; categories overlap. The union is 2155
+censored occurrences, leaving 7695 retained and 121 retained full-frame
+absences. 428 windows are affected and 74 have no usable objects after
+censoring. Every sampled image, target mask, input pair array and original
+checkpoint is unchanged. CPU audit completed in 36.79 seconds under 6 GiB.
+
+146 checks pass in 28.42 seconds, including 10 new tests of both training
+stages, bounded retries, unchanged parameters on exhaustion, padded images,
+true absences, correct surviving targets and contiguous input-view safety.
+Model coverage is 360/361 statements and 90/92 branches (99.34 percent
+combined); missing counts stay 1/2, without baseline/gate changes. Receipt:
+data/426_training_crop_supervision_2026-09-23.json includes per-window counts,
+pair hashes, checkpoint hash, audit source and execution/coverage evidence.
+
+Censoring removes examples beyond the fixed tile; it does not solve that
+receptive-field limitation and can change the effective motion distribution.
+Repeated windows are not independent biological replicates. Full-mask/TRA
+assignment quality remains a separate concern. These are supervision checks,
+not a revised checkpoint or model-accuracy result. Corrected training,
+segmentation pretraining, real held-out evaluation and whole-movie integration
+remain open; v1 remains unpromoted.

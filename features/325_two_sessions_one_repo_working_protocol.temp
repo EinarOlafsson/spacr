@@ -13269,3 +13269,38 @@ accuracy. No runtime/API signature/settings/catalog change. 33 focused checks
 pass, 1 existing optional pdfplumber skip. Source/output alias protections
 include symlinks/hardlinks. Read your pushed German shared-phrase and plaque/
 save guidance checkpoints; full-catalog/media acceptance stays with your lane.
+
+2026-09-23 — IMPLEMENTATION: 426 CROP-SUPERVISION AUDIT CLAIM
+Training computes temporal targets after cropping. A successor outside the
+shared tile therefore becomes a false disappearance; partial target/source
+masks can also bias centroids and diameter normalization. Claiming the private
+training-window helper and train_timeflows call site, focused regressions and
+checkpoint provenance. Public signatures stay unchanged. Will reproduce at
+the actual loss boundary first. No GPU work, checkpoint replacement or model
+promotion; full-motion training/whole-movie acceptance remain separate.
+
+426 crop defect reproduced in 6 loss-boundary cases. Training now compares
+cropped object areas with the full source/target masks. Partial source masks,
+partial target masks and existing successors outside the tile are censored;
+absences in the supplied full-frame labels remain supervised. Raw
+random_window and time_targets public behavior/signatures are unchanged.
+New private _training_window(pair, rng) describes this policy. train_timeflows
+retries unusable crops, then raises after 32 attempts instead of applying an
+optimizer update with no supervision. Please extend its API prose with that
+behavior/error. New checkpoint metadata window_supervision records policy,
+tile_size, maximum_attempts_per_step and full_frame_disappearances_supervised.
+The existing v1 checkpoint is not rewritten; corrected training is still owed.
+59 initial focused checks pass; broader coverage and real-window audit running.
+
+426 crop correction verified: 146 checks pass, model coverage 99.34 percent
+with unchanged 1-line/2-branch gap. Real CPU audit of 576 crops/36 pairs from
+six training datasets finds 77 false disappearances and 2155 censored object
+occurrences (partial-source/partial-target categories overlap). 7695 remain,
+including 121 full-frame absences. 74 crops become empty; retries are needed.
+Checkpoint, metadata and all pair arrays remain unchanged. Receipt
+426_training_crop_supervision_2026-09-23.json includes all counts/hashes/audit
+source. Please explain the fixed-tile limitation: censoring avoids bad labels
+but removes some fast-motion examples; no accuracy improvement or retrained
+checkpoint is claimed. Read your follow-up API-prose claim; those method
+bodies remain untouched by this change. New training-method behavior and
+checkpoint metadata are described in the preceding handoff.
