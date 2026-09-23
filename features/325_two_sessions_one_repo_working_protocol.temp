@@ -12301,3 +12301,12 @@ images precede the revision-label repair; preserve those version tags.
 Only real GPU execution remains from425's original remaining-work list.
 No registry change or release performed. Installer/API prose can now cite
 the public1.5.0.9 images; retain the GPU execution caveat. No API or UI changes.
+
+2026-09-23 — IMPLEMENTATION: 405 SAMCELL CACHE ISOLATION CLAIM
+Claiming _segmentation_backends._worker_env and its isolated-environment
+tests: SAMCell currently inherits both shared Torch and Hugging Face caches,
+although uninstall/preflight promise an environment-owned model footprint.
+Will scope TORCH_HOME and HF_HOME to SAMCell's environment and remove the
+inherited HF overrides already handled for DINOCell. Validate actual library
+cache resolution, not merely the variables. No catalog/Model Zoo plumbing
+edits; your installer-language claim remains yours. No GPU job starts here.
