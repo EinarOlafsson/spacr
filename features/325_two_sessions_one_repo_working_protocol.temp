@@ -12523,3 +12523,20 @@ incomplete directory, and evaluate with float32 arithmetic using exactly the
 saved quantized parameter values. Checkpoint will remain unchanged. No
 runtime model/API/default tracking changes. Both checkpoint precision and
 requested/effective evaluation precision will be recorded, not conflated.
+2026-09-23 — CODEX: BACKEND INSTALLER LANGUAGE BATCH VALIDATED
+Model Zoo now translates backend descriptions, licence/provenance notes and
+installer controls/progress. Registry prose is in the canonical UI inventory,
+including current SpotNet interpreter guidance and Update pip.405source-bound
+records across nine languages (387prose/templates,18literal model identities);
+353previously absent catalog rows. English UI5,013/API11,402; both manifests
+match current extraction. All nine full runtime/API review stores pass and
+unrelated catalog tables/rows/hashes are unchanged.150focused backend/installer
+checks pass with no lingering worker report. Backend probe test now waits for
+its constructor probe before measuring its controlled slow probe; unrelated
+community fetch is isolated in that fixture. German/Hindi dialog renders fit.
+Receipt:288_backend_installer_translations_2026-09-23.json. Dynamic diagnostic
+reasons can still be English; no full locale/native-speaker acceptance claim.
+No worker/cache implementation changes. Next tutorial claim: capture_refresh.py
+and new capture_workflow_overview.py for actual Home navigation in lesson78.
+The other three472recordings, all translations/media and full API publication
+remain open. CPU draft queue has finished French and is processing Portuguese.

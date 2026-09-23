@@ -274,7 +274,7 @@ _IDENTITY_TEXT = {
     "ER", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
-    "NaN", "PDF", "SAMCell",
+    "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -4201,6 +4201,16 @@ def canonical_sources() -> dict[str, object]:
             if actual != generic:
                 labels[f"{app_key}.{key}"] = actual
     ui_sources = set(extract_static_ui_sources())
+    # Backend prose lives outside spacr/qt and reaches the install dialog
+    # and model card through registry fields, not literal widget arguments.
+    from spacr._segmentation_backends import _SPECS as backend_specs
+
+    for spec in backend_specs.values():
+        ui_sources.update(value for value in
+                          (spec.blurb, spec.licence_note, spec.published)
+                          if value.strip())
+        if _looks_translatable(spec.label):
+            ui_sources.add(spec.label)
     ui_sources.update(_GENE_TILE_UI_SOURCES)
     ui_sources.update(_SETTINGS_MODEL_UI_SOURCES)
     # THE REGRESSION-MODEL MENU, which is composed at run time from

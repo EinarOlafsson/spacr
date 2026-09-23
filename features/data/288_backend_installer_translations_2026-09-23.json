@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "source_base_commit": "3b7dcf4fa0c2383ec26689c7f17bf7827339b7de",
+  "files_sha256": {
+    "spacr/qt/widgets/model_zoo_picker.py": "e5fb097000b1f8919f4b391ed76d3c637bf8f8a802afc1ea1b63a34ce40388a4",
+    "tools/build_i18n_catalogs.py": "3becbbf72c1f53dab7303d237d4c3dd4d52fc900162cbb0f834f24805b3439e1",
+    "spacr/qt/i18n_catalogs/en.py": "8ddefd9f48bfdf13d6a4ce98e6208401a069991eb36870c84c46825561163efe",
+    "tests/qt/test_backend_install_translations.py": "056d5315b05ab564b3a6af0aa290088284958ef3b61fab8ff4af15a607591254",
+    "tests/qt/test_a_backend_installs_into_its_own_environment.py": "8d45fff6b0e7bffe40e26184f39f509cc0fb78c4a166d13fea922eff855e18d2",
+    "spacr/qt/i18n_catalogs/de.py": "40823d35f10ed552c0007c15d5b09b898ee083e5c0dd6e55cdaefe1ad943fa6a",
+    "docs/i18n/reviewed/runtime/de/2026-09-23-backend-installer.json": "f147aa1948d3931e024fb8bce192ec78796b61fd94b212877ff6f8c06b0ce296",
+    "spacr/qt/i18n_catalogs/es.py": "910324f1c813cb0aa30909f23a840038eff2972ac220084ea5f9750b214f6cc1",
+    "docs/i18n/reviewed/runtime/es/2026-09-23-backend-installer.json": "7ae31ff72159c391652f779e76a1d7b04a7bb6b5a34b54d53924169eeafea1e0",
+    "spacr/qt/i18n_catalogs/fr.py": "19bb94ad8008ad810194c1dc3ee157fe3af6b4016e050652057088483c11040e",
+    "docs/i18n/reviewed/runtime/fr/2026-09-23-backend-installer.json": "a154838e88a83046e261e43cf3389af057ab85be41f1b5cded2efd5a121e684c",
+    "spacr/qt/i18n_catalogs/hi.py": "3ef9b55064648fd99a22231acf610de689ccb033f5b70f0b626035d49031fa76",
+    "docs/i18n/reviewed/runtime/hi/2026-09-23-backend-installer.json": "903267092bf1629f53dbff79a4896abb3355e61cd95153eee8a02a33f92c388f",
+    "spacr/qt/i18n_catalogs/is.py": "0d950050064454bcdea7f35acb8a138672cda462270a29e292c84750d29779b9",
+    "docs/i18n/reviewed/runtime/is/2026-09-23-backend-installer.json": "966bb9f30879d1bff3842508340aeb8d3e85e39621b5db61f68868c16f7d24a4",
+    "spacr/qt/i18n_catalogs/ko.py": "4b90325fe6ab45271706ee0f18bc0b945b21bdf77cf05b464e99aba655a7ee5f",
+    "docs/i18n/reviewed/runtime/ko/2026-09-23-backend-installer.json": "74321f8d9dc0198bd9423602b0fdd5b754c0f791e3a9c22566fbfdafd32bdd90",
+    "spacr/qt/i18n_catalogs/pt.py": "25fe26755d6de9035d761871c01baa4134f24816a39e3dcfd0e7ea3e4d1f1f3c",
+    "docs/i18n/reviewed/runtime/pt/2026-09-23-backend-installer.json": "c8940df1c0630069bf8b6b6a14b2c96edb6e9f9055fceaa8d5579e064b898c33",
+    "spacr/qt/i18n_catalogs/sv.py": "3e40eba2a977a429573ebf7ddb504f9cbf605bc0e7e0495db7c43b617a59eddf",
+    "docs/i18n/reviewed/runtime/sv/2026-09-23-backend-installer.json": "67ff63ebd969686783da0092a853e9f1af9b553dc594ea109a4e01489de99986",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "763e67a46f21a9959fa1bbac544bcd3598836f8a1936bbc09b401d359d36b604",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-backend-installer.json": "884263e2751d273b0268e99e9cc8bf6b0b06ef200dc566eb33db2f55fa4f82cf"
+  },
+  "inventory": {
+    "ui_sources": 5013,
+    "api_symbols": 11402,
+    "added_ui_sources": 37,
+    "removed_ui_sources": 0
+  },
+  "translations": {
+    "review_records": 405,
+    "languages": [
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "sv",
+        "new_catalog_rows": 37,
+        "review_records": 45,
+        "unchanged_existing_rows": 8
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "de",
+        "new_catalog_rows": 37,
+        "review_records": 45,
+        "unchanged_existing_rows": 8
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "es",
+        "new_catalog_rows": 37,
+        "review_records": 45,
+        "unchanged_existing_rows": 8
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "zh_CN",
+        "new_catalog_rows": 37,
+        "review_records": 45,
+        "unchanged_existing_rows": 8
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "pt",
+        "new_catalog_rows": 37,
+        "review_records": 45,
+        "unchanged_existing_rows": 8
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "hi",
+        "new_catalog_rows": 44,
+        "review_records": 45,
+        "unchanged_existing_rows": 1
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "ko",
+        "new_catalog_rows": 43,
+        "review_records": 45,
+        "unchanged_existing_rows": 2
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "is",
+        "new_catalog_rows": 44,
+        "review_records": 45,
+        "unchanged_existing_rows": 1
+      },
+      {
+        "changed_existing_rows": 0,
+        "full_review_loader": true,
+        "language": "fr",
+        "new_catalog_rows": 37,
+        "review_records": 45,
+        "unchanged_existing_rows": 8
+      }
+    ],
+    "model_name_identity_records": 18,
+    "prose_or_template_records": 387
+  },
+  "validation": {
+    "english_manifests_current": true,
+    "unrelated_catalog_tables_preserved": true,
+    "all_runtime_and_api_review_stores_valid": true,
+    "full_locale_acceptance": false,
+    "native_speaker_signoff": false,
+    "focused_tests_passed": 150,
+    "lingering_workers": 0,
+    "render_review": "German and Hindi SpotNet dialogs visually checked at 720 by 820; notices and controls fit. Raw backend diagnostics can still remain English."
+  },
+  "renders": [
+    {
+      "language": "de",
+      "width": 720,
+      "height": 820,
+      "minimum_width": 220,
+      "minimum_height": 206,
+      "image": "/mnt/firecuda2/codex/workflow-authoring-20260922/backend-installer-de.png"
+    },
+    {
+      "language": "hi",
+      "width": 720,
+      "height": 820,
+      "minimum_width": 179,
+      "minimum_height": 212,
+      "image": "/mnt/firecuda2/codex/workflow-authoring-20260922/backend-installer-hi.png"
+    }
+  ],
+  "log_sha256": {
+    "backend-language-verified-tests.log": "0f0d8f0d1ebde7261a9422b5b92ac7b159dfffbf7d0abdd67328bff04fb3ba10",
+    "backend-language-verification.log": "d7af0b1967cc034a8ccb4f9f1c1fb2973e559717f583e2c2b05f4f5f5810f618",
+    "backend-installer-renders.log": "c4431b3a55c8994ced372e0fd81a1e50682388d5a3e1170ef9a4722f0f4df5ce"
+  }
+}
