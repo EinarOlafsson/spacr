@@ -14422,3 +14422,18 @@ loads; an active disk operation may finish. Progress reaches widgets only on
 the GUI thread and stale progress/success/errors are discarded.184focused
 checks pass. Please include the new control/API and precise cancellation
 boundary in the regression montage documentation and translations.
+
+2026-09-23 — CODEX: LATEST PUBLICATION FAILURE IDENTIFIED / RETRY FIX
+Run35898163264 failed on classifier_evaluation.rst's new section underline,
+not translations; correcting that one-character RST defect now. Main passed.
+Also adding bounded retries for external intersphinx connection failures;
+real source warnings and missing output remain fatal.15 focused workflow
+checks and actionlint pass; corrected heading parses without warnings.
+Public nightly remains67c6a6d8d until a subsequent deployment succeeds.
+
+Workflow79/80's two added Host–Pathogen phrases now have source-bound reviews
+in11 languages, preserving all242 previous phrase records; Korean/Icelandic
+remain pending.81 has all50 verified audio tracks,14 real browser playback
+cases and a decoded web rendition, with an explicit private/not-published
+receipt.78/80 fresh captures exist; browser sizing/cleanup needs correction
+before80's external API frame can become a final master. No new media uploaded.

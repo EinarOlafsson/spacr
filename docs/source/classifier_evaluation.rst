@@ -20,7 +20,7 @@ The workbench shows:
 * an explicit leakage report for every outer and inner split.
 
 Crop decoding and existing models
---------------------------------
+---------------------------------
 
 Image classifiers must see the same channel order and intensity conversion
 during training and prediction. New training runs use

@@ -112,13 +112,23 @@ jobs:
           rm -rf docs/_build docs/source/api
           tools/run_capped.sh 2G python .publisher/tools/publish_docs_channels.py configure
           source_version=$(tools/run_capped.sh 2G python .publisher/tools/publish_docs_channels.py version)
-          set +e
-          GITHUB_REF_NAME="$DOCS_BRANCH" sphinx-build -W -E -b html --keep-going \
-            -D "release=$source_version" -D "version=$source_version" \
-            -D "html_title=spaCR $source_version documentation" \
-            docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
-          rc=${PIPESTATUS[0]}
-          set -e
+          for attempt in 1 2 3; do
+            set +e
+            GITHUB_REF_NAME="$DOCS_BRANCH" sphinx-build -W -E -b html --keep-going \
+              -D "release=$source_version" -D "version=$source_version" \
+              -D "html_title=spaCR $source_version documentation" \
+              docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
+            rc=${PIPESTATUS[0]}
+            set -e
+            if [ "$rc" -eq 0 ] || [ "$attempt" -eq 3 ]; then
+              break
+            fi
+            if ! grep -Eq '^WARNING: failed to reach any of the inventories|intersphinx inventory .*not fetchable' /tmp/sphinx.log; then
+              break
+            fi
+            echo "Retrying failed external API inventory fetch (attempt $attempt of 3)."
+            cp /tmp/sphinx.log "/tmp/sphinx-inventory-attempt-$attempt.log"
+          done
           echo "sphinx-build exit=$rc"
           if [ ! -f docs/_build/html/index.html ]; then
             echo "FATAL: no index.html produced"
