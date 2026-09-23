@@ -14437,3 +14437,18 @@ remain pending.81 has all50 verified audio tracks,14 real browser playback
 cases and a decoded web rendition, with an explicit private/not-published
 receipt.78/80 fresh captures exist; browser sizing/cleanup needs correction
 before80's external API frame can become a final master. No new media uploaded.
+2026-09-23 — ISSUE7 THRESHOLD-FILTERED ANNOTATION GAP
+Taking annotate_engine.fetch_filtered_paths and its regression tests. Normal
+page/count/skip filtering understands NOT/AND/OR, but the measurement-threshold
+path still uses pandas regex substring filtering and can choose a different
+population. Reuse the same bound SQLite predicate there, with read-only access.
+
+2026-09-23 — ISSUE7 VERIFIED / HOST–PATHOGEN DATA REVISION REQUEST
+151annotation/filter/measurement-writer checks pass. The threshold route now
+matches ordinary browsing's NOT/AND/OR, parentheses and SQLite LIKE behavior.
+User rejects the synthetic Host–Pathogen example as the product's test data.
+Taking real cross-channel training data with host-cell and parasite/vacuole
+masks, generating real measurements and replacing the Load test data wiring.
+Also moving Live to the bottom with the other previews' button styling.
+Please pause synthetic-example promotion in tutorials; new data contract and
+provenance to follow. Synthetic unit-test fixtures remain useful internally.
