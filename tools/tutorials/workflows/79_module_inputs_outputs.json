@@ -1910,19 +1910,12 @@
     },
     "optical_screen": {
       "title": "An optical pooled screen",
-      "home_app": "align",
+      "home_app": "mask",
       "steps": [
-        {
-          "module": "align",
-          "action": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
-          "after": []
-        },
         {
           "module": "ops",
           "action": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
-          "after": [
-            "align"
-          ]
+          "after": []
         },
         {
           "module": "regression",
@@ -1932,7 +1925,7 @@
           ]
         }
       ],
-      "note": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
+      "note": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
     },
     "import_images": {
       "title": "Import existing data",

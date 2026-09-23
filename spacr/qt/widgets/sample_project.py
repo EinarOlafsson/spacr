@@ -97,12 +97,15 @@ def start_example(screen) -> str:
     """Load the example data of the module ``screen`` shows.
 
     Each module already knows how to fetch its own example -- Annotate asks
-    which half it needs, the rest share the "Load test data…" button -- so
-    this calls what the module has rather than a second downloader.
+    which half it needs and OPS has its sequencing-cycle sample -- so this
+    calls what the module has rather than a second downloader.
 
     :param screen: the module screen just opened.
     :returns: what was started: ``"chooser"``, ``"test data"`` or ``""``.
     """
+    if getattr(screen, "app_key", None) == "ops":
+        screen.load_the_ops_example()
+        return "test data"
     chooser = getattr(screen, "_choose_the_test_data", None)
     if callable(chooser):
         chooser()
@@ -194,7 +197,7 @@ class SampleProjectDialog(QDialog):
         entry = self.selected()
         super().accept()
         if entry and entry.get("modules"):
-            self.chosen.emit(str(entry.get("home_app") or entry["modules"][0]))
+            self.chosen.emit(str(entry["modules"][0]))
 
 
 def _offer_pathway_walkthrough(window, entry) -> None:
@@ -244,7 +247,7 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
     keys = list(entry.get("modules") or ())
     if not keys:
         return ""
-    key = entry.get("home_app") or keys[0]
+    key = keys[0]
     screen = opener(key)
     if screen is not None:
         _offer_pathway_walkthrough(window, entry)

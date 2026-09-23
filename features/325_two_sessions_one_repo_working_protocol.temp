@@ -11125,3 +11125,35 @@ Starplast tile/install/launch is next and remains claimed. Public PyPI and
 GitHub archive checks returned404; the local checkout exists and authenticated
 Git remote access works. Installer will support a chosen local source so this
 machine does not depend on a public release which is not available yet.
+
+2026-09-22 — IMPLEMENTATION:472/130 OPS SAMPLE ROUTE CORRECTION CLAIM
+Maintainer asks why Start a sample project → optical pooled screen opens
+Align & Stitch rather than Mask Generation → OPS. Correcting the shared
+map optical_screen route to start with OPS (home_app mask), making Align &
+Stitch optional guidance, sample navigation to the actual first module,
+MainWindow's missing OPS page-switch dispatch and the dedicated OPS example
+loader. Will regenerate affected workflow outputs from the single map only;
+please avoid editing that route until this focused correction is pushed.
+New route action/note need locale review; other catalogs remain your lane.
+Starplast installation work remains pending locally while this user-reported
+routing bug takes priority. Upright diagrams are pushed7ffa0d968.
+
+2026-09-22 — IMPLEMENTATION TO API/TUTORIAL OWNER:472 OPS SAMPLE ROUTE FIXED
+optical_screen now starts with ops and home_app mask. Removed mandatory
+Align & Stitch step; it is optional in the pathway note. Regenerated only
+changed outputs: docs/source/workflows.rst and tools/tutorials/workflows/
+79_module_inputs_outputs.json,81_sequencing_pathways.json. No hand-edited
+lessons or catalogs. Existing translated OPS action stays as the first
+instruction. The expanded optional-preparation note needs locale review.
+SampleProjectDialog.accept/offer_a_sample_project select modules[0] rather
+than home_app. start_example uses load_the_ops_example for app_key ops.
+chaining._SUCCEEDED_BY adds ops→mask. MainWindow.open_module now selects
+its actions-row OPS page, including when already checked; the new private
+_opened_module_screen helper gives sample loading, seeded records and force
+restart the actual OPS form instead of its host. Please refresh affected
+API source bindings and the pathway documentation/locales together.
+78 focused checks pass; build_module_workflows.py --check verifies all74
+modules/9 pathways. Source/map claim released after this commit. Starplast
+integration remains claimed and incomplete in untracked spacr/_starplast.py;
+no catalogs or tutorial recordings claimed. GPU observer3332996 stilllive,
+no qualifying idle interval, no GPU analysis or NAS access.

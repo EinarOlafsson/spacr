@@ -2495,6 +2495,17 @@ def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
                     exc_info=True)
 
 
+def _opened_module_screen(window, requested: str, host: str):
+    """Return the requested form, including OPS inside its Mask Generation host."""
+    screen = getattr(window, "_screens", {}).get(host)
+    if requested == "ops" and screen is not None:
+        from .screens.mask import ops_page
+
+        installed = ops_page(screen)
+        return installed.page if installed else None
+    return screen
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -4434,8 +4445,9 @@ class MainWindow(QMainWindow):
         if not key:
             return ""
         try:
+            requested = key
             key = self.open_module(key)
-            screen = self._screens.get(key) if hasattr(self, "_screens") else None
+            screen = _opened_module_screen(self, requested, key)
             settings = state.get("settings")
             if screen is not None and isinstance(settings, dict) and settings:
                 applied = screen.apply_settings_dict(settings)
@@ -4476,13 +4488,24 @@ class MainWindow(QMainWindow):
     def _switch_a_fold_on(self, host_key: str, folded_key: str) -> None:
         """Press ``host_key``'s switch for ``folded_key``, if it has one.
 
-        Driven through the button so the strip shows the state the form
-        has. A host that carries no switch for the key costs a lookup:
-        the fold may be a page rather than a category, and a page opens
-        when the user presses it rather than on arrival.
+        Driven through the button so the control shows the state the form
+        has. OPS uses its actions-row switch; category folds use the masthead
+        strip. A host without a corresponding switch is left unchanged.
         """
         screen = self._screens.get(host_key)
         if screen is None:
+            return
+        if host_key == "mask" and folded_key == "ops":
+            switch = getattr(screen, "_ops_switch", None)
+            if switch is not None:
+                if switch.isChecked():
+                    from .screens.mask import ops_page
+
+                    installed = ops_page(screen)
+                    if installed is not None:
+                        installed.set_shown(True)
+                else:
+                    switch.setChecked(True)
             return
         try:
             from .screens.mask import fold_set
@@ -4782,9 +4805,9 @@ class MainWindow(QMainWindow):
         from .widgets.sample_project import offer_a_sample_project
 
         def open_it(key):
-            """Navigate to ``key`` and hand back the screen that was built."""
-            self._on_nav_selected(key)
-            return self._screens.get(key)
+            """Open the actual module, including its page inside a host screen."""
+            host = self.open_module(key)
+            return _opened_module_screen(self, key, host)
 
         return offer_a_sample_project(self, open_it)
 
@@ -5586,8 +5609,9 @@ class MainWindow(QMainWindow):
         saved before the fold reopens on Mask Generation with tracking
         switched on, which is where its settings now live.
         """
+        requested = target_key
         target_key = self.open_module(target_key)
-        widget = self._screens.get(target_key)
+        widget = _opened_module_screen(self, requested, target_key)
         if widget is None:
             return
         seeder = getattr(widget, "apply_seed", None)

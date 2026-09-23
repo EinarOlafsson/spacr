@@ -972,6 +972,7 @@ _SUCCEEDED_BY = {
     "classify": "classify_merged",
     "ml_analyze": "classify_merged",
     "timelapse": "mask",
+    "ops": "mask",
 }
 
 

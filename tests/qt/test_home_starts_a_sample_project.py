@@ -80,8 +80,8 @@ def test_each_sample_keeps_its_home_walkthrough_one_click_away(qtbot, monkeypatc
             return QDialog.Accepted
 
         monkeypatch.setattr(sp.SampleProjectDialog, "exec", choose)
-        assert sp.offer_a_sample_project(window, lambda key: navigated.append(key) or screen) == entry["home_app"]
-        assert navigated[-1] == entry["home_app"]
+        assert sp.offer_a_sample_project(window, lambda key: navigated.append(key) or screen) == entry["modules"][0]
+        assert navigated[-1] == entry["modules"][0]
         assert started[-1] is screen
         button = window._sample_pathway_button
         assert button.property("workflowPathway") == entry["id"]
@@ -93,6 +93,79 @@ def test_each_sample_keeps_its_home_walkthrough_one_click_away(qtbot, monkeypatc
         assert navigated[-1] == entry["home_app"]
         window._pathway_overlay._skip()
     assert len(window.findChildren(type(button), "SamplePathwayWalkthrough")) == 1
+
+
+def test_ops_sample_opens_mask_ops_page_and_loads_its_own_example(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QDialog
+    from spacr.qt.app import MainWindow
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.screens.mask import ops_page
+    from spacr.qt.widgets import sample_project as sp
+
+    loaded = []
+    monkeypatch.setattr(AppScreen, "load_the_ops_example", lambda self: loaded.append(self))
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.show()
+
+    def choose(dialog):
+        index = next(i for i, entry in enumerate(dialog._entries) if entry["id"] == "optical_screen")
+        dialog.list.setCurrentRow(index)
+        assert "Align" not in dialog.steps.text()
+        dialog.accept()
+        return QDialog.Accepted
+
+    monkeypatch.setattr(sp.SampleProjectDialog, "exec", choose)
+    assert window._start_a_sample_project() == "ops"
+    host = window._screens["mask"]
+    page = ops_page(host).page
+    assert host._ops_switch.isChecked()
+    assert page is not None and page.app_key == "ops"
+    qtbot.waitUntil(page.isVisible)
+    assert loaded == [page]
+    assert "align" not in window._screens
+    assert "ops" not in window._screens
+    assert window._sample_pathway_button.property("workflowPathway") == "optical_screen"
+    host._fold_pages.setCurrentIndex(0)
+    window._start_a_sample_project()
+    assert loaded == [page, page]
+    assert ops_page(host).page is page
+    assert host._fold_pages.currentWidget() is page
+
+
+def test_saved_ops_settings_return_to_the_ops_form_not_its_mask_host(qtbot, monkeypatch, tmp_path):
+    from spacr import restart_state
+    from spacr.qt.app import MainWindow
+    from spacr.qt.screens.mask import ops_page
+
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path))
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.show()
+    seed = {"genotype_source": str(tmp_path / "cycles")}
+    window._on_train_requested("ops", seed)
+    page = ops_page(window._screens["mask"]).page
+    assert page._settings_model.collect()["genotype_source"] == seed["genotype_source"]
+    seed["genotype_source"] = str(tmp_path / "resumed-cycles")
+    restart_state.save(module="ops", settings=seed)
+    assert window.resume_after_restart() == "mask"
+    assert page._settings_model.collect()["genotype_source"] == seed["genotype_source"]
+
+
+def test_ops_sample_does_not_offer_generic_measurement_crops():
+    from types import SimpleNamespace
+    from spacr.qt.widgets.sample_project import start_example
+
+    calls = []
+    page = SimpleNamespace(app_key="ops", _test_data_apply=object(),
+                           load_the_ops_example=lambda: calls.append("ops"),
+                           _choose_the_test_data=lambda: calls.append("wrong"))
+    assert start_example(page) == "test data"
+    assert calls == ["ops"]
 
 
 def test_walkthrough_button_fits_a_status_bar_created_before_font_scaling(qtbot):

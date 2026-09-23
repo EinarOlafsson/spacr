@@ -268,3 +268,31 @@ folded-module list. New SVG-derived tiles were visually inspected and their
 opacity is covered by a regression.71 distinct README/grid checks pass.
 Recording, further tutorial languages, narration review and final media
 acceptance are still open. This entry does not claim tutorial publication.
+
+2026-09-22 — MAINTAINER CORRECTION: THE OPS SAMPLE STARTS ON MASK → OPS
+--------------------------------------------------------------------------------
+The maintainer correctly queried why Start a sample project → An optical
+pooled screen opened Align & Stitch rather than Mask Generation's OPS tab.
+The shared optical_screen pathway now starts with OPS, home_app mask, and
+lists Align & Stitch only as optional preparation. Original sequencing cycles
+remain required; the explicit identity join/aggregation before Regression
+remains documented. The existing translated OPS action is retained.
+
+SampleProjectDialog and offer_a_sample_project now use the first actual
+module, rather than just its Home host. MainWindow resolves OPS to Mask,
+selects the actions-row OPS page, and passes that form to the OPS example
+loader. Reopening the example reuses and selects the same page, even after
+switching to Mask's own tab. Saved OPS settings and seeded run records also
+target the OPS form, so adding the host mapping cannot apply them to Mask.
+No standalone OPS screen or Align screen is created by the sample route.
+
+Generated workflows.rst and the79/81 workflow contracts were regenerated
+from the shared JSON; all74 modules and9 pathways pass the generator check.
+78 focused tests pass, including real MainWindow navigation and reopening,
+OPS example settings and engine indexing of an eleven-cycle synthetic
+sample, saved OPS state, the nine-language existing pathway captions and
+chaining/restart regression checks. The old OPS placement test was updated
+for the maintainer's September22 move of Live onto the preview card: OPS
+remains next to Time in Actions. New optional-preparation note translation
+and API source-binding refresh are handed to the other Codex lane.
+No analysis, GPU job, example download or NAS access was performed.

@@ -12,6 +12,17 @@ def test_all_live_routes_and_existing_io_contracts_are_mapped():
     workflow.validate(workflow.load())
 
 
+def test_optical_sample_starts_in_mask_ops_without_mandatory_generic_alignment():
+    data = workflow.load()
+    route = data["pathways"]["optical_screen"]
+    assert route["home_app"] == "mask"
+    assert route["steps"][0]["module"] == "ops"
+    assert route["steps"][0]["after"] == []
+    assert all(step["module"] != "align" for step in route["steps"])
+    assert "Align & Stitch is optional" in route["note"]
+    assert "cannot replace the sequencing cycles" in route["note"]
+
+
 @pytest.mark.parametrize("mutation,match", [
     ("port", "declared input/output ports drift"),
     ("name", "display name drift"),
