@@ -1565,3 +1565,11 @@ Receipt: data/284_requested_icon_fonts_2026-09-23.json contains both complete
 navigation cohorts, all isolated samples, source hashes and probe sources.
 This establishes less icon setup work, not a reliable whole-navigation speed
 gain or cross-platform acceptance. The 500 ms open/stall target remains OPEN.
+
+2026-09-23 — RELEASE WHEEL RELAUNCH DIAGNOSTIC, NOT PERFORMANCE ACCEPTANCE
+The actual1.5.1.0candidate wheel restarted into a new process, reached Home and
+opened49/49registered modules in an offscreen private-home run. Its full raw
+benchmark is retained in data/487_candidate_update_relaunch_2026-09-23.json.
+Twenty intervals report the500msstall ceiling breached; worst1878.96ms. This
+was a single capped CPU relaunch check on the shared host, not the paired native
+release-performance protocol.284remains OPEN; no timing gate/baseline changed.

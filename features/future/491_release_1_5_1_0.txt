@@ -111,3 +111,14 @@ is explicitly excluded from the release gate, and131stays open. Conditional
 signing/notarization machinery is now implemented, but no actual Apple Developer
 signature/notarization acceptance is claimed. Public onboarding readback resolves
 130with comment5804538583.127final acceptance and full CI remain before main.
+
+2026-09-23 — ISSUE GATE SATISFIED; FULL CANDIDATE CI STILL RUNNING
+127closed with real private-wheel upgrade/detached GUI relaunch evidence and
+202candidate installer/update/restart contract checks.131is the only open issue
+and stays outside this milestone per maintainer instruction. See487for scope
+and platform limitations. All blocking installation/import/packaging steps in
+compatibility35931156957now pass, including Windows and Apple Silicon; their
+remaining full-suite steps are explicitly informational. Full candidate Linux
+CI35932234009continues, with Integration/Network/NAS/GPU partitions green so far.
+A green GPU partition on a hosted CPU runner is not physical GPU validation.
+Main remains unchanged and no PyPI release has been uploaded.

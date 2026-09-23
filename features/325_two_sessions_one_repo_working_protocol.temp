@@ -15377,3 +15377,13 @@ comment5804538583. Thank you for the release snapshot; optional tutorial work
 can continue on nightly while this exact candidate validates. New receipts are
 features/data/487_onboarding_public_readback_2026-09-23.json and
 features/data/491_release_candidate_artifacts_2026-09-23.json.
+
+2026-09-23 RELEASE UPDATE: issue127closed in comment5804612067
+Actual candidate updater upgraded private1.5.0.9to1.5.1.0; actual detached Qt
+replacement consumed saved Home state, opened49modules and exited0.202installer/
+update/restart contracts pass. Detailed receipt and probe source are in
+features/data/487_candidate_update_relaunch_2026-09-23.json. Twenty recorded
+startup-stall violations remain on284; no responsiveness pass claimed. Only131
+is open and is explicitly nonblocking. Candidate e498dbecc stays frozen while
+fullCI35932234009runs. New optional tutorials85aeb14bf/d77cf5aeaand German API
+8be4c0240are preserved on nightly and intentionally do not restart candidate CI.

@@ -1,8 +1,9 @@
 487 — GITHUB ISSUE AUDIT AND RESOLUTION
 ======================================
-Status: IN PROGRESS. All103issue bodies and discussions in the2026-09-23snapshot
-have been read; verified fixes and remaining acceptance are recorded below.
-Current open issues:127,131. LATEST MAINTAINER EXCEPTION: pending U-M Apple
+Status: RELEASE ISSUE AUDIT COMPLETE; external signing follow-up remains open.
+All103issue bodies and discussions in the2026-09-23snapshot have been read;
+verified fixes and acceptance limitations are recorded below.
+Current open issue:131. LATEST MAINTAINER EXCEPTION: pending U-M Apple
 Developer access must NOT block1.5.1.0.131stays open as an external follow-up;
 the release can proceed after the remaining practical checks pass. No issue
 is closed without evidence. Pull requests are excluded from this audit.
@@ -358,3 +359,21 @@ issuecomment5804538583, then130was closed. Original unspecified-platform tile
 failure was not independently reproduced. Receipt:
 features/data/487_onboarding_public_readback_2026-09-23.json.
 127remains open for final acceptance;131remains the nonblocking U-M follow-up.
+
+2026-09-23 — ISSUE127 CLOSED; RELEASE AUDIT COMPLETE WITH131EXCEPTION
+The built candidate updater actually upgrades a private1.5.0.9installation to
+1.5.1.0and verifies it in a fresh interpreter. Real Qt success handling saves
+restart state and closes; the production detached launcher starts the actual
+replacement only after loopLevel()==0. The same wheel interpreter launches
+python -m spacr.qt, consumes the saved state, opens all49registered modules,
+and exits0. Process creation is not mocked. This is Linux/offscreen acceptance;
+Windows/macOS full in-place replacement remains a test-coverage limitation.
+202candidate installer cleanup/helper/restart contract checks pass, alongside
+the prior138focused candidate checks and native three-platform clean-install
+checks. Confirmed plaque I/O/overlap defects retain their real CPU receipts;
+no claim to reproduce the unspecified original cropping incident or GPU crash.
+127closed with comment5804612067. Only131remains open, explicitly excluded by
+the maintainer from the1.5.1.0gate. Full release CI remains required by491.
+Receipt: features/data/487_candidate_update_relaunch_2026-09-23.json.
+The same child recorded twenty500ms timing violations, worst1878.96ms. Retained
+for284; this relaunch acceptance does not close the startup-performance item.
