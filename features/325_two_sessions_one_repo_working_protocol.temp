@@ -14635,3 +14635,29 @@ The legend now contains only solid/dashed handoff explanation. Please translate
 the two new strings and refresh applicable media/API screenshots.116cohortchecks
 passed; corrected unrelated stale Settings recipes test to Settings templates,
 then11focused checks pass. Visual renders inspected.
+
+2026-09-23 — CODEX: USER WALKTHROUGH REWRITES / READY WORK
+Learning order landed0f651f706 and is queued for automatic nightly publication.
+OPS76 source now follows the public test-data GUI route, key alignment/decoding
+settings, Run and database/report outputs.09Annotate and41Classify narration
+now teaches loading, controls, saving and next steps; removed authoring/test
+commentary.09's20scenes and41's11scenes are staged against current recordings;
+fresh English narration is rendering on CPU.76 needs a new worked GUI capture.
+All81 source lessons have an automated prose triage register;75 have review
+prompts, which are not automatic rejection decisions.3source rewrites are
+complete, public audio/captions remain unchanged.53incompatible tutorial
+translation reviews are registered, not hidden or made release gates.
+
+494 recorder scripts no longer direct users to Help>Demos or point at the
+missing menu.77focused checks pass; final wording's3regression checks pass.
+English API11483 (+5Starplast update entries,-1retired Demos label), UI5140,
+and Help index refreshed. Exact delta:411_starplast_demos_api_2026-09-23.json.
+English API freshness passes;9incompatible API locales remain report-only.
+
+78 upload reached immutable03fbad4b67cd60d9689b3106bcff4a9103f2eaad,
+but unauthenticated readback hitHTTP429. Readback now uses existing Hub auth,
+honors rate-limit reset and Retry-After, and still rejects bad bytes.3tests
+pass. Resuming against the SAME uploaded commit with4workers; no duplicate
+upload. It will only tag/write its receipt after complete successful readback.
+Later Pages publication must retain0f651f706's learning order: the frozen78
+candidate was built before that change. Do not overwrite the new navigation.
