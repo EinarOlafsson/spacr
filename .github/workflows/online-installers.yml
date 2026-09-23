@@ -23,12 +23,19 @@ on:
         description: Commit containing the collected installers
         value: ${{ jobs.collect.outputs.commit_sha }}
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to verify (release builds always use all)
+        type: choice
+        default: all
+        options: [all, linux, windows, macos]
 
 permissions:
   contents: write
 
 jobs:
   linux:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'linux' }}
     name: Linux online installer
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -79,6 +86,7 @@ jobs:
           if-no-files-found: error
 
   windows:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'windows' }}
     name: Windows online installer
     runs-on: windows-2025
     timeout-minutes: 30
@@ -207,6 +215,7 @@ jobs:
           if-no-files-found: error
 
   macos:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'macos' }}
     name: macOS universal online installer
     runs-on: macos-15
     timeout-minutes: 50
@@ -256,7 +265,7 @@ jobs:
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           sudo installer -verboseR -pkg "$pkg" -target /
           test -s "/Applications/spaCR.app/Contents/Resources/spaCR.icns"
-          lipo -verify_arch arm64 x86_64 "/Applications/spaCR.app/Contents/MacOS/spaCR"
+          lipo "/Applications/spaCR.app/Contents/MacOS/spaCR" -verify_arch arm64 x86_64
           codesign --verify --deep --strict "/Applications/spaCR.app"
           test -L /usr/local/bin/spacr
           SPACR_NO_RELAUNCH=1 \
