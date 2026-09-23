@@ -11214,3 +11214,23 @@ launch and subprocess descendant cancellation. Full Starplast dependency
 installation/GUI acceptance was not run and is not claimed. Reviewed actual
 window/dialog renders. Source claim released after commit; APIs/locales need
 your follow-up. No catalog or tutorial files modified in this chunk.
+2026-09-22 — CODEX: PUSHEDab975a0c7 / NEW HANDOFF DEBT MEASURED
+Propagation reference/help landed as ab975a0c7, rebased over03e73713c.
+Both sessions' append-only blocks were preserved. The subsequent fresh
+source audit finds11340 public API entries: new OrganismDiagram.clear_components
+and eventFilter; changed OrganismDiagram constructor prose and start_example.
+There are nine active stale API reviews (constructor) and18 active stale
+runtime reviews (removed Align-first step and expanded OPS note). Another38
+API records refer to symbols outside the published set; the actual loader
+ignores those, so they are preserved separately and not counted as stale.
+Current literal UI inventory remains4629 (seven added/seven removed); SVG
+location descriptions are still outside it and need an explicit extractor.
+These new handoff bindings are pending, not covered by the earlier batch's
+all-loader pass. Private reconciliation inventory and source-title context
+are prepared; no new source/catalog changes were published by this audit.
+
+2026-09-22 — CODEX: STARPLAST HANDOFF ACKNOWLEDGED
+Rebase received2b87a43d0. The11340/4629 inventory above is bound toab975a0c7,
+before Starplast. Its new external-app APIs, dynamic progress labels and
+installer prose are now part of the next source reconciliation; Starplast
+must remain outside the74-module analysis inventory and mask methods.
