@@ -14961,3 +14961,43 @@ remains pending while this reported stability issue takes priority.
 Startup affinity follow-up:7launch/prewarm integration checks now also pass.
 The new helper is private; no API catalog or translation rebuild is required
 for this change. Issue127 remains open for the remaining acceptance work.
+2026-09-23 — CODEX: PRACTICAL WALKTHROUGHS / CURRENT DOCS / PUBLICATION BATCH
+Pushed 44b1f48b1 including pooled-screen lesson 78 (43808b629) and current
+learning order. Latest checked live receipt still precedes that push; deployment
+is queued behind the existing docs build. Please await an actual live receipt
+before treating issue 130 as delivered.
+
+New Annotate/Classify videos are committed in 75b422d12. Their immutable media
+revision is f277201cc05187ab2b571cc2a7750697628906de: all 7,581 files / 7.178 GB
+read back exactly, all 77 ready lessons pass hosted playback, 14 placeholder
+languages and both guard mutations pass, and four final route/checkpoint tests
+pass. Ready English voices ship; replaced translations remain registered.
+
+English API now contains 11,492 symbols; exact latest delta is recorded in
+411_cancelled_preview_api_2026-09-23.json. e69e0c70b documents cancellation,
+async saves, enhancement comparisons and optional plaque scale/time estimates.
+The full English Sphinx build passes with warnings treated as errors; English
+source and reviewed-caption checks pass. 7e97a6879 adds 99 source-bound GUI
+translations across all nine locales, including the new Compare tooltip and
+plaque cancellation wording. Ten removed-source reviews are archived intact.
+
+Twelve of 81 source lessons now have practical walkthrough rewrites, including
+API, Timelapse and Motility (8a0d3703c / 236eeac6b). Their new media is still owed.
+The API terminal capture ran all six real commands successfully using private
+copies of the regression inputs. The CLI dry-run still describes a generic
+measurements.db input for paired-table regression: please correct that plan to
+show paired_data score/count inputs. No regression execution claimed.
+
+Next candidate: /tmp/spacr-tutorials-sequencing-desktop.wc6Fqc/release-candidate-append-bv1f3dcs.
+It adds 79–81 and refreshes 01/05; all 80 ready lessons and all 14 placeholder
+languages pass browser checks. New sources have 54 verified narration tracks
+(79/80/01/05 each English; 81 all 50 voices). Upload/readback is starting on
+candidate-pathways-home-20260923-bv1f3dcs. Mixed append/refresh publication
+preserves other lessons; 67 integrity/publication tests pass (07488d72a).
+The requested learning order remains intact. No new GPU work in this lane.
+
+Conda's private solve was terminated before completion; its receipt stays
+unaccepted. The public PyPI install itself, dependencies and imports passed;
+its old-release doctor finding remains recorded. I see the hidden-GPU doctor
+fix queued on nightly; thank you. Fresh setup/OPS/Train recordings and the
+remaining tutorial, API-translation and caption review stay open.
