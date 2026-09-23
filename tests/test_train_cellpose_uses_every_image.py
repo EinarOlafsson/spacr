@@ -128,7 +128,7 @@ def test_the_shipped_default_no_longer_throws_away_the_dataset(tmp_path, cp_stub
 
     _write_annotated_fields(tmp_path, 30)
     settings = get_train_cellpose_default_settings({})
-    assert settings["batch_size"] == 8, "default changed; update this test"
+    assert settings["batch_size"] == 1
 
     settings["src"] = str(tmp_path)
     settings["n_epochs"] = 2
@@ -137,7 +137,7 @@ def test_the_shipped_default_no_longer_throws_away_the_dataset(tmp_path, cp_stub
 
     call = cp_stub["train_calls"][0]
     assert len(call["train_data"]) == 30
-    assert call["batch_size"] == 8
+    assert call["batch_size"] == 1
 
 
 @pytest.mark.parametrize("batch_size", [1, 2, 8, 64])
@@ -151,14 +151,14 @@ def test_batch_size_does_not_change_the_training_set(tmp_path, cp_stub, batch_si
     assert call["batch_size"] == batch_size
 
 
-def test_augment_fans_every_field_out_to_eight(tmp_path, cp_stub):
-    """augment=True is 8x the WHOLE set, not 8x ``batch_size`` images."""
+def test_legacy_augment_does_not_duplicate_native_training_fields(tmp_path, cp_stub):
+    """Cellpose performs online augmentation instead of storing eight copies."""
     _write_annotated_fields(tmp_path, 5)
     SUB.train_cellpose(_settings(tmp_path, augment=True, batch_size=2))
 
     call = cp_stub["train_calls"][0]
-    assert len(call["train_data"]) == 40          # 5 fields x 8 variants
-    assert len(call["train_labels"]) == 40
+    assert len(call["train_data"]) == 5
+    assert len(call["train_labels"]) == 5
     assert call["batch_size"] == 2
 
 
@@ -177,10 +177,10 @@ def test_all_annotated_labels_are_represented(tmp_path, cp_stub):
     # is that six patches arrived with the right shape/dtype.
     assert len(got) == 1
     for lbl in call["train_labels"]:
-        assert lbl.shape == (16, 16)
+        assert lbl.shape == (24, 24)
         assert lbl.dtype == np.uint16
     for img in call["train_data"]:
-        assert img.shape == (16, 16)
+        assert img.shape == (24, 24)
         assert img.dtype == np.float32
 
 
@@ -214,11 +214,11 @@ def test_falsy_max_train_images_means_use_everything(tmp_path, cp_stub, value):
     assert len(cp_stub["train_calls"][0]["train_data"]) == 7
 
 
-def test_max_train_images_applies_before_augmentation(tmp_path, cp_stub):
-    """The cap counts BASE images; each capped image still fans out 8x."""
+def test_max_train_images_caps_native_images_with_legacy_augment(tmp_path, cp_stub):
+    """The cap counts images; Cellpose handles augmentation during training."""
     _write_annotated_fields(tmp_path, 6)
     SUB.train_cellpose(_settings(tmp_path, augment=True, max_train_images=2))
-    assert len(cp_stub["train_calls"][0]["train_data"]) == 16   # 2 x 8
+    assert len(cp_stub["train_calls"][0]["train_data"]) == 2
 
 
 # ---------------------------------------------------------------------------
@@ -267,6 +267,6 @@ def test_progress_line_reports_patches_and_base_images(tmp_path, cp_stub, capsys
     SUB.train_cellpose(_settings(tmp_path, augment=True, batch_size=2))
 
     out = capsys.readouterr().out
-    assert "Training model on 32 patches from 4 annotated images" in out
-    assert "augment=True, x8" in out
+    assert "Training model on 4 native annotated images" in out
+    assert "Cellpose online augmentation enabled" in out
     assert "minibatch 2" in out

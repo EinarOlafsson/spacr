@@ -3,7 +3,7 @@
 The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows
 as Train and Apply tabs, each backed by its own
 :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads
-``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints
+``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints
 beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its
 independent source directory and writes masks to ``<src>/masks``.
 
@@ -66,7 +66,7 @@ WORKBENCH_INTRO = (
 #: rather than left for the user to infer from the folder they picked.
 TABS: Tuple[Tuple[str, str, str], ...] = (
     (TRAIN_KEY, "Train",
-     "Train reads <src>/train/images and <src>/train/masks and writes the "
+     "Choose an image folder and optional mask folder (default: images/masks). Train writes the "
      "checkpoint under <src>/models."),
     (APPLY_KEY, "Apply",
      "Apply reads every .tif in <src> and writes one mask per image into "
@@ -385,10 +385,10 @@ class CellposeWorkbenchScreen(QWidget):
         """The newest checkpoint the Train tab's settings would have written.
 
         Found by looking, not by rebuilding the file name: the training
-        module stamps the architecture, the epoch count and the patch size
+        module stamps the architecture and epoch count
         into what it saves, and a second copy of that formula here would go
         stale the first time it changed. Everything under the training
-        ``src`` whose name starts with the model name counts; a finished
+        output folder whose name starts with the model name counts; a finished
         run's save is preferred over the periodic ones it made on the way,
         and among equals the most recently written wins.
 
@@ -403,7 +403,8 @@ class CellposeWorkbenchScreen(QWidget):
         name = str(values.get("model_name") or "").strip()
         if not src or not name:
             return ""
-        folder = os.path.join(src, *CHECKPOINT_DIR)
+        folder = (os.path.join(os.path.expanduser(values["save_path"]), "models")
+                  if values.get("save_path") else os.path.join(os.path.expanduser(src), *CHECKPOINT_DIR))
         try:
             entries = sorted(os.listdir(folder))
         except OSError:

@@ -266,6 +266,9 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 #: the layouts exist to keep empty. This is the mechanism that actually
 #: hides one.
 _APP_HIDDEN_KEYS: Dict[str, set] = {
+    "train_cellpose": {"model_type", "from_scratch", "Signal_to_noise", "background",
+                       "remove_background", "diameter", "resize", "width_height",
+                       "target_size", "augment", "verbose"},
     "mask": {"pathogen_model"},
     "timelapse": {"timelapse"},
     "classify": {
@@ -908,7 +911,32 @@ _REGRESSION_TOOLTIP_OVERRIDES = {
     ),
 }
 
+_TRAIN_CELLPOSE_TOOLTIPS = {
+    "src": "Folder containing training microscopy images. Masks default to the masks subfolder. Legacy project/train/images and project/train/masks layouts also remain supported.",
+    "mask_src": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training.",
+    "test_src": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields.",
+    "test_mask_src": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder.",
+    "save_path": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too.",
+    "model_name": "Name for the newly trained checkpoint. The epoch count is appended. Use a distinct name for each experiment to preserve earlier runs.",
+    "learning_rate": "AdamW learning rate for Cellpose 4 fine-tuning. Default 0.00001 (1e-5), the Cellpose-SAM recommendation. Reduce it if loss becomes unstable.",
+    "weight_decay": "AdamW weight decay. Default 0.1, as recommended for Cellpose-SAM fine-tuning.",
+    "batch_size": "Training minibatch size, not a dataset limit. Default 1 reduces GPU memory use for Cellpose-SAM. Raise it only when memory permits.",
+    "n_epochs": "Training epochs. Default 100 follows Cellpose-SAM fine-tuning guidance. Monitor training and validation losses before extending a run.",
+    "channels": "Zero-based image channels to train on (one to three), or leave blank to preserve all channels in images with at most three. Channels are never averaged. Larger images require an explicit selection.",
+    "channel_axis": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks.",
+    "normalize": "Apply Cellpose's per-channel percentile normalization once during training. Disable only for intentionally pre-normalized data. Default True.",
+    "percentiles": "Lower and upper intensity percentiles used when normalization is enabled. Default [1, 99], matching Cellpose. Native image geometry and separate channels are preserved.",
+    "min_train_masks": "Minimum labeled objects required per training image. Cellpose excludes fields below this count. Default 5. Lower it for deliberately sparse training fields.",
+    "max_train_images": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size.",
+    "nimg_per_epoch": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM.",
+    "nimg_test_per_epoch": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source.",
+    "scale_range": "Range of Cellpose's random training scale augmentation, from 0 to 2. Default 0.5. Cellpose also applies its native rotation, flip and crop augmentation; no eight-fold duplicate dataset is created.",
+    "save_every": "Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.",
+    "save_each": "Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.",
+}
+
 _APP_TOOLTIP_OVERRIDES = {
+    "train_cellpose": _TRAIN_CELLPOSE_TOOLTIPS,
     "regression": _REGRESSION_TOOLTIP_OVERRIDES,
     "umap": _UMAP_TOOLTIP_OVERRIDES,
 }
@@ -1396,18 +1424,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Runtime", ("plot", "save", "batch_size", "verbose")),
     ),
     "train_cellpose": (
-        ("Starting Point", ("model_type", "from_scratch", "model_name")),
-        ("Training Schedule", (
-            "n_epochs", "learning_rate", "weight_decay", "batch_size",
-            "augment",
-        )),
-        ("Image Geometry", (
-            "width_height", "target_size", "diameter", "resize",
-        )),
-        ("Background & Denoising", (
-            "remove_background", "background", "Signal_to_noise",
-        )),
-        ("Output & Runtime", ("verbose",)),
+        ("Training Data", ("src", "mask_src", "test_src", "test_mask_src")),
+        ("Starting Point", ("base_model", "model_name")),
+        ("Training Schedule", ("n_epochs", "learning_rate", "weight_decay", "batch_size")),
+        ("Input & Channels", ("channels", "channel_axis", "normalize", "percentiles")),
+        ("Sampling & Augmentation", ("min_train_masks", "max_train_images", "nimg_per_epoch",
+                                     "nimg_test_per_epoch", "scale_range")),
+        ("Checkpoints", ("save_path", "save_every", "save_each")),
     ),
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
@@ -3025,10 +3048,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
     "train_cellpose": {
-        "OUTPUT & RUNTIME":
-            "How much the training run prints as it goes. Turn it up when a "
-            "fit is diverging and the loss curve alone does not say which "
-            "epoch it went wrong at.",
+        "TRAINING DATA": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+        "STARTING POINT": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+        "TRAINING SCHEDULE": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+        "SAMPLING & AUGMENTATION": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+        "CHECKPOINTS": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
     },
     "cellpose_masks": {
         "OUTPUT & RUNTIME":
@@ -6122,6 +6146,27 @@ class _ScalarEdit(QLineEdit):
         self.setText("" if v is None else str(v))
 
 
+class _TrainingFolderEdit(_ScalarEdit):
+    """An editable directory with a browse action, retaining the standard value contract."""
+
+    def __init__(self, value=None, parent=None):
+        super().__init__(parent)
+        from PySide6.QtWidgets import QFileDialog, QStyle
+        from ..i18n import tr
+        self.set_value(value)
+        action = self.addAction(self.style().standardIcon(QStyle.SP_DirOpenIcon), QLineEdit.TrailingPosition)
+        action.setToolTip(tr("Choose folder…"))
+
+        def browse():
+            """Set a chosen directory; cancelling leaves the existing setting intact."""
+            path = QFileDialog.getExistingDirectory(self, tr("Choose folder…"), self.text())
+            if path:
+                self.setText(path)
+                self.editingFinished.emit()
+
+        action.triggered.connect(browse)
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -8729,6 +8774,12 @@ class SettingsWidgets:
                 return "Exclude"
             if key == "exclude":
                 return "Exclude features"
+        if self.app_key == "train_cellpose":
+            labels = {"src": "Image source folder", "mask_src": "Mask source folder",
+                      "test_src": "Validation image folder", "test_mask_src": "Validation mask folder",
+                      "save_path": "Checkpoint folder", "channel_axis": "Channel axis"}
+            if key in labels:
+                return labels[key]
         if self.app_key == "regression" and key == "src":
             return "Output directory"
         return setting_label(key)
@@ -8821,6 +8872,11 @@ class SettingsWidgets:
             that builds it; ``(None, None)`` when the kind has none.
         """
         parent = self._parent
+        if self.app_key == "train_cellpose" and key in {"model_name", "channels"}:
+            kind, options = "entry", None
+            default = self._defaults.get(key, default)
+        if self.app_key == "train_cellpose" and key in {"src", "mask_src", "test_src", "test_mask_src", "save_path"}:
+            return "special", lambda: _TrainingFolderEdit(self._defaults.get(key, default), parent)
         if self.app_key == "umap" and key == "src":
             return "special", lambda: DatabaseSetWidget(
                 value=self._defaults.get(key, default),

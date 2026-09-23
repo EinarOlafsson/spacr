@@ -1,0 +1,35 @@
+498 — CELLPOSE 4 TRAINING WORKBENCH
+===================================
+Status: implemented; focused CPU validation 2026-09-23.
+Owner: implementation lane; API/translations/tutorials in Codex lane.
+
+Train now defaults to AdamW learning_rate=1e-5, weight_decay=0.1,100epochs,
+batch_size=1, normalize=True, percentiles=[1,99], min_train_masks=5 and
+scale_range=0.5, following https://cellpose.readthedocs.io/en/latest/train.html
+and the installed Cellpose4 train_seg signature. No SGD/from-scratch controls.
+
+Image source src and optional mask_src each have a folder browser. Blank
+mask_src selects src/masks; legacy project/train/images and train/masks still
+work when no explicit mask folder is supplied. Labels match basename or the
+_masks suffix, across supported image extensions. Missing/ambiguous pairs,
+wrong dimensions, invalid labels and channel selection fail before model
+construction. Masks retain integer labels beyond65535. Native image dimensions
+and separate channels are preserved; no forced grayscale/1000-square resizing
+or eight-fold duplicated dataset. Cellpose performs online augmentation.
+
+Optional test_src/test_mask_src supply separate validation fields; overlapping
+files are rejected. channels chooses at most3 zero-based planes; channel_axis
+is inferred from mask dimensions or set explicitly. Checkpoint folder save_path,
+save_every,save_each, min_train_masks,max_train_images,nimg_per_epoch and
+nimg_test_per_epoch are exposed and actually forwarded/used. max_train_images
+limits RAM loading; epoch sampling alone does not. Checkpoint carry to Apply
+honors save_path. train_cellpose now returns Cellpose's checkpoint/loss tuple
+and prints the actual checkpoint path. Legacy from_scratch=True is explicitly
+rejected; old augment/target_size settings are reported as unused.
+
+Validation:78focused tests across native input pairing, channels, normalization,
+validation, default schedule, installed train_seg signature binding, saved
+settings, data inclusion and workbench behavior (77pass then one UI default
+regression fixed;24GUI/workbench checks subsequently pass). Real installed
+Cellpose _reshape_norm verifies channels/geometry; no full SAM model trained
+and no GPU used. The validation is not a claim of segmentation accuracy.

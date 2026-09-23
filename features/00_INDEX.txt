@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-468 in features/new, 20 in features/future. NEITHER LIST BLOCKS A RELEASE.
+469 in features/new, 20 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -574,3 +574,4 @@ NEW FEATURES
   495  ORGANISM DROPDOWN HIERARCHY
   496  STARPLAST UPDATE CHECKS AND PIP UPGRADES
   497  ROUNDED TRANSLUCENT KEYBOARD INSTRUCTIONS
+  498  CELLPOSE 4 TRAINING WORKBENCH

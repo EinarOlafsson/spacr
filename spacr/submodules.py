@@ -315,95 +315,186 @@ class CellposeLazyDataset(Dataset):
 
         return image, label
 
-def train_cellpose(settings):
-    """Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.
+def _cellpose_training_pairs(image_src, mask_src=None):
+    """Match native images with unique same-stem or ``_masks`` label files.
 
-    :param settings: dict of training settings; see
-        ``get_train_cellpose_default_settings`` for keys including ``src``,
-        ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,
-        ``learning_rate``, ``weight_decay``, and ``augment``.
-    :returns: None. Saves the trained model under ``<src>/models/cellpose_model``,
-        named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``.
+    :param image_src: image folder, or a legacy project with train/images.
+    :param mask_src: optional label folder; defaults to images/masks.
+    :returns: sorted (image path, mask path) pairs.
+    :raises ValueError: missing, ambiguous or empty image/mask pairs.
+    """
+    from pathlib import Path
+
+    images = Path(image_src).expanduser()
+    if not mask_src and (images / 'train' / 'images').is_dir():
+        print('Using legacy train/images and train/masks folders.')
+        masks = images / 'train' / 'masks'
+        images = images / 'train' / 'images'
+    else:
+        masks = Path(mask_src).expanduser() if mask_src else images / 'masks'
+    if not images.is_dir() or not masks.is_dir():
+        raise ValueError(f'Choose an image folder and a mask folder. Expected images: {images}; masks: {masks}')
+    extensions = {'.tif', '.tiff', '.png', '.bmp', '.jpg', '.jpeg'}
+    def files(folder):
+        """Ignore metadata sidecars and Cellpose-generated flow caches."""
+        return sorted(path for path in folder.iterdir() if path.is_file()
+                      and path.suffix.lower() in extensions
+                      and not path.name.startswith('.')
+                      and not path.stem.endswith(('_flows', '_masks')))
+    labels = {}
+    for path in masks.iterdir():
+        if path.is_file() and path.suffix.lower() in extensions and not path.name.startswith('.'):
+            labels.setdefault(path.stem, []).append(path)
+    pairs, missing = [], []
+    for path in files(images):
+        matches = labels.get(path.stem, []) + labels.get(path.stem + '_masks', [])
+        matches = [label for label in matches if label.resolve() != path.resolve()]
+        if len(matches) > 1:
+            raise ValueError(f'Ambiguous masks for {path.name}: ' + ', '.join(str(item) for item in matches))
+        if not matches:
+            missing.append(path.name)
+        else:
+            pairs.append((str(path), str(matches[0])))
+    if missing:
+        raise ValueError('Missing masks for: ' + ', '.join(missing[:12]))
+    if not pairs:
+        raise ValueError(f'No paired training images and label masks found in {images} and {masks}.')
+    return pairs
+
+
+def _cellpose_training_arrays(pairs, settings):
+    """Read label images and preserve native spatial geometry and chosen channels.
+
+    :param pairs: matched image/mask filenames.
+    :param settings: channels (zero-based, at most three) and channel_axis.
+    :returns: images and labels; multichannel images use channel-first layout.
+    :raises ValueError: invalid label values, ambiguous axes or mismatched sizes.
+    """
+    images, labels = [], []
+    selected = settings.get('channels')
+    if selected is not None:
+        if (not isinstance(selected, (list, tuple)) or not 1 <= len(selected) <= 3
+                or any(not isinstance(c, int) or isinstance(c, bool) or c < 0 for c in selected)
+                or len(set(selected)) != len(selected)):
+            raise ValueError('channels must contain one to three distinct zero-based channel indices, or be empty.')
+    for image_path, label_path in pairs:
+        image, label = np.asarray(cp_io.imread(image_path)), np.asarray(cp_io.imread(label_path))
+        if label.ndim != 2 or not np.issubdtype(label.dtype, np.integer) or np.any(label < 0):
+            raise ValueError(f'{label_path}: masks must be 2-D nonnegative integer object labels, with background 0.')
+        if image.ndim == 2:
+            if image.shape != label.shape:
+                raise ValueError(f'{image_path}: image and mask dimensions differ.')
+            if selected is not None and selected != [0] and selected != (0,):
+                raise ValueError(f'{image_path}: a grayscale image only has channel 0.')
+        elif image.ndim == 3:
+            axis = settings.get('channel_axis')
+            if axis is None:
+                candidates = [axis for axis in range(3)
+                              if tuple(size for i, size in enumerate(image.shape) if i != axis) == label.shape]
+                if len(candidates) != 1:
+                    raise ValueError(f'{image_path}: set channel_axis explicitly; the image axes are ambiguous.')
+                axis = candidates[0]
+            if not isinstance(axis, int) or axis not in (-3, -2, -1, 0, 1, 2):
+                raise ValueError('channel_axis must be -3, -2, -1, 0, 1, 2 or empty for automatic detection.')
+            image = np.moveaxis(image, axis, 0)
+            if image.shape[1:] != label.shape:
+                raise ValueError(f'{image_path}: image and mask dimensions differ for channel_axis={axis}.')
+            if selected is not None:
+                if max(selected) >= image.shape[0]:
+                    raise ValueError(f'{image_path}: a selected channel is outside the image.')
+                image = image[list(selected)]
+            if image.shape[0] > 3:
+                raise ValueError(f'{image_path}: Cellpose-SAM uses at most three channels; select channels explicitly.')
+        else:
+            raise ValueError(f'{image_path}: training requires a 2-D image with optional channels, not a Z stack.')
+        image = image.astype(np.float32)
+        if not np.isfinite(image).all():
+            raise ValueError(f'{image_path}: the image contains nonfinite values.')
+        images.append(image)
+        labels.append(label)
+    return images, labels
+
+
+def train_cellpose(settings):
+    """Fine-tune Cellpose-SAM with native paired images and instance-label masks.
+
+    :param settings: image folder src; optional mask_src (default src/masks),
+        validation test_src/test_mask_src, base_model, model_name, AdamW schedule,
+        channels/channel_axis, normalize/percentiles, scale_range, min_train_masks,
+        optional image limits and checkpoint controls. Legacy project/train/images
+        plus project/train/masks remains accepted when mask_src is blank.
+    :returns: Cellpose's checkpoint path, training losses and validation losses.
+        Weights are written beneath save_path/models (default src/models/cellpose_model/models).
+    :raises ValueError: invalid settings, unpaired images or incompatible masks.
     """
     from .settings import get_train_cellpose_default_settings
     from .utils import save_settings
 
-    settings = get_train_cellpose_default_settings(settings)
-    img_src = os.path.join(settings['src'], 'train', 'images')
-    mask_src = os.path.join(settings['src'], 'train', 'masks')
-    target_size = settings['target_size']
-
-    model_name = f"{settings['model_name']}_cpsam_e{settings['n_epochs']}_X{target_size}_Y{target_size}.CP_model"
-    model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
+    settings = get_train_cellpose_default_settings(dict(settings))
+    if not settings['src'] or not str(settings['src']).strip():
+        raise ValueError('Choose the training image source folder.')
+    if settings.get('from_scratch'):
+        raise ValueError('Cellpose 4 fine-tunes pretrained weights. Choose base_model instead of from_scratch.')
+    for key in ('n_epochs', 'batch_size', 'save_every'):
+        if not isinstance(settings[key], int) or isinstance(settings[key], bool) or settings[key] < 1:
+            raise ValueError(f'{key} must be a positive integer.')
+    for key in ('nimg_per_epoch', 'nimg_test_per_epoch'):
+        if settings[key] is not None and (not isinstance(settings[key], int) or settings[key] < 1):
+            raise ValueError(f'{key} must be a positive integer or empty for all images.')
+    if (not np.isfinite(settings['learning_rate']) or settings['learning_rate'] <= 0
+            or not np.isfinite(settings['weight_decay']) or settings['weight_decay'] < 0):
+        raise ValueError('learning_rate must be positive and weight_decay nonnegative.')
+    if not isinstance(settings['min_train_masks'], int) or settings['min_train_masks'] < 0:
+        raise ValueError('min_train_masks must be a nonnegative integer.')
+    if not 0 <= settings['scale_range'] <= 2:
+        raise ValueError('scale_range must be between 0 and 2.')
+    percentiles = settings['percentiles']
+    if len(percentiles) != 2 or not 0 <= percentiles[0] < percentiles[1] <= 100:
+        raise ValueError('percentiles must contain two increasing values between 0 and 100.')
+    pairs = _cellpose_training_pairs(settings['src'], settings['mask_src'])
+    maximum = settings['max_train_images']
+    if maximum is not None and int(maximum) > 0 and int(maximum) < len(pairs):
+        print(f'max_train_images={maximum}: training on {int(maximum)} of {len(pairs)} annotated images.')
+        pairs = pairs[:int(maximum)]
+    test_pairs = []
+    if settings['test_src']:
+        test_pairs = _cellpose_training_pairs(settings['test_src'], settings['test_mask_src'])
+        if {os.path.realpath(pair[0]) for pair in pairs} & {os.path.realpath(pair[0]) for pair in test_pairs}:
+            raise ValueError('Training and validation images must be separate.')
+    elif settings['test_mask_src']:
+        raise ValueError('A validation mask source also requires a validation image source.')
+    images, labels = _cellpose_training_arrays(pairs, settings)
+    test_images, test_labels = _cellpose_training_arrays(test_pairs, settings)
+    if settings.get('augment') or settings.get('target_size'):
+        print('Legacy augment/target_size are not applied: Cellpose 4 performs online augmentation and native crop sampling.')
+    model_name = f"{settings['model_name']}_cpsam_e{settings['n_epochs']}.CP_model"
+    if os.path.basename(model_name) != model_name or '/' in model_name or '\\' in model_name:
+        raise ValueError('model_name must be a filename, not a path.')
+    model_save_path = os.path.expanduser(settings['save_path'] or os.path.join(settings['src'], 'models', 'cellpose_model'))
     os.makedirs(model_save_path, exist_ok=True)
-
     save_settings(settings, name=model_name)
-
-    base = _resolve_training_base(settings.get('base_model'))
-    print(f"Training starts from {base}")
-    model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model=base
-    )
-
-    
-    image_filenames = set(f for f in os.listdir(img_src) if f.endswith('.tif'))
-    label_filenames = set(f for f in os.listdir(mask_src) if f.endswith('.tif'))
-
-    matched_filenames = sorted(image_filenames & label_filenames)
-
-    train_image_files = [os.path.join(img_src, f) for f in matched_filenames]
-    train_label_files = [os.path.join(mask_src, f) for f in matched_filenames]
-
-    train_dataset = CellposeLazyDataset(train_image_files, train_label_files, settings, randomize=True, augment=settings['augment'])
-
-    n_aug = 8 if settings['augment'] else 1
-    max_base_images = len(train_dataset) // n_aug if settings['augment'] else len(train_dataset)
-
-    max_train_images = settings.get('max_train_images')
-    if max_train_images is not None and int(max_train_images) > 0:
-        n_base = min(int(max_train_images), max_base_images)
-    else:
-        n_base = max_base_images
-
-    unique_base_indices = list(range(max_base_images))
-    random.shuffle(unique_base_indices)
-    selected_indices = unique_base_indices[:n_base]
-
-    if n_base < max_base_images:
-        print(f"max_train_images={max_train_images}: training on {n_base} of "
-              f"{max_base_images} annotated images.")
-
-    images, labels = [], []
-    for idx in selected_indices:
-        for aug_idx in range(n_aug):
-            i = idx * n_aug + aug_idx if settings['augment'] else idx
-            img, lbl = train_dataset[i]
-            images.append(img)
-            labels.append(lbl)
+    base = _resolve_training_base(settings['base_model'])
+    print(f'Training starts from {base}')
+    model = cp_models.CellposeModel(gpu=_cellpose_use_gpu(), pretrained_model=base)
     try:
-        plot_cellpose_batch(images[:_TRAIN_PREVIEW_N], labels[:_TRAIN_PREVIEW_N])
+        preview = [image if image.ndim == 2 else image[0] for image in images[:_TRAIN_PREVIEW_N]]
+        plot_cellpose_batch(preview, labels[:_TRAIN_PREVIEW_N])
     except Exception:
-        print(f"could not print batch images")
+        print('could not print batch images')
+    print(f"Training model on {len(images)} native annotated images for {settings['n_epochs']} epochs, minibatch {settings['batch_size']}; Cellpose online augmentation enabled.")
+    result = train_cp.train_seg(
+        model.net, train_data=images, train_labels=labels,
+        test_data=test_images or None, test_labels=test_labels or None,
+        channel_axis=0, save_path=model_save_path, model_name=model_name,
+        normalize=dict(normalize=settings['normalize'], percentile=list(percentiles)),
+        rescale=False, **{key: settings[key] for key in (
+            'n_epochs', 'batch_size', 'learning_rate', 'weight_decay',
+            'save_every', 'save_each', 'min_train_masks', 'scale_range',
+            'nimg_per_epoch', 'nimg_test_per_epoch')})
+    if result is not None:
+        print(f'Model saved at: {result[0]}')
+    return result
 
-    print(f"Training model on {len(images)} patches from {n_base} annotated "
-          f"images (augment={bool(settings['augment'])}, x{n_aug}) for "
-          f"{settings['n_epochs']} epochs, minibatch {settings['batch_size']}")
-
-    train_cp.train_seg(model.net,
-                       train_data=images,
-                       train_labels=labels,
-                       channel_axis=None,
-                       save_path=model_save_path,
-                       n_epochs=settings['n_epochs'],
-                       batch_size=settings['batch_size'],
-                       learning_rate=settings['learning_rate'],
-                       weight_decay=settings['weight_decay'],
-                       model_name=model_name,
-                       save_every=max(1, (settings['n_epochs'] // 10)),
-                       rescale=False)
-
-    print(f"Model saved at: {model_save_path}/{model_name}")
-    
 def test_cellpose_model(settings):
     """Evaluate a Cellpose model on a labelled test set and report per-image metrics.
 

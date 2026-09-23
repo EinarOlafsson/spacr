@@ -14673,3 +14673,22 @@ current-source fingerprint checks. Their private stage is
 /mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage.
 78's resumed readback is progressing;79's successful new English narration
 has a fresh4Kvisual master rendering. No public media replacement claimed.
+2026-09-23 — CELLPOSE4 TRAINING OVERHAUL (498)
+New Train contract:src=image folder,mask_src optional(defaultsrc/masks);
+legacyproject/train/images+train/masks fallbackstillworks. test_src/test_mask_src
+optionalvalidationfolders;save_path optionalcheckpointroot(Cellposeaddsmodels/).
+Nativegeometry/channelsretained;channels optional1–3zero-basedindices,
+channel_axis auto frommaskshapeor explicit. Missing/ambiguouspairsfailbeforemodel.
+Defaults lr1e-5,decay.1,100epochs,batch1,normalizeTrue,percentiles[1,99],
+min_train_masks5,scale_range.5,save_every100,save_eachFalse;optional
+max_train_images,nimg_per_epoch,nimg_test_per_epoch. RemovedlegacyGUI
+model_type/from_scratch/diameter/resize/width_height/target_size/augment/
+background/remove_background/Signal_to_noise/verbose controls. Cellpose's
+nativeonlineaugmentationreplaceseight-foldRAMduplication. train_cellpose
+returnscheckpoint/lossestuple. Newhelpers _cellpose_training_pairs/arrays,
+_TrainingFolderEdit;tooltips/categoryhelp updated. Please update19TrainCellpose
+walkthrough,API/defaults/translations accordingly. No GPU training claimed;
+77checks passed,oneGUIdefaultfixedand24GUI/workbenchcheckssubsequentlypass.
+PlagueFigurepreviewusernewreport: spontaneouszoomandoversizedinitialdisplay.
+Claimingplaque_preview.py/focusedtests now tobreakpixmap/layoutfeedback,
+retainmodestinitialscale,allowexplicitzoom/panwithoutautomaticrefit.

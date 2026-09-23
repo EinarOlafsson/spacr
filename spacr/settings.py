@@ -2431,23 +2431,17 @@ def get_train_cellpose_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    settings.setdefault('model_name','new_model')
-    settings.setdefault('model_type','cpsam')
-    settings.setdefault('base_model','cpsam')
-    settings.setdefault('Signal_to_noise',10)
-    settings.setdefault('background',200)
-    settings.setdefault('remove_background',False)
-    settings.setdefault('learning_rate',0.2)
-    settings.setdefault('weight_decay',1e-05)
-    settings.setdefault('batch_size',8)
-    settings.setdefault('n_epochs',10000)
-    settings.setdefault('from_scratch',False)
-    settings.setdefault('diameter',30)
-    settings.setdefault('resize',False)
-    settings.setdefault('width_height',[1000,1000])
-    settings.setdefault('target_size', 1000)
-    settings.setdefault('augment', False)
-    settings.setdefault('verbose',True)
+    defaults = dict(
+        src='', mask_src='', test_src='', test_mask_src='', save_path='',
+        model_name='new_model', base_model='cpsam', learning_rate=1e-5,
+        weight_decay=0.1, batch_size=1, n_epochs=100,
+        normalize=True, percentiles=[1, 99], channels=None, channel_axis=None,
+        min_train_masks=5, max_train_images=None, nimg_per_epoch=None,
+        nimg_test_per_epoch=None, scale_range=0.5, save_every=100,
+        save_each=False,
+    )
+    for key, value in defaults.items():
+        settings.setdefault(key, value)
     return settings
 
 def set_generate_dataset_defaults(settings):
@@ -3282,6 +3276,18 @@ expected_types = {
     "target_intensity_min": int,
     "model_type": str,
     "base_model": str,
+    "mask_src": str,
+    "test_src": str,
+    "test_mask_src": str,
+    "save_path": str,
+    "channel_axis": (int, type(None)),
+    "min_train_masks": int,
+    "max_train_images": (int, type(None)),
+    "nimg_per_epoch": (int, type(None)),
+    "nimg_test_per_epoch": (int, type(None)),
+    "scale_range": float,
+    "save_every": int,
+    "save_each": bool,
     "heatmap_feature": str,
     "grouping": str,
     "min_max": str,
