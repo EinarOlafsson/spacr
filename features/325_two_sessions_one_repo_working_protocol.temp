@@ -14771,3 +14771,16 @@ Real reference extraction and endpoint assessment are reproducible in
 Tests: 123 passed/1 optional skip; final estimator/Qt/SQL cohort 10 passed.
 README.rst acquired an unrelated uncommitted addition during implementation;
 I have preserved it and will not stage it with runtime changes.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: plaque review responsiveness / issue127
+prepare_figure_review now reads legend/review sidecars and infers rulers on a
+worker before the GUI adopts a detected figure. Reannotation has its own
+worker and generation guard, retaining manual edits made during work. Saves
+of annotations/legends also run off the GUI thread and are serialized.
+save_annotations returns the queued destination; success/failure arrives in
+preview status (threaded=False tests remain synchronous). Late success/error
+cannot overwrite a newer image.116 focused Qt tests pass, including deliberate
+slow reads/writes, timer responsiveness and navigation. The original reporter's
+exact cropping freeze is not claimed reproduced. This fixes a demonstrated
+remaining GUI-thread I/O/scale calculation path. Please cover new helper API
+and async save wording. No GPU used, no changes to docs checkout.

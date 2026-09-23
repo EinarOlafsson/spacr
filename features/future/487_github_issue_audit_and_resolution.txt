@@ -195,3 +195,28 @@ separate defects already covered by the earlier verification. The report
 contains no demonstrated MPS kernel failure despite its Apple M4 title.
 No new claim that all103issues have been audited;80–90 exact body-difference
 reading and92/93 remaining detailed reports are still being completed.
+
+2026-09-23 — ISSUE127 PLAQUE PREVIEW RESPONSIVENESS DEFECT FIXED
+Reproduced legend CSV reads, annotation CSV reads and scale-bar inference on
+the Qt event thread after detection returned. Initial review and subsequent
+text reannotation now prepare on workers. Snapshot/generation guards discard
+late success and late failure after image navigation; edits made during a
+review retain their condition, calibration and approval. Annotation/legend
+writes run on a serialized worker using captured rows; navigation does not
+redirect the saved file or let an old completion replace current status.
+
+116 focused Qt checks pass, including deliberately blocked sidecar I/O while
+Qt timers continue, old-result/error rejection, delayed reannotation with a
+new manual edit, and annotation save after navigation. A separate earlier
+fix499 removed the pixmap/layout autozoom feedback. This is a verified GUI
+blocking defect; the original reporter's exact cropping sequence is not
+available, so it is not claimed as a reproduction of that entire incident.
+Issue127 remains open for the rest of its acceptance and platform validation.
+
+Historical80–90 exact body differences and discussions reviewed. Duplicated
+tracebacks were compared after normalizing timestamps/run IDs; all distinct
+settings/version/trace differences retained. Alternate controls include
+None, empty quoted string and c2; location_column None; channels1/3; object
+filters differ. They all reach the same empty-split failure addressed by the
+existing ML control-selection and pre-split guards verified in earlier cohorts.
+92/93 detailed reports remain to review; no full audit completion claim.

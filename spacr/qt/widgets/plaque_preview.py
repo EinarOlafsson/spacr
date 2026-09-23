@@ -978,6 +978,49 @@ def _figure_scales(result: Dict[str, Any], annotations: Sequence[Any],
                               plate_format=fmt)
 
 
+def prepare_figure_review(result, settings, *, caption=None, previous=()):
+    """Read review sidecars and infer rulers on a worker, without Qt access.
+
+    :param result: detected figure including image, regions, words and path.
+    :param settings: snapshot of preview settings.
+    :param caption: supplied legend; None reads legends.csv beside the image.
+    :param previous: optional snapshot of current annotations, preserving
+        manual calibration, condition edits and approval during reannotation.
+    :returns: result copy with review_caption, annotations and automatic_scales.
+    """
+    from dataclasses import replace
+    from ...plaque_papers import LEGENDS_FILE, read_legends, text_options_from_settings
+
+    result = dict(result)
+    path = Path(result["path"])
+    if caption is None:
+        caption = read_legends(path.parent / LEGENDS_FILE).get(path.stem, "")
+    annotations = annotate_figure(result, caption, path.parent,
+        confirm=bool(settings.get("confirm_annotations", False)),
+        options=text_options_from_settings(settings))
+    for a, old in zip(annotations, previous):
+        if a.region != old.region:
+            continue
+        if old.source == "manual":
+            a.condition, a.source, a.strength = old.condition, old.source, old.strength
+        a.pixels_per_um, a.formation_hours = old.pixels_per_um, old.formation_hours
+        a.approved = old.approved
+    result["review_caption"] = caption
+    result["annotations"] = annotations
+    result["automatic_scales"] = _figure_scales(
+        result, [replace(a, pixels_per_um=None) for a in annotations], caption,
+        settings.get("plate_format"))
+    return result
+
+
+def _preview_call(work):
+    """Route worker exceptions through the same stale-result gate as success."""
+    try:
+        return work()
+    except Exception as exc:
+        return {"error": preview_failure_message(str(exc))}
+
+
 def detect_figure(path: Any, settings: Dict[str, Any], *,
                   detect: Optional[Callable] = None,
                   read_text: Optional[Callable] = None) -> Dict[str, Any]:
@@ -1931,6 +1974,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._propagate_cb: Optional[Callable[[Dict[str, Any]], None]] = None
         self._run_token = 0
         self._load_token = 0
+        self._review_token = 0
         self._seeded_model = ""
         self._seeded_detector = ""
         self._figure: Optional[Dict[str, Any]] = None
@@ -1960,6 +2004,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="plaque preview image",
                                     user_visible=False)
+        self._review_jobs = JobRunner(self, threaded=threaded,
+                                      app_key="plaque figure review", user_visible=False)
+        self._save_jobs = JobRunner(self, threaded=threaded,
+                                    app_key="plaque annotation save", user_visible=False)
         self._jobs.job_failed.connect(self._on_job_failed)
         self._load_jobs.job_failed.connect(self._on_job_failed)
         self._paper_jobs = JobRunner(self, threaded=threaded,
@@ -2469,11 +2517,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 "The second reading changed: press Run preview to read the "
                 "figure again."))
             return
+        self.set_preview_status(tr("Updating conditions with the new text settings…"))
         self._reannotate()
-        if self._selected is not None:
-            self._show_well(self._selected)
-        self.set_preview_status(tr("Conditions proposed again with the new "
-                                   "text settings."))
 
     def _spin(self, low: float, high: float, decimals: int, value: float,
               step: float) -> QDoubleSpinBox:
@@ -2857,6 +2902,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """Drop the pass in flight, and any wells still queued."""
         self._batch = []
         self._jobs.cancel()
+        self._review_token += 1
+        self._review_jobs.cancel()
 
     def run_preview(self, *_args: Any, detect: Optional[Callable] = None,
                     read_text: Optional[Callable] = None,
@@ -2877,11 +2924,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         settings = self.current_settings()
         self.set_preview_status(tr(PREVIEW_RUNNING_MESSAGE))
         if self.mode() == FIGURE_MODE:
-            work = (lambda: detect_figure(path, settings, detect=detect,
-                                          read_text=read_text))
+            def work():
+                result = detect_figure(path, settings, detect=detect, read_text=read_text)
+                return result if result.get("error") else prepare_figure_review(result, settings)
         else:
             work = lambda: plaque_pass(path, settings, segment=segment)
-        self._jobs.submit(work, lambda result, t=token: self._on_result(t, result))
+        self._jobs.submit(lambda: _preview_call(work), lambda result, t=token: self._on_result(t, result))
         return True
 
     def _on_job_failed(self, message: str) -> None:
@@ -3155,6 +3203,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _folder(self) -> Optional[Path]:
         """The figure folder."""
+        path = self.current_path()
+        if path is not None:
+            return Path(path).parent
         if not self._src:
             return None
         folder = Path(self._src)
@@ -3163,11 +3214,16 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _show_figure(self, result: Dict[str, Any]) -> None:
         """Annotate a finished figure pass and fill the table."""
         self._clear_figure()
-        result.setdefault("overlay", np.array(result["image"], copy=True))
+        if "overlay" not in result:
+            result["overlay"] = np.array(result["image"], copy=True)
         self._figure = result
-        stem = Path(result["path"]).stem
-        self._caption = self._legend_for(stem)
-        self._reannotate()
+        self._caption = result["review_caption"]
+        self._annotations = result["annotations"]
+        self._automatic_scales = result["automatic_scales"]
+        self._refresh_calibration_scales()
+        self._fill_table()
+        self._fill_plaque_table()
+        self._redraw_boxes()
         panels = sorted({a.panel for a in self._annotations if a.panel})
         if panels and not self._caption:
             self._legend_text.setText(tr(
@@ -3204,17 +3260,39 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         result = self._figure
         if result is None:
             return
-        self._annotations = annotate_figure(
-            result, self._caption, self._folder(),
-            confirm=self._confirm.isChecked(), options=self.text_options())
         from dataclasses import replace
-        self._automatic_scales = _figure_scales(
-            result, [replace(a, pixels_per_um=None) for a in self._annotations],
-            self._caption, self.current_settings().get("plate_format"))
+        self._review_token += 1
+        token = self._review_token
+        self._review_jobs.cancel()
+        snapshot, settings, caption = dict(result), self.current_settings(), self._caption
+        previous = [replace(a) for a in self._annotations]
+        self._review_jobs.submit(lambda: _preview_call(lambda: prepare_figure_review(
+            snapshot, settings, caption=caption, previous=previous)),
+            lambda review: self._adopt_review(token, result, review))
+
+    def _adopt_review(self, token, figure, review) -> None:
+        """Apply only the latest review for the figure still displayed."""
+        if token != self._review_token or self._figure is not figure:
+            return
+        if review.get("error"):
+            self.set_preview_status(review["error"])
+            return
+        for a, current in zip(review["annotations"], self._annotations):
+            if a.region != current.region:
+                continue
+            if current.source == "manual":
+                a.condition, a.source, a.strength = current.condition, current.source, current.strength
+            a.pixels_per_um, a.formation_hours = current.pixels_per_um, current.formation_hours
+            a.approved = current.approved
+        self._annotations = review["annotations"]
+        self._automatic_scales = review["automatic_scales"]
         self._refresh_calibration_scales()
         self._fill_table()
         self._fill_plaque_table()
         self._redraw_boxes()
+        if self._selected is not None:
+            self._show_well(self._selected)
+        self.set_preview_status(tr("Conditions proposed again with the new text settings."))
 
     def _refresh_calibration_scales(self) -> None:
         """Apply editable manual rulers without repeating image analysis."""
@@ -3361,6 +3439,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _clear_figure(self) -> None:
         """Forget the figure, its wells and both tables."""
+        self._review_token += 1
+        self._review_jobs.cancel()
         self._figure = None
         self._annotations = []
         self._scales = []
@@ -3693,7 +3773,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def save_annotations(self) -> Optional[Path]:
         """Write the review to ``figure_annotations.csv``, keeping other figures'.
 
-        :returns: the file written, or None when there is nothing to save.
+        :returns: destination of the queued write, or None when not started.
+            Completion or failure is reported in the preview status.
         """
         from ...plaque_papers import ANNOTATIONS_FILE, write_annotation_overrides
 
@@ -3703,12 +3784,31 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self.set_preview_status(tr("Nothing to save: run the preview on "
                                        "a figure first."))
             return None
-        path = write_annotation_overrides(folder / ANNOTATIONS_FILE, rows)
+        path = folder / ANNOTATIONS_FILE
         ok = sum(1 for r in rows if r["approved"])
-        self.set_preview_status(tr(
-            "Saved {n} annotations ({ok} OK) to {path}.", n=len(rows), ok=ok,
-            path=path))
-        return path
+        started = self._save_review_file(
+            lambda: write_annotation_overrides(path, rows),
+            lambda: self.set_preview_status(tr(
+                "Saved {n} annotations ({ok} OK) to {path}.", n=len(rows), ok=ok, path=path)))
+        return path if started else None
+
+    def _save_review_file(self, work, on_done) -> bool:
+        """Serialize sidecar writes without blocking the GUI or losing snapshots."""
+        if self._save_jobs.is_busy():
+            self.set_preview_status(tr("An annotation or legend save is already in progress."))
+            return False
+        token = self._run_token
+        self.set_preview_status(tr("Saving review…"))
+
+        def finished(result):
+            if self.preview_stale(token):
+                return
+            if isinstance(result, dict) and result.get("error"):
+                self.set_preview_status(result["error"])
+            else:
+                on_done()
+
+        return self._save_jobs.submit(lambda: _preview_call(work), finished)
 
     def _use_pasted_legend(self) -> None:
         """Key the pasted legend, and keep it for the run in ``legends.csv``."""
@@ -3719,13 +3819,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if not text or self._figure is None or folder is None:
             return
         stem = Path(self._figure["path"]).stem
-        write_legend(folder / LEGENDS_FILE, stem, text)
-        self._caption = " ".join(text.split())
-        self._reannotate()
-        self._legend_box.hide()
-        self.set_preview_status(tr("Legend saved to {path}; conditions "
-                                   "proposed again.",
-                                   path=folder / LEGENDS_FILE))
+        def saved():
+            self._caption = " ".join(text.split())
+            self._legend_box.hide()
+            self._reannotate()
+
+        self._save_review_file(lambda: write_legend(folder / LEGENDS_FILE, stem, text), saved)
 
     def _annotate_by_hand(self) -> None:
         """Put the cursor in the first condition cell."""
@@ -3815,7 +3914,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def shutdown(self) -> None:
         """Leave no worker thread behind."""
-        for runner in (self._jobs, self._load_jobs, self._paper_jobs):
+        for runner in (self._jobs, self._load_jobs, self._paper_jobs, self._review_jobs, self._save_jobs):
             runner.shutdown()
 
     def closeEvent(self, event):                             # noqa: N802
