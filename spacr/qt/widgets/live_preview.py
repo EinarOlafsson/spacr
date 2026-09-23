@@ -1011,7 +1011,7 @@ class _ZoomView(QGraphicsView):
         self._scale = 1.0
         self._user_zoomed = False
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setMouseTracking(True)
         self.viewport().setMouseTracking(True)
@@ -1028,6 +1028,7 @@ class _ZoomView(QGraphicsView):
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
+        self.setSceneRect(self._scene.sceneRect())
         self._user_zoomed = False
         self._scale = 1.0
         self.resetTransform()
@@ -1051,6 +1052,7 @@ class _ZoomView(QGraphicsView):
         """Snap back to fit-in-view (100 % of the container)."""
         self._user_zoomed = False
         self._scale = 1.0
+        self.setSceneRect(self._scene.sceneRect())
         self.resetTransform()
         if self._pixmap_item is not None:
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
@@ -1061,8 +1063,12 @@ class _ZoomView(QGraphicsView):
         if event.modifiers() & Qt.ShiftModifier:
             super().wheelEvent(event)
             return
-        factor = 1.20 if event.angleDelta().y() > 0 else 0.833
-        self._apply_zoom(factor, broadcast=True)
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        if not delta:
+            event.ignore()
+            return
+        factor = 1.20 if delta > 0 else 1.0 / 1.20
+        self._apply_zoom(factor, broadcast=True, position=event.position())
         event.accept()
 
     def resizeEvent(self, event):
@@ -1072,26 +1078,41 @@ class _ZoomView(QGraphicsView):
         if not self._user_zoomed and self._pixmap_item is not None:
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
-    def _apply_zoom(self, factor: float, broadcast: bool = False) -> None:
+    def _apply_zoom(self, factor: float, broadcast: bool = False, position=None) -> None:
         """Zoom by ``factor``, optionally taking the twin view with it.
 
-        THE GUARD GOES ON THIS VIEW, NOT THE PEER. The flag makes ``_apply_zoom``
-        a no-op, so setting it on the peer skipped the peer's own zoom and the
-        two canvases never actually tracked each other -- they only appeared to
-        while both were being driven by hand.
+        :param factor: magnification multiplier.
+        :param broadcast: copy the finished transform and pan to the peer.
+        :param position: viewport cursor position; None uses the view center.
+            Guard the complete operation so scrollbar changes cannot feed an
+            intermediate transform back from the other canvas.
         """
         if self._syncing:
             return
-        self.scale(factor, factor)
-        self._scale *= factor
-        self._user_zoomed = True
+        from .cursor_zoom import zoom_at_pointer
+
+        self._syncing = True
+        try:
+            self._user_zoomed = True
+            if not zoom_at_pointer(self, factor, position):
+                return
+            self._scale *= factor
+            if broadcast and self._peer is not None:
+                peer = self._peer
+                peer._syncing = True
+                try:
+                    peer._user_zoomed = True
+                    peer._scale = self._scale
+                    peer.setSceneRect(self.sceneRect())
+                    peer.setTransform(self.transform())
+                    peer.horizontalScrollBar().setValue(self.horizontalScrollBar().value())
+                    peer.verticalScrollBar().setValue(self.verticalScrollBar().value())
+                finally:
+                    peer._syncing = False
+                peer.zoom_changed.emit(peer._scale)
+        finally:
+            self._syncing = False
         self.zoom_changed.emit(self._scale)
-        if broadcast and self._peer is not None:
-            self._syncing = True
-            try:
-                self._peer._apply_zoom(factor, broadcast=False)
-            finally:
-                self._syncing = False
 
     def _mirror_pan(self, _value: int = 0) -> None:
         """Put the peer at the same scroll offset as this view.

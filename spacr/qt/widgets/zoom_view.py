@@ -28,6 +28,8 @@ from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
 
+from .cursor_zoom import zoom_at_pointer
+
 #: How far one wheel notch zooms. The QC field browser's number, kept so
 #: the two views feel the same.
 ZOOM_STEP = 1.2
@@ -54,7 +56,7 @@ class ZoomableImageView(QGraphicsView):
         self.setFrameShape(QGraphicsView.NoFrame)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
         self.horizontalScrollBar().valueChanged.connect(self._scrolled)
         self.verticalScrollBar().valueChanged.connect(self._scrolled)
 
@@ -66,6 +68,7 @@ class ZoomableImageView(QGraphicsView):
         self._scene.clear()
         self._item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
+        self.setSceneRect(self._scene.sceneRect())
         self._user_zoomed = False
         self.resetTransform()
         if not pixmap.isNull():
@@ -102,17 +105,19 @@ class ZoomableImageView(QGraphicsView):
 
         :param factor: above 1 zooms in, below 1 zooms out.
         """
-        anchor = self.transformationAnchor()
-        self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
-        self.scale(float(factor), float(factor))
-        self.setTransformationAnchor(anchor)
         self._user_zoomed = True
+        self._following = True
+        try:
+            zoom_at_pointer(self, factor)
+        finally:
+            self._following = False
         self._push_to_peers()
 
     def fit(self) -> None:
         """Fit the whole image in the view again, and the peers with it."""
         if self._item is None:
             return
+        self.setSceneRect(self._scene.sceneRect())
         self.resetTransform()
         self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
         self._user_zoomed = False
@@ -131,9 +136,17 @@ class ZoomableImageView(QGraphicsView):
 
         :param event: the wheel event.
         """
-        factor = ZOOM_STEP if event.angleDelta().y() > 0 else (1.0 / ZOOM_STEP)
-        self.scale(factor, factor)
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        if not delta:
+            event.ignore()
+            return
+        factor = ZOOM_STEP if delta > 0 else (1.0 / ZOOM_STEP)
         self._user_zoomed = True
+        self._following = True
+        try:
+            zoom_at_pointer(self, factor, event.position())
+        finally:
+            self._following = False
         self._push_to_peers()
         event.accept()
 
@@ -169,9 +182,10 @@ class ZoomableImageView(QGraphicsView):
                 continue
             view._following = True
             try:
+                view._user_zoomed = zoomed
+                view.setSceneRect(self.sceneRect())
                 if view.transform() != transform:
                     view.setTransform(transform)
-                view._user_zoomed = zoomed
                 view.horizontalScrollBar().setValue(horizontal)
                 view.verticalScrollBar().setValue(vertical)
             finally:

@@ -13773,3 +13773,29 @@ Validation: 1096 focused schema, popup, cursor, pipeline, dictionary and linked
 help checks pass; offscreen screenshots reviewed. This does not claim a green
 full suite or completed translations. Deep restoration and measured/calculated
 PSF processing remain pending; no restoration implementation is claimed here.
+
+2026-09-23 — IMPLEMENTATION CLAIM: CURSOR ZOOM / HRMAN-INSPIRED ASSAYS
+User requests cursor-anchored image zoom first, then TTA classification (all
+new switches off), pre-Mask quality screening, a new Toxoplasma Host–Pathogen
+Analysis module, replication method selection with an explicit forthcoming
+whole-vacuole deep model, easy recruitment bundle integration if feasible,
+and fixes for channel-overwritten recruitment ratios and placeholder slopes.
+Skipping z-plane recruitment as requested. Taking runtime/settings paths,
+including utils.py, deep_spacr.py, submodules.py, settings.py and their focused
+tests, plus new helper modules if needed. Documentation lane retains API,
+translation and tutorial ownership. Will send exact contracts after each chunk.
+User asks to continue the existing feature lists after these additions/fixes.
+
+2026-09-23 — IMPLEMENTATION HANDOFF: IMAGE ZOOM / NEW FEATURE484
+Cursor zoom is fixed in Live Preview and shared ZoomableImageView (QC and
+raw/enhanced comparison). New cursor_zoom.zoom_at_pointer consumes the actual
+wheel position. Intermediate scrollbar changes no longer mirror to the peer;
+Qt's stale resize-under-mouse anchor no longer pulls images bottom-right.
+Extra view margins preserve the anchor below fit; Fit/new images clear them.
+Orthogonal views zoom about the pointer's world point without moving crosshair.
+Make Masks already used image coordinates; its real wheel path now has a
+regression check. 66 focused preview and34 additional image/ortho checks pass.
+Please update APIs/tutorials for the changed _ZoomView._apply_zoom signature
+(position optional), new shared helper and OrthoView.wheelEvent semantics.
+Filed feature484 for all six accepted HRMAn-inspired items; z-plane scoring is
+explicitly skipped. Feature485 records the cursor-zoom implementation.

@@ -1,0 +1,19 @@
+485 — IMAGE ZOOM FOLLOWS THE MOUSE CURSOR
+=======================================
+Status: validation in progress, 2026-09-23.
+
+User reported Live Preview zoom drifting toward the image's bottom-right.
+Explicitly map the wheel event's viewport position to image coordinates;
+retain that point during scaling and disable stale mouse-based resize anchors.
+Synchronize linked viewers only after the completed transform and pan; include
+view padding so zooming out beyond fit can retain the cursor anchor too.
+Fit/new images restore image bounds, and opposite wheel directions are exact
+reciprocals. Shared QC/enhancement-comparison viewers use the same helper.
+Make Masks keeps its existing image-coordinate zoom; verify the real wheel
+path. Orthogonal image views zoom all planes about the cursor's world point
+without moving the selected crosshair. Horizontal-only events do not zoom.
+
+VALIDATED: 66 focused preview checks and 34 additional image/orthogonal-view
+checks pass. These include cursor positions in all four quadrants, alternating
+linked view control, zooming beyond fit, exact reciprocal scale, fit reset,
+Make Masks wheel anchoring and orthogonal crosshair preservation. No GPU used.

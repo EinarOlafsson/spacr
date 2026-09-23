@@ -1,0 +1,31 @@
+484 — INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
+===================================================
+Status: IN PROGRESS. User request, 2026-09-23. Runtime implementation lane.
+
+Requested work, in implementation order:
+1. Fix recruitment auxiliary ratios so every output retains its channel;
+   remove the constant-one slope placeholders without misrepresenting real
+   radial measurements or changing the dedicated channel-of-interest score.
+2. Optional phenotype-classification test-time augmentation, all switches off
+   by default. Shared directory/tar inference; rotations/reflections, probability
+   averaging or voting, original predictions, per-class stability and review
+   flags. Settings in a named Classify category. Stability is not calibration.
+3. A Mask Image Quality category before segmentation: configurable per-channel
+   focus/saturation criteria, report-only versus explicit saved exclusions,
+   acquisition saturation level rather than observed image maximum, auditable
+   field reasons. Low object counts are never a quality exclusion criterion.
+4. New Toxoplasma Host–Pathogen Analysis submodule: explicit experiment/field/
+   host/vacuole/parasite identities, per-vacuole recruitment/replication, joint
+   marker states, vacuole and cell denominators, uninfected cells preserved.
+   Existing Recruitment remains available until feature parity is established.
+5. Replication method selection: direct counts, existing size proxy and a
+   clearly unavailable whole-vacuole deep-learning route labelled coming soon.
+   User is building that model; never invent trained weights or predictions.
+6. Wire ready-to-run recruitment bundles only if existing catalogue support
+   makes it straightforward; otherwise skip with an explicit reason. Do not
+   imply that unsupported pretrained recruitment weights have been validated.
+
+Explicitly skipped: z-plane-aware recruitment scoring.
+The pasted evaluation is design input, not an accuracy benchmark for spaCR.
+Exact runtime/API/settings contracts go to the documentation session via325.
+Continue the pre-existing new/future feature lists after these requests.

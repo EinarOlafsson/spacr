@@ -2,7 +2,7 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-09-22 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-09-23 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/future/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-458 in features/new, 15 in features/future. NEITHER LIST BLOCKS A RELEASE.
+460 in features/new, 16 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -86,6 +86,9 @@ FUTURE FEATURES
 
   476  SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
        476_secondary_objects_grown_from_a_primary_mask.txt
+
+  484  INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
+       484_integrated_host_pathogen_analysis_and_inference.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -549,3 +552,5 @@ NEW FEATURES
   480  ADAPTIVE THRESHOLD KEEPS ITS MODE WHEN BLOCK SIZE CHANGES
   481  CLEAR ALL OBJECTS IN MAKE MASKS
   482  LOCK THE MAGNIFIER REGION AND ZOOM
+  483  PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART
+  485  IMAGE ZOOM FOLLOWS THE MOUSE CURSOR
