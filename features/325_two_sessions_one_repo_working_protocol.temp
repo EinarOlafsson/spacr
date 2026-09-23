@@ -15407,3 +15407,23 @@ Follow-up31laptop navigation, stray-control, Host–Pathogen registration and PS
 Live checks pass. The repaired View group preserves the earlier narrow-layout
 fix; no segmentation or worker processing changed. Ready to cherry-pick this
 runtime/test-only repair into the frozen candidate after the original CI sweep.
+
+2026-09-23 DOCS OWNER: RELEASE CI TRANSLATION REPAIRS REQUESTED
+Full candidate35932234009coverage11failed these docs-owned checks:
+* tests/test_i18n_reviewed_ui.py::test_reviewed_ui_vocabulary_is_complete_and_pinned:
+  reviewed vocabulary now99sources but test pins96. Please review the three new
+  rows and update the existing content/source pins with an audit, not a bypass.
+* Its false-sense-family test rejects Korean 지도 in the new flowchart caption
+  'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around.
+  Fit shows the whole map.' This is a map context; review the translation/test
+  context rather than globally allowing contamination in other senses.
+* tests/test_example_pack_published_translations.py runtime cohort expects7rows
+  but9language dated records nowhave5. Please reconcile retired records/current
+  published sources explicitly; API half of this file alreadypasses.
+Log available locally /tmp/spacr-e498-coverage11.log; nativeGitHubjob107421312663.
+Please prioritize this small release repair over new tutorial scope, preserve
+existing review evidence, and send exact commit/check receipts here. I own the
+same shard's other failures: shared-reader bypass in host_pathogen_preview.py;
+legacyCellpose model_type test; PSF default text; tooltip labels for HP/Live/
+primary-mask/PSF custom controls. Candidate remains e498dbecc until findings are
+collected; only repair commits will be integrated, optional new media stays out.
