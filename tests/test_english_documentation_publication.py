@@ -110,7 +110,7 @@ def test_built_english_publication_declares_its_mode_and_current_api():
             if tag == "script" and "api_i18n.js" in attrs.get("src", ""):
                 self.api.append(attrs)
 
-    root = TOOLS.parent / "docs/_build/html"
+    root = Path(os.environ.get("SPACR_DOCS_BUILD_DIR", TOOLS.parent / "docs/_build/html"))
     from docs_version import source_version
     assert f'spaCR {source_version(TOOLS.parent)} documentation' in (root / "index.html").read_text()
     for module in ("image_quality", "host_pathogen", "object", "timeflows_model"):

@@ -1,0 +1,196 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted source-context review of calibrated point-spread operation, kernel selection, units and loading controls. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Choose a measured PSF",
+      "source": "Choose a measured PSF",
+      "source_sha256": "74db244c23eacbd8968bac0ac552437d6c9d9583935061faacbb6fc501b6b862",
+      "translation": "选择实测 PSF"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measured PSF file.",
+      "source": "Choose a measured PSF file.",
+      "source_sha256": "9b92e5eb77bfa30b11d77e870c3e9b8411218772d1c6e55944b0bd346ab14ba4",
+      "translation": "选择实测 PSF 文件。"
+    },
+    {
+      "table": "ui",
+      "key": "Convolve (blur)",
+      "source": "Convolve (blur)",
+      "source_sha256": "16d1febfb8faa09dd2a280d3a2cf2e1f8d838430b6c9401509d748547f091673",
+      "translation": "卷积（模糊）"
+    },
+    {
+      "table": "ui",
+      "key": "Deconvolution iterations",
+      "source": "Deconvolution iterations",
+      "source_sha256": "2400ed0c80d8fc000c8c51ff2ee2a32b91f66903d3dd8b342b9da8cd7639d00a",
+      "translation": "反卷积迭代次数"
+    },
+    {
+      "table": "ui",
+      "key": "Deconvolve (Richardson–Lucy)",
+      "source": "Deconvolve (Richardson–Lucy)",
+      "source_sha256": "d72264a03e63b279bcb4bce5ed9254d95058818264bc9826af019f5598e7bbf5",
+      "translation": "反卷积（Richardson–Lucy）"
+    },
+    {
+      "table": "ui",
+      "key": "Enter positive image pixel spacing in both axes.",
+      "source": "Enter positive image pixel spacing in both axes.",
+      "source_sha256": "8ad9f65ce2bccc69de63d0e886fedc08b450c5a04b6d56089af1f472d8c006e2",
+      "translation": "请输入图像两个轴上的正像素间距。"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian FWHM, X",
+      "source": "Gaussian FWHM, X",
+      "source_sha256": "7bbc15d3320cb717ecf2d340c2698fc914625fb55c45d2dec3cf51fdc36b9b8c",
+      "translation": "高斯 FWHM，X"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian FWHM, Y",
+      "source": "Gaussian FWHM, Y",
+      "source_sha256": "618b6cdfde05d9497fe9fdf0a3a89cd4da20e24c73cd24a1b5c9b814e8b26631",
+      "translation": "高斯 FWHM，Y"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian approximation",
+      "source": "Gaussian approximation",
+      "source_sha256": "d481476e5e757b81292b6b5e5e9322b3bf4786540265324598748e8df602cb01",
+      "translation": "高斯近似"
+    },
+    {
+      "table": "ui",
+      "key": "Image and PSF pixel spacing must match. No resampling is performed.",
+      "source": "Image and PSF pixel spacing must match. No resampling is performed.",
+      "source_sha256": "6825e1c23988ff5402dee95d1420c14a341d892e729d9f2da02873af15493bff",
+      "translation": "图像与 PSF 的像素间距必须一致。不会执行重采样。"
+    },
+    {
+      "table": "ui",
+      "key": "Image enhancement is updating. Wait for it to finish before detecting objects.",
+      "source": "Image enhancement is updating. Wait for it to finish before detecting objects.",
+      "source_sha256": "abe0b611561bdbd563ed2b3f934833526969a75e20c5dee86323cc262a13f912",
+      "translation": "正在更新图像增强。请等待完成后再检测对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Image pixel height",
+      "source": "Image pixel height",
+      "source_sha256": "af99b971edbb6c93976d81024e69182b6e552046b2659514f7554e75502e718c",
+      "translation": "图像像素高度"
+    },
+    {
+      "table": "ui",
+      "key": "Image pixel width",
+      "source": "Image pixel width",
+      "source_sha256": "5ce00ddd6285be287d1fddb8617e122ca12ed169cc931f481d50414a3bba02fd",
+      "translation": "图像像素宽度"
+    },
+    {
+      "table": "ui",
+      "key": "Make Masks requires a two-dimensional PSF.",
+      "source": "Make Masks requires a two-dimensional PSF.",
+      "source_sha256": "eedeb73e70ee48d9c773ee16dbe76521dedd169f10001315ea8a4a93bc8782ca",
+      "translation": "Make Masks 需要二维 PSF。"
+    },
+    {
+      "table": "ui",
+      "key": "Measured PSF file",
+      "source": "Measured PSF file",
+      "source_sha256": "0b3a27dd2120a5748de64f35b58c713860b477cd0fe1a4767321c07c941e8e15",
+      "translation": "实测 PSF 文件"
+    },
+    {
+      "table": "ui",
+      "key": "Measured PSF pixel height",
+      "source": "Measured PSF pixel height",
+      "source_sha256": "5260640c96d334ec17f8c1058582ffb72ca8383bd251eac05a45254554aa9562",
+      "translation": "实测 PSF 像素高度"
+    },
+    {
+      "table": "ui",
+      "key": "Measured PSF pixel width",
+      "source": "Measured PSF pixel width",
+      "source_sha256": "dfc6eff390a66b4791bf1aecd56cca3d5e2107e5bc281f51b8dfc66ea47f94dd",
+      "translation": "实测 PSF 像素宽度"
+    },
+    {
+      "table": "ui",
+      "key": "Measured kernel",
+      "source": "Measured kernel",
+      "source_sha256": "9c6033bca39b10168f35e5a51f2df52c7a4018f3909525295e48e23216a654a0",
+      "translation": "实测核"
+    },
+    {
+      "table": "ui",
+      "key": "Measured kernel (TIFF/NPY)",
+      "source": "Measured kernel (TIFF/NPY)",
+      "source_sha256": "cca3a130dca3ef8675ae6620751a24498c66fc07809e42c16f21035b4bb614af",
+      "translation": "实测核（TIFF/NPY）"
+    },
+    {
+      "table": "ui",
+      "key": "PSF is not ready. Enter calibration and wait for the kernel to load.",
+      "source": "PSF is not ready. Enter calibration and wait for the kernel to load.",
+      "source_sha256": "c06870b9d78733098d653bde585ea40598060f4fe80151dc6042cf5118a48186",
+      "translation": "PSF 尚未就绪。请输入校准值并等待核加载完成。"
+    },
+    {
+      "table": "ui",
+      "key": "PSF kernels (*.tif *.tiff *.npy)",
+      "source": "PSF kernels (*.tif *.tiff *.npy)",
+      "source_sha256": "cc2fb0c954bb7474c7c9a330a5670b960331af1b9ead148d50fe457e0356c2c7",
+      "translation": "PSF 核 (*.tif *.tiff *.npy)"
+    },
+    {
+      "table": "ui",
+      "key": "PSF ready: {height} × {width} pixels. Source image and measurement intensities remain unchanged.",
+      "source": "PSF ready: {height} × {width} pixels. Source image and measurement intensities remain unchanged.",
+      "source_sha256": "98b0fe0628c81cc9387fed0697088507bf66b821d585cae5cdbcbcf54317ca23",
+      "translation": "PSF 已就绪：{height} × {width} 像素。原始图像和测量强度保持不变。"
+    },
+    {
+      "table": "ui",
+      "key": "PSF source",
+      "source": "PSF source",
+      "source_sha256": "9b0ac5bcff6bc92def9e13a846a740befe7ca5bec6173db46293a96e64b42cb6",
+      "translation": "PSF 来源"
+    },
+    {
+      "table": "ui",
+      "key": "PSF unavailable: {error}",
+      "source": "PSF unavailable: {error}",
+      "source_sha256": "2af6758f9fd46d7d265ab05b418e7c8635301f6b305d05134cc48216cc6e1343",
+      "translation": "PSF 不可用：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "Point spread function",
+      "source": "Point spread function",
+      "source_sha256": "c505d8f69135810fb756b97466171c08cdbd1421c2acf90b5b2992696b409e55",
+      "translation": "点扩散函数"
+    },
+    {
+      "table": "ui",
+      "key": "Preparing calibrated PSF…",
+      "source": "Preparing calibrated PSF…",
+      "source_sha256": "3301dca3456311a30b6c4ceb692ef9d53f2b8a3ea094cb10576be07833e9082d",
+      "translation": "正在准备校准后的 PSF…"
+    },
+    {
+      "table": "ui",
+      "key": "Set calibration",
+      "source": "Set calibration",
+      "source_sha256": "edcea4c459a6dac503b1d112592fbcd3613988ac981129c8b66e1d16f481b591",
+      "translation": "设置校准值"
+    }
+  ]
+}
