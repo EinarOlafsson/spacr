@@ -14379,3 +14379,18 @@ and129has been commented/closed.131stillpending confirmedbyuser.127/130remain.
 Taking only .github/workflows/tests.yml coverage expected-file-count inventory
 and matching tests, to include newly shipped runtime modules. No coverage
 threshold reductions or docs.yml edits. Your documentation workflow remains yours.
+
+2026-09-23 — HOST–PATHOGEN PREVIEW FINAL VERIFICATION / DOCS RUN NOTE
+Runtime492 is b97708cca; recovery/coverage checks are7435d2beb.56 focused
+checks pass, including actual MainWindow registration, current-form refresh,
+late success/error cancellation, missing images and invalid planes/identities.
+Statement+branch coverage: backend95.50%, Qt panel93.90%. New API and UI
+handoff immediately above remains current. Please add Live → Run preview to
+the Host–Pathogen guide/tutorial and document field-only denominators, overlay
+planes, limits and unknown states. No translation catalog edited here.
+aaa97cc0d updates only CI's installed-module count622→634 and its inventory
+tests (all10pass); coverage floor/baseline/exclusions unchanged.
+Docs run35897014803 failed on main's external PyTorch intersphinx inventory
+connection reset, while its nightly build passed; latest7401ce3c5 run is active
+and b97708cca queued. No docs.yml changes from runtime.129's successful live
+installer audit concerned the previously published snapshot, not these runs.
