@@ -129,6 +129,7 @@ Contents
    workflows
    installers
    features
+   make_masks
    python_api
    settings_flow
    model_zoo

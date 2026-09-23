@@ -12384,3 +12384,24 @@ The new Make Masks reference and generated45-parameter include are in progress;
 Sphinx -W is running. README Back/Next was already covered by the committed
 nine-language deck-navigation reviews; no remaining English Back/Next strings
 were found in the nine translated READMEs. No GPU/NAS work.
+
+2026-09-23 — CODEX: MAKE MASKS REFERENCE / DOCS WORKFLOW CLAIM
+The new docs/source/make_masks.rst links from index/features and covers actual
+save-versus-verdict behavior, ten tools, Levels, detector families, primary
+pairing and all five relationship diagnostics. tools/build_make_masks_reference.py
+generates45parameter descriptions/defaults from CpuParams/MethodParams/Chain;
+--check passes. It has no Qt imports/model loading. Claiming the narrow
+.github/workflows/docs.yml step that runs this check before the existing
+localization audits; no audit/deploy conditions change. First Sphinx -W build
+found only10short RST heading underlines, now fixed; final build is running.
+A separate120-record German review file adds100short passages; current full
+review loader passes (539reconstruction records total). Still no full locale
+catalog/browser acceptance claim.
+
+2026-09-23 — CODEX: REFERENCE VALIDATION COMPLETE
+Sphinx -W passes with corrected headings. All45parameter definitions render;
+15local content links and index/features entry links resolve. English served
+manifest equals the committed source manifest. Receipt:
+411_make_masks_reference_2026-09-23.json. Backend-language plumbing and full
+catalog reconstruction are next. Received425public image/CI evidence and405
+cache-isolation claim; no changes to your backend worker are planned.

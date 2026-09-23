@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "source_base_commit": "584b29bb5413e6c9b47da9862b25cc0be7ec9676",
+  "files_sha256": {
+    "docs/source/make_masks.rst": "bda0be43c7701c0b192ae442aa246c927307e1aed3d11178b214351da1385451",
+    "docs/source/_generated/make_masks_parameters.rst": "2fec412ef07c7de0f23c5bced1ba0b1ac554ef2a7f972b0827a4a63f5dc178b2",
+    "tools/build_make_masks_reference.py": "3a90c087f636761c76612d95a4499b5589880ff0a3dd0f9d5eb60ca3600bf4e9",
+    "spacr/qt/screens/make_masks.py": "1d440dbfd9a5dcde851e0ebc55486a6ebaa5493cac628310c8886bc88febd795",
+    "spacr/qt/cpu_modes.py": "9270d6c26ed366e259a1d83bd6eb9e2c30570c5318bc719ea69fc25458630e7e",
+    "spacr/qt/organelle_modes.py": "505e08462ea89334c2dbf46138d12fa1b0c0169663e4104d1b7e1bfa148d5511",
+    "spacr/qt/detect_chain.py": "831087faa4e5e1971e3dcc4f96859e4f42e5f778157e13721d0213b94aee04d9",
+    "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-02.json": "2cd5fe938943ff9672c47099350eed487120de57b5319ec8c97520c0ccd8498e"
+  },
+  "validation": {
+    "sphinx_warnings_as_errors": true,
+    "generated_parameters": 45,
+    "rendered_parameter_definitions": 45,
+    "resolved_local_links": [
+      "workflows.html#workflow-module-make-masks",
+      "api/spacr/qt/screens/make_masks/index.html",
+      "api/spacr/qt/mask_engine/index.html#module-spacr.qt.mask_engine",
+      "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.save_mask",
+      "api/spacr/curation/index.html#spacr.curation.CurationLog",
+      "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.write_recrop",
+      "api/spacr/qt/detect_chain/index.html#module-spacr.qt.detect_chain",
+      "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.secondary_object_instances",
+      "api/spacr/qt/secondary_masks/index.html#spacr.qt.secondary_masks.PrimaryMaskSource",
+      "api/spacr/qt/widgets/primary_mask_selector/index.html#spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector",
+      "workflows.html#workflow-module-measure",
+      "workflows.html#workflow-module-make-masks",
+      "api/spacr/qt/cpu_modes/index.html#spacr.qt.cpu_modes.CpuParams",
+      "api/spacr/qt/organelle_modes/index.html#spacr.qt.organelle_modes.MethodParams",
+      "api/spacr/qt/detect_chain/index.html#spacr.qt.detect_chain.Chain"
+    ],
+    "index_and_features_links": true,
+    "served_english_manifest_current": true,
+    "german_additional_review_records": 120,
+    "german_reconstruction_review_records": 539,
+    "full_locale_acceptance": false
+  },
+  "log_sha256": {
+    "make-masks-reference-sphinx-final.log": "5c6787677d0b8a880dda052d94869410fe92d7fbd95c0ff66bc062d6694f6e54",
+    "german-reviewed-short-04-preflight.log": "0e34fc334c8bf5606d85b72b30e80a80539e503375edbd7396e406994995eeaf",
+    "german-reviewed-short-04-publication.log": "a4799bd9fce1eb0daec11f092993b3f5dd13ca2c120f96b73d130038a5210f45"
+  }
+}

@@ -133,6 +133,12 @@ jobs:
           # sphinx-autoapi — AST-walk API reference generator
           python -m pip install sphinx furo sphinx-design sphinx-autoapi
 
+      - name: Check generated Make Masks parameter reference
+        run: |
+          reference_home=$(mktemp -d)
+          HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
+            tools/run_capped.sh 4G python tools/build_make_masks_reference.py --check
+
       - name: Audit localization catalogs
         env:
           QT_QPA_PLATFORM: offscreen

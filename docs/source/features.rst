@@ -133,8 +133,10 @@ Make Masks
 ----------
 
 Make Masks corrects masks by hand and carries the Cellpose loop on its
-masthead. Its canvas has nine tools: Brush, Erase, Erase object, Wand +,
-Wand −, Draw, Divide, Zoom and Recrop.
+masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +,
+Wand −, Draw, Divide, Zoom, Recrop and Ruler. The
+:doc:`Make Masks reference <make_masks>` covers these tools, Levels,
+detection settings, primary/secondary pairing, saving and measurement.
 
 Draw traces a free-form outline that closes and fills as a single object --
 the tool a brush is not, because a brush stamps disks along the path, so
