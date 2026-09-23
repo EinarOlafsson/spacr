@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI-assisted source-context review of eight PSF setting labels; physical unit token retained exactly. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "psf_fwhm_um",
+      "source": "Psf fwhm um",
+      "source_sha256": "367996532f9731fc891ef038b484a50f0d230d5576a3ffb8fca3597f448054fc",
+      "translation": "FWHM de la PSF (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_image_sampling_um",
+      "source": "Psf image sampling um",
+      "source_sha256": "b9e3fd7fe603c599961b74c4ea7a032415683a53185c2ddaf1754c7d1906218f",
+      "translation": "Espacement des pixels de l’image pour la PSF (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_iterations",
+      "source": "Psf iterations",
+      "source_sha256": "2e176a05de137cff333b00ea3615db49295877445ea1f16eaccc6df7ba35156c",
+      "translation": "Itérations PSF"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_kernel_sampling_um",
+      "source": "Psf kernel sampling um",
+      "source_sha256": "c765a7a8209f2f67e4d93ab5e41e0fcc5e57a8a28f282d43d60d68663d3b82d7",
+      "translation": "Espacement des pixels du noyau PSF (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_measurement_source",
+      "source": "Psf measurement source",
+      "source_sha256": "ecf510c8840d085bae981b5c7ab8306862aaddb22f784d3b5bdd50bd56a6f4f7",
+      "translation": "Source des intensités pour la mesure PSF"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_operation",
+      "source": "Psf operation",
+      "source_sha256": "c98412b92da4443332053dee4db6f328b81d747008c7344b885702306b13adb7",
+      "translation": "Opération PSF"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_path",
+      "source": "Psf path",
+      "source_sha256": "11cbcc8c1921deab667ff9aa82317ae13b6e9720a121904bd34e7e94554e6b03",
+      "translation": "Chemin de la PSF"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_source",
+      "source": "Psf source",
+      "source_sha256": "c9a272a1b2baac77be9358a6ce5654af26d4932a408f1c806c69de62c6df4a5c",
+      "translation": "Source de PSF"
+    }
+  ]
+}
