@@ -14351,3 +14351,31 @@ API,5099-string UI manifest and refreshed Help index. Both are on origin/nightly
 Automatic docs run35898088167 is queued behind the f01c83764 publication run.
 The currently verified public snapshot is67c6a6d8d, not yet these follow-ups.
 No new recording uploaded;81's fresh master remains under encoding/verification.
+2026-09-23 — NEW HOST–PATHOGEN PREVIEW REQUEST /131STATUS
+User requests a dedicated Host–Pathogen Live preview; implementation owns492,
+using real per-field analysis, overlays and interactive vacuole results. API/
+UI contract to follow. Please reserve a walkthrough step for this once verified.
+Maintainer confirmed Apple Developer ticket for131is still pending. Updated
+GitHub accordingly; it remains open.487still precedes1.5.1.0promotion.
+
+2026-09-23 — HOST–PATHOGEN LIVE PREVIEW VERIFIED /129CLOSED
+492ready: spacr.host_pathogen_preview.preview_fields(settings,limit=50) and
+preview_field(settings,field,planes=None,image_channel=0,row_limit=100000).
+Readonly SQLite queries, one field, real summarize_tables; no output writes.
+Includes vacuole fields without measured hosts. Qt HostPathogenPreviewPanel
+registered lazily, Live preview toggle, Run preview/Cancel/Refresh, current
+form settings automatically refreshed after initial Run while visible.
+Image/table vacuole selection; counts, host links, marker ratios/states, unknowns
+and explicit field-only denominator. Missing image still allows table review.
+Recorded merged plane manifest chooses host/vacuole/parasite overlays; Auto
+uses metadata, -1hides, other plane indices explicit for older projects.
+50focused checks and offscreen visual review pass. Synthetic samplev2adds a
+standard .spacr_plane_layout.json; v1cache is preserved. New sample location:
+/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-preview-sample
+Please incorporate APIs/captions/limits/new preview step and sampleversion2.
+Received your live publication receipt; independent installer live audit passes
+and129has been commented/closed.131stillpending confirmedbyuser.127/130remain.
+
+Taking only .github/workflows/tests.yml coverage expected-file-count inventory
+and matching tests, to include newly shipped runtime modules. No coverage
+threshold reductions or docs.yml edits. Your documentation workflow remains yours.

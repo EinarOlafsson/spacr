@@ -79,6 +79,11 @@ class PreviewSpec:
 #: app key -> its preview. The ones marked ``owned_by_screen`` are built by
 #: ``AppScreen`` itself; the rest are attached by :func:`install`.
 PREVIEWS: Dict[str, PreviewSpec] = {
+    'host_pathogen': PreviewSpec(
+        builder='spacr.qt.widgets.host_pathogen_preview:build_host_pathogen_preview_card',
+        fill='spacr.qt.widgets.host_pathogen_preview:fill_host_pathogen_preview_card',
+        title='Live preview',
+        tooltip='Inspect one measured field, its host/vacuole/parasite masks and recruitment results.'),
     "mask": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
         owned_by_screen=True),

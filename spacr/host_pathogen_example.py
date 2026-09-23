@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 
-VERSION = 1
+VERSION = 2
 SETTINGS_FILE = 'host_pathogen_settings.csv'
 
 
@@ -19,7 +19,7 @@ def example_folder():
     """Return the private cache directory for the synthetic example."""
     from .example_archives import example_plate_folder
 
-    return example_plate_folder().parent / 'host_pathogen_v1'
+    return example_plate_folder().parent / f'host_pathogen_v{VERSION}'
 
 
 def is_present(folder):
@@ -177,6 +177,10 @@ def build_example(destination, *, progress=None, cancelled=None):
             for name, rows in tables.items():
                 pd.DataFrame(rows).to_sql(name, connection, index=False)
         ensure_database_schema(root / 'measurements' / 'measurements.db')
+        (root / 'merged' / '.spacr_plane_layout.json').write_text(json.dumps(dict(
+            version=1, intensity_channels=[0, 1, 2, 3],
+            mask_plane_order=['cell', 'nucleus', 'pathogen', 'organelle'],
+            mask_dims=dict(cell=4, nucleus=5, pathogen=6, organelle=7)), indent=2) + '\n')
         _write_csv(root / 'expected' / 'vacuoles.csv', truth)
         _write_csv(root / 'expected' / 'wells.csv', [dict(
             plateID='synthetic_hp', rowID='r1', columnID=f'c{column}',

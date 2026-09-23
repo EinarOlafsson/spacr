@@ -1,0 +1,37 @@
+492 — HOST–PATHOGEN LIVE PREVIEW
+================================
+Status: IMPLEMENTED,2026-09-23;50focused checks and offscreen visual review pass.
+Requested2026-09-23. Implementation lane owns runtime;
+API/translations/tutorials belong to the separate Codex checkout.
+
+Add a dedicated Live preview to Host–Pathogen Analysis using the shared preview
+registry, background workers and native image navigation. Read a measured
+field without saving results or modifying its database. Run the same analysis
+as the full module with current settings, showing explicit host denominators,
+parasites per vacuole, marker ratios/states and unknown measurements.
+
+Images and host/vacuole/parasite masks must use recorded field identities and
+plane metadata, with explicit controls for legacy plane layouts. Select a
+vacuole from image or table, show its associated measurements, retain pointer-
+anchored zoom and avoid layout jumps. Missing source images must be explained;
+database results must still be reviewable. Source/settings changes invalidate
+old results; cancellation and screen closure cannot deliver stale results.
+
+Use the synthetic484sample for real GUI-to-analysis acceptance, but support
+ordinary measured projects too. Document that a preview field's infection
+fraction is not the whole-plate rate. Hand exact new APIs and UI text to325.
+
+Implemented: lazy shared Live preview registration; bounded readonly SQLite
+field queries and the existing summarize_tables engine. Includes fields with
+vacuoles but no measured hosts. Current form changes refresh a visible started
+preview automatically; cancellation/source changes discard old success/errors.
+Image/table vacuole selection, per-channel ratio/state columns, unknown counts,
+host infection summary and API link. Source images are matched by recorded
+field identity; merged plane manifests choose overlays, with explicit plane
+controls for legacy projects. Image absence/invalid planes leave results usable.
+Table limits500rows and lists50fields, stating truncation; full field totals
+remain exact. Individual tables exceeding100000objects are refused, not sampled.
+Display image is bounded to1024pixels on its longest axis; measurement values
+are never recomputed from display contrast/downsampling. GUI selection keeps
+the current image zoom. Synthetic examplev2adds the standard plane manifest.
+No real biological accuracy or native macOS/Windows acceptance claimed.

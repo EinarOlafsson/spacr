@@ -15,6 +15,22 @@ Four issues currently open:127,129,130,131.73 was reclosed after581 focused
 checks verified the classification decoder correction. The historical audit
 remains incomplete. External prerequisites do not justify closing an issue.
 
+2026-09-23: maintainer confirms131institutional ticket remains pending. Issue
+updated with that status; no signed/notarized-installer acceptance claimed.
+Historical first regression group361passed; second129passed. Covers ML control
+selection/dispatcher/OpenMP guard, active learning, database path/read-only
+behavior, figure fonts, remasking, AppleDouble handling, flow defaults, montage
+path cost, report prompts, plaque preview recovery and interrupted-mask/archive
+recovery.124follow-up comment supersedes its old two outstanding caveats:
+adjusted masks are atomic and mask reuse validates with resume both on/off.
+This is partial audit evidence, not a complete103-issue audit claim.
+
+129CLOSED2026-09-23 after independent live audit against GitHub's current
+published asset catalogue: packaging/release.py audit-published --site
+https://einarolafsson.github.io/spacr/installers.html passes. Documentation
+lane deployed separate main/nightly channels. Resolution comment5800101268.
+Three issues remain open:127,130,131. Historical review remains in progress.
+
 133 — CLOSED after revalidating pointer-anchored zoom from d8fa55897.
 128 — CLOSED after five real settings-dialog visibility/scrolling checks passed;
       existing fix7f04a5790 keeps OK/Cancel outside the scrolling form.
