@@ -86,6 +86,84 @@ def _image_targets(text):
     return targets
 
 
+def test_public_downloads_exclude_drafts_prereleases_and_preserve_partial_history():
+    helper = _release_helper()
+    releases = [_release("v1.5.0.9", *ALL_THREE),
+                dict(_release("v2.0.0", *ALL_THREE), draft=True),
+                dict(_release("v1.6.0", *ALL_THREE), prerelease=True),
+                _release("v1.5.1", ALL_THREE[0])]
+    assert helper.published_installer_version(releases)[0] == "1.5.0.9"
+    assert [v for v, _ in helper.installer_index_rows(releases)] == ["1.5.1", "1.5.0.9"]
+
+
+def test_audit_rejects_a_stale_site_even_when_repository_sources_are_consistent(tmp_path):
+    helper = _release_helper()
+    import shutil
+    shutil.copy(ROOT / "README.rst", tmp_path / "README.rst")
+    locales = tmp_path / "docs/i18n/readme"
+    locales.mkdir(parents=True)
+    for code in helper.LOCALIZED_README_CODES:
+        shutil.copy(ROOT / f"docs/i18n/readme/README.{code}.rst", locales)
+    old = [_release("v1.5.0.8", *ALL_THREE)]
+    releases = [_release("v1.5.0.9", *ALL_THREE), *old]
+    before = {p: p.read_text() for p in [tmp_path / "README.rst", *locales.glob("*.rst")]}
+    helper.sync_published_installer_links(tmp_path, releases)
+    assert helper.audit_installer_publication(tmp_path, releases) == []
+    for path, text in before.items():
+        after = path.read_text()
+        assert after.split(helper.README_BEGIN)[0] == text.split(helper.README_BEGIN)[0]
+        assert after.split(helper.README_END)[1] == text.split(helper.README_END)[1]
+    from docutils.core import publish_parts
+    stale_html = publish_parts(helper.render_installer_index(old, "1.5.0.8"),
+                               writer_name="html")["html_body"]
+    errors = helper.audit_installer_publication(tmp_path, releases, site_html=stale_html)
+    missing = [error for error in errors if "Missing published installer:" in error]
+    assert len(missing) == 3
+    assert all("Public website:" in error and "/v1.5.0.9/" in error for error in missing)
+    assert len(errors) == 4
+    assert "Archive current marker ['1.5.0.8']" in errors[-1]
+
+
+def test_archive_current_version_comes_from_published_assets_not_next_package(tmp_path):
+    helper = _release_helper()
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "9.0.0"\n')
+    output = tmp_path / "installers.rst"
+    helper.write_installer_index(output, setup, [_release("v1.5.0.9", *ALL_THREE)])
+    assert "1.5.0.9 (current)" in output.read_text()
+    assert "9.0.0" not in output.read_text()
+
+
+def test_published_sync_validates_every_translation_before_writing(tmp_path):
+    helper = _release_helper()
+    readme = tmp_path / "README.rst"
+    readme.write_text((ROOT / "README.rst").read_text())
+    original = readme.read_bytes()
+    with pytest.raises(FileNotFoundError):
+        helper.sync_published_installer_links(tmp_path, [_release("v1.5.0.9", *ALL_THREE)])
+    assert readme.read_bytes() == original
+    assert not (tmp_path / helper.INSTALLER_INDEX_PATH).exists()
+
+
+def test_release_fetch_follows_pagination_without_advertising_private_drafts(monkeypatch):
+    import io
+    import json
+    helper = _release_helper()
+    first = io.BytesIO(json.dumps([_release("v1.5.0.9", *ALL_THREE)]).encode())
+    first.headers = {"Link": '<https://api.github.com/repos/EinarOlafsson/spacr/releases?page=2>; rel="next"'}
+    second = io.BytesIO(json.dumps([_release("v1.5.0.8", *ALL_THREE),
+                                 dict(_release("v2.0.0", *ALL_THREE), draft=True)]).encode())
+    second.headers = {}
+    responses = iter([first, second])
+    calls = []
+    def open_page(request, **kwargs):
+        calls.append(request.full_url)
+        return next(responses)
+    monkeypatch.setattr("urllib.request.urlopen", open_page)
+    assert [r["tag_name"] for r in helper.fetch_releases()] == ["v1.5.0.9", "v1.5.0.8"]
+    assert len(calls) == 2
+
+
 # ---------------------------------------------------------------------------
 # the generator
 # ---------------------------------------------------------------------------
@@ -348,6 +426,25 @@ def test_an_archived_installer_installs_its_own_version(script, pattern):
     """
     text = (ROOT / "packaging" / "online" / script).read_text(encoding="utf-8")
     assert re.search(pattern, text), f"{script} no longer pins its version"
+
+
+@pytest.mark.network
+def test_download_entry_points_match_the_published_release_catalog():
+    """Detect stale sources and a deployed site lagging the published assets."""
+    import urllib.error
+    import urllib.request
+    helper = _release_helper()
+    try:
+        releases = helper.fetch_releases()
+        with urllib.request.urlopen(
+                "https://einarolafsson.github.io/spacr/installers.html", timeout=30) as response:
+            html = response.read().decode("utf-8")
+    except urllib.error.HTTPError as error:
+        pytest.fail(f"Publication endpoint answered {error.code}: {error.url}")
+    except OSError as error:
+        pytest.skip(f"Publication endpoints unreachable: {error}")
+    errors = helper.audit_installer_publication(ROOT, releases, site_html=html)
+    assert not errors, "\n".join(errors)
 
 
 @pytest.mark.network

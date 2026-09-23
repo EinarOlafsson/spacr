@@ -19,17 +19,16 @@ because a related feature exists. Distinguish nightly fixes from released builds
 127 — Seven separate requests: terminology; automatic reopen after update;
       functional in-app update; pixel diameter measurement; preview prominence;
       adaptable laptop layout; plaque cropping freeze. Audit each separately.
-129 — Installer version synchronization: nightly installer archive currently
-      lags published release. Check release generator, public site, and all
-      download entry points; add a consistency guard without inventing assets.
+129 — Repository installer links synchronized to published1.5.0.9; public
+      website still marks1.5.0.7 current. New live audit detects the remaining
+      publication lag; keep open until Pages is refreshed and the audit passes.
 130 — Home onboarding/sample project/module links: substantial implementation
       exists; documentation/media delivery and original tile failure need review.
 131 — macOS signing: institutional request submitted by maintainer. Check
       automation; actual credentials/notarized build remain an external dependency.
-132 — Cluster Mask QC report: full discussion read. Statistical heuristics make
-      unsupported causal claims (biology ruled out, illumination correction
-      guaranteed); stale card also reported. Inspect scoring/freshness before
-      changing severity. No raw images/settings supplied to diagnose that run.
+132 — CLOSED after9a4afbcce and247 checks: rescore adjusted cells, exclude
+      stale results, qualify heuristic explanations. Original cluster dataset
+      biological quality was not validated; no raw images/settings supplied.
 
 All initial open issue bodies and discussions have been read, including #132's
 full console report. Historical issue audit is ongoing; no all-issues-complete
@@ -53,3 +52,21 @@ correction, and restrict diameter advice to models that actually use it.
 cluster images/settings were not supplied, so biological mask quality is not
 claimed to be validated. These changes resolve the misleading/stale reporting
 shown in132; they are nightly changes, not a newly published installer.
+
+2026-09-23 — ISSUE129 SOURCE SYNCHRONIZATION / PUBLICATION STILL OPEN
+GitHub published releases are the source of truth. release.py now has
+sync-published (all README installer blocks and archive) and audit-published
+(read-only, including optional --site URL). Pagination retains the full release
+history; drafts/prereleases are excluded. A complete published installer set
+sets the advertised version independently of a newer development package.
+Actual published filenames/case are preserved. Partial platform releases remain
+in the historical table without fabricated missing links.
+Nightly README and nine translated download blocks now advertise1.5.0.9;
+archive includes1.5.0.7/8/9. Nine missing small installers restored with SHA-256
+verified against GitHub's asset metadata. All existing versions retained.
+115 focused offline release/installer checks pass. The new network CI test
+correctly FAILS on the currently deployed site: six missing assets for0.8/0.9
+and an obsolete0.7 current marker. Earlier0.8 site estimate was its docs-build
+label, not the archive's current installer. Docs owner notified; no deployment
+claimed and129 remains open. Five of nine initial issues closed, four remain:
+127/129/130/131. Historical reading through digest line345; audit incomplete.

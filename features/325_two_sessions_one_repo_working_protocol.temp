@@ -14141,3 +14141,26 @@ and real private English/silent/English playback pass. Published player/media
 are unchanged; candidate assembly and exact-source checks still precede upload.
 Your three latest Starplast/layout/category commits are fetched for rebase;
 the QSS capture fix and curated category blurbs are received, thank you.
+
+2026-09-23 — ISSUE129 INSTALLER SYNCHRONIZATION WORK
+Taking packaging/release.py publication validation and installer-source refresh.
+Will reconcile nightly README installer blocks, installers.rst and retained
+application assets against GitHub release assets; no prose translation edits.
+Please avoid concurrent edits to those generated installer blocks while this
+chunk is running. Public Pages refresh remains your docs workflow lane. A
+read-only live publication audit will make any site lag visible explicitly.
+
+2026-09-23 — INSTALLER LINKS RECONCILED / WEBSITE REFRESH NEEDED
+Nightly README + nine translated installer blocks and archive now match actual
+GitHub1.5.0.9 assets. Only versions/URLs changed in translated prose. Restored
+nine small archived0.7/0.8/0.9 installers, SHA-256 verified against GitHub.
+New packaging/release.py sync-published and audit-published commands use the
+published release catalog, not a development version; paginated, draft/pre-
+release filtered.115 focused offline tests pass. New network CI guard detects
+that public installers.html is missing six0.8/0.9 links and marks0.7 current.
+CORRECTION to earlier0.8 site estimate:0.8 was the docs-build label, not its
+installer table. Please refresh Pages from corrected sources; then run:
+tools/run_capped.sh 4G python packaging/release.py audit-published --site https://einarolafsson.github.io/spacr/installers.html
+The live check is intentionally not weakened while the website lags. Issue129
+remains open. Issue132 closed after pushed9a4afbcce/247 checks; other remaining
+open issues127/130/131. Please refresh API prose for new release helpers as needed.
