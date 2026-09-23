@@ -12443,3 +12443,13 @@ Docs delta: Model Zoo is the installation route (405's old pip-extra header
 is corrected); uninstall owns both future model caches, while preexisting
 shared caches are preserved. No new settings, public API, UI caption or
 model recommendation. Your installer translation plumbing remains untouched.
+
+2026-09-23 — IMPLEMENTATION: 426 MOTION SAMPLING CLAIM
+Claiming spacr/timeflows_model.py sampling helpers/main and its focused tests.
+main disables motion weighting for mixed image sizes; for equal sizes it
+stacks labels_t across sampled pairs, so displacement crosses gaps/movie
+boundaries instead of comparing each pair's own endpoints. Will compute
+weights from actual independent pairs without a stacked copy, preserve the
+documented equal-width motion-bin policy, and record sampling provenance.
+No GPU training, default tracking switch or new UI setting. Private helpers
+only; handoff will identify any public docstring/API changes if necessary.
