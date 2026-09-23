@@ -32,6 +32,7 @@ def screen(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     made._norm_lo.setValue(2)
     made._norm_hi.setValue(98)
     made._enh_gamma.setValue(0.7)
+    made._btn_apply.setChecked(True)
     made._magnifier.size = 96
     made._magnifier._cursor = (48, 48)
     made._magnifier._anchor = QPointF(48, 48)

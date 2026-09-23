@@ -1,0 +1,12 @@
+LOCK THE MAGNIFIER REGION AND ZOOM
+
+Status: OPEN — requested 2026-09-22.
+Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
+
+REQUEST
+Hold Ctrl+L and right-click to lock the magnifier region and zoom; repeat to unlock.
+
+ACCEPTANCE
+The gesture takes precedence over right-click removal and pan. While locked, moving the mouse or scrolling cannot move the inspected image region or alter its zoom. Show a visible lock state, retain editing against the locked region, and clear stale locks when switching images.
+
+Validate real UI interaction and affected pixel/mask behavior with focused tests.

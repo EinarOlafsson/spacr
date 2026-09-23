@@ -11321,3 +11321,36 @@ Qt fixture applies app-wide QSS and cannot test that ordering. No new public
 APIs or runtime strings; _build_screen's private docstring now explains the
 ordering. No catalogs, tutorials, GPU work or NAS access. app.py claim
 released after commit.
+
+2026-09-22 — IMPLEMENTATION: NEW MAKE MASKS REQUESTS / CI FOLLOW-UP
+User requests six additions/fixes: shared line ruler; interactive Levels
+histogram; explicit blue Apply toggle beside enhancement Compare; Adaptive
+block-size changes must retain Adaptive; Clear all objects; Ctrl+L+right-click
+toggle locking magnifier region and zoom. Recording477–482 in features/new
+(476 already belongs to secondary-object growth). Claiming make_masks.py and
+related canvas/preview code and tests; new APIs/strings/settings will be
+handed to the documentation owner, no catalog edits here.
+CI dispatch35807838039 is queued at6006a0608 and survives later pushes.
+Latest docs failure is the previously handed-off organism/API + OPS runtime
+source-binding debt. Local remaining-failure reproduction:47 pass; Home
+variant clipping test fails and is deferred for this direct user request.
+Log: implementation-20260922/ci-followup/reproduce.log. GPU observer is now
+spacr-implementation-gpu-idle-20260922-next.service (old observer ended with
+success); current MainPID3480688, no20-minute idle interval yet.
+
+2026-09-22 — IMPLEMENTATION:479–481 COMPLETE / API HANDOFF
+Compare and a new blue checkable Apply now share Image enhancement's bottom
+row. Apply defaults OFF; configuring settings alone no longer applies them.
+make_masks.MakeMasksScreen._enhancement_chain() returns configured settings;
+_detect_chain() returns the active chain or NO_CHAIN. _enh_show remains an
+alias of _btn_apply. Compare always previews configured settings. Display,
+automatic detectors, magnifier and detector histogram use the active chain;
+original pixels/measurements and existing masks survive toggling. Manual
+wand retains its original-intensity flood behavior. Document this distinction.
+Classical CPU methods including Adaptive now report errors instead of falling
+back to/latching Otsu. Model-dependent backends retain explicit fallback.
+Existing undoable clear action is relabelled Clear all objects. New/changed
+tr() strings include Apply, its activation/measurement tooltip, Compare's
+configured-settings tooltip and Clear all objects. No catalogs edited.
+209 focused tests pass in39.28s; loaded-field render reviewed.477 ruler,
+478 interactive Levels and482 magnifier lock remain open and owned here.

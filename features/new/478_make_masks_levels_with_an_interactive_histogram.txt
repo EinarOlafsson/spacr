@@ -1,0 +1,12 @@
+MAKE MASKS LEVELS WITH AN INTERACTIVE HISTOGRAM
+
+Status: OPEN — requested 2026-09-22.
+Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
+
+REQUEST
+Add a Levels graph beside Normalize in Make Masks, letting the user threshold the image histogram.
+
+ACCEPTANCE
+Show the actual image histogram with adjustable level/threshold controls, immediate visual feedback and reset. Define explicitly which controls affect display and detector input, preserve original measurements, and document every new setting.
+
+Validate real UI interaction and affected pixel/mask behavior with focused tests.

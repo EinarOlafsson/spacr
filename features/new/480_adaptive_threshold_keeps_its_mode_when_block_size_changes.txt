@@ -1,0 +1,20 @@
+ADAPTIVE THRESHOLD KEEPS ITS MODE WHEN BLOCK SIZE CHANGES
+
+Status: OPEN — requested 2026-09-22.
+Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
+
+REQUEST
+Fix changing Adaptive threshold block size switching back to Otsu.
+
+ACCEPTANCE
+Keep the selected method and the actual detector Adaptive through typing and stepping block size, in both magnifier scopes. Report errors without silently substituting Otsu, and allow a corrected setting to retry.
+
+Validate real UI interaction and affected pixel/mask behavior with focused tests.
+
+2026-09-22 — IMPLEMENTED: classical CPU method failures no longer enter the
+model-backend Otsu fallback or mark Adaptive unavailable. Errors are reported
+and corrected settings retry the selected method. Real Qt worker tests cover
+both scopes, an initial Adaptive error and a block-size correction to31 with
+real Adaptive recovery. Selected and executed method stay Adaptive. This
+fix targets the confirmed fallback path; a literal combobox reset from a
+successful block-size edit was not reproduced. Included in209 passing checks.

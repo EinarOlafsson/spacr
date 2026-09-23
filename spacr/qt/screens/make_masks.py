@@ -924,7 +924,7 @@ class _MaskCanvas(QLabel):
     def detection_source(self) -> Optional[np.ndarray]:
         """The WHOLE FIELD as a detector on it reads it: base plus the chain.
 
-        What the detect buttons segment and what "Show the enhanced image"
+        What the detect buttons segment and what the active Apply button
         draws. The magnifier does NOT come through here: its box is
         enhanced on the worker thread, region by region, so a heavy step is
         never a frozen window and item 407's progress and Cancel have
@@ -3039,7 +3039,7 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
 
-    Named CPU threshold errors are reported to the caller without
+    Classical CPU detection errors are reported to the caller without
     substituting Otsu. For example, Minimum may not find two histogram
     maxima and Multi-Otsu may have too few distinct intensities. Neither
     failure means the method is unavailable; a later crop can try again.
@@ -3057,7 +3057,8 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     note = ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
-    elif mode in cpu_modes.THRESHOLD_LABELS:
+    elif (mode in cpu_modes.THRESHOLD_LABELS
+          or mode in organelle_modes.MODE_LABELS and mode != "unet"):
         labels = segmenter(request, load_model)
         return _finished_labels(labels, chain, prepared), mode, ""
     elif mode != "otsu":
@@ -7609,7 +7610,9 @@ class MakeMasksScreen(QWidget):
         detect_row.addWidget(self._combine_mode, 1)
         detect_wrap = QWidget(); detect_wrap.setLayout(detect_row)
         ops_col.addWidget(detect_wrap)
-        self._btn_clear = QPushButton("Clear")
+        from ..i18n import tr
+
+        self._btn_clear = QPushButton(tr("Clear all objects"))
         self._btn_clear.setObjectName("DangerButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.setToolTip(
@@ -9607,28 +9610,37 @@ class MakeMasksScreen(QWidget):
             "it again.")
         card.body_layout.addWidget(self._enh_split)
 
-        self._enh_show = Toggle("Show the enhanced image")
-        self._enh_show.setToolTip(
-            "Draw the image the detector reads, on the canvas and in the "
-            "magnifier's box, instead of the image as loaded. Nothing that "
-            "measures, filters or saves is affected; the hover readout "
-            "goes on reporting the field's own values.")
-        self._enh_show.toggled.connect(self._on_show_enhanced)
-        card.body_layout.addWidget(self._enh_show)
-
-        self._btn_compare = QPushButton("Compare raw and enhanced")
-        self._btn_compare.setCursor(Qt.PointingHandCursor)
-        self._btn_compare.setToolTip(
-            "Put the image as loaded beside the image the detector reads, "
-            "for the magnifier's box when it has one and for the whole "
-            "field otherwise, so every step of the chain can be judged by "
-            "looking at what it did.")
-        self._btn_compare.clicked.connect(self._on_compare_enhanced)
-        card.body_layout.addWidget(self._btn_compare)
+        from ..i18n import tr
 
         self._enh_heavy = QLabel()
         self._enh_heavy.setWordWrap(True)
         card.body_layout.addWidget(self._enh_heavy)
+        actions = QHBoxLayout()
+
+        self._btn_compare = QPushButton("Compare raw and enhanced")
+        self._btn_compare.setCursor(Qt.PointingHandCursor)
+        self._btn_compare.setToolTip(tr(
+            "Preview the configured enhancements beside the unenhanced image, "
+            "for the magnifier's box when it has one and for the whole "
+            "field otherwise, so every step of the chain can be judged by "
+            "looking at what it did."))
+        self._btn_compare.clicked.connect(self._on_compare_enhanced)
+        actions.addWidget(self._btn_compare)
+        self._btn_apply = QPushButton(tr("Apply"))
+        self._btn_apply.setCheckable(True)
+        self._btn_apply.setCursor(Qt.PointingHandCursor)
+        self._btn_apply.setToolTip(tr(
+            "Apply these enhancements to the displayed image and subsequent "
+            "detections. Blue means active. Click again to use unenhanced "
+            "input while keeping these settings and existing masks. "
+            "Measurements retain the original image values."))
+        self._btn_apply.setStyleSheet(
+            "QPushButton:checked { background-color: #2563eb; color: #ffffff; "
+            "border: 1px solid #60a5fa; }")
+        self._enh_show = self._btn_apply
+        self._btn_apply.toggled.connect(self._on_show_enhanced)
+        actions.addWidget(self._btn_apply)
+        card.body_layout.addLayout(actions)
 
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
@@ -9647,7 +9659,14 @@ class MakeMasksScreen(QWidget):
         return card
 
     def _detect_chain(self) -> "detect_chain.Chain":
-        """The Image enhancement card as one :class:`detect_chain.Chain`."""
+        """The applied enhancement chain, or no changes while Apply is off."""
+        button = getattr(self, "_btn_apply", None)
+        if button is None or not button.isChecked():
+            return detect_chain.NO_CHAIN
+        return self._enhancement_chain()
+
+    def _enhancement_chain(self) -> "detect_chain.Chain":
+        """Configured enhancement settings, available to Compare before applying."""
         if not hasattr(self, "_enh_background"):
             return detect_chain.NO_CHAIN
         return detect_chain.Chain(
@@ -9685,7 +9704,7 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         chain = self._detect_chain()
-        heavy = detect_chain.heavy_steps(chain)
+        heavy = detect_chain.heavy_steps(self._enhancement_chain())
         self._enh_heavy.setText(
             tr("Heavy: {steps}. A whole-image run shows progress and can be "
                "cancelled.", steps=", ".join(tr(step) for step in heavy))
@@ -9695,12 +9714,11 @@ class MakeMasksScreen(QWidget):
         self._on_magnifier_context_changed()
 
     def _on_show_enhanced(self, on: bool) -> None:
-        """Draw the image the detector reads, or the image as loaded."""
+        """Apply or bypass enhancements for display and subsequent detections."""
         from ..i18n import tr
 
         self._canvas.enhance_display = bool(on)
-        self._canvas.enhance_chain = self._detect_chain()
-        self._canvas.refresh()
+        self._on_chain_changed()
         self._magnifier.refresh_view()
         self._status_label.setText(
             tr("Showing the enhanced image the detector reads.") if on else
@@ -9718,7 +9736,7 @@ class MakeMasksScreen(QWidget):
         image = self._canvas.image
         if image is None:
             return
-        chain = self._detect_chain()
+        chain = self._enhancement_chain()
         box = self._magnifier.compare_box()
         raw = np.array(self._canvas.displayed_source()
                        [box[1]:box[3], box[0]:box[2]], copy=True)

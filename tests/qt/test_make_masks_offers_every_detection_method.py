@@ -343,6 +343,7 @@ def test_a_whole_image_run_of_a_new_method_can_be_cancelled():
 
 def test_the_chain_and_the_parameters_are_part_of_the_request_key(screen):
     """A cached answer under one chain must not answer for another."""
+    screen._btn_apply.setChecked(True)
     magnifier = screen._magnifier
     magnifier.set_enabled(True)
     screen._canvas.resize(600, 400)
@@ -379,6 +380,7 @@ def test_the_mask_a_detect_button_makes_carries_the_chain(screen):
     """Otsu detect writes the chain into the field's ledger."""
     screen._enh_gamma.setValue(0.6)
     screen._enh_split.setChecked(True)
+    screen._btn_apply.click()
     screen._on_detect_otsu()
     entries = [edit for edit in screen._log._edits if edit.kind == "detect"]
     assert entries, "Otsu detect recorded nothing"

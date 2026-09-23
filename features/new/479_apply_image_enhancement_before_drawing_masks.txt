@@ -1,0 +1,21 @@
+APPLY IMAGE ENHANCEMENT BEFORE DRAWING MASKS
+
+Status: OPEN — requested 2026-09-22.
+Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
+
+REQUEST
+Put Compare and Apply at the bottom of Image enhancement. Apply toggles blue when active and can be switched off.
+
+ACCEPTANCE
+Selected enhancement settings remain configurable and comparable while inactive. Apply enables the chain for the displayed image and subsequent detection/mask creation; switching off restores unenhanced input without deleting settings or existing masks. Pending workers must not publish obsolete results.
+
+Validate real UI interaction and affected pixel/mask behavior with focused tests.
+
+2026-09-22 — IMPLEMENTED: Compare and blue checkable Apply share the bottom
+row. Apply defaults off; configured settings remain available to Compare.
+Display and automatic detection use only the active chain; original source
+pixels and existing masks survive toggling. Request keys include the active
+chain, protecting previews against obsolete worker results. Manual wand
+flooding still uses original pixel intensities, as before; this is a separate
+manual editing tool. 209 focused checks pass, including provenance and
+histogram consistency. Reviewed the loaded-field rendering.

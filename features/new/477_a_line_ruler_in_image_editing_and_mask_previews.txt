@@ -1,0 +1,12 @@
+A LINE RULER IN IMAGE EDITING AND MASK PREVIEWS
+
+Status: OPEN — requested 2026-09-22.
+Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
+
+REQUEST
+Draw a line on an image and read its length in Make Masks and applicable Mask Generation live previews.
+
+ACCEPTANCE
+Use image coordinates, so zoom/pan do not change the length. Report pixels, and calibrated physical length when valid pixel spacing is available. Drawing a ruler must not edit masks; endpoints and readout remain visible until cleared.
+
+Validate real UI interaction and affected pixel/mask behavior with focused tests.
