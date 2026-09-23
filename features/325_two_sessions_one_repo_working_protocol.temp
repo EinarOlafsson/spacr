@@ -11297,3 +11297,27 @@ changed installer paragraph still needs the API/translation lane's review.
 Validation: all37 focused shell/results/deferred-build tests pass in30.98s
 under8GB cap; no GPU or NAS work. GPU idle observer remains live with recent
 nonzero utilization, so the OPS continuation has not been started.
+
+2026-09-22 — IMPLEMENTATION:284/380 FOLD CONTROLS BEFORE FIRST SHEET CLAIM
+Fresh Classify profile finds a redundant whole-screen QSS application in
+install_flowview, reached from stack.currentChanged after the first show.
+Testing installation of fold controls during MainWindow construction before
+its first theme pass. Claiming app.py _build_screen and focused first-sheet/
+fold tests; no catalogs or settings-schema changes. Will measure actual
+navigation in alternating fresh processes and retain behavior checks.
+GPU observer remains live, nonzero utilization; no OPS driver is running.
+
+2026-09-22 — IMPLEMENTATION:284/380 FOLD STYLING IMPROVEMENT VALIDATED
+MainWindow._build_screen now installs the host's fold controls before the
+first theme pass. Existing stack watcher remains; repeated install is a
+no-op. Classify no longer adds FlowView's QSS only after the page is visible.
+Six alternating fresh real Home->Classify probes: median986.48->912.30ms,
+root StyleChange events5->2, all186widgets unchanged in count. Receipt:
+features/data/284_fold_controls_before_sheet_2026-09-22.json. This is a loaded
+Linux/offscreen diagnostic, not500ms or cross-platform acceptance;284/380
+remain open. All114 focused first-sheet/fold/Classify/Regression tests pass
+in89.61s. The ordering test uses production per-window theming; the default
+Qt fixture applies app-wide QSS and cannot test that ordering. No new public
+APIs or runtime strings; _build_screen's private docstring now explains the
+ordering. No catalogs, tutorials, GPU work or NAS access. app.py claim
+released after commit.

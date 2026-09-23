@@ -2118,3 +2118,12 @@ first-use machinery preserves language, settings, static/interactive modes,
 ordinary figures and teardown. This closes only hidden-explorer construction
 at open; first use still pays for it. Item380 and its500ms budget remain OPEN.
 Validation after integration: 115 focused tests and fatal-error Ruff pass.
+
+2026-09-22 — EARLIER FOLD CONTROL INSTALLATION
+Classify's fold strip and lazy FlowView section now exist before the first
+page theme pass, avoiding late whole-screen restyling from currentChanged.
+Six alternating real navigation probes: median986.48->912.30ms, root style
+changes5->2, same186 widgets. Existing stack watcher remains idempotent.
+Full measurement method/limitations are in item284's trailing note and
+features/data/284_fold_controls_before_sheet_2026-09-22.json. This closes a
+measured repeated-styling cost, not the500ms ceiling or cross-platform gate.

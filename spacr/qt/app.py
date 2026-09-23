@@ -5440,6 +5440,8 @@ class MainWindow(QMainWindow):
 
         A settings screen built here leaves each closed category unbuilt
         until it is opened; see ``AppScreen._build_a_waiting_heading``.
+        Fold controls are attached before the first stylesheet is applied,
+        so their registered rules do not restyle an already visible page.
 
         :param key: the module to build.
         :returns: the screen widget.
@@ -5450,7 +5452,11 @@ class MainWindow(QMainWindow):
         _screens_package._categories_wait_to_be_opened = True
         try:
             with _timing.span("build screen", key):
-                return self._build_screen_timed(key)
+                screen = self._build_screen_timed(key)
+                from .screens.map_barcodes import install_folds_on
+
+                install_folds_on(screen)
+                return screen
         finally:
             _screens_package._categories_wait_to_be_opened = waited
 

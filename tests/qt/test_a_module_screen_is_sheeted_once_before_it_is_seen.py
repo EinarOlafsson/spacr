@@ -242,7 +242,8 @@ class _StyleChanges(QObject):
 
 
 @pytest.mark.slow
-def test_opening_a_module_repolishes_its_screen_once(sheeted_app, qtbot):
+@pytest.mark.parametrize("key", ["measure", "classify_merged"])
+def test_opening_a_module_repolishes_its_screen_once(sheeted_app, qtbot, key):
     """THE RATCHET. Counted, not timed: a loaded runner cannot move it.
 
     Before this change the screen root received a ``StyleChange`` for each
@@ -267,15 +268,41 @@ def test_opening_a_module_repolishes_its_screen_once(sheeted_app, qtbot):
     counter = _StyleChanges()
     sheeted_app.installEventFilter(counter)
     try:
-        window._on_nav_selected("measure")
+        window._on_nav_selected(key)
         _pump(sheeted_app, 60)
     finally:
         sheeted_app.removeEventFilter(counter)
 
-    screen = window._screens["measure"]
+    screen = window._screens[key]
     restyles = counter.counts.get(getCppPointer(screen)[0], 0)
     assert restyles == 1, (
-        f"the measure screen was restyled {restyles} times before its "
+        f"the {key} screen was restyled {restyles} times before its "
         "first paint; each one repolishes every widget on it")
     assert screen.styleSheet().startswith(SHEET), (
         "the screen was restyled once, but not with the sheet")
+
+
+def test_classify_controls_exist_before_the_first_screen_sheet(
+        qtbot, monkeypatch):
+    from spacr.qt.app import MainWindow
+    from spacr.qt.preferences import apply_preferences_to_app
+
+    apply_preferences_to_app(QApplication.instance())
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.show()
+    observed = []
+    original = theme._sheet_one_window
+
+    def sheet(widget):
+        if getattr(widget, "app_key", None) == "classify_merged":
+            observed.append((getattr(widget, "_fold_strip", None) is not None,
+                             getattr(widget, "_flowview_section", None) is not None))
+        return original(widget)
+
+    monkeypatch.setattr(theme, "_sheet_one_window", sheet)
+    window._on_nav_selected("classify_merged")
+    _pump(QApplication.instance())
+    assert observed and all(strip and flow for strip, flow in observed)

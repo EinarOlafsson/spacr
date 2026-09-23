@@ -1514,3 +1514,19 @@ Evidence: features/data/284_umap_explorer_2026-09-22.json. Item284 remains OPEN.
 Validation: 115 focused tests passed again after restoring the change over
 integrated d63dd13d5; fatal-error Ruff passes. Three new regression cases
 exercise no-payload teardown, first-payload reuse, and late language/settings.
+
+2026-09-22 — FOLD CONTROLS JOIN THE FIRST STYLING PASS
+The stack watcher installed Classify's fold strip and FlowView section after
+the first screen show, applying new QSS to an already styled page. MainWindow
+now runs the same idempotent fold installer after construction, before its
+theme pass and first show. The stack watcher remains for other entry paths.
+Six alternating fresh-process real Home->Classify probes at3f907ea4f:
+median986.48->912.30ms (7.5%); screen-root StyleChange events5->2 on every
+pair; widget count186 in every run. Source was compiled, settings/fonts fixed,
+no concurrent tests from this session during measurements. This is an
+offscreen diagnostic on this loaded Linux machine, not release acceptance.
+The ordering regression test now checks the production per-window theme;
+its first version used the suite's application-wide QSS fixture, which does
+not reproduce the production ordering. Existing fold behavior is preserved.
+The500ms ceiling and other-platform evidence remain open. Receipt:
+features/data/284_fold_controls_before_sheet_2026-09-22.json.
