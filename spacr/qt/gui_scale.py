@@ -906,6 +906,7 @@ def _dialog_classes():
                                    QVBoxLayout)
 
     from .i18n import tr
+    from .theme import font_px
 
     class KeepOrRevertDialog(QDialog):
         """"Keep these settings?" with a countdown that reverts on its own.
@@ -952,14 +953,16 @@ def _dialog_classes():
             column.addLayout(row)
             self.keep_button.setDefault(True)
             self.keep_button.setFocus(Qt.OtherFocusReason)
+            title_px = font_px(17, scale=1.0)
+            body_px = font_px(13, scale=1.0)
             self._own_rule = (
                 "QDialog#SpacrKeepOrRevert QLabel#SpacrKeepQuestion "
-                "{ font-size: 17px; font-weight: 600; }"
+                f"{{ font-size: {title_px}px; font-weight: 600; }}"
                 "QDialog#SpacrKeepOrRevert QLabel#SpacrKeepDetail, "
                 "QDialog#SpacrKeepOrRevert QLabel#SpacrKeepCountdown "
-                "{ font-size: 13px; }"
+                f"{{ font-size: {body_px}px; }}"
                 "QDialog#SpacrKeepOrRevert QPushButton "
-                "{ font-size: 13px; min-width: 80px; min-height: 26px; "
+                f"{{ font-size: {body_px}px; min-width: 80px; min-height: 26px; "
                 "padding: 4px 14px; }")
             try:
                 from .theme import set_a_sheeted_widgets_own_rule

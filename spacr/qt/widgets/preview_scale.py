@@ -189,7 +189,7 @@ def scale_qss(text: str, factor: float, *, sizes_only: bool = False) -> str:
 
 
 def _scale_bare_declarations(text: str, factor: float) -> str:
-    """Scale a sheet with no selectors, e.g. ``"font-size: 12px; color: red"``."""
+    """Scale bare declarations such as a font size and a text color."""
     parts = []
     for declaration in text.split(";"):
         if ":" not in declaration:

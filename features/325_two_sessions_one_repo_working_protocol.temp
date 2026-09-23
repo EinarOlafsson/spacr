@@ -11794,3 +11794,13 @@ on gui_scale.py957/960/962 and preview_scale.py192; no new flowchart offender.
 Ruff E9/F63/F7/F82 passes. Dark/light renders inspected. Feature483tracks
 implementation complete, documentation-lane follow-up pending. Broader goal
 and476remain open. Claims on these UI files release on push.
+
+2026-09-22 — IMPLEMENTATION: FONT RATChet REPAIRED
+The separate pre-existing failure surfaced by483is now repaired. gui_scale's
+Keep/Revert rescue dialog gets its font sizes through font_px(scale=1.0),
+preserving its deliberate exemption so it stays readable at10percent GUI/font
+scale. preview_scale's bare-declaration docstring no longer includes a literal
+QSS font size that the source scanner mistakes for runtime styling. No scanner
+exemptions added and no ratchet relaxed.29font/GUI-scale tests pass, including
+Keep/Revert/timeout behavior. API lane: refresh these two source bindings in
+your normal pass; no new strings or behavioral translation changes.
