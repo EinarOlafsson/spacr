@@ -44,3 +44,20 @@ Validation: 71 scoped recruitment checks passed initially; two stale plot
 fixture/label expectations were updated and both retested successfully. A
 new multi-channel check verifies thirty distinct ratios, repeated-call safety,
 input preservation and absence of fabricated slopes.
+
+2026-09-23 — PART2 COMPLETE: OPT-IN CLASSIFICATION TTA
+Classify now has a Computer Vision — Test-time augmentation category. Master,
+right-angle rotations, horizontal flips and vertical flips all default False.
+Distinct orientations are evaluated once (at most eight), sequentially to
+avoid multiplying activation memory. Folder and tar inference share the same
+helper. Probability averaging and majority voting are supported; vote ties
+prefer mean probability, then lowest class index. Binary view labels respect
+score_threshold. Original scores/labels and class probabilities remain visible.
+Enabled output adds prediction_mean, prediction_std, transform_agreement,
+review_flag, tta_views and per-class mean/original/std probabilities. Review
+criteria default to agreement below0.75 or probability std above0.15.
+Disabled inference retains its previous schema and single model call. Training
+and held-out evaluation are unchanged; no model-accuracy gain is claimed.
+Validation:14 CPU inference/settings checks and12 merged-Classify Qt checks
+pass, including real PNG/tar paths, an orientation-sensitive model, deliberate
+mean/vote disagreement, input preservation and distinct transformation counts.

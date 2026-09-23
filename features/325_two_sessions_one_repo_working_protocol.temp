@@ -13814,3 +13814,23 @@ refresh that translation source and API/tutorial output-column examples.
 71 scoped checks plus2 repaired plot-contract checks pass; new regression
 explicitly uses two deliberately different channel ratios. New TTA helper
 in progress, not yet wired or claimed complete.
+
+2026-09-23 — IMPLEMENTATION HANDOFF:484 PART2 CLASSIFICATION TTA
+New inference_augmentation module: DEFAULTS, transforms_for, predict_augmented.
+Both deep_spacr.apply_model and apply_model_to_tar use _inference_predictions.
+apply_model adds keyword-only tta_enabled, tta_rotations, tta_horizontal_flip,
+tta_vertical_flip (allFalse), tta_aggregation='probability_mean',
+tta_min_agreement=.75, tta_max_std=.15 and score_threshold=.5. Tar takes the
+same keys from settings. Existing disabled output stays unchanged. Enabled
+output adds original_pred, original_predicted_label, prediction_mean,
+prediction_std, transform_agreement, review_flag, tta_views and per-class
+probability/original/std columns. Majority_vote affects predicted_label and
+cv_predictions; pred remains mean probability, so do not relabel a voting
+result by thresholding pred. Agreement is orientation stability, not calibrated
+confidence. No trained-model accuracy gain claimed. At most8unique views.
+New Classify CV category 'Test-time augmentation', types/tooltips/combo metadata
+registered. Updated score_threshold description explains per-view thresholds.
+Please refresh APIs, all new settings/category translations and tutorials.
+14 CPU inference/settings plus12 Classify Qt checks pass, including both real
+folder and tar input paths. Next: pre-Mask image-quality screening and unified
+host–pathogen/vacuole reports; forthcoming replication model remains unshipped.

@@ -2227,6 +2227,9 @@ def deep_spacr_defaults(settings):
     settings.setdefault('sample',None)
     settings.setdefault('experiment','experiment')
     settings.setdefault('score_threshold',0.5)
+    from .inference_augmentation import DEFAULTS as inference_defaults
+    for key, value in inference_defaults.items():
+        settings.setdefault(key, value)
     settings.setdefault('dataset','')
     settings.setdefault('model_path','')
     settings.setdefault('file_type','cell_png')
@@ -3394,6 +3397,13 @@ expected_types = {
     'model_path':str,
     'dataset':str,
     'score_threshold':float,
+    'tta_enabled':bool,
+    'tta_rotations':bool,
+    'tta_horizontal_flip':bool,
+    'tta_vertical_flip':bool,
+    'tta_aggregation':str,
+    'tta_min_agreement':float,
+    'tta_max_std':float,
     'sample':(int, list, type(None)),
     'file_metadata':(str, type(None), list),
     "train":bool,
@@ -4418,7 +4428,14 @@ tooltips = {
     "file_type": "(str) - Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
     "model_path": "(str) - Path to a trained spaCR classifier saved as a whole PyTorch object (loaded with torch.load(weights_only=False), not a state_dict). Used when applying a model to a dataset tar and when generating activation maps. deep_spacr overwrites it with the freshly trained model whenever train is True, so set it only to score with an existing model. Default ''.",
     "dataset": "(str) - Path to the .tar archive of single-object PNG crops produced by generate_dataset, which the activation-map step opens with TarImageDataset. The plate folder is inferred two levels above it and CAM outputs are written next to it under <tar_name>/<cam_type>/. Provide an absolute or directory-qualified path rather than a filename alone. Default ''.",
-    "score_threshold": "(float) - Probability cutoff (0-1) applied to the model's positive-class score when deriving the binary cv_predictions column: pred >= threshold becomes 1. The raw probability is always saved alongside it, so this only changes the hard call, not the score. Lower it to catch more positives at the cost of false positives; raise it for precision. Default 0.5.",
+    "score_threshold": "(float) - Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5.",
+    'tta_enabled': '(bool) - Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.',
+    'tta_rotations': '(bool) - With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.',
+    'tta_horizontal_flip': '(bool) - With test-time augmentation enabled, include horizontal reflections of the selected rotations. Default False.',
+    'tta_vertical_flip': '(bool) - With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False.',
+    'tta_aggregation': '(str) - Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.',
+    'tta_min_agreement': '(float) - Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.',
+    'tta_max_std': '(float) - Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.',
     "sample": "(int, list or None) - Randomly draw this many PNG crops from the database when building the dataset tar instead of using all of them; a list uses its first element, and values above the total are clamped. Use it to build a quick trial dataset or to cap a huge screen. None uses every crop, shuffled. Default None.",
     "file_metadata": "(str, list, or None) - Substring filter applied to png_path when retrieving crops from the database. Only paths containing the supplied string are included; a list matches any entry rather than requiring all entries. Use this setting to restrict a dataset to one plate, well, or object type, for example 'plate1_' or 'cell_png'. None includes every crop. Default None.",
     "apply_model_to_dataset": "(bool) - After training (or straight away when reusing a saved model_path), pack the object PNGs into a tar, run inference over it, copy the n_top_examples most confident images per class into top_examples/, and merge the per-object scores back into measurements.db. Turn it off to only train and evaluate a model without scoring the screen. Default True.",
@@ -4867,6 +4884,8 @@ categories = {
         "n_top_examples"],
 
     "Computer Vision Optimization and Regularization": ["use_checkpoint", "dropout_rate", "weight_decay"],
+    "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
+                               'tta_vertical_flip', 'tta_aggregation', 'tta_min_agreement', 'tta_max_std'],
 
     "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds",
                          "cv_group_by", "holdout_plate", "nested_cv_inner_folds"],

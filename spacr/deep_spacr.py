@@ -279,8 +279,26 @@ def _unpack_supervised_batch(batch):
             "A supervised data loader must yield at least (images, labels).")
     return batch[0], batch[1]
 
+def _inference_predictions(model, images, settings=None):
+    """Keep ordinary inference unchanged unless multi-view scoring is enabled.
+
+    :param model: evaluation-mode classification model.
+    :param images: a batch of normalized image tensors.
+    :param settings: optional tta_* settings and binary score_threshold.
+    :returns: scores, labels and optional probability/diagnostic columns.
+    """
+    if settings and settings.get('tta_enabled', False):
+        from .inference_augmentation import predict_augmented
+
+        return predict_augmented(model, images, settings)
+    return _probability_columns(model(images))
+
+
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
-                n_jobs=10, input_statistics='symmetric'):
+                n_jobs=10, input_statistics='symmetric', *, tta_enabled=False,
+                tta_rotations=False, tta_horizontal_flip=False, tta_vertical_flip=False,
+                tta_aggregation='probability_mean', tta_min_agreement=.75,
+                tta_max_std=.15, score_threshold=.5):
     """
     Apply a trained PyTorch model to images in a directory.
 
@@ -300,6 +318,15 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
     :type normalize: bool
     :param n_jobs: Number of worker processes used by the DataLoader.
     :type n_jobs: int
+    :param input_statistics: Normalization convention used when normalize is True.
+    :param tta_enabled: Enable multi-view scoring; False preserves ordinary inference.
+    :param tta_rotations: Include 90, 180 and 270-degree rotations; default False.
+    :param tta_horizontal_flip: Include left/right reflected views; default False.
+    :param tta_vertical_flip: Include up/down reflected views; default False.
+    :param tta_aggregation: probability_mean or majority_vote; ties prefer mean probability.
+    :param tta_min_agreement: Flag agreement below this fraction; default 0.75.
+    :param tta_max_std: Flag probability standard deviation above this value; default 0.15.
+    :param score_threshold: Positive-class cutoff used for binary TTA view labels.
     :return: DataFrame with image paths and prediction scores.
     :rtype: pandas.DataFrame
 
@@ -311,9 +338,22 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
     classes the frame also carries ``predicted_label`` and one
     ``prob_class_<i>`` column per class. Results are also written to a CSV file
     derived from ``model_path`` and the current date.
+
+    With ``tta_enabled``, both binary and multiclass outputs also retain
+    ``original_pred``, ``original_predicted_label``, per-class original and
+    mean probabilities, ``prediction_std``, ``transform_agreement``,
+    ``review_flag`` and ``tta_views``. Orientation stability is not calibrated
+    confidence. Training and held-out evaluation are unchanged.
     """
     from .io import NoClassDataset
     from .utils import print_progress
+
+    inference_settings = dict(tta_enabled=tta_enabled, tta_rotations=tta_rotations,
+                              tta_horizontal_flip=tta_horizontal_flip,
+                              tta_vertical_flip=tta_vertical_flip,
+                              tta_aggregation=tta_aggregation,
+                              tta_min_agreement=tta_min_agreement,
+                              tta_max_std=tta_max_std, score_threshold=score_threshold)
     
     device, note = pick_device(what="inference")
     if note:
@@ -363,8 +403,7 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
             start = time.time()
             images = batch_images.to(device=device, dtype=torch.float,
                                      non_blocking=(device.type == "cuda"))
-            outputs = model(images)
-            scores, labels, extra = _probability_columns(outputs)
+            scores, labels, extra = _inference_predictions(model, images, inference_settings)
             prediction_pos_probs.extend(scores.cpu().tolist())
             predicted_labels.extend(labels.cpu().tolist())
             for name, values in extra.items():
@@ -398,6 +437,9 @@ def apply_model_to_tar(settings=None):
     :param settings: Dictionary of inference settings. Expected keys include
         ``tar_path``, ``model_path``, ``image_size``, ``batch_size``,
         ``normalize``, ``n_jobs``, ``verbose``, and ``score_threshold``.
+        Optional ``tta_enabled``, ``tta_rotations``, ``tta_horizontal_flip``,
+        ``tta_vertical_flip``, ``tta_aggregation``, ``tta_min_agreement`` and
+        ``tta_max_std`` use the same meanings and defaults as :func:`apply_model`.
     :type settings: dict
     :return: DataFrame with processed prediction results.
     :rtype: pandas.DataFrame
@@ -410,6 +452,11 @@ def apply_model_to_tar(settings=None):
     ``predicted_label`` and one ``prob_class_<i>`` column per class, and its
     ``cv_predictions`` column holds the predicted class index rather than a
     threshold on ``pred``.
+
+    Enabled test-time augmentation adds original predictions and stability
+    diagnostics for every head type. ``cv_predictions`` follows the selected
+    aggregation method; with majority voting it can differ from thresholding
+    the mean probability stored in ``pred``.
     """
     if settings is None:
         settings = {}
@@ -495,8 +542,7 @@ def apply_model_to_tar(settings=None):
             start = time.time()
             images = batch_images.to(device=device, dtype=torch.float,
                                      non_blocking=(device.type == "cuda"))
-            outputs = model(images)
-            scores, labels, extra = _probability_columns(outputs)
+            scores, labels, extra = _inference_predictions(model, images, settings)
             prediction_pos_probs.extend(scores.cpu().tolist())
             predicted_labels.extend(labels.cpu().tolist())
             for name, values in extra.items():

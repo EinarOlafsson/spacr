@@ -2059,6 +2059,9 @@ def categories_for_app(
                 "batch_size", "mixed_precision",
                 "gradient_accumulation_steps", "early_stopping_patience"],
 
+            "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
+                                       'tta_vertical_flip', 'tta_aggregation', 'tta_min_agreement', 'tta_max_std'],
+
             "Evaluation & Results": [
                 "cross_validation_enabled", "cross_validation_folds",
                 "cv_group_by", "holdout_plate", "nested_cv_inner_folds",
@@ -2100,7 +2103,7 @@ def categories_for_app(
             cv_family = "Computer Vision"
             ml_family = "Machine Learning"
             cv_groups = ("Images & Cropping", "Model & Regularization",
-                         "Training & Loss")
+                         "Training & Loss", "Test-time augmentation")
             ml_groups = ("Model & Features", "Plate & Batch Correction")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
             shared_last = ("Evaluation & Results",)
