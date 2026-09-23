@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 
 import numpy as np
 import pytest
@@ -57,7 +58,7 @@ def test_primary_destination_alias_is_refused_without_writing(tmp_path, alias):
     if alias == 'symbolic':
         target.symlink_to(source)
     elif alias == 'hard':
-        target.hardlink_to(source)
+        os.link(source, target)
     with pytest.raises(ValueError, match='different files'):
         read_primary_source(source, image, labels.shape, target, bound_image=image)
     snapshot = read_primary_source(source, image, labels.shape, output, bound_image=image)

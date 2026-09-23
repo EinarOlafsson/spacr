@@ -4958,3 +4958,22 @@ The exact extracted function also hashes all three fixtures on realPython3.8.20,
 which lacksfile_digest; this is not a full scientific-stack/Python3.9 matrix
 claim. Receipt288_timeflows_portable_digest_2026-09-23.json. Existing benchmark
 reports and provenance remain unchanged; no inference rerun.
+
+2026-09-23 — OLDER-PYTHON TEST ASSUMPTIONS AND CPU STUB FIXED
+The minimum-dependency run exposed tests using newer Path.hardlink_to and
+sys.stdlib_module_names APIs, plus forcing rmtree(onexc=) onPython3.9 whose
+real remover only supports onerror. Tests now useos.link for the same alias
+refusal, an inspected stdlib inventory fallback that rejects third-party
+imports, and an exception callback adapter over the real older remover.
+Both callback forms still face real permission failures; no cases skipped.
+Two added pre3.12signature cases verify the adapter on the current host.
+
+Ten intensity-filter tests also failed because their counted Cellpose stub
+rejected the new explicit use_bfloat16 argument. The fixture now selects a
+CPU accelerator deterministically; the stub accepts/asserts float32, retaining
+all invalid-bound/no-write and valid-output checks. Before10fail/7pass15.02s;
+fullfive-filecohort222pass/1existingwarning16.60s, plus4permissioncallback
+checks2.37s (224distinct total). The stdlib helper also runs on realPython3.8.20:
+315stdlibnames, core/extension modules included and scientific extras rejected.
+This is not a new fullPython3.9 matrix result. No runtime change. Receipt:
+data/288_older_python_test_contracts_2026-09-23.json.

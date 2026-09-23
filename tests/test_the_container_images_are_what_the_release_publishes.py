@@ -595,8 +595,10 @@ def test_the_smoke_script_imports_nothing_heavy_at_module_scope():
         elif isinstance(node, ast.ImportFrom) and node.level == 0:
             top_level.add((node.module or "").split(".")[0])
 
-    heavy = sorted(name for name in top_level
-                   if name and name not in sys.stdlib_module_names)
+    from tests.stdlib_inventory import stdlib_names
+
+    standard = stdlib_names()
+    heavy = sorted(name for name in top_level if name and name not in standard)
     assert not heavy, (
         f"smoke_pipeline.py imports {heavy} at module scope; import them "
         f"inside the function that uses them."

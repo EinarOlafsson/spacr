@@ -14,13 +14,11 @@ from tests.test_pipeline_v2_illumination import _CaptureModel, _Session
 @pytest.fixture(autouse=True)
 def capture_cellpose(monkeypatch):
     """Reuse the existing Cellpose double with its strict eval signature."""
-    import torch
+    from spacr import accelerator
 
     _CaptureModel.received = []
     monkeypatch.setattr("cellpose.models.CellposeModel", _CaptureModel)
-    monkeypatch.setattr("spacr.accelerator.is_gpu", lambda: False)
-    monkeypatch.setattr("spacr.accelerator.torch_device",
-                        lambda: torch.device("cpu"))
+    monkeypatch.setattr(accelerator, "_CACHED", accelerator._CPU)
 
 
 def _raw_field(shape, object_mean):
@@ -184,9 +182,10 @@ def test_invalid_bounds_fail_before_model_construction_with_working_counterpart(
     class _CountedModel(_CaptureModel):
         """Count constructors while inheriting the existing strict eval."""
 
-        def __init__(self, *, gpu, pretrained_model, device):
+        def __init__(self, *, gpu, pretrained_model, device, use_bfloat16=True):
             super().__init__(gpu=gpu, pretrained_model=pretrained_model,
-                             device=device)
+                             device=device, use_bfloat16=use_bfloat16)
+            assert not gpu and str(device) == "cpu" and use_bfloat16 is False
             constructed.append(self)
 
     monkeypatch.setattr("cellpose.models.CellposeModel", _CountedModel)

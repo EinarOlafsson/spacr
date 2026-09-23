@@ -1,0 +1,52 @@
+{
+  "feature": 288,
+  "date": "2026-09-23",
+  "scope": "Supported-Python test portability and CPU precision contract; no production change",
+  "changes": [
+    "Fallback stdlib inventory examines stdlib and extension directories without importing modules; still rejects third-party imports.",
+    "Hardlink overwrite-protection fixture uses portable os.link, preserving the alias refusal assertion.",
+    "Both installer-removal callback conventions use real permission failures; an adapter exercises exception callbacks on older rmtree.",
+    "Intensity filtering fixture selects deterministic CPU resolution and accepts/asserts explicit float32 constructor precision."
+  ],
+  "validation": {
+    "cpu_stub_before": {
+      "failed": 10,
+      "passed": 7,
+      "seconds": 15.02
+    },
+    "full_five_file_after": {
+      "passed": 222,
+      "warnings": 1,
+      "seconds": 16.6
+    },
+    "additional_legacy_rmtree_cases": {
+      "passed": 4,
+      "deselected": 159,
+      "seconds": 2.37,
+      "note": "Two original permission cases plus two added pre3.12 signature cases;224distinct checks covered in total."
+    },
+    "actual_older_interpreter": {
+      "version": "3.8.20",
+      "stdlib_modules": 315,
+      "core_and_extension_modules_accepted": true,
+      "numpy_torch_pytest_spacr_rejected": true
+    }
+  },
+  "source_sha256": {
+    "tests/stdlib_inventory.py": "60aa844ef2b908d1b97e3c7a8cd3944b78b02e4e3b753ad10bfb6e3e0e9e1af1",
+    "tests/test_stdlib_inventory.py": "ca9108165444b2a65709aa5d5fc7f14558e2f29dc47c08a746e95e0c88469435",
+    "tests/test_install_cleanup.py": "ee3af0dfaaa786b8db96b4753299e224aaad3c514389c482ebf985c688aa249c",
+    "tests/test_secondary_mask_source.py": "64bbc5b6034d31e8c76edbfae8eaeccc149865058b5628327d13be9963a10df6",
+    "tests/test_the_container_images_are_what_the_release_publishes.py": "43703fef03e79428cbb26e6ccdce369f7e45e32b153ff5891b6b1fb4de19d944",
+    "tests/test_v2_raw_intensity_filtering.py": "283d2857f633932e8ec27b27fac17f2c8e1a5bed5a2915dbf9ab12f4722b5d07"
+  },
+  "logs_sha256": {
+    "cpu-intensity-stub-before.log": "e13ccf89acc7ee40f862b874ad734e74152e071eb505455157ba813eaaaba6a5",
+    "py39-contracts-after.log": "7d3cfd8ea6e7af4d73b1d7bea12b25554a567111f21e599ae4a5476203e2984d",
+    "py39-rmtree-final.log": "4414d79b678fd2b38b62b924d966cb65b3194b8cd80623eb37560e1dd3501ca6"
+  },
+  "limits": [
+    "No new full Python3.9 environment or complete CI claim.",
+    "No skip or relaxed import, alias, permission or intensity assertion added."
+  ]
+}
