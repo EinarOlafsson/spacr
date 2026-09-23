@@ -9292,6 +9292,10 @@ class AppScreen(QWidget):
                 or getattr(self, "_results_panel", None))
         if tabs is None or page is None:
             return
+        self._figures_card.show()
+        folder = getattr(self._figures_card, "folder", None)
+        if folder is not None:
+            folder.set_shut(False, by_user=False)
         try:
             tabs.setCurrentWidget(page)
         except (RuntimeError, TypeError):

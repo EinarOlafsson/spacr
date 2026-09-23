@@ -13053,3 +13053,24 @@ Help search for that host before its nested controls.51 focused map/capture/
 CLI checks pass. Map JSON and lessons78/80/81 remain unchanged. The private
 API CPU queue stopped without final output; saved checkpoints are intact and
 remaining zh_CN/hi/ko/is drafts resume at batch4 under the same6G cap.
+
+2026-09-23 — CODEX: NARROW HITS VISIBILITY REPAIR CLAIM
+Lesson79 recording reproduces a real fresh-Regression bug: clicking the Hits
+fold builds/selects panel.hits but its Figures ancestor stays hidden, so the
+button shows nothing. A focused real Qt click test fails waiting for the
+selected Hits widget to become visible (7.11s), matching both native capture
+attempts. AppScreen/regression have no uncommitted edits in the other checkout
+at this check. Taking the narrow _raise_the_results_tab visibility repair and
+its regression test to unblock an authentic recording; no fitting/data/model
+logic, captions or public API prose changes. Will keep this isolated from the
+recorder and report the exact native outcome, including empty-input states.
+
+2026-09-23 — CODEX: HITS VISIBILITY FIX VERIFIED
+The fresh-Hits click test fails before the change, and47 focused regression
+checks pass after it (43.42s), including fresh-hidden and user-folded Figures.
+_raise_the_results_tab now shows its Figures card and unfolds its body before
+selecting Results; this automatic unfold does not persist a preference change.
+Four runtime lines, no public docstring/signature/caption or analysis change.
+Receipt472_hit_list_visibility_2026-09-23.json. The recorder still requires
+the real selected Hits widget to be visible; it does not patch the app or
+manufacture a results view. Native capture verification follows this checkpoint.
