@@ -469,11 +469,12 @@ def test_the_histogram_counts_the_values_the_level_was_found_on():
     assert not np.array_equal(rough, smooth)
 
 
-def test_the_preview_window_marks_the_level_the_button_would_use(screen):
+def test_the_preview_window_marks_the_level_the_button_would_use(screen, qtbot):
     screen._otsu_correction.setValue(1.0)
     screen._on_show_otsu_histogram()
     dialog = screen._otsu_histogram_dialog
     assert dialog is not None
+    qtbot.waitUntil(lambda: dialog.ready)
     settings = screen._otsu_settings()
     expected = engine._otsu_levels(
         screen._canvas.image, bright=screen._otsu_bright.isChecked(),
@@ -486,21 +487,24 @@ def test_the_preview_window_marks_the_level_the_button_would_use(screen):
     dialog.close()
 
 
-def test_the_preview_follows_the_correction(screen):
+def test_the_preview_follows_the_correction(screen, qtbot):
     screen._otsu_correction.setValue(1.0)
     screen._on_show_otsu_histogram()
+    qtbot.waitUntil(lambda: screen._otsu_histogram_dialog.ready)
     plain = list(screen._otsu_histogram_dialog.plot.levels)
     screen._otsu_correction.setValue(1.5)
     screen._on_show_otsu_histogram()
+    qtbot.waitUntil(lambda: screen._otsu_histogram_dialog.ready)
     stricter = list(screen._otsu_histogram_dialog.plot.levels)
     assert stricter[0] > plain[0]
     assert screen._otsu_histogram_dialog.plot.levels == stricter
     screen._otsu_histogram_dialog.close()
 
 
-def test_the_preview_says_a_local_level_varies(screen):
+def test_the_preview_says_a_local_level_varies(screen, qtbot):
     screen._otsu_local.setChecked(True)
     screen._on_show_otsu_histogram()
+    qtbot.waitUntil(lambda: screen._otsu_histogram_dialog.ready)
     text = screen._otsu_histogram_dialog.caption.text()
     assert "varies" in text and "local" in text.lower()
     screen._otsu_histogram_dialog.close()

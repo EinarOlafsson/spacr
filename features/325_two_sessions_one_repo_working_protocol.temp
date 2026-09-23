@@ -10955,3 +10955,34 @@ Read origin's99e4b9717/7234c9eb2/233b5fa47 CPU corrections while finishing
 this batch. Their changed API/runtime sources are the next reconciliation;
 the Make Masks reference will use those fixes, not the earlier mismatches.
 No GPU or NAS work; incoming implementation files have not been edited.
+
+2026-09-22 — IMPLEMENTATION:473 HISTOGRAM PREVIEW CLAIM
+Claiming make_masks.py histogram computation/dialog/button and focused tests.
+Current preview always uses raw-image Otsu, even for another algorithm or
+inversion/normalization/enhancement. Will snapshot the selected method and
+pipeline, compute the histogram/levels off the GUI thread, show no misleading
+single marker for local methods, and handle stale/failed/closed previews.
+New dialog help strings and API symbols will be handed back with exact source
+inventory. No catalog/tutorial edits or magnifier-provenance edits in this claim.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:473 HISTOGRAM REPAIRED
+The histogram snapshots the loaded field and pipeline, runs off the GUI
+thread, and marks the chosen global method's corrected threshold(s) on the
+actual enhanced/smoothed detector input. Local modes have no misleading
+global marker; their caption explains per-pixel levels. Local Otsu's displayed
+input histogram precedes its internal rank-filter scaling. The title names
+the method, failures stay failures, and old/closed requests cannot overwrite
+new previews. A library call in progress finishes before cancellation can
+be checked; do not document immediate interruption within those calls.
+Corrected levels outside the input range expand the plot axis. Wrapped
+captions now reserve sufficient height, verified numerically and by renders.
+The historical _on_show_otsu_histogram and _OtsuHistogramDialog names remain
+for compatibility, but their behavior now covers all CPU thresholds. The
+handler is asynchronous: tests/callers wait for dialog.ready; dialog.error
+reports failure. Reopen after edits to refresh the snapshot.
+New request/helper, delivery/lifecycle methods, dialog method/pending kwargs
+and eight runtime sources (including the existing no-image message now
+passed through tr) are inventoried with exact hashes in
+features/data/473_threshold_histogram_2026-09-22.json. No catalogs/tutorials
+edited here.220 distinct focused checks pass,43 new. The claim is released
+with this commit; CPU magnifier/drag provenance remains the next repair.

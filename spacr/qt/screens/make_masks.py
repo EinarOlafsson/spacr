@@ -5276,6 +5276,59 @@ class _FlowPane(QLabel):
         self._rescale()
 
 
+class _ThresholdHistogramRequest(NamedTuple):
+    """A whole-field histogram snapshot, independent of later panel edits.
+
+    ``image`` is a private copy of the loaded pixels; ``invert`` and optional
+    ``normalization`` (low/high percentiles) precede ``chain``. ``settings``
+    copies the effective Otsu-category settings, including smoothing and
+    correction. ``mode`` names the selected threshold and ``bright`` its
+    polarity. ``ticket`` cancels between preparation and threshold stages;
+    an active NumPy/scikit-image call finishes before cancellation is read.
+    """
+
+    image: np.ndarray
+    mode: str
+    settings: dict
+    bright: bool
+    invert: bool
+    normalization: Optional[tuple]
+    chain: Any
+    ticket: Any
+
+
+def _threshold_histogram(request: _ThresholdHistogramRequest) -> tuple:
+    """Compute detector-input counts and global levels on a worker thread.
+
+    Uses the canvas's inversion, normalization and enhancement order, then
+    the threshold engine's smoothing and level calculation. Local methods
+    return no global marker: their per-pixel thresholds cannot be represented
+    by one vertical line. Their histogram is the smoothed input before local
+    thresholding (and before Local Otsu's internal 8-bit rank-filter scaling).
+
+    :returns: ``(counts, edges, levels, local)``. Algorithm errors propagate;
+        the preview must never silently replace the selected method by Otsu.
+    """
+    request.ticket.check()
+    image = request.image
+    if request.invert:
+        image = engine.invert_normalized(image)
+    if request.normalization is not None:
+        image = engine.normalize_for_detection(image, *request.normalization)
+    image = detect_chain.prepare(image, request.chain)
+    request.ticket.check()
+    settings = request.settings
+    values = engine._otsu_values(image, settings["smoothing"])
+    counts, edges = engine._otsu_histogram(values, bins=OTSU_HISTOGRAM_BINS)
+    local = settings["local"] or request.mode in engine.LOCAL_THRESHOLDS
+    levels = [] if local else engine._otsu_levels(
+        values, bright=request.bright, correction=settings["correction"],
+        classes=settings["classes"],
+        algorithm=cpu_modes.engine_algorithm(request.mode))
+    request.ticket.check()
+    return counts, edges, levels, local
+
+
 class _OtsuHistogramPlot(QWidget):
     """The field's intensity histogram with the chosen level drawn on it.
 
@@ -5308,39 +5361,41 @@ class _OtsuHistogramPlot(QWidget):
 
         The same mapping the bars are drawn with, so a test can ask the
         picture where it put the marker instead of trusting that it did.
+        Its range includes corrected levels outside the histogram's bin
+        edges, keeping those markers distinct from the maximum intensity.
 
         :param level: an intensity.
         :returns: the x coordinate, clamped to the plot's own width.
         """
-        low = float(self.edges[0])
-        high = float(self.edges[-1])
-        width = max(1, self.width())
+        low = min(float(self.edges[0]), *self.levels) if self.levels else float(self.edges[0])
+        high = max(float(self.edges[-1]), *self.levels) if self.levels else float(self.edges[-1])
+        width = max(1, self.width() - 1)
         if high <= low:
             return 0.0
         fraction = (float(level) - low) / (high - low)
         return max(0.0, min(1.0, fraction)) * width
 
     def paintEvent(self, event):
-        """Draw the bars, then a line at every level, then the axis ends."""
+        """Draw bars and threshold lines on the same intensity axis."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, False)
         palette = active_palette()
         painter.fillRect(self.rect(), QColor(palette["bg"]))
         height = max(1, self.height())
-        width = max(1, self.width())
         tallest = float(self.counts.max()) if self.counts.size else 0.0
         if tallest > 0.0:
             bar_colour = QColor(palette.get("fg", "#c8c8c8"))
             bar_colour.setAlpha(160)
             painter.setPen(Qt.NoPen)
             painter.setBrush(QBrush(bar_colour))
-            step = width / float(self.counts.size)
             for index, value in enumerate(self.counts):
                 tall = int(round(height * float(value) / tallest))
                 if tall <= 0:
                     continue
-                painter.drawRect(QRect(int(index * step), height - tall,
-                                       max(1, int(step)), tall))
+                left = int(self.level_x(self.edges[index]))
+                right = int(self.level_x(self.edges[index + 1]))
+                painter.drawRect(QRect(left, height - tall,
+                                       max(1, right - left), tall))
         pen = QPen(QColor(palette["accent"]))
         pen.setWidth(2)
         painter.setPen(pen)
@@ -5362,34 +5417,101 @@ class _OtsuHistogramDialog(QDialog):
     :param edges: histogram bin edges.
     :param levels: the intensities the field is cut at.
     :param description: how the cut was taken, for the caption.
-    :param local: whether the local threshold is on, which means the levels
-        drawn are the whole-field ones and the real cut varies per window.
+    :param local: local thresholds have no single marker to draw.
     :param parent: parent widget.
+    :param method: selected threshold key, named in the window title.
+    :param pending: show indeterminate progress until the snapshot arrives.
     """
 
     def __init__(self, counts, edges, levels, description: str,
-                 local: bool = False, parent=None):
+                 local: bool = False, parent=None, *, method="otsu",
+                 pending: bool = False):
         """Build the plot, the caption above it and the Close button."""
         super().__init__(parent)
-        self.setWindowTitle("Otsu histogram")
+        from ..i18n import tr
+
+        self.setWindowTitle(tr("{method} histogram", method=_magnifier_mode_label(method)))
+        self.description = description
+        self.request = None
+        self.ready = not pending
+        self.closed = False
+        self.error = None
         layout = QVBoxLayout(self)
         layout.setSpacing(SPACING["sm"])
-        marked = ", ".join(f"{level:.4g}" for level in levels) or "none"
-        self.caption = QLabel(
-            f"Level: {marked}  ({description}). "
-            + ("The local threshold is on, so this is the whole-field level "
-               "for reference and the cut actually varies window by window."
-               if local else
-               "This is the level the detect button cuts at.")
-        )
+        self.caption = QLabel()
+        self.caption.setTextFormat(Qt.PlainText)
         self.caption.setWordWrap(True)
         layout.addWidget(self.caption)
+        self.progress = QProgressBar()
+        self.progress.setRange(0, 0)
+        self.progress.setVisible(pending)
+        layout.addWidget(self.progress)
         self.plot = _OtsuHistogramPlot(counts, edges, levels, self)
         layout.addWidget(self.plot, 1)
+        self.plot.setVisible(not pending)
+        if pending:
+            self.caption.setText(tr("Calculating threshold histogram…"))
+        else:
+            self.show_result((counts, edges, levels, local))
+        note = QLabel(tr("Snapshot of the full field and settings when opened. "
+                         "Open the histogram again after changing the image or settings."))
+        note.setWordWrap(True)
+        layout.addWidget(note)
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
         self.resize(520, 340)
+
+    def show_result(self, result, error=None) -> None:
+        """Display a completed snapshot or its error, without a fallback marker."""
+        from ..i18n import tr
+
+        self.ready = True
+        self.error = error
+        self.progress.hide()
+        if error is not None:
+            self.plot.hide()
+            self.caption.setText(tr("Threshold histogram failed: {error}", error=str(error)))
+            self._fit_height()
+            return
+        counts, edges, levels, local = result
+        self.plot.counts = np.asarray(counts, dtype=np.float64)
+        self.plot.edges = np.asarray(edges, dtype=np.float64)
+        self.plot.levels = [float(level) for level in levels]
+        self.plot.show()
+        self.plot.update()
+        if local:
+            text = tr("Local threshold varies by pixel ({description}); no single "
+                      "level is drawn. The histogram shows the smoothed detector "
+                      "input before local thresholding.", description=self.description)
+        else:
+            text = tr("Level: {levels} ({description}). These are the thresholds "
+                      "the detect button uses on the smoothed detector input.",
+                      levels=", ".join(f"{level:.4g}" for level in levels),
+                      description=self.description)
+        self.caption.setText(text)
+        self._fit_height()
+
+    def _fit_height(self) -> None:
+        """Reserve the wrapped captions' height so they cannot overlap the plot."""
+        layout = self.layout()
+        if layout is not None:
+            layout.invalidate()
+            needed = layout.totalHeightForWidth(self.width())
+            if needed > 0 and self.minimumHeight() != needed:
+                self.setMinimumHeight(needed)
+
+    def resizeEvent(self, event):
+        """Recompute the text's height as the histogram window is widened."""
+        super().resizeEvent(event)
+        self._fit_height()
+
+    def closeEvent(self, event):
+        """Retire this snapshot; a running library call may finish in the background."""
+        self.closed = True
+        if self.request is not None:
+            self.request.ticket.cancel()
+        super().closeEvent(event)
 
 
 def _parsed_sigmas(text: str) -> tuple:
@@ -5950,6 +6072,8 @@ class MakeMasksScreen(QWidget):
     :param parent: parent widget.
     """
 
+    _histogram_delivered = Signal(object)
+
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
 
@@ -6219,6 +6343,8 @@ class MakeMasksScreen(QWidget):
         #: the button twice reuses one window rather than stacking them and
         #: so the screen can take it down with itself.
         self._otsu_histogram_dialog: Optional[QDialog] = None
+        self._histogram_worker = None
+        self._histogram_delivered.connect(self._take_histogram)
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._canvas.status.connect(
@@ -6649,6 +6775,9 @@ class MakeMasksScreen(QWidget):
         if self._otsu_histogram_dialog is not None:
             self._otsu_histogram_dialog.close()
             self._otsu_histogram_dialog = None
+        if self._histogram_worker is not None:
+            self._histogram_worker.close(timeout=0)
+            self._histogram_worker = None
 
     def _build_tool_row(self) -> QWidget:
         """The one row that holds every tool, along the top of the screen.
@@ -8102,40 +8231,59 @@ class MakeMasksScreen(QWidget):
         return "bright" if self._otsu_bright.isChecked() else "dark"
 
     def _on_show_otsu_histogram(self) -> None:
-        """Open this field's histogram with the level it is cut at marked.
+        """Snapshot a threshold preview and compute it off the GUI thread.
 
-        The preview's marked level matches the threshold actually used only
-        if the two come from one place, so the marker is
-        :func:`spacr.qt.mask_engine._otsu_levels` -- the same call the detect
-        button's threshold is made from, with the same correction, the same
-        smoothing and the same class count.
+        The historical method name is retained for callers. All named CPU
+        thresholds use their own levels on the full detector input, including
+        inversion, normalization, enhancement and smoothing. Local methods
+        show counts without a misleading global marker. Reopening replaces
+        the previous snapshot; only the newest result may update its dialog.
         """
+        from ..i18n import tr
+
+        mode = canonical_magnifier_mode(self._magnifier.mode)
+        if mode != "otsu" and mode not in cpu_modes.THRESHOLD_LABELS:
+            return
         image = self._canvas.image
         if image is None:
             self._status_label.setText(
-                "Open a field first — a histogram needs an image.")
-            return
-        otsu = self._otsu_settings()
-        try:
-            counts, edges = engine._otsu_histogram(
-                image, smoothing=otsu["smoothing"],
-                bins=OTSU_HISTOGRAM_BINS)
-            levels = engine._otsu_levels(
-                image, bright=bool(self._otsu_bright.isChecked()),
-                correction=otsu["correction"], smoothing=otsu["smoothing"],
-                classes=otsu["classes"])
-        except Exception as exc:
-            self._warn("Otsu histogram failed", str(exc))
+                tr("Open a field first — a histogram needs an image."))
             return
         previous = self._otsu_histogram_dialog
         if previous is not None:
             previous.close()
             previous.deleteLater()
         dialog = _OtsuHistogramDialog(
-            counts, edges, levels, self._otsu_description(),
-            local=otsu["local"], parent=self)
+            np.zeros(2), np.arange(3), [], self._otsu_description(),
+            parent=self, method=mode, pending=True)
+        request = _ThresholdHistogramRequest(
+            np.array(image, copy=True), mode, self._otsu_settings(),
+            bool(self._otsu_bright.isChecked()), bool(self._canvas.invert_display),
+            (float(self._canvas.norm_lo), float(self._canvas.norm_hi))
+            if self._canvas.detect_on_normalized else None,
+            self._detect_chain(), _RunTicket())
+        dialog.request = request
         self._otsu_histogram_dialog = dialog
         dialog.show()
+        if self._histogram_worker is None:
+            self._histogram_worker = _NewestRequestWorker(
+                _threshold_histogram, self._histogram_done, name="spacr-threshold-histogram")
+        self._histogram_worker.submit(request)
+
+    def _histogram_done(self, request, result, error) -> None:
+        """Deliver a worker result to Qt; the screen may already be destroyed."""
+        try:
+            self._histogram_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_histogram(self, payload) -> None:
+        """Accept only the currently open histogram's snapshot on the GUI thread."""
+        request, result, error = payload
+        dialog = self._otsu_histogram_dialog
+        if dialog is None or dialog.closed or dialog.request is not request:
+            return
+        dialog.show_result(result, error)
 
 
     def _build_view_tabs(self) -> QTabWidget:
@@ -8600,10 +8748,11 @@ class MakeMasksScreen(QWidget):
         self._btn_otsu_hist = QPushButton("Show histogram and level")
         self._btn_otsu_hist.setCursor(Qt.PointingHandCursor)
         self._btn_otsu_hist.setToolTip(
-            "Draw this field's intensity histogram with the level the "
-            "settings above cut it at marked on it. It is the same level "
-            "the button uses, read from the same function, so a valley the "
-            "marker is sitting to one side of is the correction to change.")
+            "Preview the full-field detector input after inversion, normalization, "
+            "enhancement and smoothing, with the selected method's thresholds. "
+            "Local methods have no single threshold marker. Computation runs in "
+            "the background; close the window to discard it. Open again to "
+            "refresh after changing settings.")
         self._btn_otsu_hist.clicked.connect(self._on_show_otsu_histogram)
         card.body_layout.addWidget(self._btn_otsu_hist)
         self._sync_otsu_controls()

@@ -699,3 +699,42 @@ Final validation:159 existing magnifier/help checks also pass (35.26s), for
 GPU observer remains live with utilization30-35%, idle_seconds0; no GPU job
 launched. The latest OPS handoff is corroborated by no live plate driver and
 the local run.log ending at B1's07:12 start; restart remains idle-gated.
+
+2026-09-22 — HISTOGRAM PREVIEW MATCHES THE SELECTED THRESHOLD INPUT
+--------------------------------------------------------------------------------
+The histogram no longer always draws raw-image Otsu. Its immutable request
+copies the loaded field and effective settings, then uses the same inversion,
+percentile normalization, enhancement chain and smoothing as detection. Global
+methods mark their own corrected bright/dark threshold; Multi-Otsu marks its
+class boundaries. The window title names the selected method. Local Otsu,
+Sauvola and Niblack show the smoothed input histogram without a false global
+marker, with an explicit explanation that local thresholds vary by pixel.
+Local Otsu's histogram is before its internal rank-filter 8-bit conversion;
+no claim that one histogram marker represents that per-pixel operation.
+
+Computation runs on a single newest-request worker, with an indeterminate
+progress bar. Closing/reopening retires the old snapshot, preserves the new
+one, and cannot let an old result replace it. A screen close does not block
+on a running library call. Cancellation is checked between stages; an active
+NumPy/scikit-image call finishes before that check. Failures are shown in the
+preview without an Otsu fallback. The caption explains that this is a snapshot
+and must be reopened after changing the image or settings.
+
+Thresholds corrected beyond the image's intensity range now expand the plot
+axis rather than being drawn misleadingly at the image maximum. A rendered
+review caught wrapped captions overlapping the plot; minimum window height
+now follows the layout's height-for-width calculation, including on resize.
+The final Li and Niblack renders have separate plot and text areas.
+
+Validation:37 failures reproduced on233b5fa47.43 new cases pass, including
+all eight global/multi methods in bright/dark polarity with raw/enhanced
+inputs, all three local modes, a real Minimum failure, background execution,
+snapshot retention, close/reopen/screen shutdown and layout geometry. Across
+the focused runs220 distinct checks pass, including the existing expanded
+Otsu, settings-help, detector and CPU-scope suites. The final43-case run
+passes in10.70s; the153-case detector run in30.07s. Fatal-error lint and diff
+checks pass. Source captions/hashes and API changes are recorded in
+features/data/473_threshold_histogram_2026-09-22.json for the other lane.
+
+Still OPEN: catalog/API/tutorial reconciliation and earlier473 acceptance.
+CPU magnifier/drag provenance remains the next implementation repair.
