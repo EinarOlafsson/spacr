@@ -1,23 +1,97 @@
 {
-  "id": "06_api", "number": 6, "slug": "api",
-  "title": "Python API and current headless workflows",
-  "series": 1, "app_key": null, "section": "spaCR",
-  "description": "Discover the installed batch routes, distinguish interactive tools from Python functions, and inspect a real example's dry run without claiming an analysis was executed.",
+  "id": "06_api",
+  "number": 6,
+  "slug": "api",
+  "title": "Python API and batch commands",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
   "objectives": [
-    "Confirm the package version in the active Python environment.",
-    "Discover current command keys and the functions they actually call.",
-    "Distinguish an interactive workflow, a Python function and a batch command.",
-    "Read a dry run's settings, exit status and limitations before unattended work."
+    "Find the installed batch commands and their Python functions.",
+    "Inspect a function signature and its API reference.",
+    "Check saved settings before running an analysis."
   ],
-  "prerequisite": "Complete an installation lesson first. For the demonstrated preflight, use the downloaded paired data and saved settings from the Regression lesson; replace this machine's paths with your own. No analysis or report is generated in this recording.",
+  "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
   "scenes": [
-    {"visual": "01_version", "focus": [200, 100, 1900, 650], "narration": "In the environment where you installed spaCR, import the package and print its version. This real terminal reports version one point five point zero point four. Confirm your own version before following commands, because an older environment can expose different functions and settings.", "related_lessons": ["02_conda_install", "03_pip_install", "04_platform_installers"], "hold_after": 0.7},
-    {"visual": "02_list", "focus": [200, 100, 2800, 1900], "narration": "Run spacr-run with the list option. Its batch section prints exact command keys and Python entry points, including mask, measure and classify_merged. Home screen names and nested buttons are not automatically batch commands. Use the installed list rather than guessing a key from a tutorial title.", "hold_after": 0.7},
-    {"visual": "03_describe", "focus": [200, 100, 2250, 900], "narration": "Describe regression to see the function perform_regression in spacr.ml, its defaults provider and its input requirements. This connects the command to the actual analysis function. The saved paired-data settings used here come from the linked Regression example, not an invented measurements folder.", "related_lessons": ["13_regression"], "hold_after": 0.7},
-    {"visual": "04_gui_only", "focus": [200, 100, 2800, 700], "narration": "Annotate is an interactive workflow. Calling spacr-run annotate really returns exit status two and explains that there is no batch equivalent. Use Annotate in the desktop application to label crops. This expected refusal is not evidence that the installation is broken.", "related_lessons": ["09_annotate"], "hold_after": 0.7},
-    {"visual": "05_report_api", "focus": [200, 100, 2800, 700], "narration": "Other capabilities have a Python API without a matching batch key. Here we import build_report from spacr.report and inspect its real signature. We do not call it or generate a report. Check the function's documentation and arguments instead of assuming that spacr-run report exists.", "hold_after": 0.7},
-    {"visual": "06_dry_run", "focus": [200, 1320, 3440, 680], "narration": "Pass regression the saved settings file and add the dry-run option. The real command resolves settings and runs its preflight checks, then explicitly says perform_regression was not called. Read the exit status and messages; this recording did not start another regression or write its analysis outputs.", "related_lessons": ["13_regression"], "hold_after": 0.7},
-    {"visual": "06_dry_run", "focus": [200, 1320, 3440, 680], "narration": "A clean preflight is not proof that the full analysis or its science will succeed. This build's generic plan mentions a measurements database even though our regression uses paired tables. Inspect the module's actual inputs, and test a bounded run before relying on unattended execution.", "hold_after": 0.7},
-    {"visual": "03_describe", "focus": [200, 100, 2250, 900], "narration": "Remove dry-run only when you intend to execute the analysis. Keep the exact settings, input identifiers, package version and console log with its outputs. Follow the linked module lesson for a demonstrated run and inspect the function's current API reference when writing Python scripts.", "related_lessons": ["13_regression", "15_image_umap"], "hold_after": 0.7}
+    {
+      "visual": "01_version",
+      "focus": [
+        200,
+        100,
+        1900,
+        650
+      ],
+      "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
+      "related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_list",
+      "focus": [
+        200,
+        100,
+        2800,
+        1900
+      ],
+      "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_describe",
+      "focus": [
+        200,
+        100,
+        2250,
+        900
+      ],
+      "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
+      "related_lessons": [
+        "13_regression",
+        "15_image_umap"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_report_api",
+      "focus": [
+        200,
+        100,
+        2800,
+        700
+      ],
+      "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_dry_run",
+      "focus": [
+        200,
+        1320,
+        3440,
+        680
+      ],
+      "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_describe",
+      "focus": [
+        200,
+        100,
+        2250,
+        900
+      ],
+      "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
+      "related_lessons": [
+        "13_regression",
+        "15_image_umap"
+      ],
+      "hold_after": 0.7
+    }
   ]
 }

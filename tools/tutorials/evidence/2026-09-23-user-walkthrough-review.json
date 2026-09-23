@@ -18,6 +18,7 @@
     "03_pip_install",
     "04_platform_installers",
     "05_home",
+    "06_api",
     "09_annotate",
     "17_timelapse",
     "18_motility",
@@ -40,6 +41,7 @@
     "03_pip_install",
     "04_platform_installers",
     "05_home",
+    "06_api",
     "09_annotate",
     "17_timelapse",
     "18_motility",
@@ -175,21 +177,26 @@
     },
     {
       "lesson": "06_api",
-      "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
-      "scene_count": 8,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+      "scene_count": 6,
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {

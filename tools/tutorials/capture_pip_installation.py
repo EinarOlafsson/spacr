@@ -166,7 +166,7 @@ def record(stage, root, venv, prior, capture, route='pip'):
                       private_display=os.environ['DISPLAY'], installed_environment=str(venv),
                       setup_skipped_explicitly=route != 'conda', first_run_tour_marked_seen=True,
                       format_scope=f'Linux, fresh {route} package; not other platforms',
-                      doctor_gpu_allocation_probe_requested=route == 'conda')
+                      doctor_gpu_allocation_probe_requested=False)
     write(capture / 'provenance.json', provenance)
     identity = subprocess.check_output([str(venv / 'bin/python'), '-I', '-c',
         'import pathlib,sys,json,spacr; p=pathlib.Path(spacr.__file__).resolve(); '
