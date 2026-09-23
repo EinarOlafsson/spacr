@@ -88,40 +88,8 @@ def selected_pairs(movie, sequence, segmentation, gaps, maximum):
 
 
 def tracked_masks(segmentation, markers):
-    """Use only full objects containing exactly one distinct tracking marker."""
-    segmentation, markers = np.asarray(segmentation), np.asarray(markers)
-    if segmentation.ndim != 2 or segmentation.shape != markers.shape:
-        raise ValueError('Full masks and tracking markers must share a 2-D shape')
-    if not np.issubdtype(segmentation.dtype, np.integer) or not np.issubdtype(markers.dtype, np.integer):
-        raise ValueError('Annotation masks must contain integer labels')
-    if np.any(segmentation < 0) or np.any(markers < 0):
-        raise ValueError('Annotation labels must be non-negative')
-    mapping = {}
-    unmarked = ambiguous = 0
-    for label in np.unique(segmentation):
-        if not label:
-            continue
-        ids = np.unique(markers[segmentation == label])
-        ids = ids[ids != 0]
-        if len(ids) == 1:
-            mapping.setdefault(int(ids[0]), []).append(int(label))
-        elif len(ids):
-            ambiguous += 1
-        else:
-            unmarked += 1
-    output = np.zeros(segmentation.shape, np.int64)
-    duplicate = 0
-    for track, labels in mapping.items():
-        if len(labels) == 1:
-            output[segmentation == labels[0]] = track
-        else:
-            duplicate += len(labels)
-    kept = set(np.unique(output)) - {0}
-    marker_ids = set(np.unique(markers)) - {0}
-    return output, {'retained_tracks': len(kept), 'unmarked_objects': unmarked,
-                    'multi_marker_objects': ambiguous, 'duplicate_track_objects': duplicate,
-                    'markers_without_retained_full_mask': len(marker_ids - kept),
-                    'excluded_track_ids': sorted(int(label) for label in marker_ids - kept)}
+    """Use the same strict full-mask/marker assignment as the training reader."""
+    return tm._ctc_track_masks(segmentation, markers)
 
 
 def scramble(labels, seed):

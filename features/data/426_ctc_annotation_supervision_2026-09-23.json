@@ -1,0 +1,1939 @@
+{
+  "seconds": 23.251211327995406,
+  "summary": {
+    "pairs": 36,
+    "unique_annotation_frames": 72,
+    "old_source_object_occurrences": 3101,
+    "new_source_object_occurrences": 3035,
+    "unknown_successor_occurrences_censored": 20,
+    "false_absence_occurrences_before": 9,
+    "source_values_changed_pairs": 8,
+    "source_dtype": {
+      "before": "int32",
+      "after": "int64"
+    },
+    "annotation_counts": {
+      "retained_tracks": 6144,
+      "unmarked_objects": 0,
+      "multi_marker_objects": 43,
+      "duplicate_track_objects": 75,
+      "markers_without_retained_full_mask": 123
+    }
+  },
+  "pairs": [
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 74,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 74,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 74,
+      "new_source_objects": 74,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "d9d148f245b699ba5927603233ff3723df300a75ca4bb542d4f1c0124f78eeac",
+        "d0c714364ef62a95840bf6845a807033e5fcb903834363b8860bef1f0500204d"
+      ],
+      "after_label_sha256": [
+        "f164abfb33e35224f5131b9208991e62b1f83e16c00c73257a641f561989b2c6",
+        "6e2e415663fbcc31e53e5918cc42569fd859d442597670b9e9371117c997143f"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        149,
+        150
+      ],
+      "source_counts": {
+        "retained_tracks": 182,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 1,
+        "duplicate_track_objects": 2,
+        "markers_without_retained_full_mask": 2,
+        "excluded_track_ids": [
+          1153,
+          1160
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 187,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 184,
+      "new_source_objects": 182,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "66bf876c5bd2efc15f791bab301dee7afa9e8858fb73fa4ddfe19bde233e8918",
+        "d98b90cc7da62fb2b139571a16abe54ec2c82ee528c35a9a44264407be80afde"
+      ],
+      "after_label_sha256": [
+        "691ab0c5ca9ffa42d8d71736f424e10a6102c9efcc2fc3b4a403133c2b8f8214",
+        "74ddaf92b636009af628840a4c7b9677a22cf7ebf49f4d30c70dc83c5f10c7df"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        298,
+        299
+      ],
+      "source_counts": {
+        "retained_tracks": 626,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 13,
+        "duplicate_track_objects": 21,
+        "markers_without_retained_full_mask": 32,
+        "excluded_track_ids": [
+          5857,
+          5858,
+          21345,
+          21346,
+          21441,
+          21510,
+          21557,
+          21583,
+          21638,
+          21639,
+          21762,
+          21769,
+          21777,
+          21782,
+          21783,
+          21784,
+          21821,
+          21825,
+          21826,
+          21837,
+          21838,
+          21967,
+          21968,
+          21975,
+          21989,
+          21990,
+          22075,
+          22169,
+          22171,
+          22172,
+          22174,
+          22175
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 633,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 9,
+        "duplicate_track_objects": 17,
+        "markers_without_retained_full_mask": 28,
+        "excluded_track_ids": [
+          5733,
+          5771,
+          21412,
+          21531,
+          21562,
+          21742,
+          21743,
+          21762,
+          21765,
+          21769,
+          21803,
+          21837,
+          21838,
+          21917,
+          21920,
+          21968,
+          21975,
+          22004,
+          22005,
+          22010,
+          22022,
+          22081,
+          22082,
+          22091,
+          22143,
+          22172,
+          22174,
+          22175
+        ]
+      },
+      "unknown_successors_censored": [
+        5733,
+        5771,
+        21412,
+        21531,
+        21562,
+        21742,
+        21743,
+        21765,
+        21803,
+        21917,
+        21920,
+        22004,
+        22005,
+        22010,
+        22022,
+        22091,
+        22143
+      ],
+      "old_source_objects": 649,
+      "new_source_objects": 609,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [
+        21412,
+        21531,
+        21562,
+        21803,
+        21917,
+        22004,
+        22005,
+        22091,
+        22143
+      ],
+      "before_label_sha256": [
+        "1fff019a3223edfc06ef13af7127e892b18dc410b159614f1a25568cee969695",
+        "df0ddf2f529353d3bb431e9ffc62ec4fe54b81f7c63aa7ed053fba540bc027af"
+      ],
+      "after_label_sha256": [
+        "7fde7d06bbd8ec4014502f63eb58495dfe8689a638d571e8ed9f042745bd403e",
+        "985611afd7e304aa14f109394f908fd6a21832998d812a31067097dd09054149"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 65,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 1,
+        "excluded_track_ids": [
+          900
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 65,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 65,
+      "new_source_objects": 65,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "05b5e312def8723433a7eecc4d65856916cf3b5ad91558a1fcfb96d40f63809d",
+        "22ce40dad600e229bc6377c542970ad9d9afbf0497ed735c248714bd77b1d75e"
+      ],
+      "after_label_sha256": [
+        "6867b4f74d95dc552d767f717baa8a4293ca8844757402e78912a10cdaa62fd6",
+        "09c0c0aadd37d3278f21865d33e49b1c064119af5f6e265b1dce6c3d609e01cd"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        149,
+        150
+      ],
+      "source_counts": {
+        "retained_tracks": 146,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 147,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 146,
+      "new_source_objects": 146,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "41d9a74f6e12254e14ebcbe84633d80f3037895562114662e525749e1e7d8b69",
+        "5356e10535cbc943d49778845a4381aedce93609046a022209a579fde2505e57"
+      ],
+      "after_label_sha256": [
+        "38d66bcd908463660a93ca832f0dc99f89776a240e3696bb51dc66b911a33359",
+        "84449ef008c2b1802011ce5204843d05984951296bce2db65676d46e99435e1f"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        298,
+        299
+      ],
+      "source_counts": {
+        "retained_tracks": 484,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 7,
+        "duplicate_track_objects": 13,
+        "markers_without_retained_full_mask": 13,
+        "excluded_track_ids": [
+          16080,
+          16347,
+          16349,
+          16365,
+          16370,
+          16420,
+          16456,
+          16482,
+          16508,
+          16510,
+          16511,
+          16522,
+          16571
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 488,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 6,
+        "duplicate_track_objects": 10,
+        "markers_without_retained_full_mask": 10,
+        "excluded_track_ids": [
+          16347,
+          16349,
+          16365,
+          16370,
+          16420,
+          16482,
+          16510,
+          16511,
+          16522,
+          16571
+        ]
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 497,
+      "new_source_objects": 484,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "050f53c41d1f84e9afa0c120e5e4d2ab8536fe9d0dbf5a51848c82387726d9b0",
+        "b96f43246c870dca165c35efd83c8b1ef62dde354ce1253bcb1ab60bb0702033"
+      ],
+      "after_label_sha256": [
+        "5fe93707fb4ef2a47bf91c95b98041d7062d59a41080269d7c48683dbf576c13",
+        "98943a1983a39a267f23ee1263072ec1345d932a55846d231f836df8e9c97296"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "01",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 9,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 9,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 9,
+      "new_source_objects": 9,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "7d3216d30df7aeb5b120001f65dd974900d17516cb973358bb5efda1301d35fd",
+        "f53c72c3cd487a5f1f966fb040ab82fa64876e6bbd8b8a73a0fd643a1868c52a"
+      ],
+      "after_label_sha256": [
+        "70bcc96c49ca73027eb45dcb6130624412a1d4036e73a08995fb45493139449f",
+        "3f0973603d9ec697b9990ace731d0c76679c9b9251c023421ddc98b8158ab995"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "01",
+      "frame_numbers": [
+        23,
+        24
+      ],
+      "source_counts": {
+        "retained_tracks": 8,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 8,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 8,
+      "new_source_objects": 8,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "a6a4b26fb08283630dea869ed6d64245da50d5246ea691b63017d4e42547654c",
+        "674907f57f243769e5f762fd78e3ece44f70f4d4ee6cf838c0d05e64b18ae355"
+      ],
+      "after_label_sha256": [
+        "095341a3bf266f9d0664fcd266ca9fd590947c0b4b64b51cf12c40d199d7d7cc",
+        "a721881947b367e668d098fac8b3c4e5cf1446afd64d152d2f2a85dd6aa3abfa"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "01",
+      "frame_numbers": [
+        46,
+        47
+      ],
+      "source_counts": {
+        "retained_tracks": 8,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 8,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 8,
+      "new_source_objects": 8,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "976c5293ac7e14a7c12589d1c6fb2962e67e6230abec8e53ae08a1092d927a10",
+        "81b1eab585482641c2b3e0966a0b362bca627e89991a816f0171cf3a61f6d27e"
+      ],
+      "after_label_sha256": [
+        "58d808b47a18c8b22be4a02379c7ceae0a1ddc960d651fcf4a2d3316827500f6",
+        "573022c60bb506ab8e36a1cc51911ee6408f0afa29d26e44f5bd0bb966be1b9f"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "02",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 5,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 5,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 5,
+      "new_source_objects": 5,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "e28a674755d811442bed15ace372a692f96558664bc5ac3e69e467b70a3b9b75",
+        "da604af8fa3b008f08a7cc69e27ee9e68639c3ca7e19ef3533ec34f9e700ccc8"
+      ],
+      "after_label_sha256": [
+        "bb3db6695cdf5582f07be6bd584b56e600c85406bdbabfacccd4ae589fbda660",
+        "a254c607c312a72c9cc1283d3d9fd437c80d7555aa042d061f5a89b652c8d17d"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "02",
+      "frame_numbers": [
+        23,
+        24
+      ],
+      "source_counts": {
+        "retained_tracks": 6,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 6,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 6,
+      "new_source_objects": 6,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "7f6ae85e4ff770aa697b32762ac2aefc20bd05f2c843cf04fae4f38d1d3a2642",
+        "f1e3643b52bc32bf8e09c61665af9a3dade0d7a628433aec7bd34d672151a260"
+      ],
+      "after_label_sha256": [
+        "d6947fd21952bfbaa040d3fb20b7fb8989e6b77c702146663f8a62e211fee8d7",
+        "287e5ffd7bc55a83fb259059bccc800a6a5ef181b239fe5ce24b3127c84ee37d"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "02",
+      "frame_numbers": [
+        46,
+        47
+      ],
+      "source_counts": {
+        "retained_tracks": 3,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 3,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 3,
+      "new_source_objects": 3,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "37c725658c519471aa94500ffea4f038f9af0ad9d6b12e21583e0b1dfeb27b10",
+        "fce57de1473a7f2414abfd355e62ef8a376647305abc5cd0decfe79e9e4ffa43"
+      ],
+      "after_label_sha256": [
+        "60bc31dd5630e8520ac4b19957cbc7ddcacd27dbfbe38144dcbfa8c6b2f445c6",
+        "85330646c906b97047d928765e835b77f6b395e9842f6baf3328d3feec7ec780"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 1,
+      "new_source_objects": 1,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "26f25053ee9622ee798074e52ddbd944364f6ad032aa1b6a0574f46062a72bc8",
+        "2c548b352be2449afec78dfbc58905d9981fb190334fb66d315bbedc93a9de31"
+      ],
+      "after_label_sha256": [
+        "15a01779c3745f024e65bdb44749240e7be2dbf623a4d4e2e198466a4d1d8e9c",
+        "e38ff9fa9bd6584341ee11ae0afbb7cb289eced85879bc8ac2d62aee292be385"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        687,
+        688
+      ],
+      "source_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 1,
+      "new_source_objects": 1,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "83d23b4ae65c98192ce0adf47a733cf6f998344e1b86d9c1a32a914b3674cd7e",
+        "fdc62b5d6039b0789799da4c606a56606266989ff8ada00f523b32086f1c7fe0"
+      ],
+      "after_label_sha256": [
+        "8f4f05f9ee7a56b98bab99600fd64c9dc034c612cfa077d57a8aecce709264db",
+        "66ada9c8b5ef3b5d05529fa6219f9fb0a760fad2d69bfeab0ebff64e3ce580be"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        1374,
+        1375
+      ],
+      "source_counts": {
+        "retained_tracks": 23,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 23,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 23,
+      "new_source_objects": 23,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "ea015fa8cc889ef70b0e6017fc8c21319c269c80d1d81a3bf7209c1347253a93",
+        "b6b0a584b97847d24f6d994975323fb06adeb65d123caae89fe0ab7adb19206f"
+      ],
+      "after_label_sha256": [
+        "8e4c642b6843a12756197850d7a0d6829447829cbd10de715a45712b8c2e49a4",
+        "d54674730fbedb6494902986e555f80e4ab2c9f49e5e8aa90f29bae08fb33afd"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 1,
+      "new_source_objects": 1,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "da295a10cffccc2244cbbb8faed6dddc33b09ccbba56dea57dfd83afbba64d59",
+        "d3fe47c8de65ce533d59898f49909307037b68f628de9f2895d13a4854140dc4"
+      ],
+      "after_label_sha256": [
+        "4443211ce0dc09bd183bbeef1d63b6c627f8dccff23825f7f33675880e4b47d4",
+        "a0f87f12893aeffe70dc581bc31987d798d3b45ac932f2439eb68de5cd62d54e"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        687,
+        688
+      ],
+      "source_counts": {
+        "retained_tracks": 2,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 3,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 2,
+      "new_source_objects": 2,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "d1e27f53468e6b7077b73f4d59702e0edec93e53f41154861bf8634935ec9160",
+        "76911fa7f78a242bc96af22e7e9816e0780444e750d3c5436aa24925a9be524a"
+      ],
+      "after_label_sha256": [
+        "48627583d2e9b15b1c703056d49048b493c6def54c111c8d2a366b6bc9916947",
+        "d73b3e4b1f267b3042dc085db073df81af8a8d4537910ea3d8de3a69781789b1"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        1374,
+        1375
+      ],
+      "source_counts": {
+        "retained_tracks": 21,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 1,
+        "excluded_track_ids": [
+          81
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 20,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 1,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 2,
+        "excluded_track_ids": [
+          68,
+          81
+        ]
+      },
+      "unknown_successors_censored": [
+        68
+      ],
+      "old_source_objects": 21,
+      "new_source_objects": 20,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "b0dda561c64086b7c88981876b0ffc37e6b2950ce0e27806d0bd44d85e7a75ab",
+        "574ae37f27d7a3080366f4d7f083bf4713a14563a18f8bf981674adbe95dd81a"
+      ],
+      "after_label_sha256": [
+        "274cda906e20c552bccb8c86146cd7857d8b6ac52be694d979031b5d4614d0ec",
+        "176e6ac257058cc24d893af7a0f3614aadd44b9c54da59eb012890167534e72b"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 1,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 1,
+      "new_source_objects": 1,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "6efb61944f2c1c86192c49b0c756e57e70ae99fd3dd1d2fbe70d51b6fa07aa0a",
+        "a51163910c9d53ee0f5d787ef2b1dc5a283d265e917be1b848c7ad0aa0208a35"
+      ],
+      "after_label_sha256": [
+        "c05b47a72dcf7b78edc586b5476f77eb53e57013a6aae6b7426beba3a48dfa3f",
+        "612695f208a9adc24d3b05224d3918aa6ca69f73f43ba227dbb5b112231fce02"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        881,
+        882
+      ],
+      "source_counts": {
+        "retained_tracks": 4,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 4,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 4,
+      "new_source_objects": 4,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "5a792309f56db2e0d78834bbe82b2ad173529ad287fc209f9c9f92c968cbf656",
+        "bfa624fcc9488ec0cba4e0cea1c9fff325781c22ffdc9c1dd3d5bcad7c98772b"
+      ],
+      "after_label_sha256": [
+        "336086728be3f4aaa1f58def22f82542b0535ec2dbef87aae1134a4054f5e39d",
+        "7068240518863c7876ef28153dc2b6ecfd104a603cf57f675347c399b2d6c872"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "01",
+      "frame_numbers": [
+        1762,
+        1763
+      ],
+      "source_counts": {
+        "retained_tracks": 10,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 1,
+        "duplicate_track_objects": 2,
+        "markers_without_retained_full_mask": 2,
+        "excluded_track_ids": [
+          61,
+          62
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 12,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 12,
+      "new_source_objects": 10,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "090c215c8a769844ab148bd347c3d72c75f059079dd79e72245bb3a509a4a1f5",
+        "78d2eb572e3b2d192a9b6fca3235eef781d713d86fcd9face4b1c449f6d9da8c"
+      ],
+      "after_label_sha256": [
+        "1674792b1beab3b434cf84d04dcba4ca95d678ee8b18c9afb584518ae08c5ca8",
+        "2a071b5ff91669b76ef037a264731ed89983ae6c57113f32ff0a6c459c912c7e"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 2,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 2,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 2,
+      "new_source_objects": 2,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "0e0dffb12f5d7bf31139e1f8958df29f3ab329ad141d5d3e4ec150be0bae32c9",
+        "ee61a923cdabba6a3490101d1f9da52a458cde8b9d5a066e754de469e6756ded"
+      ],
+      "after_label_sha256": [
+        "8487cf58aa02ee9d1ef89fb234d2645858552f423f2839c3c5f617d377451464",
+        "993b45f7d2e0c15db554e4f2d95afbd867464c9fd38ee66d20e0d3a587fe157c"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        881,
+        882
+      ],
+      "source_counts": {
+        "retained_tracks": 17,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 17,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 17,
+      "new_source_objects": 17,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "6cc5d12c0d1b7e443229e9e4102c891038db9197bddd3ebf438152f9551d83f4",
+        "21079a85ff827b68ce4e48cdf882c26257d8287ddaa54e903a93aa2e6502f7e6"
+      ],
+      "after_label_sha256": [
+        "7eec052333147882fe99f85e27731479267c35b5ae0296b0e5b13126eb0b3f64",
+        "cde1db38bbbfb4673a65b304d59276854b93b3f8fcda3a640f3e21232f8ee654"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "02",
+      "frame_numbers": [
+        1762,
+        1763
+      ],
+      "source_counts": {
+        "retained_tracks": 159,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 159,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 159,
+      "new_source_objects": 159,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "996e8a0be1c5ac487ec33dfb11ffe7d3c8ce94fb198c58565ed2d53c1eb460f5",
+        "199a279b89fc503e31a2a7f565648d439841ddbc3d599cab028158e6aefc10d9"
+      ],
+      "after_label_sha256": [
+        "b3493e211af0b8528368345e571b17c20ed0540e0b52fd7abad7e874b40def2f",
+        "f7cfc097fd57b1e3ba506aa58c4ca0b6603bdb45eca2d145c7a5c39930825f28"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "01",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 23,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 23,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 23,
+      "new_source_objects": 23,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "712d9b49f914e70e0706a8959664c68bf496fd33a2d43afe292f2e5b7f125022",
+        "66733b5d6417aaf4aaf33332cf170852fb3e6a05d9524f724bee9bc91f09d7df"
+      ],
+      "after_label_sha256": [
+        "5fb572b7bf8f235aa6bdb4da9dc75d086e3b16fd20dbde96d8fee86dc6e5576a",
+        "0d35a833a84f039b0a1808e14d6a9e9897e8424232cefafcea96e7533b0c9289"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "01",
+      "frame_numbers": [
+        45,
+        46
+      ],
+      "source_counts": {
+        "retained_tracks": 24,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 24,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 24,
+      "new_source_objects": 24,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "440e73ea2c04627684701b2aa2ba540aff2bfdddd478e787636bdf56e21507f1",
+        "14e4554fa43aa7ec0601b74b320749090dd8cbbab4a1670bc66173e0b86246ce"
+      ],
+      "after_label_sha256": [
+        "00cabba107109314bd61e8d8c2c4aae3559dfa46cf775a1ef02a4c2a07bae9d4",
+        "1f97471fcbf2a906638f3fe87524c27da1ba028b9c8a32eb3621baadd9b828cc"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "01",
+      "frame_numbers": [
+        90,
+        91
+      ],
+      "source_counts": {
+        "retained_tracks": 21,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 20,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 21,
+      "new_source_objects": 21,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "c4ea697f4bb92723ba43546c58a48ac609ca793624966cd0cd901d5267afa624",
+        "daa944480ea92181208ed327d91e8e1dcde799d5e5ca33bf152fd739e323f35c"
+      ],
+      "after_label_sha256": [
+        "cf69a610922fc5ecd0b4a6d0bde9b4853281a9f8343bfa702889df2be7af4f18",
+        "a18c45ca080611944c33a17c8390ac21d7f39cd7a28fdac00bcf212dafbc1840"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "02",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 22,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 3,
+        "excluded_track_ids": [
+          39,
+          40,
+          58
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 22,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 3,
+        "excluded_track_ids": [
+          39,
+          40,
+          58
+        ]
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 22,
+      "new_source_objects": 22,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "b2f8cae83d62ea626132e5b01e3f6defa80645d1a0d264a1afc5c077c30e456f",
+        "c46236df5b899606d1f9406a3001bc3cf4071f3d768e73c4b255119a2a498c5c"
+      ],
+      "after_label_sha256": [
+        "3b8fd476251be5e54962d0f43b912d8bb8bd4a7bf3aabb8a7bac196010c0d29c",
+        "b3eda490774c53742a8b10d5af1f85b704c09462467ef4c07af792ae1c0f2183"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "02",
+      "frame_numbers": [
+        45,
+        46
+      ],
+      "source_counts": {
+        "retained_tracks": 24,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 2,
+        "excluded_track_ids": [
+          61,
+          62
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 24,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 4,
+        "excluded_track_ids": [
+          6,
+          61,
+          62,
+          64
+        ]
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 24,
+      "new_source_objects": 24,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "9bd259e7c7b0c99ca4712a456e67a4bdc62fc3cdc63b08f97729faa7d6ca30a0",
+        "aac35b35125fe0585b6ab55fa36549ebad30ef99bb7b02dc407f2df49fea89c7"
+      ],
+      "after_label_sha256": [
+        "d58a6c78c2d16edcb65feec785140e759839018619786da265edba87dce242dd",
+        "35aa8c8baff9d9c20694514dd5ce53b457bf24d1e4ca1a76cb104c7cea07b69f"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "02",
+      "frame_numbers": [
+        90,
+        91
+      ],
+      "source_counts": {
+        "retained_tracks": 25,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 3,
+        "excluded_track_ids": [
+          32,
+          61,
+          68
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 25,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 3,
+        "excluded_track_ids": [
+          32,
+          61,
+          68
+        ]
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 25,
+      "new_source_objects": 25,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "5e2f5f5c1303fa33dec6a4181dbcb3eaefb063abeb2676f0b1204ef0edfc1fbc",
+        "86858d9279538b083323126c548889b772dc328ba385e7153fe73625e34c72a2"
+      ],
+      "after_label_sha256": [
+        "2d0c85f1fc48b8db799ae381dd466865595caffe6f488da87f6c07235e174fde",
+        "e66bcc6de594d83a4e37080f7199ab2511282155b09b861ccfd075f46ce7ce5e"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "01",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 43,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 43,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 43,
+      "new_source_objects": 43,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "9cc59851bb67e634b48ef3544c2ebd8390698b8a20e0b958ef167bdbc04e3350",
+        "e3eddb4d9eb85b3107836e5d8fabbfb33e572c69d4f69c69a5ef54442289322c"
+      ],
+      "after_label_sha256": [
+        "8b21cffceb2fd51b61f44be9c0c4a9d71dc436003ca2cc3f0ddf15b5c094da2e",
+        "85d1ed1d196566f7fb21c0255233331b1b22002703f7393b6adbf519d0b8f8ce"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "01",
+      "frame_numbers": [
+        45,
+        46
+      ],
+      "source_counts": {
+        "retained_tracks": 96,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 1,
+        "duplicate_track_objects": 2,
+        "markers_without_retained_full_mask": 3,
+        "excluded_track_ids": [
+          369,
+          371,
+          372
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 99,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 1,
+        "excluded_track_ids": [
+          369
+        ]
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 98,
+      "new_source_objects": 96,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "83689c772754e5b06833de869603d37d9ddd86c830809c6d93ed2b22f003b049",
+        "40f6b3e2a47d68693f8dec76c96dcddd92de5b430b6434d7a33ad1ef90289cb2"
+      ],
+      "after_label_sha256": [
+        "b811a4f2a31556e153fafd9e78ff2e49b999934d4bf57fd5c7adbd2653ee5b14",
+        "2ab93d0a7d53a6b5ed9f35f19dc59074cc739093e4ffa9fbd0565922d8fca51a"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "01",
+      "frame_numbers": [
+        90,
+        91
+      ],
+      "source_counts": {
+        "retained_tracks": 133,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 134,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 1,
+        "duplicate_track_objects": 2,
+        "markers_without_retained_full_mask": 3,
+        "excluded_track_ids": [
+          18,
+          20,
+          373
+        ]
+      },
+      "unknown_successors_censored": [
+        18,
+        20
+      ],
+      "old_source_objects": 133,
+      "new_source_objects": 131,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "67fabba3f7108e0fb45465f7c64e36c01225224de7a3c534f16bef4a93396a61",
+        "05015f72816dd8a5207983dadd377510026287773dc1cea8994c240e80dc2ca6"
+      ],
+      "after_label_sha256": [
+        "4a5047a93c15bab490e7a6c7f71902c47b2ed00343338e6f2113d97998e95d0f",
+        "a4b409690b563c0d8ebc8e03728c0fa45464f8f61b9a64ea1d80399660ab5118"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "02",
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "source_counts": {
+        "retained_tracks": 124,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 1,
+        "excluded_track_ids": [
+          127
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 132,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 124,
+      "new_source_objects": 124,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "a5bd032ce01117ae4b55fcc726f6cc29d43e7c9b10f9509c5244055ed9f13ab7",
+        "8cb2b337a842dfb454ed4bcce57d1309157485e0dd7876e759a5c9a016b4d1f0"
+      ],
+      "after_label_sha256": [
+        "cbae7320ea1649d2426d9b2f8dada16f2569d2fa088350e0b7f483399bff549c",
+        "cedb3291181331430406c9cdb040599b3e36003831b5c46467e3aa24cba33c1c"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "02",
+      "frame_numbers": [
+        45,
+        46
+      ],
+      "source_counts": {
+        "retained_tracks": 303,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "target_counts": {
+        "retained_tracks": 305,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 0,
+        "duplicate_track_objects": 0,
+        "markers_without_retained_full_mask": 0,
+        "excluded_track_ids": []
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 303,
+      "new_source_objects": 303,
+      "source_values_changed": false,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "e3175f91bc634dd6d806c8342000445d0e34417f00939e87cbd32a0c72b58ecf",
+        "f0967709187657e8c74ec233605a470f86a8301167ec0d4ac9d525baa04a7403"
+      ],
+      "after_label_sha256": [
+        "0db1b4ac15ca7874486e59b4d3fd55128398a4af5ddd085af1cb716f6ed64b29",
+        "c54c3e2a6bd51c8a1b8f21bf4af772738505310a49aced74744b9f140f3dbc21"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "02",
+      "frame_numbers": [
+        90,
+        91
+      ],
+      "source_counts": {
+        "retained_tracks": 359,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 2,
+        "duplicate_track_objects": 4,
+        "markers_without_retained_full_mask": 4,
+        "excluded_track_ids": [
+          230,
+          243,
+          271,
+          283
+        ]
+      },
+      "target_counts": {
+        "retained_tracks": 361,
+        "unmarked_objects": 0,
+        "multi_marker_objects": 1,
+        "duplicate_track_objects": 2,
+        "markers_without_retained_full_mask": 2,
+        "excluded_track_ids": [
+          230,
+          243
+        ]
+      },
+      "unknown_successors_censored": [],
+      "old_source_objects": 363,
+      "new_source_objects": 359,
+      "source_values_changed": true,
+      "old_false_absences_from_missing_mask": [],
+      "before_label_sha256": [
+        "43039b2bdaa7fdf822ccf2aaac54bd40a66698a1519b9a6f9445c4bff4c91ea0",
+        "e234a576913e6516897f5adcdb4b036345c0a491dc43a2e183d2378f9f86b0b5"
+      ],
+      "after_label_sha256": [
+        "7875a3a9fa870706209bb8bc9d2c7afaef33e839f39a4e4176ac3d95589e26c6",
+        "300b63a52713af6d0ec33bd0ac7c0ebf9a23dbb0018d51a8fb2b9cccb99bed35"
+      ]
+    }
+  ],
+  "input_sha256": {
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01/t000.tif": "ebe417463f44b97143ef4cb244dd2b525f30aa6cd2568d38411739d757f89645",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_ST/SEG/man_seg000.tif": "5925936e601ae15641a0aad6bb81d315988b41023006eecbac964c789e2dc0bd",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_GT/TRA/man_track000.tif": "10b8b394f3f8b282193741945eec01186b965270259c1738f25f62c38db76103",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01/t001.tif": "b41027c6d16fea20b8220d75c11ad59a5152640d1e33d711ef6b76092c30017b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_ST/SEG/man_seg001.tif": "2b913881d9a6f337c56d450b0b36e1463197828816adb86c938ab243c74f1dde",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_GT/TRA/man_track001.tif": "b0e04cf75fd99f5983783b5c4e8a838351056ddb1661bda549766976e6ca57ea",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01/t149.tif": "347b3f7493ab80c7cd0cc656fe5c5f7738e450871cc88190d49992251b5495b8",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_ST/SEG/man_seg149.tif": "76a76f0f843b1cfc093aa55a8eda3fd5cd18c3aea93a818394ec89cc16696f51",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_GT/TRA/man_track149.tif": "dcbebd6225318faa5c8a8b6d20b8301f7bc0026b9293c92dee54cba32bb3b792",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01/t150.tif": "8dd3564db127fe03d66df105fd989d53a8ca4301519e9cab2936d7dd89792c58",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_ST/SEG/man_seg150.tif": "7c7284be8e03053224cf41929f98f43559f93a25e8de5191de988be586caed8b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_GT/TRA/man_track150.tif": "232e20a1c6d07e6d5fc7e6aff96451490475b95becd65ec653df844ae9f49911",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01/t298.tif": "a70dc4d7fa5661efd034e2f6bf29c93f0fae970d2164fe9c5020d1803f73ac00",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_ST/SEG/man_seg298.tif": "5f46d651b3779458b2b91be15631e7d3200784b6fe201600c0b377d5545a18b2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_GT/TRA/man_track298.tif": "905388445952aa3a853fcb0b0749bd435249006ee3c1ecbf20a129d4ed18f5cc",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01/t299.tif": "214ea44be2468a67e782038717ca7b4051ac6c621c02a40e2ea1ad431442b84a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_ST/SEG/man_seg299.tif": "8e91c8153858b79844e2dd017697472f57c8a067034dcb5c33cee413b97c8b93",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/01_GT/TRA/man_track299.tif": "ba6657018c2785f00ea04980e54c6bbf363601cbd0a351bf5ec003d85d84ab58",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02/t000.tif": "69b4129e19d932db08527c9f50c317d6de44d14a1cf4334749489582b3bb15e1",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_ST/SEG/man_seg000.tif": "24c31d806cdd7e9e09a5ce6ff596eb07ddc3c94c257cdb0657c86eb03fe6a32c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_GT/TRA/man_track000.tif": "5e91195a20a7d3d9bd52f3d1ec3e52a51adaee8749146bc6d6cd4f9f46027f0a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02/t001.tif": "27a79a7a416472a43da9d8cb9e0e8e695a7ceed07b68a5b29459d31c42af0443",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_ST/SEG/man_seg001.tif": "f0342e30bfb10a2bed0d7cc6b620d0a553cc83b98644e73d0bd426859df10e02",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_GT/TRA/man_track001.tif": "cae2e1b8bfa6a93aa0a2cb899298ea44b87c83fecbce354710b4af047f88b44f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02/t149.tif": "4ab87b144f4b1b0463638281ab302f0beed195dd0d1fa28d03b59ee8dd382ec5",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_ST/SEG/man_seg149.tif": "11d879c7bce659243883ba74e24e9c33cbf9a46ad9b686bd46ea3d6a5f891146",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_GT/TRA/man_track149.tif": "732bcd214de5f6604a4f04b074507336a12ece1701e6239db6b9171649c421ee",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02/t150.tif": "ff81de8ab9baaa8a7c6baaf057ba4f634c99515006369d7f229a3ac47e6d6b96",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_ST/SEG/man_seg150.tif": "5a794f4aeaed6eb6940c7d267749d0f5ad7a2dc8d15527a4b138a45c9f44383f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_GT/TRA/man_track150.tif": "f922f5fddc9bd1427ccab391fccec96003276f8664d19788471d27adb9cfb4b9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02/t298.tif": "ebd8f8ecdf4c401f9399ac75603c7315dc72b2a71395c984d87ef2dd373be1d2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_ST/SEG/man_seg298.tif": "026ce7cc4c1fd429fdb11c53770c753a6016863754f96dbde843064d828fae65",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_GT/TRA/man_track298.tif": "3fab245acb8c8e486b442652c3ce7a9889d4c9debb36214fd563781596cc07b8",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02/t299.tif": "239cd3e6bb93cb394bbbcc1f3c9fbd8d07af2e4d0804470c745f61857da7b92e",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_ST/SEG/man_seg299.tif": "55ed40f8422066e66aeb86b7738ebd397cbdb609430e0cace985b344c156f211",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse/02_GT/TRA/man_track299.tif": "0377c27456dbd4243b7b2d8d2de68c4dc7daeb398a79a5fd83bd3e40dbf28b9a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01/t000.tif": "821ad7807946e13176ed75a31866565d406d4c6fddb1578bde8c631dbe6223ca",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_ST/SEG/man_seg000.tif": "c4cfbda182e1932f3b2d2279fe5c59896bf5f2f91b32a5ceede031467621be66",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_GT/TRA/man_track000.tif": "50bf731205a585f4517f6170a4e8481833753a732ecf69a2d386790418e1e3a2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01/t001.tif": "c7d5483c0e78e45f20f45f6d48862b7de8c554b97cb5df963068146e4d936a91",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_ST/SEG/man_seg001.tif": "0c235fcd5f7d10f291229abb034d554e0a4e7c9d3e6934152afbaf84e36dd0b6",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_GT/TRA/man_track001.tif": "183f90eca1a33320229387d805401cd1cc8427817e16c886c4a54930ae7a9307",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01/t023.tif": "f8df147985f5d46709c71e58bbbdc9f2cdf0196ce6fcf412cfe48862206cf98f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_ST/SEG/man_seg023.tif": "9186869b77db300a7cb52ad8d4ff62f1d325d6ce905b330179d6458f20af4345",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_GT/TRA/man_track023.tif": "0bff4379b2ddf91d41d839d5a0be3d246169f9b6ee6719f831568d52cb369918",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01/t024.tif": "db216aa39255ea5fc72dd3df51297c0ef11a5d03caa82803c8df221b54a32604",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_ST/SEG/man_seg024.tif": "2eb8905aaae3660c41157b39fdbcb2788c55acb47ff829da64e45ebae8363486",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_GT/TRA/man_track024.tif": "762676a8e5d5bc27eb7f7cfe3d9c996f353280c2f2f597c1cf62a7b57bce0279",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01/t046.tif": "c3b53460b4790296e1e4ebdbd6a107848d03904d76111b1b14041c28ae5f5b5f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_ST/SEG/man_seg046.tif": "7f60077b86d1aae1bf9f53626b92f734330f9696989cd70f61f3582182d2db65",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_GT/TRA/man_track046.tif": "cdf17a819e4c40c844ed5dcb6e87ef518bbb7c7492406dc9cc2e3088d55d2036",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01/t047.tif": "d8e952850f51c257aca92e875490f43390848b8307a6c40041a89ff034608114",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_ST/SEG/man_seg047.tif": "df76f984157a2c3353296cad84f9c9dbe1e7aaa6de12c593f82faa00e07e710a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/01_GT/TRA/man_track047.tif": "d4a4967342e1f9219e6e72d334a21ecb741058782473384c09ae47b611fd6e0b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02/t000.tif": "fe5959df73ca31af6bcd445fe6a0beaa2c65d91b4b4b18165624e17a9c25ef16",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_ST/SEG/man_seg000.tif": "5cd2391fb1d29a0f390cbb9b4b9813198db8e82ad5788b3c5dbaeeada5191f05",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_GT/TRA/man_track000.tif": "f9a05733acbb37821c5da380f672f8fd5b7ad6f7e6feb64029c7332629702390",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02/t001.tif": "63c0877e19d088b0ae682839b2686a87c78d460e43868543d8cdb0b89b348828",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_ST/SEG/man_seg001.tif": "7942f6f17600d550817b576fc3a7552117842c4723bcd10a455e054eec839bf2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_GT/TRA/man_track001.tif": "7d2b5b314bae6c8925fe6a28600a642093ad2680547f7bc1c30bba01b122b4a9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02/t023.tif": "47230811e1f28f0de54648c77bcdb53c17fb6e92fab36488f02a94f6b8ac2348",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_ST/SEG/man_seg023.tif": "b00187023b4c021c38c8f5afa042cbdf289170b2a8525b2b01b2951de977d4fc",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_GT/TRA/man_track023.tif": "71c56ce9cff35044d6326df6f9e9507ec3d7e19cc19025d8cfce75c60039d702",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02/t024.tif": "74162c8a19202727db92cbc247a69debbe1f9050bbbe942df76e2ad942484602",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_ST/SEG/man_seg024.tif": "80ab84f43c4e6ed8580a8ba24f06064ac9de5a5446111f815fed019d824676cf",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_GT/TRA/man_track024.tif": "4ff686a71b38555a5716900356dfb7faf933a3f822456ec437cf1c93409ec425",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02/t046.tif": "119ffb8eacc43eebbe71b21f0259f90d844033e17e192ff9400a1d9c9b9cec5f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_ST/SEG/man_seg046.tif": "0a005884f72374c16a9991d627b9acb22a9d4ea8f14da9f7a256fa5c6bb35412",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_GT/TRA/man_track046.tif": "ea2e125ca1d49535d9d48244c633a08403852f9427d671663e10ee3e2a11c9a4",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02/t047.tif": "fccf7415c767c6b40792b313509aa6ec225d6cc1d8d9b2ac18a38ba0f4023841",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_ST/SEG/man_seg047.tif": "9349df064abca36a3d321badd6762e4859d7e60defc462861e57af27b461c88b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC/02_GT/TRA/man_track047.tif": "d49d863a4324a386185cead0320b18f6a6f95449b7987d6ace9a67f2dd5d8845",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01/t0000.tif": "3a62443309a0f91814d5f944d9696a8b5384d2f4b5571a78b7ea9a4e6fafb64d",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_ST/SEG/man_seg0000.tif": "5b94c21eb59237ebadc45d5adf71603dd2a969e181128bba3a01b9c7aaff1888",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_GT/TRA/man_track0000.tif": "1d43555fcef724d83ea0ff3d03e5e0ca51001be2f4f5b1bbf5ccd1dbb05a4c62",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01/t0001.tif": "ee7256ed8e44656795988e1c1efff60b41e430877a0be1a73c835d33f32ed886",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_ST/SEG/man_seg0001.tif": "5f4b2ea27913de66b5ffa3d57e31e14c6fab4b0c5a07db9e3682ed5632e4b892",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_GT/TRA/man_track0001.tif": "1d43555fcef724d83ea0ff3d03e5e0ca51001be2f4f5b1bbf5ccd1dbb05a4c62",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01/t0687.tif": "d05e169fff1b1dd3796c12d6026866752530357b5e197f2a7a0af3117f27e3f0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_ST/SEG/man_seg0687.tif": "9a2fc70996e8dc893bbf94d07d93a6dce727b018981b8ec27e52d2122bc3cd59",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_GT/TRA/man_track0687.tif": "ad0dd1a660ca42a28ef6b2065d231de9ef9a9ed56078c8bc9df58763ebd4a089",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01/t0688.tif": "abd41aa1c227ab492e55f25c90e5c17418b0647f9ee5998cf803602d97f2f949",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_ST/SEG/man_seg0688.tif": "1ab1670e0b0b3ba112b6e59187a1e40e6f84515c032efda2e2403b2cc8c63712",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_GT/TRA/man_track0688.tif": "d46a0f1b283827b947388fb6c945b8832353900fd61fd91f67bd71d184aba735",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01/t1374.tif": "a8a40e099149e446938e4ce9747bdac3502067abd3b583e18d62d0c094262ed7",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_ST/SEG/man_seg1374.tif": "0c8fe8def1d8be94747c59f4dc8b25351feacbc429145e9efb08b2bbbae0e7e5",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_GT/TRA/man_track1374.tif": "0c8ab5ca5e42ee37fdbaf774d6cdb254f97c389442ed129185f35d7db0da1f6f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01/t1375.tif": "46c08271152f24723a75f3836c04df54a3f3a9597efd2da30661285eaf0b8cde",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_ST/SEG/man_seg1375.tif": "38713675f5bdf4afec78c41ebeaa38bbc5a05fa1b114a7c0b9894e9453df5a6a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/01_GT/TRA/man_track1375.tif": "edbee15630f0bf2a5245792a9730e1f97cc4f9d19e93e152892d8941dd492fc0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02/t0000.tif": "0ae0432841e8403659f7ae2f8c4869208ef618cf9de04339598b48b43af1c354",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_ST/SEG/man_seg0000.tif": "b09729d4f3093fbf7d5cd10e0b9990442ef92a617ff93f734105a5d89d928252",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_GT/TRA/man_track0000.tif": "41334dc1af168446eac198bf460d503e2b9783a2e1de270905b41411e82b62f1",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02/t0001.tif": "a026e8ceac9cc299aeee606f164c3839b2f3b25affda306e0b16b7b6c478fe44",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_ST/SEG/man_seg0001.tif": "b583312a1dc1eb7248b79405bd5e14531609db2fbbb9e8e8417b0152401494de",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_GT/TRA/man_track0001.tif": "d559a6659693ac99feccc793a8802cc0fce1bb0a10559bda7dde272302e28c36",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02/t0687.tif": "dc6c5dfbf6af36590088ed9c349560866d7686b6399730a224505c24d8e7efca",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_ST/SEG/man_seg0687.tif": "5be4c3b1def40d2ca9c4bf6c834471ef325977023a4c9de58e0c3f39fe68f898",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_GT/TRA/man_track0687.tif": "a1c9f0ba8b759fbd7157c777c3b591dbba3cc91f4c746ec16bca8c5c4915a188",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02/t0688.tif": "528a92ea1be47a62c2cbcc615ac239bb3ef77fe7484948d3807e71f6bcafd957",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_ST/SEG/man_seg0688.tif": "89d864eb7269a54153bd512c01a9ed9ae91fe10cd7cdf59a70e060ac895fefb2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_GT/TRA/man_track0688.tif": "63f439e52b62d172cd267ac4a644b56c6b7360fb5decccfcd2d6da11ee28e88f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02/t1374.tif": "e32418b627dd54907c3359bd3e07f421229e03e48b5330e80a45b726dac788d9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_ST/SEG/man_seg1374.tif": "4eb253d98ad3dd4b2b62122ee37d5e5ddc609d6c1b7d9b6cfd8da1d7ce4260c6",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_GT/TRA/man_track1374.tif": "12bf3435ecee1ae12882745541added649b87b49bf7f36e72e0076bed7f27484",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02/t1375.tif": "8f59ec3082c4ed91ece93f1b08619605209703144e47cdf1a5bc8f88cb7c986f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_ST/SEG/man_seg1375.tif": "3650fb29b71144ef0d2fb9d7bf8b91edcaa83ea181dce6ebc5f37e10dfa205f5",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse/02_GT/TRA/man_track1375.tif": "287b937733878aca16b86a2776d1f3198feccb0bf7e4b4dc070a9f94f95a64bf",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01/t0000.tif": "11ec70b5df4a3b319a51d49484c8f839fa14d8c0733dae9276413651ffbf5606",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_ST/SEG/man_seg0000.tif": "eac08acb5a98a17b99c8f15ed39251e4e9b80a553d1a13da7dd80307b3bb5d45",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_GT/TRA/man_track0000.tif": "f2019b2954043efe7a9884c6c4e73deb953d1784a9ca7a8b66c36a7441fe51e6",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01/t0001.tif": "8251ecbfc2b53a89d2d3a3c057fa995502d1278919b554bf66fc0397bc26a3fa",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_ST/SEG/man_seg0001.tif": "b3c8c6e6cd7b5393cbef38a1144a9e8c0593426052fe45cafe97fae4d7f03be5",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_GT/TRA/man_track0001.tif": "3861c2427887762e94bb64c0c29cd3348ba87da5a0f80a4a5a5af1a59b80f466",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01/t0881.tif": "3c594c1d043bc03cd41663eb0b0f38e1819fd60a8151542f309d5f4daf2078b6",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_ST/SEG/man_seg0881.tif": "6140e16de439d6fead20b403946650f917d72b05a0c3147478d2b0cac4294aeb",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_GT/TRA/man_track0881.tif": "86f189fc980e8b0e77e042cdefaf101b5f067bfb1f006a51e6ad754bec1975d6",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01/t0882.tif": "dc547d192df6c08a06b6479cd10aaf3783e30d1ab13f34d8716b877a41d7f105",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_ST/SEG/man_seg0882.tif": "42cc043c74012f875f93edbbb1ab66d6ad447d8b7b07cc924064ffd61eec916d",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_GT/TRA/man_track0882.tif": "7bc04122f686b2cef2062be0098afc76b8eec42b74e2c85eb985eb3bd09379ee",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01/t1762.tif": "a57c604236edb23e02a86a03e6bae5a91cba3a3677778bbf3e5c284b86926afb",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_ST/SEG/man_seg1762.tif": "a21444d43912ad6172affc656ce2edc43f1072b8cddcc3656a704b8d0cb43885",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_GT/TRA/man_track1762.tif": "f4901302b65aab2ff291263b7e9b3e638516b3603bad615943ad5e7180cdea5a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01/t1763.tif": "baff5edbe85f783e70d3e0e33e38a74caa319522d9eadf2a339b8a837501848d",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_ST/SEG/man_seg1763.tif": "a2757c36c319a2593667273cb5d2db6de17e00dd72624681f90d19877197f259",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/01_GT/TRA/man_track1763.tif": "f59c4836f1ff71c7e0360b3b997efcd054ae66a7c50c4337712ce0aae41c00d2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02/t0000.tif": "e88d8e9038b71531f1610965a3f62518a3cf7a5be39a148c6a5c30f68e3856b6",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_ST/SEG/man_seg0000.tif": "9c21005cca975b65cb346aa08eae685ca02650cbd4a88845a9e1236c8f986232",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_GT/TRA/man_track0000.tif": "c127a0d7cd2a1d0a4f4f9ff16bdbe7a8b7ca35c21650c1b79e04961b4b98192b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02/t0001.tif": "82adfaa3de6b8652a015dea9148e8d29cbc48ea7d291f0f2093211b09a8e8a3c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_ST/SEG/man_seg0001.tif": "4940b4ffeef00c9e314775656e2838ee80cb266fbfdc66e7a08f15a679cf9827",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_GT/TRA/man_track0001.tif": "1e0114c4e29392520a9489076e1c5c72149c728826feb3ebc9fb954e8f6300c0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02/t0881.tif": "93eca5184a57f7c5e7a2599193f58fd5203e367d033d9779eab3fc75a4a27e76",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_ST/SEG/man_seg0881.tif": "3c65636ac58132cdbedbb50c09be05de7874f503a353ce094301c01480b7694c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_GT/TRA/man_track0881.tif": "c040a5d561bbe10acdf7bbf242950c33316c7df96960de2ce12e8c79b48e4faf",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02/t0882.tif": "ed47de23730508b9c6c09ac057bc20698ac0f1fe020233ea766984bacfa67645",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_ST/SEG/man_seg0882.tif": "28e4161407f3621c849da3352ef08f125b61b97a2c0b1e5ed2e517614c3ef3f7",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_GT/TRA/man_track0882.tif": "b4a347bdb7cfd2c8d7b1180826ebe951b48d3199b70889547500129e2944cd3e",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02/t1762.tif": "e758344e231bfee5364769b0a5885da84c70068712c5fc6c3036f03b787d43ee",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_ST/SEG/man_seg1762.tif": "6a4c9389b4670bdc0bc86f31a4d04cfff9c8314a481bd1a461e77073becc10cd",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_GT/TRA/man_track1762.tif": "0d2df37ab9e9da507baca6aab4173ce87f075d2fb78c67bb07ed7e9b554b1771",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02/t1763.tif": "d980035b367a3d47863e8c82bf4fe184c18b0fd90cbe45232da56a20b06b7f30",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_ST/SEG/man_seg1763.tif": "494acb23c9b5ef5e27f87e5bdb5cfb17d8f84100014148beaf973bf9630056d1",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse/02_GT/TRA/man_track1763.tif": "f696e2765c872ff9dbf255d2626ad25b3b82a87a2965434129cf4765748728b9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01/t000.tif": "027d7d74b51d0993948adb5b7facf0972a07a91e98f67ddb1b32c4bc5428e787",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_ST/SEG/man_seg000.tif": "b57f959928b247f90ade2fc20e7ddf25c8af3875e84754369a679313e5542c7d",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track000.tif": "c48dfe0e2b9ede910f25d026a060c50425e193b9bd2a36cefc31bf83dcd81bfd",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01/t001.tif": "1409cc55a8015bf7b0f1c1967b038ece53dab7e3ae3751ca6f61f374d73ae8aa",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_ST/SEG/man_seg001.tif": "ee7ad1ad033d5c9877e07d81d63abdfaab0bcd8448afcf15d63916b2551e5d0b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track001.tif": "3f3a7b1db3fed4fe9e47ef032dfafd2083bd078ae492c682d33c693f35c25eb0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01/t045.tif": "ea2879ccac1150ca0d14799e49427d88f5400d9fcc31afe8a9070956320b74fa",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_ST/SEG/man_seg045.tif": "f81ce53aa55017bcdc494b1a34149b6476508c34640c130df142633029fc07e2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track045.tif": "4f7ff16c74cf2905655d7018bbe802ae3026114368d8bcece194fbfd3fa8a50b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01/t046.tif": "834f51773b4496fd5283c1d5f645bd518676378ee34c625c29bdabdc78282241",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_ST/SEG/man_seg046.tif": "6855d9231bd9574eb36082a2e44897309a4531a1b2bfeb2c9d648866359212d0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track046.tif": "b64e59965b7c37dd8cc08a794fcf17f95226e4b96cf51184ada86de112f1ba46",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01/t090.tif": "c1384ebdf600bc453492fc6f1e13b895c346321335ea0c8c39da95a46e59c78c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_ST/SEG/man_seg090.tif": "9049be0d63acbf90873edec026dd43ebcbc4663f27eafa508616e9d0c268a55a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track090.tif": "6562e9ab06f332c22ae16a62cd26d8acc4c6a408e4683214c943faafdc95ee20",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01/t091.tif": "758dc22b6a3433f79c43841c36b80852e078c81ab4c99a1a7b2f299cb5195382",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_ST/SEG/man_seg091.tif": "dbd1d278e421ccae05c17faa2d19b847b492e0c32b7cc33d49f897726b00f76f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track091.tif": "253180784c59e431b8bbe70afee5e4ccaf68bda589cbb7aba3334e18b475fdaa",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02/t000.tif": "a0ae50aa44a82226b0517663a849ad6e969a23bcfea29269cd5db1ee86e3077c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_ST/SEG/man_seg000.tif": "e80709f0b05d0187533955b08d97f6d6f2f01ae3f29ea54275da497eee88dd2b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_GT/TRA/man_track000.tif": "e375ffa136973fc03ed0e8b81329cb66d275b76a98f07ffc47cd02e3b6fdb0ce",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02/t001.tif": "43094134a376a07809b911db192f2674dba46dd9ca800feb5aad040f0a289fb9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_ST/SEG/man_seg001.tif": "80bebe35b958e8e5e5a36fc24e9254213717bd4730fbfc33cec8398600a7548a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_GT/TRA/man_track001.tif": "b029309dfc1eb17664b1d4eab61fc1a49b4a9d511c1a8a5d813bec3cf8a7a8f3",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02/t045.tif": "f66c11ba5ecd9eaa6a481cf5c43c28619ec6966dadb00aa7a1716c43ada3e990",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_ST/SEG/man_seg045.tif": "d0a9eb27c331f3f07072b5e7707ce609c1609af425c15ccf862f89c6e06ae49a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_GT/TRA/man_track045.tif": "bd5f2332df1a35724ef8cad80daabdc7f85f85e0a33147d06acfbfe15cc39692",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02/t046.tif": "cf0c2ce3d7d4081f28061ac3b077de54b5edd20bdaa04f59ccc76a194868b2f7",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_ST/SEG/man_seg046.tif": "1ecffa2c64bad582f29501f76ee0f40948d6dfbfd880f6360ac5634b37a7ef98",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_GT/TRA/man_track046.tif": "07a729c22ca1936c182f6879fc1648dc31f084e7770680aa70b67ff98f86aeaa",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02/t090.tif": "924ed94878a2531444a0fec6f8fe1b8b2fefa129654a4edf55f540b5bb0219b5",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_ST/SEG/man_seg090.tif": "a11913c557a25abac91cd0a412b47b238e69d8d336c19773d99ce0e7bb87ea16",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_GT/TRA/man_track090.tif": "a725d2c42e07b2d7e0efb460d56d0d1510d90db3bfca8699faf093c207d6e64f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02/t091.tif": "8886200ce186f03eb8bb59b41d59ce70e5760fa137670a7df2feb256c134cf12",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_ST/SEG/man_seg091.tif": "6d97815f5bf534a77d3c256b9d6b22f758fdad1e5166a3ea2b57bf751fc82e76",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1/02_GT/TRA/man_track091.tif": "bcf80d1f6fdb04b39d299d3f7cbafde86aaa269f2d1142f4abdc650acdf4ef63",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01/t000.tif": "07261a753924a5e2e8759ea5073f88759e600569415eaf153e19838253dd083c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_ST/SEG/man_seg000.tif": "8c3f5643fcc800733f54162ace8f2e0c82d3e786cc58666a1e7cdff85c88d94b",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_GT/TRA/man_track000.tif": "0a63e2e7f47d92861277a05d906a544a257c489d82212e65c7773f36e586cb14",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01/t001.tif": "4d8cd5a4551f49900a9f4beabc30640fc391a2aa40316652774b06991e1553a9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_ST/SEG/man_seg001.tif": "cc8e1423f529a615ab6d3730f76d0855c343b8ade742525322d92c7c7590c315",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_GT/TRA/man_track001.tif": "cc166008967ef3893edd8e9736783a9a4b79dd4aacbe28789c51506daad052ac",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01/t045.tif": "19f3d8594dd0d1eeb3261889e95030637e5614e2255d63ef60803eeb56e364e3",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_ST/SEG/man_seg045.tif": "33ccf0a2baf5845c6e299c58f60660229ed3ba2da0923ee3c22dcf0f6f14a9e9",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_GT/TRA/man_track045.tif": "9e43264e0d6b32006f1237deda82dd00f3832f330df8bfd4694ad895bbdf1d5c",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01/t046.tif": "f32ca43501e6514f471762ffde54e834e8dc2f99fb3691eaa5f8cc8eaedb0cd3",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_ST/SEG/man_seg046.tif": "b30c98903e509c26ebef576c628dcacaede070d3f3f2716fcd278bf17e4aaa0a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_GT/TRA/man_track046.tif": "bd374308efe96935e6e34ec5ff82852d0d5540032c5133caf116ccef43157b86",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01/t090.tif": "9ea5816510ec30e89b0b88ad5772d701ce78727947670ba99a32ab4ce787a8db",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_ST/SEG/man_seg090.tif": "10150a1136c9a0b71c462a92047385af98db26ee267c9e67891b5bb18ff24b53",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_GT/TRA/man_track090.tif": "a026c1b1dda816af1d30962304e1f20c84bc9cafb331ac6440139b102791329e",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01/t091.tif": "174f3cc394c2c598b989f8b4c5a7d96f2c7006a73b2a18c2e59abba3aae67f39",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_ST/SEG/man_seg091.tif": "277ff669a711c47e091766a7f5c71fd1e089b0881130fb3928b9c959078db706",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/01_GT/TRA/man_track091.tif": "8e097296fb4ffd3c317ad2cd14ee2470dab8a4320d852a91ddd0084431e647c8",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02/t000.tif": "770eb8ff906c261f06bb16efc01c3cb4fda7216bc4340ee370db186c3405cdef",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_ST/SEG/man_seg000.tif": "719ef31acd061297172ac7336a7aa239fc5895a26d64c4e42ed67f9fc10c3ac5",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_GT/TRA/man_track000.tif": "1c2428e7928199f71e89661c382c978ee9c61c559276816cd113466f3dd5e6bf",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02/t001.tif": "94567b970172824ca607b8b68648dfef15b2c26a9fe21e535eb9665b50dda75a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_ST/SEG/man_seg001.tif": "817eb6483ad4461126032627dec2dc74c6d092ab1a848596663ec575b6bd4c72",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_GT/TRA/man_track001.tif": "c986177175b9335774ae553a8b66615d5fff00af3be0b999f3abdfb9df300ce8",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02/t045.tif": "1304aaaa4401c095dc0c69f6ab516cba11d4aa8bec7ea73279f8f339bb37d4fb",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_ST/SEG/man_seg045.tif": "dfc039aef7b3912d1f407bc3653c926f065043824657d5a9c7556b13bbadd486",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_GT/TRA/man_track045.tif": "45a877c21400b0367cd2e50844a0860eea33228b34b1c93d857c2aa494f059a0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02/t046.tif": "cb3c8da9135eff8c7aa4935ba0908c5ebd973c284d33a03390e78352e6fffca0",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_ST/SEG/man_seg046.tif": "e3f5a5707c6e4de243a74de9653b85a51bc7c33292a3318aa93de330d73fb1a2",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_GT/TRA/man_track046.tif": "3dc31845a0cbeb0ceffc11c5ebe2ff3824159dec5f2c5a144b83ef14f3a4b0d7",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02/t090.tif": "ec977a92bd11e8a50baa64b761e19da063edb33e8e5589b7d56a391335938c63",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_ST/SEG/man_seg090.tif": "6c067ec66beae9ca8cfba3644b0c9c8e20853314f90d8102d6cc51aad117955f",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_GT/TRA/man_track090.tif": "b9e03384f959f1fd416f5b7aaa8a978cea2d72093c92758637b12ce03fbee019",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02/t091.tif": "c935ffde916fe2585242eeebfa6cfc48bcf3e52024174e799b66fa39003e848a",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_ST/SEG/man_seg091.tif": "49638c217a4b2bb193749f0f06100ec5495d66c520f2417352b9a0ec4f5bcef7",
+    "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa/02_GT/TRA/man_track091.tif": "22844dd4066a27926d931e3290495debfa1337219c40f766a7e19d7a46a6fdf0"
+  },
+  "inputs_unchanged": true,
+  "metadata_sha256": "7567329a3c22cfbddec7fab255504280241c0247b21b0cde502bcc1f57461b47",
+  "checkpoint_sha256": "e9060390f1a5b13a587dbd5bee434ef2a6e41373c52ceecb884c38a833a851fc",
+  "checkpoint_unchanged": true,
+  "runtime_sha256": "eaa9207ed56ad699aad008970cfc4f61b3f47eb1fa2b6c98b8df4d96f9206226",
+  "evaluator_sha256": "dc47a8ed800b12d559763ffd669e4351551ff86eac5144109e2b39954abcd245",
+  "before_runtime_sha256": "0599a6d6ec1635468099b8be19a4ebf846567bd591b571b5a4dea8ae19907fa7",
+  "before_evaluator_sha256": "acf021bd0a76a9d2f8b087ad4db9aed7b085c61d5e69b786c9cc5c76d2cc8f6d",
+  "previous_evaluation": {
+    "pairs_jsonl_sha256": "20b27b7fc53ff7cf13bb017d46ee7470b74bfec1a51cdcff059fd0fec8e1a389",
+    "unique_frames": 14,
+    "input_files_verified": 42,
+    "assignments_and_exclusions_identical": true,
+    "frames": {
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg000.tif": {
+        "labels_sha256": "3ecd515b298ee62e4d60ee45c42ef5f69aaacc292fe1a5f3884bd4a8324fb7a9",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg001.tif": {
+        "labels_sha256": "c7f55715ceea8236249a1cb5187b8164ca546a1bd7b18e2afe37a934dc7caff6",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg032.tif": {
+        "labels_sha256": "f6ed6394e781af5ba0640c6ec92a776e3c07849b40d04289b88802578adaff3d",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg033.tif": {
+        "labels_sha256": "5614cd252758a6cd164de8ee8a982a4420e7d86553ed6e8809102cc1ec3b0aa4",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg063.tif": {
+        "labels_sha256": "f6da6bfd8b9f51edecaaf9b597d2fb915f651c9a5b6f1b02c4ecff238ddbe5ce",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg064.tif": {
+        "labels_sha256": "0a12699a33da4d25cb6262751e735c45c25abb1df87497acb41187e4a42df3fc",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg012.tif": {
+        "labels_sha256": "9ba28acf69a50140cdf7de5fb6f3d7a1c9b7ed230dee8dac5e105f6c6af89690",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg026.tif": {
+        "labels_sha256": "fd7669435fe11fcd5b067d3d48707660728d4414fdb33f0e3967cfb176296de1",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg038.tif": {
+        "labels_sha256": "c7e1c44e76d215e76518760e862be43756c95fb2a958af57562e311f41aa0f11",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg052.tif": {
+        "labels_sha256": "deabc6c71eb4ef344634953f46d67496816d66503b4481b4a3818dba81666906",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg024.tif": {
+        "labels_sha256": "d7da1f805482a7bb50cea1528867ddd607b4e8eabe892dfbd65d2fb5b0e9f009",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg020.tif": {
+        "labels_sha256": "6f0f93935fdd45c9d8bf3fe1e75b3684c30c6575146da4a07d8c17088af7aa30",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg044.tif": {
+        "labels_sha256": "9f79a10fad690db51d2194b6e5386ea8c4d7e664eba4a625571fc44951de2486",
+        "counts_unchanged": true
+      },
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg040.tif": {
+        "labels_sha256": "d7c3d7f1c3231e8f067ed54df926c9892cd34abe151581523b3ff9fdb5e16a3d",
+        "counts_unchanged": true
+      }
+    }
+  },
+  "audit_source": "import hashlib\nimport importlib.util\nimport json\nfrom pathlib import Path\nimport sys\nimport time\n\nimport numpy as np\nimport tifffile\nfrom spacr import timeflows_model as tm\nfrom tools import evaluate_timeflows as evaluator\n\nroot = Path('/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/ctc-supervision')\n\ndef load(name, path):\n    spec = importlib.util.spec_from_file_location(name, path)\n    module = importlib.util.module_from_spec(spec)\n    sys.modules[name] = module\n    spec.loader.exec_module(module)\n    return module\n\nold = load('spacr._ctc_before', root / 'model-before.py')\nold_eval = load('_ctc_evaluator_before', root / 'evaluator-before.py')\n\ndef digest(path):\n    value = hashlib.sha256()\n    with Path(path).open('rb') as handle:\n        for block in iter(lambda: handle.read(1048576), b''):\n            value.update(block)\n    return value.hexdigest()\n\ndef array_hash(array):\n    value = hashlib.sha256(str((array.shape, array.dtype.str)).encode())\n    value.update(np.ascontiguousarray(array).data)\n    return value.hexdigest()\n\nmetadata = Path('/mnt/wd4tb/af3/projects/live_cell/timeflows/timeflows_v1.pt.json')\ncheckpoint = metadata.with_suffix('')\nmetadata_hash, checkpoint_hash = digest(metadata), digest(checkpoint)\nstarted = time.monotonic()\nrecords, unique_frames, file_hashes = [], {}, {}\nfor movie in json.loads(metadata.read_text())['movies']:\n    for sequence in ('01', '02'):\n        before = old.ctc_pairs(movie, sequence, max_pairs=3)\n        after = tm.ctc_pairs(movie, sequence, max_pairs=3)\n        selected = evaluator.selected_pairs(movie, sequence, 'ST', [1], 3)\n        assert len(before) == len(after) == len(selected)\n        for previous, current, selection in zip(before, after, selected):\n            assignments = []\n            for frame_files in selection['files']:\n                for path in frame_files:\n                    file_hashes.setdefault(str(path), digest(path))\n                seg, markers = (tifffile.imread(path) for path in frame_files[1:])\n                labels, counts = tm._ctc_track_masks(seg, markers)\n                assignments.append((labels, counts))\n                unique_frames[str(frame_files[1])] = counts\n            source, source_counts = assignments[0]\n            target, target_counts = assignments[1]\n            unknown = set(target_counts['excluded_track_ids']) & (set(np.unique(source)) - {0})\n            expected = np.where(np.isin(source, list(unknown)), 0, source)\n            assert np.array_equal(expected, current.labels_t)\n            assert np.array_equal(target, current.labels_t1)\n            assert np.array_equal(previous.frame_t, current.frame_t)\n            assert np.array_equal(previous.frame_t1, current.frame_t1)\n            old_ids, new_ids = (set(np.unique(labels)) - {0} for labels in (previous.labels_t, current.labels_t))\n            old_target_ids = set(np.unique(previous.labels_t1)) - {0}\n            records.append({'movie': movie, 'sequence': sequence,\n                'frame_numbers': selection['frame_numbers'],\n                'source_counts': source_counts, 'target_counts': target_counts,\n                'unknown_successors_censored': sorted(int(n) for n in unknown),\n                'old_source_objects': len(old_ids), 'new_source_objects': len(new_ids),\n                'source_values_changed': not np.array_equal(previous.labels_t, current.labels_t),\n                'old_false_absences_from_missing_mask': sorted(int(n) for n in unknown - old_target_ids),\n                'before_label_sha256': [array_hash(previous.labels_t), array_hash(previous.labels_t1)],\n                'after_label_sha256': [array_hash(current.labels_t), array_hash(current.labels_t1)]})\n        print(movie.rsplit('/', 1)[-1], sequence, len(selected), flush=True)\nprior = Path('/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/sim-v1-evaluation-float32/pairs.jsonl')\nchecked = {}\nprior_files = {}\nfor row in [json.loads(line) for line in prior.read_text().splitlines()]:\n    for inputs, old_counts in zip(row['inputs'], row['exclusions']):\n        for item in inputs:\n            assert digest(item['path']) == item['sha256']\n            prior_files[item['path']] = item['sha256']\n        key = inputs[1]['path']\n        seg, markers = (tifffile.imread(item['path']) for item in inputs[1:])\n        old_labels, reproduced_counts = old_eval.tracked_masks(seg, markers)\n        new_labels, counts = evaluator.tracked_masks(seg, markers)\n        assert reproduced_counts == old_counts == counts\n        assert np.array_equal(old_labels, new_labels)\n        checked[key] = {'labels_sha256': array_hash(new_labels), 'counts_unchanged': True}\nassert all(digest(path) == expected for path, expected in file_hashes.items())\nassert digest(metadata) == metadata_hash and digest(checkpoint) == checkpoint_hash\nsummary = {'pairs': len(records), 'unique_annotation_frames': len(unique_frames),\n    'old_source_object_occurrences': sum(r['old_source_objects'] for r in records),\n    'new_source_object_occurrences': sum(r['new_source_objects'] for r in records),\n    'unknown_successor_occurrences_censored': sum(len(r['unknown_successors_censored']) for r in records),\n    'false_absence_occurrences_before': sum(len(r['old_false_absences_from_missing_mask']) for r in records),\n    'source_values_changed_pairs': sum(r['source_values_changed'] for r in records),\n    'source_dtype': {'before': 'int32', 'after': 'int64'},\n    'annotation_counts': {key: sum(c[key] for c in unique_frames.values()) for key in\n        ('retained_tracks', 'unmarked_objects', 'multi_marker_objects', 'duplicate_track_objects', 'markers_without_retained_full_mask')}}\nresult = {'seconds': time.monotonic() - started, 'summary': summary, 'pairs': records,\n    'input_sha256': file_hashes, 'inputs_unchanged': True,\n    'metadata_sha256': metadata_hash, 'checkpoint_sha256': checkpoint_hash, 'checkpoint_unchanged': True,\n    'runtime_sha256': digest(Path(tm.__file__)), 'evaluator_sha256': digest(Path(evaluator.__file__)),\n    'before_runtime_sha256': digest(root / 'model-before.py'),\n    'before_evaluator_sha256': digest(root / 'evaluator-before.py'),\n    'previous_evaluation': {'pairs_jsonl_sha256': digest(prior), 'unique_frames': len(checked),\n        'input_files_verified': len(prior_files), 'assignments_and_exclusions_identical': True,\n        'frames': checked},\n    'audit_source': Path(__file__).read_text(), 'training_started': False,\n    'limitations': ['Strict overlap assignment is not independent human validation of segmentation or track markers.',\n        'Absence of a marker in the supplied annotation still represents absence; missing biological annotation is not inferred.',\n        'Object occurrences across pairs are dependent observations.',\n        'No revised checkpoint or accuracy score. Prior evaluation arrays/counts are revalidated, without repeating inference.']}\n(root / 'real.json').write_text(json.dumps(result, indent=2) + '\\n')\nprint(json.dumps({'summary': summary, 'seconds': result['seconds'],\n                  'previous_evaluation_unique_frames': len(checked)}), flush=True)\n",
+  "training_started": false,
+  "limitations": [
+    "Strict overlap assignment is not independent human validation of segmentation or track markers.",
+    "Absence of a marker in the supplied annotation still represents absence; missing biological annotation is not inferred.",
+    "Object occurrences across pairs are dependent observations.",
+    "No revised checkpoint or accuracy score. Prior evaluation arrays/counts are revalidated, without repeating inference."
+  ],
+  "measured": "2026-09-23",
+  "instruction": 426,
+  "source_before_commit": "b53508f549d2dff63ef8dc89bae963534ebc9232",
+  "validation": {
+    "before": {
+      "failed": 13,
+      "passed": 1,
+      "seconds": 1.68
+    },
+    "initial_fixed": {
+      "passed": 73,
+      "seconds": 9.22
+    },
+    "final": {
+      "passed": 173,
+      "seconds": 26.69,
+      "warnings": 1,
+      "skipped": 0
+    },
+    "new_tests": 27,
+    "tests": [
+      "tests/test_timeflows_ctc_supervision.py",
+      "tests/test_timeflows_crop_supervision.py",
+      "tests/test_timeflows_model.py",
+      "tests/test_timeflows_model_boundaries.py",
+      "tests/test_timeflows_evaluation.py",
+      "tests/test_timeflows_baseline_metrics.py",
+      "tests/test_timeflows_label_qc.py",
+      "tests/test_timeflows_qc.py"
+    ],
+    "coverage": {
+      "covered_lines": 400,
+      "num_statements": 401,
+      "percent_covered": 99.42196531791907,
+      "percent_covered_display": "99.42",
+      "missing_lines": 1,
+      "excluded_lines": 0,
+      "percent_statements_covered": 99.75062344139651,
+      "percent_statements_covered_display": "99.75",
+      "num_branches": 118,
+      "num_partial_branches": 2,
+      "covered_branches": 116,
+      "missing_branches": 2,
+      "percent_branches_covered": 98.30508474576271,
+      "percent_branches_covered_display": "98.31"
+    },
+    "missing_lines": [
+      881
+    ],
+    "missing_branches": [
+      [
+        405,
+        407
+      ],
+      [
+        880,
+        881
+      ]
+    ],
+    "strict_helper_coverage": {
+      "covered_lines": 32,
+      "num_statements": 32,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 22,
+      "num_partial_branches": 0,
+      "covered_branches": 22,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "reader_coverage": {
+      "covered_lines": 30,
+      "num_statements": 30,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 12,
+      "num_partial_branches": 0,
+      "covered_branches": 12,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "gates_or_baselines_changed": false,
+    "ruff_fatal_checks": "pass",
+    "git_diff_check": "pass"
+  },
+  "execution": {
+    "audit_memory_cap": "6G",
+    "tests_memory_cap": "8G",
+    "swap_cap": 0,
+    "cuda_visible_devices": "",
+    "blas_threads": 2,
+    "before_source_commands": [
+      "git show b53508f54:spacr/timeflows_model.py > model-before.py",
+      "git show b53508f54:tools/evaluate_timeflows.py > evaluator-before.py"
+    ],
+    "command": "PYTHONPATH=/mnt/firecuda2/Claude/repo/spacr CUDA_VISIBLE_DEVICES='' OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2 tools/run_capped.sh 6G python /mnt/firecuda2/Claude/implementation-20260922/timeflows-426/ctc-supervision/audit_real.py"
+  }
+}

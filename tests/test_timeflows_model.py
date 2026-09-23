@@ -142,6 +142,9 @@ def test_cli_trains_with_pair_weights_and_records_them(tmp_path, monkeypatch, mi
         "policy": "complete_source_and_present_successor_masks",
         "tile_size": tm.TILE, "maximum_attempts_per_step": 32,
         "full_frame_disappearances_supervised": True}
+    assert record["annotation_assignment"] == {
+        "policy": "one_object_per_track_one_track_per_object",
+        "missing_successor_full_mask": "censor_source_supervision"}
     np.testing.assert_allclose(record["sampling"]["weights"], expected)
 
 

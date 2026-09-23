@@ -13304,3 +13304,44 @@ but removes some fast-motion examples; no accuracy improvement or retrained
 checkpoint is claimed. Read your follow-up API-prose claim; those method
 bodies remain untouched by this change. New training-method behavior and
 checkpoint metadata are described in the preceding handoff.
+
+2026-09-23 — IMPLEMENTATION: 426 CTC ASSIGNMENT AUDIT CLAIM
+The training reader assigns multi-marker objects by majority and allows
+multiple segmentation objects to share one track ID. The evaluator excludes
+most such assignments; neither currently rejects a track shared between an
+ambiguous object and a seemingly unambiguous object. Claiming a shared strict
+assignment helper, track_masks_from_ctc/ctc_pairs behavior and focused tests.
+Will also censor training sources whose next-frame marker has no valid full
+mask, so missing annotation cannot become a death label. Public signatures
+stay unchanged; correcting their affected prose is part of this claim.
+No training or checkpoint edit. Existing evaluated mask inputs will be
+compared explicitly before retaining previous scores as applicable evidence.
+
+426 assignment regression: 13 failures reproduced, now 173 checks pass.
+track_masks_from_ctc returns int64 masks and excludes every ambiguous
+one-to-many/many-to-one assignment, including tracks shared with merged
+objects. New _ctc_track_masks reports exclusion counts/IDs and is used by
+both the training reader and tools/evaluate_timeflows.py. ctc_pairs censors
+sources with marker-present but invalid next-frame full masks, without
+changing cached targets used by earlier pairs. Strict complete-frame names
+exclude slice masks; duplicate frame numbers and invalid sequence/limits
+raise before pixel reads. Affected public method docstrings are corrected;
+please include new helper and new int64/error behavior in API guidance.
+Checkpoint metadata adds annotation_assignment policy and missing-successor
+censoring; no signature, GUI setting or catalog changed. Existing nine-pair
+synthetic evaluation annotations/exclusions compare identically under old
+and new rules; final real-data receipt is being assembled. No retraining.
+
+426 assignment audit complete: 36 real pairs / 72 annotation frames.
+3101 source-object occurrences become 3035 (46 invalid assignments removed,
+20 unknown-successor cases censored; 9 previously false absence targets).
+Pixel values change in 8 pairs; dtype changes int32 -> int64 throughout.
+All 42 inputs and 14 unique annotation frames from the prior nine-pair
+synthetic evaluation were rechecked: assignments and exclusions identical,
+so prior scores remain applicable without repeating inference. Checkpoint,
+metadata and source-file hashes unchanged. 173 checks pass; model coverage
+99.42 percent with the unchanged 1-line/2-branch gap. Receipt
+426_ctc_annotation_supervision_2026-09-23.json. Corrected training and wider
+acceptance remain open. Method/API/provenance changes are in the preceding
+handoff; please carry the distinction between assignment checks and human
+annotation/accuracy validation into guidance.

@@ -4830,3 +4830,15 @@ statements and 90/92 branches, 99.34 percent combined, retaining the existing
 covers 576 windows from 36 pairs, with checkpoint and input hashes preserved.
 Receipt426_training_crop_supervision_2026-09-23.json. No pretrained accuracy,
 GPU training or full-tree green-CI claim.
+
+2026-09-23 — TIMEFLOWS ANNOTATION SUPERVISION VERIFIED
+426 reproduced 13 failures in mask/track assignment, annotation validation
+and missing-successor supervision. A shared strict helper now serves both
+training and evaluation; sparse IDs survive as int64, duplicate frame names
+fail before reads and incomplete next-frame masks censor source supervision.
+27 new cases join the bounded cohort: 173 pass in 26.69 seconds. Coverage is
+400/401 statements and 116/118 branches, 99.42 percent combined, with the
+unchanged 1-line/2-branch gap. No baseline/gate/exemption change. Real audit
+compares 36 training pairs and independently rechecks the prior evaluation's
+42 inputs/14 annotation frames. Receipt426_ctc_annotation_supervision_
+2026-09-23.json. This does not claim whole-tree CI or model accuracy gains.

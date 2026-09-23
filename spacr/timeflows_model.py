@@ -66,27 +66,65 @@ def track_masks_from_ctc(segmentation: np.ndarray, markers: np.ndarray) -> np.nd
     The Cell Tracking Challenge publishes tracking ground truth as MARKERS --
     a small blob inside each cell, labelled with its track id in every frame
     -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per
-    frame). Each segmented object takes the id of the marker it contains; an
-    object holding no marker is dropped, and one holding two takes the marker
-    it overlaps most.
+    frame). Only one-to-one assignments are retained: the object contains
+    exactly one marker ID and that ID overlaps no other segmented object.
+    Unmarked, merged and split assignments are excluded rather than guessed.
 
     :param segmentation: one frame's instance labels, any ids.
     :param markers: the same frame's TRA markers, labelled by track id.
-    :returns: ``segmentation`` relabelled by track id, 0 elsewhere.
+    :returns: int64 ``segmentation`` relabelled by track id, 0 elsewhere.
+    :raises ValueError: annotations are not matching 2-D non-negative integer
+        arrays, or marker IDs cannot be represented in int64.
     """
-    segmentation = np.asarray(segmentation)
-    markers = np.asarray(markers)
-    out = np.zeros(segmentation.shape, dtype=np.int32)
-    for obj in np.unique(segmentation):
-        if obj == 0:
+    return _ctc_track_masks(segmentation, markers)[0]
+
+
+def _ctc_track_masks(segmentation: np.ndarray, markers: np.ndarray
+                     ) -> Tuple[np.ndarray, Dict[str, object]]:
+    """Return unambiguous full track masks and auditable exclusion counts.
+
+    :param segmentation: a 2-D non-negative integer instance-label array.
+    :param markers: matching 2-D non-negative integer tracking markers.
+    :returns: int64 track masks and counts, including excluded marker IDs.
+        Multi-marker and duplicate-track object categories can overlap.
+    :raises ValueError: shape, label type/range or int64 capacity is invalid.
+    """
+    segmentation, markers = np.asarray(segmentation), np.asarray(markers)
+    if segmentation.ndim != 2 or segmentation.shape != markers.shape:
+        raise ValueError("Full masks and tracking markers must share a 2-D shape")
+    if not np.issubdtype(segmentation.dtype, np.integer) or not np.issubdtype(markers.dtype, np.integer):
+        raise ValueError("Annotation masks must contain integer labels")
+    if np.any(segmentation < 0) or np.any(markers < 0):
+        raise ValueError("Annotation labels must be non-negative")
+    if int(markers.max(initial=0)) > np.iinfo(np.int64).max:
+        raise ValueError("Tracking marker IDs exceed int64 capacity")
+    object_tracks, track_objects = {}, {}
+    unmarked = ambiguous = 0
+    for label in np.unique(segmentation):
+        if not label:
             continue
-        inside = segmentation == obj
-        ids, counts = np.unique(markers[inside], return_counts=True)
-        keep = ids != 0
-        if not keep.any():
-            continue
-        out[inside] = int(ids[keep][np.argmax(counts[keep])])
-    return out
+        ids = np.unique(markers[segmentation == label])
+        ids = [int(track) for track in ids if track]
+        object_tracks[int(label)] = ids
+        for track in ids:
+            track_objects.setdefault(track, set()).add(int(label))
+        unmarked += not ids
+        ambiguous += len(ids) > 1
+    output = np.zeros(segmentation.shape, np.int64)
+    duplicate_objects = set()
+    for labels in track_objects.values():
+        if len(labels) > 1:
+            duplicate_objects.update(labels)
+    for label, ids in object_tracks.items():
+        if len(ids) == 1 and label not in duplicate_objects:
+            output[segmentation == label] = ids[0]
+    kept = set(np.unique(output)) - {0}
+    marker_ids = set(np.unique(markers)) - {0}
+    return output, {"retained_tracks": len(kept), "unmarked_objects": unmarked,
+                    "multi_marker_objects": ambiguous,
+                    "duplicate_track_objects": len(duplicate_objects),
+                    "markers_without_retained_full_mask": len(marker_ids - kept),
+                    "excluded_track_ids": sorted(int(label) for label in marker_ids - kept)}
 
 
 def object_centroids(labels: np.ndarray) -> Dict[int, Tuple[float, float, float]]:
@@ -715,6 +753,9 @@ def ctc_pairs(movie: str, sequence: str = "01",
     tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``
     (:func:`track_masks_from_ctc`). A frame missing any of the three is
     skipped, and a pair is only formed from two consecutive frame numbers.
+    Slice-mask filenames are ignored and duplicate frame numbers are rejected.
+    A source whose next-frame marker lacks an unambiguous full mask is
+    censored for that pair, rather than labelled as a disappearance.
 
     :param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).
     :param sequence: ``'01'`` or ``'02'``.
@@ -723,21 +764,32 @@ def ctc_pairs(movie: str, sequence: str = "01",
         the frames loaded from long movies; loading entire collections can
         require tens of gigabytes of memory.
     :returns: the pairs, in time order.
+    :raises ValueError: sequence/limit, duplicate frame identities or annotation
+        arrays are invalid.
     """
     import os
+    import re
 
     import tifffile
+
+    if len(sequence) != 2 or not sequence.isascii() or not sequence.isdecimal():
+        raise ValueError("CTC sequences must be two-digit directory names")
+    if max_pairs is not None and max_pairs < 0:
+        raise ValueError("The pair limit must be non-negative")
 
     def indexed(folder, prefix):
         """Map frame number to path for the ``prefix*.tif`` files in ``folder``."""
         out = {}
         if not os.path.isdir(folder):
             return out
+        pattern = re.compile(re.escape(prefix) + r"(\d+)\.tiff?$", re.IGNORECASE)
         for name in os.listdir(folder):
-            if name.lower().endswith((".tif", ".tiff")) and name.startswith(prefix):
-                number = _frame_number(name)
-                if number is not None:
-                    out[number] = os.path.join(folder, name)
+            match = pattern.fullmatch(name)
+            if match:
+                number = int(match[1])
+                if number in out:
+                    raise ValueError(f"Duplicate frame {number} in {folder}")
+                out[number] = os.path.join(folder, name)
         return out
 
     frames = indexed(os.path.join(movie, sequence), "t")
@@ -749,12 +801,19 @@ def ctc_pairs(movie: str, sequence: str = "01",
         picks = np.linspace(0, len(starts) - 1, max_pairs).round().astype(int)
         starts = [starts[i] for i in sorted(set(picks.tolist()))]
     needed = sorted({n for s in starts for n in (s, s + 1)})
-    loaded = {n: (_normalise(tifffile.imread(frames[n])),
-                  track_masks_from_ctc(tifffile.imread(segs[n]),
-                                       tifffile.imread(tracks[n])))
-              for n in needed}
-    return [_Pair(loaded[n][0], loaded[n + 1][0], loaded[n][1], loaded[n + 1][1])
-            for n in starts]
+    loaded = {}
+    for n in needed:
+        labels, counts = _ctc_track_masks(tifffile.imread(segs[n]), tifffile.imread(tracks[n]))
+        loaded[n] = (_normalise(tifffile.imread(frames[n])), labels, counts)
+    pairs = []
+    for n in starts:
+        source = loaded[n][1]
+        excluded = loaded[n + 1][2]["excluded_track_ids"]
+        if excluded:
+            source = source.copy()
+            source[np.isin(source, excluded)] = 0
+        pairs.append(_Pair(loaded[n][0], loaded[n + 1][0], source, loaded[n + 1][1]))
+    return pairs
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -810,6 +869,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                        "policy": "complete_source_and_present_successor_masks",
                        "tile_size": TILE, "maximum_attempts_per_step": 32,
                        "full_frame_disappearances_supervised": True},
+                   "annotation_assignment": {
+                       "policy": "one_object_per_track_one_track_per_object",
+                       "missing_successor_full_mask": "censor_source_supervision"},
                    "final_loss": losses[-1] if losses else None}, handle, indent=2)
     print(f"saved {args.out} ({len(pairs)} pairs, final loss {losses[-1]:.4f})")
     return 0

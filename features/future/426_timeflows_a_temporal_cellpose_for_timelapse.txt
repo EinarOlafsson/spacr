@@ -580,3 +580,47 @@ assignment quality remains a separate concern. These are supervision checks,
 not a revised checkpoint or model-accuracy result. Corrected training,
 segmentation pretraining, real held-out evaluation and whole-movie integration
 remain open; v1 remains unpromoted.
+
+2026-09-23 — CTC TRAINING/EVALUATION SHARE STRICT MASK ASSIGNMENTS
+Thirteen regressions reproduced further supervision defects. The training
+reader selected a majority marker for merged masks and assigned the same
+track to multiple split objects. The evaluator excluded many such cases but
+could retain a track also overlapping a merged object. Both now use the
+same _ctc_track_masks helper: one segmented object per track and one marker
+ID per object, otherwise excluded with counts and marker IDs recorded.
+
+track_masks_from_ctc retains its signature, returns int64 track labels,
+and rejects mismatched/non-2D, non-integer, negative or unrepresentable
+annotations. Sparse large IDs are preserved. ctc_pairs censors source
+supervision when a next-frame marker exists without a valid full mask;
+missing full annotation is not a disappearance. Pair-specific copies keep
+earlier pairs' targets intact. Complete-frame filenames are required;
+slice-mask names are ignored and duplicate frame numbers raise before pixel
+reads. Sequence and pair limits are checked. Checkpoint metadata adds
+annotation_assignment policy and missing-successor handling. API prose and
+documentation handoff reflect these changes; public signatures are unchanged.
+
+Real audit under 6 GiB/no-swap on CPU: 36 selected pairs from all six v1
+training datasets, both sequences; 72 unique annotation frames. Their
+assignments include 43 multi-marker objects and 75 duplicate-track objects
+(categories overlap), with 123 markers lacking a retained full mask.
+Source-object occurrences fall from 3101 to 3035: 46 invalid assignments and
+20 unknown-successor cases. Nine of those 20 were previously trained as
+false absences. Pixel label values change in 8/36 pairs; all outputs move
+from int32 to int64. All source images/annotations and the v1 checkpoint/
+metadata remain byte-identical. The audit completed in 23.25 seconds.
+
+Existing nine-pair synthetic evaluation: rechecked 42 source-file hashes
+and all 14 unique annotation frames. Old/new full masks and exclusion counts
+are identical. Its previous model scores therefore remain applicable;
+inference was not rerun and no new model score is claimed.
+
+173 checks pass in 26.69 seconds, including 27 new cases. The model module
+covers 400/401 statements and 116/118 branches, 99.42 percent combined; the
+unchanged 1-line/2-branch gap still meets its prior ratchet. No gate/baseline
+change. Receipt426_ctc_annotation_supervision_2026-09-23.json contains input
+hashes, per-pair exclusions, old/new arrays' hashes, audit source and prior-
+evaluation compatibility evidence. Assignment consistency is not independent
+human annotation validation; absent markers still encode absence in the
+supplied labels. Corrected training and the other 426 acceptance work remain
+open. Existing v1 is unchanged and unpromoted.
