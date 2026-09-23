@@ -82,11 +82,13 @@ def git_blob_id(path):
 def readback(root, commit, *, workers=12):
     """Hash every candidate media file as the host serves it at ``commit``."""
     import requests
-    from huggingface_hub import HfApi
+    from huggingface_hub import HfApi, get_token
 
     if not re.fullmatch(r'[0-9a-f]{40}', commit):
         raise SystemExit('Read back a full commit id, not a movable name')
     manifest = read(root / 'release-manifest.json')
+    token = get_token()
+    headers = {'Authorization': 'Bearer ' + token} if token else {}
     expected = media_records(manifest)
     tree = {}
     for entry in HfApi().list_repo_tree(HF_DATASET, repo_type='dataset', revision=commit,
@@ -109,16 +111,24 @@ def readback(root, commit, *, workers=12):
         for attempt in range(4):
             try:
                 value, size = hashlib.sha256(), 0
-                with requests.get(url, stream=True, timeout=120) as response:
+                with requests.get(url, headers=headers, stream=True, timeout=120) as response:
                     response.raise_for_status()
                     for block in response.iter_content(1024 * 1024):
                         value.update(block)
                         size += len(block)
                 return relative, value.hexdigest(), size
-            except requests.RequestException:
+            except requests.RequestException as error:
                 if attempt == 3:
                     raise
-                time.sleep(5 * (attempt + 1))
+                delay = 5 * (attempt + 1)
+                response = error.response
+                if response is not None and response.status_code == 429:
+                    reset = re.search(r'(?:^|;)\s*t=(\d+)', response.headers.get('RateLimit', ''))
+                    retry = response.headers.get('Retry-After', '')
+                    delay = max(delay, int(reset[1]) + 1 if reset else 0,
+                                int(retry) + 1 if retry.isdigit() else 0)
+                    print(f'  media host rate limit; retrying after {delay}s', flush=True)
+                time.sleep(delay)
 
     downloaded, byte_failures = 0, []
     started = time.time()
@@ -227,7 +237,7 @@ def resume_receipt(root, branch, tag, checked):
                            'manifest_sha256': digest(root / 'release-manifest.json'),
                            'media_files': len(expected), 'media_bytes': manifest['media_host_bytes'],
                            'readback': checked,
-                           'readback_source': 'the upload run itself; it stopped at a wrong tag check'})
+                           'readback_source': 'completed immutable-commit readback resumed after upload'})
     print('RECEIPT', root / RECEIPT, HOST + commit, flush=True)
 
 
