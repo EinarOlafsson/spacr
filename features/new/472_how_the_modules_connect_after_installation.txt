@@ -357,3 +357,12 @@ through Help, not a Home tile. Its nested Lineage and Tabulate instructions
 now say so in both the generated reference/API inserts and English script.
 51 focused map/capture/CLI checks pass. The shared map and other three
 scripts are unchanged. The full79-scene capture is still in progress.
+
+2026-09-23 — CODEX: SEQUENCING SCRIPT REVIEWS BEGIN
+Lesson81 has German and French source-bound reviews for all11 scenes each.
+Both preserve explicit optical joins, experimental controls and identities,
+prospective planning versus measured results, and the simulation API's None
+return, bounded max_workers/grid and manual transfer to planning tools.
+Isolated promotion checks preserve scene/link structure and validate French
+spoken-form rules. These are AI-assisted editorial reviews; full staging,
+remaining11 languages, audio and listening acceptance remain open.
