@@ -1435,12 +1435,14 @@ function splitCaptionText(text) {
     "dr.", "fig.", "i.e.", "jr.", "mr.", "mrs.", "ms.", "no.",
     "prof.", "sr.", "st.", "vs.", "e.g."
   ]);
-  const closings = /["'”’)\]}]+$/gu;
-  const openings = /^["'“‘({\[]+/gu;
+  const closings = /["'”’)\]}」』】）]+$/gu;
+  const openings = /^["'“‘({\[「『【（¿¡]+/gu;
   const sentences = [];
   let start = 0;
-  for (const whitespace of source.matchAll(/\s+/gu)) {
-    const boundary = Number(whitespace.index);
+  for (const separator of source.matchAll(/[。！？।]+["'”’)\]}」』】）]*\s*|\s+/gu)) {
+    const explicit = /^[。！？।]/u.test(separator[0]);
+    const boundary = Number(separator.index) + (explicit ? separator[0].trimEnd().length : 0);
+    const next = Number(separator.index) + separator[0].length;
     const prefix = source.slice(start, boundary).trimEnd();
     if (!prefix) continue;
     const bare = prefix.replace(closings, "");
@@ -1454,13 +1456,13 @@ function splitCaptionText(text) {
         continue;
       }
     }
-    const following = source.slice(boundary + whitespace[0].length)
+    const following = source.slice(next)
       .replace(openings, "");
-    if (!following || !(/^[A-Z0-9]/u.test(following) || /^spaCR\b/u.test(following))) {
+    if (!following || (!explicit && !(/^[\p{Lu}\p{Lt}\p{Lo}\p{Nd}]/u.test(following) || /^spaCR\b/u.test(following)))) {
       continue;
     }
     sentences.push(source.slice(start, boundary).trim());
-    start = boundary + whitespace[0].length;
+    start = next;
   }
   sentences.push(source.slice(start).trim());
   return sentences.filter(Boolean);
