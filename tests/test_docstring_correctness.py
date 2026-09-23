@@ -2111,7 +2111,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # previous count and the 921b52b3 signature digest; see the dated receipt.
     # +10 image-quality/Host–Pathogen functions. Their exact subtraction
     # restores the prior digest in 411_english_publication_2026-09-23.json.
-    assert len(callables) == len(by_symbol) == 9_471
+    assert len(callables) == len(by_symbol) == 9_472
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2170,7 +2170,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # functions. Subtracted, 3,776.
         # 2026-09-20: see the note above this assertion. The seven
         # buckets sum to 9,047, which is the total pinned there.
-        "function": 4_217,
+        "function": 4_218,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         "method": 4_090,
@@ -2224,7 +2224,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # that arrived in the five days is rendered by autoapi and by
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
-        "autoapi": 9_466,
+        "autoapi": 9_467,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2270,7 +2270,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,692 -> 8,705 on 2026-09-15, the same +13: each of 412's and 416's
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
-    assert sum(item.variant_count for item in callables) == 9_478
+    assert sum(item.variant_count for item in callables) == 9_479
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2282,7 +2282,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,691 -> 9,040 on 2026-09-20: every callable that arrived in
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
-        1: 9_464,
+        1: 9_465,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2465,7 +2465,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_806
+    assert sum(len(item.parameters) for item in callables) == 18_808
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2583,7 +2583,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # optional apply_model parameters. Removing those seven and restoring
     # the old apply_model row reproduces 1502c4b5 exactly; see the incoming
     # documentation receipt for the complete before/after rows.
-) == "6ada3733d219764aa3cfcd6624754ea6936df0059ca9fbaa3bb72db84cb677fa"
+) == "b99098adaf2c7c9eb723c5e027e7828bc30974dd772425c8f8d3b788113e4924"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3066,7 +3066,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +7 Timeflows nested helpers; source-bound catalogs exist in all locales.
     # +9 held-out validation entries with nine source-bound locale catalogs.
     # +12 inference/cursor/help/schema entries; matches the source extractor.
-    assert len(docs) == 11_451
+    assert len(docs) == 11_452
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3128,6 +3128,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert incoming_callables <= rendered_documented_callables.keys()
     quality_and_host_callables = {
+        "spacr.updater.launch_updated_app",
         "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter",
         "spacr.host_pathogen.analyze_host_pathogen",
         "spacr.host_pathogen.default_settings",
@@ -3144,7 +3145,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     prior = rendered_documented_callables.keys() - incoming_callables - quality_and_host_callables
     assert len(prior - pipeline_callables) == 9_442
     assert len(prior - pipeline_callables - validation_functions) == 9_436
-    assert len(rendered_documented_callables) == 9_466
+    assert len(rendered_documented_callables) == 9_467
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

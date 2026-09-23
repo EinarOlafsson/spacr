@@ -102,7 +102,10 @@ def assemble(main: Path, nightly: Path, output: Path, base_path: str = "/spacr",
             if branch == "main" and "nightly" in path.relative_to(output).parts:
                 continue
             text = path.read_text()
-            text = re.sub(r"(<body\b[^>]*>)", lambda match: match[0] + banner, text, count=1)
+            target = (r'(<main\b[^>]*id="lesson-content"[^>]*>)'
+                      if path == channel / "tutorials/index.html" and 'id="lesson-content"' in text
+                      else r"(<body\b[^>]*>)")
+            text = re.sub(target, lambda match: match[0] + banner, text, count=1)
             path.write_text(text)
     (output / ".nojekyll").touch()
     size = sum(path.stat().st_size for path in output.rglob("*") if path.is_file())

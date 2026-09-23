@@ -97,7 +97,7 @@ def pytest_runtest_makereport(item, call):
     report = outcome.get_result()
     params = getattr(getattr(item, "callspec", None), "params", {})
     if (report.when != "call" or not report.failed or
-            not advisory(item.path, item.originalname or item.name, params)):
+            not advisory(item.path, getattr(item, "originalname", None) or item.name, params)):
         return
     record = {
         "schema": 1, "test": item.nodeid,

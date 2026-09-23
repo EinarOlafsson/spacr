@@ -49643,7 +49643,8 @@
     },
     "spacr.qt.recipes": {
       "source_blocks_sha256": [
-        "66cac811307089d93b0268713a4145c194757c9d074879229a61632a80226ead",
+        "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
+        "bd69f73f4586c8eaf88228020024f00f28b9afb27f4bfa3f171c4562792d2526",
         "c80f0827333c11346a66f1c38f8dd749c02540c70206e832af7dd4c5209e22c0",
         "de3474a06accdf65a2516d5b67e577d0a092a902022d57dadadd0e5a0cf026eb",
         "167b74184b4abc57e3b13a8f77c8c4edefec036ff1e7c1753edf3c795e7650b1",
@@ -49654,8 +49655,8 @@
         "f750f61ad7fbf8de8ec58b8daca7ab723a9ba7b77d54e3dae302911234bf3c85",
         "2a97dc0f0648beb4b5ddb3eb7f2114626748304fbf552bc87d7b2f4d4d7ccf74"
       ],
-      "source_sha256": "5879fb146da15adf17dc941a29e56774a8c2240bc0272e198edb6dcd3a731929",
-      "text": "Recipes — a named settings bundle you can reuse and hand to someone else.\n\nA lab does not run one set of settings; it runs a handful, each tied to a\npreparation. \"Toxo PVM, 40×\" is a real thing people say to each other, and\nuntil now the only way to carry it between sessions was a settings CSV in a\nfolder somebody had to remember, with no name on it, no record of which\nmodule it belonged to, and no way to tell whether it was written by the\nversion of spaCR about to consume it.\n\nA recipe fixes all four:\n\n* it has a **name** the user chose;\n* it knows its **module**, so applying a Mask recipe to Measure is refused\n  rather than silently writing seventeen keys that mean nothing there;\n* it records the **spaCR version** it was captured with, and applying it\n  under a different one says so, listing the settings that no longer exist\n  and the ones that have appeared since;\n* it is **one file**, so sharing it is sending a file.\n\nStorage is ``~/.spacr/recipes/<module>/<slug>.json``, honouring\n:data:`RECIPE_DIR_ENV` — the same shape :func:`spacr.macro.macros_dir` uses,\nso a lab that redirects one redirects both.\n\nThe file format is deliberately boring::\n\n    {\n      \"spacr_recipe\": 1,\n      \"name\": \"Toxo PVM, 40x\",\n      \"app_key\": \"mask\",\n      \"spacr_version\": \"1.3.6\",\n      \"created\": \"2026-08-03T22:41:07\",\n      \"notes\": \"\",\n      \"settings\": {\"cell_channel\": 1, ...}\n    }\n\n``spacr_recipe`` is a format version, not the spaCR version: the two change\nfor unrelated reasons and conflating them is how a reader ends up refusing a\nfile it could have read."
+      "source_sha256": "e03453f0d319153af35cfef567b8feb26e7b61e16b7664aa75777a976c5277fc",
+      "text": "Settings templates — named bundles you can reuse and share.\n\nThe historical Recipe API, JSON format and storage paths remain compatible.\n\nA lab does not run one set of settings; it runs a handful, each tied to a\npreparation. \"Toxo PVM, 40×\" is a real thing people say to each other, and\nuntil now the only way to carry it between sessions was a settings CSV in a\nfolder somebody had to remember, with no name on it, no record of which\nmodule it belonged to, and no way to tell whether it was written by the\nversion of spaCR about to consume it.\n\nA recipe fixes all four:\n\n* it has a **name** the user chose;\n* it knows its **module**, so applying a Mask recipe to Measure is refused\n  rather than silently writing seventeen keys that mean nothing there;\n* it records the **spaCR version** it was captured with, and applying it\n  under a different one says so, listing the settings that no longer exist\n  and the ones that have appeared since;\n* it is **one file**, so sharing it is sending a file.\n\nStorage is ``~/.spacr/recipes/<module>/<slug>.json``, honouring\n:data:`RECIPE_DIR_ENV` — the same shape :func:`spacr.macro.macros_dir` uses,\nso a lab that redirects one redirects both.\n\nThe file format is deliberately boring::\n\n    {\n      \"spacr_recipe\": 1,\n      \"name\": \"Toxo PVM, 40x\",\n      \"app_key\": \"mask\",\n      \"spacr_version\": \"1.3.6\",\n      \"created\": \"2026-08-03T22:41:07\",\n      \"notes\": \"\",\n      \"settings\": {\"cell_channel\": 1, ...}\n    }\n\n``spacr_recipe`` is a format version, not the spaCR version: the two change\nfor unrelated reasons and conflating them is how a reader ends up refusing a\nfile it could have read."
     },
     "spacr.qt.recipes.Recipe": {
       "source_blocks_sha256": [
@@ -49763,19 +49764,19 @@
     },
     "spacr.qt.recipes.install": {
       "source_blocks_sha256": [
-        "fa8d3aa607f12bc4075ece5e2c80bd9e6de30204c397156338d0c2f6608affb3",
+        "ffb2de62f077aedae0980cd1977d68782611c9f786956cea2bbb89f15b40c8da",
         "97ec5b1621c5219cf4b925b9c5494465c1faf0492b579c067b6564b1c53a7aaf"
       ],
-      "source_sha256": "c6174c563a89a04a833b5d4a0a484cb6ed9bf20b15e0d276ce405841b5ba041b",
-      "text": "Add a Recipes button to ``screen``'s settings search strip.\n\nThe strip is where a settings bundle belongs — directly above the\nsettings it bundles — and it already exists, so this costs no chrome of\nits own. Returns ``None`` when the screen has no strip (a bespoke\nscreen), or when one is already installed."
+      "source_sha256": "89709fb13674583f2945d173359a0004bdbe2dd220fa69cbdc6c8801b190388c",
+      "text": "Add a Templates button to ``screen``'s settings search strip.\n\nThe strip is where a settings bundle belongs — directly above the\nsettings it bundles — and it already exists, so this costs no chrome of\nits own. Returns ``None`` when the screen has no strip (a bespoke\nscreen), or when one is already installed."
     },
     "spacr.qt.recipes.install_help_action": {
       "source_blocks_sha256": [
-        "ef4ae9c8a21288ddafcb7f7d70314161b8dbc5d0d8e394310f9ee002c4e4deef",
+        "bfeebad478de3b4e4317e7e5db7abd905a12c14fa2fa24d0e00beae5ddb8866b",
         "628f7777a1da60588841c1d9aa9a6f2eb243146ee6a9c66c75be6e12728d0c71"
       ],
-      "source_sha256": "aeffa8f3711a1bbb00d9154eb0aa9fbb90efe67ed3766b064927471fbbb0a726",
-      "text": "Add **Settings recipes…** to the window's Help menu.\n\nReturns the action, or ``None`` when there is no Help menu or one is\nalready installed. The command palette mirrors menu actions, so this\nalso makes recipes reachable from Ctrl+K for free."
+      "source_sha256": "aac50fffed4088ee41dd72ae3185bf4ee19941443efe0f28ac03fafda21a01f1",
+      "text": "Add **Settings templates…** to the window's Help menu.\n\nReturns the action, or ``None`` when there is no Help menu or one is\nalready installed. The command palette mirrors menu actions, so this\nalso makes recipes reachable from Ctrl+K for free."
     },
     "spacr.qt.recipes.install_window_hooks": {
       "source_blocks_sha256": [
@@ -108043,6 +108044,15 @@
       "source_sha256": "b6ae4be7809c47654f0fde6f581270f0e83c35a3e358f6b259fcac113f65eae1",
       "text": "The version of ``name`` installed here, or ``None`` if it is absent.\n\n:param name: distribution name to query from installed package metadata."
     },
+    "spacr.updater.launch_updated_app": {
+      "source_blocks_sha256": [
+        "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
+        "df7bffe98977459e3629ebbd6df90bf7b5a73b2f150eb0f13c1399867f7646e4",
+        "c1bc615c92ef69f5875a3aacdfa3c47b58cb0e8561a586baa8e7151397d4806d"
+      ],
+      "source_sha256": "c1f1620b1c7ec3fddafcdcf4cbff3344e35795fe7b3d5410f3331f6c30e20348",
+      "text": "Launch the updated Qt application after the old event loop has stopped.\n\n:returns: process identifier of the detached replacement application.\n:raises OSError: the replacement could not be started."
+    },
     "spacr.updater.offer_elsewhere": {
       "source_blocks_sha256": [
         "9e52499fc517a76bf940b4ab0f31398a76a1ef56abda0a7a6b870644693bf160",
@@ -108104,17 +108114,20 @@
       "source_blocks_sha256": [
         "a6838ab6cedd30829143354c1eb14bc9912bb06a5b55c00da3b875d4f14dc0db",
         "f9ac8bc9961f35b14478ec1356800198c1da06a78bc6e0d47b5b1cdcd55c861d",
+        "0d823b21391fd6e582c7f79a809383d7870af304a14633c0cd3a95dab6e867eb",
         "b5ee2e383fb56850999e855d89692cb7d27e45fc4b7569b34d6bd705399d62fb"
       ],
-      "source_sha256": "893fde9faf389e5edb8eb72158932e5f149202b71e9598b87c0492fd69eff6e4",
-      "text": "Upgrade ``spacr`` in place, capturing what the packaging tool said.\n\n:param pre_release: pass ``--pre`` so pre-releases and ``.postN``\n    versions are considered.\n:returns: ``(exit_code, output)`` with combined stdout and stderr. Captured\n    output remains available to desktop installations launched without a\n    terminal."
+      "source_sha256": "3d526259832fde26202e6e4b8ced988728362f1ea91af4802ff04cebc1afe778",
+      "text": "Upgrade ``spacr`` in place, capturing what the packaging tool said.\n\n:param pre_release: pass ``--pre`` so pre-releases and ``.postN``\n    versions are considered.\n:param target_version: install this exact offered version and verify it in\n    a fresh process before reporting success. None retains an unpinned upgrade.\n:returns: ``(exit_code, output)`` with combined stdout and stderr. Captured\n    output remains available to desktop installations launched without a\n    terminal."
     },
     "spacr.updater.upgrade_command": {
       "source_blocks_sha256": [
-        "b02d13961d218bb3d6219b4f743104d8174e4fc567ea9ff18094bd7b3569a33d"
+        "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
+        "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+        "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa"
       ],
-      "source_sha256": "b02d13961d218bb3d6219b4f743104d8174e4fc567ea9ff18094bd7b3569a33d",
-      "text": "The command that upgrades this installation, whichever tool owns it."
+      "source_sha256": "1d2d976a9be488a6bf70f0f49f63baa0563512e3f601914c8c8e4a8330a96b3d",
+      "text": "Upgrade this interpreter, optionally to the exact version offered.\n\n:param pre_release: allow prerelease packages.\n:param target_version: explicit version selected by the update check."
     },
     "spacr.utils": {
       "source_blocks_sha256": [

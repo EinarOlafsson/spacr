@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "status": "locally verified; deployment pending",
+  "published": false,
+  "policy": "Translations are registered, report-only; English/build correctness remains required.",
+  "urls": {
+    "main": "https://einarolafsson.github.io/spacr/",
+    "nightly": "https://einarolafsson.github.io/spacr/nightly/"
+  },
+  "browser": {
+    "passed": true,
+    "preview": "/mnt/firecuda2/codex/docs-channels-browser._ayxt7px",
+    "channels": {
+      "schema": 1,
+      "channels": {
+        "main": {
+          "schema": 1,
+          "branch": "main",
+          "commit": "79d71a92f7204c8b839b7b8c7aff5de7302394ef",
+          "translation_policy": "report-only; incompatible locales fall back to English"
+        },
+        "nightly": {
+          "schema": 1,
+          "branch": "nightly",
+          "commit": "69dabbd36-with-publication-followup",
+          "translation_policy": "report-only; incompatible locales fall back to English"
+        }
+      },
+      "size_bytes": 828523970,
+      "media_files": 154
+    },
+    "internal_links_checked": 3832,
+    "browser_cases": [
+      {
+        "branch": "main",
+        "api_english_fallback": true,
+        "tutorial_playback": true,
+        "video": "http://127.0.0.1:33497/spacr/_media/1931ae86a77d870725e28e7a2b5ae69c9214a13f3f4d5aa479676fd2ec99f33d.mp4"
+      },
+      {
+        "branch": "nightly",
+        "api_english_fallback": true,
+        "tutorial_playback": true,
+        "video": "http://127.0.0.1:33497/spacr/_media/1931ae86a77d870725e28e7a2b5ae69c9214a13f3f4d5aa479676fd2ec99f33d.mp4"
+      }
+    ],
+    "published": false
+  },
+  "main_api_symbols": 11194,
+  "nightly_api_symbols": 11452,
+  "translation_reports": {
+    "main": {
+      "sha256": "f8f4b0e08ea6156ee8c09b765477e6f060b1c61693f9b57e783e13aecb28f582",
+      "english": {
+        "api": {
+          "status": "compatible",
+          "exit_code": 0,
+          "diagnostics": "verified API catalogs: languages=0 symbols=11194\n"
+        },
+        "runtime": {
+          "status": "compatible",
+          "exit_code": 0,
+          "diagnostics": "verified external runtime catalogs: languages=0 settings=1005 categories=194 ui=4021 modules=68\n"
+        }
+      },
+      "api": {
+        "sv": 994,
+        "de": 966,
+        "es": 994,
+        "zh_CN": 994,
+        "pt": 994,
+        "hi": 994,
+        "ko": 994,
+        "is": 994,
+        "fr": 994
+      },
+      "runtime": {
+        "sv": 229,
+        "de": 229,
+        "es": 229,
+        "zh_CN": 195,
+        "pt": 231,
+        "hi": 582,
+        "ko": 480,
+        "is": 582,
+        "fr": 229
+      }
+    },
+    "nightly": {
+      "sha256": "086b9c57450e2132412fd00abecc5f6fd18648afdb549ea5b61e87721f23340a",
+      "english": {
+        "api": {
+          "status": "compatible",
+          "exit_code": 0,
+          "diagnostics": "verified API catalogs: languages=0 symbols=11452\n"
+        },
+        "runtime": {
+          "status": "compatible",
+          "exit_code": 0,
+          "diagnostics": "verified external runtime catalogs: languages=0 settings=1028 categories=200 ui=5094 modules=72\n"
+        }
+      },
+      "api": {
+        "sv": 1276,
+        "de": 1176,
+        "es": 1276,
+        "zh_CN": 1276,
+        "pt": 1276,
+        "hi": 1276,
+        "ko": 1276,
+        "is": 1276,
+        "fr": 1276
+      },
+      "runtime": {
+        "sv": 525,
+        "de": 525,
+        "es": 525,
+        "zh_CN": 506,
+        "pt": 525,
+        "hi": 786,
+        "ko": 904,
+        "is": 987,
+        "fr": 525
+      }
+    }
+  },
+  "source_changes": [
+    {
+      "base_commit": "0c0d7370dd131d7c17a91490107afff63b3004f1",
+      "api_added": [
+        "spacr._starplast.PYPI_PACKAGE",
+        "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter"
+      ],
+      "api_changed": [
+        "spacr._starplast.REPOSITORY",
+        "spacr._starplast.default_source",
+        "spacr._starplast.install_starplast",
+        "spacr.seg_qc",
+        "spacr.seg_qc.QCDigest",
+        "spacr.seg_qc.QCDigest.failing_fields",
+        "spacr.seg_qc.QCDigest.n_fields"
+      ],
+      "api_removed": [],
+      "before": {
+        "callables": 9470,
+        "categories": {
+          "function": 4217,
+          "dataclass_constructor": 503,
+          "constructor": 437,
+          "method": 4089,
+          "exception_constructor": 147,
+          "inherited_or_default_constructor": 58,
+          "namedtuple_constructor": 19
+        },
+        "exposures": {
+          "autoapi": 9465,
+          "compatibility": 3,
+          "cli_only": 2
+        },
+        "variants": 9477,
+        "variant_counts": {
+          "1": 9463,
+          "2": 7
+        },
+        "parameters": 18804,
+        "required_parameters": 9688,
+        "digest": "19edbf186f1cfb9bf4379a8880369c57814a69b7f19b5c95e4dd4a073b1c730a"
+      },
+      "after": {
+        "callables": 9471,
+        "categories": {
+          "function": 4217,
+          "dataclass_constructor": 503,
+          "constructor": 437,
+          "method": 4090,
+          "exception_constructor": 147,
+          "inherited_or_default_constructor": 58,
+          "namedtuple_constructor": 19
+        },
+        "exposures": {
+          "autoapi": 9466,
+          "compatibility": 3,
+          "cli_only": 2
+        },
+        "variants": 9478,
+        "variant_counts": {
+          "1": 9464,
+          "2": 7
+        },
+        "parameters": 18806,
+        "required_parameters": 9690,
+        "digest": "6ada3733d219764aa3cfcd6624754ea6936df0059ca9fbaa3bb72db84cb677fa"
+      },
+      "added_rows": {
+        "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter": "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter\u0000method\u0000autoapi\u0000event,watched\u0000event,watched\u0000event,watched\u00000\u00001\u00000\u00000"
+      }
+    },
+    {
+      "added": [
+        "spacr.updater.launch_updated_app"
+      ],
+      "removed": [],
+      "before": {
+        "callables": 9471,
+        "categories": {
+          "function": 4217,
+          "dataclass_constructor": 503,
+          "constructor": 437,
+          "method": 4090,
+          "exception_constructor": 147,
+          "inherited_or_default_constructor": 58,
+          "namedtuple_constructor": 19
+        },
+        "exposures": {
+          "autoapi": 9466,
+          "compatibility": 3,
+          "cli_only": 2
+        },
+        "variants": 9478,
+        "variant_counts": {
+          "1": 9464,
+          "2": 7
+        },
+        "parameters": 18806,
+        "required_parameters": 9690,
+        "digest": "6ada3733d219764aa3cfcd6624754ea6936df0059ca9fbaa3bb72db84cb677fa"
+      },
+      "after": {
+        "callables": 9472,
+        "categories": {
+          "function": 4218,
+          "dataclass_constructor": 503,
+          "constructor": 437,
+          "method": 4090,
+          "exception_constructor": 147,
+          "inherited_or_default_constructor": 58,
+          "namedtuple_constructor": 19
+        },
+        "exposures": {
+          "autoapi": 9467,
+          "compatibility": 3,
+          "cli_only": 2
+        },
+        "variants": 9479,
+        "variant_counts": {
+          "1": 9465,
+          "2": 7
+        },
+        "parameters": 18808,
+        "required_parameters": 9690,
+        "digest": "b99098adaf2c7c9eb723c5e027e7828bc30974dd772425c8f8d3b788113e4924"
+      }
+    }
+  ],
+  "checks": {
+    "both_strict_sphinx_builds": "passed",
+    "workflow_lint": "passed",
+    "workflow_and_assembly_tests": "49 passed",
+    "source_and_policy_tests": "20 passed, 1 English-only-build opt-in skipped",
+    "main_built_site_tests": "12 passed, 7 skips; Sphinx fixture environment separately 10 passed, 1 rollout opt-in skipped",
+    "nightly_built_site_tests": "19 passed, 8 skips, 36 translation acceptance cases deselected; Sphinx fixture environment separately 10 passed, 1 rollout opt-in skipped, 36 deselected",
+    "real_catalog_policy": "3 passed, 19 incompatibilities registered as advisory, 184 deselected",
+    "browser_fallback_regressions": "10 passed, 1 exhaustive real-corpus case deselected"
+  },
+  "limitations": [
+    "No deployment claimed until the GitHub run and live source receipts are checked.",
+    "Tutorials are the committed branch catalogs and pinned media; private authoring lessons have not been promoted.",
+    "No translation completion, native language review or full CI pass claimed.",
+    "Older main ambient table receives only the known whitespace correction during rendering."
+  ],
+  "implementation_sha256": {
+    ".github/workflows/docs.yml": "6b437928a10543263b15c5211c3d8e130e46c61678a10f20fdb97f8cb9492196",
+    "tools/publish_docs_channels.py": "f98571a58cef94daaeea85c2ad99d243929a5c0403f8da6f5d7dc05c3e4c8f5e",
+    "tools/docs_publication_compat.py": "d668852ee8e4623ffd0324526368de0a14a716bfb588d924c63a6b9a871d2227",
+    "tools/report_translation_compatibility.py": "505208b64f4fa5c02d9e4a495867087f5b7ad39c3966634c4f41e01b99d4360e",
+    "tools/pytest_translation_compatibility.py": "bcbb34d35d8593770cdf3ef3dc5bc6fa2f85965d6e34508c78686759ee3cb477"
+  }
+}

@@ -21,7 +21,7 @@ def site(tmp_path, branch, video=b'same recording'):
     media.mkdir(parents=True)
     (media / 'video.mp4').write_bytes(video)
     (media / 'poster.jpg').write_bytes(b'poster')
-    (tutorial / 'index.html').write_text('<body>Player</body>')
+    (tutorial / 'index.html').write_text('<body><header>Fixed toolbar</header><main id="lesson-content">Player</main></body>')
     (tutorial / 'app_v2.js').write_text('"use strict";\n'
         'const video = `${PRODUCTION_ROOT}/${lesson.silent}`;\n'
         'const poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;\n'
@@ -46,6 +46,7 @@ def test_both_channels_keep_own_content_and_share_only_identical_media(tmp_path)
         manifest = json.loads((path / 'tutorials/published-media.json').read_text())
         assert (path / 'tutorials' / manifest['lesson/video.mp4']).read_bytes() == b'same recording'
         assert '/spacr/nightly/' in (path / 'index.html').read_text()
+        assert '<main id="lesson-content"><div class="spacr-publication-channel"' in (path / 'tutorials/index.html').read_text()
     assert (main / 'tutorials/production/lesson/video.mp4').exists()
 
 

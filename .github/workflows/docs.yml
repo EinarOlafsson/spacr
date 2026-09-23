@@ -4,13 +4,6 @@ on:
   push:
     branches: [main, nightly]
   workflow_dispatch:
-    inputs:
-      api_language:
-        description: API language selector (incompatible translations always fall back to English)
-        required: true
-        type: choice
-        default: all
-        options: [all, english]
 
 permissions:
   contents: read
@@ -52,7 +45,7 @@ jobs:
     env:
       DOCS_BRANCH: ${{ matrix.branch }}
       DOCS_SHA: ${{ needs.resolve.outputs[matrix.branch] }}
-      SPACR_DOCS_API_LANGUAGE: ${{ inputs.api_language || 'all' }}
+      SPACR_DOCS_API_LANGUAGE: all
       QT_QPA_PLATFORM: offscreen
       OMP_NUM_THREADS: "1"
       OPENBLAS_NUM_THREADS: "1"
@@ -113,6 +106,7 @@ jobs:
           name: translation-compatibility-${{ matrix.branch }}
           path: translation-compatibility.json
           if-no-files-found: warn
+          retention-days: 14
       - name: Build docs
         run: |
           rm -rf docs/_build docs/source/api
@@ -166,7 +160,7 @@ jobs:
           name: docs-channel-${{ matrix.branch }}
           path: docs/_build/html
           include-hidden-files: true
-          retention-days: 7
+          retention-days: 1
 
   deploy:
     name: Publish main and nightly channels
@@ -183,7 +177,7 @@ jobs:
         with:
           python-version: "3.10"
       - name: Download both branch sites
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: docs-channel-*
           path: channels

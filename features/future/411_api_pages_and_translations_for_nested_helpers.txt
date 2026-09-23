@@ -1937,3 +1937,14 @@ This supersedes the strict complete-translation publication gate and the
 manual dispatch that overwrote the main site with nightly content. Keep source
 and build regressions blocking; record translation compatibility separately.
 API, guides and committed tutorial catalogs/media must share the same branch.
+
+2026-09-23 — AUTOMATIC CHANNEL PUBLICATION LOCALLY VERIFIED
+Pushed-branch deployment now builds pinned main and nightly sources separately,
+assembles root and /nightly/ sites, and keeps media mappings branch-specific.
+Translations are registered without blocking CI/publication; incompatible API
+payloads use explicit unavailable stubs and the tested English fallback.
+Two strict Sphinx builds,3832 internal links, both actual browser players/API
+fallbacks, and828523970-byte combined budget pass. English now11452 symbols;
+the exact source/callable deltas and named test counts are in
+features/data/411_documentation_channels_2026-09-23.json. Deployment is pending,
+not yet claimed; private tutorials and translation completion remain open.

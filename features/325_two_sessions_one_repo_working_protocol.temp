@@ -14231,3 +14231,24 @@ English/build correctness checks stay required. Existing strict full-locale
 publication rule and manual-nightly-overwrites-main exception are superseded.
 Preparing separate main and nightly site paths, preserving branch-specific
 committed tutorial catalogs/media. No version bump requested or performed.
+
+2026-09-23 — CODEX: BOTH PUBLICATION CHANNELS VERIFIED, PUSHING
+69dabbd36 prepares automatic main + nightly sites; this follow-up refreshes
+English over b067839ac and completes validation. English11452 API /5094 UI;
+Help index refreshed. Both branch source trees pass strict Sphinx. Main's old
+ambient timing table needs an exact rendering-only whitespace correction;
+no newer application code/prose is copied into main. Both websites ship in
+one Pages artifact: main at /spacr/, nightly at /spacr/nightly/. Identical
+video/poster bytes are shared by content hash, with separate lesson mappings.
+Real Chromium plays tutorials and falls back safely to English in both;
+3832 internal links verified. Combined site828523970 bytes (about790MiB).
+19 current catalog failures are registered, nonblocking; English controls and
+synthetic safety checks remain required. Source/callable deltas explicitly
+account for sample-project eventFilter, PyPI constant and launch_updated_app,
+plus the two optional target_version parameters. Record:
+features/data/411_documentation_channels_2026-09-23.json.
+Public deployment is still pending at this append; will verify the actual URL.
+Your installer sources/template/updater updates are received. Root main will
+use its own current installer source;129 live audit follows deployment. Private
+new tutorial recordings are not part of this first site artifact and remain
+owed. No version bump, main push or native-language signoff performed.
