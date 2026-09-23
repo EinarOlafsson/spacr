@@ -1,17 +1,14 @@
 """Test data for the assay modules: a measured plate, one button away.
 
-Replication, Invasion and Recruitment get test data: small datasets on
-Hugging Face and a "Load test data…" button in each module. Replication and
-Recruitment are slices of real screens. Invasion's is SYNTHETIC: no two-colour
-differential-staining acquisition exists, so its fields and their object
-masks are drawn by spaCR and then measured by the Measure module. Its tooltip
-says so.
+Replication, Invasion, Recruitment and Host–Pathogen offer published datasets
+through Load test data. Host–Pathogen contains two real THP-1 RNF213 fields,
+prepared host/nucleus/vacuole masks and fresh measurements of those fields.
+Replication and Recruitment contain slices of measured screens. Invasion's
+images and masks are synthetic and explicitly labelled before downloading.
 
-WHAT THE MODULES TAKE. All three read ``<src>/measurements/measurements.db``,
-the output of Mask then Measure, so each example is a slice of a real screen's
-database -- every row of twelve control wells -- with two merged fields and
-the module's settings. :data:`spacr.example_archives.EXAMPLE_SETS` describes
-both, so ``spacr-download replication`` fetches the same archive.
+All four read ``<src>/measurements/measurements.db`` and apply the settings
+shipped in their archive. :data:`spacr.example_archives.EXAMPLE_SETS` describes
+the same datasets for the GUI and ``spacr-download``.
 
 ITS OWN FOLDER PER SET. Both ship ``measurements/measurements.db``, as the
 Annotate example in the shared plate does, so each unpacks beside that plate
@@ -47,23 +44,7 @@ __all__ = [
 ]
 
 #: The assay modules that have published test data.
-ASSAY_EXAMPLE_KEYS = ("replication", "recruitment", "invasion")
-
-
-class _HostPathogenExampleWorker(_TarExampleWorker):
-    """Prepare the small synthetic project offline on the existing worker thread."""
-
-    def run(self):
-        """Build atomically and report completion through the shared dialog contract."""
-        from ..host_pathogen_example import build_example
-
-        try:
-            self.info.emit(tr('Preparing synthetic Host–Pathogen test data…'))
-            folder = build_example(self._dest, cancelled=lambda: self._cancel,
-                progress=lambda done, total: self.progress.emit(tr('Synthetic fields'), done, total))
-            self.finished.emit(True, str(folder), str(folder / 'settings'), '')
-        except Exception as exc:
-            self.finished.emit(False, '', '', str(exc))
+ASSAY_EXAMPLE_KEYS = ("replication", "recruitment", "invasion", "host_pathogen")
 
 
 class _AssayTarWorker(_TarExampleWorker):
@@ -86,18 +67,21 @@ def _title(app_key: str) -> str:
     if app_key == "invasion":
         return tr("Downloading the synthetic Invasion Assay test data")
     if app_key == 'host_pathogen':
-        return tr('Preparing synthetic Host–Pathogen test data')
+        return tr('Downloading the Host–Pathogen test data')
     return tr("Downloading the Recruitment test data")
 
 
 def _tooltip(app_key: str) -> str:
     """What the button says it will fetch, size first."""
     if app_key == 'host_pathogen':
-        return tr('Generate about 13 MB of SYNTHETIC test data offline: four fields, '
-                  '24 hosts, 28 vacuoles and individually labelled parasites. '
-                  'Includes uninfected hosts, multiple vacuoles, unknown marker '
-                  'states and expected results. These are drawn test images, '
-                  'not biological validation. Settings are filled in; Run is next.')
+        return tr('Download about {size} MB of real THP-1 RNF213 microscopy: '
+                  'two fields with host and vacuole masks, 164 measured hosts '
+                  'and 97 vacuoles. Automatic masks were reconciled by Measure; '
+                  'they are not manual ground truth. RNF213 recruitment uses '
+                  'channel 1. Individual-parasite counts are unavailable, so '
+                  'replication remains unknown. Settings are filled in; choose '
+                  'Live or Run. Cached after the first download.',
+                  size=round(example_set('host_pathogen').bytes / 1e6))
     if app_key == "replication":
         return tr(
             "Download about 170 MB of test data: every parasite of twelve "
@@ -126,16 +110,11 @@ def download_assay_example(parent, app_key: str, dest, on_done: Callable[
     """Fetch ``app_key``'s test data behind the shared progress dialog.
 
     :param parent: the widget the progress dialog belongs to.
-    :param app_key: ``replication``, ``recruitment`` or ``invasion``.
+    :param app_key: ``replication``, ``recruitment``, ``invasion`` or ``host_pathogen``.
     :param dest: the folder the archive unpacks into.
     :param on_done: called on the GUI thread as ``on_done(result, error)``;
         ``result`` is ``None`` on failure or cancellation.
     """
-    if app_key == 'host_pathogen':
-        download_toxo_mito_demo(parent, Path(dest), on_done,
-                                worker_factory=_HostPathogenExampleWorker,
-                                title=_title(app_key))
-        return
     repo = example_set(app_key).repo
 
     def _factory(where):
@@ -179,21 +158,15 @@ def load_the_assay_example(screen, *, ask=None, folder=None) -> Dict:
         download is still running, and after a failure.
     """
     key = screen.app_key
-    if key == 'host_pathogen':
-        from .. import host_pathogen_example as chosen
-
-        folder = Path(folder) if folder is not None else chosen.example_folder()
-    else:
-        chosen = example_set(key)
-        folder = Path(folder) if folder is not None else example_set_folder(key)
+    chosen = example_set(key)
+    folder = Path(folder) if folder is not None else example_set_folder(key)
     if chosen.is_present(folder):
         return put_the_assay_example_in_place(screen, folder)
 
     button = getattr(screen, "_assay_example_button", None)
     if button is not None:
         button.setEnabled(False)
-        button.setText(tr('Preparing test data…') if key == 'host_pathogen'
-                       else tr("Fetching test data…"))
+        button.setText(tr("Fetching test data…"))
 
     placed: Dict = {}
 

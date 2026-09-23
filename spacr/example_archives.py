@@ -49,6 +49,7 @@ __all__ = [
     "ExampleSet",
     "IMPORT_EXAMPLE_REPO",
     "INVASION_EXAMPLE_REPO",
+    "HOST_PATHOGEN_EXAMPLE_REPO",
     "MEASURE_EXAMPLE_REPO",
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
@@ -99,6 +100,7 @@ REPLICATION_EXAMPLE_REPO = "einarolafsson/spacr-example-replication"
 #: The Recruitment module's example: twelve control wells of the THP-1 RNF213
 #: screen, plate 1, whose own recruitment settings ship with it.
 RECRUITMENT_EXAMPLE_REPO = "einarolafsson/spacr-example-recruitment"
+HOST_PATHOGEN_EXAMPLE_REPO = "einarolafsson/spacr-example-host-pathogen"
 
 #: Import's test data: the same twelve planes written in every vendor format
 #: and filename convention Import reads, with their masks and measurements.
@@ -169,6 +171,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
     REPLICATION_EXAMPLE_REPO: "spacr-example-replication.tar",
     RECRUITMENT_EXAMPLE_REPO: "spacr-example-recruitment.tar",
+    HOST_PATHOGEN_EXAMPLE_REPO: "spacr-example-host-pathogen.tar",
     IMPORT_EXAMPLE_REPO: _IMPORT_EXAMPLE_ARCHIVE,
     INVASION_EXAMPLE_REPO: "spacr-example-invasion.tar",
     OPS_EXAMPLE_REPO: "spacr-example-ops.tar",
@@ -296,6 +299,18 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         markers=("measurements/measurements.db",
                  "settings/recruitment_settings.csv"),
         folder="recruitment",
+    ),
+    ExampleSet(
+        key="host_pathogen",
+        repo=HOST_PATHOGEN_EXAMPLE_REPO,
+        summary="Host–Pathogen test data: two real THP-1 RNF213 fields, "
+                "164 measured hosts and 97 vacuoles, with images and masks.",
+        bytes=114_000_000,
+        markers=("measurements/measurements.db", "settings/host_pathogen_settings.csv",
+                 "example_manifest.json", "merged/.spacr_plane_layout.json",
+                 "merged/PLATE1_E01_1_1.npy", "merged/PLATE1_E02_1_1.npy"),
+        folder="host_pathogen",
+        in_default=False,
     ),
     ExampleSet(
         key="invasion",

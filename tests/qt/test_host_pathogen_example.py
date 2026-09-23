@@ -1,4 +1,4 @@
-"""Host–Pathogen's Test data action prepares and applies its real sample offline."""
+"""Host–Pathogen's Test data action downloads and applies its real microscopy sample."""
 
 import pytest
 
@@ -6,52 +6,53 @@ pytest.importorskip('PySide6')
 pytestmark = pytest.mark.qt
 
 
-def test_button_prepares_sample_offline_and_fills_runnable_settings(qtbot, qt_theme_applied, tmp_path, monkeypatch):
+def test_real_sample_uses_separate_cache_and_shared_download_worker(qapp, tmp_path, monkeypatch):
+    from spacr.qt import assay_examples
+    from spacr.example_archives import example_set, example_set_folder
+    from spacr.host_pathogen_example import example_folder
+
+    chosen = example_set('host_pathogen')
+    assert chosen.repo == 'einarolafsson/spacr-example-host-pathogen'
+    assert example_set_folder('host_pathogen') != example_folder()
+    assert 'real THP-1' in assay_examples._tooltip('host_pathogen')
+    assert 'replication remains unknown' in assay_examples._tooltip('host_pathogen')
+    seen = {}
+
+    def dialog(parent, dest, on_done, *, worker_factory, title):
+        seen['worker'] = worker_factory(dest)
+        seen['title'] = title
+
+    monkeypatch.setattr(assay_examples, 'download_toxo_mito_demo', dialog)
+    assay_examples.download_assay_example(None, 'host_pathogen', tmp_path, None)
+    assert seen['worker'].repo == chosen.repo
+    assert 'synthetic' not in seen['title'].lower()
+
+
+def test_partial_real_sample_requires_download_and_complete_sample_is_cached(
+        qtbot, qt_theme_applied, tmp_path):
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt import assay_examples
-    from spacr.host_pathogen_example import is_present
+    from spacr.example_archives import example_set
+    from tests.qt.test_the_assay_modules_offer_test_data import _unpack_a_published_copy
 
-    def refuse_network(*args, **kwargs):
-        raise AssertionError('The generated example must never use the network')
-
-    monkeypatch.setattr('requests.get', refuse_network)
     screen = AppScreen('host_pathogen')
     qtbot.addWidget(screen)
-    button = screen._assay_example_button
-    assert button.text() == 'Load test data…'
-    assert 'SYNTHETIC' in button.toolTip()
-    assert 'offline' in button.toolTip()
-    destination = tmp_path / 'sample'
-    assay_examples.load_the_assay_example(screen, folder=destination)
-    qtbot.waitUntil(lambda: button.isEnabled(), timeout=15000)
-    qtbot.waitUntil(lambda: screen._settings_model.collect()['src'] == str(destination), timeout=5000)
-    settings = screen._settings_model.collect()
-    assert settings['hp_marker_channels'] == [0, 1]
-    assert settings['hp_marker_thresholds'] == {0: 2., 1: 2.}
-    assert settings['hp_parasite_table'] == 'organelle'
-    assert settings['hp_count_column'] in ('', None)
-    assert is_present(destination)
-    from spacr.host_pathogen import analyze_host_pathogen
+    folder = _unpack_a_published_copy(tmp_path / 'sample', 'host_pathogen')
+    chosen = example_set('host_pathogen')
+    assert chosen.is_present(folder)
 
-    results = analyze_host_pathogen(settings)
-    assert len(results['vacuoles']) == 28
-    assert results['cells'].infected.sum() == 20
-    assert len(results['orphan_parasites']) == 4
-    assert assay_examples.load_the_assay_example(screen, folder=destination,
-                                                  ask=refuse_network) == {'src': str(destination)}
+    def refuse_download(*args):
+        raise AssertionError('A complete cached example must not download again')
 
-
-def test_worker_cancellation_reports_failure_without_partial_data(qapp, tmp_path):
-    from spacr.qt.assay_examples import _HostPathogenExampleWorker
-
-    worker = _HostPathogenExampleWorker(tmp_path / 'sample')
-    results = []
-    worker.finished.connect(lambda *args: results.append(args))
-    worker.cancel()
-    worker.run()
-    assert len(results) == 1 and results[0][0] is False
-    assert 'cancelled' in results[0][-1]
-    assert not (tmp_path / 'sample').exists()
+    result = assay_examples.load_the_assay_example(screen, folder=folder, ask=refuse_download)
+    assert result == {'src': str(folder)}
+    assert screen._settings_model.collect()['hp_marker_channels'] == [1]
+    (folder / 'merged/PLATE1_E02_1_1.npy').unlink()
+    assert not chosen.is_present(folder)
+    calls = []
+    assay_examples.load_the_assay_example(screen, folder=folder,
+        ask=lambda *args: calls.append(args))
+    assert len(calls) == 1
 
 
 @pytest.mark.parametrize('value,expected', [

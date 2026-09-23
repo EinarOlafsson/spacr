@@ -14505,3 +14505,23 @@ archive: two acquired fields, four stain channels and existing masks. Fresh
 Measure succeeds after standard parent reconciliation; 164 hosts,97 vacuoles.
 No individual-parasite counts exist: replication stays unknown. Verifying
 pixel measurements and preview/source alignment before publishing/wiring.
+
+2026-09-23 — REAL HOST–PATHOGEN EXAMPLE PUBLISHED AND VERIFIED
+Product Load test data now uses:
+https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen
+HF revision83b73d7a0c4f8a9ea145304c2ba90acc16768031;114MB/113551360bytes.
+Two real THP-1/RNF213 fields from the existing public Recruitment archive;
+4 unchanged acquired channels, saved Measure-reconciled masks, fresh DB of
+164hosts/189nuclei/97vacuoles/164cytoplasm. All614objects' areas/means/labels
+match distributed pixels. Both fields resolve through the preview automatically.
+Actual public Qt download, AppScreen settings, full analysis and both preview
+fields passed;88focused Qt/CLI checks pass. CLI:spacr-download host_pathogen.
+GUI:bottom Live toggle, Image channel2 for parasites,1RNF213,3CellMask.
+hp_marker_channels=[1],reference=cytoplasm,thresholds={};individual parasites
+not supplied, so replication not_measured and marker states unknown until
+thresholds chosen. No biological ground truth claim. Host cache folder now
+host_pathogen, separate from synthetic v2; internal fixtures retained.
+Source/card builder:tools/build_host_pathogen_example_dataset.py and
+ tools/host_pathogen_example_card.md. No new runtime settings introduced.
+Please use this real dataset for tutorials/API/translations and retire the
+synthetic product instructions. Continue494Demos prose/script cleanup.

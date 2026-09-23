@@ -47,3 +47,28 @@ display/overlay controls and missing images with selectable measured results.
 the90%module floor). Local PySide6 native initialization segfaulted when first
 imported under the tracer; preimporting only external QtCore/QtGui/QtWidgets
 before pytest enabled measurement. No spaCR module was preimported or excluded.
+
+2026-09-23 — REAL PRODUCT SAMPLE REVISION COMPLETE
+Supersedes the synthetic-product sample above. Load test data downloads the
+public spacr-example-host-pathogen archive: two actual THP-1/RNF213 fields,
+164 hosts,189 nuclei,97 whole vacuoles,164 cytoplasm objects;114MB. Source is
+the already published Recruitment screen example, also from the acquisition
+used for cross-channel work. All four acquired intensity planes are unchanged.
+Existing automatic masks receive Measure's parent reconciliation and companion
+filtering, and those prepared masks are saved so outlines agree with the DB.
+No manual-ground-truth or individual-parasite-count claim. RNF213 channel1/
+cytoplasm ratios are provided; marker states remain unknown without thresholds,
+and replication remains not_measured. Distinct host_pathogen cache folder
+prevents reusing the previous synthetic fixture.
+Published HF revision83b73d7a0c4f8a9ea145304c2ba90acc16768031;
+archive113551360bytes, SHA256
+b4f196c41096494d40776dcec98554cdcabda201082e06d095e29940e7d73e33.
+Builder/card:tools/build_host_pathogen_example_dataset.py and
+ tools/host_pathogen_example_card.md. Pinned original source hashes verified
+against the existing published archive. Fresh Measure on both fields succeeded;
+all614objects' labels/areas/four-channel means independently match saved pixels.
+A fresh public download through the shared Qt worker passed, filled actual
+AppScreen settings, ran164host/97vacuole analysis and displayed37/60vacuoles
+in the two Live fields. Offscreen images visually reviewed.88focused GUI,
+preview, cache and CLI checks pass. No native-platform claim. Bottom Live
+placement already verified in the same tests.

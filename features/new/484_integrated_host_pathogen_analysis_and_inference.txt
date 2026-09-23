@@ -122,3 +122,10 @@ GUI settings run the real analysis with known counts/ratios/states. Input DB
 bytes remain unchanged. The exercise also fixed dictionary-valued GUI settings
 arriving as strings, including hp_marker_thresholds. API error handling now
 explains an invalid threshold mapping instead of failing at .items().
+
+2026-09-23 — PRODUCT TEST DATA REPLACED AT USER REQUEST
+The offline synthetic project above remains an internal regression fixture;
+it is no longer offered by Load test data. The product action now fetches
+real THP-1/RNF213 images/masks and fresh Measure output. Full provenance,
+verification and public archive details are recorded in492.164hosts/97vacuoles;
+no individual-parasite counts, hence replication unknown.
