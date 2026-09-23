@@ -1,11 +1,12 @@
 {
   "schema": 1,
   "language": "sv",
-  "workflow_map_sha256": "367902338ff37d0af55f8e4cde4ab2aed11e335bc8727fe67a4e34f84beb095b",
+  "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
-    "pipeline_followup": "2026-09-23: seven new or expanded phrases checked against pipeline input routes and annotation behavior; no native-speaker sign-off."
+    "pipeline_followup": "2026-09-23: seven new or expanded phrases checked against pipeline input routes and annotation behavior; no native-speaker sign-off.",
+    "host_pathogen_followup": "2026-09-23: whole-vacuole identity, uninfected-host denominator, optional explicit parasite counts, control-calibrated ratios and unknown states reviewed against implementation; no native-speaker sign-off."
   },
   "records": [
     {
@@ -1217,6 +1218,16 @@
       "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
       "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
       "translation": "Skriv granskade lassourval till en annoteringskolumn i motsvarande objektdatabas och välj sedan kolumnen i Classify. Granska bildutsnitten och validera etiketterna; kluster i inbäddningsrymden är inte referenssanning."
+    },
+    {
+      "source": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source_sha256": "283550e02f8c5608b7f1e9510902dc4c8737514c63c807853fe6332ef8bed217",
+      "translation": "Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol."
+    },
+    {
+      "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
+      "translation": "Mät hela vakuoler och värdcellernas referenskompartment, och behåll oinfekterade värdceller i infektionsandelens nämnare. Välj markörkanaler och kvottrösklar kalibrerade mot kontroller. Räkna vid behov individuellt segmenterade parasiter med uttryckliga vakuolkopplingar eller en kolumn med uppmätta antal. Granska tabeller för vakuoler, värdceller och brunnar, gemensamma markörtillstånd, replikationsfördelningar och parasitkopplingar utan matchning; okända mätvärden förblir okända."
     }
   ],
   "retired_records": [

@@ -1,0 +1,91 @@
+{
+  "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+  "required_phrases": 244,
+  "languages": [
+    {
+      "language": "da",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "5d4282e88ddb1fd59a4f4ebdab86fca5d058063aaa55c4a2e0c4e79b027f3131"
+    },
+    {
+      "language": "nb",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "922e4bf058b34ed2e4b3e3ee08515a81a8855681a7527726802238fb8bd50959"
+    },
+    {
+      "language": "sv",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "cbde87fe7fbdba03bd2d2d144d0121f99cd29352155e8a5b69a0a0e3ad868ca7"
+    },
+    {
+      "language": "de",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "185f0a9eef179f20b586ab7aa0593845567eee26c3609fbddbb1398c75f94afb"
+    },
+    {
+      "language": "es",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "fe35eaf78934afc6bed427b4d912a2135de6cae9c4c69e9ffada62edff98659d"
+    },
+    {
+      "language": "fr",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "15cc09238a01d593047cde9ff7033ce6778b2d640f408e864ee59358d11ef423"
+    },
+    {
+      "language": "it",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "7ecef035b69602bf45a3af50772ee8acf7f0086d67dfeee8ee9872b8a6df4a7b"
+    },
+    {
+      "language": "pt-BR",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "447dcce903fac8e408ee161610f5f21c82fa3b2872682bc72f8917c2d49002aa"
+    },
+    {
+      "language": "hi",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "a37576191809fe58fff205a7fc2938ab4250ad68844f596a5f86fd4802d1a244"
+    },
+    {
+      "language": "ja",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "72fa669b651156ffe9b668ad7667bcafeab2f0c1b32194b5248d25c4f3556cf9"
+    },
+    {
+      "language": "zh-CN",
+      "phrase_count": 244,
+      "new_phrases": 2,
+      "scenes": 99,
+      "bank_sha256": "183b47c3269850f63854ab187ff041d7f6e933d8600b8abe8013bbe9828557ab"
+    }
+  ],
+  "exact_previous_phrases_preserved": true,
+  "canonical_lesson_hashes_verified": true,
+  "pending_languages": [
+    "ko",
+    "is"
+  ],
+  "published": false,
+  "native_speaker_signoff": false
+}

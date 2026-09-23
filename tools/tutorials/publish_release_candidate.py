@@ -16,8 +16,9 @@ Two separate, re-runnable steps. Neither touches ``main`` on either host.
 ``pages``
     Writes the candidate's ``web/`` into ``docs/source/_extra/tutorials``,
     byte-checked against the manifest, with the media roots pinned to the
-    uploaded COMMIT (only a commit id cannot be moved). Deployment is a merge to
-    ``main``; ``.github/workflows/docs.yml`` publishes Pages from there.
+    uploaded COMMIT (only a commit id cannot be moved). Pushing ``nightly``
+    publishes its preview; pushing ``main`` publishes the main site through
+    ``.github/workflows/docs.yml``. Each channel retains its own media revision.
 
 Usage (tutorial toolchain python, ``cd tools/tutorials``)::
 

@@ -31,7 +31,11 @@ def test_default_generator_keeps_all_current_english_scripts_unchanged():
 def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inputs):
     data, bank = inputs
     reviews = translation.compose_reviews(bank, data, 'test-map')
-    assert [len(review['scenes']) for review in reviews.values()] == [79, 18]
+    assert [len(review['scenes']) for review in reviews.values()] == [80, 19]
+    for identity, previous_count in zip(reviews, (79, 18), strict=True):
+        scenes = translation.workflow.lesson_document(data, identity)['scenes']
+        assert sum(scene['visual'] == 'module_host_pathogen' for scene in scenes) == 1
+        assert len([scene for scene in scenes if scene['visual'] != 'module_host_pathogen']) == previous_count
     reference = reviews['79_module_inputs_outputs']
     prose = ' '.join(reference['scenes'])
     for module in data['modules'].values():
