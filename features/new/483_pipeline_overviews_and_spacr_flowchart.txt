@@ -67,3 +67,25 @@ module and endpoint API links, stable hover geometry and node nonoverlap pass
 against the integrated map.43combined graph, sample-route and secondary-editor
 checks pass after rebase. Flowchart API descriptions and control translations
 from the other lane are retained; broader catalog/tutorial work remains open.
+
+ROW ORDER REFINEMENT, 2026-09-23
+Within the existing dependency columns, two forward/backward passes now
+order each branch near its connected modules. Main pooled-screen steps remain
+first in their columns; Classify and Map Barcodes keep their shared column
+and separate rows. No captions, API destinations or handoff contracts changed.
+Independent parallel branches align instead of crossing, in both view modes.
+
+The integrated77-module/52-handoff map's sampled cubic-arrow crossing pairs
+fell62->33 in the compact full network and56->13 in the expanded layout.
+These are transverse crossings, excluding shared endpoints and collinear
+overlaps, measured at65samples per curve with0.01scene-unit tolerance.
+This is a diagnostic, not an optimum: coincident routes and arrows through
+intermediate columns remain. A stroke-intersection count including overlaps
+did not improve in compact mode (112->114), so it is not claimed to do so.
+Offscreen1800x1050render inspected; fixed hover/details and localized links
+still pass. Geometry and measurement method are recorded in
+features/data/483_neighbor_row_order_2026-09-23.json.
+Validation:53flowchart, sample-project and shared workflow-map checks pass;
+fatal-error Ruff and whitespace checks pass. Row-order regression cases
+exercise crossed independent branches in both modes and repeatability; the
+integrated graph also asserts the main pipeline's common top row.

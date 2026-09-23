@@ -145,7 +145,9 @@ def _positions(keys, edges, data=None, *, compact=False):
     Independent sources move beside the latest branch they feed, unless
     that would delay an earlier dependency chain. Terminal consumers spread
     across later columns. Modules without documented handoffs are placed by
-    their input/output types. Cycles remain bounded rather than looping.
+    their input/output types. Within each column, neighboring branches are
+    aligned while the main pipeline stays first. Cycles remain bounded
+    rather than looping.
     """
     parents = {key: set() for key in keys}
     children = {key: set() for key in keys}
@@ -205,6 +207,19 @@ def _positions(keys, edges, data=None, *, compact=False):
                         key=lambda d: len(columns[d]) + .2 * (d - first))
         ranked[key] = suggested
         columns[suggested].append(key)
+    rows = {key: row for group in columns.values() for row, key in enumerate(group)}
+    for _ in range(2):
+        for neighbors, reverse in ((parents, False), (children, True)):
+            for depth in sorted(columns, reverse=reverse):
+                group = columns[depth]
+                scores = {
+                    key: (key not in core, not bool(neighbors[key]),
+                          sum(rows[peer] for peer in neighbors[key]) / len(neighbors[key])
+                          if neighbors[key] else rows[key], rows[key])
+                    for key in group
+                }
+                group.sort(key=scores.__getitem__)
+                rows.update((key, row) for row, key in enumerate(group))
     row_height = 125 if compact else 225
     return {key: QPointF(depth * 325, row * row_height)
             for depth, group in sorted(columns.items()) for row, key in enumerate(group)}

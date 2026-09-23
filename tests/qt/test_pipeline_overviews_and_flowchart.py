@@ -129,6 +129,7 @@ def test_columns_follow_documented_inputs_and_converge_barcodes_with_classify(qt
     core = ['mask', 'measure', 'annotate', 'classify_merged', 'regression']
     positions = [nodes[key].pos().x() for key in core]
     assert positions == sorted(set(positions))
+    assert all(nodes[key].pos().y() == 0 for key in core)
     assert nodes['map_barcodes'].pos().x() == nodes['classify_merged'].pos().x()
     assert nodes['map_barcodes'].pos().y() != nodes['classify_merged'].pos().y()
     for edge in dialog.view.links:
@@ -137,6 +138,22 @@ def test_columns_follow_documented_inputs_and_converge_barcodes_with_classify(qt
     rectangles = [node.sceneBoundingRect() for node in nodes.values()]
     for i, rectangle in enumerate(rectangles):
         assert all(not rectangle.intersects(other) for other in rectangles[i + 1:])
+
+
+@pytest.mark.parametrize('compact', [False, True])
+def test_independent_branches_align_instead_of_crossing(compact):
+    keys = ['first_input', 'second_input', 'second_output', 'first_output']
+    edges = [dict(zip(('from', 'to', 'kind'), pair + ('documented',)))
+             for pair in [('first_input', 'first_output'),
+                          ('second_input', 'second_output')]]
+    positions = wd._positions(keys, edges, compact=compact)
+    for edge in edges:
+        source, target = positions[edge['from']], positions[edge['to']]
+        assert source.x() < target.x()
+        assert source.y() == target.y()
+    assert positions['first_input'].y() != positions['second_input'].y()
+    assert positions == wd._positions(keys, edges, compact=compact)
+    assert keys == ['first_input', 'second_input', 'second_output', 'first_output']
 
 
 def test_node_and_edge_explanations_link_their_localized_api_pages(qtbot, monkeypatch):
