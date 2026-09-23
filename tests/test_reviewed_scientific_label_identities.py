@@ -23,6 +23,7 @@ def builder():
     ("Diameter", "sv"), ("Plaque", "de"), ("Plaque", "fr"),
     ("Detector", "es"), ("Detector", "pt"),
     ("Voxels", "pt"), ("Voxels", "fr"), ("Triangle", "fr"),
+    ("Percentiles", "es"), ("Percentiles", "fr"),
 ])
 def test_shared_word_is_accepted_only_in_its_reviewed_locale(builder, source, language):
     assert not builder._translation_rejection_reasons(

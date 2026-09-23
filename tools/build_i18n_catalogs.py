@@ -2779,6 +2779,7 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     "Detector": {"es": "Detector", "pt": "Detector"},
     "Voxels": {"pt": "Voxels", "fr": "Voxels"},
     "Triangle": {"fr": "Triangle"},
+    "Percentiles": {"es": "Percentiles", "fr": "Percentiles"},
     # THE SAME DECISION FOR THE GRID'S "Doses" HEADER, in two locales: the
     # plural of dose is "doses" in French and in Portuguese, so the correct
     # header equals the English and the exact-English gate would refuse it.

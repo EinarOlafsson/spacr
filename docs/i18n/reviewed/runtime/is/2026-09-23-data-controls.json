@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted linguistic and source-context review of data controls for scientific thresholds, plate and object counts, folders, gates, sound preferences and paper retrieval. Correct scientific words shared with English are retained in explicitly reviewed language pairs. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Percentiles",
+      "source": "Percentiles",
+      "source_sha256": "e5db331c020e0f7474d216ce8f3cbefce97d0cd4e5caabb3d532cb70619e9137",
+      "translation": "Hundraðshlutamörk"
+    },
+    {
+      "table": "ui",
+      "key": "Play sounds",
+      "source": "Play sounds",
+      "source_sha256": "2e802e9479575b872eac4f4e7d3d249281a76ce758935d75eb5f511c53ccdc81",
+      "translation": "Spila hljóð"
+    },
+    {
+      "table": "ui",
+      "key": "Sensitivity",
+      "source": "Sensitivity",
+      "source_sha256": "ebb57a260d58207c3cce2e12e8663ecdc0c74147d138655d6714bc577a0768f6",
+      "translation": "Næmi"
+    },
+    {
+      "table": "ui",
+      "key": "Tolerance %",
+      "source": "Tolerance %",
+      "source_sha256": "0235a848fdb5aa581c7db6bc674add2454d99dd057c9ac7a6bbdd87b180fe4b5",
+      "translation": "Vikmörk %"
+    },
+    {
+      "table": "ui",
+      "key": "Queue length",
+      "source": "Queue length",
+      "source_sha256": "89985e9404277fc0040ae9a3880b4778ad45bd2924b07c44888963334bf595bf",
+      "translation": "Lengd biðraðar"
+    },
+    {
+      "table": "ui",
+      "key": "Reads / well",
+      "source": "Reads / well",
+      "source_sha256": "ba3dd647ae11d242f84ff9f611e125ad32dd8685f1fb5b4be7749a4aab89708c",
+      "translation": "Lestrar / brunn"
+    },
+    {
+      "table": "ui",
+      "key": "Run finished",
+      "source": "Run finished",
+      "source_sha256": "22488bd91e126f2a81ef902ae2e6e767a3a5a5ccac9144fee385561a76a951c6",
+      "translation": "Keyrslu lokið"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR",
+      "source": "Search spaCR",
+      "source_sha256": "dbe89695827690925d9402ac2a6549b0e379fb43090234c595c8065177df3f1f",
+      "translation": "Leita í spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR…",
+      "source": "Search spaCR…",
+      "source_sha256": "65f80adbe11014474289a5a0f6544862685946b3dd43f6bc796f7347dc3632f1",
+      "translation": "Leita í spaCR…"
+    },
+    {
+      "table": "ui",
+      "key": "Search steps",
+      "source": "Search steps",
+      "source_sha256": "53268ee37ec168216ade45eb3444c8fd100cd13574e1dd5aa3ff062049ccbc6e",
+      "translation": "Leitarskref"
+    },
+    {
+      "table": "ui",
+      "key": "Threshold(s)",
+      "source": "Threshold(s)",
+      "source_sha256": "62c97f371e8740b2349b0fe1b2a34ccdcb52a5402831a2ea2bf35725421ad89d",
+      "translation": "Þröskuldsgildi"
+    },
+    {
+      "table": "ui",
+      "key": "Assay results",
+      "source": "Assay results",
+      "source_sha256": "fc8bb4d3390130205fe7317376fb9dd9c3aa31869f9b78ff78d59f66d2d9b6e5",
+      "translation": "Niðurstöður prófunar"
+    },
+    {
+      "table": "ui",
+      "key": "From a paper…",
+      "source": "From a paper…",
+      "source_sha256": "28449849590cd03cfece200cd1e5789a07213fc164b0bf5f4ebba4bacbec6aa9",
+      "translation": "Úr vísindagrein…"
+    },
+    {
+      "table": "ui",
+      "key": "Min area (px)",
+      "source": "Min area (px)",
+      "source_sha256": "459d8afecdee961794d0adf19f4365bd9c5548f909e7beeb070d0a9dbe7db932",
+      "translation": "Lágmarksflatarmál (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Object counts",
+      "source": "Object counts",
+      "source_sha256": "27a19633bad5df509ad9f6856a9ffd4375867600c485d0b2cebb62e792e57133",
+      "translation": "Fjöldi hluta"
+    },
+    {
+      "table": "ui",
+      "key": "Output folder",
+      "source": "Output folder",
+      "source_sha256": "998915e5dfe69993315248119cfd1df4ca9050f83aa928fecb1097afe1e7e7c1",
+      "translation": "Úttaksmappa"
+    },
+    {
+      "table": "ui",
+      "key": "Pixels per µm",
+      "source": "Pixels per µm",
+      "source_sha256": "e7a58bd2f180aa7a66c3a544fa5525807403bc766993bf697a7ee32389506599",
+      "translation": "Pixlar á µm"
+    },
+    {
+      "table": "ui",
+      "key": "Point opacity",
+      "source": "Point opacity",
+      "source_sha256": "5c5f75a2c5cecc8880f549996a58735658b0fcc9849468697087a98304bcc375",
+      "translation": "Ógegnsæi punkta"
+    },
+    {
+      "table": "ui",
+      "key": "Selected gene",
+      "source": "Selected gene",
+      "source_sha256": "acdefe8d3c8521a64d5400c4dd15c305b2187fabc50d44de43cd85bdb2dd1299",
+      "translation": "Valið gen"
+    },
+    {
+      "table": "ui",
+      "key": "Show channels",
+      "source": "Show channels",
+      "source_sha256": "c27b81e627eb322eaf0997b9344b516b6c452f0faf08d460e75a4a0edbb2e23e",
+      "translation": "Sýna rásir"
+    },
+    {
+      "table": "ui",
+      "key": "Source folder",
+      "source": "Source folder",
+      "source_sha256": "e52e4e0deb92e4a076f3b4eab4e4944595effea645c27143d869cdbc09ebf9f8",
+      "translation": "Upprunamappa"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed",
+      "source": "Upload failed",
+      "source_sha256": "6efc5d27f30b20c103ca1a855bfc65cdbdf9de98c3f8ac93a3df3f319c3388bd",
+      "translation": "Upphleðsla mistókst"
+    },
+    {
+      "table": "ui",
+      "key": "Wells / plate",
+      "source": "Wells / plate",
+      "source_sha256": "afa8967da57e7d136d954a6182d5f609495850baa54deb13a5f87084b9c1f84f",
+      "translation": "Brunnar / plata"
+    },
+    {
+      "table": "ui",
+      "key": "AnnData export",
+      "source": "AnnData export",
+      "source_sha256": "066b1d6b22084d949705798a344a8e390d79626c517e95e28d1159b36376cf09",
+      "translation": "AnnData-útflutningur"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a paper",
+      "source": "Choose a paper",
+      "source_sha256": "b9d3c76c996634700ce627aa39a01cae9e65cff159b7950a64c44764c8b38fe5",
+      "translation": "Velja vísindagrein"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum trials",
+      "source": "Maximum trials",
+      "source_sha256": "f6756302eae13e0c1652869fa885c5b6b0c93967217e8c1a0968744497fceada",
+      "translation": "Hámarksfjöldi tilrauna"
+    },
+    {
+      "table": "ui",
+      "key": "Opening {name}",
+      "source": "Opening {name}",
+      "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
+      "translation": "Opna {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Penalty weight",
+      "source": "Penalty weight",
+      "source_sha256": "f5aeb08bf169f5cb26fd6a657b993b787d9a56ff6ce20a82c831a4919dc4209c",
+      "translation": "Vægi refsingar"
+    },
+    {
+      "table": "ui",
+      "key": "Preview object",
+      "source": "Preview object",
+      "source_sha256": "101ff413610e7f4ded37899ea52f20c034b75e5244ea1a3f2dc0878533428a7f",
+      "translation": "Forskoða hlut"
+    },
+    {
+      "table": "ui",
+      "key": "Primary object",
+      "source": "Primary object",
+      "source_sha256": "5ea328df4fa6d2d3afa4ac0b5d217ac03d8f46bfd6b8460074424c97bf150763",
+      "translation": "Aðalhlutur"
+    },
+    {
+      "table": "ui",
+      "key": "Reusable gates",
+      "source": "Reusable gates",
+      "source_sha256": "65793911f3ae1216bb5461c4bc937c8201498b3c9db21a01677681033208254e",
+      "translation": "Endurnýtanleg gates"
+    },
+    {
+      "table": "ui",
+      "key": "Save PNG crops",
+      "source": "Save PNG crops",
+      "source_sha256": "598a97bf24bd8673ea140e4bec5b9b796d6507c2536b53eea12877b74ef0e002",
+      "translation": "Vista PNG-myndskurði"
+    },
+    {
+      "table": "ui",
+      "key": "Select cluster",
+      "source": "Select cluster",
+      "source_sha256": "dec2cf62b573f29e8adba4fa6c2d03d51cbfa6bf578042742bc2c3ed091d9906",
+      "translation": "Velja klasa"
+    },
+    {
+      "table": "ui",
+      "key": "Sharpen amount",
+      "source": "Sharpen amount",
+      "source_sha256": "56e0a84461eff53cf2f7592fb125d962ec3d156c44a7fdc2819f4efefc05af28",
+      "translation": "Skerpingarstyrkur"
+    },
+    {
+      "table": "ui",
+      "key": "Sharpen radius",
+      "source": "Sharpen radius",
+      "source_sha256": "eb90acdba9eeace0d950a74c1d681184ec578b886514219b6754dac13eba9ca6",
+      "translation": "Skerpingarradíus"
+    },
+    {
+      "table": "ui",
+      "key": "Stop threshold",
+      "source": "Stop threshold",
+      "source_sha256": "893538846ce0eac6581de411cae65adc328a6c50405b1973a451f40188906fa9",
+      "translation": "Stöðvunarþröskuldur"
+    },
+    {
+      "table": "ui",
+      "key": "Text detection",
+      "source": "Text detection",
+      "source_sha256": "cb9ef963c1d8542263cb338d22acde267dc38df40735949c602c2dee855cf1e3",
+      "translation": "Textagreining"
+    },
+    {
+      "table": "ui",
+      "key": "Probability cut-off",
+      "source": "Probability cut-off",
+      "source_sha256": "fe0117282ac09c31808db26b853d0ab47a7e3c1fda9580685bd2c97cee78919d",
+      "translation": "Líkindaþröskuldur"
+    }
+  ]
+}

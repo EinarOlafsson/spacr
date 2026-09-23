@@ -1759,3 +1759,14 @@ stores load, source hashes agree and live tr() returns the reviewed captions.
 The ambiguous Free label and parser-valued plaque placement choices are
 intentionally deferred for targeted fixes. Other catalog debt remains open;
 this is AI-assisted review without native-speaker or full-catalog acceptance.
+
+2026-09-23 — CODEX: DATA CONTROLS AND THRESHOLDS
+A second batch adds306 compiled entries for38 source labels, including the
+Probability cut-off failure, run/queue status, scientific counts, folders,
+pixel calibration, gate reuse, object previews and paper retrieval. All nine
+live tr() checks include a real {name} substitution and current source hashes;
+all full runtime/API review stores load.15 scientific-label boundary tests
+pass, including Spanish/French Percentiles spelled correctly as in English.
+Receipt: data/411_data_controls_2026-09-23.json. Together with the preceding
+batch this fills581 positions for80 source labels, without claiming that the
+whole locale catalogs or their eight previously named failures are resolved.
