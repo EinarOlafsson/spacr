@@ -1566,7 +1566,7 @@ def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
     monkeypatch.setattr(sutils, "load_settings", _spy)
 
 
-    bare = _Bare()
+    bare = types.SimpleNamespace()
     win._apply_demo_to_screen(bare, layout)
     assert read == [], (
         f"the demo CSV was read for a screen that cannot take it: {read}")

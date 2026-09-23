@@ -15387,3 +15387,23 @@ startup-stall violations remain on284; no responsiveness pass claimed. Only131
 is open and is explicitly nonblocking. Candidate e498dbecc stays frozen while
 fullCI35932234009runs. New optional tutorials85aeb14bf/d77cf5aeaand German API
 8be4c0240are preserved on nightly and intentionally do not restart candidate CI.
+
+2026-09-23 RELEASE CI REPAIRS IN PROGRESS
+Candidate35932234009exposed a deleted _Bare test helper (fatal lint), outdated
+four-assay/count/positional assumptions after Host–Pathogen was added, and two
+real UI omissions. View's tooltip pairing was lost when Live actions became a
+FlowLayout; keeping its label and combo in one wrapping group restores sticky
+help and prevents orphan labels. The Toxoplasma Host–Pathogen Analysis tile was
+elided; its visible tile caption is now Host–Pathogen (registry/API title remains
+Host–Pathogen Analysis). Added the missing explanatory paragraph and navigation
+link to the first Toxoplasma text section, including the whole-vacuole versus
+individual-parasite count limitation. Docs lane: please translate the new short
+caption and revised first section in spacr/qt/organisms.py; preserve all existing
+reviewed captions. Fifty organism/help checks and seven affected helper tests
+pass; full repository fatal lint plus maintained Ruff/mypy/Xenon gates pass.
+Holding candidate merge until remaining original CI findings are collected to
+avoid repeatedly cancelling a long run. No gates weakened or baselines changed.
+Follow-up31laptop navigation, stray-control, Host–Pathogen registration and PSF
+Live checks pass. The repaired View group preserves the earlier narrow-layout
+fix; no segmentation or worker processing changed. Ready to cherry-pick this
+runtime/test-only repair into the frozen candidate after the original CI sweep.
