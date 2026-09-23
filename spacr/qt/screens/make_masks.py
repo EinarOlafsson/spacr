@@ -622,6 +622,7 @@ class _EnhanceRequest(NamedTuple):
     key: tuple
     image: np.ndarray
     chain: Any
+    cancelled: Any = None
 
 
 class _CompareRequest(NamedTuple):
@@ -646,11 +647,19 @@ def _compare_picture_for(request):
     if request.cancelled.is_set():
         return None
     x0, y0, x1, y1 = request.box
-    result = detect_chain.prepare(base[y0:y1, x0:x1], request.chain)
+    result = detect_chain.prepare(base[y0:y1, x0:x1], request.chain,
+                                  cancel=request.cancelled)
     return None if request.cancelled.is_set() else result
 
 
-def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[np.ndarray]:
+class _EnhancedImage(NamedTuple):
+    """Scientific intensities and their separately scaled display picture."""
+
+    prepared: np.ndarray
+    picture: np.ndarray
+
+
+def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[_EnhancedImage]:
     """The enhanced field as a drawable picture. ON THE WORKER THREAD.
 
     The chain in float (:func:`spacr.qt.detect_chain.prepare`), then back
@@ -665,15 +674,15 @@ def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[np.ndarray]:
     base = request.image
     if base is None:
         return None
-    out = detect_chain.prepare(base, request.chain)
+    out = detect_chain.prepare(base, request.chain, cancel=request.cancelled)
     dtype = np.dtype(base.dtype)
     if out is base or dtype.kind != "u":
-        return out
+        return _EnhancedImage(out, out)
     low = float(np.min(out)) if out.size else 0.0
     span = (float(np.max(out)) - low) if out.size else 1.0
     top = float(np.iinfo(dtype).max)
     scaled = (np.asarray(out, dtype=np.float64) - low) / (span or 1.0) * top
-    return np.clip(scaled, 0, top).astype(dtype)
+    return _EnhancedImage(out, np.clip(scaled, 0, top).astype(dtype))
 
 
 class _MaskCanvas(QLabel):
@@ -767,6 +776,7 @@ class _MaskCanvas(QLabel):
         #: ``(base, chain)`` a request is already out for, so a repaint
         #: while one is running does not ask again.
         self._enhance_worker = None
+        self._enhance_cancel = threading.Event()
         self._enhance_asked: Optional[tuple] = None
         self.enhanced_ready.connect(self._take_enhanced)
         self.wand_tolerance: float = 1000.0
@@ -870,6 +880,7 @@ class _MaskCanvas(QLabel):
         self._enhanced_cache = self._enhanced_picture = None
         self._enhance_failure = None
         self._enhance_asked = None
+        self._enhance_cancel.set()
         self._lookup = self._lookup_mask = self._lookup_image = None
         self.readout = None
         if self.magnifier is not None:
@@ -983,6 +994,14 @@ class _MaskCanvas(QLabel):
         cached = self._enhanced_cache
         if cached is not None and cached[0] is base and cached[1] == chain:
             return cached[2]
+        if chain.psf_operation != 'none':
+            from ..i18n import tr
+
+            failure = self._enhance_failure
+            if failure is not None and failure[0] is base and failure[1] == chain:
+                raise ValueError(failure[2])
+            self._ask_for_enhanced(base, chain)
+            raise ValueError(tr('Image enhancement is updating. Wait for it to finish before detecting objects.'))
         out = detect_chain.prepare(base, chain)
         self._enhanced_cache = (base, chain, out)
         return out
@@ -1037,15 +1056,20 @@ class _MaskCanvas(QLabel):
             return
         self._enhance_asked = (base, chain)
         self._enhance_failure = None
+        self._enhance_cancel.set()
+        self._enhance_cancel = threading.Event()
         if self._enhance_worker is None:
             self._enhance_worker = _NewestRequestWorker(
                 _enhanced_picture_for, self._enhanced_done,
                 name="spacr-enhance")
         self._enhance_worker.submit(
-            _EnhanceRequest(key=(id(base), chain), image=base, chain=chain))
+            _EnhanceRequest(key=(id(base), chain, id(self._enhance_cancel)),
+                            image=base, chain=chain, cancelled=self._enhance_cancel))
 
     def _enhanced_done(self, request, result, error) -> None:
         """Deliver the finished picture or exception to Qt from the worker."""
+        if request.cancelled is not None and request.cancelled.is_set():
+            return
         if error is not None:
             LOG.warning("the enhanced picture could not be built",
                         exc_info=error)
@@ -1072,12 +1096,16 @@ class _MaskCanvas(QLabel):
             self.status.emit(tr('Image enhancement failed: {error}', error=str(picture)))
             return
         self._enhance_failure = None
+        if isinstance(picture, _EnhancedImage):
+            self._enhanced_cache = (base, chain, picture.prepared)
+            picture = picture.picture
         self._enhanced_picture = (base, chain, picture)
         if self.enhance_display:
             self.refresh()
 
     def close_enhancer(self) -> bool:
         """Stop the enhanced-picture worker; True when none is left running."""
+        self._enhance_cancel.set()
         worker = self._enhance_worker
         self._enhance_worker = None
         self._enhance_asked = None
@@ -1304,6 +1332,8 @@ class _MaskCanvas(QLabel):
             return base
         cached = self._enhanced_picture
         if cached is not None and cached[0] is base and cached[1] == chain:
+            if chain.psf_operation != 'none' and self._enhanced_cache is not None:
+                return self._enhanced_cache[2]
             return cached[2]
         failure = self._enhance_failure
         if failure is not None and failure[0] is base and failure[1] == chain:
@@ -3195,7 +3225,9 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     if request.ticket is not None:
         request.ticket.check()
     chain = request.chain or detect_chain.NO_CHAIN
-    prepared = detect_chain.prepare(request.crop, chain)
+    prepared = detect_chain.prepare(
+        request.crop, chain,
+        cancel=request.ticket.cancelled if request.ticket is not None else None)
     if prepared is not request.crop:
         request = request._replace(crop=prepared)
     if request.ticket is not None:
@@ -5642,7 +5674,7 @@ def _threshold_histogram(request: _ThresholdHistogramRequest) -> tuple:
         image = engine.invert_normalized(image)
     if request.normalization is not None:
         image = engine.normalize_for_detection(image, *request.normalization)
-    image = detect_chain.prepare(image, request.chain)
+    image = detect_chain.prepare(image, request.chain, cancel=request.ticket.cancelled)
     request.ticket.check()
     settings = request.settings
     values = engine._otsu_values(image, settings["smoothing"])
@@ -10117,14 +10149,17 @@ class MakeMasksScreen(QWidget):
         The Mask module uses its own preprocessing settings. Training and
         inference on enhanced images require matching preprocessing there.
         """
+        from ..i18n import tr
+        from ..widgets.psf_controls import _PSFControls
+
         card = self._settings_category(
             "Image enhancement",
             "Optional steps applied to what the detector reads, in one "
             "fixed order. The image on disk is never changed.",
         )
-        order = QLabel(
-            "Order: percentile stretch (Display) → background → denoise → "
-            "contrast → sharpen → detect → morphology → split.")
+        order = QLabel(tr(
+            "Order: percentile stretch (Display) → background → PSF → denoise → "
+            "contrast → sharpen → detect → morphology → split."))
         order.setWordWrap(True)
         order.setObjectName("Muted")
         card.body_layout.addWidget(order)
@@ -10172,6 +10207,9 @@ class MakeMasksScreen(QWidget):
             "on a very large field, and raise it if the surface is missing "
             "illumination that changes over a short distance.")
         form.addRow("Background scale", self._enh_background_scale)
+
+        self._psf_controls = _PSFControls()
+        form.addRow(self._psf_controls)
 
         self._enh_denoise = QComboBox()
         self._enh_denoise.addItem("None", "none")
@@ -10364,6 +10402,7 @@ class MakeMasksScreen(QWidget):
         for widget in (self._enh_clahe, self._enh_equalize,
                        self._enh_sharpen, self._enh_split):
             widget.toggled.connect(self._on_chain_changed)
+        self._psf_controls.changed.connect(self._on_chain_changed)
         self._on_chain_changed()
         return card
 
@@ -10398,6 +10437,7 @@ class MakeMasksScreen(QWidget):
             morphology=str(self._enh_morphology.currentData()),
             morphology_radius=int(self._enh_morphology_radius.value()),
             split=bool(self._enh_split.isChecked()),
+            **self._psf_controls._chain_fields(),
         )
 
     def _chain_provenance(self) -> dict:
@@ -10422,6 +10462,8 @@ class MakeMasksScreen(QWidget):
                "cancelled.", steps=", ".join(tr(step) for step in heavy))
             if heavy else "")
         self._canvas.enhance_chain = chain
+        self._canvas._enhance_cancel.set()
+        self._canvas._enhance_asked = None
         self._canvas.refresh()
         self._on_magnifier_context_changed()
 
@@ -11838,6 +11880,7 @@ class MakeMasksScreen(QWidget):
             download.cancel()
         self._magnifier.close()
         self._primary_selector.shutdown()
+        self._psf_controls._shutdown()
         self._canvas.close_enhancer()
         self._cancel_comparison()
         if self._comparison_worker is not None:

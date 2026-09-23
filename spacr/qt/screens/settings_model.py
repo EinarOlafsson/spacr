@@ -3697,7 +3697,9 @@ def api_docs_url(
         return plugin_app.docs_url
     anchor = ""
     chosen_by_hand = True
-    if app_key == "make_masks" and key.startswith("make_masks_"):
+    if app_key == "make_masks" and key.startswith("make_masks_psf_"):
+        module, anchor = "point_spread", "spacr.point_spread.apply_psf"
+    elif app_key == "make_masks" and key.startswith("make_masks_"):
         module = "qt/detect_chain" if key.startswith("make_masks_enh_") else "qt/screens/make_masks"
     elif key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
         module = "batch_correction"

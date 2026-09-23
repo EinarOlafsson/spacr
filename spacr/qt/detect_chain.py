@@ -6,17 +6,17 @@ and the original values reported by the hover readout remain unchanged.
 
 :data:`CHAIN_ORDER` fixes the sequence::
 
-    percentile stretch -> background -> denoise -> contrast -> sharpen
+    percentile stretch -> background -> PSF -> denoise -> contrast -> sharpen
         -> detect -> morphology -> split
 
 The optional percentile stretch belongs to Make Masks, outside :class:`Chain`.
 Its levels come from the whole field before a magnifier region is cropped, so
 moving the box does not redefine the percentile levels.
 
-Background subtraction precedes denoising. Denoising precedes contrast to
+Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to
 avoid amplifying noise; contrast precedes sharpening to avoid stretching its
 halos. Morphology precedes splitting because it changes which pixels are
-connected. :func:`prepare` runs background, denoise, contrast and sharpen;
+connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen;
 :func:`finish` runs morphology and split after the selected detector.
 
 Disabled steps return their input unchanged. :func:`heavy_steps` identifies
@@ -41,6 +41,8 @@ from typing import Dict, NamedTuple, Optional, Tuple
 
 import numpy as np
 
+from ..point_spread import PSF, ProcessingCancelled, apply_psf
+
 LOG = logging.getLogger(__name__)
 
 #: The stages, in the order they run. The first is Make Masks' own
@@ -48,7 +50,7 @@ LOG = logging.getLogger(__name__)
 #: before :func:`prepare` is called; ``detect`` is the Mode box's detector.
 #: The rest are this module's.
 CHAIN_ORDER: Tuple[str, ...] = (
-    "percentile stretch", "background", "denoise", "contrast", "sharpen",
+    "percentile stretch", "background", "PSF", "denoise", "contrast", "sharpen",
     "detect", "morphology", "split")
 
 #: ``background`` values: what is subtracted, and nothing when ``none``.
@@ -85,6 +87,7 @@ HEAVY_BACKGROUND_RADIUS = 30
 #: since the box is a few hundred pixels across and the field is four
 #: megapixels.
 _HEAVY = (
+    ("PSF deconvolution", lambda chain: chain.psf_operation == "deconvolve"),
     ("non-local means", lambda chain: chain.denoise == "nlm"),
     ("bilateral denoising", lambda chain: chain.denoise == "bilateral"),
     ("a background estimated at over {radius} px".format(
@@ -99,7 +102,7 @@ _HEAVY = (
 class Chain(NamedTuple):
     """One pre- and post-detection chain, as a value a request can carry.
 
-    A plain tuple of scalars, so it is hashable and goes into the
+    An immutable tuple including any captured PSF kernel, so it is hashable and goes into the
     magnifier's request key: the same box under two different chains is two
     different questions and must not be answered from one cached result.
 
@@ -139,6 +142,14 @@ class Chain(NamedTuple):
     :param split: a distance-transform watershed on what was detected,
         cutting an object with two centres in two. It is the Otsu mode's
         "Split objects that touch", offered to every other method.
+    :param psf_operation: ``none``, ``convolve`` or ``deconvolve``. Runs after
+        background subtraction and before denoising. Off by default.
+    :param psf: immutable calibrated two-dimensional kernel. Required when
+        PSF processing is enabled; missing/invalid kernels stop detection.
+    :param psf_sampling_um: image pixel spacing in YX order, in micrometers.
+        Must match the kernel; no implicit resampling is performed.
+    :param psf_iterations: Richardson–Lucy iterations, 1..200.
+    :param psf_error: actionable loading/validation error when no kernel is ready.
     """
 
     background: str = "none"
@@ -157,6 +168,11 @@ class Chain(NamedTuple):
     morphology: str = "none"
     morphology_radius: int = 1
     split: bool = False
+    psf_operation: str = "none"
+    psf: Optional[PSF] = None
+    psf_sampling_um: tuple = (1.0, 1.0)
+    psf_iterations: int = 20
+    psf_error: str = ""
 
 
 #: The chain that does nothing: what Make Masks detected with before this
@@ -174,6 +190,7 @@ def pre_active(chain: Chain) -> bool:
     """
     return bool(
         chain.background != "none"
+        or chain.psf_operation != "none"
         or chain.denoise != "none"
         or abs(float(chain.gamma) - 1.0) > 1e-9
         or chain.clahe or chain.equalize or chain.sharpen)
@@ -425,15 +442,17 @@ def _sharpen(image: np.ndarray, chain: Chain) -> np.ndarray:
     return (np.asarray(out, dtype=np.float32) * span + low).astype(np.float32)
 
 
-def prepare(image: np.ndarray, chain: Chain) -> np.ndarray:
-    """The image a detector is to read: the first four stages of the chain.
+def prepare(image: np.ndarray, chain: Chain, *, cancel=None) -> np.ndarray:
+    """The image a detector is to read, with optional cooperative cancellation.
 
-    Background, then denoise, then contrast, then sharpen --
+    Background, then PSF, then denoise, then contrast, then sharpen --
     :data:`CHAIN_ORDER`, whose docstring says why that order and not
     another. The percentile stretch is the screen's, applied to the whole
     field before ``image`` was cut from it.
 
-    A STEP THAT CANNOT RUN IS SKIPPED, NOT RAISED. This is reached from a
+    Legacy filter failures are logged and skipped. PSF failures and cancellation
+    propagate so detection cannot silently use an unprocessed image when an
+    explicitly calibrated operation was requested. This is reached from a
     mouse-move (the readout under the cursor) and from the magnifier, so
     an exception here is one per mouse event: a missing optional package
     filled the console with tracebacks once (PyWavelets, 2026-09-22) and
@@ -443,16 +462,34 @@ def prepare(image: np.ndarray, chain: Chain) -> np.ndarray:
     :param image: the field, or the magnifier's box region cut from it.
         Never modified.
     :param chain: what to do to it.
+    :param cancel: callable or Event; checked between stages and inside PSF
+        iterations. Cancellation raises :class:`spacr.point_spread.ProcessingCancelled`.
     :returns: ``image`` itself when nothing is switched on -- so a detector
         reading an untouched field reads the very array and not a float
         copy -- and otherwise a new float32 array of the same shape.
     """
+    def check():
+        if cancel is not None and (cancel() if callable(cancel) else cancel.is_set()):
+            raise ProcessingCancelled('Image enhancement cancelled')
+
+    check()
     if not pre_active(chain):
         return image
     out = np.asarray(image, dtype=np.float32)
-    for name, step in (("background", _background), ("denoise", _denoise),
+    for name, step in (("background", _background), ("PSF", None), ("denoise", _denoise),
                        ("contrast", _contrast),
                        ("sharpen", _sharpen if chain.sharpen else None)):
+        check()
+        if name == "PSF":
+            if chain.psf_operation != "none":
+                if chain.psf is None:
+                    raise ValueError(chain.psf_error or 'Load or calculate a calibrated PSF before applying it')
+                if len(chain.psf.shape) != 2:
+                    raise ValueError('Make Masks requires a two-dimensional PSF')
+                out = apply_psf(out, chain.psf, operation=chain.psf_operation,
+                                image_sampling_um=chain.psf_sampling_um,
+                                iterations=chain.psf_iterations, cancel=cancel).image
+            continue
         if step is None:
             continue
         try:
@@ -461,6 +498,7 @@ def prepare(image: np.ndarray, chain: Chain) -> np.ndarray:
             LOG.warning("the %s step of the detection chain could not run; "
                         "the image is used as it is so far", name,
                         exc_info=True)
+    check()
     return np.asarray(out, dtype=np.float32)
 
 
@@ -528,6 +566,18 @@ def provenance(chain: Chain, *, percentile_stretch: bool = False) -> Dict:
         steps["background"] = str(chain.background)
         steps["background_radius"] = int(chain.background_radius)
         steps["background_scale"] = float(chain.background_scale)
+    if chain.psf_operation != "none":
+        steps["psf"] = {
+            "operation": chain.psf_operation,
+            "kernel": chain.psf.provenance() if chain.psf is not None else None,
+            "image_sampling_um": list(chain.psf_sampling_um),
+            "iterations": chain.psf_iterations if chain.psf_operation == "deconvolve" else None,
+            "algorithm": "spacr.reflect_psf.v1",
+            "boundary": "half-sample symmetric",
+            "intensity_source_for_measurement": "original image",
+        }
+        if chain.psf is None:
+            steps["psf"]["unavailable"] = chain.psf_error or 'No calibrated PSF is ready'
     if chain.denoise != "none":
         steps["denoise"] = str(chain.denoise)
         steps["denoise_strength"] = float(chain.denoise_strength)
@@ -584,10 +634,11 @@ def step_names(chain: Chain, *,
     names = []
     if percentile_stretch:
         names.append("percentile stretch")
-    for field in ("background", "denoise"):
+    for field in ("background", "psf_operation", "denoise"):
         value = getattr(chain, field)
         if value != "none":
-            names.append(_STEP_WORDS[field].get(value, value))
+            names.append(("PSF convolution" if value == "convolve" else "PSF deconvolution")
+                         if field == "psf_operation" else _STEP_WORDS[field].get(value, value))
     if abs(float(chain.gamma) - 1.0) > 1e-9:
         names.append(f"gamma {float(chain.gamma):.2f}")
     if chain.clahe:

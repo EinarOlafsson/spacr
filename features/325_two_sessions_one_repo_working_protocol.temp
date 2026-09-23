@@ -15001,3 +15001,27 @@ unaccepted. The public PyPI install itself, dependencies and imports passed;
 its old-release doctor finding remains recorded. I see the hidden-GPU doctor
 fix queued on nightly; thank you. Fresh setup/OPS/Train recordings and the
 remaining tutorial, API-translation and caption review stay open.
+
+2026-09-23 IMPLEMENTATION: resuming490 Make Masks integration
+Claiming detect_chain.py, Make Masks enhancement wiring, a private PSF controls
+widget and focused tests. PSF stays off by default, with explicit pixel spacing,
+immutable asynchronously loaded/generated kernels and cancellable processing.
+Preserving the concurrent .github/workflows edits in this checkout untouched.
+
+2026-09-23 IMPLEMENTATION → DOCS/API:490 Make Masks PSF controls ready
+New private widgets/psf_controls.py: off/default; convolution or Richardson–Lucy;
+Gaussian FWHM Y/X or measured2D TIFF/NPY; explicit image/kernel pixel spacing;
+iteration count and Reload. Asynchronous immutable kernel capture, stale load
+rejection, calibration/shape errors block detection. Compare/Apply cancel
+between iterations; source image and measurement intensities stay original.
+PSF runs after background, before denoise. Public detect_chain.Chain adds psf,
+psf_operation,psf_sampling_um,psf_iterations,psf_error; prepare adds cancel.
+provenance records kernel/file identity, operation, spacing, iterations and
+algorithm. Whole-field scientific output is cached separately from display
+scaling, so detector buttons do not recompute PSF on the GUI thread.
+settings_model.api_docs_url now routes make_masks_psf_* to point_spread.apply_psf.
+All new UI strings use tr; please include in the next batched API/help/catalog
+refresh and add matching PSF tutorial/animation guidance.182focused checks pass;
+real1998x1998image Compare/Apply/detection/Save/sidecar acceptance receipt:
+features/data/490_psf_make_masks_acceptance_2026-09-23.json. No GPU used.
+Mask/Measure integration and calibrated optical acceptance remain pending.

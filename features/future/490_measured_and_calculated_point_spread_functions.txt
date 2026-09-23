@@ -47,3 +47,34 @@ measured optical PSF/application acceptance; docs/API/tooltips/translations.
 Do not mark490complete from numerical checks alone.
 Primary references: SciPy fftconvolve documentation and scikit-image
 Richardson–Lucy documentation, linked in spacr.point_spread's module docstring.
+
+2026-09-23 — MAKE MASKS CONTROLS AND COMPARE/APPLY IMPLEMENTED
+Image enhancement now offers off-by-default PSF convolution or Richardson–Lucy,
+a Gaussian approximation with explicit Y/X FWHM, or a measured2D TIFF/NPY.
+Image and measured-kernel pixel spacing are explicit; zero/unset or mismatched
+calibration refuses processing. Kernel loading/generation runs off-thread,
+with generation guards. Captured immutable bytes remain unchanged if a file
+changes on disk; Reload explicitly reads the new version. Controls wrap in a
+narrow settings column and link to point_spread.apply_psf API help.
+
+The fixed chain order is stretch/background/PSF/denoise/contrast/sharpen before
+detection. PSF failures propagate instead of silently skipping the operation.
+Compare and Apply run in background; cancellation reaches deconvolution's
+iteration checks. Whole-image detection reuses the scientific float result
+from the background Apply worker, rather than recomputing PSF on the GUI thread.
+Wand uses those scientific intensities too; display scaling is separate.
+Mask history records operation, image spacing, kernel/file identity, iterations,
+boundary/algorithm and the fact that measurements still use original pixels.
+
+182 focused numerical/Qt/help/normalization/cancellation checks passed.
+Full1998x1998public THP1 Hoechst field passed Compare, Apply, detection, Save
+and sidecar readback:364labels, source pixels/file unchanged, both PSF calls
+off the GUI thread,867Qt ticks over11.94s; maximum event gap0.715s includes
+subsequent synchronous classical detection/save. Verification geometry1um/px
+and Gaussian FWHM2um are not measured optical calibration. This is software/UI
+acceptance, not biological recovery or segmentation accuracy. Receipt:
+features/data/490_psf_make_masks_acceptance_2026-09-23.json.
+
+Remaining: Mask/Measure pipeline settings and processing with explicit measured
+intensity-source choice; measured optical PSF validation; documentation,
+translations and an appropriate PSF animation.490remains IN PROGRESS.

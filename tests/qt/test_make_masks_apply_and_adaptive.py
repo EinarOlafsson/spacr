@@ -41,16 +41,20 @@ def test_apply_is_explicit_reversible_and_keeps_original_pixels_and_settings(scr
     np.testing.assert_array_equal(canvas.detection_source(), original)
 
 
-def test_compare_uses_configured_steps_without_applying_them(screen, monkeypatch):
+def test_compare_uses_configured_steps_without_applying_them(screen, qtbot, monkeypatch):
     captured = []
-    class Comparison:
+    class Comparison(mm._ComparePreview):
         def __init__(self, raw, enhanced, *args):
-            captured.append((raw, enhanced))
-        def show(self):
-            pass
+            self.raw = raw
+            super().__init__(raw, enhanced, *args)
+        def _show_result(self, enhanced, caption):
+            if enhanced is not None:
+                captured.append((self.raw, enhanced))
+            super()._show_result(enhanced, caption)
     monkeypatch.setattr(mm, '_ComparePreview', Comparison)
     screen._enh_gamma.setValue(0.6)
     screen._btn_compare.click()
+    qtbot.waitUntil(lambda: screen._comparison_request is None)
     assert captured and not np.array_equal(*captured[0])
     assert not screen._btn_apply.isChecked()
     assert screen._detect_chain() == dc.NO_CHAIN

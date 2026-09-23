@@ -1,0 +1,64 @@
+{
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-published-download/merged/PLATE1_E01_1_1.npy",
+  "channel": 0,
+  "image_shape": [
+    1998,
+    1998
+  ],
+  "image_sha256": "e00d913a790b5ae7c39201cec3976ede750a5d4529925935a026f36386f4db78",
+  "calibration": "Verification geometry 1 um/px; not microscope calibration",
+  "gaussian_fwhm_um": [
+    2,
+    2
+  ],
+  "psf": {
+    "operation": "deconvolve",
+    "kernel": {
+      "source": "gaussian approximation",
+      "shape": [
+        9,
+        9
+      ],
+      "sampling_um": [
+        1.0,
+        1.0
+      ],
+      "kernel_sha256": "69718a920d3e99a7776b21edefd7854eaf18e003fc3a485405c0d3cecddf34b3",
+      "kernel_dtype": "float32 little-endian",
+      "normalization": "sum=1",
+      "origin": "centre pixel",
+      "details": {
+        "formula": "sigma=FWHM/sqrt(8*ln(2))",
+        "fwhm_um": [
+          2.0,
+          2.0
+        ],
+        "optical_model": false,
+        "truncate_sigma": 4.0
+      }
+    },
+    "image_sampling_um": [
+      1.0,
+      1.0
+    ],
+    "iterations": 20,
+    "algorithm": "spacr.reflect_psf.v1",
+    "boundary": "half-sample symmetric",
+    "intensity_source_for_measurement": "original image"
+  },
+  "elapsed_seconds": 11.93812945499667,
+  "gui_thread": 126622240032256,
+  "processing_threads": [
+    126621122025152,
+    126621122025152
+  ],
+  "qt_ticks": 867,
+  "max_qt_gap_seconds": 0.7153633470006753,
+  "detected_labels": 364,
+  "source_unchanged": true,
+  "compare_without_apply": true,
+  "mask_saved": true,
+  "limitation": "Software/GUI acceptance only; no biological recovery or segmentation accuracy claim",
+  "saved_ledger_readback_verified": true,
+  "ui_visual_check": "Narrow-column control wrapping and complete operation labels inspected in controls.png"
+}
