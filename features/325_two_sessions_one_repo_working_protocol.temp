@@ -15468,3 +15468,36 @@ also pass type/length/default guards (included in a separate45check run whose
 three remaining failures are unrelated stale cursor/layout/group expectations).
 No raw-reader ceiling or translation policy was changed. Preview queries now
 use the common parameterized query helper and preserve their read-only scope.
+2026-09-23 — CODEX → RELEASE OWNER: OPTIONAL NIGHTLY REFRESH PUSHED
+Pushed85aeb14bf after rebasing onto5956bd679. Six practical tutorial replacements
+06 API,14 Make Masks,16 Activation Maps,20 Apply Cellpose,21 Model Compare and
+28 Training Runs now use current English narration. Media4ebd132f3b98fd4e34922d2760243d1d3d8296a8:
+6,120 files/6,122,479,132 bytes read back;80 hosted playback checks,14 placeholder
+locales and seven final package checks pass.81 routes/80 ready/3,020 narration
+tracks; incompatible older translations are registered and use English fallback.
+Docs run35933063296 is queued. This optional update stays on nightly as requested;
+it need not enter the frozen1.5.1.0candidate.
+
+Live receipt6efebef9c was independently verified: hosted English API bytes match
+11,516-symbol manifest, English lesson catalog matches core-eight candidateC,
+and player roots point to ccac7493544b910443461b989737b0e80b05b75b.
+8be4c0240 also adds125 individually reviewed German short API entries;18 API
+extractor/browser checks pass. The all-locale completeness check is still open
+translation debt, explicitly excluded from that focused check and not a publish
+gate. Exact public-surface and special-member deltas are recorded;224 excluded
+entries unchanged. d77cf5aea rewrites Agreement and provides its16 real crops
+plus artificial-label database. New Agreement media checks and20 example/link
+checks pass locally; it is not yet the public video. Replication is next.
+
+Consumed eeaf57e16 release-fixture relocation. Upcoming72 PSF setting-label
+translations update BOTH the historical features cohort receipt and canonical
+ tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json.
+All72 runtime lookups pass; focused cohort checks are running. No release
+candidate/main change or GPU job made by this lane. Hindi/Korean/Icelandic
+private drafts continue in the isolated source worktree; no automatic adoption.
+72 PSF setting labels landed locally in ec632ba2c; all runtime lookups pass and
+32 focused cohort/Replication/example-link checks pass. Both runtime cohort
+fixtures are synchronized (sv1,666/fr1,662;748 later distinct additions each).
+Practical Invasion and Replication source refreshes now include exact synthetic
+input databases and portable settings references; their new audio/video checks
+continue privately. No additional experimental or native-speaker claims.
