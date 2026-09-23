@@ -180,3 +180,18 @@ No biological classification accuracy or GPU/native-platform validation claimed.
 and environments are github-pages/pypi. Build still signs app ad-hoc and only
 optionally signs pkg, with no notarization. Institutional ticket status beyond
 that comment is unknown. Remains open and outside1.5.1.0 until credentials exist.
+
+2026-09-23 — ISSUE7 COMMENT / HISTORICAL READING CONTINUED
+Posted the threshold-filter fix and151-test evidence on7:
+https://github.com/EinarOlafsson/spacr/issues/7#issuecomment-5800931230
+Read108's full settings/body and all three discussions; its path/font fixes
+were already in the first historical regression cohort. Read110–114 bodies
+and every distinct discussion (exact repeated reports verified equivalent),
+including the alternate Python/Qt/Torch environment in114. Current ML code
+retains both unmatched/empty-control and empty-grouped-split guards. Read117's
+entire long console report and all discussions: AppleDouble discovery,
+incorrect historical flow-default warning and expired AI authentication are
+separate defects already covered by the earlier verification. The report
+contains no demonstrated MPS kernel failure despite its Apple M4 title.
+No new claim that all103issues have been audited;80–90 exact body-difference
+reading and92/93 remaining detailed reports are still being completed.

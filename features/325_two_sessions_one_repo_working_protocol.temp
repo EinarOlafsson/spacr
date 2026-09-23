@@ -14551,3 +14551,13 @@ ff4943c06's later preview API/docs work is included in subsequent shared-head
 builds.494 remains owed: published17Timelapse still narrates the retired Demos
 route, and18Motility cites that dataset provenance. Those need a real alternate
 input route and synchronized script/audio/caption changes, not just text edits.
+2026-09-23 — RETIRED DEMOS HANDLERS / API DELETIONS
+Removing unused MainWindow _on_load_demo, _on_e2e_demo, _run_e2e_chain,
+_refresh_demo_status_tips and demo_label_for_app, plus AppScreen
+_open_demos_menu. Synthetic generator/apply adapters remain internal for
+recording fixtures; DEMO_LABELS now describe fixtures, not a menu destination.
+Retired handler-specific tests removed; active module/settings/download tests
+retained. Please remove demo_label_for_app from generated API/help inventories
+and obsolete translated source entries as part of494. Home media generator
+menu_strip also no longer draws Demos. Please regenerate any current media
+that visibly depicts the retired menu while retiring tutorial menu steps.

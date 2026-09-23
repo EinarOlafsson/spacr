@@ -1480,58 +1480,14 @@ def test_run_demo_generator_dispatches_on_the_demo_key(win, monkeypatch,
     assert seen == [str(tmp_path)]
 
 
-def test_cancelling_the_folder_picker_does_nothing(win, modals, pick_dir):
-    pick_dir[0] = ""
-    before = dict(win._screens)
-    win._on_load_demo("mask")
-    assert win._screens == before
-    assert not modals.warning
-    assert pick_dir[1], "the folder picker was never shown"
 
 
-def test_a_failing_generator_warns_and_stays_put(win, modals, pick_dir,
-                                                 tmp_path, monkeypatch):
-    from spacr.qt import synthetic as syn
-
-    def _boom(dst, **kw):
-        raise RuntimeError("disk full")
-
-    monkeypatch.setattr(syn, "generate_measure_demo", _boom)
-    pick_dir[0] = str(tmp_path)
-    win._on_load_demo("measure")
-    assert modals.warning == [("Demo generation failed", "disk full")]
-    assert "measure" not in win._screens
 
 
-def test_the_mask_demo_lands_in_the_mask_screen(win, modals, pick_dir,
-                                                tmp_path):
-    pick_dir[0] = str(tmp_path)
-    win._on_load_demo("mask")
-    assert not modals.warning
-    assert win._stack.currentWidget() is win._screens["mask"]
-    src_widget = win._screens["mask"]._settings_model._widgets["src"]
-    assert str(tmp_path) in src_widget.text()
-    assert win.statusBar().currentMessage().startswith("Loaded mask demo from")
 
 
-def test_a_demo_whose_screen_never_opened_is_dropped_quietly(
-        win, modals, pick_dir, tmp_path, monkeypatch):
-    pick_dir[0] = str(tmp_path)
-    monkeypatch.setattr(win, "_on_nav_selected", lambda key: None)
-    win._on_load_demo("mask")
-    assert not modals.warning
-    assert "mask" not in win._screens
 
 
-def test_a_demo_that_cannot_be_applied_warns(win, modals, pick_dir,
-                                             tmp_path, monkeypatch):
-    def _boom(widget, layout):
-        raise ValueError("bad settings csv")
-
-    pick_dir[0] = str(tmp_path)
-    monkeypatch.setattr(win, "_apply_demo_to_screen", _boom)
-    win._on_load_demo("mask")
-    assert modals.warning == [("Demo load failed", "bad settings csv")]
 
 
 def test_apply_demo_prefers_the_settings_model(win, tmp_path):
@@ -1609,8 +1565,6 @@ def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
         return real_load(*a, **k)
     monkeypatch.setattr(sutils, "load_settings", _spy)
 
-    class _Bare:
-        """No apply_settings_dict, no _open_source, no _open_folder."""
 
     bare = _Bare()
     win._apply_demo_to_screen(bare, layout)
@@ -1651,180 +1605,20 @@ def _write_settings_pack(root, app_key, rows):
     return path
 
 
-def test_the_e2e_demo_stops_when_the_user_says_no(win, modals):
-    modals.answers = [QMessageBox.No]
-    win._on_e2e_demo()
-    assert len(modals.questions) == 1
-    assert modals.questions[0][0] == "End-to-end demo"
-    assert not modals.warning
 
 
-def test_the_e2e_demo_stops_when_the_folder_picker_is_cancelled(
-        win, modals, pick_dir):
-    modals.answers = [QMessageBox.Yes]
-    pick_dir[0] = ""
-    win._on_e2e_demo()
-    assert pick_dir[1], "the folder picker was never shown"
-    assert not modals.warning
 
 
-def test_a_failed_download_is_reported(win, modals, pick_dir, tmp_path,
-                                       monkeypatch):
-    from spacr.qt import hf_download
-
-    def _fake(parent, dest, callback):
-        callback(None, "404 not found")
-
-    monkeypatch.setattr(hf_download, "download_toxo_mito_demo", _fake)
-    modals.answers = [QMessageBox.Yes]
-    pick_dir[0] = str(tmp_path)
-    win._on_e2e_demo()
-    assert modals.warning[0][0] == "Download"
-    assert "404 not found" in modals.warning[0][1]
 
 
-def test_a_successful_download_starts_the_chain(win, modals, pick_dir,
-                                                tmp_path, monkeypatch):
-    from spacr.qt import hf_download
-
-    class _Result:
-        dataset_path = tmp_path / "data"
-        settings_path = tmp_path / "settings"
-
-    def _fake(parent, dest, callback):
-        callback(_Result(), None)
-
-    monkeypatch.setattr(hf_download, "download_toxo_mito_demo", _fake)
-    # ONE question: whether to download at all. There is no second prompt
-    # since 2026-08-31 -- the import opens Mask Generation with the
-    # settings filled and stops, so there is no stage to consent to.
-    modals.answers = [QMessageBox.Yes]
-    pick_dir[0] = str(tmp_path)
-    win._on_e2e_demo()
-
-    assert [t for t, _x in modals.questions] == ["End-to-end demo"]
-    assert "Live Preview" in win.statusBar().currentMessage(), (
-        "the status bar does not tell the user what to press next")
 
 
-def test_the_chain_runs_mask_then_measure_then_opens_annotate(
-        win, modals, tmp_path, no_pipeline_runs, monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
-    applied = []
-    real_apply = AppScreen.apply_settings_dict
-
-    def _record(self, settings):
-        applied.append((self.app_key, dict(settings)))
-        return real_apply(self, settings)
-
-    monkeypatch.setattr(AppScreen, "apply_settings_dict", _record)
-
-    data = tmp_path / "toxo"
-    pack = tmp_path / "pack"
-    _write_settings_pack(pack, "mask", [
-        ["# a comment row", "ignored"],
-        ["orphan_row_with_one_column"],
-        [],
-        ["  nucleus_channel  ", "2"],
-        ["cell_diameter", "37.5"],
-        ["save", "TRUE"],
-        ["verbose", "false"],
-        ["custom_model", "/models/cyto3"],
-    ])
-    _write_settings_pack(pack, "measure", [["save_measurements", "true"]])
-
-    _write_settings_pack(pack, "mask", [
-        ["gone_in_this_version", "7"],
-    ] + [list(row) for row in (
-        ["  nucleus_channel  ", "2"], ["cell_diameter", "37.5"],
-        ["save", "TRUE"], ["verbose", "false"],
-        ["custom_model", "/models/cyto3"],
-        ["# a comment row", "ignored"], ["orphan_row_with_one_column"],
-    )])
-    win._run_e2e_chain(data, pack)
-
-    # NOTHING IS ASKED AND NOTHING IS RUN. The import opens one screen
-    # with its settings filled; the user presses Live Preview or Run.
-    assert modals.questions == []
-    assert no_pipeline_runs == []
-    assert set(win._screens) == {"mask"}
-
-    mask_settings = dict(applied)["mask"]
-    assert mask_settings["src"] == str(data)
-    assert mask_settings["nucleus_channel"] == 2
-    assert mask_settings["cell_diameter"] == 37.5
-    assert mask_settings["save"] is True
-    assert mask_settings["verbose"] is False
-    # DROPPED, and this assertion used to be its opposite.
-    # `custom_model` is not a Mask setting in this build -- the old
-    # loader wrote every row of the pack straight over the defaults, so
-    # it arrived in the settings dict and travelled into the pipeline to
-    # be ignored there. The test pinned that. Migration drops it.
-    assert "custom_model" not in mask_settings
-    assert "# a comment row" not in mask_settings
-    assert "orphan_row_with_one_column" not in mask_settings
-    # MIGRATED, not merged: a key this build has no setting for is
-    # dropped rather than carried into the pipeline to be ignored there.
-    assert "gone_in_this_version" not in mask_settings
-    # Defaults survive alongside the overrides
-    assert len(mask_settings) > 8
-    assert "Live Preview" in win.statusBar().currentMessage()
 
 
-def test_the_chain_without_a_settings_pack_uses_plain_defaults(
-        win, modals, tmp_path, no_pipeline_runs, monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
-    from spacr.qt.screens.settings_model import resolve_default_settings
-    applied = []
-    monkeypatch.setattr(AppScreen, "apply_settings_dict",
-                        lambda self, s: applied.append((self.app_key, dict(s))))
-
-    win._run_e2e_chain(tmp_path / "imgs", tmp_path / "missing-pack")
-
-    key, settings = applied[0]
-    assert key == "mask"
-    expected = dict(resolve_default_settings("mask"))
-    expected["src"] = str(tmp_path / "imgs")
-    assert settings == expected
 
 
-def test_the_chain_reports_a_screen_that_will_not_open(win, modals,
-                                                       tmp_path):
-    class _NoMask(dict):
-        def get(self, key, default=None):
-            return None if key == "mask" else super().get(key, default)
-
-    win._screens = _NoMask(win._screens)
-    win._run_e2e_chain(tmp_path, tmp_path)
-    assert len(modals.warning) == 1
-    title, body = modals.warning[0]
-    assert title == "Demo dataset"
-    # NAMES THE FOLDER. The dataset downloaded successfully; the only
-    # thing that failed is opening a screen, so the useful thing to say
-    # is where the data is so the user can point at it themselves.
-    assert str(tmp_path) in body
 
 
-def test_the_chain_reports_a_stage_that_blows_up(win, modals, tmp_path,
-                                                 monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
-
-    def _boom(self, settings):
-        raise RuntimeError("settings rejected")
-
-    monkeypatch.setattr(AppScreen, "apply_settings_dict", _boom)
-    win._run_e2e_chain(tmp_path, tmp_path)
-
-    assert len(modals.warning) == 1
-    title, body = modals.warning[0]
-    assert title == "Demo settings"
-    # SAYS THE SCREEN IS STILL OPEN. The dataset downloaded and Mask
-    # Generation opened; only filling the form failed, so the user can
-    # still fill it themselves -- and a warning that does not say so
-    # reads as though the whole import failed.
-    assert "Mask Generation is open" in body
-    assert "settings rejected" in body
-    assert modals.questions == []
 
 
 # ===========================================================================

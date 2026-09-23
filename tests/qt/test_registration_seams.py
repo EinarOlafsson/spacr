@@ -1314,34 +1314,6 @@ def test_an_earlier_import_of_sections_sees_the_four_new_apps():
     assert {row[3] for row in app_mod.APPS} <= set(imported_here)
 
 
-def test_the_empty_state_names_this_screens_own_demo():
-    """It said "use Demos → Mask demo…" on every screen.
-
-    Measure, Timelapse, Classify and Sequencing each pointed the user at
-    a dataset that opens a DIFFERENT module, so following the hint left
-    the screen the user was trying to fill exactly as empty.
-
-    The timelapse demo now targets Mask, because Timelapse is a settings
-    category on Mask Generation rather than a module of its own -- so it
-    is Mask's banner the hint has to reach, and the folded key names no
-    demo because it opens no screen to put a banner on.
-    """
-    assert app_mod.demo_label_for_app("mask") == "Mask demo…"
-    assert app_mod.demo_label_for_app("measure") == "Measure demo…"
-    assert app_mod.MainWindow.DEMO_TARGETS["timelapse"][0] == "mask"
-    assert app_mod.demo_label_for_app("timelapse") is None
-    # The classify demo lands on Annotate (it generates crops to label),
-    # so that is where its hint belongs -- not on the Classify screen.
-    assert app_mod.demo_label_for_app("annotate") == "Classify demo…"
-    assert app_mod.demo_label_for_app("map_barcodes") == "Sequencing demo…"
-    # ...and an app with no demo says nothing rather than naming one.
-    assert app_mod.demo_label_for_app("regression") is None
-    assert app_mod.demo_label_for_app("barcode_qc") is None
-    # Every demo the menu offers reaches an app that exists.
-    keys = {row[0] for row in app_mod.APPS}
-    for demo_key in app_mod.DEMO_LABELS:
-        target = app_mod.MainWindow.DEMO_TARGETS[demo_key][0]
-        assert target in keys, f"the {demo_key} demo opens a missing app"
 
 
 @pytest.mark.parametrize("app_key", ["measure", "mask", "umap"])

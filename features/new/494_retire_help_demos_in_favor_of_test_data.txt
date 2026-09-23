@@ -21,3 +21,16 @@ Download follow-up2026-09-23: the shared progress title and CLI Mask dataset
 summary now say test data. Download errors no longer send offline users to
 the retired Demos menu; they offer cached test data or local images and
 explain reconnecting for Load test data.47focused download checks pass.
+
+2026-09-23 — UNUSED HANDLERS REMOVED
+Deleted the retired menu's folder/generation/download dialogs, end-to-end
+handler, menu-label resolver, status-tip refresh and empty-state menu opener.
+The Home media generator no longer draws Demos. Internal recording/test
+fixture generation and settings application remain; they have no menu entry.
+Removed tests specific to the deleted controls and changed the old end-to-end
+menu assertion to assert absence. Active examples, settings import, module
+registration, language-error handling and menu checks remain covered:
+176pass/4expected non-settings-screen skips, plus the corrected menu-absence
+check passes separately (177passes combined);327retained coverage tests collect.
+Documentation lane owns the remaining published tutorial/media/API/catalog
+references, explicitly handed off with the list of removed methods.

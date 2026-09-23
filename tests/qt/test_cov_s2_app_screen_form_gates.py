@@ -324,23 +324,6 @@ class TestTheEmptyStateCard:
 
         assert not card.isHidden()
 
-    def test_a_screen_whose_demo_cannot_be_named_still_gets_its_card(
-            self, qtbot, monkeypatch):
-        """The card is the instruction; the demo is one clause of it.
-
-        Naming a demo that opens a DIFFERENT module is what this branch
-        exists to avoid -- following that hint on Measure generates images,
-        navigates to Mask, and leaves the empty screen exactly as empty.
-        """
-        from spacr.qt import app as app_module
-
-        monkeypatch.setattr(app_module, "demo_label_for_app", _boom)
-        built = AppScreen("mask")
-        qtbot.addWidget(built)
-
-        card = built._build_empty_state_banner()
-
-        assert card is not None
 
 
 class TestFoldingTheConsole:

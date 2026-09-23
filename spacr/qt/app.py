@@ -1660,45 +1660,16 @@ def make_home_page(parent=None):
         stages=home_stages())
 
 
-#: demo key → the label its entry carries in the Demos menu.
-#:
-#: Module level rather than inline in ``_build_menus`` because the menu is
-#: not the only thing that names a demo: an app screen with no ``src`` set
-#: offers the user the demo that would fill it, and it has to name the
-#: same one. That hint used to read "use Demos → Mask demo…" on EVERY
-#: screen, so Measure, Timelapse, Classify and Sequencing each pointed at
-#: a dataset that would not open them.
-#:
-#: Labels are kept verbatim: :mod:`spacr.qt.i18n` keys its catalog on the
-#: English string, so renaming one drops its translation in nine
-#: languages.
 DEMO_LABELS = {
-    "mask":         "Mask demo…",
-    "measure":      "Measure demo…",
-    "crop":         "Crop demo…",
-    "classify":     "Classify demo…",
-    "timelapse":    "Timelapse demo…",
-    "map_barcodes": "Sequencing demo…",
+    "mask":         "Mask fixture…",
+    "measure":      "Measure fixture…",
+    "crop":         "Crop fixture…",
+    "classify":     "Classify fixture…",
+    "timelapse":    "Timelapse fixture…",
+    "map_barcodes": "Sequencing fixture…",
 }
 
 
-def demo_label_for_app(app_key: str) -> Optional[str]:
-    """The Demos-menu label of the demo that opens in app ``app_key``.
-
-    ``None`` when no demo lands there, which is most of the registry —
-    the caller says something generic rather than naming a demo that
-    would take the user somewhere else.
-
-    Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target
-    app) rather than a second table, so a demo that is re-pointed at a
-    different app moves its hint with it. The first match wins: two demos
-    land on ``measure`` (Measure and Crop) and the one named after the
-    app is the one it lists first.
-    """
-    for demo_key, (target, _generator) in MainWindow.DEMO_TARGETS.items():
-        if target == app_key and demo_key in DEMO_LABELS:
-            return DEMO_LABELS[demo_key]
-    return None
 
 
 _ICON_OVERRIDES = {
@@ -3274,7 +3245,7 @@ class MainWindow(QMainWindow):
         control at all. A menu entry does not depend on a corner widget
         landing where the platform expects one.
 
-        PARENTED TO THE MENU BAR, like Demos, because ``first_run.find_menu``
+        PARENTED TO THE MENU BAR because ``first_run.find_menu``
         reaches menus through ``menuBar().findChildren(QMenu)`` and a menu
         parented elsewhere is invisible to it.
 
@@ -3413,165 +3384,6 @@ class MainWindow(QMainWindow):
         "timelapse": ("mask",       "generate_timelapse_demo"),
         "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
-
-    #: Status tip shown for every Demos entry. A template with a placeholder
-    #: rather than a sentence built by an f-string: interpolating the app key
-    #: BEFORE the lookup asks the catalog for a sentence it can never hold,
-    #: which is why all six tips stayed English in every language.
-    DEMO_STATUS_TIP = ("Generate a synthetic {app} dataset and open it in "
-                       "the matching app.")
-
-    def _on_load_demo(self, demo_key: str) -> None:
-        """Generate a synthetic demo dataset, save its settings, then
-        navigate to the matching app and pre-populate it."""
-        from pathlib import Path
-
-        from PySide6.QtWidgets import QFileDialog
-
-        target_app, gen_name = self.DEMO_TARGETS[demo_key]
-
-        default = str(Path.home() / "spacr-demos" / demo_key)
-        dst = QFileDialog.getExistingDirectory(
-            self, f"Choose destination for {demo_key} demo",
-            default,
-            QFileDialog.ShowDirsOnly | QFileDialog.DontConfirmOverwrite,
-        )
-        if not dst:
-            return
-        try:
-            layout = self._run_demo_generator(demo_key, dst)
-        except Exception as e:
-            QMessageBox.warning(self, "Demo generation failed", str(e))
-            return
-
-        self._on_nav_selected(target_app)
-        widget = self._screens.get(target_app)
-        if widget is None:
-            return
-        try:
-            self._apply_demo_to_screen(widget, layout)
-            self.statusBar().showMessage(
-                f"Loaded {demo_key} demo from {layout.src}", 5000)
-        except Exception as e:
-            QMessageBox.warning(self, "Demo load failed", str(e))
-
-    def _on_e2e_demo(self) -> None:
-        """Confirm, prompt for a folder, download the HF demo dataset,
-        then chain Mask -> Measure -> Annotate on it.
-
-        Flow (matches the spec agreed with the user):
-          1. Yes/No modal: "do you want to test mask -> Measure ->
-             Annotate on a real dataset?"
-          2. Folder picker for the local download destination.
-          3. QProgressDialog while the toxo_mito + spacr_settings repos
-             download in a background thread.
-          4. On success, kick off Mask -> Measure -> Annotate. Users
-             see the run inside each app's normal console.
-        """
-        from pathlib import Path
-
-        from PySide6.QtWidgets import QFileDialog, QMessageBox
-
-        answer = QMessageBox.question(
-            self, "End-to-end demo",
-            "Do you want to test Mask → Measure → Annotate on a real "
-            "dataset?\n\n"
-            "This will download the toxo_mito demo dataset "
-            "(~a few hundred MB) plus the matching settings pack from "
-            "Hugging Face, then run the pipeline chain against it.",
-            QMessageBox.Yes | QMessageBox.No,
-        )
-        if answer != QMessageBox.Yes:
-            return
-
-        default = str(Path.home() / "spacr-demos" / "toxo_mito_e2e")
-        dst = QFileDialog.getExistingDirectory(
-            self, "Choose folder for the demo dataset",
-            default,
-            QFileDialog.ShowDirsOnly | QFileDialog.DontConfirmOverwrite,
-        )
-        if not dst:
-            return
-
-        from .hf_download import download_toxo_mito_demo
-
-        def _on_download_done(result, error):
-            """Warn if the demo download failed, else run the chain."""
-            if result is None:
-                QMessageBox.warning(self, "Download",
-                    f"The download did not complete:\n{error or 'unknown error'}")
-                return
-            self.statusBar().showMessage(
-                f"Downloaded demo dataset to {result.dataset_path}", 6000)
-            self._run_e2e_chain(result.dataset_path,
-                                    result.settings_path)
-
-        download_toxo_mito_demo(self, dst, _on_download_done)
-
-    def _run_e2e_chain(self, dataset_path, settings_path) -> None:
-        """Open Mask Generation on the downloaded dataset, ready to run.
-
-        IT DOES NOT RUN ANYTHING. The user imports, and then chooses live
-        preview or run themselves.
-
-        This used to be a Mask -> Measure -> Annotate chain that started
-        each pipeline itself, behind a Continue/Stop prompt per stage.
-        Two things were wrong with that. A demo dataset exists to be
-        LOOKED at -- the first thing anyone wants is Live Preview on one
-        field, to see what the settings do, and the chain went straight
-        past that to a full run. And a Continue prompt before work the
-        user did not ask to start is a dialog whose safe answer is No,
-        which is a strange thing to greet somebody with.
-
-        So: the settings land in the form, the screen opens, and the
-        user presses Live Preview or Run. Measure and Annotate are one
-        click away on the same screen when the masks exist.
-        """
-        from pathlib import Path
-
-        from PySide6.QtWidgets import QMessageBox
-
-        dataset_path  = Path(dataset_path)
-        settings_path = Path(settings_path)
-
-        from .settings_pack import settings_from_pack
-
-        settings, report = settings_from_pack(
-            "mask", settings_path, src=dataset_path)
-        if report.source:
-            LOG.info("settings pack for %s: %s", "mask", report.summary())
-        else:
-            LOG.warning("No settings pack found for mask in %s; using defaults.",
-                        settings_path)
-        self._on_nav_selected("mask")
-        widget = self._screens.get("mask")
-        if widget is None:
-            QMessageBox.warning(
-                self, "Demo dataset",
-                "The dataset downloaded, but Mask Generation would not "
-                "open. Point it at the folder yourself:\n"
-                f"{dataset_path}")
-            return
-        try:
-            if hasattr(widget, "apply_settings_dict"):
-                widget.apply_settings_dict(settings)
-        except Exception as error:                          # noqa: BLE001
-            LOG.exception("Could not apply the demo settings")
-            QMessageBox.warning(
-                self, "Demo settings",
-                "The dataset downloaded and Mask Generation is open, but "
-                "its settings could not be filled in automatically:\n"
-                f"{type(error).__name__}: {error}")
-            return
-        if report.source:
-            self.statusBar().showMessage(
-                tr("Demo dataset loaded with its settings. Press Live Preview to "
-                   "see one field, or Run to process the plate."), 12000)
-        else:
-            self.statusBar().showMessage(
-                tr("Demo dataset loaded without a settings pack; using defaults. "
-                   "Press Live Preview to see one field, or Run to process the "
-                   "plate."), 12000)
 
     def _run_demo_generator(self, demo_key: str, dst: str):
         """Isolated for tests — invoke the named generator function
@@ -3834,30 +3646,12 @@ class MainWindow(QMainWindow):
             retranslate_widget_tree(self)
         except Exception:
             LOG.exception("Could not apply the selected UI language")
-        self._refresh_demo_status_tips()
 
-    def _refresh_demo_status_tips(self) -> None:
-        """Re-render the Demos status tips in the current language.
-
-        The retranslation pass caches whatever text a status tip already
-        holds and looks THAT up, which cannot work for a tip built from a
-        template: the cached sentence has the app key baked into it. These
-        six are rebuilt from :attr:`DEMO_STATUS_TIP` instead, so a language
-        chosen after the window opened reaches them like any other caption.
-        """
-        for app_key, action in getattr(self, "_demo_actions", {}).items():
-            try:
-                action.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
-            except RuntimeError:
-                pass
 
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
             action.setVisible(app_is_visible(key))
-        for demo_key, action in getattr(self, "_demo_actions", {}).items():
-            target = self.DEMO_TARGETS.get(demo_key, (demo_key, ""))[0]
-            action.setVisible(app_is_visible(target))
 
     def _rebuild_startup_page(self):
         """Recreate the Home page (e.g. after a font-scale change)."""

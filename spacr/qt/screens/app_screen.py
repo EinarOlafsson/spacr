@@ -5664,7 +5664,7 @@ class AppScreen(QWidget):
         return ""
 
     def _build_empty_state_banner(self):
-        """Return a compact "Drop or pick a demo" card, or None.
+        """Return a compact source selection and test-data guidance card, or None.
 
         The card is inserted at the top of the settings scroll. It
         hides once the ``src`` widget contains anything so users
@@ -5880,24 +5880,6 @@ class AppScreen(QWidget):
         self._refresh_empty_state()
         return chosen
 
-    def _open_demos_menu(self) -> None:
-        """Drop the window's Demos menu down at the top-left of the window.
-
-        Guarded throughout: a screen built without a menu bar -- a test, or a
-        panel used on its own -- simply does nothing.
-        """
-        try:
-            mw = self.window()
-            if mw is None:
-                return
-            for act in mw.menuBar().actions():
-                if act.text().replace("&", "") == "Demos":
-                    m = act.menu()
-                    if m is not None:
-                        m.exec(mw.mapToGlobal(mw.rect().topLeft()))
-                    break
-        except Exception:
-            pass
 
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""

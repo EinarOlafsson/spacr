@@ -1,9 +1,9 @@
 492 — HOST–PATHOGEN LIVE PREVIEW
 ================================
 Status: IMPLEMENTED,2026-09-23;56focused checks and offscreen visual review pass.
-Revision2026-09-23: user rejects synthetic product test data. Replacing it with
-real cross-channel microscopy fields and existing host/PV masks, measured by
-Measure. This data revision is IN PROGRESS; synthetic fixtures remain internal.
+Revision2026-09-23 COMPLETE: real THP-1/RNF213 images, existing host/vacuole masks
+and fresh Measure output replace synthetic product test data. Published source,
+pixel checks and public-download acceptance are recorded at the end below.
 Live now uses the standard AiToggleLabel in the bottom Actions heading row.
 Requested2026-09-23. Implementation lane owns runtime;
 API/translations/tutorials belong to the separate Codex checkout.

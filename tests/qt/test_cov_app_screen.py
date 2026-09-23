@@ -1866,51 +1866,6 @@ class TestLivePreviewAutoload:
 # L. Demos menu
 # ---------------------------------------------------------------------------
 
-class TestDemosMenu:
-
-    def test_empty_state_cta_opens_the_demos_menu(self, qtbot):
-        win = QMainWindow()
-        qtbot.addWidget(win)
-        menu = _RecordingMenu("&Demos", win)
-        win.menuBar().addMenu(menu)
-        scr = AppScreen("mask")
-        win.setCentralWidget(scr)
-        scr._open_demos_menu()
-        assert len(menu.exec_calls) == 1
-
-    def test_no_demos_menu_means_nothing_happens(self, qtbot):
-        win = QMainWindow()
-        qtbot.addWidget(win)
-        other = _RecordingMenu("&File", win)
-        win.menuBar().addMenu(other)
-        scr = AppScreen("mask")
-        win.setCentralWidget(scr)
-        scr._open_demos_menu()
-        assert other.exec_calls == []
-
-    def test_a_demos_entry_without_a_submenu_is_skipped(self, qtbot):
-        win = QMainWindow()
-        qtbot.addWidget(win)
-        win.menuBar().addAction("&Demos")       # bare action, no submenu
-        scr = AppScreen("mask")
-        win.setCentralWidget(scr)
-        console_before = _console_text(scr._console)
-        scr._open_demos_menu()                  # must not raise
-        assert _console_text(scr._console) == console_before
-
-    def test_open_demos_menu_without_a_window_is_silent(self, qtbot):
-        scr = _make_screen(qtbot, "mask")
-        scr.window = lambda: None
-        console_before = _console_text(scr._console)
-        scr._open_demos_menu()          # must not raise
-        assert _console_text(scr._console) == console_before
-
-    def test_open_demos_menu_survives_a_parent_without_a_menu_bar(self, qtbot):
-        scr = _make_screen(qtbot, "mask")
-        assert not hasattr(scr.window(), "menuBar")
-        console_before = _console_text(scr._console)
-        scr._open_demos_menu()          # top-level QWidget: no menuBar()
-        assert _console_text(scr._console) == console_before
 
 
 # ---------------------------------------------------------------------------

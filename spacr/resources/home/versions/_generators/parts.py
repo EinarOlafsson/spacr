@@ -353,7 +353,7 @@ def menu_strip(ctx: Ctx) -> QWidget:
     row = QHBoxLayout(w)
     row.setContentsMargins(10, 0, 10, 0)
     row.setSpacing(18)
-    for item in ("spaCR", "Demos", "Help"):
+    for item in ("spaCR", "Help"):
         row.addWidget(text_label(ctx, item, size=12,
                                  color=ctx.P["fg_muted"], weight=500))
     row.addStretch(1)
