@@ -366,3 +366,15 @@ return, bounded max_workers/grid and manual transfer to planning tools.
 Isolated promotion checks preserve scene/link structure and validate French
 spoken-form rules. These are AI-assisted editorial reviews; full staging,
 remaining11 languages, audio and listening acceptance remain open.
+
+2026-09-23 — CODEX: ALL MODULE ROUTES CAPTURED; ENGLISH MEDIA STAGED
+Lesson79 now has a successful native capture of all77 modules in79 lesson
+scenes and99 total4K frames. All scenes were visually checked in contact
+sheets. Home/fold routes, ten direct Help routes, Database Browser children,
+three genuine offline API references, classifier modes, Timelapse and Sweep
+controls are covered. Empty-input Cellpose All and Diagnostics guards are
+recorded honestly; no analysis/download was run. The Hits visibility fix is
+now verified in the recording.51 focused map/CLI/capture checks pass.
+Receipt: tools/tutorials/evidence/2026-09-23-module-reference-capture.json.
+Lessons79,80,81 were staged in order after78, without bypassing the identity
+guard. English narration is rendering on CPU; no media publication claim.

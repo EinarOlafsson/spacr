@@ -13,14 +13,14 @@ from pathlib import Path
 
 def record_overview(app, window, captures, capture, settle, write_json,
                     lesson_id='78_spacr_screens'):
-    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QDialog, QTableView, QTextBrowser
     from spacr.qt.widgets.fold_strip import FoldButton
 
     root = Path(__file__).resolve().parents[2]
     map_path = root / 'spacr/resources/module_workflows.json'
-    if lesson_id not in ('78_spacr_screens', '80_image_analysis_pathways',
+    if lesson_id not in ('78_spacr_screens', '79_module_inputs_outputs', '80_image_analysis_pathways',
                          '81_sequencing_pathways'):
         raise ValueError('This recorder has not validated that workflow lesson')
     lesson_path = root / 'tools/tutorials/lessons' / (lesson_id + '.json')
@@ -49,12 +49,49 @@ def record_overview(app, window, captures, capture, settle, write_json,
         if not window._startup.isVisible():
             raise ValueError('The Home button did not show Home')
 
+    def search_module(key, visual):
+        from spacr.qt.help_search import field_of
+
+        field = field_of(window)
+        if field is None or not field.isVisible():
+            raise ValueError('The native Help search is unavailable')
+        query = data['modules'][key]['name']
+        field.setFocus()
+        QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClicks(field, query)
+        deadline = time.monotonic() + 30
+        while True:
+            matches = [index for index, entry in enumerate(field.results())
+                       if entry.kind == 'module' and entry.payload.get('app') == key]
+            if (len(matches) == 1 and not field._debounce.isActive()
+                    and field.popup().isVisible()):
+                break
+            if time.monotonic() >= deadline:
+                raise ValueError('The actual Help index did not find module ' + key)
+            settle(.1)
+        for _ in range(matches[0]):
+            QTest.keyClick(field, Qt.Key_Down)
+        if field._list.currentRow() != matches[0]:
+            raise ValueError('The intended native Help result is not selected')
+        settle(.4)
+        capture(visual, desktop=True)
+        QTest.keyClick(field, Qt.Key_Return)
+        settle(2)
+        screen = window._screens.get(key)
+        if screen is None or not screen.isVisible():
+            raise ValueError('The actual Help result did not open ' + key)
+        if getattr(screen, '_worker_thread_is_running', lambda: False)():
+            raise ValueError(f'Opening {key} unexpectedly started an analysis')
+        field.clear()
+        return screen
+
     home()
     capture('home')
     routes = []
     for key in keys:
         home()
         module = data['modules'][key]
+        scene_captured = False
         if module.get('api_entry'):
             from spacr.qt.help_search import field_of
 
@@ -112,29 +149,42 @@ def record_overview(app, window, captures, capture, settle, write_json,
             continue
         host_key = module['home']
         if not host_key:
-            raise ValueError('No supported native Home route for ' + key)
+            screen = search_module(key, 'help_search_' + key)
+            capture('module_' + key)
+            routes.append({'module': key, 'home_tile_clicked': False,
+                           'search_query': module['name'], 'real_help_result_visible': True,
+                           'module_result_selected': True, 'screen_visible': True,
+                           'screen_class': type(screen).__name__})
+            continue
         tiles = [button for button in window._startup.findChildren(QAbstractButton)
                  if button.property('moduleAppKey') == host_key]
-        if not tiles:
-            raise ValueError(f'No native Home tile for {key}')
-        tabs = window._startup._tabs
         tile = None
-        for index in range(tabs.count()):
-            candidates = [button for button in tiles if tabs.widget(index).isAncestorOf(button)]
-            if candidates:
-                QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
-                                 pos=tabs.tabBar().tabRect(index).center())
-                settle(.4)
-                tile = max(candidates, key=lambda button: button.width() * button.height())
-                break
-        if tile is None:
-            raise ValueError(f'No category contains the native {key} tile')
-        click(tile)
-        settle(2)
-        screen = window._screens.get(host_key)
+        if not tiles and module['parent'] and data['modules'][host_key]['home'] is None:
+            screen = search_module(host_key, 'help_host_' + key)
+        else:
+            tabs = window._startup._tabs
+            for index in range(tabs.count()):
+                candidates = [button for button in tiles if tabs.widget(index).isAncestorOf(button)]
+                if candidates:
+                    QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                                     pos=tabs.tabBar().tabRect(index).center())
+                    settle(.4)
+                    tile = max(candidates, key=lambda button: button.width() * button.height())
+                    break
+            if tile is None:
+                raise ValueError(f'No category contains the native {key} tile')
+            click(tile)
+            settle(2)
+            screen = window._screens.get(host_key)
         if screen is None or not screen.isVisible():
             raise ValueError(f'The native Home tile did not open {host_key}')
+        pages = getattr(screen, '_fold_pages', None)
+        if pages is not None and pages.currentIndex() != 0:
+            QTest.mouseClick(pages.tabBar(), Qt.LeftButton,
+                             pos=pages.tabBar().tabRect(0).center())
+            settle(.4)
         if module['parent']:
+            expected_screen_key = key
             if module['parent'] == 'toxoplasma':
                 assay_tiles = [button for button in screen.findChildren(QAbstractButton)
                                if button.property('organismModuleKey') == key]
@@ -155,20 +205,116 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 settle(1)
                 manager = ops_page(screen)
                 screen = manager.page if manager is not None else None
+            elif key in ('classify', 'ml_analyze'):
+                from PySide6.QtWidgets import QComboBox
+
+                selector = screen._settings_model._widgets.get('classifier_family')
+                family = 'cv' if key == 'classify' else 'ml'
+                if not isinstance(selector, QComboBox) or selector.findData(family) < 0:
+                    raise ValueError('The native classifier family selector is missing')
+                section = next(section for section in screen._settings_sections
+                               if section.isAncestorOf(selector))
+                if not section.is_expanded():
+                    screen._settings_scroll.ensureWidgetVisible(section.header())
+                    settle(.2)
+                    click(section.header())
+                screen._settings_scroll.ensureWidgetVisible(selector)
+                click(selector)
+                QTest.keyClick(selector.view(), Qt.Key_Home)
+                for _ in range(selector.findData(family)):
+                    QTest.keyClick(selector.view(), Qt.Key_Down)
+                QTest.keyClick(selector.view(), Qt.Key_Return)
+                settle(.7)
+                if screen._settings_model.collect().get('classifier_family') != family:
+                    raise ValueError('The actual family selector did not reach ' + family)
+                expected_screen_key = 'classify_merged'
+            elif key == 'parameter_sweep':
+                folder = screen._actions_folder
+                if folder.shut:
+                    click(folder.heading)
+                switch = getattr(screen, '_sweep_switch', None)
+                if switch is None:
+                    raise ValueError('The native Parameter sweep switch is missing')
+                if not switch.isChecked():
+                    click(switch)
+                settle(.8)
+                if not screen._sweep_card.isVisible():
+                    raise ValueError('The Parameter sweep card did not open')
+                expected_screen_key = 'regression'
+            elif key == 'regression_diagnostics':
+                from PySide6.QtWidgets import QMessageBox
+
+                buttons = [button for button in screen.findChildren(FoldButton)
+                           if button.isVisible() and button.app_key == key]
+                if len(buttons) != 1:
+                    raise ValueError('The native Diagnostics control is unavailable')
+                observed = {}
+                diagnostics_deadline = time.monotonic() + 30
+
+                def record_empty_diagnostics():
+                    dialog = app.activeModalWidget()
+                    if dialog is None and time.monotonic() < diagnostics_deadline:
+                        QTimer.singleShot(100, record_empty_diagnostics)
+                        return
+                    try:
+                        if not isinstance(dialog, QMessageBox) or dialog.windowTitle() != 'Diagnostics':
+                            raise ValueError('The native missing-diagnostics dialog did not appear')
+                        if dialog.text() != ('This project has no regression diagnostics yet. They '
+                                             'are written when a regression finishes.'):
+                            raise ValueError('Unexpected regression-diagnostics state')
+                        capture('module_regression_diagnostics', desktop=True)
+                        observed['captured'] = True
+                    except Exception as error:
+                        observed['error'] = str(error)
+                    finally:
+                        if dialog is not None:
+                            dialog.accept()
+
+                QTimer.singleShot(500, record_empty_diagnostics)
+                click(buttons[0])
+                if not observed.get('captured'):
+                    raise ValueError(observed.get('error', 'The diagnostics dialog was not captured'))
+                scene_captured = True
+                expected_screen_key = 'regression'
             else:
                 buttons = [button for button in screen.findChildren(FoldButton)
                            if button.isVisible() and button.app_key == key]
                 if len(buttons) != 1:
                     raise ValueError('No unique visible folded route for ' + key)
+                if key == 'cellpose_all' and (screen._folder or screen._image_files):
+                    raise ValueError('The navigation capture must never mask a loaded folder')
                 click(buttons[0])
                 settle(1)
-                visible = [widget for widget in app.allWidgets()
-                           if not isinstance(widget, QAbstractButton)
-                           and getattr(widget, 'app_key', None) == key and widget.isVisible()]
-                if len(visible) != 1:
-                    raise ValueError('The folded route did not show exactly one ' + key)
-                screen = visible[0]
-            if screen is None or not screen.isVisible() or screen.app_key != key:
+                if key == 'timelapse':
+                    if not screen._settings_model.collect().get('timelapse'):
+                        raise ValueError('The native Timelapse switch did not enable tracking')
+                    expected_screen_key = 'mask'
+                elif key == 'cellpose_all':
+                    if screen._status_label.text() != 'Open a folder of images before masking it.':
+                        raise ValueError('The folder action did not retain its empty-input guard')
+                    expected_screen_key = 'make_masks'
+                elif module['parent'] == 'make_masks':
+                    screen = screen._fold_dialogs.get(key)
+                elif key == 'hit_list':
+                    from spacr.qt.screens.regression import results_panel
+
+                    panel = results_panel(screen)
+                    if panel is None or panel.tabs.currentWidget() is not panel.hits:
+                        raise ValueError('The native Hits control did not select its result tab')
+                    screen = panel.hits
+                else:
+                    openers = [opener for opener in getattr(screen, '_fold_openers', ())
+                               if opener.key == key]
+                    visible = [opener.window for opener in openers
+                               if opener.window is not None and opener.window.isVisible()]
+                    if not openers:
+                        visible = [widget for widget in app.allWidgets()
+                                   if not isinstance(widget, QAbstractButton)
+                                   and getattr(widget, 'app_key', None) == key and widget.isVisible()]
+                    if len(visible) != 1:
+                        raise ValueError('The folded route did not show exactly one ' + key)
+                    screen = visible[0]
+            if screen is None or not screen.isVisible() or getattr(screen, 'app_key', expected_screen_key) != expected_screen_key:
                 raise ValueError('The native folded control did not open ' + key)
         if getattr(screen, '_worker_thread_is_running', lambda: False)():
             raise ValueError(f'Opening {key} unexpectedly started an analysis')
@@ -197,11 +343,11 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 raise ValueError('The native Actions fold did not close')
             actions_folded = True
         splitter = getattr(screen, '_body_splitter', None)
-        target = {'power': .4, 'dose_response': .5}.get(key, .62)
+        target = {'power': .4, 'dose_response': .5, 'parameter_sweep': .4}.get(key, .62)
         minimum = target - .07
-        if (key in ('regression', 'mask', 'measure', 'classify_merged', 'map_barcodes', 'power', 'dose_response')
+        if (key in ('regression', 'mask', 'measure', 'classify_merged', 'map_barcodes', 'power', 'dose_response', 'parameter_sweep')
                 and splitter is not None and splitter.count() == 2
-                and (key == 'dose_response' or splitter.sizes()[0] < splitter.width() * minimum)):
+                and (key in ('dose_response', 'parameter_sweep') or splitter.sizes()[0] < splitter.width() * minimum)):
             # The default narrow Settings column clips the Regression input
             # table. Drag its actual handle so the handoff controls can be read.
             handle = splitter.handle(1)
@@ -245,11 +391,17 @@ def record_overview(app, window, captures, capture, settle, write_json,
             settle(.6)
             if screen.side_tabs.width() < 800:
                 raise ValueError('The Gate Editor filter pane did not widen')
-        capture('module_' + key)
+        if not scene_captured:
+            capture('module_' + key)
         routes.append({'module': key, 'home_host': host_key, 'parent': module['parent'],
-                       'tile_text': tile.text(),
+                       'tile_text': tile.text() if tile is not None else None,
                        'screen_class': type(screen).__name__,
-                       'home_tile_clicked': True, 'screen_visible': True,
+                       'home_tile_clicked': tile is not None, 'screen_visible': True,
+                       'host_opened_through_help': tile is None,
+                       'navigation_only_empty_folder_guard': key == 'cellpose_all',
+                       'timelapse_switch_enabled_without_running': key == 'timelapse',
+                       'parameter_sweep_opened_without_running': key == 'parameter_sweep',
+                       'native_no_diagnostics_message': key == 'regression_diagnostics',
                        'default_count_path_cleared': key == 'barcode_qc',
                        'actions_folded_for_navigation_only': actions_folded})
     home()

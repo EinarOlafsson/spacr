@@ -65,7 +65,7 @@ def main() -> int:
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--workflow-overview', action='store_true', help='Record the pooled-screen lesson through actual Home tiles; no analysis or download')
-    parser.add_argument('--workflow-lesson', choices=('78_spacr_screens', '80_image_analysis_pathways', '81_sequencing_pathways'),
+    parser.add_argument('--workflow-lesson', choices=('78_spacr_screens', '79_module_inputs_outputs', '80_image_analysis_pathways', '81_sequencing_pathways'),
                         default='78_spacr_screens', help='Workflow map lesson to record through native navigation')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')

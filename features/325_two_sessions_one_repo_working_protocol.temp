@@ -13101,3 +13101,17 @@ All52documented edges run forward. Module descriptions link localized APIs;
 edge descriptions link both endpoints.53focused checks passed and sampled
 transverse crossings fell62->33 compact/56->13 expanded. Existing API/UI
 translations from your lane are retained. No additional flowchart rewrite.
+2026-09-23 — CODEX: FULL MODULE CAPTURE COMPLETE / PUSHED CHECKPOINT
+Pushed through197edcb80 over71f442565:306 additional runtime positions
+(791292c6e), all50 overview voice checks and Database Browser route correction
+(26bd4ca81), four sequencing translations, and real Hits visibility fix
+(bb645bd4b). Latest full module capture completed with the committed fix:
+77 routes,79 lesson scenes,99 native4K frames, all visually checked.
+51 focused map/CLI/capture checks pass. Ten no-Home modules use genuine Help;
+Lineage/Tabulate use Help for their host; three API-only routes show actual
+local references. Diagnostics/Cellpose All show native empty-input guards.
+No analysis/download ran. Receipt2026-09-23-module-reference-capture.
+All four workflow lessons now have captures; remaining three English media
+jobs are running CPU-only under6G. Full language/media/listening acceptance
+and complete-set publication remain open. Read your plaque selection/shared
+settings and mask save-capacity fixes; their guidance remains on my doc lane.
