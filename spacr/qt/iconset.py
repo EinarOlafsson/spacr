@@ -776,6 +776,7 @@ _NAME_TO_GLYPH = {
     "ml_analyze":      "fa5s.chart-line",
     "regression":      "fa5s.wave-square",
     "recruitment":     "fa5s.crosshairs",
+    "host_pathogen":   "fa5s.object-group",
     "activation":      "fa5s.bolt",
     "run_history":     "fa5s.history",
     "distributed_jobs": "fa5s.cloud-upload-alt",

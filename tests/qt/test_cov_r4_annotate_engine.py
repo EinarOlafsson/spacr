@@ -468,10 +468,11 @@ def test_the_annotation_column_survives_every_step_after_it_is_added(
     carrying ``None`` -- on the far side of all three.
     """
     db = tmp_path / "measurements.db"
-    db.write_bytes(b"")
     joined = pd.DataFrame({
         "png_path": ["/c/o1.png", "/c/o2.png", None, "/c/keep_o4.png"],
         "cell_area": [50.0, 500.0, 900.0, 900.0]})
+    with sqlite3.connect(db) as connection:
+        joined[['png_path']].to_sql('png_list', connection, index=False)
     stub_joined_tables(joined)
 
     # threshold (drops o1), dropna on png_path (drops the None), and the

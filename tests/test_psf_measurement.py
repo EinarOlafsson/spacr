@@ -150,6 +150,11 @@ def test_crop_only_project_does_not_block_its_first_quantitative_psf_run(tmp_pat
         connection.execute('CREATE TABLE intensity_rescale (rescale_factor REAL)')
         connection.execute('INSERT INTO intensity_rescale VALUES (1)')
     validate_measurement_psf_history({}, db, prepare_measurement_psf(_config(str(tmp_path))))
+    with sqlite3.connect(db) as connection:
+        assert connection.execute('SELECT * FROM png_list').fetchall() == [('cell.png',)]
+        assert connection.execute('SELECT * FROM intensity_rescale').fetchall() == [(1.,)]
+        assert {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")} == {'png_list', 'intensity_rescale'}
 
 
 def test_parent_stop_reaches_background_worker_event():

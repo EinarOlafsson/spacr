@@ -15518,3 +15518,34 @@ actual browser clocks now differ by 0.020s; full decode passes. All 12 rendition
 checks pass, including an actual encode that checks frames and keyframe spacing.
 Failed private renditions and browser diagnostics are preserved. No weaker
 playback tolerance, audio stretch, GPU work or release-candidate change.
+
+
+2026-09-23 MAINTAINER REPORTING CORRECTION
+The maintainer says routine work that only becomes possible after publication
+(e.g. verifying final published installers) is not an outstanding feature or
+backlog item. Report actual unfinished features and confirmed defects only;
+do not lower completed-feature percentages for hypothetical post-release
+problems. Perform ordinary publication checks as release operations, and file
+a concrete problem only if a check actually fails. U-M remains nonblocking.
+
+2026-09-23 DATABASE AND MODEL CONTRACT REPAIRS VERIFIED
+Explicit30second read-only SQLite waits now cover Host–Pathogen previews;
+image screening uses the shared read-only connection and closes it. Synthetic
+unit-test projects and real analysis CSV outputs use canonical writers; raw
+reader/writer counts return under the existing ceilings. packaging is declared
+because updater and Starplast already import it.151database/scientific/package
+checks passed; five preview-double failures exposed an implicit channel axis.
+Live evaluates an already-selected2D plane, so its call now explicitly states
+channel_axis=None; the double validates that through Cellpose's real image
+conversion helper.100preview/icon/annotation/Cellpose checks then passed.
+Host–Pathogen now has an object-group glyph rather than the fallback puzzle;
+its full registry title appears in the menu and its compact tile stays short.
+The annotation regression fixture now supplies the real png_list queried by
+its SQL image-type filter. Legacy Cellpose target_size does not rename a
+checkpoint as if native training geometry were rescaled. No legacy behavior
+was restored merely to satisfy an outdated test.
+Coverage3 also found a docs-owned cache-token mismatch in
+ tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock;
+please add that to the prior docs repair request. Coverage0's drag/drop worker
+crashed during garbage collection once and passed its fresh-worker rerun;
+I am investigating isolation/native lifetime before classifying its cause.

@@ -8,6 +8,7 @@ import pytest
 from spacr.cancellation import PipelineCancelled
 from spacr.psf_pipeline import prepare_psf
 from spacr.qt.widgets import live_preview as lp
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
 def settings(operation='convolve'):
@@ -28,7 +29,8 @@ class Model:
     def __init__(self):
         self.inputs = []
 
-    def eval(self, image, **kwargs):
+    def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        check_cellpose_eval_call(image, channel_axis)
         self.inputs.append(image.copy())
         mask = np.zeros(image.shape, np.int32)
         mask[10:20, 10:20] = 1

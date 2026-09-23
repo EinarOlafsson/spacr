@@ -155,10 +155,11 @@ def test_ci_keychain_cleanup_restores_search_path_even_after_failed_import(
     monkeypatch.setenv('GITHUB_ENV', str(environment))
     monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
     calls = []
+    login_keychain = str(tmp_path / 'login.keychain-db')
     def run(args, **kwargs):
         calls.append(args)
         if args == ['security', 'list-keychains', '-d', 'user']:
-            return '"/Users/test/login.keychain-db" "system.keychain"'
+            return f'"{login_keychain}" "system.keychain"'
         if args[1] == 'create-keychain':
             Path(args[-1]).touch()
         if args[1] == 'import':
@@ -186,7 +187,7 @@ def test_ci_keychain_cleanup_restores_search_path_even_after_failed_import(
     monkeypatch.setenv('SPACR_SIGNING_DIRECTORY', str(folder))
     signing.cleanup_ci()
     assert calls[-2] == ['security', 'list-keychains', '-d', 'user', '-s',
-                         '/Users/test/login.keychain-db', 'system.keychain']
+                         login_keychain, 'system.keychain']
     assert calls[-1] == ['security', 'delete-keychain', str(folder / 'build.keychain-db')]
     assert not folder.exists()
 

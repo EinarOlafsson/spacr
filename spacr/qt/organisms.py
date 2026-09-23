@@ -82,7 +82,7 @@ ORGANISMS = {
             ("starplast", "Starplast", "Explore the Toxoplasma knowledge map in a separate alpha application.", "replication"),
             ("analyze_plaques", "Plaque Assay", "Quantify plaque number and size.", "analyze_plaques"),
             ("recruitment", "Recruitment", "Measure host-protein enrichment at the vacuole.", "recruitment"),
-            ('host_pathogen', 'Host–Pathogen', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.', 'recruitment'),
+            ('host_pathogen', 'Host–Pathogen', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.', 'host_pathogen'),
             ("invasion", "Invasion Assay", "Distinguish attached and invaded parasites.", "invasion"),
             ("replication", "Replication Assay", "Count parasites per vacuole.", "replication"),
             (None, "Egress", "Follow vacuole rupture and parasite exit over time.", "egress"),

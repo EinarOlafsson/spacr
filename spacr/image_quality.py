@@ -245,13 +245,14 @@ def ensure_no_retained_measurements(root, rejected):
     :returns: None if no existing measurement row matches a rejected field.
     :raises ValueError: a table's file_name column contains a rejected identity.
     """
-    import sqlite3
+    from contextlib import closing
+    from .database_concurrency import connect
 
     database = Path(root) / 'measurements' / 'measurements.db'
     if not rejected or not database.is_file():
         return
     identities = sorted({value for name in rejected for value in (name, Path(name).stem)})
-    with sqlite3.connect(database.resolve().as_uri() + '?mode=ro', uri=True) as connection:
+    with closing(connect(database, readonly=True)) as connection:
         tables = [row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")]
         for table in tables:
             quoted = '"' + table.replace('"', '""') + '"'
