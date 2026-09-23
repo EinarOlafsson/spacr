@@ -12466,3 +12466,14 @@ sampling.bins and sampling.weights. Public signatures/docstrings and UI
 captions unchanged; two private helpers added. Do not describe this as an
 accuracy improvement or a new model.426's stale header is reconciled with
 the actual experimental model and its remaining evaluation/integration work.
+
+2026-09-23 — IMPLEMENTATION: 426 STRATIFIED EVALUATOR CLAIM
+Claiming a standalone tools/evaluate_timeflows.py and focused tests. The
+candidate Fluo-N2DH-SIM+ set has full synthetic GT/SEG+TRA rather than ST/SEG;
+the bacterial set inspected has TRA only, which will not be silently treated
+as full segmentation. Evaluator will require an explicit annotation source,
+stream bounded selected pairs, reject overlap with checkpoint training movies,
+record hashes and report motion/density strata plus zero-motion, random-head
+and copied-frame controls. Scrambling IDs alone does not prove learned motion;
+will correct that sentence in scramble_test's public docstring and hand off
+the source change. No tracking default or published-model recommendation.
