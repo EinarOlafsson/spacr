@@ -305,3 +305,16 @@ English inventory and both localization reports are refreshed; runtime now
 has 6165 entries and API has 11123 symbols. New captions/tooltips remain in
 the nine-language backlog under future/411; the existing source-bound review
 stores still load. No Figure-mode implementation or acceptance was changed.
+
+2026-09-23 — LATE PREVIEW RESULTS CANNOT REPLACE A NEW SELECTION
+Real QThread tests reproduced results overwriting a newly selected image,
+a newly chosen mode, and an empty folder. Source/selection loads now abandon
+the old preview generation. Empty listings clear mask/object views and both
+figure tables; a stale result cannot re-enable Run during newer work.
+Six new recovery cases plus existing preview/model/figure/folding checks:
+143pass48.31s,8GiB/no swap/offscreen CPU. Failure recovery permits a subsequent
+successful run. Existing Refresh/Live tests now assert one button per preview
+and the reachable closed-switch/open-card placement already implemented.
+No AppScreen change, new caption/setting or public signature/docstring change.
+Receipt468_preview_selection_recovery_2026-09-23.json. The broader288 coverage
+floor is still open: current plaque_preview combined coverage is83.84percent.

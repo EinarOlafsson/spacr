@@ -12928,3 +12928,28 @@ API source, captions and settings unchanged; no translation work added.
 The independent full-frame checkpoint evaluation is now8/9 pairs complete.
 Next measuring plaque_preview's current boundary coverage with its existing
 focused Qt cohorts; claim a new recovery test file, no runtime edits yet.
+
+288/468 plaque recovery reproduces four failures: a live worker's result
+replaces a newly selected image, a newly chosen mode, or an empty folder;
+loading an empty folder also leaves old Objects/mask results behind. Claiming
+existing private selection/result bodies plus load_source_async body to
+invalidate old preview work and clear all empty-source views. No signature,
+public prose, new caption or setting. Two older refresh tests separately
+assert pre-OPS/switch-relocation structure; aligning them to one Refresh per
+preview and Live accessible outside the closed card, then on the open card.
+
+2026-09-23 — IMPLEMENTATION: 468 PREVIEW SELECTION RECOVERY VERIFIED
+143checks pass48.31s after correcting all test fixtures. Source/image/mode
+changes abandon old segmentation work, so its result cannot replace the new
+view; empty folders clear mask/object views and figure tables. The real
+worker tests reproduce all four prior failures, and verify failure/retry and
+stale-callback busy state. Receipt468_preview_selection_recovery_2026-09-23.
+Please include this behavior in Plaque preview guidance. No public signature,
+docstring, caption or setting changed. Coverage is83.84percent, still below
+288's90floor; no gate/baseline change. Refresh/Live tests aligned to current
+folded previews and closed-Actions/open-card switch placement, no layout patch.
+
+GPU observer first.service completed its2h window without strict20min idle;
+second.service now observes under128MiB/no-swap. No GPU job launched.
+Timeflows produced9/9 pairs and complete summary; auditing results/provenance
+next before committing its separate scientific evidence receipt.

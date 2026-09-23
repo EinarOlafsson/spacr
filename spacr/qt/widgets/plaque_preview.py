@@ -2473,6 +2473,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         text = str(source or "").strip()
         if not text:
             return False
+        self.cancel_preview()
         self._src = text
         self._load_token += 1
         token = self._load_token
@@ -2497,6 +2498,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._picker.addItem(path.name, str(path))
         self._picker.blockSignals(False)
         if not self._paths:
+            self._clear_figure()
+            self._plaque_result = None
+            self._show_plaque_tabs()
+            self._legend_box.hide()
             self.set_preview_status(tr("No images found in {path}.",
                                        path=self._src))
             self._view.set_image(None)
@@ -2528,6 +2533,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _show_selected_image(self) -> None:
         """Decode the selected image off the GUI thread and show it."""
+        self.cancel_preview()
         path = self.current_path()
         if path is None:
             return
@@ -2786,8 +2792,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _on_result(self, token: int, result: Dict[str, Any]) -> None:
         """Show a finished pass."""
+        if self.preview_stale(token):
+            return
         self.set_preview_busy(False)
-        if self.preview_stale(token) or not isinstance(result, dict):
+        if not isinstance(result, dict):
             return
         if result.get("error"):
             self.set_preview_status(result["error"])
