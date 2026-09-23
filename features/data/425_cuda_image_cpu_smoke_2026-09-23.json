@@ -1,0 +1,90 @@
+{
+  "uid": 1000,
+  "python": "3.12.14 (main, Aug 13 2026, 09:45:57) [GCC 11.4.0]",
+  "spacr": "1.5.0.9",
+  "torch": "2.6.0+cu124",
+  "compiled_cuda": "12.4",
+  "gpu_available": false,
+  "checks": [
+    {
+      "command": [
+        "/opt/spacr/venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "returncode": 0,
+      "stdout": "No broken requirements found.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "spacr",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "1.5.0.9\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "spacr-run",
+        "--list"
+      ],
+      "returncode": 0,
+      "stdout": "spaCR modules that can run headless:\n\n  mask             Segment cells / nuclei / pathogens with Cellpose and write merged stacks.\n                   -> spacr.core.preprocess_generate_masks()\n  timelapse        Mask pipeline with object tracking across the frames of a time series.\n                   -> spacr.core.preprocess_generate_masks_timelapse()\n  motility         Automated motility assay: per-track velocity plus infection QC.\n                   -> spacr.timelapse.automated_motility_assay()\n  measure          Measure per-object morphology / intensity and crop single-object PNGs.\n                   -> spacr.measure.measure_crop()\n  align            Register and stitch an arbitrary number of tiles into one canvas.\n                   -> spacr.align.align_folder()\n  ops              Stitch, segment and decode the wells of an optical pooled screen's sequencing acquisition.\n                   -> spacr.ops_engine.run_ops()\n  foreign          Import external images, masks, and a measurement table as a spaCR project.\n                   -> spacr.foreign.import_project()\n  external_masks   Measure images using label masks generated outside spaCR.\n                   -> spacr.external_masks.prepare_external_masks()\n  classify         Full DL pipeline: build dataset, train, apply the model, merge predictions.\n                   -> spacr.deep_spacr.deep_spacr()\n  classify_merged  Train a classifier on single objects: Torch on crops, or gradient boosting on measured features.\n                   -> spacr.classify.classify()\n  train_only       The training stage alone: train / evaluate on an existing dataset folder.\n                   -> spacr.deep_spacr.train_test_model()\n  activation       Generate class-activation maps for a trained classifier.\n                   -> spacr.deep_spacr.generate_activation_map()\n  umap             Embed single-object images with UMAP and plot them as image glyphs.\n                   -> spacr.core.generate_image_umap()\n  ml_analyze       Classical ML (XGBoost / RF / logistic) on per-object screen features.\n                   -> spacr.ml.generate_ml_scores()\n  regression       Regress per-well scores against sgRNA counts to call screen hits.\n                   -> spacr.ml.perform_regression()\n  explain_cv       Explain existing CV predictions with measured object features.\n                   -> spacr.surrogate.run_explain_cv()\n  investigate_hit  Resolve one exact regression hit to cross-fitted candidate cells.\n                   -> spacr.hit_investigation.investigate_hit()\n  map_barcodes     Map row / column / gRNA barcodes out of sequencing reads onto wells.\n                   -> spacr.sequencing.generate_barecode_mapping()\n  recruitment      Analyze recruitment of a channel of interest to pathogen compartments.\n                   -> spacr.submodules.analyze_recruitment()\n  invasion         Red/green invasion assay: score every parasite attached or invaded, per well.\n                   -> spacr.submodules.analyze_invasion()\n  replication      Count parasites per vacuole and compare replication distributions.\n                   -> spacr.submodules.analyze_replication()\n  endodyogeny      Legacy size proxy: bin pathogen area-derived volume by doublings.\n                   -> spacr.submodules.analyze_endodyogeny()\n  analyze_plaques  Segment and quantify plaques in a plaque assay.\n                   -> spacr.submodules.analyze_plaques()\n  train_cellpose   Train or fine-tune a Cellpose model on your own labelled images.\n                   -> spacr.submodules.train_cellpose()\n  cellpose_masks   Run one Cellpose model over a folder and save the masks.\n                   -> spacr.spacr_cellpose.identify_masks_finetune()\n  convert          Convert vendor images into mapped, collision-safe Yokogawa TIFFs.\n                   -> spacr.convert.convert_folder()\n  illumination     Estimate the plate's illumination field and install the correction every measure worker applies.\n                   -> spacr.illumination.prepare_illumination_correction()\n  barcode_qc       QC a barcode-mapping run and derive its abundance threshold from a gRNAs-per-well target.\n                   -> spacr.sequencing_qc.barcode_qc()\n  simulation       Sweep the pooled-screen simulator across a grid of parameters.\n                   -> spacr.sim.run_multiple_simulations()\n  anndata_export   Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.\n                   -> spacr.anndata_export.run_anndata_export()\n\nGUI-only (no headless equivalent):\n  agreement        Annotator Agreement is an interactive review of the crops two annotators disagreed on; headless, call spacr.agreement.agreement_report + format_agreement from Python.\n  annotate         Annotate paints labels onto a grid of single-object images by hand; run it in the GUI (spacr-qt) \u2014 there is no batch equivalent.\n  batch            Batch Runner is the GUI for building a queue file. Headless, run the queue itself: from spacr.batch import load_queue, run_queue; run_queue(load_queue('night.queue.json'), path='night.queue.json') -- each job in it is a spacr-run invocation.\n  classifier_evaluation  Classifier Evaluation is an interactive results workbench; headless, call spacr.classifier_evaluation.evaluate_predictions or load_evaluation_bundle from Python instead.\n  control_chart    For headless use, call spacr.qt.widgets.control_chart.control_chart(frame, spec) to return the same limits, violations, and report text.\n  curate           Curate is hand correction of a mask or a track table -- the brush and the track surgery are the whole feature; run it in the GUI (spacr-qt), where it is a button on Make Masks. Headless, spacr.curation.MaskCuration and TrackCuration make the same edits with the same ledger.\n  data_manager     Data Manager shows what a project costs in disk and makes you read the deletion before it happens, which is the whole point of it -- so there is deliberately no one-shot headless delete. From Python: spacr.data_manager.scan_project(src) for the per-kind sizes, plan_prune(src) for exactly what is regenerable and what is being kept, then prune(plan, confirm=plan.token) once you have read the plan.\n  db_browser       Database Browser is an interactive sqlite viewer; use the sqlite3 CLI or pandas on measurements.db instead.\n  distributed_jobs  Distributed Jobs is the interactive monitor. Headless, use the spacr-remote CLI to manage profiles, submit settings, poll logs and cancel jobs instead.\n  feature_explorer  For headless use, call spacr.qt.widgets.feature_rank.rank_features(frame, spec) to return the same feature-level statistics and ranking.\n  hit_list         Hit List is an interactive ranked table \u2014 filtering, annotating and clicking through to the cells is the feature; run it in the GUI (spacr-qt), where it is a tab on the Regression results and a button on that masthead. Headless, spacr.hits.build_hit_list(...) builds the same ranking, and 'spacr-run investigate_hit' takes one hit back to its wells.\n  image_scatter    Image Scatter is an interactive plot \u2014 the hover preview is the whole feature; run it in the GUI (spacr-qt), where it is a button on Image UMAP. Headless, read the same table with pandas.\n  import_images    Image import folded into the foreign-format importer. In the GUI open 'foreign'; headless, call spacr.image_import.apply_import, which is what that screen drives.\n  make_masks       Make Masks is a manual mask editor -- the brush, the wand and the recrop are the whole feature, so there is nothing to batch -- but it does open on a folder from a terminal: 'spacr-make-masks --folder <dir>' builds a curation queue over that folder and opens the editor on it. --order easy|prob|value|name chooses what to offer first (easy by default), --limit N ends the session after N fields, and --dry-run prints the queue and its order with no display at all. Progress is kept in <dir>/curate_status.csv, so done and skip survive a restart and travel with the images between machines. From Python, spacr.curation_queue.build_queue(folder) returns the same session.\n  methods_export   Use Methods & Results for interactive drafting. In a headless workflow, call spacr.methods_export.build_digest(...), then render_methods(digest) and render_results(digest); these functions need no AI provider.\n  model_compare    Model Compare runs two Cellpose models side by side for you to look at; headless, call spacr.model_compare.compare_models.\n  model_zoo        Model Zoo is an interactive browser; headless, call spacr.model_zoo.discover_local + format_zoo, and benchmark(entry, source=...) to test one on three fields.\n  napari_bridge    Open in napari hands a mask to napari for you to correct by hand and reads it back; the correcting is the feature, so there is nothing to batch. Run it in the GUI (spacr-qt), where it is a button on Make Masks. Headless, spacr.napari_bridge.correct_mask(mask_path, image_path) is the same round trip from Python.\n  outliers         For headless use, call spacr.qt.widgets.outlier_model.detect_outliers() to compute the same object flags, well scores, and report.\n  pca              PCA here is interactive multivariate exploration \u2014 ticking features and brushing a cluster are the feature; run it in the GUI (spacr-qt), where it is a button on Image UMAP. Headless, spacr.qt.widgets.pca_model.pca() is the equivalent.\n  plate_view       Plate Viewer is an interactive heatmap; headless, call spacr.plate_qc.detect_edge_effect + format_edge_report.\n  queue            Plate Queue is a GUI convenience that chains plates through another module. Headless, loop over plates in your batch script and call spacr-run once per plate.\n  regression_diagnostics  Regression diagnostics folded into Regression, which writes them as part of its own run. In the GUI open 'regression'; headless, run 'spacr-run regression' \u2014 the diagnostics are written beside its output \u2014 or call spacr.regression_diagnostics directly.\n  report           Report is a one-click document builder; headless, call spacr.report.build_report(src, out, fmt='html').\n  run_history      Run History is an interactive searchable dashboard; headless, call spacr.run_journal.search_runs() instead.\n  train_compare    Training Runs is an interactive curve/settings comparison; headless, use spacr.train_compare.find_runs + format_comparison from Python.\n  trellis          For headless use, call spacr.qt.widgets.trellis_spec.trellis() to compute the panel layout, scales, and per-panel sample sizes.\n  volcano_explorer  Volcano Explorer is an interactive reader for a finished regression \u2014 clicking a point is the feature, so there is nothing to batch; run it in the GUI (spacr-qt), where it is \u201cPublication figure\u2026\u201d on the Regression volcano and a button on that masthead. Headless, call spacr.volcano_style.render_volcano(results, VolcanoStyle(...), save_path='volcano.pdf'); that is the renderer this screen draws through, so the figure is the same one, vector at publication size.\n\nRun 'spacr-run --describe <module>' for required settings and outputs.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/spacr/venv/bin/python",
+        "/opt/spacr/smoke_pipeline.py",
+        "--workspace",
+        "/validation/smoke-workspace"
+      ],
+      "returncode": 0,
+      "stdout": "workspace: /validation/smoke-workspace\nPASS  package metadata resolves the version: 1.5.0.9\nPASS  synthetic field and label masks written\nPASS  spacr-run external_masks finished\nPASS  merged stacks written: 1\nPASS  measurements.db written with tables: ['cell', 'cytoplasm', 'intensity_rescale', 'nucleus', 'png_list', 'run_status', 'settings', 'settings_history']\nPASS  table 'cell' holds 1 measured object(s)\nPASS  table 'nucleus' holds 1 measured object(s)\n\n7/7 checks passed\n",
+      "stderr": ""
+    }
+  ],
+  "source_revision": "3bcac5fd6fa49fc491e3d93f72fd4cce89d07a52",
+  "image_id": "sha256:6581a9d928c72aa13e714cc677a730affbdbe5a3b492be0f8f83673ffa34d0fb",
+  "image_bytes": 11475303312,
+  "labels": {
+    "com.nvidia.cudnn.version": "9.1.0.70-1",
+    "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>",
+    "org.opencontainers.image.description": "Spatial phenotype analysis of CRISPR screens \u2014 CLI and pipelines, CUDA 12.4, host driver 550+",
+    "org.opencontainers.image.documentation": "https://einarolafsson.github.io/spacr/installer_guide.html",
+    "org.opencontainers.image.licenses": "MIT",
+    "org.opencontainers.image.ref.name": "ubuntu",
+    "org.opencontainers.image.revision": "3bcac5fd6fa49fc491e3d93f72fd4cce89d07a52",
+    "org.opencontainers.image.source": "https://github.com/EinarOlafsson/spacr",
+    "org.opencontainers.image.title": "spaCR (CUDA 12.4)",
+    "org.opencontainers.image.version": "1.5.0.9"
+  },
+  "docker_version": "29.1.3",
+  "build_context_mb": 108.5,
+  "build_log_sha256": "f74565a28fe6d3fdd14ce2c86a17ffd6a8e5e65959124b1ddc3416752ec92aa4",
+  "build_resources": {
+    "memory": 8589934592,
+    "memory_swap": 8589934592,
+    "cpu_period": 100000,
+    "cpu_quota": 200000,
+    "runtime": "runc",
+    "device_requests": null
+  },
+  "validation_network": "none",
+  "arbitrary_uid": {
+    "uid": 4242,
+    "version": "1.5.0.9",
+    "home": "/tmp/spacr-home-4242",
+    "runtime_dir": "/tmp/spacr-home-4242/.cache/runtime",
+    "runtime_mode": "0o700"
+  },
+  "not_validated": [
+    "GPU execution",
+    "CI workflow execution",
+    "registry publication",
+    "public GHCR visibility"
+  ]
+}

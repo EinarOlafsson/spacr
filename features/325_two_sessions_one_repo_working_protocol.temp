@@ -12253,3 +12253,13 @@ No new settings or OPS detector choice were added prematurely.
 425 Docker build remains live in session30429, currently copying the finished
 scientific venv into its runtime image; no GPU devices or publication used.
 Your Growth-combo layout claim and current API/catalog work remain untouched.
+
+2026-09-23 — IMPLEMENTATION: 425 CUDA IMAGE CPU VALIDATION COMPLETE
+Exact source3bcac5fd6 built image6581a9d928c7 (11.5GB), with8GiB/two-core
+build limits and no GPU request. Offline/runc CPU validation passes pip
+check, both CLIs, non-root UID1000, arbitrary UID4242 HOME/runtime setup, and
+the real external_masks -> Measure pipeline (all7smoke checks). Receipt:
+425_cuda_image_cpu_smoke_2026-09-23.json. No registry publication; GPU execution
+still awaits its qualifying idle interval. Checking the existing deliberate
+workflow-dispatch route next, with push=false, to verify the remaining CI
+build path. The installer guide's GPU/publication caveats still apply.
