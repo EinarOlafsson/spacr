@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted source-context review of PSF Measure intensity-source and Live processing status/help. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "PSF: {operation} (preview field).",
+      "source": "PSF: {operation} (preview field).",
+      "source_sha256": "b7ca2034a2551d748d36bd83d8466977ece668e6a882c17b55e9e7ddab4624d8",
+      "translation": "PSF: {operation} (forskoðað sjónsvið)."
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation: {methods}.",
+      "source": "Segmentation: {methods}.",
+      "source_sha256": "44c9c0497ca652c0362573d1dd4a198cce8f6ca031019ad6288304601e52a0e9",
+      "translation": "Aðgreining: {methods}."
+    },
+    {
+      "table": "ui",
+      "key": "Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.",
+      "source": "Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.",
+      "source_sha256": "91bf3195d019e91e6c1a3cb0c5652c4f61f41c57e00584c987c5e19378fae0b7",
+      "translation": "Forskoðun notar innlesið sjónsvið og stöðlun innan þess. Fullar Mask-keyrslur geta notað lotustöðlun og lýsingarleiðréttingu, svo maskar þeirra geta verið ólíkir. Styrksíur nota upprunalega mynddíla forskoðunarinnar."
+    },
+    {
+      "table": "ui",
+      "key": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+      "source": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+      "source_sha256": "2f17db1295200b62eac581ec2a85b838e2cbe9cca2b3bed2ab4b7b11d197efd3",
+      "translation": "Veldu venjulegan Measure-styrk eða styrk unninn með kvörðuðu PSF fyrir megindlega eiginleika. PSF-vinnsla kemur á eftir hefðbundinni endurskölun og skráðum forvinnsluskrefum. Upprunaskrár og útfluttir myndskurðir halda sínum mynddílum; upprunaupplýsingar gagnagrunnsins skrá valið og nákvæman kjarna. Ekki má blanda breyttum kjarna við fyrirliggjandi mælingar."
+    }
+  ]
+}
