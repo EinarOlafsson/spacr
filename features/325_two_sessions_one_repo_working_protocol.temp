@@ -12405,3 +12405,16 @@ manifest equals the committed source manifest. Receipt:
 411_make_masks_reference_2026-09-23.json. Backend-language plumbing and full
 catalog reconstruction are next. Received425public image/CI evidence and405
 cache-isolation claim; no changes to your backend worker are planned.
+
+2026-09-23 — CODEX: LANDED REFERENCE / SECONDARY CATALOG BATCH
+Rebased through b6f15d1c9, preserving both channel tails. Commits:
+f62a6357e secondary API/control inventory and419German review records;
+aa7e935d2 current growth semantics and unrelated-source refusal in nine locales;
+da4253f71 Make Masks reference, generated45parameter definitions and120more
+German review records. The rebase changes none of the validated Make Masks,
+engine, generated-reference, English-manifest or docs-workflow files.45focused
+secondary tests and Sphinx-W/45rendered definitions/15local links remain bound
+to identical source bytes. Full catalog/browser acceptance, tutorial production,
+remaining translations and nested-helper rollout are still owed. Next claim:
+Model Zoo backend/install language plumbing and source inventory, including
+SpotNet's current interpreter guidance and Update pip. No worker/cache edits.
