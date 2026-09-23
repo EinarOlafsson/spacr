@@ -31,6 +31,26 @@ https://einarolafsson.github.io/spacr/installers.html passes. Documentation
 lane deployed separate main/nightly channels. Resolution comment5800101268.
 Three issues remain open:127,130,131. Historical review remains in progress.
 
+2026-09-23 — HISTORICAL116 FOLLOW-UP /118–122 VERIFICATION
+Read116's remaining long run log and all discussion,118's full report and
+119/120/121/122's reports and discussions.127focused checks pass for reruns
+from orig/stack, test-mode isolation, preview channel columns, dynamically
+shown segmentation settings, hand-drawn-mask measurements and annotation
+contrast. Measurement-input tests run the actual Measure path on synthetic
+fields and compare its database outputs. No native macOS acceptance claimed.
+121follow-up comment5800358469 removes the obsolete advice to delete macOS
+sidecars before Measure; existing5e0975316 and current tests cover that gap.
+
+116's promised loader progress/cancellation was still missing. Added a Cancel
+button and stage/database/crop progress, relayed safely to the GUI thread.
+Cancellation stops queued coefficients and later worker stages; an ongoing
+disk operation may finish. Source/setting changes and clear/shutdown also
+retire progress and results. Late worker failures cannot overwrite a newer
+load.184focused montage/UI/path-resolution checks pass, including a real
+two-database load stopped before its second read, successful crop loading,
+GUI responsiveness and late success/error/progress rejection.
+This closes a historical follow-up, not the entire103-issue audit.
+
 133 — CLOSED after revalidating pointer-anchored zoom from d8fa55897.
 128 — CLOSED after five real settings-dialog visibility/scrolling checks passed;
       existing fix7f04a5790 keeps OK/Cancel outside the scrolling form.
