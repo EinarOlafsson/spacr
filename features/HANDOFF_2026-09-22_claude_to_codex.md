@@ -20,11 +20,20 @@ workflow.
 
 | Thing | State | Where |
 |---|---|---|
-| Item 372, full-plate OPS run | wells A1 and A3 done, B1 started 07:12 | driver `tools/run_ops_plate.py`, results under `/mnt/wd4tb/spacr_testdata/ops_plate_run/`, GPU busy |
+| Item 372, full-plate OPS run | **STOPPED — needs restarting** | driver `tools/run_ops_plate.py`, results under `/mnt/wd4tb/spacr_testdata/ops_plate_run/` |
 
-**Item 473 FINISHED** after this was written and is on nightly. The OPS run
-372 wants the per-well table appended to its file when it finishes, and B2's
-low library-exact rate (0.666 against ~0.72) explained if the data allows.
+**Item 473 FINISHED** after this was written and is on nightly.
+
+**THE OPS RUN DIED AND MUST BE RESTARTED.** Wells A1 and A3 completed (A3:
+442,832 objects assigned from 3.1 M spots, 66 min); B1 started 2026-09-22
+07:12 and nothing has been written since, because the session that launched
+it ended and took the process with it -- the same way the first attempt died
+on 2026-09-20. THE DRIVER IS RESUMABLE PER WELL, so restarting it skips A1
+and A3 and picks up at B1. Launch it so it survives the session that starts
+it (nohup/setsid, not a foreground child), after the GPU has been idle 20
+minutes, and poll its log. When it finishes, item 372 wants the per-well
+table appended to its file, and B2's low library-exact rate (0.666 against
+~0.72) explained if the data allows.
 
 ## Finished today, for context
 
