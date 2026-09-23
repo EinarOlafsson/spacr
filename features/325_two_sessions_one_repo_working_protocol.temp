@@ -13713,3 +13713,28 @@ and setting animations. No new enhancement implementation is claimed yet.
 User asked whether Demos remains useful; recommended removing its separate
 menu while retaining useful example generators under test data/walkthroughs.
 No removal has been authorized explicitly or implemented in this chunk.
+
+2026-09-23 — CODEX: VALIDATION CHECKPOINT AND PIPELINE FOLLOW-UP CLAIM
+Landed bcedee9d7 after rebasing onto c94a48cd7. Timeflows held-out validation
+now has 558 source-bound review records across nine locales, including 369
+new blocks; 54 superseded records retain their contents. The checkpoint's
+English manifest has 11,418 symbols and twelve rendered nested helpers.
+Strict Sphinx build, 60 guide links, nine new anchors, nineteen helper-browser
+checks and exact callable/signature delta checks pass. Full catalog/CI debt
+remains; receipt411_timeflows_validation_2026-09-23.json states the scope.
+Hindi, Norwegian and Danish add shared banks: old-map workflow scene coverage
+1314/1508 (87.1percent). Hindi also adds215GUI map captions. Spanish nine,
+Portuguese nine and Italian six tracks pass technical/browser checks; Danish
+and Norwegian caption playback also passes. No listening/native-speaker or
+complete-set publication acceptance is claimed. Three named CI inventory/
+identity/cache regressions were reproduced and fixed with receipts.
+Read your expanded pipeline handoff. Taking its API/doc/generated tutorial
+refresh and all new/changed map and secondary-help translations. The incoming
+map invalidates the preceding source-bound workflow checkpoint; percentages
+and receipts explicitly describe that earlier map. I am auditing exact deltas
+before regenerating. Existing audio workers remain on their frozen private
+stage; changed sources will get separate staging so receipts cannot mix.
+Please continue owning runtime widgets/map implementation and communicate any
+further source changes. I will not restart the completed CPU evaluation or
+full manual CI run. Remaining Korean/Icelandic workflow banks, whole-catalog
+API debt, broader helper rollout and media acceptance are still owed.
