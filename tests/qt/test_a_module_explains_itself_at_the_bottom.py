@@ -46,8 +46,9 @@ def window(qapp, qt_theme_applied):
     win.show()
     qapp.processEvents()
     yield win
-    win.hide()
-    qapp.processEvents()
+    win.close()
+    win.deleteLater()
+    qapp.sendPostedEvents(win, QEvent.Type.DeferredDelete)
 
 
 @pytest.fixture
@@ -275,7 +276,7 @@ def test_a_dock_hover_reaches_a_module_screen_s_own_strip(window, qapp):
 # The strip itself: what it does NOT do, and the signal it exists to emit
 # ---------------------------------------------------------------------------
 
-def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot, monkeypatch):
+def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot):
     """The one widget in the window that may never show a popup.
 
     Its whole reason for existing is to replace popups; a QLabel whose text
@@ -285,18 +286,20 @@ def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot, monkeypatch):
     """
     from PySide6.QtWidgets import QLabel
 
-    bar = ModuleHintBar()
+    reached_qlabel = []
+
+    class RecordedLabel(QLabel):
+        def event(self, event):
+            reached_qlabel.append(event.type())
+            return super().event(event)
+
+    class RecordedBar(ModuleHintBar, RecordedLabel):
+        """Observe this bar's super call without patching every native QLabel."""
+
+    bar = RecordedBar()
     qtbot.addWidget(bar)
     bar.show_module("mask", "Segment cells and nuclei.")
-
-    reached_qlabel = []
-    real_event = QLabel.event
-
-    def record(self, event):
-        reached_qlabel.append(event.type())
-        return real_event(self, event)
-
-    monkeypatch.setattr(QLabel, "event", record)
+    reached_qlabel.clear()
 
     tooltip = QEvent(QEvent.Type.ToolTip)
     assert bar.event(tooltip) is True
@@ -373,15 +376,21 @@ def test_an_api_lookup_that_raises_costs_the_link_and_nothing_else(
     paint.
     """
     import spacr.qt.screens.settings_model as settings_model
+    from PySide6.QtCore import QTimer
 
     def explode(_key):
         raise RuntimeError("the settings registry is not built yet")
 
-    monkeypatch.setattr(settings_model, "api_docs_url", explode)
-
     bar = ModuleHintBar()
     qtbot.addWidget(bar)
+    pending_help = []
+    QTimer.singleShot(0, lambda: pending_help.append(
+        settings_model.plain_tooltip("Input directory.", "mask", "src")))
 
-    assert bar._api_url("mask") == ""
-    bar.show_module("mask", "Segment cells and nuclei.")
-    assert "Segment cells and nuclei." in bar.text()
+    with monkeypatch.context() as lookup:
+        lookup.setattr(settings_model, "api_docs_url", explode)
+        assert bar._api_url("mask") == ""
+        bar.show_module("mask", "Segment cells and nuclei.")
+        assert "Segment cells and nuclei." in bar.text()
+    qtbot.waitUntil(lambda: bool(pending_help))
+    assert "Input directory." in pending_help[0]

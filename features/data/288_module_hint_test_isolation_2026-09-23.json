@@ -1,0 +1,51 @@
+{
+  "feature": 288,
+  "date": "2026-09-23",
+  "scope": "Module-hint test callback and window ownership, no runtime change",
+  "reproduced_defect": "Under GC stress the api_docs_url failure mock remained active during pytest-qt event draining; unrelated lazy settings construction raised TypeError.",
+  "changes": [
+    "Limit the intentional API failure to a monkeypatch context; drive a queued real settings-tooltip lookup after it restores.",
+    "Observe ModuleHintBar super-event calls with a per-test cooperative Python subclass, without changing global QLabel.event.",
+    "Own, close and explicitly destroy the module fixture window before relinquishing its strong reference."
+  ],
+  "validation": {
+    "ordinary_qt611": {
+      "passed": 75,
+      "failed": 1,
+      "seconds": 209.27
+    },
+    "gc_stress_before_qt611": {
+      "passed": 44,
+      "failed": 2,
+      "seconds": 102.97
+    },
+    "gc_stress_after_qt611": {
+      "passed": 45,
+      "failed": 1,
+      "seconds": 25.94
+    },
+    "ordinary_after_qt610": {
+      "passed": 45,
+      "failed": 1,
+      "seconds": 25.53
+    },
+    "gc_thresholds": [
+      100,
+      5,
+      5
+    ],
+    "remaining_failure": "Known missing organism tutorial routes: candida/plasmodium/toxoplasma, owned by docs lane."
+  },
+  "source_sha256": "5a82ead1b7261db7d8f8d0a87d19f76aed3ef818e116214447e150b3a153d3e5",
+  "evidence_sha256": {
+    "manual-native-before.log": "1b8682f087ab5b7f46ed74a72dc0076505a689b64ae13d6b667f9b6724c1c07c",
+    "manual-native-gc-before.log": "975ef2da4a03675a9cfab580e844c21fbcf9bef7ffaf0be053421b47d987b09a",
+    "manual-native-gc-final.log": "08efea61f34b6cdf6c0c0cffc19add28f0205ce2405dc01bbab5369c1d45f6e6",
+    "manual-native-qt610-final.log": "e4c3a28f749a7e8224fa6e45424bfef92036e5481b98ec0d7a29b79ecae2f6ab"
+  },
+  "limits": [
+    "Original remote QLabel-record and GUI-scale native crashes were not reproduced locally; no verified native-crash fix claim.",
+    "The DnD native GC failure in a different CI shard remains open.",
+    "The lesson assertion and full-suite gates remain enabled; this is not a green full-suite result."
+  ]
+}

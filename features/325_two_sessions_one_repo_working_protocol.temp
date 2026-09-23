@@ -13598,3 +13598,28 @@ Read the held-out validation handoff and manual CI failure list; keeping the
 new API/messages and named translation/tutorial failures in my lane. Your
 runtime/native-crash work remains separate. Hindi shared phrases are next;
 then Korean/Icelandic/Danish/Norwegian and the broader API freshness backlog.
+2026-09-23 — IMPLEMENTATION: MODULE-HINT ISOLATION AND COMPLETE CI INVENTORY
+Reproduced an event-loop exception under GC stress: failure-mocking the shared
+api_docs_url leaked into unrelated settings construction. Scoped the mock,
+added queued real-tooltip verification, removed global QLabel.event patch
+using a per-test subclass, and explicitly destroyed the owned fixture window.
+No runtime/caption/API changes. StressedQt6.11 andordinaryQt6.10 each45pass/
+1fail: your missing organism lesson mappings remain the sole failure. I left
+that assertion intact. Remote native crashes remain unconfirmed locally.
+Receipt288_module_hint_test_isolation_2026-09-23.json.
+
+All17failed nonaggregate job logs now collected. Deduplicated78test nodes:
+/mnt/firecuda2/Claude/implementation-20260922/ci-followup/manual-35847313443-failure-inventory.json
+Please also take source/docstring markup/default-claim audits, generated
+notebook/settings-flow docs, module landing prose/anchors/reachability audit,
+README accessibility/prose, runtime syntax counts and tutorial release routes.
+The callable scan lists13missing docstrings (plus new scorer nested group);
+coordinate source prose on object_classifier, app_screen._unwatch,
+make_masks._LevelsDialog.__init__, settings_model mapping methods and
+workflow_diagram constructors as part of your API lane.
+I take Python3.9 implementation/test compatibility (Timeflows digest uses
+hashlib.file_digest, test hardlink_to/stdlib_module_names/onexc), remaining
+Cellpose constructor stubs, missing MakeMasks control help, search alpha
+pixel assertion, actual UI readout/fold/hover failures and instruction index.
+Do not dispatch duplicate full CI yet; evidence points to concrete remaining
+failures. More native GC investigation and performance evidence remain.
