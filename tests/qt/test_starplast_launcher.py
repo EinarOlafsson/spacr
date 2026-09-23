@@ -40,7 +40,9 @@ def test_dialog_warns_before_work_and_remains_responsive_while_cancelling(qtbot,
     qtbot.addWidget(dialog)
     dialog.show()
     assert 'alpha' in dialog.explanation.text()
-    assert all(size in dialog.explanation.text() for size in ('4 GB', '7 GB', '12 GB'))
+    assert '12 GB' in dialog.explanation.text()
+    assert 'PyPI' in dialog.explanation.text()
+    assert dialog.source.text() == 'starplast'
     assert str(tmp_path/'starplast') in dialog.explanation.text()
     assert not calls
     dialog.start_button.click()

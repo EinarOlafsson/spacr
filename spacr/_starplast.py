@@ -20,7 +20,9 @@ from . import _segmentation_backends as environments
 
 
 REPOSITORY = "git+https://github.com/EinarOlafsson/starplast.git@main"
-"""Default source when no sibling checkout or explicit source is available."""
+"""Optional explicit source for development installations."""
+PYPI_PACKAGE = "starplast"
+"""Install the latest compatible stable release from the official PyPI index."""
 _SPEC = SimpleNamespace(name="starplast", label="Starplast", python=((3, 10), (3, 13)), size_gb=12)
 _OWNER = ".spacr-starplast.json"
 _SELFTEST = (
@@ -41,17 +43,14 @@ def apps_root(root=None) -> Path:
 
 
 def default_source() -> str:
-    """Prefer an explicit source or a sibling Starplast checkout, then GitHub.
+    """Use PyPI unless a developer explicitly overrides the installation source.
 
-    :returns: ``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL.
+    :returns: ``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.
     """
     override = os.environ.get("SPACR_STARPLAST_SOURCE")
     if override:
         return override
-    sibling = Path(__file__).resolve().parents[2] / "starplast"
-    if (sibling / ".git").exists() and (sibling / "starplast/app.py").is_file():
-        return str(sibling)
-    return REPOSITORY
+    return PYPI_PACKAGE
 
 
 def _record(env: Path) -> dict:
@@ -118,7 +117,9 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
     pip never writes build files into the original checkout. A failed install
     removes only the environment created here, and retains ``starplast-install.log``.
 
-    :param source: local Git checkout or pip repository URL; default_source otherwise.
+    :param source: starplast on PyPI, or an explicit local Git checkout or
+        repository URL; default_source otherwise. PyPI resolves the latest
+        compatible stable release at installation time, without a version pin.
     :param root: external-application folder.
     :param progress: callback ``(step, steps, text)``; called off the GUI thread.
     :param cancel: threading.Event; cancels commands and their descendants.
@@ -127,7 +128,7 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
     :returns: completed environment path.
     :raises RuntimeError: installation failed, was cancelled, or folder is unowned.
     :raises ValueError: the selected source is neither a suitable local Git
-        checkout nor an allowed official repository URL.
+        checkout, the PyPI package, nor an allowed official repository URL.
     """
     root = apps_root(root)
     env = root / "starplast"
@@ -135,12 +136,13 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
         return env
     source = str(source or default_source()).strip()
     local = Path(source).expanduser()
-    if local.exists():
+    is_local = source != PYPI_PACKAGE and local.exists()
+    if is_local:
         if not (local / ".git").exists() or not (local / "starplast/app.py").is_file():
             raise ValueError("Choose a Starplast Git checkout containing starplast/app.py.")
         source = str(local.resolve())
-    elif source != REPOSITORY and not source.startswith("git+https://github.com/EinarOlafsson/starplast.git@"):
-        raise ValueError("Choose a local Starplast Git checkout or its official GitHub repository.")
+    elif source not in (PYPI_PACKAGE, REPOSITORY) and not source.startswith("git+https://github.com/EinarOlafsson/starplast.git@"):
+        raise ValueError("Choose starplast on PyPI, a local Starplast Git checkout or its official GitHub repository.")
     report = progress or (lambda *_args: None)
     run = runner or environments._run_step
     _claim(root)
@@ -166,13 +168,13 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
         with tempfile.TemporaryDirectory(prefix="starplast-source-", dir=root) as temporary:
             requirement = source
             steps = []
-            if local.exists():
+            if is_local:
                 requirement = str(Path(temporary) / "starplast.tar")
                 steps.append(("Snapshot committed Starplast source", ["git", "-C", source, "archive", "--format=tar", "--output", requirement, "HEAD"]))
             steps.extend([
                 ("Create Starplast environment", list(interpreter) + ["-m", "venv", str(env)]),
-                ("Install pip", [python, "-I", "-m", "pip", "install", "--upgrade", "pip"]),
-                ("Install Starplast and dependencies", [python, "-I", "-m", "pip", "install", "--no-cache-dir", requirement]),
+                ("Install pip", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "pip"]),
+                ("Install Starplast and dependencies", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", requirement]),
                 ("Check Starplast and bundled data", [python, "-I", "-c", _SELFTEST]),
             ])
             with (root / "starplast-install.log").open("w", encoding="utf-8") as log:

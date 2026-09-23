@@ -63,13 +63,13 @@ class StarplastInstallDialog(QDialog):
         self.explanation = QLabel(tr(
             "Starplast is an alpha application for exploring the Toxoplasma knowledge map. "
             "Features and results may change. It opens in a separate window.\n\n"
-            "This is a large installation: a checked Linux x86_64 installation downloaded "
-            "about 4 GB and used about 7 GB after installation, including CUDA dependencies. "
+            "The latest compatible stable Starplast release is installed from PyPI. "
+            "The package includes its gene data; dependencies add to the download and disk usage. "
             "Requirements vary with the version and platform. "
             "Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\n"
             "Starplast gets its own environment at {path}; spaCR's packages are not changed. "
-            "The source is MIT licensed. Choose a local Git checkout if repository access "
-            "is unavailable; local installs use committed files and leave the checkout untouched.",
+            "The source is MIT licensed. A local Git checkout is an optional development source; "
+            "local installs use committed files and leave the checkout untouched.",
             path=str(self.root / "starplast")), self)
         self.explanation.setWordWrap(True)
         self.explanation.setTextFormat(Qt.PlainText)

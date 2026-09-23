@@ -14052,3 +14052,15 @@ Please include this missing source string and the newer Host–Pathogen steps in
 your catalog refresh. Runtime/layout tests pass; no translation test weakened.
 Offscreen screenshots inspected: Annotate full captions wrap onto rows; tour
 keeps its content and actions inside the window without clearing the backing.
+
+2026-09-23 — STARPLAST PYPI SWITCH COMPLETE
+User explicitly requests latest PyPI Starplast instead of source installation.
+Default source now 'starplast' with --upgrade and official PyPI index; nearby
+checkout no longer wins. Explicit developer overrides remain. Source/version
+record retained; repeated clicks launch installed version offline. Real0.42.0
+installation completed in ~/.spacr/apps/starplast; old0.41.0 retained as backup.
+Import/PyQt6/bundled-data self-test and pip check pass, about1.2GB installed.
+No GPU extra or inference job.37 installer/launcher checks pass. Install dialog
+prose now describes PyPI and version/platform-dependent size instead of quoting
+old CUDA download numbers; alpha and free-space warnings remain. Please refresh
+this new warning translation and source-bound API prose; no catalogs edited.

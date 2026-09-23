@@ -156,17 +156,17 @@ def test_pre_cancelled_install_does_not_create_environment(tmp_path):
     assert not (tmp_path/'starplast').exists()
 
 
-def test_default_source_prefers_override_then_sibling_then_official_repository(tmp_path, monkeypatch):
+def test_default_source_uses_pypi_even_beside_a_checkout(tmp_path, monkeypatch):
     monkeypatch.setattr(service, '__file__', str(tmp_path/'spacr'/'spacr'/'_starplast.py'))
     monkeypatch.setenv('SPACR_STARPLAST_SOURCE', 'chosen source')
     assert service.default_source() == 'chosen source'
     monkeypatch.delenv('SPACR_STARPLAST_SOURCE')
-    assert service.default_source() == service.REPOSITORY
+    assert service.default_source() == service.PYPI_PACKAGE
     sibling = tmp_path/'starplast'
     (sibling/'starplast').mkdir(parents=True)
     (sibling/'starplast'/'app.py').touch()
     (sibling/'.git').touch()
-    assert service.default_source() == str(sibling)
+    assert service.default_source() == service.PYPI_PACKAGE
 
 
 @pytest.mark.parametrize('local', [True, False])
@@ -296,3 +296,29 @@ def test_selftest_reads_the_single_starplast_distribution(monkeypatch, capsys):
     monkeypatch.setattr(importlib.metadata, "version", version)
     exec(service._SELFTEST, {})
     assert json.loads(capsys.readouterr().out) == {"ok": True, "version": "0.42.0"}
+
+
+def test_default_install_resolves_unpinned_pypi_package_not_a_same_named_folder(tmp_path, monkeypatch):
+    monkeypatch.delenv('SPACR_STARPLAST_SOURCE', raising=False)
+    monkeypatch.chdir(tmp_path)
+    (tmp_path/'starplast').mkdir()
+    root = tmp_path/'apps'
+    calls = []
+
+    def runner(argv, **kwargs):
+        calls.append(argv)
+        if 'venv' in argv:
+            python = Path(service.environments._env_python(str(root/'starplast')))
+            python.parent.mkdir(exist_ok=True)
+            python.touch()
+        return 0, [json.dumps({'ok': True, 'version': '0.42.0'})]
+
+    service.install_starplast(root=root, runner=runner, preflight=preflight)
+    command = calls[2]
+    assert command[-1] == 'starplast'
+    assert '--upgrade' in command
+    assert command[command.index('--index-url') + 1] == 'https://pypi.org/simple'
+    assert not any(command[0] == 'git' for command in calls)
+    record = json.loads((root/'starplast'/service._OWNER).read_text())
+    assert record['source'] == 'starplast'
+    assert record['version'] == '0.42.0'

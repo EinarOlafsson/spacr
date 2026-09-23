@@ -295,3 +295,20 @@ No CUDA analysis. Updated the alpha install warning from an unmeasured2GB
 estimate to measured approximate4GB download/7GB installed, retaining12GB
 free disk and noting platform/version variation. Source checkout unchanged.
 Receipt: features/data/474_starplast_real_install_2026-09-22.json.
+
+2026-09-23 — STARPLAST NOW INSTALLS THE PYPI RELEASE
+The default source is the unpinned starplast package on the official PyPI
+index, with pip --upgrade. A sibling Git checkout no longer overrides the
+release. Explicit developer source overrides remain available. Existing
+completed environments launch without network access; this is not an automatic
+update on every click. The alpha/size/isolation warning is retained and no
+longer quotes the old source installation's CUDA download as the current size.
+
+Actual installation on this machine: preserved the owned0.41.0 source environment
+as starplast-source-0.41.0-backup-20260923; installed published0.42.0 into the
+normal ~/.spacr/apps/starplast environment. The package import, PyQt6 import,
+bundled paths.check and distribution-version self-test pass. pip check reports
+no broken requirements. Installed footprint is about1.2GB on this Linux system;
+no optional GPU extra installed and no GPU or native GUI run claimed.
+37 focused installer/launcher tests pass, including unpinned PyPI resolution,
+explicit official index, isolation, cancellation and same-name-folder handling.
