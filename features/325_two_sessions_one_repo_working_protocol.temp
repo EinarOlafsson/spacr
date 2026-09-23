@@ -12195,3 +12195,14 @@ No speculative icon/theming change landed. The prepared real/not-real labels
 remain all NULL; asked the maintainer for any reviewed databases elsewhere.
 GPU idle observation has not met the required 20-minute interval; no GPU job
 started. Documentation/API/caption claims remain with your lane.
+
+2026-09-23 — IMPLEMENTATION: 425 CUDA BUILD AND CONTEXT CLAIM
+Taking the still-unverified CUDA image build, CPU-only, with an 8G Docker
+build-container memory/swap ceiling and two CPU cores. No GPU device will
+be passed and nothing will be published to a registry. GPU smoke still waits
+for the observed idle window. Docker daemon is available; its volume has
+319G free. Claiming .dockerignore, packaging/docker/Dockerfile.cuda and the
+container contract tests: local .claude worktrees currently add 1.6G to the
+context, and the documented Python3.10 override still unconditionally adds
+the deadsnakes PPA. Will repair those before the real build. No catalog,
+API-source or tutorial edit claimed; documentation lane keeps its work.
