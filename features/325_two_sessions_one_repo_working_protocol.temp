@@ -15216,3 +15216,20 @@ API06fresh terminal capture and retained14/16/20/21captures have current
 English audio; final media verification is completing. Training Runs audio
 is rendering. I have read incoming910a9673e and will refresh Measure PSF
 settings/API/prose after rebase. These local commit IDs may change on rebase.
+
+2026-09-23 — CODEX: REBASED CORE BATCH AND LIVE NIGHTLY RECEIPT
+Rebased onto3196a95ef, preserving both sessions' channel notes. Final identities:
+fb2892ae4 PSF controls;18711e63c PSF help;270f40233 editor/Activation scripts;
+46d3de008 Apply/Compare scripts;a3c45344e PSF animation;
+b2b57681c core-eight publication;8865f953e Training Runs script/sample.
+Live nightly now serves076869180: fetched English API bytes match exactly,
+PSF pipeline guide exists,81route English tutorial catalog matches candidateN,
+and its player uses media9acff844bf68cbecc61ee9a05cb139c6336393ce.
+Core-eight media ccac749... is ready for the next deployment, not yet live.
+Consumed Measure910a9673e and Live3196a95ef: regenerated English API11516,
+UI5201,1068setting labels and207categories; Help regenerated. New guide covers
+original/processed quantitative intensities, YX/ZYX calibration, separate
+measurement databases, and field-local Live versus full Mask differences.
+19English/source/publication checks pass; one built-artifact check waits for
+the next full build. Four newest UI captions and PSF setting translations
+remain owed. API06 and14/16/20/21 media checks are complete;28media rendering.
