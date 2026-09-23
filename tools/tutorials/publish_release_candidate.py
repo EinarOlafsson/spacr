@@ -328,8 +328,8 @@ def record(root):
     checkpoint.update(release_hold=False, media_uploaded=True, pages_tree_ready=True, published=False,
                       media_revision={key: receipt[key] for key in
                                       ('repository', 'branch', 'tag', 'commit', 'media_root')},
-                      publication_note='Media revision uploaded and read back; Pages deploys when '
-                                       'docs/source/_extra/tutorials reaches main (docs.yml).')
+                      publication_note='Media revision uploaded and read back; docs.yml publishes '
+                                       'the committed Pages tree to the matching nightly or main channel.')
     write(target / 'checkpoint.json', checkpoint)
     print('HOLD LIFTED in', target / 'checkpoint.json', flush=True)
 
