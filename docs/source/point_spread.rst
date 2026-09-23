@@ -23,6 +23,17 @@ Set **Deconvolution iterations** when using Richardson–Lucy and choose
 count and inspect noise as well as object boundaries. **Reload** rereads a
 kernel file after you change it. **Off** disables PSF processing.
 
+.. image:: ../../spacr/resources/setting_animations/gifs/psf_fwhm_um.gif
+   :alt: A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity.
+   :width: 300px
+
+White shows a fixed input profile; teal shows the convolved result. The blue
+bar indicates the Gaussian kernel's full width at half maximum. Increasing
+that width spreads the signal and reduces peak intensity while preserving
+the integrated intensity. This illustrates convolution with a Gaussian
+approximation. For your microscope, enter measured calibration values and
+inspect the resulting image with **Compare**.
+
 For a batch in **Mask** or **Timelapse**, open the **Point Spread Function**
 settings category. Set ``psf_operation`` to ``convolve`` or ``deconvolve`` and
 ``psf_image_sampling_um`` to your calibrated ``[Y, X]`` pixel spacing.

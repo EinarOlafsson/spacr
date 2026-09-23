@@ -1005,3 +1005,17 @@ Tile seam blending
    :width: 300px
 
 **Settings:** ``blend``
+
+Point spread function
+---------------------
+
+.. _setting-animation-psf-fwhm-um:
+
+PSF — Gaussian convolution width
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/psf_fwhm_um.gif
+   :alt: PSF — Gaussian convolution width setting animation
+   :width: 300px
+
+**Settings:** ``psf_fwhm_um``

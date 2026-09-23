@@ -1715,6 +1715,27 @@
         "sha256": "c0c32cc4a96290dd75bf2ff2cddd725017bb50f7fcd830777d27e7fc17f9402a",
         "unique_frames": 17
       }
+    },
+    {
+      "category": "Point spread function",
+      "file": "gifs/psf_fwhm_um.gif",
+      "params": {
+        "description": "White: fixed input. Teal: convolved output. Blue: Gaussian kernel FWHM. Increasing kernel width spreads the signal while preserving its integrated intensity.",
+        "operation": "convolve",
+        "source": "gaussian"
+      },
+      "scene": "psf",
+      "settings": [
+        "psf_fwhm_um"
+      ],
+      "slug": "psf_fwhm_um",
+      "title": "PSF \u2014 Gaussian convolution width",
+      "validation": {
+        "bytes": 73472,
+        "frames": 18,
+        "sha256": "545a4ac71309b71d34658519129dcdaa85b400ce8a003588c394f8078069a7e1",
+        "unique_frames": 17
+      }
     }
   ],
   "schema_version": 1,

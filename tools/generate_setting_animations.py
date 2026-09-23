@@ -1756,6 +1756,38 @@ def _alignment_scene(painter: Painter, spec: Spec, action: float) -> None:
         painter.rectangle((seam - width, 26, seam + width, H - 26), _mix(TEAL, 0.35), 0.4)
 
 
+def _psf_profiles(action: float) -> Tuple[List[float], List[float]]:
+    """Sample a fixed two-spot source convolved with a widening Gaussian.
+
+    Each source spot has sigma 2 pixels. Convolution adds Gaussian variances;
+    normalizing on the shared grid retains the same integrated intensity.
+    The scene illustrates convolution only, without simulating deconvolution.
+    """
+    def profile(sigma: float) -> List[float]:
+        values = [sum(math.exp(-0.5 * ((x - center) / sigma) ** 2)
+                      for center in (45, 75)) for x in range(121)]
+        total = sum(values)
+        return [value / total for value in values]
+
+    return profile(2.0), profile(math.sqrt(4.0 + (3.0 + 11.0 * action) ** 2))
+
+
+def _psf_scene(painter: Painter, action: float) -> None:
+    """Keep the white input fixed while the teal convolved profile broadens."""
+    _well(painter)
+    original, blurred = _psf_profiles(action)
+    painter.line([(38, 185), (322, 185)], GRAY)
+    painter.line([(38, 42), (38, 185)], GRAY)
+    scale = 125 / max(original)
+    for values, colour in ((original, WHITE), (blurred, TEAL)):
+        painter.line([(40 + x * 280 / 120, 184 - value * scale)
+                      for x, value in enumerate(values)], colour, 1.0)
+    width = (3 + 11 * action) * 2.35482 * 280 / 120
+    painter.line([(180 - width / 2, 211), (180 + width / 2, 211)], BLUE, 1.3)
+    for x in (180 - width / 2, 180 + width / 2):
+        painter.line([(x, 207), (x, 215)], BLUE, 1.0)
+
+
 def render_frame(spec: Spec, index: int) -> Image.Image:
     painter = Painter()
     action = _cycle(index)
@@ -1803,6 +1835,8 @@ def render_frame(spec: Spec, index: int) -> Image.Image:
         _umap_scene(painter, spec, action)
     elif spec.scene == "alignment":
         _alignment_scene(painter, spec, action)
+    elif spec.scene == "psf":
+        _psf_scene(painter, action)
     else:
         raise ValueError(f"Unknown scene {spec.scene!r}")
     return painter.finish()
@@ -2090,6 +2124,12 @@ def _specs() -> List[Spec]:
             ("blend",), {"mode": "blend"},
         ),
     ])
+    specs.append(Spec(
+        "psf_fwhm_um", "PSF — Gaussian convolution width", "Point spread function",
+        "psf", ("psf_fwhm_um",),
+        {"operation": "convolve", "source": "gaussian",
+         "description": "White: fixed input. Teal: convolved output. Blue: Gaussian kernel FWHM. Increasing kernel width spreads the signal while preserving its integrated intensity."},
+    ))
     return specs
 
 
