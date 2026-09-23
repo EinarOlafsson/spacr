@@ -12564,3 +12564,21 @@ confirmed, zero complete pairs, incomplete directory preserved. Replacement
 No runtime model/public API/UI/settings delta; no model promotion. All
 result claims still await actual completion, and synthetic linking scores
 must not be presented as real-image or end-to-end tracking acceptance.
+
+2026-09-23 — IMPLEMENTATION: 372 STORE-READS RESUME CLAIM
+Claiming tools/run_ops_plate.py and a focused driver test. --store-reads B2
+currently skips an already complete B2 with barcode rows even when detailed
+ops_reads were never requested. Will require the saved report's read count
+and matching persisted read rows before such a well can be skipped; otherwise
+the requested well reruns. No real plate invocation/GPU job, engine setting
+change or new API. This is necessary to make the planned B2 diagnosis usable.
+
+2026-09-23 — IMPLEMENTATION: 372 REQUESTED-READ RESUME FIX VERIFIED
+The driver reruns a completed well when --store-reads requests evidence not
+recorded/persisted by the previous run. Saved settings, decode ops_reads_rows
+and actual rows for that plate/well must agree before skipping.13focused
+driver checks pass (real SQLite/library/report paths, stand-in analysis),
+including a second invocation that skips the repaired well. Fatal Ruff passes.
+Documentation delta: requesting reads for a previously completed well can
+rerun all four phases; this is not a decode-only shortcut. No public runtime
+API, UI caption or engine setting added, and no real/GPU plate job launched.

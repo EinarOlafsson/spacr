@@ -6020,3 +6020,19 @@ A2 segmentation/decoding and the remaining full-plate run are still owed.
 The detailed historical B2 outputs were not found in the inspected local
 trees; its lower aggregate exact-match rate remains unexplained. Future B2
 investigation needs retained per-read evidence rather than a guessed cause.
+
+2026-09-23 — REQUESTED READS ARE NO LONGER SILENTLY SKIPPED ON RESUME
+tools/run_ops_plate.py previously skipped any completed well with barcode
+rows, even if --store-reads newly requested detailed evidence for that well.
+Such a well now skips only when its previous settings enabled stored reads,
+its decode report records a non-negative integer ops_reads_rows, and the
+database still contains exactly that many rows for this plate and well.
+Missing tables/files, partial rows and unknown counts trigger a rerun through
+the existing four phases. The read check opens SQLite read-only and never
+creates a missing database. Unrequested wells retain ordinary resume behavior.
+
+13focused checks pass using the real driver/report/library/SQLite path and a
+stand-in run_ops; they verify missing, partial, exact and zero counts, other
+plates/wells, unchanged skipped reports and a second invocation that skips
+the repaired well. Fatal Ruff passes. This is a driver regression fix, not
+a new real-plate run or a complete provenance audit of all resume settings.

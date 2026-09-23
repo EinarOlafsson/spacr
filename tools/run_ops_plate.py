@@ -39,7 +39,10 @@ recorded with its error and the plate goes on to the next one.
 ``--store-reads WELL`` turns on ``ops_store_reads`` for the named wells
 only. It changes nothing that is decoded; it writes ``ops_reads`` (about
 thirty million rows for a well), which is what a per-field or per-cycle
-look at one well needs. The plate summary names the wells it was on.
+look at one well needs. A completed well is rerun through all four phases
+if requested reads were not saved, or their persisted count differs from
+its saved decode report. Unrequested wells keep ordinary resume behavior.
+The plate summary names the wells it was on.
 
 THE NAS IS READ, NEVER WRITTEN. Everything goes under ``--out``. Launch the
 whole driver through ``tools/nas_guard.sh run`` so a dead mount leaves an
@@ -158,6 +161,23 @@ def well_row(report: Dict[str, Any]) -> Dict[str, Any]:
         "seconds": report.get("seconds"),
         "peak_rss_gb": report.get("peak_rss_gb"),
     }
+
+
+def _stored_reads_match(db: Path, plate: str, well: str, record: Dict[str, Any]) -> bool:
+    """Require evidence that the requested detailed reads survived on disk."""
+    if not (record.get("settings") or {}).get("ops_store_reads"):
+        return False
+    expected = ((record.get("report") or {}).get("decode") or {}).get("ops_reads_rows")
+    if type(expected) is not int or expected < 0:
+        return False
+    try:
+        with sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True) as connection:
+            actual = connection.execute(
+                "SELECT COUNT(*) FROM ops_reads WHERE plate = ? AND well = ?",
+                (plate, well)).fetchone()[0]
+        return actual == expected
+    except sqlite3.Error:
+        return False
 
 
 def plate_totals(rows: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
@@ -298,8 +318,10 @@ def main(argv: Optional[List[str]] = None) -> int:
             except (OSError, ValueError):
                 done = {}
             if done.get("complete") and barcode_rows(db, plate, well) > 0:
-                print(f"{well}: complete, skipped", flush=True)
-                continue
+                if well not in store_reads or _stored_reads_match(db, plate, well, done):
+                    print(f"{well}: complete, skipped", flush=True)
+                    continue
+                print(f"{well}: requested stored reads are missing or incomplete; rerunning", flush=True)
         settings = dict(base_settings, ops_store_reads=well in store_reads)
         started_at = datetime.datetime.now().isoformat(timespec="seconds")
         started = time.perf_counter()
