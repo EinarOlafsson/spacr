@@ -231,6 +231,7 @@ def test_home_has_the_button_and_asks_the_window_for_it(qtbot):
 
     page = make_home_page()
     qtbot.addWidget(page)
+    assert page._sample_project_button.text() == "Pipeline overviews"
     asked = []
     page.sample_project_requested.connect(lambda: asked.append(True))
     page._sample_project_button.click()

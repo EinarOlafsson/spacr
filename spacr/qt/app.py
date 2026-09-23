@@ -3173,6 +3173,12 @@ class MainWindow(QMainWindow):
         help_menu = mb.addMenu("&Help")
         help_menu.addMenu(demo_menu)
         help_menu.addSeparator()
+        from .widgets.workflow_diagram import show_spacr_flowchart
+
+        act_flowchart = QAction(tr("spaCR flowchart"), self)
+        act_flowchart.setObjectName("SpacrFlowchartAction")
+        act_flowchart.triggered.connect(lambda: show_spacr_flowchart(self))
+        help_menu.addAction(act_flowchart)
         act_keys = QAction("Keyboard shortcuts", self)
         act_keys.setStatusTip(
             "Every key spaCR binds, what it does, and where it works.")

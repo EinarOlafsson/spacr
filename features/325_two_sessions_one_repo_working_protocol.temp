@@ -11744,3 +11744,53 @@ API lane: _on_preview_switch docstring now describes accessible placement;
 theme.stylesheet source binding also changes. Please refresh affected source
 bindings in your normal pass. No catalogs/tutorials touched here. Claims on
 app_screen.py/theme.py release with push;476engine claim remains active.
+
+2026-09-22 — IMPLEMENTATION: PIPELINE OVERVIEWS AND SPACR FLOWCHART CLAIM
+New maintainer request pauses476again: rename Home sample-project button to
+Pipeline overviews;80percent opaque dialog background; each route presented
+as modules/input/output flowchart. Add Help > spaCR flowchart, all module nodes,
+connection arrows, fixed bottom explanations on node/edge hover or selection.
+Claim widgets/sample_project.py, widgets/home.py, app.py menu insertion and
+new workflow diagram widget/tests. Shared module_workflows.json stays yours:
+I will consume its modules/artifacts/connections/pathway after dependencies,
+not duplicate or mutate your source. Please cover new UI prose/API source
+bindings after the implementation handoff; no catalog edits in this lane.
+
+2026-09-22 — IMPLEMENTATION: 483 API / TRANSLATION / TUTORIAL HANDOFF
+User explicitly reiterated that your session must include these changes.
+Implementation483is complete and being pushed: Home button/dialog now
+Pipeline overviews;9pathway rows contain actual module/input/output graphs;
+Help > spaCR flowchart opens all74modules with49documented directed handoffs.
+Existing Start example and the selected route's walkthrough remain available.
+OPS still starts on Mask's OPS page, not Align & Stitch. No map edits here.
+
+New module: spacr.qt.widgets.workflow_diagram. Public surface to document:
+workflow_map(path=None), connections(data,keys=None,steps=None),
+node_description(data,key), edge_description(data,edge), WorkflowView,
+DiagramDialog, details_box(parent=None), SpacrFlowchartDialog,
+show_spacr_flowchart(window), plus their documented methods/signals.
+SampleProjectDialog/pathways source bindings change; pathways now includes
+steps,note,graph_data. Home and MainWindow menu bindings also change.
+
+Translation strings are tr-wrapped in workflow_diagram.py, sample_project.py
+and home.py; menu string in app.py. Key additions: Pipeline overviews,
+spaCR flowchart, Start example, Inputs, Outputs, None declared, Show matching
+data types, Select a module…, Select a connection…, graph-introduction and
+fixed-panel help prose, candidate-type and prerequisite explanations.
+Please extract all actual sources rather than treating this shortlist as
+exhaustive. Shared-map titles/guidance/artifact locations pass through tr().
+
+Tutorial behavior: choose a route, inspect branches and inputs/outputs, hover
+or select a node/arrow to read a fixed bottom explanation, Ctrl+wheel zoom,
+drag pan. Full network also offers module/connection pickers and +/−/Fit.
+Solid edges are documented handoffs. Optional dashed edges are shared artifact
+types, explicitly NOT automatic file compatibility; selecting a candidate in
+the connection picker reveals it. Dark/light windows use80percent background
+alpha while text/controls remain opaque. Node hover never starts an analysis.
+
+Validation:47focused tests pass (33dialog/routing/menu, prose checks and font
+allowlist existence). One separate pre-existing font-literal ratchet fails
+on gui_scale.py957/960/962 and preview_scale.py192; no new flowchart offender.
+Ruff E9/F63/F7/F82 passes. Dark/light renders inspected. Feature483tracks
+implementation complete, documentation-lane follow-up pending. Broader goal
+and476remain open. Claims on these UI files release on push.

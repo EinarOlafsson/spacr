@@ -1,0 +1,47 @@
+PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART
+
+Requested: 2026-09-22 by the maintainer.
+Status: IMPLEMENTATION COMPLETE; translation/API/tutorial handoff pending in
+        the documentation lane. Not a claim that the entire two-list goal is done.
+
+Requirements
+- Rename Home's Start a sample project button to Pipeline overviews.
+- The overview window has an80percent opaque background, with opaque text.
+- Each pathway row is a flowchart showing modules, inputs, outputs and links.
+- Help has spaCR flowchart: every module is a network node, with directed
+  output/input connections. Module and edge explanations appear in a fixed
+  text box below the network, including on hover and keyboard selection.
+
+Implementation
+spacr/qt/widgets/workflow_diagram.py consumes the existing shared
+spacr/resources/module_workflows.json; no alternate topology file.
+spacr/qt/widgets/sample_project.py renders all9pathways as graph rows.
+spacr/qt/widgets/home.py labels its existing button Pipeline overviews.
+spacr/qt/app.py installs the Help action and reuses a single nonmodal window.
+
+The full map includes all74modules and all49documented handoffs. Solid
+arrows describe those documented handoffs. Optional dashed arrows match
+artifact output/input types; their bottom-panel explanations explicitly
+require checking schema, identities and settings. They are not claims that
+all files of the same general type can be loaded directly. The connection
+picker reveals a selected candidate arrow even when candidates were hidden.
+Pathways follow the map's explicit after dependencies, preserving branches:
+Map Barcodes is independent of image classification before Regression.
+OPS starts in Mask's OPS page; generic Align & Stitch is not inserted.
+
+Diagrams support drag-to-pan and Ctrl+wheel zoom. The full network also has
+module/connection selectors and zoom/Fit controls. Hovering changes ink and
+fixed-panel text without moving nodes or resizing rows. All input/output
+locations are available in the bottom panel; long node summaries use ellipsis.
+Start example remains an explicit action, retaining example loading and the
+existing one-click walkthrough. Browsing/hovering never launches analysis.
+The window paints an80percent-alpha rounded background, not window opacity:
+text and controls stay fully opaque.
+
+Validation
+Focused Qt checks cover real node/edge hovering and clicks, stable geometry,
+all map nodes/handoffs, candidate type matches, branch direction, Help entry
+reuse, background pixel alpha204/255, existing nine-locale route titles and
+summaries, and real OPS example routing. Dark/light renders inspected in
+/mnt/firecuda2/Claude/implementation-20260922/pipeline-overviews/.
+Final test count and documentation handoff recorded in the shared protocol.

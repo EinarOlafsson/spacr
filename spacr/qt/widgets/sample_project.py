@@ -1,4 +1,4 @@
-"""Start a sample project of the kind you have, from the Home screen.
+"""Explore pipeline flowcharts and optionally start an example from Home.
 
 Choose an experiment type and open the first module in its pathway with
 example data and settings already supplied.
@@ -18,13 +18,16 @@ import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem,
-    QToolButton, QVBoxLayout,
+    QAbstractItemView, QStyledItemDelegate, QStyle, QToolButton, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
+from ..theme import active_palette, font_px
+from .workflow_diagram import DiagramDialog, WorkflowView, details_box, workflow_map
 
 __all__ = ["MAP_FILE", "pathways", "SampleProjectDialog", "start_example"]
 
@@ -76,7 +79,9 @@ def pathways(map_file: Optional[Path] = None) -> List[Dict]:
                  "modules": [step["module"] for step in route["steps"]],
                  "module_names": [modules[step["module"]]["name"]
                                   for step in route["steps"]],
-                 "home_app": route["home_app"], "walkthrough": True}
+                 "home_app": route["home_app"], "walkthrough": True,
+                 "steps": route["steps"], "note": route.get("note", ""),
+                 "graph_data": written}
                 for key, route in found.items()
                 if route.get("steps") and route.get("title")
             ]
@@ -114,8 +119,22 @@ def start_example(screen) -> str:
     return ""
 
 
-class SampleProjectDialog(QDialog):
-    """Which kind of experiment, and start it.
+class _PipelineRowDelegate(QStyledItemDelegate):
+    """Draw a restrained selection rim behind each flowchart row."""
+
+    def paint(self, painter, option, index):
+        """Leave text to the row widget instead of painting a duplicate title."""
+        if option.state & QStyle.State_Selected:
+            painter.save()
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setPen(QPen(QColor(active_palette()['accent']), 1))
+            painter.setBrush(Qt.NoBrush)
+            painter.drawRoundedRect(option.rect.adjusted(1, 1, -1, -1), 12, 12)
+            painter.restore()
+
+
+class SampleProjectDialog(DiagramDialog):
+    """Explore pathway flowcharts and optionally start an example project.
 
     :param parent: the window it belongs to.
     :param entries: the pathways; :func:`pathways` when None.
@@ -124,44 +143,80 @@ class SampleProjectDialog(QDialog):
     chosen = Signal(str)
 
     def __init__(self, parent=None, entries: Optional[List[Dict]] = None):
-        """Show one row per pathway, the first selected."""
+        """Show a module/input/output flowchart for each pathway row."""
         super().__init__(parent)
         self.setObjectName("SampleProjectDialog")
-        self.setWindowTitle(tr("Start a sample project"))
-        self.resize(640, 520)
+        self.setWindowTitle(tr("Pipeline overviews"))
+        self.resize(1180, 820)
         self._entries = list(entries if entries is not None else pathways())
         layout = QVBoxLayout(self)
         intro = QLabel(tr(
-            "Pick the kind of experiment you have. spaCR opens the first "
-            "module of that pathway with example data, so you can see it "
-            "work before pointing it at your own images."), self)
+            "Explore the modules, inputs and outputs in each pipeline. "
+            "Hover a module or arrow for details. Select a pipeline and "
+            "choose Start example to open its first module with sample data. "
+            "Ctrl+wheel zooms a diagram; drag to pan."), self)
         intro.setWordWrap(True)
         layout.addWidget(intro)
         self.list = QListWidget(self)
         self.list.setObjectName("SampleProjectList")
         self.list.setWordWrap(True)
         self.list.setTextElideMode(Qt.ElideNone)
-        for entry in self._entries:
+        self.list.setItemDelegate(_PipelineRowDelegate(self.list))
+        self.list.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.list.setStyleSheet("QListWidget#SampleProjectList { background: transparent; border: none; }")
+        self.diagrams = []
+        for index, entry in enumerate(self._entries):
             item = QListWidgetItem(tr(entry["title"]), self.list)
             item.setData(Qt.UserRole, entry)
+            row = QWidget()
+            row_layout = QVBoxLayout(row)
+            title = QLabel(tr(entry["title"]))
+            title.setObjectName("CardTitle")
+            row_layout.addWidget(title)
+            data = entry.get("graph_data")
+            if data is None:
+                try:
+                    data = workflow_map()
+                except (OSError, ValueError):
+                    data = {"modules": {}, "artifacts": {}, "connections": []}
+                for key in entry["modules"]:
+                    data["modules"].setdefault(key, {"name": key, "inputs": [], "outputs": []})
+            steps = entry.get("steps")
+            if steps is None:
+                steps = [{"module": key, "after": entry["modules"][i-1:i] if i else []}
+                         for i, key in enumerate(entry["modules"])]
+            diagram = WorkflowView(data, entry["modules"], steps, row)
+            diagram.activated.connect(lambda i=index: self.list.setCurrentRow(i))
+            diagram.explanation.connect(self._describe_graph_item)
+            row_layout.addWidget(diagram, 1)
+            self.diagrams.append(diagram)
+            item.setSizeHint(QSize(900, 360))
+            self.list.setItemWidget(item, row)
         self.list.setCurrentRow(0)
-        self.list.itemDoubleClicked.connect(lambda _item: self.accept())
         layout.addWidget(self.list, 1)
         self.summary = QLabel("", self)
         self.summary.setWordWrap(True)
+        self.summary.setFixedHeight(font_px("body") * 3)
         layout.addWidget(self.summary)
         self.steps = QLabel("", self)
         self.steps.setWordWrap(True)
-        layout.addWidget(self.steps)
+        self.steps.hide()
+        self.details = details_box(self)
+        layout.addWidget(self.details)
         self.list.currentRowChanged.connect(self._say_the_steps)
         self._say_the_steps(0)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
                                    self)
-        buttons.button(QDialogButtonBox.Ok).setText(tr("Start"))
+        buttons.button(QDialogButtonBox.Ok).setText(tr("Start example"))
+        buttons.button(QDialogButtonBox.Ok).setEnabled(bool(self._entries))
         buttons.button(QDialogButtonBox.Cancel).setText(tr("Cancel"))
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+    def _describe_graph_item(self, text):
+        """Show a node or arrow explanation without changing row geometry."""
+        self.details.setHtml(text)
 
     def _say_the_steps(self, row: int) -> None:
         """Name the modules the selected pathway goes through, in order."""

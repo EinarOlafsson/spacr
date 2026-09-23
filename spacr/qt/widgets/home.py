@@ -2329,12 +2329,11 @@ class HomePage(QWidget):
         # GitHub #130: Home said what spaCR can do and nothing about where to
         # begin. First in the column, above the panels, because it is the
         # answer to the first question a new user has.
-        start = QPushButton(tr("Start a sample project…"), aside)
+        start = QPushButton(tr("Pipeline overviews"), aside)
         start.setObjectName("PrimaryButton")
         start.setToolTip(tr(
-            "Pick the kind of experiment you have. spaCR opens the first "
-            "module of that pathway with example data, so you can see it "
-            "work before pointing it at your own images."))
+            "Explore pipeline flowcharts, their modules, inputs and outputs, "
+            "and optionally start with example data."))
         start.clicked.connect(
             lambda _checked=False: self.sample_project_requested.emit())
         self._sample_project_button = start
