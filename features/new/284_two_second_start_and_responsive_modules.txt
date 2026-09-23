@@ -1530,3 +1530,38 @@ its first version used the suite's application-wide QSS fixture, which does
 not reproduce the production ordering. Existing fold behavior is preserved.
 The500ms ceiling and other-platform evidence remain open. Receipt:
 features/data/284_fold_controls_before_sheet_2026-09-22.json.
+
+2026-09-23 — SEMANTIC ICONS INITIALIZE ONLY THEIR REQUESTED FONT
+The first settings icon initialized all twelve QtAwesome font families;
+spaCR's semantic mappings use only fa5s. iconset now uses QtAwesome's own
+IconicFont renderer with that family's bundled metadata/checksum, cached per
+QApplication. Already initialized global fonts are reused. Missing/changed
+metadata, custom/system fonts, failed registration or checksum problems keep
+the original API/fallback path. Invalidated application font IDs reload.
+No artwork, public signature, caption, theme color or setting changed.
+
+All semantic glyphs plus the unknown-name fallback are pixel-identical to
+the original engine at 16/48 px, three themes, four button modes and both
+states; normal small icons also have visible ink. 151 focused checks pass,
+including font reset, failed/missing fonts and existing global-provider reuse.
+The new helper has 33/33 statements and 14/14 branches covered; this is not
+a whole-iconset coverage claim. No gate or baseline changed.
+
+Fresh-process isolated first-icon creation AND rendering, excluding the
+separately measured QtAwesome import: eight runs per arm, interleaved in
+both orders. Median 89.36 -> 55.13 ms (38.3 percent lower). Font initialization
+falls from twelve families to one. Import cost remains: medians 114/122 ms.
+
+Real full-window Home->Classify measurements remain noisy. First six-pair
+candidate round: median 1525.60 -> 1450.31 ms. Final code, reversed order:
+1606.60 -> 1578.44 ms (1.8 percent); three pairs improve, three worsen.
+Every run builds 186 widgets. These are fresh offscreen processes on this
+loaded Linux machine, with fixed private preferences/fonts and byte-compiled
+source. The baseline installs the exact prior icon function before window
+construction; all other current source is shared. No concurrent tests or
+other benchmarks ran from this session during either timing cohort.
+
+Receipt: data/284_requested_icon_fonts_2026-09-23.json contains both complete
+navigation cohorts, all isolated samples, source hashes and probe sources.
+This establishes less icon setup work, not a reliable whole-navigation speed
+gain or cross-platform acceptance. The 500 ms open/stall target remains OPEN.

@@ -13370,3 +13370,29 @@ including private helper visibility under411. Crop/assignment corrections do
 not imply retraining or accuracy improvement. Runtime bodies remain yours.
 Full API draft queue remains private/unpublished; all-language catalog,
 listening and complete-set media acceptance are still owed.
+
+2026-09-23 — IMPLEMENTATION: 284/380 ICON FONT INITIALIZATION CLAIM
+Fresh Home->Classify profile shows first settings icon costs about 302 ms:
+144 ms importing QtAwesome, the remainder initializing its font collections.
+All semantic mappings use fa5s, yet qta.icon initializes twelve families.
+Claiming iconset.py's private provider selection and focused rendering tests;
+will retain the original QIcon engine/artwork and fallback behavior, compare
+pixels, and measure alternating real navigation runs. No caption, settings,
+translation or tutorial-source edits. The 500 ms module-open target remains
+unmet; a measured improvement is required before retaining this change.
+
+284/380 icon initialization verified: all semantic glyphs and the unknown
+fallback retain exact pixels across three themes, 16/48 px, four modes and
+both states. The original renderer loads only fa5s (one family versus twelve),
+reuses any existing global provider, validates/reloads font IDs and keeps the
+old API fallback for unsupported metadata/system fonts/failures. New private
+_glyph_provider is the only API inventory addition; signatures/captions/
+settings/catalogs unchanged. 151 checks pass; helper coverage 33/33 statements,
+14/14 branches. Please include its lifecycle/fallback behavior in API prose.
+Isolated creation+render median 89.36 -> 55.13 ms, eight runs per arm. Full
+navigation remains noisy: final six-pair 1606.60 -> 1578.44 ms, three improve
+and three worsen. Do not describe this as satisfying the 500 ms budget or a
+proven whole-navigation speed gain. Receipt284_requested_icon_fonts_
+2026-09-23.json retains both complete navigation cohorts. Read your 426 API
+claim and recovery/French/Spanish checkpoint; those source bodies remain
+untouched in this change.

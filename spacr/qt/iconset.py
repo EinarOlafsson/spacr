@@ -95,6 +95,54 @@ def _try_qta():
         return None
 
 
+def _glyph_provider(qta, glyph):
+    """Load only a requested QtAwesome font when its bundled metadata is known.
+
+    :param qta: the optional QtAwesome module.
+    :param glyph: a prefixed glyph name such as ``fa5s.cog``.
+    :returns: a per-application IconicFont, or the unchanged QtAwesome API
+        when its metadata/API differs, system fonts are requested or loading
+        fails. The selected font keeps QtAwesome's checksum verification and
+        rendering engine. Invalidated font IDs cause a fresh provider load.
+    """
+    from PySide6.QtGui import QFontDatabase
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance()
+    if app is None or getattr(qta, "_SYSTEM_FONTS", False):
+        return qta
+    prefix = glyph.partition(".")[0]
+    providers = getattr(app, "_spacr_glyph_providers", {})
+    key = (id(qta), prefix)
+    cached = providers.get(key)
+    if cached is not None:
+        provider = cached[1]
+        if all(QFontDatabase.applicationFontFamilies(font_id)
+               for font_id in provider.fontids.values()):
+            return provider
+    shared = getattr(qta, "_resource", None)
+    if isinstance(shared, dict) and shared.get("iconic") is not None:
+        return qta
+    try:
+        entry = next(row for row in qta._BUNDLED_FONTS if row[0] == prefix)
+        if len(entry) != 3:
+            return qta
+        directory = Path(qta.__file__).resolve().parent / "fonts"
+        expected = getattr(qta, "_MD5_HASHES", {}).get(entry[1])
+        if expected and hashlib.md5((directory / entry[1]).read_bytes()).hexdigest() != expected:
+            return qta
+        provider = qta.IconicFont(entry)
+        if not provider.fontids or not all(QFontDatabase.applicationFontFamilies(font_id)
+                                          for font_id in provider.fontids.values()):
+            return qta
+        provider.setParent(app)
+    except Exception:
+        return qta
+    providers[key] = (qta, provider)
+    app._spacr_glyph_providers = providers
+    return provider
+
+
 def active_theme() -> str:
     """The theme icons should be drawn for, resolved from preferences.
 
@@ -134,7 +182,7 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
     glyph = _NAME_TO_GLYPH.get(name, "fa5s.puzzle-piece")
     fill = color or _theme_palette(theme)["fg_muted"]
     try:
-        resolved = qta.icon(glyph, color=fill)
+        resolved = _glyph_provider(qta, glyph).icon(glyph, color=fill)
         if resolved is not None and not resolved.isNull():
             return resolved
     except Exception:

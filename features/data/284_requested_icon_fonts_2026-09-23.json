@@ -1,0 +1,625 @@
+{
+  "measured": "2026-09-23",
+  "instructions": [
+    284,
+    380
+  ],
+  "source_before_commit": "4093930f1204b7cd8d2566008d8aa6f9361fe76e",
+  "source_before_sha256": "60799295fb5e1c8ac2f808e5e32cc3b51b2e0649b1c272a917bcd260a97a594d",
+  "source_after_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359",
+  "qtawesome_version": "1.4.2",
+  "first_candidate_navigation": {
+    "rows": [
+      {
+        "arm": "before",
+        "open_ms": 1527.7188800100703,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1448.0770590016618,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1379.7954639885575,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1621.807164978236,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1513.9772479888052,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1385.1063550100662,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1523.4865929814987,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1515.734243002953,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1666.7789130005985,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1452.5444750033785,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1556.5896330226678,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1305.4887930047698,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "a8af3f642646163f61c98ee973b3edd760742d641b2b1b5258aa61f98e6b505e"
+      }
+    ],
+    "median_ms": {
+      "before": 1525.6027364957845,
+      "after": 1450.3107670025202
+    }
+  },
+  "final_navigation": {
+    "rows": [
+      {
+        "arm": "after",
+        "open_ms": 1507.6789829763584,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1749.471265997272,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1559.2827000073157,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1603.5170989925973,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1632.4532919970807,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1528.3572420012206,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1495.525379985338,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1747.3773100064136,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1690.8826809958555,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1609.6827750152443,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "after",
+        "open_ms": 1597.598377004033,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [],
+        "local_font_families": [
+          [
+            "fa5s"
+          ]
+        ],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      },
+      {
+        "arm": "before",
+        "open_ms": 1455.1468959834892,
+        "widgets": 186,
+        "qtawesome_version": "1.4.2",
+        "global_font_families": [
+          "fa5",
+          "fa5s",
+          "fa5b",
+          "fa6",
+          "fa6s",
+          "fa6b",
+          "ei",
+          "mdi",
+          "mdi6",
+          "ph",
+          "ri",
+          "msc"
+        ],
+        "local_font_families": [],
+        "source_sha256": "e0d8cc5e3d1f597bc032c8718b654f2f724d1c8fe10eb845fbec6c9d7aeac359"
+      }
+    ],
+    "median_ms": {
+      "before": 1606.5999370039208,
+      "after": 1578.4405385056743
+    },
+    "paired_before_minus_after_ms": [
+      241.7922830209136,
+      44.23439898528159,
+      -104.09604999586008,
+      251.85193002107553,
+      -81.19990598061122,
+      -142.45148102054372
+    ]
+  },
+  "isolated_first_icon": {
+    "rows": [
+      {
+        "arm": "before",
+        "import_ms": 118.71425597928464,
+        "create_and_render_ms": 86.1946280056145
+      },
+      {
+        "arm": "after",
+        "import_ms": 111.81443900568411,
+        "create_and_render_ms": 44.684775988571346
+      },
+      {
+        "arm": "after",
+        "import_ms": 157.6479850045871,
+        "create_and_render_ms": 60.59353600721806
+      },
+      {
+        "arm": "before",
+        "import_ms": 110.19835399929434,
+        "create_and_render_ms": 90.96129599492997
+      },
+      {
+        "arm": "before",
+        "import_ms": 109.55980600556359,
+        "create_and_render_ms": 92.31762998388149
+      },
+      {
+        "arm": "after",
+        "import_ms": 107.00997200910933,
+        "create_and_render_ms": 59.228730999166146
+      },
+      {
+        "arm": "after",
+        "import_ms": 121.72750299214385,
+        "create_and_render_ms": 54.770364018622786
+      },
+      {
+        "arm": "before",
+        "import_ms": 114.34535300941207,
+        "create_and_render_ms": 96.0597830126062
+      },
+      {
+        "arm": "before",
+        "import_ms": 122.81103600980714,
+        "create_and_render_ms": 84.85623300657608
+      },
+      {
+        "arm": "after",
+        "import_ms": 153.1174079864286,
+        "create_and_render_ms": 55.49278898979537
+      },
+      {
+        "arm": "after",
+        "import_ms": 123.01012899843045,
+        "create_and_render_ms": 49.97353599173948
+      },
+      {
+        "arm": "before",
+        "import_ms": 185.94798500998877,
+        "create_and_render_ms": 72.79002101859078
+      },
+      {
+        "arm": "before",
+        "import_ms": 113.7711220071651,
+        "create_and_render_ms": 95.51137199741788
+      },
+      {
+        "arm": "after",
+        "import_ms": 125.88893101201393,
+        "create_and_render_ms": 69.01903997641057
+      },
+      {
+        "arm": "after",
+        "import_ms": 109.91633299272507,
+        "create_and_render_ms": 50.2054370008409
+      },
+      {
+        "arm": "before",
+        "import_ms": 105.45892402296886,
+        "create_and_render_ms": 87.76233400567435
+      }
+    ],
+    "median_create_render_ms": {
+      "before": 89.36181500030216,
+      "after": 55.13157650420908
+    },
+    "median_import_ms": {
+      "before": 114.05823750828858,
+      "after": 122.36881599528715
+    }
+  },
+  "validation": {
+    "passed": 151,
+    "seconds": 108.02,
+    "new_tests": 17,
+    "tests": [
+      "tests/qt/test_requested_icon_font.py",
+      "tests/qt/test_space_theme_edges.py",
+      "tests/qt/test_every_button_deserves_its_own_icon.py",
+      "tests/qt/test_fold_strip_uncovered_paths.py"
+    ],
+    "pixel_comparison": {
+      "semantic_names": 66,
+      "unknown_names": 1,
+      "themes": [
+        "dark",
+        "light",
+        "space"
+      ],
+      "sizes": [
+        16,
+        48
+      ],
+      "modes": [
+        "Normal",
+        "Disabled",
+        "Active",
+        "Selected"
+      ],
+      "states": [
+        "On",
+        "Off"
+      ],
+      "exact_equal": true,
+      "small_normal_icons_have_visible_ink": true
+    },
+    "helper_coverage": {
+      "covered_lines": 33,
+      "num_statements": 33,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 14,
+      "num_partial_branches": 0,
+      "covered_branches": 14,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "whole_module_coverage_claim": false,
+    "gates_or_baselines_changed": false,
+    "fatal_ruff": "pass",
+    "git_diff_check": "pass"
+  },
+  "execution": {
+    "test_memory_cap": "8G",
+    "navigation_memory_cap": "6G",
+    "isolated_memory_cap": "4G",
+    "swap_cap": 0,
+    "cuda_visible_devices": "",
+    "blas_threads": 2,
+    "qt_platform": "offscreen",
+    "private_preferences": true,
+    "source_byte_compiled": true,
+    "baseline": "Exact old icon function installed by AST before MainWindow construction; otherwise shared current code.",
+    "same_session_concurrent_tests_during_timing": false
+  },
+  "navigation_probe_source": "import ast\nimport hashlib\nimport json\nfrom pathlib import Path\nimport sys\nimport time\nfrom PySide6.QtWidgets import QApplication, QWidget\nfrom PySide6.QtTest import QTest\n\nfrom spacr.qt.preferences import apply_preferences_to_app\nfrom spacr.qt import register_self_registering_modules, iconset\nfrom spacr.qt.app import MainWindow, install_the_dialog_filters, _load_bundled_fonts, _use_open_sans\n\narm = sys.argv[1]\nif arm == 'before':\n    source = Path(__file__).with_name('iconset-before.py').read_text()\n    function = next(node for node in ast.parse(source).body if isinstance(node, ast.FunctionDef) and node.name == 'icon')\n    exec(compile(ast.Module(body=[function], type_ignores=[]), '<original icon>', 'exec'), iconset.__dict__)\napp = QApplication([])\n_load_bundled_fonts()\n_use_open_sans(app)\napply_preferences_to_app(app)\ninstall_the_dialog_filters(app)\nregister_self_registering_modules()\nwindow = MainWindow()\nwindow.resize(1366, 768)\nwindow.show()\nQTest.qWait(200)\nstarted = time.perf_counter()\nwindow._on_nav_selected('classify_merged')\napp.processEvents()\nelapsed = (time.perf_counter() - started) * 1000\nscreen = window._screens['classify_merged']\nqta = sys.modules.get('qtawesome')\nshared = getattr(qta, '_resource', {}).get('iconic')\nproviders = getattr(app, '_spacr_glyph_providers', {})\nrecord = {'arm': arm, 'open_ms': elapsed,\n    'widgets': len(screen.findChildren(QWidget)),\n    'qtawesome_version': getattr(qta, '__version__', None),\n    'global_font_families': list(shared.fontids) if shared is not None else [],\n    'local_font_families': [list(value[1].fontids) for value in providers.values()],\n    'source_sha256': hashlib.sha256(Path(iconset.__file__).read_bytes()).hexdigest()}\nprint(json.dumps(record), flush=True)\nwindow.close()\napp.processEvents()\n",
+  "isolated_probe_source": "import ast\nimport json\nfrom pathlib import Path\nimport sys\nimport time\nfrom PySide6.QtWidgets import QApplication\nfrom spacr.qt import iconset\n\narm = sys.argv[1]\nif arm == 'before':\n    source = Path(__file__).with_name('iconset-before.py').read_text()\n    function = next(node for node in ast.parse(source).body if isinstance(node, ast.FunctionDef) and node.name == 'icon')\n    exec(compile(ast.Module(body=[function], type_ignores=[]), '<original icon>', 'exec'), iconset.__dict__)\napp = QApplication([])\nstarted = time.perf_counter()\nqta = iconset._try_qta()\nimport_ms = (time.perf_counter() - started) * 1000\nstarted = time.perf_counter()\nicon = iconset.icon('settings', color='#ffffff')\nimage = icon.pixmap(32, 32).toImage()\ncreate_and_render_ms = (time.perf_counter() - started) * 1000\nassert not icon.isNull() and not image.isNull()\nprint(json.dumps({'arm': arm, 'import_ms': import_ms, 'create_and_render_ms': create_and_render_ms}), flush=True)\n",
+  "limitations": [
+    "Loaded Linux machine; offscreen, not cross-platform acceptance.",
+    "Whole-navigation timing is noisy; no reliable end-to-end speed-gain claim.",
+    "500 ms module-open/stall target remains unmet.",
+    "Optional QtAwesome metadata changes use the original API path and may lose this optimization.",
+    "QtAwesome import remains part of first use."
+  ]
+}

@@ -2127,3 +2127,14 @@ changes5->2, same186 widgets. Existing stack watcher remains idempotent.
 Full measurement method/limitations are in item284's trailing note and
 features/data/284_fold_controls_before_sheet_2026-09-22.json. This closes a
 measured repeated-styling cost, not the500ms ceiling or cross-platform gate.
+
+2026-09-23 — UNUSED ICON FONT INITIALIZATION REMOVED
+See 284's dated note and data/284_requested_icon_fonts_2026-09-23.json.
+Semantic glyphs initialize one QtAwesome family instead of twelve, retain
+the same renderer/checksum/fallback behavior and compare pixel-identically
+across themes, sizes and states. 151 focused checks pass. Isolated first-icon
+creation/rendering median falls 89.36 -> 55.13 ms across eight runs per arm;
+QtAwesome import is separately measured and remains. Full Home->Classify
+results are noisy: final six-pair median 1606.60 -> 1578.44 ms, with only
+three paired improvements. No reliable whole-navigation gain is claimed.
+The 500 ms ceiling and other-platform validation remain OPEN.
