@@ -229,7 +229,7 @@
     },
     {
       "visual": "module_lineage",
-      "narration": "Open Database Browser from Home, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Input data: Measured objects. Output data: Figures and table exports.",
+      "narration": "Open Database Browser through Help search, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Input data: Measured objects. Output data: Figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "56_lineage"
@@ -273,7 +273,7 @@
     },
     {
       "visual": "module_tabulate",
-      "narration": "Open Database Browser from Home, then choose Tabulate. Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes. Input data: Measured objects. Output data: Figures and table exports.",
+      "narration": "Open Database Browser through Help search, then choose Tabulate. Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes. Input data: Measured objects. Output data: Figures and table exports.",
       "hold_after": 0.7,
       "related_lessons": [
         "61_tabulate"

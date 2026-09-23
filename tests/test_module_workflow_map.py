@@ -121,6 +121,22 @@ def test_generated_api_and_tutorial_contracts_match_the_map():
             assert contract["pathway_steps"][pathway] == data["pathways"][pathway]
 
 
+@pytest.mark.parametrize("key", ["lineage", "tabulate"])
+def test_nested_database_tools_do_not_invent_a_home_tile(key):
+    from spacr.qt import app
+
+    data = workflow.load()
+    assert "db_browser" not in {row[0] for row in app.tiled_apps()}
+    assert data["modules"][key]["parent"] == "db_browser"
+    prose = workflow.module_rst(data, key)
+    lesson = workflow.lesson_document(data, "79_module_inputs_outputs")
+    narration = next(scene["narration"] for scene in lesson["scenes"]
+                     if scene["visual"] == "module_" + key)
+    assert "Help search → Database Browser" in prose
+    assert "Database Browser through Help search" in narration
+    assert "Database Browser from Home" not in narration
+
+
 def test_changed_storage_contract_reaches_api_and_narration_together():
     data = copy.deepcopy(workflow.load())
     data["artifacts"]["measurements"]["location"] = "replacement/objects.db"

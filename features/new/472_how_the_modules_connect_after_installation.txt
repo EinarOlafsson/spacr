@@ -344,3 +344,16 @@ No analysis/download was requested. Lesson79 still needs capture, and80/81
 need translations and media. All50 lesson78 tracks now pass technical audio
 checks, with per-voice browser checks continuing. No listening or full-set
 publication acceptance is claimed.
+
+2026-09-23 — CODEX: COMPLETE OVERVIEW TECHNICAL MATRIX; DATABASE ROUTES
+Lesson78 now has50/50 current technical audio and actual Chromium voice
+checks,13/13caption selections and52/52native English sentence midpoints.
+All reports bind to the same player and unchanged media. Receipt:
+tools/tutorials/evidence/2026-09-23-pooled-screen-overview-voices.json.
+This does not claim auditory approval or complete-set publication.
+
+Recording lesson79 exposed a route error: Database Browser is available
+through Help, not a Home tile. Its nested Lineage and Tabulate instructions
+now say so in both the generated reference/API inserts and English script.
+51 focused map/capture/CLI checks pass. The shared map and other three
+scripts are unchanged. The full79-scene capture is still in progress.

@@ -6,7 +6,7 @@ Lineage
 
 Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference.
 
-**Open:** Database Browser → Lineage.
+**Open:** Help search → Database Browser → Lineage.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 

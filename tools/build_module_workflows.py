@@ -148,7 +148,9 @@ def module_rst(data, key):
         parts.append(f"**Use from Python:** :func:`{module['api_entry']}`. "
                      "This API-only workflow has no Home tile or menu entry.\n\n")
     elif parent:
-        parts.append(f"**Open:** {data['modules'][parent]['name']} → {module['name']}.\n\n")
+        host = data['modules'][parent]
+        prefix = "Help search → " if host['home'] is None else ""
+        parts.append(f"**Open:** {prefix}{host['name']} → {module['name']}.\n\n")
     elif module["home"]:
         parts.append(f"**Open:** Home → {module['name']}.\n\n")
     else:
@@ -201,7 +203,9 @@ def lesson_document(data, key):
             opening = (f"Use {module['name']} from Python through {module['api_entry']}. "
                        "This API-only workflow has no Home tile or menu entry.")
         elif parent:
-            opening = f"Open {data['modules'][parent]['name']} from Home, then choose {module['name']}."
+            host = data['modules'][parent]
+            route = "from Home" if host['home'] else "through Help search"
+            opening = f"Open {host['name']} {route}, then choose {module['name']}."
         elif module["home"]:
             opening = f"Open {module['name']} from Home."
         else:

@@ -6,7 +6,7 @@ Tabulate
 
 Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.
 
-**Open:** Database Browser → Tabulate.
+**Open:** Help search → Database Browser → Tabulate.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
