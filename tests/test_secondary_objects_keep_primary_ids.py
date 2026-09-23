@@ -230,3 +230,55 @@ def test_unsupported_exact_ids_do_not_overwrite_an_existing_mask(tmp_path, bundl
 def test_exact_id_saves_reject_invalid_label_images(labels):
     with pytest.raises(ValueError):
         engine.canonical_labels(labels, preserve_ids=True)
+
+
+def test_exact_id_readout_and_filter_measure_disconnected_pieces_together():
+    labels = np.zeros((20, 20), dtype=np.uint16)
+    labels[2:5, 2:5] = labels[12:15, 12:15] = 900
+    image = np.full(labels.shape, 100, dtype=np.uint16)
+    lookup = engine.ObjectLookup(labels, image, preserve_ids=True)
+    assert lookup.at(3, 3).label == 900
+    assert lookup.at(13, 13).label == 900
+    assert lookup.measure(900) == (18, 100.0)
+    kept, removed = engine.filter_report(labels, image, min_area=10, preserve_ids=True)
+    np.testing.assert_array_equal(kept, labels)
+    assert removed == []
+    discarded, removed = engine.filter_report(labels, image, min_area=19, preserve_ids=True)
+    assert not discarded.any()
+    assert len(removed) == 1 and removed[0].label == 900 and removed[0].area == 18
+
+
+@pytest.mark.parametrize('rule', ['clip', 'skip', 'replace'])
+def test_exact_id_paste_extends_existing_secondary_without_allocating_ids(rule):
+    current = np.zeros((20, 20), dtype=np.uint16)
+    current[2:5, 2:5] = 900
+    incoming = np.full((5, 5), 900, dtype=np.uint16)
+    pasted, ids = engine._paste_region_objects(current, incoming, (2, 2), overlap=rule, preserve_ids=True)
+    assert ids == [900]
+    assert set(np.unique(pasted)) == {0, 900}
+    assert np.count_nonzero(pasted == 900) == 25
+    assert np.count_nonzero(current == 900) == 9
+
+
+def test_exact_id_clip_retains_both_pieces_split_by_another_object():
+    current = np.zeros((9, 9), dtype=np.uint16)
+    current[:, 4] = 7
+    incoming = np.full((5, 5), 900, dtype=np.uint16)
+    pasted, ids = engine._paste_region_objects(current, incoming, (2, 2), overlap='clip', preserve_ids=True)
+    assert ids == [900]
+    assert np.all(pasted[:, 4] == 7)
+    assert np.all(pasted[2:7, 2:4] == 900)
+    assert np.all(pasted[2:7, 5:7] == 900)
+    assert np.count_nonzero(pasted == 900) == 20
+
+
+def test_exact_id_paste_clips_outside_image_without_changing_incoming_identity():
+    current = np.zeros((5, 5), dtype=np.uint16)
+    incoming = np.full((4, 4), 900, dtype=np.uint16)
+    pasted, ids = engine._paste_region_objects(current, incoming, (-2, -1), preserve_ids=True)
+    assert ids == [900]
+    assert np.count_nonzero(pasted == 900) == 6
+    skipped, ids = engine._paste_region_objects(pasted, np.full((5, 5), 7, dtype=np.uint16),
+                                              (0, 0), overlap='skip', preserve_ids=True)
+    np.testing.assert_array_equal(skipped, pasted)
+    assert ids == []

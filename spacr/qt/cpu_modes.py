@@ -65,11 +65,13 @@ THRESHOLD_LABELS: Dict[str, str] = {
 
 #: The mode that grows objects out of local maxima.
 PROPAGATE = "propagate"
+SECONDARY = "secondary"
 
 #: Every mode this module adds, as ``mode -> caption``.
 MODE_LABELS: Dict[str, str] = {
     **THRESHOLD_LABELS,
     PROPAGATE: "Maxima + propagate",
+    SECONDARY: "Secondary objects from primary masks",
 }
 
 #: Multi-Otsu is a global algorithm in the box but is asked for by a CLASS
@@ -81,6 +83,12 @@ MULTIOTSU = "multiotsu"
 #: (:func:`spacr.organelle_types.method_guidance`). English; a caller
 #: showing one passes it through ``tr``.
 GUIDANCE: Dict[str, str] = {
+    SECONDARY: "Grow secondary objects from a separate labelled primary mask, "
+               "keeping each primary object's ID. Choose a global threshold "
+               "when nuclei are dark in the cell channel. Primary masks are "
+               "read-only; missing, orphaned and incomplete relationships are reported. "
+               "Click to accept objects; dragging does not merge primary identities. "
+               "Post-detection morphology and splitting are bypassed to retain IDs.",
     "otsu": "Suits a field with two clear populations -- objects and "
             "background, with a valley between them in the histogram. It "
             "is the right first try and the wrong one for a field that is "
@@ -191,6 +199,8 @@ DEFAULT_PARAMS = CpuParams()
 #: control that is on screen, a value that is recorded and a number the
 #: engine is given are one list.
 PARAMETERS_FOR: Dict[str, Tuple[str, ...]] = {
+    SECONDARY: ("propagate_sigma", "propagate_stop", "propagate_stop_value",
+                "propagate_stop_algorithm"),
     "sauvola": ("local_k",),
     "niblack": ("local_k",),
     PROPAGATE: ("propagate_sigma", "propagate_min_distance",
@@ -268,5 +278,25 @@ def propagate(image: np.ndarray, params: CpuParams, *, min_area: int = 0,
         exclude_border=bool(params.propagate_exclude_border),
         stop=str(params.propagate_stop),
         stop_value=float(params.propagate_stop_value),
+        stop_algorithm=str(params.propagate_stop_algorithm),
+        min_area=int(min_area), fill_holes=bool(fill_holes))
+
+
+def secondary(image: np.ndarray, primary: np.ndarray, params: CpuParams, *,
+              min_area: int = 0, fill_holes: bool = True):
+    """Grow secondary labels from the existing primary-mask identities.
+
+    :param image: prepared 2-D field or magnifier crop.
+    :param primary: matching integer primary labels; no seeds are detected.
+    :param params: shared growth settings; centre-finding settings are ignored.
+    :param min_area: minimum grown area, including the primary footprint.
+    :param fill_holes: fill holes per label before the area filter.
+    :returns: mask_engine.SecondaryResult with exact IDs and relationship diagnostics.
+    """
+    from . import mask_engine as engine
+
+    return engine.secondary_object_instances(
+        image, primary, sigma=float(params.propagate_sigma),
+        stop=str(params.propagate_stop), stop_value=float(params.propagate_stop_value),
         stop_algorithm=str(params.propagate_stop_algorithm),
         min_area=int(min_area), fill_holes=bool(fill_holes))

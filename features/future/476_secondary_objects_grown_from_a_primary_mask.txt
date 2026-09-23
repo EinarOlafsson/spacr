@@ -2,9 +2,9 @@
 SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
 ================================================================================
 
-Status:    IN PROGRESS, filed 2026-09-22. Engine and exact-ID save mode
-           validated; GUI, queue/ledger integration and paired-data evaluation
-           remain open. NOT BLOCKING.
+Status:    IN PROGRESS, filed 2026-09-22. Engine, GUI, queue/ledger and
+           exact-ID editing/save integration validated. Paired-data evaluation
+           remains open. NOT BLOCKING.
 Owner:     spacr/qt/mask_engine.py (the propagation), spacr/qt/cpu_modes.py
            and the Make Masks Detection method category.
 Requested: 2026-09-22, by the maintainer, in these words:
@@ -111,3 +111,36 @@ is claimed yet. Remaining work: primary source/class selection per field,
 ROI requests and accepted-label identity, save/queue/ledger provenance,
 editing/filter/lookup operations that otherwise reassign IDs, and measurement
 on paired nucleus/cell reference data with its annotation quality stated.
+
+GUI / QUEUE MILESTONE, 2026-09-23
+--------------------------------------------------------------------------------
+Make Masks now offers Secondary objects from primary masks. Select primary
+and secondary object classes and either a mask file for the current field or
+a folder matching image stems. Background loading validates shape, integer
+IDs, distinct classes and a separate output destination, then retains an
+immutable snapshot and SHA256. Explicit files never carry over to another
+field; folder sources resolve each queue entry independently. Stale worker
+results cannot replace the newest field's primary mask.
+
+Both whole-image and magnifier scopes retain exact primary IDs. Accepted
+regions extend existing same-ID pixels under Clip/Skip without ID offsets;
+different IDs obey the selected overlap rule. Secondary magnifier clicks
+accept objects without the drag tool merging primary identities. Missing or
+changed primary snapshots refuse detection/acceptance instead of falling back
+to Otsu. Growth controls are independent of Maxima + propagate, default to a
+global threshold, and include sigma, four stop rules and per-object hole fill.
+Enhancement before detection remains available. Post-detection morphology
+and splitting are bypassed explicitly to retain identity.
+
+Matched, missing, orphaned, incompletely enclosed and unexpanded IDs are
+visible and recorded. Save/reopen retains sparse/disconnected IDs, source
+selection, classes and checksum. Readout, filtering, hole filling and small-
+object removal use exact IDs. Consecutive relabeling and unpaired Recrop are
+refused with explanations because those operations would break the pairing.
+Primary files, including aliases, cannot be overwritten by secondary saves.
+
+Validation: 85 focused source/identity/GUI/provenance tests; 239 existing
+magnifier/drag/scope/lock regressions; final 156-test source/editor/filter/
+readout/threshold batch after adding the visible secondary hole-fill control.
+Dark-theme rendering inspected. All pass. Paired-data evaluation remains;
+BBBC007 supplies public manually outlined nuclei and cells for that check.

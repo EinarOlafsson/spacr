@@ -1375,7 +1375,8 @@ class _MaskCanvas(QLabel):
             self._lookup_dirty = False
             return lookup
         try:
-            lookup = engine.ObjectLookup(self.mask, self.image)
+            lookup = engine.ObjectLookup(self.mask, self.image,
+                                         preserve_ids=getattr(self, 'preserve_ids', False))
         except Exception:                                    # noqa: BLE001
             LOG.debug("the readout could not measure the mask", exc_info=True)
             return None
@@ -2552,6 +2553,9 @@ class _MagnifierRequest(NamedTuple):
     otsu_classes: int = 2
     otsu_foreground_class: Optional[int] = None
     detection_percentiles: Optional[tuple] = None
+    primary_token: tuple = ()
+    primary_labels: Optional[np.ndarray] = None
+    primary_provenance: Optional[dict] = None
 
 
 class _RunCancelled(Exception):
@@ -2710,7 +2714,7 @@ _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "otsu_smoothing", "otsu_fill_holes", "otsu_split",
                          "invert", "chain", "method_params", "cpu_params",
                          "otsu_window", "otsu_classes", "otsu_foreground_class",
-                         "detection_percentiles")
+                         "detection_percentiles", "primary_token")
 
 
 class _MagnifierResult(NamedTuple):
@@ -3006,6 +3010,15 @@ def _propagate_segmenter(request: _MagnifierRequest, load_model=None):
     return found.labels
 
 
+def _secondary_segmenter(request: _MagnifierRequest, load_model=None):
+    """Grow the request's copied primary labels without discovering new seeds."""
+    if request.primary_labels is None:
+        raise ValueError("Choose and load a primary mask before growing secondary objects.")
+    return cpu_modes.secondary(
+        request.crop, request.primary_labels, request.cpu_params,
+        min_area=request.min_area, fill_holes=request.otsu_fill_holes).labels
+
+
 #: ``scope -> (centres found, the level they were grown to)`` for the last
 #: propagation of each scope. Read by the screen's status line. A plain
 #: dict and not a signal: it is written on the worker and read on the GUI
@@ -3058,6 +3071,7 @@ _MAGNIFIER_SEGMENTERS = {
     "otsu": _threshold_segmenter,
     **{mode: _threshold_segmenter for mode in cpu_modes.threshold_modes()},
     cpu_modes.PROPAGATE: _propagate_segmenter,
+    cpu_modes.SECONDARY: _secondary_segmenter,
     **{mode: _organelle_segmenter for mode in organelle_modes.modes()},
     "cellpose": _cellpose_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
@@ -3163,6 +3177,11 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     mode = canonical_magnifier_mode(request.mode)
     segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
+    if mode == cpu_modes.SECONDARY:
+        labels = segmenter(request, load_model)
+        if request.ticket is not None:
+            request.ticket.check()
+        return labels, mode, ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
     elif (mode in cpu_modes.THRESHOLD_LABELS
@@ -3448,11 +3467,14 @@ def _ghosted_overlay(labels: np.ndarray, overlay: np.ndarray,
     rule = _canonical_overlap_rule(request.overlap)
     if occupied is None or overlay is None or rule == "replace":
         return None
-    occupied = np.asarray(occupied) > 0
+    exact_ids = request.mode == cpu_modes.SECONDARY
+    occupied = ((np.asarray(occupied) > 0) & (np.asarray(occupied) != labels)
+                if exact_ids else np.asarray(occupied) > 0)
     if occupied.shape != np.asarray(labels).shape or not occupied.any():
         return None
     kept = engine._surviving_region_objects(
-        labels, occupied, overlap=rule, min_area=int(request.min_area))
+        labels, occupied, overlap=rule, min_area=int(request.min_area),
+        preserve_ids=exact_ids)
     lost = (np.asarray(labels) > 0) & (kept == 0)
     if not lost.any():
         return None
@@ -3562,6 +3584,10 @@ def _magnifier_provenance(request: _MagnifierRequest, mode: str,
         detail["otsu_fill_holes"] = bool(request.otsu_fill_holes)
     detail.update(detect_chain.provenance(
         request.chain or detect_chain.NO_CHAIN, percentile_stretch=percentiles is not None))
+    if mode == cpu_modes.SECONDARY:
+        detail['primary_source'] = request.primary_provenance
+        detail['preserve_ids'] = True
+        detail['otsu_fill_holes'] = bool(request.otsu_fill_holes)
     return detail
 
 
@@ -4214,7 +4240,8 @@ class _LiveMagnifier(QObject):
                 (None if context["otsu_foreground_class"] is None else
                  int(context["otsu_foreground_class"])),
                 ((float(self.canvas.norm_lo), float(self.canvas.norm_hi))
-                 if self.canvas.detect_on_normalized else None))
+                 if self.canvas.detect_on_normalized else None),
+                context.get('primary_token', ()) if mode == cpu_modes.SECONDARY else ())
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -4396,7 +4423,12 @@ class _LiveMagnifier(QObject):
         token = 0
         if ghost and rule != "replace":
             token = self.mask_generation()
-            occupied = np.asarray(canvas.mask)[y0:y1, x0:x1] > 0
+            occupied = (np.array(canvas.mask[y0:y1, x0:x1], copy=True)
+                        if values['mode'] == cpu_modes.SECONDARY else
+                        np.asarray(canvas.mask)[y0:y1, x0:x1] > 0)
+        primary = self._primary_request_values(box, values)
+        if primary is None:
+            return None
         return _MagnifierRequest(
             key=(self._field, box) + settings + (exclude,),
             crop=self.region_for(box, invert=values["invert"]),
@@ -4407,8 +4439,21 @@ class _LiveMagnifier(QObject):
             overlap=rule if ghost else "replace",
             occupied=occupied,
             mask_token=token,
+            **primary,
             **values,
         )
+
+    def _primary_request_values(self, box, settings):
+        """Snapshot this field's primary crop and provenance for secondary mode."""
+        if settings['mode'] != cpu_modes.SECONDARY:
+            return {}
+        context = self._context() if self._context is not None else {}
+        source = context.get('primary_source')
+        if source is None or source.identity != settings['primary_token']:
+            return None
+        return {'primary_labels': source.crop(box),
+                'primary_provenance': dict(source.provenance(),
+                                           selection=context.get('primary_selection', source.path))}
 
     @staticmethod
     def _stamp(request: _MagnifierRequest) -> tuple:
@@ -4632,6 +4677,12 @@ class _LiveMagnifier(QObject):
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
         values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
+        primary = self._primary_request_values((0, 0, width, height), values)
+        if primary is None:
+            from ..i18n import tr
+            self.status.emit(tr('Load a primary mask before growing secondary objects.'))
+            self._image_halted = key
+            return
         if self._image_ticket is not None:
             self._image_ticket.cancel()
         self._image_ticket = _RunTicket()
@@ -4647,7 +4698,7 @@ class _LiveMagnifier(QObject):
                                   invert=values["invert"]),
             box=(0, 0, width, height), shape=(height, width),
             colour=self._accent(), exclude_border=False, scope="image",
-            ticket=self._image_ticket, **values))
+            ticket=self._image_ticket, **primary, **values))
         self._set_busy(True)
 
     @staticmethod
@@ -4856,6 +4907,8 @@ class _LiveMagnifier(QObject):
         if (not self.enabled or self._cursor is None or canvas.image is None
                 or canvas.mask is None):
             return False
+        if self.mode == cpu_modes.SECONDARY:
+            return True
         whole = self.scope == "image"
         found = self._image_result
         if whole and (found is None
@@ -5431,9 +5484,12 @@ class _LiveMagnifier(QObject):
             occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
             if occupied.any():
                 single = _single_object(result, label).labels
+                exact_ids = result.mode == cpu_modes.SECONDARY
+                if exact_ids:
+                    occupied &= np.asarray(mask)[y0:y1, x0:x1] != single
                 kept = engine._surviving_region_objects(
                     single, occupied, overlap=rule,
-                    min_area=int(result.request.min_area))
+                    min_area=int(result.request.min_area), preserve_ids=exact_ids)
                 gone = (single > 0) & (kept == 0)
                 lost = gone if gone.any() else None
         self._image_promised = (result, key, lost)
@@ -8436,14 +8492,102 @@ class MakeMasksScreen(QWidget):
 
         :param kind: what happened, as the curation ledger names it.
         """
+        self._refresh_secondary_report()
         if int(n_changed) <= 0:
             return None
         if kind != "filter":
             self._set_filter_log([])
         if self._log is None:
             return None
+        if getattr(self._canvas, 'preserve_ids', False):
+            detail.update(self._secondary_detail())
         return self._log.append(kind, target, n_changed=int(n_changed),
                                  **detail)
+
+    def _require_primary_source(self):
+        """Require a validated primary snapshot belonging to this queue field."""
+        from ..i18n import tr
+
+        source = self._primary_selector.snapshot
+        if source is None:
+            raise ValueError(tr('Load a valid primary mask before growing secondary objects.'))
+        filename = self._image_files[self._current_index]
+        image_path = os.path.realpath(os.path.join(self._folder, filename))
+        if source.image_path != image_path or source.labels.shape != self._canvas.mask.shape:
+            raise ValueError(tr('The primary mask belongs to a different field. Reload it for this image.'))
+        source.validate_destination(engine.mask_save_path(
+            self._folder, filename, **self._layout_kwargs()))
+        return source
+
+    def _on_primary_source_changed(self):
+        """Invalidate asynchronous detections as soon as their primary changes."""
+        self._refresh_secondary_report()
+        if hasattr(self, '_magnifier'):
+            self._magnifier.refresh()
+
+    def _refresh_secondary_report(self):
+        """Show explicit missing, orphaned and incompletely enclosing IDs."""
+        from ..i18n import tr
+
+        label = getattr(self, '_secondary_relations', None)
+        if label is None:
+            return
+        source = self._primary_selector.snapshot
+        mask = self._canvas.mask
+        if source is None or mask is None or source.labels.shape != mask.shape:
+            label.setText(tr('Load a primary mask to inspect object relationships.'))
+            return
+        report = engine.primary_secondary_report(source.labels, mask)
+        names = (('matched_ids', tr('Matched')), ('missing_secondary_ids', tr('Missing secondary')),
+                 ('orphan_secondary_ids', tr('No primary')), ('incomplete_primary_ids', tr('Primary not enclosed')),
+                 ('unexpanded_primary_ids', tr('Not expanded')))
+        label.setText('\n'.join(tr('{name}: {count} ({ids})', name=name,
+                                    count=len(getattr(report, key)),
+                                    ids=', '.join(map(str, getattr(report, key)[:12])) +
+                                    ('…' if len(getattr(report, key)) > 12 else ''))
+                                for key, name in names))
+
+    def _secondary_detail(self):
+        """Source association and exact identity diagnostics for the current edit."""
+        record = getattr(self, '_paired_source', None)
+        if not getattr(self._canvas, 'preserve_ids', False) or record is None:
+            return {}
+        detail = {'preserve_ids': True, 'primary_source': record}
+        source = self._primary_selector.snapshot
+        if source is not None and source.provenance() == {key: record.get(key) for key in source.provenance()}:
+            report = engine.primary_secondary_report(source.labels, self._canvas.mask)
+            detail['primary_secondary'] = {key: list(value) for key, value in report._asdict().items()}
+        return detail
+
+    def _retain_secondary_ids(self, record):
+        """Associate an accepted detection with its immutable primary identity."""
+        self._paired_source = dict(record)
+        self._canvas.preserve_ids = True
+        self._canvas._lookup = None
+        self._canvas._lookup_dirty = True
+        self._refresh_secondary_report()
+        if self._log is not None:
+            previous = next((edit.detail.get('primary_source') for edit in reversed(self._log.edits)
+                             if edit.detail.get('preserve_ids')), None)
+            if previous != self._paired_source:
+                self._log.append('secondary_source', None, **self._secondary_detail())
+
+    def _validate_secondary_save(self):
+        """Keep every recorded primary file separate from the editable output."""
+        from ..secondary_masks import _same_file
+        from ..i18n import tr
+
+        destination = engine.mask_save_path(self._folder, self._image_files[self._current_index],
+                                            **self._layout_kwargs())
+        records = [getattr(self, '_paired_source', None)]
+        if self._log is not None:
+            records.extend(edit.detail.get('primary_source') for edit in self._log.edits)
+        source = self._primary_selector.snapshot
+        if source is not None:
+            source.validate_destination(destination)
+        for record in records:
+            if record and record.get('path') and _same_file(record['path'], destination):
+                raise ValueError(tr('Primary and secondary masks must be saved to different files.'))
 
     @staticmethod
     def _diff(before, after) -> int:
@@ -8547,7 +8691,8 @@ class MakeMasksScreen(QWidget):
             return 0
         bounds = self._filter_bounds()
         out, removals = engine.filter_report(
-            self._canvas.mask, self._canvas.image, **bounds)
+            self._canvas.mask, self._canvas.image,
+            preserve_ids=getattr(self._canvas, 'preserve_ids', False), **bounds)
         if not removals:
             if not on_load:
                 self._status_label.setText(
@@ -8597,6 +8742,11 @@ class MakeMasksScreen(QWidget):
                 image, self._cpu_params(), min_area=self._detect_min_area(),
                 fill_holes=bool(otsu["fill_holes"]))
             return (found.labels, found.seeds)
+        if method == cpu_modes.SECONDARY:
+            found = cpu_modes.secondary(image, self._require_primary_source().labels,
+                                         self._cpu_params(), min_area=self._detect_min_area(),
+                                         fill_holes=bool(otsu['fill_holes']))
+            return found.labels, None
         algorithm = cpu_modes.engine_algorithm(
             method if method in cpu_modes.THRESHOLD_LABELS else "otsu")
         settings = dict(otsu)
@@ -8634,32 +8784,42 @@ class MakeMasksScreen(QWidget):
         correction = otsu["correction"]
         method = canonical_magnifier_mode(
             getattr(self._magnifier, "mode", None))
+        if method == cpu_modes.SECONDARY:
+            otsu['fill_holes'] = self._secondary_fill_holes.isChecked()
         try:
             detected, seeds = self._cpu_detect(self._detector_image(),
                                                method, otsu)
         except Exception as exc:
             self._warn("Detect failed", str(exc))
             return
-        if method != cpu_modes.PROPAGATE:
+        if method not in (cpu_modes.PROPAGATE, cpu_modes.SECONDARY):
             detected = detect_chain.finish(detected, self._detect_chain(),
                                            intensity=self._detector_image())
-        found = int(detected.max())
+        found = _object_count(detected)
         centres = ("" if seeds is None
                    else tr(" from {n} centre(s)", n=seeds))
-        if not found:
+        if not found and method != cpu_modes.SECONDARY:
             self._status_label.setText(tr(
                 "{method}{centres} found no objects — the mask is "
                 "unchanged. Lower the minimum area, or try the other side.",
                 method=_magnifier_mode_label(method), centres=centres))
             return
         try:
-            out = engine.combine_masks(self._canvas.mask, detected, mode)
+            if method == cpu_modes.SECONDARY:
+                source = self._require_primary_source()
+                out = (engine.canonical_labels(detected, preserve_ids=True) if mode == 'replace'
+                       else engine._paste_region_objects(self._canvas.mask, detected, (0, 0),
+                                                         overlap='clip', preserve_ids=True)[0])
+            else:
+                out = engine.combine_masks(self._canvas.mask, detected, mode)
         except Exception as exc:
             self._warn("Detect failed", str(exc))
             return
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
+        if method == cpu_modes.SECONDARY:
+            self._retain_secondary_ids(dict(source.provenance(), selection=self._primary_selector.path.text()))
         self._record("detect", mode, changed, method=method,
                       n_objects=found,
                       invert=bool(self._cp_invert.isChecked()),
@@ -9502,9 +9662,11 @@ class MakeMasksScreen(QWidget):
             QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self._mag_mode.setMinimumContentsLength(14)
         self._mag_mode.addItem("Otsu", "otsu")
+        from ..i18n import tr
+
         for source in (cpu_modes.MODE_LABELS, organelle_modes.MODE_LABELS):
             for mode, label in source.items():
-                self._mag_mode.addItem(label, mode)
+                self._mag_mode.addItem(tr(label), mode)
                 self._mag_mode.setItemData(
                     self._mag_mode.count() - 1, self._mode_guidance(mode),
                     Qt.ToolTipRole)
@@ -9537,6 +9699,7 @@ class MakeMasksScreen(QWidget):
             "threshold": self._build_otsu_card(),
             "organelle": self._build_methods_card(),
             "propagate": self._build_propagate_card(),
+            "secondary": self._build_propagate_card(secondary=True),
             "cellpose": self._build_cellpose_card(),
         }
         for group in self._method_groups.values():
@@ -9563,11 +9726,13 @@ class MakeMasksScreen(QWidget):
             return "organelle"
         if mode == cpu_modes.PROPAGATE:
             return "propagate"
+        if mode == cpu_modes.SECONDARY:
+            return "secondary"
         if mode == "cellpose" or mode in _MAGNIFIER_BACKENDS:
             return "cellpose"
         return "threshold"
 
-    def _build_propagate_card(self) -> _MethodGroup:
+    def _build_propagate_card(self, *, secondary=False) -> _MethodGroup:
         """The settings of Maxima + propagate, an intensity watershed.
 
         Four steps with a setting each, in the order they run: blur, find
@@ -9575,17 +9740,31 @@ class MakeMasksScreen(QWidget):
         :func:`spacr.qt.mask_engine.maxima_propagate_instances`, whose
         docstring describes the four stop rules, parameter units and
         defaults, and the difference between seed and surviving-label counts.
+        ``secondary=True`` selects existing primary masks instead of finding
+        centres, with independent settings and a default global threshold.
         """
         from ..i18n import tr
 
         card = _MethodGroup()
-        form = self._propagate_form = QFormLayout()
-        self._propagate_widgets: dict = {}
+        form = QFormLayout()
+        widgets = {}
+        if secondary:
+            from ..widgets.primary_mask_selector import PrimaryMaskSelector
+            self._secondary_widgets = widgets
+            self._primary_selector = PrimaryMaskSelector(card)
+            self._primary_selector.changed.connect(self._on_primary_source_changed)
+            card.body_layout.addWidget(self._primary_selector)
+            self._secondary_relations = QLabel(tr('Primary/secondary relationships will appear after detection.'))
+            self._secondary_relations.setWordWrap(True)
+            card.body_layout.addWidget(self._secondary_relations)
+        else:
+            self._propagate_form = form
+            self._propagate_widgets = widgets
 
         def row(field: str, caption: str, widget, tip: str) -> None:
             """Add one parameter row and remember it under its field name."""
             widget.setToolTip(tip)
-            self._propagate_widgets[field] = widget
+            widgets[field] = widget
             if caption:
                 form.addRow(caption, widget)
             else:
@@ -9675,7 +9854,17 @@ class MakeMasksScreen(QWidget):
             "the Method box offers on their own.")
 
         card.body_layout.addLayout(form)
-        for widget in self._propagate_widgets.values():
+        if secondary:
+            self._secondary_fill_holes = Toggle(tr('Fill holes inside secondary objects'))
+            self._secondary_fill_holes.setChecked(True)
+            self._secondary_fill_holes.toggled.connect(self._on_magnifier_context_changed)
+            card.body_layout.addWidget(self._secondary_fill_holes)
+            for field, widget in widgets.items():
+                form.setRowVisible(widget, field in cpu_modes.PARAMETERS_FOR[cpu_modes.SECONDARY])
+            stop.setCurrentIndex(stop.findData('threshold'))
+            stop.setItemText(stop.findData('seed_fraction'), tr("Fraction of the primary object's peak"))
+            sigma.setToolTip(tr('Gaussian smoothing before growth, in pixels. Primary labels are kept unchanged; no centres are detected.'))
+        for widget in widgets.values():
             for signal in ("valueChanged", "currentIndexChanged", "toggled"):
                 changed = getattr(widget, signal, None)
                 if changed is not None:
@@ -9685,16 +9874,17 @@ class MakeMasksScreen(QWidget):
 
     def _sync_propagate_controls(self, *_args) -> None:
         """Leave enabled only the propagation boxes that answer anything."""
-        widgets = getattr(self, "_propagate_widgets", None)
-        if not widgets:
-            return
-        rule = str(widgets["propagate_stop"].currentData())
-        widgets["propagate_stop_value"].setEnabled(rule != "threshold")
-        widgets["propagate_stop_algorithm"].setEnabled(rule == "threshold")
+        for attribute in ('_propagate_widgets', '_secondary_widgets'):
+            widgets = getattr(self, attribute, None)
+            if widgets:
+                rule = str(widgets["propagate_stop"].currentData())
+                widgets["propagate_stop_value"].setEnabled(rule != "threshold")
+                widgets["propagate_stop_algorithm"].setEnabled(rule == "threshold")
 
     def _cpu_params(self) -> "cpu_modes.CpuParams":
         """The CPU modes' settings, as the engine's parameters."""
-        widgets = getattr(self, "_propagate_widgets", None)
+        secondary = getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.SECONDARY
+        widgets = getattr(self, "_secondary_widgets" if secondary else "_propagate_widgets", None)
         if not widgets:
             return cpu_modes.DEFAULT_PARAMS
         return cpu_modes.CpuParams(
@@ -9753,6 +9943,10 @@ class MakeMasksScreen(QWidget):
         if heavy:
             note = f"{note} {tr('Heavy: this mode {what}.', what=tr(heavy))}"
         self._method_note.setText(note)
+        for name in ('_enh_morphology', '_enh_morphology_radius', '_enh_split'):
+            widget = getattr(self, name, None)
+            if widget is not None:
+                widget.setEnabled(mode != cpu_modes.SECONDARY)
         self._sync_detect_button(mode)
 
     def _sync_detect_button(self, mode: str) -> None:
@@ -10075,7 +10269,10 @@ class MakeMasksScreen(QWidget):
         button = getattr(self, "_btn_apply", None)
         if button is None or not button.isChecked():
             return detect_chain.NO_CHAIN
-        return self._enhancement_chain()
+        chain = self._enhancement_chain()
+        if getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.SECONDARY:
+            chain = chain._replace(morphology='none', split=False)
+        return chain
 
     def _enhancement_chain(self) -> "detect_chain.Chain":
         """Configured enhancement settings, available to Compare before applying."""
@@ -10755,7 +10952,12 @@ class MakeMasksScreen(QWidget):
         moment a request is built: the detect buttons read the same boxes, so
         there is one set of settings on the panel and not one per tool.
         """
+        selector = getattr(self, '_primary_selector', None)
+        source = selector.snapshot if selector is not None else None
         return {
+            'primary_source': source,
+            'primary_token': source.identity if source is not None else (),
+            'primary_selection': selector.path.text() if selector is not None else '',
             "model_name": self._cp_model.currentData() or "cpsam",
             "diameter": int(self._cp_diameter.value()),
             "flow_threshold": float(self._cp_flow.value()),
@@ -10763,7 +10965,9 @@ class MakeMasksScreen(QWidget):
             "normalize": bool(self._cp_normalize.isChecked()),
             "otsu_correction": float(self._otsu_correction.value()),
             "otsu_smoothing": float(self._otsu_smoothing.value()),
-            "otsu_fill_holes": bool(self._otsu_fill_holes.isChecked()),
+            "otsu_fill_holes": bool(self._secondary_fill_holes.isChecked()
+                                     if self._mag_mode.currentData() == cpu_modes.SECONDARY
+                                     else self._otsu_fill_holes.isChecked()),
             "otsu_split": bool(self._otsu_split.isChecked()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
@@ -11090,11 +11294,20 @@ class MakeMasksScreen(QWidget):
         request = result.request
         if mask is None or tuple(mask.shape[:2]) != tuple(request.shape):
             return []
+        exact_ids = result.mode == cpu_modes.SECONDARY
+        if exact_ids:
+            try:
+                source = self._require_primary_source()
+                if source.identity != request.primary_token:
+                    raise ValueError(tr('The primary mask changed. Wait for a new preview before accepting objects.'))
+            except ValueError as exc:
+                self._status_label.setText(str(exc))
+                return []
         overlap = self._mag_overlap.currentData() or "clip"
         try:
             out, added = engine._paste_region_objects(
                 mask, result.labels, request.box[:2], overlap=overlap,
-                min_area=self._detect_min_area())
+                min_area=self._detect_min_area(), preserve_ids=exact_ids)
         except ValueError as exc:
             self._status_label.setText(tr(
                 "Magnifier could not add objects: {error}", error=exc))
@@ -11112,6 +11325,8 @@ class MakeMasksScreen(QWidget):
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
+        if exact_ids:
+            self._retain_secondary_ids(request.primary_provenance)
         self._record("magnifier", list(added), changed,
                       overlap=overlap, paste_min_area=self._detect_min_area(),
                       box=[int(v) for v in request.box],
@@ -11297,6 +11512,7 @@ class MakeMasksScreen(QWidget):
         """Show the current field and whatever mask it already has."""
         if not self._image_files:
             return
+        self._primary_selector.clear_field()
         self._load_token += 1
         token = self._load_token
         filename = self._image_files[self._current_index]
@@ -11390,6 +11606,7 @@ class MakeMasksScreen(QWidget):
         if download is not None:
             download.cancel()
         self._magnifier.close()
+        self._primary_selector.shutdown()
         self._canvas.close_enhancer()
         self.close_folded()
         self._pending_load = None
@@ -11415,6 +11632,9 @@ class MakeMasksScreen(QWidget):
 
     def _handle_load_failure(self, error: Exception) -> None:
         """Clear stale canvas state and visibly report an image-load error."""
+        self._primary_selector.clear_field()
+        self._canvas.preserve_ids = False
+        self._paired_source = None
         self._canvas.image = None
         self._canvas.mask = None
         self._canvas.reset_zoom(silent=True)
@@ -11441,6 +11661,8 @@ class MakeMasksScreen(QWidget):
         """
         if token != self._load_token:
             return
+        self._canvas.preserve_ids = False
+        self._paired_source = None
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
@@ -11451,6 +11673,17 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._log = self._open_ledger(filename)
+        record = next((edit.detail.get('primary_source') for edit in reversed(self._log.edits)
+                       if edit.detail.get('preserve_ids')), None)
+        if record:
+            self._canvas.preserve_ids = True
+            self._canvas._lookup = None
+            self._canvas._lookup_dirty = True
+            self._paired_source = record
+        self._primary_selector.bind_field(os.path.join(self._folder, filename), mask.shape,
+                                          engine.mask_save_path(self._folder, filename, **self._layout_kwargs()))
+        if record:
+            self._primary_selector.restore_source(record)
         self._status_label.setText(
             f"{filename}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
@@ -11497,6 +11730,11 @@ class MakeMasksScreen(QWidget):
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
+        if getattr(self._canvas, 'preserve_ids', False):
+            from ..i18n import tr
+
+            self._status_label.setText(tr('Recrop requires a matching crop of both primary and secondary masks. Save this paired field before creating a separate crop.'))
+            return None
         if not self._image_files or self._canvas.mask is None \
                 or self._canvas.image is None:
             self._status_label.setText("Recrop: no field open to cut.")
@@ -11552,7 +11790,8 @@ class MakeMasksScreen(QWidget):
         if self._canvas.mask is not None:
             try:
                 engine.save_mask(self._folder, filename, self._canvas.mask,
-                                  log=self._log, **self._layout_kwargs())
+                                  log=self._log, preserve_ids=getattr(self._canvas, 'preserve_ids', False),
+                                  **self._layout_kwargs())
             except Exception as exc:
                 LOG.warning("Could not save %s before retiring it: %s",
                             filename, exc)
@@ -11607,11 +11846,13 @@ class MakeMasksScreen(QWidget):
         if not self._image_files or self._canvas.mask is None:
             return
         try:
+            self._validate_secondary_save()
             path = engine.save_mask(
                 self._folder,
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
+                preserve_ids=getattr(self._canvas, 'preserve_ids', False),
                 **self._layout_kwargs(),
             )
         except Exception as e:
@@ -11645,10 +11886,16 @@ class MakeMasksScreen(QWidget):
 
     def _on_fill_holes(self):
         """Fill enclosed holes in every object."""
-        self._apply_op(engine.fill_holes, "fill_holes")
+        self._apply_op(lambda mask: engine.fill_holes(
+            mask, preserve_ids=getattr(self._canvas, 'preserve_ids', False)), 'fill_holes')
 
     def _on_relabel(self):
         """Renumber the objects so the labels are consecutive."""
+        if getattr(self._canvas, 'preserve_ids', False):
+            from ..i18n import tr
+
+            self._status_label.setText(tr('Paired secondary objects retain primary IDs; consecutive relabeling would break that association.'))
+            return
         self._apply_op(engine.relabel_objects, "relabel")
 
     def _on_invert(self):
@@ -11674,6 +11921,11 @@ class MakeMasksScreen(QWidget):
     def _on_remove_small(self):
         """Delete objects below the minimum area."""
         area = int(self._min_area.value())
+        if getattr(self._canvas, 'preserve_ids', False):
+            self._apply_op(lambda mask: engine.filter_report(
+                mask, self._canvas.image, min_area=area, preserve_ids=True)[0],
+                'remove_small', min_area=area)
+            return
         self._apply_op(lambda m: engine.remove_small_objects(m, area),
                         "remove_small", min_area=area)
 

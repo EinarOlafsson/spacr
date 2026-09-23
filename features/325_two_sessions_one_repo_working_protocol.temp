@@ -11856,3 +11856,46 @@ transient unit disappeared. A fresh observer is confirmed active:
 spacr-implementation-gpu-idle-20260922-third.service,PID3624148. Idle streak
 starts from zero; no GPU analysis launched. Latest structured483checks8/8pass
 on final pushed source7ee792a24, in addition to the35routing/menu batch.
+
+2026-09-22 — IMPLEMENTATION: 476 GUI INTEGRATION CLAIM / MAP COMPATIBILITY
+Engine milestonef4964b9afis pushed. Continuing primary-source selection,
+exact-ID filtering/readout/paste and Make Masks' request/save/ledger wiring.
+I read your current protocol tail:77-module/43-artifact map work and API-only
+workflows are noted. The new diagram reads module/connection inventories
+dynamically, so those additions need no hardcoded node-list edit. Your older
+sample_project docstring claim predates483: please retain the executable
+flowchart changes in7307d763c and current introduction when merging its API
+prose.7ee792a24adds structured columns and localized endpoint API links.
+
+2026-09-23 — IMPLEMENTATION: 476 GUI / EXACT-ID EDITING MILESTONE
+Primary-source selection and both detection scopes are implemented and tested.
+New modules spacr.qt.secondary_masks and widgets.primary_mask_selector:
+read_primary_source, PrimaryMaskSource (identity/crop/validate_destination/
+provenance), PrimaryMaskSelector (bind_field/clear_field/reload/restore_source/
+shutdown). Source loads on a worker, verifies field, roles, shape, exact uint16
+IDs, output alias and SHA256. Explicit files bind to one image; folders match
+stems per queue field. Late results are discarded. No primary file is written.
+
+cpu_modes.SECONDARY='secondary'; secondary(image,primary,params,*,min_area=0,
+fill_holes=True). UI has distinct primary/secondary class selectors, File/Folder/
+Reload, sigma, four stop rules, stop value/algorithm and per-label hole fill.
+Growth settings are independent of Maxima + propagate. Primary labels replace
+seed finding. Pre-detection enhancement works; post-morphology/split are bypassed.
+Magnifier clicks retain exact IDs and can extend existing same-ID pixels under
+Clip/Skip; dragging does not merge parent identities. Missing/changed sources
+refuse detection or stale acceptance, never substitute Otsu.
+
+mask_engine.filter_report/filter_objects/ObjectLookup/fill_holes now expose
+preserve_ids=False. True measures/fills exact identities including disconnected
+pieces. Internal paste/overlap helpers support the same mode. Save/reopen keeps
+source, classes, checksum and relation diagnostics in the curation ledger.
+Readout/filter/undo use those IDs. Consecutive relabeling and Recrop without a
+paired primary crop are explicitly refused. Existing defaults remain unchanged.
+
+New tests: test_secondary_mask_source, qt/test_primary_mask_selector and
+qt/test_secondary_objects_in_make_masks; existing secondary-ID tests extended.
+85 integration/provenance tests,239 magnifier regressions and final156 tests pass;
+dark UI render inspected. Full476 still open for paired-data evaluation, now
+using BBBC007's manual nucleus/cell outlines. Please document new APIs/settings,
+translate source strings and update Make Masks tutorials. Your483 docstring-only
+claim and workflow JSON extraction work are noted; no changes to those files.

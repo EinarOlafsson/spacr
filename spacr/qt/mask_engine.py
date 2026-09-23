@@ -1215,8 +1215,15 @@ def divide_object(mask: np.ndarray, p0, p1,
         return mask.copy(), []
     return _fit_label_width(out, mask), splits
 
-def fill_holes(mask: np.ndarray) -> np.ndarray:
-    """Fill holes inside True regions; returns a relabeled mask."""
+def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
+    """Fill enclosed background pixels, optionally retaining primary identities.
+
+    :param mask: label image to fill.
+    :param preserve_ids: fill per object without merging or renumbering labels.
+        Requires exact uint16-compatible IDs; default retains binary relabeling.
+    """
+    if preserve_ids:
+        return _fill_label_holes(canonical_labels(mask, preserve_ids=True))
     binary = mask > 0
     filled = _ndimage().binary_fill_holes(binary)
     labeled, _ = _ndimage().label(filled)
@@ -1518,7 +1525,8 @@ class FilterRemoval(NamedTuple):
 
 def filter_report(mask: np.ndarray, image: np.ndarray, *,
                   min_area: int = 0, max_area: int = 0,
-                  min_intensity: float = 0.0, max_intensity: float = 0.0
+                  min_intensity: float = 0.0, max_intensity: float = 0.0,
+                  preserve_ids: bool = False
                   ) -> Tuple[np.ndarray, List[FilterRemoval]]:
     """Filter as :func:`filter_objects` does, measuring what it removed.
 
@@ -1530,6 +1538,8 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
 
     :returns: ``(mask, removals)``, the removals sorted by id. Nothing to do
         returns the original array untouched and an empty list.
+    :param preserve_ids: measure all pixels bearing an ID as one object,
+        including lone or disconnected primary/secondary labels.
     """
     bounds = (int(min_area or 0), int(max_area or 0),
               float(min_intensity or 0.0), float(max_intensity or 0.0))
@@ -1542,7 +1552,7 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
     grey = np.asarray(image, dtype=np.float32)
     if grey.ndim == 3:
         grey = grey.mean(axis=2)
-    labels = canonical_labels(mask)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
     removals: List[FilterRemoval] = []
     for region in regionprops(labels.astype(np.int32), intensity_image=grey):
         area = int(region.area)
@@ -1569,7 +1579,8 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
 def filter_objects(mask: np.ndarray, image: np.ndarray, *,
                    min_area: int = 0, max_area: int = 0,
                    min_intensity: float = 0.0,
-                   max_intensity: float = 0.0) -> Tuple[np.ndarray, List[int]]:
+                   max_intensity: float = 0.0,
+                   preserve_ids: bool = False) -> Tuple[np.ndarray, List[int]]:
     """Drop objects outside the size/intensity bounds. Each bound is off at 0.
 
     Area is the object's pixel count; intensity is its MEAN value on the
@@ -1590,10 +1601,14 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
 
     :func:`filter_report` is this function keeping what it measured; a
     caller that has to tell the user WHY an object went wants that one.
+
+    :param preserve_ids: retain primary/secondary identities when measuring
+        and removing labels; disconnected pieces sharing an ID count together.
     """
     out, removals = filter_report(
         mask, image, min_area=min_area, max_area=max_area,
-        min_intensity=min_intensity, max_intensity=max_intensity)
+        min_intensity=min_intensity, max_intensity=max_intensity,
+        preserve_ids=preserve_ids)
     return out, [removal.label for removal in removals]
 
 
@@ -1635,13 +1650,16 @@ class ObjectLookup:
     :param image: the raw image under it, with the mask's height and width.
     """
 
-    def __init__(self, mask: np.ndarray, image: np.ndarray):
+    def __init__(self, mask: np.ndarray, image: np.ndarray, *,
+                 preserve_ids: bool = False):
         """Number the objects and index their bounding boxes.
 
         :param mask: the label image.
         :param image: the raw image under it.
+        :param preserve_ids: index exact IDs without binary interpretation
+            or splitting disconnected pieces; agrees with exact-ID filtering.
         """
-        self.labels = canonical_labels(mask)
+        self.labels = canonical_labels(mask, preserve_ids=preserve_ids)
         grey = np.asarray(image, dtype=np.float32)
         if grey.ndim == 3:
             grey = grey.mean(axis=2)
@@ -2896,7 +2914,8 @@ def _finish_region_binary(foreground, ndimage, empty, *, fill_holes: bool,
 
 def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
                           overlap: str = "clip",
-                          min_area: int = 0) -> Tuple[np.ndarray, List[int]]:
+                          min_area: int = 0,
+                          preserve_ids: bool = False) -> Tuple[np.ndarray, List[int]]:
     """Add a region's objects to ``mask`` as new objects.
 
     What a live-magnifier click commits. The labels arrive in the region's
@@ -2916,6 +2935,9 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
         piece, because one id must name one object.
     :param min_area: an object left smaller than this once the rule has been
         applied is not added.
+    :param preserve_ids: paste the supplied IDs, not newly allocated IDs.
+        Same-ID pixels do not conflict under Clip or Skip. Disconnected
+        pieces retain their shared identity. Exact-ID masks must fit uint16.
     :returns: ``(mask, new_ids)``. New ids start one past the mask's top id
         (:func:`next_label`) and follow the incoming labels' order, so they
         cannot collide with any id the mask holds. Nothing added returns a
@@ -2927,6 +2949,9 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
             f"overlap must be one of {_MAGNIFIER_OVERLAP_RULES}, "
             f"not {overlap!r}")
     incoming = np.asarray(labels)
+    if preserve_ids:
+        incoming = canonical_labels(incoming, preserve_ids=True)
+        mask = canonical_labels(mask, preserve_ids=True)
     height, width = mask.shape[:2]
     ox, oy = int(origin[0]), int(origin[1])
     x0, y0 = max(0, ox), max(0, oy)
@@ -2938,13 +2963,19 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
     if not incoming.any():
         return mask.copy(), []
     occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
+    if preserve_ids:
+        occupied &= np.asarray(mask)[y0:y1, x0:x1] != incoming
     kept = _surviving_region_objects(incoming, occupied, overlap=overlap,
-                                    min_area=min_area)
+                                    min_area=min_area, preserve_ids=preserve_ids)
     values = [int(v) for v in np.unique(kept) if int(v) > 0]
     if not values:
         return mask.copy(), []
     out = mask.astype(np.int64, copy=True)
     window = out[y0:y1, x0:x1]
+    if preserve_ids:
+        body = kept > 0
+        window[body] = kept[body]
+        return _fit_label_width(out, mask), values
     new_id = next_label(mask)
     added: List[int] = []
     renumber = np.zeros(int(kept.max()) + 1, dtype=np.int64)
@@ -2997,7 +3028,8 @@ def _largest_piece_of_each(labels: np.ndarray) -> np.ndarray:
 
 def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
                              overlap: str = "clip",
-                             min_area: int = 0) -> np.ndarray:
+                             min_area: int = 0,
+                             preserve_ids: bool = False) -> np.ndarray:
     """What is left of a region's objects once the Overlap rule has run.
 
     The live magnifier's Overlap rule and Min area in one place, so the box
@@ -3022,6 +3054,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
         keeps everything.
     :param min_area: an object left smaller than this by the rule does not
         survive. 0 and 1 both mean "at least one pixel".
+    :param preserve_ids: retain disconnected pieces sharing an ID; ``occupied``
+        must exclude existing same-ID pixels. Validate labels as uint16 IDs.
     :returns: a copy of ``labels`` with everything the rule takes away set
         to 0. The surviving objects keep the ids they came in with.
     :raises ValueError: for an unknown ``overlap`` rule.
@@ -3031,6 +3065,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
             f"overlap must be one of {_MAGNIFIER_OVERLAP_RULES}, "
             f"not {overlap!r}")
     incoming = np.asarray(labels)
+    if preserve_ids:
+        incoming = canonical_labels(incoming, preserve_ids=True)
     taken = np.asarray(occupied, dtype=bool)
     kept = np.where(incoming > 0, incoming, 0).astype(np.int64)
     if overlap == "skip":
@@ -3040,7 +3076,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
             kept[np.isin(kept, touching)] = 0
     elif overlap == "clip":
         kept[taken] = 0
-        kept = _largest_piece_of_each(kept)
+        if not preserve_ids:
+            kept = _largest_piece_of_each(kept)
     floor = max(1, int(min_area))
     if floor > 1 and kept.any():
         areas = np.bincount(kept.ravel())
