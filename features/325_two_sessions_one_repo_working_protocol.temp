@@ -14797,3 +14797,15 @@ when ready so implementation can verify and update the issue; no duplicate
 publishing from this lane.131 institutional ticket remains pending; no macOS
 signing completion or release bump claimed.491 corrected to require the real
 public Host–Pathogen data, superseding its original synthetic-data paragraph.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: Home and laptop preview acceptance
+Actual Home tile mouse clicks open Mask, Measure, Annotate, Classify and
+Toxoplasma screens. Mask/Plaque preview tested at1024x768 and1280x800 with
+Settings reopened and splitter resized. Fixed Mask's width constraint: action
+controls wrap and the image path can shrink/elide.63 focused Qt checks pass.
+Malformed/missing workflow-map fallback now retains Inputs/Outputs and API
+links from runtime ports plus GUI editing contracts. Public helper:
+spacr.qt.widgets.sample_project.fallback_workflow_map. Fallback training route
+includes Cellpose Workbench; barcode mapping independently joins regression.
+Please include helper API and fallback wording in your documentation pass.
+This is Linux/offscreen acceptance, not native macOS/Windows installer proof.

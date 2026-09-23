@@ -1849,7 +1849,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "No preview image loaded — drag & drop an image here to load it",
             self)
         self._path_label.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Preferred)
+            QSizePolicy.Ignored, QSizePolicy.Preferred)
         self._path_label.setMinimumWidth(0)
         #: The path in full. The label shows an elided version sized to
         #: whatever width it actually gets, so the text can never be the thing
@@ -1950,7 +1950,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._channel_box.setVisible(False)
         root.addLayout(pick_row)
 
-        act = QHBoxLayout()
+        from .flow import FlowHost, FlowLayout
+        act_host = FlowHost(self)
+        act_host.setObjectName("LivePreviewActions")
+        act = FlowLayout(act_host, spacing=6)
         self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
         self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
@@ -1969,15 +1972,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._view_mode.currentTextChanged.connect(
             lambda *_: self._refresh_canvases())
         self._status = QLabel("", self)
+        self._status.setWordWrap(True)
         act.addWidget(self._run_btn)
         act.addWidget(self._cancel_btn)
         act.addWidget(self._live_settings_btn)
         act.addWidget(QLabel("View:", self))
         act.addWidget(self._view_mode)
-        act.addWidget(self._status, 1)
         from .preview_scale import install_preview_scale
         self._scale_control = install_preview_scale(self, "mask", act)
-        root.addLayout(act)
+        root.addWidget(act_host)
+        root.addWidget(self._status)
 
         canvas = QHBoxLayout()
         self._src_view = _ZoomView(self)
@@ -1994,7 +1998,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "Drag a line on either image to measure its length in image pixels. "
             "Right-click with Ruler selected to clear it. Turn Ruler off to pan."))
         self._ruler_btn.toggled.connect(self._src_view.ruler.set_active)
-        act.insertWidget(3, self._ruler_btn)
+        act.addWidget(self._ruler_btn)
         self._src_view.hover_pixel.connect(self._on_hover)
         self._mask_view.hover_pixel.connect(self._on_hover)
         canvas.addWidget(self._src_view, 1)

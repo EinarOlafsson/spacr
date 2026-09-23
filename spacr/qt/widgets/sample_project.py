@@ -45,7 +45,13 @@ FALLBACK = (
                 "a classifier, read the barcodes, and regress the phenotype "
                 "on the guides to get a ranked hit list.",
      "modules": ["mask", "measure", "annotate", "classify_merged",
-                 "map_barcodes", "regression"]},
+                 "map_barcodes", "regression"],
+     "steps": [{"module": "mask", "after": []},
+               {"module": "measure", "after": ["mask"]},
+               {"module": "annotate", "after": ["measure"]},
+               {"module": "classify_merged", "after": ["annotate"]},
+               {"module": "map_barcodes", "after": []},
+               {"module": "regression", "after": ["classify_merged", "map_barcodes"]}]},
     {"id": "high_content",
      "title": "A high-content imaging experiment (no sequencing)",
      "summary": "Segment and measure every cell, then explore: classify "
@@ -56,7 +62,7 @@ FALLBACK = (
      "title": "Train a segmentation model of my own",
      "summary": "Correct masks by hand on a few fields, then train a Cellpose "
                 "model on them and use it for the rest of the plate.",
-     "modules": ["make_masks", "mask"]},
+     "modules": ["make_masks", "train_cellpose", "mask"]},
 )
 
 
@@ -122,6 +128,60 @@ def pathway_graph(entry, data, steps):
                                            "artifacts": source["artifacts"],
                                            "handoff": source["description"]})
     return display, keys, steps
+
+
+def fallback_workflow_map(keys):
+    """Describe fallback modules using their runtime input/output declarations.
+
+    :param keys: modules needed by a fallback pathway.
+    :returns: display map with port descriptions, locations and API references.
+        GUI-only editing modules use their documented source/mask/database
+        contracts. This performs no filesystem scan of user data.
+    """
+    from ...ports import ModulePorts, Port, UnknownModule, module_ports
+
+    titles = dict(zip(keys, SampleProjectDialog._module_names(keys)))
+    api = {"mask": "spacr.core", "measure": "spacr.measure",
+           "annotate": "spacr.qt.screens.annotate", "classify_merged": "spacr.classify",
+           "map_barcodes": "spacr.sequencing", "regression": "spacr.ml",
+           "umap": "spacr.core", "make_masks": "spacr.qt.screens.make_masks",
+           "train_cellpose": "spacr.submodules"}
+    editors = {
+        "annotate": ModulePorts("annotate",
+            consumes=(Port("measurements-db", "db", "measurements/measurements.db",
+                           description="Object measurements and crop paths"),
+                      Port("crops", "crops", "data", description="Single-object image crops")),
+            produces=(Port("labels", "labels", "measurements/measurements.db",
+                           description="Reviewed object labels in png_list"),),
+            summary="Label representative objects before training a phenotype classifier."),
+        "make_masks": ModulePorts("make_masks",
+            consumes=(Port("raw-images", "images", description="Microscopy images"),
+                      Port("masks", "masks", "masks", required=False,
+                           description="Existing masks to correct, when available")),
+            produces=(Port("curated-pairs", "pairs", description="Reviewed image and integer-mask pairs"),),
+            summary="Draw or correct object masks, then train a segmentation model in Cellpose Workbench."),
+        "train_cellpose": ModulePorts("train_cellpose",
+            consumes=(Port("curated-pairs", "pairs", description="Reviewed image and integer-mask pairs"),),
+            produces=(Port("segmentation-model", "model", "models",
+                           description="Trained Cellpose segmentation checkpoint"),),
+            summary="Train in Cellpose Workbench inside Make Masks, then evaluate on separate fields before applying the checkpoint."),
+    }
+    data = {"modules": {}, "artifacts": {}, "connections": []}
+    for key in keys:
+        try:
+            contract = editors.get(key) or module_ports(key)
+        except UnknownModule:
+            contract = ModulePorts(key)
+        module = dict(name=titles[key], guidance=contract.summary,
+                      api_module=api.get(key, "spacr.ports"), inputs=[], outputs=[])
+        for role, ports in (("inputs", contract.consumes), ("outputs", contract.produces)):
+            for port in ports:
+                artifact = f"{key}:{role}:{port.role}"
+                module[role].append(artifact)
+                data["artifacts"][artifact] = dict(
+                    title=port.description or port.kind, location=port.relative())
+        data["modules"][key] = module
+    return data
 
 
 def start_example(screen) -> str:
@@ -208,7 +268,7 @@ class SampleProjectDialog(DiagramDialog):
                 try:
                     data = workflow_map()
                 except (OSError, ValueError):
-                    data = {"modules": {}, "artifacts": {}, "connections": []}
+                    data = fallback_workflow_map(entry["modules"])
                 for key in entry["modules"]:
                     data["modules"].setdefault(key, {"name": key, "inputs": [], "outputs": []})
             steps = entry.get("steps")

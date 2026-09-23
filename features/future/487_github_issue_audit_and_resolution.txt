@@ -239,3 +239,16 @@ Apple signing access. Posted the verified plaque responsiveness work on127:
 https://github.com/EinarOlafsson/spacr/issues/127#issuecomment-5802098915
 No1.5.1.0 bump or main promotion yet. Do not close these issues as a proxy for
 finishing the audit, and do not claim exact native-platform reproduction.
+
+2026-09-23 — HOME NAVIGATION / LAPTOP PREVIEW ACCEPTANCE
+Real Home tile clicks open Mask, Measure, Annotate, Classify and Toxoplasma.
+Mask and Plaque Live preview collapse supporting panels, occupy the available
+space and allow reopening/resizing Settings at1024x768 and1280x800. Found and
+fixed Mask's excessive minimum width: actions now wrap and the image path
+can shrink. Missing/unreadable workflow-map fallback also lost its input,
+output and API descriptions; these now come from runtime module declarations
+and GUI editing contracts. Fallback training includes Cellpose Workbench;
+barcode mapping runs independently and converges on regression.
+63 focused Linux/offscreen Qt checks passed. Public onboarding delivery and
+native-platform acceptance remain distinct outstanding evidence; do not close
+127/130 based solely on this cohort.131 institutional signing access pending.

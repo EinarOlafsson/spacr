@@ -365,3 +365,22 @@ def test_fallback_pipeline_diagrams_remain_selectable_when_graph_map_is_unreadab
     assert set(graph.nodes) == set(entries[1]["modules"])
     assert {(link["from"], link["to"]) for link in graph.links} == set(
         zip(entries[1]["modules"], entries[1]["modules"][1:]))
+
+
+def test_fallback_cards_keep_real_contracts_api_links_and_parallel_barcode_branch():
+    import importlib.util
+    from spacr.qt.widgets import sample_project as sp
+    from spacr.qt.widgets.pipeline_details import _module_card
+    from spacr.qt.widgets.workflow_diagram import connections
+    route = sp.FALLBACK[0]
+    data = sp.fallback_workflow_map(route['modules'])
+    for key, module in data['modules'].items():
+        assert module['inputs'] and module['outputs'], key
+        assert importlib.util.find_spec(module['api_module']) is not None
+        card = _module_card(data, key)
+        assert 'Inputs' in card and 'Outputs' in card and 'href=' in card
+    edges = {(e['from'], e['to']) for e in connections(data, route['modules'], route['steps'])}
+    assert ('classify_merged', 'map_barcodes') not in edges
+    assert ('map_barcodes', 'regression') in edges
+    assert ('classify_merged', 'regression') in edges
+    assert sp.FALLBACK[2]['modules'] == ['make_masks', 'train_cellpose', 'mask']
