@@ -2,23 +2,22 @@
   "id": "14_make_masks",
   "number": 14,
   "slug": "make_masks",
-  "title": "Make Masks: magnifier, measurements and reversible editing",
+  "title": "Make Masks: edit labels and prepare training images",
   "series": 1,
   "app_key": "make_masks",
   "section": "Tools",
-  "description": "Inspect the live magnifier, measure paired images and masks with FEATURES, edit real downloaded labels, create a recoverable training crop and review a local detection that disagrees with the existing mask.",
+  "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
   "objectives": [
-    "Open paired two-dimensional images and instance masks without modifying the downloaded source.",
-    "Preview the Otsu magnifier and measure two real image-mask pairs through FEATURES.",
-    "Use reversible object deletion, drawing, division and area filtering, and distinguish these from display contrast.",
-    "Save a curated mask and recrop a field while retaining its parent in the recovery archive.",
-    "Find nested segmentation tools and inspect a real local Cellpose detection, probability map and flow view."
+    "Open images with matching instance masks and inspect objects in the magnifier.",
+    "Measure paired fields and save an object-feature database.",
+    "Correct labels with Undo, drawing, division and size filters.",
+    "Save curated masks and create image-mask crops for training."
   ],
-  "prerequisite": "Obtain Measure's real downloadable example first. The recording uses two isolated TIFF pairs extracted without changing pixels from its seven-plane uint16 merged fields: ER intensity plane 1 and cell-label plane 4. The exact preparation recipe is prepare_fields in tools/tutorials/capture_make_masks.py. For your own experiment, supply two-dimensional images with same-stem instance-label TIFFs in the masks subfolder; do not assume every dataset has this example's plane order.",
+  "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
   "scenes": [
     {
       "visual": "01_module",
-      "narration": "Open Make Masks in Home's Tools category. This is the manual mask editor, distinct from the Core Mask pipeline. Its toolbar edits the current field; its header opens related segmentation workflows that live under this parent.",
+      "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask"
@@ -26,7 +25,7 @@
     },
     {
       "visual": "02_folder_picker",
-      "narration": "This example uses two real fields from Measure's downloaded dataset. We extracted the intensity and existing cell-label planes into separate TIFF copies and kept the original stacks unchanged. The preparation recipe records their source planes and hashes. Other datasets may use a different plane order.",
+      "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure"
@@ -34,17 +33,17 @@
     },
     {
       "visual": "03_real_labels",
-      "narration": "Open the image folder. Matching instance masks live in its masks subfolder, under the corresponding image stem. The first field loads sixty-three labelled objects. A missing companion starts empty; a label image uses object identifiers, not merely a foreground colour.",
+      "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
       "hold_after": 0.7
     },
     {
       "visual": "readouts_04_otsu_magnifier_settings",
-      "narration": "The live Magnifier previews segmentation under the pointer. Here its mode is Otsu and its scope is Region under the mouse. This preview uses thresholding on the CPU, without running the Cellpose model.",
+      "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
       "hold_after": 0.7
     },
     {
       "visual": "readouts_05_live_otsu_magnifier",
-      "narration": "Turn on Magnifier and hover over the image to inspect its enlarged result. A click would add the outlined objects to the mask. We only hover, then turn it off, leaving the image and labels unchanged.",
+      "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
       "hold_after": 0.7,
       "focus": [
         1370,
@@ -55,7 +54,7 @@
     },
     {
       "visual": "readouts_06_features_real_files",
-      "narration": "Features opens the measurement table. We use two real fields, one intensity channel and cell masks. Automatic filename matching may leave files unassigned; add field rows and choose the image and its matching mask explicitly.",
+      "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
       "hold_after": 0.7,
       "focus": [
         650,
@@ -69,7 +68,7 @@
     },
     {
       "visual": "readouts_08_features_choose_cell_mask",
-      "narration": "Choose each ER image in Channel 1 and the same-stem label image in Cell mask. Repeat for the second field. These are the source images and masks, not screenshots of the coloured overlay.",
+      "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
       "hold_after": 0.7,
       "focus": [
         650,
@@ -83,7 +82,7 @@
     },
     {
       "visual": "readouts_09_features_assigned_table",
-      "narration": "Check both field rows and their image-mask pairing. Nothing was left over confirms the manual assignments; the earlier regex counter above remains stale. For this demonstration we set one worker, minimum cell size one, and disable saved PNG crops before pressing Measure.",
+      "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
       "hold_after": 0.7,
       "focus": [
         650,
@@ -97,7 +96,7 @@
     },
     {
       "visual": "readouts_12_features_measurements_saved",
-      "narration": "The completed run writes measurements.db for both fields. It contains one hundred and fourteen cell rows with distinct field identities. Every saved area and mean raw ER intensity matches its source label and pixels. Close Features to return to reversible editing.",
+      "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
       "hold_after": 0.7,
       "focus": [
         650,
@@ -111,7 +110,7 @@
     },
     {
       "visual": "03_real_labels",
-      "narration": "Brush and Erase work on pixels, while Erase object removes a complete label. Wand controls grow connected intensity regions. Draw, Divide, Zoom and Recrop share this toolbar. Choose the operation that matches the mistake, and inspect the result before saving it.",
+      "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
       "hold_after": 0.7,
       "focus": [
         345,
@@ -122,42 +121,42 @@
     },
     {
       "visual": "04_erase_one_object",
-      "narration": "Click Erase object, then an interior cell. The real click removes exactly label seventeen, changing the count from sixty-three to sixty-two without touching other labels. This is a demonstration of the operation, not a judgment that this cell should be excluded biologically.",
+      "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
       "hold_after": 0.7
     },
     {
       "visual": "06_redo",
-      "narration": "Undo restores every original label pixel. Redo repeats that same deletion; Undo restores it again before we continue. These are actual history steps from the clicks, not masks swapped into the viewer by the recording script.",
+      "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
       "hold_after": 0.7
     },
     {
       "visual": "07_draw_demo_not_annotation",
-      "narration": "Draw closes and fills an outline as one object. Here a small background outline demonstrates the tool, briefly producing a sixty-fourth label. It is not a biological annotation, and we undo it. Trace a real boundary carefully when preparing training labels.",
+      "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
       "hold_after": 0.7
     },
     {
       "visual": "08_divide_demo",
-      "narration": "Divide cuts across an existing object and assigns a new identifier to the separated piece. Start and finish the gesture on the image and cross the whole object. This real cut produces sixty-four labels; we undo it rather than treating a demonstration split as ground truth.",
+      "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
       "hold_after": 0.7
     },
     {
       "visual": "08b_contrast_only",
-      "narration": "Display percentiles change visibility, not the raw intensities or label geometry. Raising the lower percentile visibly changes this rendering while both arrays remain identical. Restoring it restores the display. Contrast is a viewing aid, not a way to alter the measurements.",
+      "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
       "hold_after": 0.7
     },
     {
       "visual": "08c_filter_edits_labels",
-      "narration": "The editor's object filter does change labels. Here the measured demonstration threshold of twenty-one thousand and twenty-two pixels removes thirty-two objects when Filter is pressed. No model reruns. This threshold is not a recommended biological cutoff, and this action is not merely hiding objects.",
+      "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
       "hold_after": 0.7
     },
     {
       "visual": "11_saved_restored_mask",
-      "narration": "Undo the filter and set its bounds back to zero, which disables them for later fields. Save mask writes the restored labels and their curation record. We verify that its foreground geometry is unchanged; preserve source images separately from the masks you curate.",
+      "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
       "hold_after": 0.7
     },
     {
       "visual": "09_fold_train_cellpose",
-      "narration": "The header provides Train Cellpose and Mask the whole folder. Training and applying a model are different tasks, with existing specialist lessons linked here. Make Masks remains their parent in the tutorial's Submodules section, even when a tool opens its own window.",
+      "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
       "hold_after": 0.7,
       "focus_buttons": "FoldButton",
       "related_lessons": [
@@ -167,7 +166,7 @@
     },
     {
       "visual": "09_fold_napari_bridge",
-      "narration": "The same header contains Model Compare, Model Zoo, Curate and Open in napari. Use their retained lessons for side-by-side model inspection, available weights, curation and the external-editor round trip. We show their actual locations here without repeating or inventing those workflows.",
+      "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
       "hold_after": 0.7,
       "focus_buttons": "FoldButton",
       "related_lessons": [
@@ -179,12 +178,12 @@
     },
     {
       "visual": "12_recrop_written",
-      "narration": "Recrop changes the training field, not just the zoom. Drag a box around a complete object. This gesture immediately writes a new image and matching mask, keeping the original intensity pixels. Labels cut by the boundary are dropped; inspect the resulting object count, not just the box.",
+      "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
       "hold_after": 0.7
     },
     {
       "visual": "13_child_and_recovery_archive",
-      "narration": "Next opens the new one-object crop and retires the copied parent into recropped_originals. That recovery folder preserves its image bytes. This affects the editor's folder queue; it does not rebuild Annotate's crop database. Here only our private tutorial copy is archived, never the downloaded source.",
+      "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
       "hold_after": 0.7,
       "related_lessons": [
         "09_annotate"
@@ -192,32 +191,32 @@
     },
     {
       "visual": "14_cellpose_settings",
-      "narration": "Cellpose-SAM can detect objects in the open field. Our small crop uses cpsam, normalization on, cell-probability threshold zero, flow threshold zero point four and diameter zero, which leaves the model's default sizing. The replacement mode matters: it is different from adding detections to existing labels.",
+      "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
       "hold_after": 0.7
     },
     {
       "visual": "15_cellpose_detected",
-      "narration": "Press Object detection and inspect the result. This CPU run finds one object in the three-hundred-and-thirty-two by two-hundred-and-sixty-seven pixel crop. It outlines the partial object at the upper left instead of the central cell in our existing mask. A matching object count does not mean the segmentation is correct; we will undo this replacement.",
+      "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
       "hold_after": 0.7
     },
     {
       "visual": "16_cell_probability",
-      "narration": "Cell probability shows the actual score map from that detection, not a calibrated probability that the biological interpretation is correct. Use it to understand where the model supports foreground. A changed detection threshold requires another detection; these panes describe the run that produced them.",
+      "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
       "hold_after": 0.7
     },
     {
       "visual": "17_flows",
-      "narration": "Flows displays the model's directional information. The flow-consistency threshold has a different meaning from the foreground score threshold: lower values are stricter, while zero disables that check. Inspect masks and intermediate views together instead of assuming a larger number always gives a better segmentation.",
+      "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
       "hold_after": 0.7
     },
     {
       "visual": "19_detection_undone",
-      "narration": "Undo restores the crop's pre-detection labels without changing its image. Cellpose uses local model weights, not a chat-provider response. The application's device resolver supports available acceleration and a CPU fallback; the options depend on the installation, so do not promise identical results across backends.",
+      "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
       "hold_after": 0.7
     },
     {
       "visual": "19_detection_undone",
-      "narration": "For scripts, the editor's load_image_and_mask, save_mask and write_recrop operations live in spacr.qt.mask_engine. Keep the image-mask pairing and provenance with your curated training data. Use the linked API and training lessons when moving from a reviewed example to a reproducible workflow.",
+      "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
       "hold_after": 0.7,
       "related_lessons": [
         "06_api",
