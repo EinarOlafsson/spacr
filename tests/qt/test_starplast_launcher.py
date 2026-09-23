@@ -215,3 +215,77 @@ def test_first_successful_install_launches_and_reaps_a_successful_child(qtbot, m
     qtbot.waitUntil(lambda: child.calls == 2, timeout=3000)
     qtbot.wait(600)
     assert child.calls == 2 and not errors
+
+
+@pytest.fixture(autouse=True)
+def default_update_check(monkeypatch, qtbot):
+    monkeypatch.setattr(starplast.service, 'check_starplast_update',
+                        lambda **kwargs: dict(installed='1.0', latest='1.0', available=False))
+    def exec_check(dialog):
+        dialog.show()
+        qtbot.waitUntil(lambda: dialog._thread is None)
+        return dialog.result()
+    monkeypatch.setattr(starplast.StarplastUpdateCheckDialog, 'exec', exec_check)
+
+
+@pytest.mark.parametrize('upgrade', [False, True])
+def test_each_open_checks_updates_and_only_consent_runs_upgrade(qtbot, monkeypatch, tmp_path, upgrade):
+    checks, upgrades, launches = [], [], []
+    monkeypatch.setattr(starplast.service, 'is_installed', lambda root: True)
+    def check(**kwargs):
+        checks.append(1)
+        return dict(installed='1.0', latest='1.1', available=True)
+    monkeypatch.setattr(starplast.service, 'check_starplast_update', check)
+    def prompt(box):
+        assert '1.0' in box.text() and '1.1' in box.text() and 'pip' in box.text()
+        box.buttons()[0 if upgrade else 1].click()
+        return 0
+    monkeypatch.setattr(starplast.QMessageBox, 'exec', prompt)
+    def install(dialog):
+        assert dialog.source.text() == 'starplast'
+        assert dialog.job == starplast.service.upgrade_starplast
+        upgrades.append(1)
+        dialog.installed = True
+        return QDialog.Accepted
+    monkeypatch.setattr(starplast.StarplastInstallDialog, 'exec', install)
+    monkeypatch.setattr(starplast.StarplastInstallDialog, 'start', lambda self: None)
+    class Child:
+        def poll(self):
+            return 0
+    monkeypatch.setattr(starplast.service, 'launch_starplast', lambda **kw: launches.append(Child()) or launches[-1])
+    for _ in range(2):
+        starplast.open_starplast(root=tmp_path)
+    assert len(checks) == len(launches) == 2
+    assert len(upgrades) == (2 if upgrade else 0)
+
+
+def test_update_check_is_responsive_and_cancellable(qtbot, monkeypatch, tmp_path):
+    entered = threading.Event()
+    def check(*, cancel, **kwargs):
+        entered.set()
+        assert cancel.wait(5)
+        raise starplast._InstallCancelled('cancelled')
+    monkeypatch.setattr(starplast.service, 'check_starplast_update', check)
+    dialog = starplast.StarplastUpdateCheckDialog(root=tmp_path)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitUntil(entered.is_set)
+    dialog.skip.click()
+    qtbot.waitUntil(lambda: dialog._thread is None)
+    assert dialog.result() == QDialog.Rejected
+
+
+def test_offline_update_check_reports_and_opens_installed_app(qtbot, monkeypatch, tmp_path):
+    messages = []
+    monkeypatch.setattr(starplast.service, 'is_installed', lambda root: True)
+    def check(**kwargs):
+        raise OSError('offline')
+    monkeypatch.setattr(starplast.service, 'check_starplast_update', check)
+    monkeypatch.setattr(starplast.QMessageBox, 'information', lambda *args: messages.append(args))
+    class Child:
+        def poll(self):
+            return 0
+    child = Child()
+    monkeypatch.setattr(starplast.service, 'launch_starplast', lambda **kwargs: child)
+    assert starplast.open_starplast(root=tmp_path) is child
+    assert 'offline' in messages[0][-1]

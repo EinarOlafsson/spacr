@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 import socket
 import subprocess
@@ -80,10 +81,15 @@ def process_environment(env: Path) -> dict:
     :returns: subprocess variables retaining desktop display and user settings.
     """
     values = environments._clean_env(str(env))
+    for key in tuple(values):
+        if key.startswith("PIP_"):
+            values.pop(key)
     for key in ("QT_PLUGIN_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH", "QML2_IMPORT_PATH",
                 "QML_IMPORT_PATH", "PIP_CONFIG_FILE", "PIP_EXTRA_INDEX_URL"):
         values.pop(key, None)
     values["PIP_CONFIG_FILE"] = os.devnull
+    values["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
+    values["PIP_NO_INPUT"] = "1"
     values["PYQTGRAPH_QT_LIB"] = "PyQt6"
     values["QT_API"] = "pyqt6"
     for key in ("LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH"):
@@ -208,6 +214,107 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
         if built:
             environments._remove_tree(str(env), str(root))
         raise
+    finally:
+        environments._release_lock(str(root), "starplast")
+
+
+def check_starplast_update(*, root=None, cancel=None, runner=None) -> dict:
+    """Compare the actual isolated installation with compatible stable PyPI releases.
+
+    :param root: external-application folder.
+    :param cancel: optional cancellation event for subprocesses.
+    :param runner: optional cancellable command runner for tests.
+    :returns: installed/latest version strings and an ``available`` boolean.
+    :raises RuntimeError: the installation or package index cannot be checked.
+    """
+    from packaging.version import Version
+
+    root = apps_root(root)
+    if not is_installed(root):
+        raise RuntimeError("Starplast must be installed before checking updates.")
+    env = root / "starplast"
+    python = environments._env_python(str(env))
+    run = runner or environments._run_step
+    commands = [
+        [python, "-I", "-c", "import importlib.metadata; print(importlib.metadata.version('starplast'))"],
+        [python, "-I", "-m", "pip", "--disable-pip-version-check", "index", "versions",
+         PYPI_PACKAGE, "--index-url", "https://pypi.org/simple", "--timeout", "8", "--retries", "0", "--no-cache-dir"],
+    ]
+    outputs = []
+    for command in commands:
+        code, lines = run(command, env=process_environment(env), cwd=str(root), cancel=cancel)
+        if code:
+            raise RuntimeError("Could not check Starplast updates:\n" + "\n".join(lines[-10:]))
+        outputs.append("\n".join(lines))
+    installed = outputs[0].strip()
+    latest = re.search(r"^starplast \(([^)]+)\)\s*$", outputs[1], re.MULTILINE)
+    if not latest:
+        raise RuntimeError("PyPI did not return a compatible Starplast release.")
+    version = latest.group(1)
+    return {"installed": installed, "latest": version,
+            "available": Version(version) > Version(installed)}
+
+
+def upgrade_starplast(source=None, *, root=None, progress=None, cancel=None,
+                     runner=None) -> Path:
+    """Upgrade the owned environment using pip and PyPI, then verify its data.
+
+    :param source: ignored; upgrades always use the PyPI Starplast package.
+    :param root: external-application folder.
+    :param progress: optional ``(step, total, text)`` callback.
+    :param cancel: optional subprocess cancellation event.
+    :param runner: optional command runner for tests.
+    :returns: verified environment path.
+    :raises RuntimeError: upgrade failed or was cancelled. Files and logs remain
+        for diagnosis; an interrupted environment must be repaired before launch.
+    """
+    root = apps_root(root)
+    env = root / "starplast"
+    report = progress or (lambda *_args: None)
+    run = runner or environments._run_step
+    _claim(root)
+    try:
+        if env.is_symlink() or not _record(env) or not Path(environments._env_python(str(env))).is_file():
+            raise RuntimeError("Starplast must be installed before upgrading.")
+        if cancel is not None and cancel.is_set():
+            raise environments._InstallCancelled("Starplast upgrade cancelled.")
+        python = environments._env_python(str(env))
+        record = _record(env)
+        record["ready"] = False
+        (env / _OWNER).write_text(json.dumps(record), encoding="utf-8")
+        steps = [
+            ("Upgrade Starplast from PyPI", [python, "-I", "-m", "pip", "install",
+             "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", PYPI_PACKAGE]),
+            ("Check Starplast and bundled data", [python, "-I", "-c", _SELFTEST]),
+        ]
+        with (root / "starplast-upgrade.log").open("w", encoding="utf-8") as log:
+            for number, (label, command) in enumerate(steps):
+                report(number, len(steps), label)
+                log.write("$ " + environments._quote(command) + "\n")
+                log.flush()
+
+                def line(text, number=number, label=label):
+                    """Persist pip diagnostics and update the progress display."""
+                    log.write(text + "\n")
+                    log.flush()
+                    report(number, len(steps), label + ": " + text)
+
+                code, tail = run(command, env=process_environment(env), cwd=str(root),
+                                 cancel=cancel, on_line=line)
+                if code:
+                    raise environments._InstallFailed(label + " failed:\n" + "\n".join(tail[-40:]))
+        try:
+            result = json.loads(tail[-1])
+            if result.get("ok") is not True:
+                raise ValueError("self-test did not succeed")
+        except (IndexError, ValueError, AttributeError) as exc:
+            raise environments._InstallFailed("Starplast did not confirm that its imports and bundled data are ready.") from exc
+        record.update(ready=True, source=PYPI_PACKAGE, version=result.get("version", ""))
+        temporary = env / (_OWNER + ".tmp")
+        temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")
+        temporary.replace(env / _OWNER)
+        report(len(steps), len(steps), "Starplast is installed")
+        return env
     finally:
         environments._release_lock(str(root), "starplast")
 

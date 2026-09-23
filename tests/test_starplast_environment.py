@@ -322,3 +322,67 @@ def test_default_install_resolves_unpinned_pypi_package_not_a_same_named_folder(
     record = json.loads((root/'starplast'/service._OWNER).read_text())
     assert record['source'] == 'starplast'
     assert record['version'] == '0.42.0'
+
+@pytest.mark.parametrize('installed, latest, available', [
+    ('0.9', '0.10', True), ('1.0', '1.0', False), ('2.0', '1.9', False),
+])
+def test_update_check_reads_actual_environment_and_compatible_index(tmp_path, installed, latest, available):
+    env = ready(tmp_path)
+    calls = []
+    def runner(argv, **kwargs):
+        calls.append(argv)
+        assert argv[0] == service.environments._env_python(str(env))
+        assert kwargs['env']['PIP_CONFIG_FILE'] == os.devnull
+        if '-c' in argv:
+            return 0, [installed]
+        return 0, ['WARNING: index warning', f'starplast ({latest})', 'Available versions: ' + latest]
+    result = service.check_starplast_update(root=tmp_path, runner=runner)
+    assert result == dict(installed=installed, latest=latest, available=available)
+    assert '--index-url' in calls[1] and 'https://pypi.org/simple' in calls[1]
+    assert '--pre' not in calls[1] and 'install' not in calls[1]
+    assert service._record(env)['ready']
+
+
+def test_upgrade_ignores_developer_source_and_runs_pip_in_existing_environment(tmp_path, monkeypatch):
+    env = ready(tmp_path)
+    (env/'preserve').write_text('keep')
+    monkeypatch.setenv('SPACR_STARPLAST_SOURCE', service.REPOSITORY)
+    calls = []
+    def runner(argv, **kwargs):
+        calls.append(argv)
+        assert not service.is_installed(tmp_path)
+        return 0, ['{"ok":true,"version":"1.2"}']
+    service.upgrade_starplast(service.REPOSITORY, root=tmp_path, runner=runner)
+    assert len(calls) == 2
+    assert calls[0][-1] == 'starplast' and '--upgrade' in calls[0]
+    assert calls[0][:4] == [service.environments._env_python(str(env)), '-I', '-m', 'pip']
+    assert (env/'preserve').read_text() == 'keep'
+    assert service._record(env) == dict(app='starplast', ready=True, source='starplast', version='1.2')
+    assert not (tmp_path/'starplast.lock').exists()
+
+
+def test_interrupted_upgrade_keeps_environment_and_allows_pip_retry(tmp_path):
+    env = ready(tmp_path)
+    (env/'preserve').write_text('keep')
+    def cancelled(*args, **kwargs):
+        raise service.environments._InstallCancelled('cancelled')
+    with pytest.raises(service.environments._InstallCancelled):
+        service.upgrade_starplast(root=tmp_path, runner=cancelled)
+    assert not service.is_installed(tmp_path)
+    assert (env/'preserve').exists() and not (tmp_path/'starplast.lock').exists()
+    service.upgrade_starplast(root=tmp_path, runner=lambda *a, **k: (0, ['{"ok":true,"version":"1.2"}']))
+    assert service.is_installed(tmp_path)
+
+
+def test_update_index_failure_keeps_working_install(tmp_path):
+    env = ready(tmp_path)
+    with pytest.raises(RuntimeError, match='offline'):
+        service.check_starplast_update(root=tmp_path, runner=lambda *a, **k: (1, ['offline']))
+    assert service.is_installed(tmp_path)
+
+
+def test_pip_user_overrides_cannot_change_upgrade_index_or_release_selection(monkeypatch, tmp_path):
+    for key in ('PIP_PRE', 'PIP_FIND_LINKS', 'PIP_NO_INDEX', 'PIP_EXTRA_INDEX_URL'):
+        monkeypatch.setenv(key, 'unwanted')
+    values = service.process_environment(tmp_path/'starplast')
+    assert all(key not in values for key in ('PIP_PRE', 'PIP_FIND_LINKS', 'PIP_NO_INDEX', 'PIP_EXTRA_INDEX_URL'))

@@ -1,0 +1,25 @@
+496 — STARPLAST UPDATE CHECKS AND PIP UPGRADES
+============================================
+Status: implemented; focused validation passed 2026-09-23.
+Owner: implementation lane; API/translations/tutorials in documentation lane.
+
+Every Starplast open now checks the actual distribution version in its separate
+environment and asks pip for compatible stable PyPI releases. Checks run off the
+GUI thread and can be cancelled. An unavailable check is reported, then the
+installed app opens. A newer version offers Upgrade or Not now; declining opens
+the installed version, accepting starts the cancellable pip upgrade immediately.
+
+Upgrades always run the owned environment's python -I -m pip install --upgrade
+starplast against PyPI, including installations originally made from Git.
+Developer source and pip index/pre-release overrides cannot redirect upgrades.
+The existing environment is retained; readiness is restored only after imports
+and bundled-data self-test succeed. Interrupted upgrades retain diagnostics and
+can be retried. No spaCR packages are modified. No real user's installation was
+upgraded as part of testing.
+
+Validation: tests/test_starplast_environment.py and
+ tests/qt/test_starplast_launcher.py: 48 passed under 6 GB/no-swap CPU cap.
+Covers numeric version ordering, unchanged/newer local versions, per-open check,
+consent/decline, cancellation, offline fallback, pip-only upgrade, interruption,
+retry and isolated environment variables. pip index command uses the documented
+text output for compatibility with pip versions preceding its JSON flag.

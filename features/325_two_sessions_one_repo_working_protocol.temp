@@ -14578,3 +14578,17 @@ only for upgrades in the isolated environment. Documentation remains yours.
 sidecar reads + scale calculation. Focused failing regression saved outside
 repo at implementation-20260922/plaque_review_pending_test.py; runtime not
 changed yet, issue127 remains open pending the worker fix and validation.
+
+2026-09-23 — STARPLAST PER-OPEN UPDATE CONTRACT (496)
+48 focused tests pass. open_starplast now checks actual isolated metadata +
+compatible stable PyPI versions off-thread on every open; cancellable check,
+offline notice then launch current app; newer release prompts Upgrade/Not now.
+Consent immediately starts upgrade_starplast through isolated pip --upgrade
+starplast, always PyPI even for Git-sourced installs. Failed/interrupted upgrade
+keeps files/logs but readiness requires successful bundled-data/import self-test.
+New APIs: _starplast.check_starplast_update, upgrade_starplast;
+qt.starplast.StarplastUpdateCheckDialog; InstallDialog gains upgrade bool.
+Please cover these strings/API/tutorial behavior. New user styling requests:
+keyboard instructions rounded translucent window; full workflow map should use
+pipeline overview's detailed cards, retaining existing pan/Ctrl-wheel zoom with
+a visible navigation hint. Implementation lane taking those UI changes next.
