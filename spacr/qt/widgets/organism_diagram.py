@@ -14,7 +14,7 @@ from copy import deepcopy
 import xml.etree.ElementTree as ET
 import numpy as np
 
-from PySide6.QtCore import QByteArray, QEvent, QRectF, Qt, Signal
+from PySide6.QtCore import QByteArray, QEvent, QRect, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget
@@ -220,7 +220,7 @@ class _CellArtwork(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(QPen(QColor(255, 255, 255, 35), 1))
-        painter.setBrush(QColor(0, 0, 0, 215))
+        painter.setBrush(self.panel_color())
         painter.drawRoundedRect(QRectF(self.rect()).adjusted(1, 1, -1, -1), scaled_px(14), scaled_px(14))
         active = self.selected | ({self.hover_location} if self.hover_location else set())
         masks = self.masks() if active else {}
@@ -237,6 +237,15 @@ class _CellArtwork(QWidget):
         painter.setOpacity(1)
         self.renderer.render(painter, self._target())
         painter.end()
+
+    @staticmethod
+    def panel_color() -> QColor:
+        """Keep the black panel as transparent as the current Home module tiles."""
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        from ..theme import panel_alpha
+
+        alpha = panel_alpha(resolve_effective_theme(), "tile", get_pane_opacity())
+        return QColor(0, 0, 0, round(alpha * 255))
 
 
 class OrganismDiagram(QWidget):
@@ -255,6 +264,17 @@ class OrganismDiagram(QWidget):
         self.setObjectName("OrganismDiagram")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        self._layout_width = None
+        self._model_row = QWidget(self)
+        row = QHBoxLayout(self._model_row)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(scaled_px(10))
+        self._legend = QWidget(self._model_row)
+        self._legend.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        legend_layout = QVBoxLayout(self._legend)
+        legend_layout.setContentsMargins(0, 0, 0, 0)
+        row.addWidget(self._legend, 45)
+        layout.addWidget(self._model_row)
         source = path.read_text(encoding="utf-8")
         root = ET.fromstring(source)
         self.descriptions = {node.get("id"): " ".join(text.itertext()).strip()
@@ -262,15 +282,17 @@ class OrganismDiagram(QWidget):
                              if text.get("property") == "description"}
         self.artwork = _CellArtwork(source, self, portrait=app_key != "candida", locations=self.labels.values())
         self.artwork.setAccessibleName(tr("Cell compartments"))
-        layout.addWidget(self.artwork, 1)
+        row.addWidget(self.artwork, 55)
         label = QLabel(tr("hyperLOPIT compartment") if app_key == "toxoplasma"
                        else tr("UniProt compartment"))
         self.selector = QListWidget(self)
         self.selector.setSelectionMode(QAbstractItemView.NoSelection)
         self.selector.setMouseTracking(True)
         self.selector.viewport().installEventFilter(self)
-        self.selector.setFixedHeight(scaled_px(164))
-        self.selector.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self.selector.setWordWrap(True)
+        self.selector.setTextElideMode(Qt.ElideNone)
+        self.selector.setMinimumWidth(0)
+        self.selector.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
         self.selector.setAccessibleName(label.text())
         label.setBuddy(self.selector)
         for name, location in self.labels.items():
@@ -279,17 +301,18 @@ class OrganismDiagram(QWidget):
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Unchecked)
             item.setToolTip(tr(self.descriptions.get(location, "")))
-        legend_heading = QHBoxLayout()
-        legend_heading.addWidget(label, 1)
+        label.setWordWrap(True)
+        label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        legend_layout.addWidget(label)
+        legend_layout.addWidget(self.selector, 1)
         self.clear_button = QPushButton(tr("Clear components"), self)
         self.clear_button.clicked.connect(self.clear_components)
-        legend_heading.addWidget(self.clear_button)
-        layout.addLayout(legend_heading)
-        layout.addWidget(self.selector)
+        legend_layout.addWidget(self.clear_button)
         self.caption = QLabel()
         self.caption.setTextFormat(Qt.PlainText)
         self.caption.setWordWrap(True)
-        self.caption.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.caption.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.caption.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         self.caption.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self.caption)
         self.selector.itemChanged.connect(self._select)
@@ -297,6 +320,34 @@ class OrganismDiagram(QWidget):
         self.artwork.hovered.connect(self._describe)
         self.artwork.clicked.connect(self._toggle_location)
         self._select()
+
+    def resizeEvent(self, event) -> None:
+        """Reserve the longest caption once per width; hover never changes geometry."""
+        super().resizeEvent(event)
+        self._fit_width()
+
+    def _fit_width(self) -> None:
+        """Size the model row and all possible descriptions using this width and font."""
+        if not hasattr(self, "caption") or self.width() == self._layout_width:
+            return
+        self._layout_width = self.width()
+        artwork_width = max(1, (self.width() - scaled_px(10)) * 0.55)
+        height = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
+        self._model_row.setFixedHeight(height)
+        metrics = self.caption.fontMetrics()
+        width = max(1, self.width())
+        locations = {"", *self.labels.values()}
+        heights = [metrics.boundingRect(QRect(0, 0, width, 100000), Qt.TextWordWrap,
+                                       self._description_text(code)).height()
+                   for code in locations]
+        self.caption.setFixedHeight(max(heights) + scaled_px(6))
+
+    def changeEvent(self, event) -> None:
+        """Recompute reserved text space after an explicit font or language change."""
+        super().changeEvent(event)
+        if event.type() in (QEvent.FontChange, QEvent.LanguageChange):
+            self._layout_width = None
+            self._fit_width()
 
     def clear_components(self) -> None:
         """Clear all persistent selections and the transient compartment highlight."""
@@ -334,9 +385,12 @@ class OrganismDiagram(QWidget):
             active = item.checkState() == Qt.Checked or target == location
             item.setForeground(QColor(_COMPARTMENT_COLOURS.get(target, "#73cfce")) if active else self.palette().text())
         self.selector.blockSignals(False)
+        self.caption.setText(self._description_text(location))
+
+    def _description_text(self, location: str) -> str:
+        """Return one location's description without changing the current layout."""
         if not location:
-            self.caption.setText(tr("Hover over the cell to identify a compartment. Check several labels to keep them highlighted."))
-            return
+            return tr("Hover over the cell to identify a compartment. Check several labels to keep them highlighted.")
         shared = [tr(name) for name, code in self.labels.items() if code == location]
         text = f'{location[:2]}-{location[2:]} · ' + " / ".join(shared)
         description = self.descriptions.get(location, "")
@@ -346,7 +400,7 @@ class OrganismDiagram(QWidget):
             text += "\n" + tr("These LOPIT classes share one anatomical outline; the diagram does not distinguish their protein populations.")
         if location == "SL0171":
             text += "\n" + tr("The membrane label uses the mitochondrial outline; it has no separate shape.")
-        self.caption.setText(text)
+        return text
 
     def eventFilter(self, watched, event):
         """End the legend's transient highlight when the pointer leaves it."""

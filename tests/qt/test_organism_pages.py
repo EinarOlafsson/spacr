@@ -181,7 +181,7 @@ def test_diagram_selectors_highlight_real_groups_and_disclose_shared_shapes(qtbo
     assert _diagram_svg(diagram.artwork.source) == baseline
 
 
-def test_text_expands_and_restores_and_divider_drag_reflows_tiles(qtbot, qt_theme_applied):
+def test_divider_drag_resizes_text_and_reflows_tiles_without_width_button(qtbot, qt_theme_applied):
     screen = OrganismScreen("toxoplasma")
     qtbot.addWidget(screen)
     screen.resize(1280, 800)
@@ -189,14 +189,7 @@ def test_text_expands_and_restores_and_divider_drag_reflows_tiles(qtbot, qt_them
     qtbot.wait(30)
     initial_width = screen._intro.width()
     initial_columns = screen._columns
-    qtbot.mouseClick(screen._expand, Qt.LeftButton)
-    qtbot.wait(30)
-    assert screen._intro.width() > initial_width + 200
-    assert screen._columns < initial_columns
-    assert screen._module_scroll.horizontalScrollBar().maximum() == 0
-    qtbot.mouseClick(screen._expand, Qt.LeftButton)
-    qtbot.wait(30)
-    assert abs(screen._intro.width() - initial_width) <= 2
+    assert not hasattr(screen, "_expand")
     handle = screen._splitter.handle(1)
     centre = handle.rect().center()
     qtbot.mousePress(handle, Qt.LeftButton, pos=centre)
@@ -204,6 +197,8 @@ def test_text_expands_and_restores_and_divider_drag_reflows_tiles(qtbot, qt_them
     qtbot.mouseRelease(handle, Qt.LeftButton, pos=centre + QPoint(160, 0))
     qtbot.wait(30)
     assert screen._intro.width() > initial_width + 100
+    assert screen._columns < initial_columns
+    assert screen._module_scroll.horizontalScrollBar().maximum() == 0
     assert all(tile.height() == scaled_px(TILE_H) for tile in screen._tiles)
 
 

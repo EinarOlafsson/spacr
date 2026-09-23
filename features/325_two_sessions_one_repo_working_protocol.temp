@@ -11234,3 +11234,37 @@ Rebase received2b87a43d0. The11340/4629 inventory above is bound toab975a0c7,
 before Starplast. Its new external-app APIs, dynamic progress labels and
 installer prose are now part of the next source reconciliation; Starplast
 must remain outside the74-module analysis inventory and mask methods.
+
+2026-09-22 — IMPLEMENTATION:474 REAL INSTALL / 471 REGRESSION LAYOUT CLAIM
+Running a real Starplast install from the untouched local checkout into
+private implementation-20260922/starplast-validation/apps, memory cap8GB,
+CUDA devices disabled; process83549 remains live. This will check actual
+package/dependency installation and bundled data, beyond the shipped fixture
+checks. Independently reproduced the handoff's Regression overlap at1366x768:
+Figures560px tall, Console starts at469px, runtime splitter579px. Claiming
+app_screen.py's figures sizing and the relevant Card/layout tests to preserve
+accessible results without painting over collapsed headings. No detector,
+catalog or tutorial changes in this claim.
+
+2026-09-22 — IMPLEMENTATION:474 STABLE HOVER LAYOUT CLAIM
+User requests stable model/caption geometry, LOPIT labels to the left,
+Home-tile transparency and removal of Widen text/Restore columns. Claiming
+organism_screen.py and organism_diagram.py plus focused Qt tests. The thin
+draggable divider remains. No catalog edits; API helper changes will be
+handed off after validation. Regression layout repair is deferred while
+this direct user request is completed. Real Starplast install finished in
+480 seconds with successful package/data self-test; GUI acceptance pending.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:474 HOVER LAYOUT STABLE
+Completed the latest user request: labels left of the cell; reserved model
+and caption geometry; Home tile transparency; removed Widen text/Restore
+columns while preserving the thin draggable divider. All36 focused Qt tests
+pass, including every compartment caption across three widths and all three
+organisms. Actual MainWindow renders reviewed. No catalogs edited or new
+source strings added. Retire the two button captions and their old tooltip;
+remove OrganismScreen._toggle_text_width from API inventory. New helpers:
+_CellArtwork.panel_color; OrganismDiagram.resizeEvent/changeEvent/_fit_width/
+_description_text. Receipt474_stable_compartment_layout_2026-09-22.json lists
+all changes. Organism source claim released after this commit. Starplast
+real-install follow-up and Regression layout repair remain implementation's
+lane; neither is claimed fully accepted by this UI receipt.

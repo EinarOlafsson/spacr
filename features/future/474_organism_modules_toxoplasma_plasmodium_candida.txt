@@ -271,3 +271,18 @@ and process boundaries; they do not establish third-party runtime acceptance.
 New API/source and translation inventory is handed to the other Codex lane.
 The twenty proposed organism assay pipelines remain unimplemented. No GPU
 analysis, package download or NAS access was performed for this change.
+
+2026-09-22 — Stable compartment panel and direct divider resizing
+Per the maintainer's follow-up, LOPIT/UniProt checkboxes now sit left of the
+upright cell. Model row and description space are reserved at each pane
+width using the longest available caption, so hover, selection and Clear
+components do not move the model, labels or following prose. Explicit width
+and font changes recompute that space. The rounded black panel uses Home's
+current tile opacity (60% in the reviewed dark theme, previously84%).
+Removed Widen text/Restore columns; the existing thin divider still resizes
+both panes and reflows the Home-shaped tiles. All three organism pages are
+covered by geometry checks at three pane widths; existing real mouse-hit,
+multiselection and rendered-mask tests still pass. 36 focused Qt tests pass.
+Reviewed actual MainWindow renders of Toxoplasma and Plasmodium at1366x768
+with360/480/800px panes. API/catalog follow-up is in the shared lane log.
+Receipt: features/data/474_stable_compartment_layout_2026-09-22.json.

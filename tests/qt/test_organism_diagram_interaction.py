@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtGui import QColor, QImage
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QLabel
 
 from spacr.qt.preferences import scaled_px
 from spacr.qt.widgets.organism_diagram import OrganismDiagram, _COMPARTMENT_COLOURS
@@ -91,3 +91,45 @@ def test_thin_divider_and_packed_tile_columns(qtbot, qt_theme_applied):
     for left, right in zip(tiles, tiles[1:]):
         gap = right.geometry().left() - left.geometry().right() - 1
         assert gap <= scaled_px(12)
+
+
+@pytest.mark.parametrize('key', ['toxoplasma', 'plasmodium', 'candida'])
+def test_hover_and_selection_keep_model_text_and_following_sections_fixed(key, qtbot, qt_theme_applied):
+    screen = OrganismScreen(key)
+    qtbot.addWidget(screen)
+    screen.resize(1366, 768)
+    screen.show()
+    qtbot.wait(30)
+    diagram = screen._diagram
+    following = screen.findChildren(QLabel, 'OrganismSectionTitle')[0]
+
+    def geometry():
+        return [(widget.mapTo(screen._intro, QPoint()), widget.size()) for widget in
+                (diagram.artwork, diagram.selector, diagram.caption, following)]
+
+    for width in (360, 640, 900):
+        screen._splitter.setSizes([width, 1366-width])
+        qtbot.wait(30)
+        baseline = geometry()
+        legend_right = diagram.selector.mapTo(diagram, diagram.selector.rect().topRight()).x()
+        assert legend_right < diagram.artwork.mapTo(diagram, QPoint()).x()
+        for code in ('', *dict.fromkeys(diagram.labels.values()), ''):
+            diagram.artwork.hovered.emit(code)
+            qtbot.wait(1)
+            assert geometry() == baseline
+            assert diagram.caption.heightForWidth(diagram.caption.width()) <= diagram.caption.height()
+        diagram.selector.item(0).setCheckState(Qt.Checked)
+        qtbot.wait(1)
+        assert geometry() == baseline
+        diagram.clear_button.click()
+        qtbot.wait(1)
+        assert geometry() == baseline
+
+
+def test_model_panel_uses_home_tile_transparency(diagram):
+    from spacr.qt.preferences import get_pane_opacity, resolve_effective_theme
+    from spacr.qt.theme import panel_alpha
+
+    color = diagram.artwork.panel_color()
+    assert color.getRgb()[:3] == (0, 0, 0)
+    assert color.alpha() == round(255 * panel_alpha(resolve_effective_theme(), 'tile', get_pane_opacity()))

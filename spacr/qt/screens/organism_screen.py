@@ -11,7 +11,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
-    QGraphicsOpacityEffect, QGridLayout, QHBoxLayout, QLabel, QPushButton,
+    QGraphicsOpacityEffect, QGridLayout, QHBoxLayout, QLabel,
     QScrollArea, QSizePolicy, QSplitter, QVBoxLayout, QWidget,
 )
 
@@ -48,18 +48,12 @@ class OrganismScreen(QWidget):
             self.module_requested.connect(host._on_nav_selected)
         self._columns = 0
         self._tiles = []
-        self._normal_sizes = None
         root = QVBoxLayout(self)
         heading = QHBoxLayout()
         title = QLabel(tr(self.organism["name"]), self)
         title.setObjectName("SectionTitle")
         title.setStyleSheet(f"font-size: {font_px(22)}px; font-weight: 600;")
         heading.addWidget(title, 1)
-        self._expand = QPushButton(self)
-        self._expand.setText(tr("Widen text"))
-        self._expand.setToolTip(tr("Widen the information pane; you can also drag the divider."))
-        self._expand.clicked.connect(self._toggle_text_width)
-        heading.addWidget(self._expand)
         root.addLayout(heading)
         self._splitter = QSplitter(Qt.Horizontal, self)
         self._splitter.setChildrenCollapsible(False)
@@ -202,19 +196,6 @@ class OrganismScreen(QWidget):
                 opacity.setOpacity(0.45)
                 tile.setGraphicsEffect(opacity)
             self._tiles.append(tile)
-
-    def _toggle_text_width(self) -> None:
-        """Widen the text pane or restore the preceding splitter proportions."""
-        if self._normal_sizes is None:
-            self._normal_sizes = self._splitter.sizes()
-            total = sum(self._normal_sizes)
-            self._splitter.setSizes([int(total * 0.72), int(total * 0.28)])
-            self._expand.setText(tr("Restore columns"))
-        else:
-            self._splitter.setSizes(self._normal_sizes)
-            self._normal_sizes = None
-            self._expand.setText(tr("Widen text"))
-        self._reflow()
 
     def _reflow(self, *args) -> None:
         """Fit Home tiles to the current right-pane width after divider moves."""
