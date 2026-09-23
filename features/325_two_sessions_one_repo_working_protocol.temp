@@ -12493,3 +12493,13 @@ attempt terminated on a loader dtype mismatch; fixed and covered for float32
 and bfloat16. No summary/score claimed before the current nine pairs finish.
 Asked the maintainer how the20-minute idle rule treats desktop-only GPU
 activity; current strict0% observer remains active pending clarification.
+
+2026-09-23 — IMPLEMENTATION: 372 A2 CPU VALIDATION CLAIM
+Read-only follow-up confirms no run_ops_plate process; A1/A3 reports and
+A2's333geometry rows remain in the local plate output. Detailed B1-B3/B2
+outputs were not found in the inspected Claude and wd4tb trees, so no causal
+explanation of B2's aggregate match-rate difference is claimed. Testing the
+existing680438073 A2 anchor-window repair via phenotype-only run_ops on CPU,
+using a private database containing a copy of A2 geometry. NAS answers;
+reads will run through nas_guard, with8GiB/two-thread limits. No original
+output, source images, runtime code or GPU job is changed by this validation.
