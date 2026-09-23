@@ -1088,6 +1088,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
         )),
+        ("Point Spread Function", ("@Point Spread Function",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -1196,6 +1197,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
         )),
+        ("Point Spread Function", ("@Point Spread Function",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
@@ -2405,6 +2407,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "saturation and nonfinite-pixel criteria. Choose report-only review "
         "or explicit saved exclusions; calibrate thresholds for the acquisition. "
         "Screening is off by default and never excludes images for low object counts.",
+    "HOST–PATHOGEN ANALYSIS":
+        "Relate whole vacuoles to their host cells and compare marker "
+        "intensities against an explicit host reference compartment. Optional "
+        "linked parasite counts describe replication; absent counts and invalid "
+        "reference intensities remain unknown. Calibrate marker thresholds "
+        "using assay controls.",
     "MARKER RECRUITMENT":
         "Compare each vacuole's marker intensity with its host reference "
         "compartment and classify joint marker states using explicit ratio "
@@ -2933,6 +2941,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Where the report is written and whether figures are drawn and kept. "
         "Leave saving off while you are still deciding which checks matter "
         "for this library.",
+    "POINT SPREAD FUNCTION":
+        "Apply a calibrated measured PSF or an explicit Gaussian approximation "
+        "to segmentation channels before normalization. Convolution adds blur; "
+        "Richardson–Lucy attempts deconvolution and can amplify noise. Raw "
+        "images and measurement intensities remain unchanged. Leave this off "
+        "unless the same kernel and pixel calibration fit every selected channel.",
     "ILLUMINATION CORRECTION":
         "Whether the microscope's uneven lighting is estimated from these "
         "fields and divided out before any intensity is measured, and how "
@@ -3697,7 +3711,9 @@ def api_docs_url(
         return plugin_app.docs_url
     anchor = ""
     chosen_by_hand = True
-    if app_key == "make_masks" and key.startswith("make_masks_psf_"):
+    if key.startswith("psf_"):
+        module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_psf"
+    elif app_key == "make_masks" and key.startswith("make_masks_psf_"):
         module, anchor = "point_spread", "spacr.point_spread.apply_psf"
     elif app_key == "make_masks" and key.startswith("make_masks_"):
         module = "qt/detect_chain" if key.startswith("make_masks_enh_") else "qt/screens/make_masks"

@@ -1,7 +1,7 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: IN PROGRESS. Numerical engine and Make Masks validated2026-09-23;
-Mask/Measure integration, optical acceptance and documentation remain.
+Status: IN PROGRESS. Numerical engine, Make Masks and Mask validated2026-09-23;
+Measure integration, optical acceptance and documentation remain.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -79,3 +79,39 @@ features/data/490_psf_make_masks_acceptance_2026-09-23.json.
 Remaining: Mask/Measure pipeline settings and processing with explicit measured
 intensity-source choice; measured optical PSF validation; documentation,
 translations and an appropriate PSF animation.490remains IN PROGRESS.
+
+2026-09-23 — MASK PIPELINE INTEGRATION VERIFIED
+Mask and Timelapse now offer Point Spread Function settings: psf_operation
+(none/convolve/deconvolve), psf_source (gaussian/measured), psf_path,
+psf_image_sampling_um, psf_kernel_sampling_um, psf_fwhm_um and psf_iterations.
+Off by default; explicit Y/X calibration is required. A single captured kernel
+applies independently to all selected segmentation channels, so its calibration
+must suit every selected channel. These pipelines process projected2D fields;
+this does not reconstruct a3D optical volume. Preflight validates the kernel.
+
+V1 and V2 process private intensities after illumination and before background,
+normalization and model inference. V1 handles each field before batch padding;
+time-series frames are processed independently. Float intensities remain float,
+raw stacks remain unchanged, and PSFs never operate on saved mask-label planes.
+V1 publishes a complete staged archive set and invalidates old derived masks.
+The application record captures channel order, exact kernel/file identity,
+calibration, algorithm, RL parameters and completed fields. SHA256 checks of
+all completed V1 NPZ files guard reuse; changed settings, tampered archives,
+incomplete runs and switching PSF off require rebuilding with preprocessing on.
+Cancellation leaves no partial published archive set or false completion record.
+V2 preserves stored raw intensities and marks fields after durable mask writes.
+
+216 focused PSF/GUI/preflight/illumination checks pass. Another104 settings,
+Cellpose4training and host–pathogen checks pass (two GUI cases overlap the216).
+During these checks, repaired missing shared categories for training inputs,
+sampling and checkpoints, and moved Host–Pathogen settings into the canonical
+category registry so cached category lists and help headings agree.
+
+Full1998x1998public microscopy field processed with RL20on channels0and2 in
+25.02s CPU; source/raw-stack bytes unchanged and archive reuse verified.
+Actual Cellpose SAM CPU inference on a256x256crop completed in295.17s with
+three labels. No GPU used. Explicit1um/px and2um Gaussian FWHM are verification
+geometry, not measured microscope optics; no accuracy/recovery claim.
+Receipt: features/data/490_psf_mask_pipeline_acceptance_2026-09-23.json.
+Remaining: Measure intensity-source selection and durable quantitative provenance;
+measured optical PSF/application acceptance; docs/translations/tutorial animation.

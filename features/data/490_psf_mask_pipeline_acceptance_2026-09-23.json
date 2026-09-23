@@ -1,0 +1,98 @@
+{
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-published-download/merged/PLATE1_E01_1_1.npy",
+  "source_sha256": "3e0476f47ee841697e0f06f6e0fe876a02c7fc22bf6cdf1f573048c168844214",
+  "raw_stack_sha256": "df8ce9b76f3db1a4e26d00b8a2412add6f33e47cc53315d5bc9d014664781316",
+  "input_shape": [
+    1998,
+    1998,
+    7
+  ],
+  "selected_channels": [
+    0,
+    2
+  ],
+  "normalized_shape": [
+    1998,
+    1998,
+    2
+  ],
+  "normalized_dtype": "float32",
+  "preprocessing_seconds": 25.02459543000441,
+  "raw_source_unchanged": true,
+  "raw_stack_unchanged": true,
+  "archive_resume_verified": true,
+  "device": "cpu",
+  "gpu_used": false,
+  "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+  "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "inference_roi": [
+    800,
+    1056,
+    800,
+    1056
+  ],
+  "inference_seconds": 295.1702937670052,
+  "mask_labels": 3,
+  "provenance": {
+    "configuration": {
+      "version": 1,
+      "pipeline_style": "v1",
+      "channels": [
+        0,
+        2
+      ],
+      "processing": {
+        "operation": "deconvolve",
+        "kernel": {
+          "source": "gaussian approximation",
+          "shape": [
+            9,
+            9
+          ],
+          "sampling_um": [
+            1.0,
+            1.0
+          ],
+          "kernel_sha256": "69718a920d3e99a7776b21edefd7854eaf18e003fc3a485405c0d3cecddf34b3",
+          "kernel_dtype": "float32 little-endian",
+          "normalization": "sum=1",
+          "origin": "centre pixel",
+          "details": {
+            "formula": "sigma=FWHM/sqrt(8*ln(2))",
+            "fwhm_um": [
+              2.0,
+              2.0
+            ],
+            "optical_model": false,
+            "truncate_sigma": 4.0
+          }
+        },
+        "image_sampling_um": [
+          1.0,
+          1.0
+        ],
+        "iterations": 20,
+        "algorithm": "spacr.reflect_psf.v1",
+        "boundary": "half-sample symmetric",
+        "output_dtype": "float32",
+        "intensity_units": "input units",
+        "method": "Richardson-Lucy",
+        "regularization": null,
+        "epsilon_relative": 1e-07,
+        "initialization": "channel mean",
+        "sensitivity_normalization": true
+      },
+      "stage": "after illumination, before background/percentile normalization",
+      "measurement_intensity_source": "original persisted intensities"
+    },
+    "complete": true,
+    "fields": [
+      "PLATE1_E01_1_1"
+    ],
+    "archives": {
+      "stack_0_norm.npz": "cabf698d360540b6ddc266ac26604532fe639d894feac164f4c8a9f35d2fbbf0"
+    }
+  },
+  "calibration_note": "1 um/px and Gaussian FWHM 2 um are explicit verification geometry, not measured microscope calibration.",
+  "scope": "Software processing, archive reuse and real CPU model acceptance; no optical recovery or segmentation accuracy claim."
+}

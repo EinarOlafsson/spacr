@@ -974,6 +974,13 @@ def set_default_settings_preprocess_generate_masks(settings=None):
         settings = {}
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
+    settings.setdefault('psf_operation', 'none')
+    settings.setdefault('psf_source', 'gaussian')
+    settings.setdefault('psf_path', None)
+    settings.setdefault('psf_image_sampling_um', None)
+    settings.setdefault('psf_kernel_sampling_um', None)
+    settings.setdefault('psf_fwhm_um', None)
+    settings.setdefault('psf_iterations', 20)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
         settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
@@ -3019,6 +3026,11 @@ descriptions = {
 
 
 expected_types = {
+    "psf_operation": str, "psf_source": str,
+    "psf_path": (str, type(None)),
+    "psf_image_sampling_um": (list, type(None)),
+    "psf_kernel_sampling_um": (list, type(None)),
+    "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
     "src": (str, list),
     "illumination_correction": bool,
     "illumination_per_plate": bool,
@@ -3898,6 +3910,13 @@ def _outlier_criteria():
 
 
 tooltips = {
+    'psf_operation': "(str) - Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
+    'psf_source': "(str) - gaussian constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+    'psf_path': "(str or None) - Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
+    'psf_image_sampling_um': "(list or None) - Explicit image pixel spacing [Y, X] in micrometers. Required when PSF processing is on; neither magnification nor pixel spacing is guessed. Both numbers must be positive and finite.",
+    'psf_kernel_sampling_um': "(list or None) - Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
+    'psf_fwhm_um': "(list or None) - Gaussian full width at half maximum [Y, X] in micrometers. Required for a Gaussian approximation. Both values must be positive and finite; these are user supplied approximation parameters, not measured resolution.",
+    'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
     'image_source':
         "(str) - Source of classification images. 'load_images' reads "
         "previously exported object crops; 'stream_images' generates crops "
@@ -4876,11 +4895,13 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 
 
 categories = {
-    "Paths": ["src", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
+    "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
-    "Cellpose": ["base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
+    "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
+        "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",
+        "save_every", "save_each", "base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
     "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity", "cell_remove_border_objects", "cell_perimeter_fraction"],
@@ -4891,6 +4912,15 @@ categories = {
 
     "Organelle": organelle_basic_settings,
     "Organelle advanced": organelle_advanced_settings,
+
+    "Host–Pathogen Analysis": ["hp_vacuole_table", "hp_vacuole_prefix",
+        "hp_reference_table", "hp_reference_prefix", "hp_marker_channels",
+        "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
+        "hp_count_column"],
+
+    "Point Spread Function": ["psf_operation", "psf_source", "psf_path",
+                              "psf_image_sampling_um", "psf_kernel_sampling_um",
+                              "psf_fwhm_um", "psf_iterations"],
 
     "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
                       'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],
@@ -6521,4 +6551,3 @@ tooltips.update({
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
-categories['Host–Pathogen Analysis'] = [key for key in expected_types if key.startswith('hp_')]

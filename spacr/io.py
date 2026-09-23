@@ -1946,17 +1946,18 @@ def _invalidate_v1_segmentation_outputs(src):
 
 
 def _correct_v1_segmentation_batch(
-        stack, filenames, channels, settings, illumination_session):
+        stack, filenames, channels, settings, illumination_session, psf_session=None):
     """Correct selected V1 channels on a private batch copy.
 
     :returns: ``(working_stack, field_ids)``; without a session the original
         stack and an empty tuple are returned unchanged.
     """
-    if illumination_session is None:
+    if illumination_session is None and psf_session is None:
         return stack, ()
     from .measure_hooks import PreprocessingContext
 
-    working = np.array(stack, copy=True)
+    working = np.array(stack, copy=True, dtype=(
+        np.float32 if psf_session is not None and psf_session.plan else None))
     field_ids = []
     for index, filename in enumerate(filenames):
         field_id = os.path.splitext(os.path.basename(str(filename)))[0]
@@ -1965,9 +1966,11 @@ def _correct_v1_segmentation_batch(
             channels=list(channels),
             settings=settings,
         )
-        selected = working[index][..., list(channels)]
-        corrected = illumination_session.correct(
-            field_id, selected, context)
+        selected = stack[index][..., list(channels)]
+        corrected = (illumination_session.correct(field_id, selected, context)
+                     if illumination_session is not None else selected)
+        if psf_session is not None:
+            corrected = psf_session.correct(corrected)
         working[index][..., list(channels)] = corrected
         field_ids.append(field_id)
     return working, tuple(field_ids)
@@ -1976,7 +1979,7 @@ def _correct_v1_segmentation_batch(
 def _concatenate_and_normalize_impl(
         src, channels, save_dtype=np.float32, settings=None,
         illumination_session=None, archive_output_fldr=None,
-        only_fields=None, first_batch_index=0):
+        only_fields=None, first_batch_index=0, psf_session=None):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -1991,6 +1994,9 @@ def _concatenate_and_normalize_impl(
     :param illumination_session: optional segmentation-only illumination
         session. It corrects private copies of the selected channels before
         normalisation and records completion only after each NPZ is durable.
+    :param psf_session: optional PSF session captured for this run. Applies
+        after illumination on each field before padding or normalization;
+        preserves floating point intensities and records archive identities.
     :param only_fields: when given, the field stems to normalise; every other
         ``.npy`` in ``src`` is left out. Used, without a timelapse, to rebuild
         only the fields a damaged or missing archive held.
@@ -2051,7 +2057,7 @@ def _concatenate_and_normalize_impl(
             grouped_names = sorted(
                 filename for group in time_stack_path_lists
                 for filename in group)
-            if (illumination_session is not None and
+            if ((illumination_session is not None or psf_session is not None) and
                     grouped_names != source_npy_names):
                 missing = sorted(set(source_npy_names) - set(grouped_names))
                 raise ValueError(
@@ -2082,7 +2088,7 @@ def _concatenate_and_normalize_impl(
                 stack = np.stack(stack_region)
                 stack, _field_ids = _correct_v1_segmentation_batch(
                     stack, filenames_region, channels, settings,
-                    illumination_session)
+                    illumination_session, psf_session)
 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels, 
@@ -2105,7 +2111,7 @@ def _concatenate_and_normalize_impl(
         except Exception as e:
             print(f"Error processing files, make sure filenames metadata is structured plate_well_field_time.npy")
             print(f"Error: {e}")
-            if illumination_session is not None:
+            if illumination_session is not None or psf_session is not None:
                 raise
     else:
         for file in _listdir_visible(src):
@@ -2141,6 +2147,12 @@ def _concatenate_and_normalize_impl(
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
 
             if stack_ls and ((i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files):
+                if psf_session is not None:
+                    stack_ls = [
+                        _correct_v1_segmentation_batch(
+                            array[None], [filename], channels, settings,
+                            illumination_session, psf_session)[0][0]
+                        for array, filename in zip(stack_ls, filenames_batch)]
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
@@ -2155,9 +2167,10 @@ def _concatenate_and_normalize_impl(
                 else:
                     stack = np.stack(stack_ls)
 
-                stack, _field_ids = _correct_v1_segmentation_batch(
-                    stack, filenames_batch, channels, settings,
-                    illumination_session)
+                if psf_session is None:
+                    stack, _field_ids = _correct_v1_segmentation_batch(
+                        stack, filenames_batch, channels, settings,
+                        illumination_session)
                 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels,
@@ -2181,7 +2194,7 @@ def _concatenate_and_normalize_impl(
                 filenames_batch = []
                 padded_stack_ls = []
 
-    if illumination_session is not None:
+    if illumination_session is not None or psf_session is not None:
         staged_fields = _normalized_npz_field_ids(archive_output_fldr)
         if set(staged_fields) != set(intended_fields):
             missing = sorted(set(intended_fields) - set(staged_fields))
@@ -2189,13 +2202,18 @@ def _concatenate_and_normalize_impl(
             raise RuntimeError(
                 'incomplete illumination fields before V1 publication: '
                 f'missing={missing}, unexpected={extra}')
+        if psf_session is not None:
+            from .cancellation import checkpoint
+            checkpoint()
         _publish_v1_normalized_archives(
             archive_output_fldr, output_fldr)
         _invalidate_v1_segmentation_outputs(os.path.dirname(src))
         settings['resume'] = False
-        for field_id in staged_fields:
-            illumination_session.mark_completed(field_id)
-        illumination_session.finish(intended_fields)
+        for session in (illumination_session, psf_session):
+            if session is not None:
+                for field_id in staged_fields:
+                    session.mark_completed(field_id)
+                session.finish(intended_fields)
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
     ledger.finalize()
     return output_fldr
@@ -2203,7 +2221,7 @@ def _concatenate_and_normalize_impl(
 
 def concatenate_and_normalize(
         src, channels, save_dtype=np.float32, settings=None,
-        illumination_session=None):
+        illumination_session=None, psf_session=None):
     """Concatenate, optionally correct, and normalise V1 field arrays.
 
     :param src: directory containing per-field ``.npy`` channel arrays.
@@ -2213,9 +2231,12 @@ def concatenate_and_normalize(
     :param illumination_session: optional segmentation-only correction
         session. Corrected archives are staged privately and published as one
         complete set; the staging directory is removed on success or failure.
+    :param psf_session: optional PSF session from ``spacr.psf_pipeline``.
+        Uses the same complete-set publication; cancellation leaves its
+        provenance incomplete and prevents reuse of partially processed data.
     :returns: the ``masks/`` directory containing normalised NPZ archives.
     """
-    if illumination_session is None:
+    if illumination_session is None and psf_session is None:
         return _concatenate_and_normalize_impl(
             src, channels, save_dtype=save_dtype, settings=settings)
 
@@ -2227,7 +2248,7 @@ def concatenate_and_normalize(
         return _concatenate_and_normalize_impl(
             src, channels, save_dtype=save_dtype, settings=settings,
             illumination_session=illumination_session,
-            archive_output_fldr=staging_dir)
+            archive_output_fldr=staging_dir, psf_session=psf_session)
 
 
 def _get_lists_for_normalization(settings):
@@ -2944,6 +2965,16 @@ def _resume_normalized_archives(settings, src, mask_channels):
     """
     stack_path = os.path.join(src, 'stack')
     masks_path = os.path.join(src, 'masks')
+    from zipfile import BadZipFile
+    from .psf_pipeline import validate_psf_resume, _record_path
+    psf_tracked = (settings.get('psf_operation', 'none') != 'none' or
+                   _record_path(src).exists())
+    if psf_tracked:
+        try:
+            validate_psf_resume(settings, src, mask_channels,
+                                expected_fields=_normalized_npz_field_ids(masks_path))
+        except (ValueError, OSError, EOFError, BadZipFile):
+            return False
     _set_aside_damaged_stacks(stack_path)
     try:
         _rebuild_stacks_from_raw(settings, src)
@@ -2978,7 +3009,7 @@ def _resume_normalized_archives(settings, src, mask_channels):
     missing = stack_fields - covered
     if not missing:
         return True
-    if (settings.get('illumination_correction', False) or
+    if (settings.get('illumination_correction', False) or psf_tracked or
             settings.get('timelapse', False)):
         print(f'{len(missing)} field(s) in stack/ are in no whole archive; '
               f'this archive set is rebuilt whole from stack/.')
@@ -3383,11 +3414,15 @@ def preprocess_img_data(settings):
             pipeline_style='v1',
         )
 
+    from .psf_pipeline import _prepare_segmentation_psf
+    psf_session = _prepare_segmentation_psf(settings, src, mask_channels)
+
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
                               save_dtype=np.float32,
                               settings=settings,
-                              illumination_session=illumination_session)
+                              illumination_session=illumination_session,
+                              psf_session=psf_session)
         
     for key in mask_channel_keys:
         ch = settings.get(key)

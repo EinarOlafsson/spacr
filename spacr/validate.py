@@ -1466,6 +1466,16 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
 
+    if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
+        from .psf_pipeline import prepare_psf
+        try:
+            prepare_psf(settings)
+        except (ValueError, OSError) as exc:
+            problems.append(Problem(
+                ERROR, 'psf_operation', f'PSF preparation failed: {exc}',
+                'Set calibrated Y/X sampling and a matching measured kernel '
+                'or explicit Gaussian FWHM, or switch psf_operation to none.'))
+
     if app == "explain_cv":
         for key, label in (("db_path", "measurements database"),
                            ("predictions_file", "prediction CSV")):
@@ -1640,8 +1650,9 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
-    Nothing is loaded beyond one ``.npy`` header and a directory listing, so
-    this is safe to call before committing a GPU to a run.
+    Image data are checked through headers and directory listings. An enabled
+    PSF also loads its size-limited kernel to validate calibration and values;
+    no image processing or GPU inference is run.
 
     :param settings: the settings dict about to be handed to a pipeline.
     :param app_key: which pipeline, e.g. ``'mask'``, ``'measure'``,

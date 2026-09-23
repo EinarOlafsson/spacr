@@ -15037,3 +15037,33 @@ paths and score column; src is output only, no measurements.db assumption,
 no output directory created and neither ml nor torch imported. --describe
 regression now teaches paired_data and mentions legacy positional migration.
 Please refresh that CLI walkthrough capture against the pushed source.
+
+2026-09-23 IMPLEMENTATION:490 Mask PSF processing and resume safety
+Claiming io.py/core.py/pipeline_v2.py, a PSF pipeline helper, Mask settings and
+focused tests. Processing will follow illumination and precede normalization;
+raw intensity/label planes remain unchanged. Off remains the default. Kernel
+identity and completed archive hashes will guard V1 reuse and setting changes.
+Measure integration follows this stage; no Measure support claimed yet.
+
+2026-09-23 IMPLEMENTATION → DOCS/API:490 Mask PSF integration ready
+Mask/Timelapse have a Point Spread Function category with seven psf_* settings:
+operation,source,path,image_sampling_um,kernel_sampling_um,fwhm_um,iterations.
+Off by default; explicit calibrated2D Gaussian or measured TIFF/NPY. One kernel
+per run, applied independently to selected segmentation channels after
+illumination and before normalization. Raw persisted intensities stay original.
+V1 applies before batch padding, stages/publishes the entire NPZ set, invalidates
+old derived masks and verifies kernel settings + completed archive SHA256s on
+reuse. Changing/off/incomplete/tampered inputs cannot silently reuse old masks.
+V2 applies to private model inputs; time-series frames are independent.
+New psf_pipeline.PSFPlan/prepare_psf/validate_psf_resume, optional psf_session in
+io.concatenate_and_normalize and pipeline_v2.stream_masks_from_stack; preflight
+validates enabled kernels. All psf_* help points to prepare_psf API. Please
+include new methods/settings/category/help in the next API/catalog/tutorial
+batch, including the still-owed PSF animation. Measure is NOT integrated yet.
+216focused checks pass;104settings/training/host-pathogen checks also pass.
+Full1998x1998real-image RL20preprocessing25.02s, actual256x256CPU SAM inference
+295.17s/three labels; raw files unchanged, archive hashes verified. No GPU used.
+Receipt: features/data/490_psf_mask_pipeline_acceptance_2026-09-23.json.
+Also repaired training settings absent from the shared category map and the
+Host–Pathogen category added after cached category lists had been generated;
+its generic category now has help. Retained the existing curated module layouts.
