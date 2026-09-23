@@ -1,22 +1,115 @@
 {
-  "id": "20_cellpose_masks", "number": 20, "slug": "cellpose_masks",
-  "series": 3, "app_key": "cellpose_masks", "host_app_key": "make_masks", "section": "Tools",
-  "title": "Apply Cellpose: saved masks and live-filter checks",
-  "description": "Apply stock CPSAM to three downloadable real images through the nested Workbench, inspect native figures and console output, and test live filters without confusing preview with batch inference.",
-  "objectives": ["Find Apply inside Make Masks and its Cellpose Workbench.", "Use the recorded source, channel and stock-model settings on preserved real-image copies.", "Inspect the three actual saved masks and their original, outline and flow figures.", "Demonstrate reversible live filtering and synchronized wheel zoom.", "Recognise the measured preview-versus-batch mismatch and avoid accuracy claims."],
-  "example_files": ["Apply_Cellpose_stock_example.zip"],
-  "prerequisite": "Extract the linked three-image example into a new directory and set src to its images folder; recorded_settings.json contains historical resolved values, not a demonstrated portable GUI import. These real 512-square uint16 cell crops are not ground truth. Stock CPSAM is selected, not the Train lesson checkpoint. Batch choices are channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True and verbose=True; rescale, resample, resize, fill_in, invert and remove_background are False. The actual CUDA run saves 9/94/46 labels and three GUI figures. Direct reference calls independently reproduce all mask pixels and all three figure arrays. Outlines show external foreground contours, not every touching instance border; the flow panel is one visualization channel, not measured motion. Live preview of image 02 yields 95, not 94: it matches raw-image Cellpose defaults rather than the batch preprocessing/resampling path. Displayed 2/99 controls do not establish equivalence. Area cutoff 1838 gives 95->47->95, every restored pixel checked without model rerun; saved batch masks are unchanged. Native wheel zoom synchronizes both canvases but crops the view and does not fix the narrow preview card. Earlier holds and source data remain preserved. No biological accuracy certification, AI request, publication or application modification.",
+  "id": "20_cellpose_masks",
+  "number": 20,
+  "slug": "cellpose_masks",
+  "series": 3,
+  "app_key": "cellpose_masks",
+  "host_app_key": "make_masks",
+  "section": "Tools",
+  "title": "Apply Cellpose: segment a folder and inspect masks",
+  "description": "Choose a segmentation model, process the supplied images and inspect saved masks and live size filters.",
+  "objectives": [
+    "Select images, model weights and segmentation settings.",
+    "Run Apply and locate the saved mask TIFFs.",
+    "Inspect live results and compare object-size filters."
+  ],
+  "example_files": [
+    "Apply_Cellpose_stock_example.zip"
+  ],
+  "prerequisite": "Extract the linked Apply Cellpose example into a new folder. It contains three single-channel cell images and a settings reference. Select its images folder as Source. This walkthrough uses the stock cpsam model; for a custom model, choose compatible weights and settings for your images.",
   "scenes": [
-    {"visual":"02_actual_train_and_apply_tabs","narration":"From Make Masks, open the nested Cellpose Workbench and choose Apply. Train and Apply share this workbench; Apply is not a separate Home tile. This lesson uses the stock model on three real images. It does not use the demonstration checkpoint from the linked Train lesson.","related_lessons":["14_make_masks","19_train_cellpose"],"hold_after":0.7},
-    {"visual":"04_setting_src","narration":"Extract the linked example into a new folder. Set source to its images directory, preserving the original download. These are three single-channel cell images, each five hundred twelve pixels square. They are demonstration inputs, not segmentation ground truth. Use the recorded settings as a reference, replacing the historical source path with your own.","hold_after":0.7},
-    {"visual":"05_setting_model_name","narration":"Select CPSAM and leave custom model empty. For these images, the channel list is zero, normalization uses the second and ninety-ninth percentiles, diameter is thirty, flow threshold is zero point four, and cell probability is zero. These are bounded example choices, not recommended settings for every experiment.","hold_after":0.7},
-    {"visual":"14_actual_inference_outcome","narration":"With Save and Verbose enabled and batch size one, run Apply. This route creates figures without a separate Plot switch. The real console identifies an RTX thirty-ninety using CUDA and finishes all three images. Check the source and saved settings there; a Finished message alone is not an accuracy measurement.","hold_after":0.7},
-    {"visual":"15_actual_mask_and_flow_figures","narration":"Three same-named mask TIFFs are saved in the source folder's masks subdirectory. The counts are nine, ninety-four and forty-six. These genuine figures show the input, red foreground contours and a flow visualization. The contours do not trace every touching instance boundary, and flow colours are not physical motion or segmentation accuracy.","focus":[1000,450,2780,640],"hold_after":0.7},
-    {"visual":"17_actual_preview_image_picker","narration":"Turn on Live preview and use its actual image picker to choose cell pair zero two. Collapse Console and System when you need more viewing space. Preview has its own controls: check channel zero and the displayed percentile values in Live settings rather than assuming every Apply option was copied.","hold_after":0.7},
-    {"visual":"20_actual_preview_result","narration":"This preview finds ninety-five objects, while the saved batch mask for the same image has ninety-four. Independent checks reproduce both results: the preview follows Cellpose's raw-image defaults, not the batch's explicit preprocessing and resampling choices. Treat it as an exploratory view, not a guarantee of identical saved masks.","focus":[1000,1160,2780,610],"hold_after":0.7},
-    {"visual":"20a_actual_zoomed_preview","narration":"The preview card remains narrow in this build. Wheel zoom enlarges a detail on both canvases together; it does not enlarge the card, and the full image is now cropped. This is useful for inspecting local outlines, but keep whole-field review separate from a zoomed detail.","focus":[1010,1280,2750,455],"hold_after":0.7},
-    {"visual":"22_native_filter_reduces_objects","narration":"Open Live settings and set the minimum cell area to eighteen hundred thirty-eight pixels. This is a demonstration cutoff, not an optimal biological threshold. Close the dialog to see the result. The live filter removes forty-eight objects, leaving forty-seven, without rerunning Cellpose or changing its raw segmentation.","hold_after":0.7},
-    {"visual":"22b_actual_zoomed_filtered_preview","narration":"Here is the filtered preview with the dialog closed and wheel zoom reapplied. The original image is unchanged while small mask objects disappear. The counter now says forty-seven. These changes affect the preview; they do not rewrite the three batch TIFFs already saved on disk.","focus":[1010,1280,2750,455],"hold_after":0.7},
-    {"visual":"23b_actual_zoomed_restored_preview","narration":"Return minimum area to zero, close the dialog and inspect again. Ninety-five objects return, and every restored label pixel matches the baseline. Keep the inputs, settings and model identity with the saved masks. The optional spaCR AI console is unused here; independent validation remains your responsibility before drawing scientific conclusions.","focus":[1010,1280,2750,455],"related_lessons":["07_mask","06_api"],"hold_after":0.7}
+    {
+      "visual": "02_actual_train_and_apply_tabs",
+      "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
+      "related_lessons": [
+        "14_make_masks",
+        "19_train_cellpose"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_src",
+      "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_model_name",
+      "narration": "Select cpsam and leave Custom model empty for this example. Set Channels to zero, normalization percentiles to two and ninety-nine, Diameter to thirty, Flow threshold to zero point four and Cell probability to zero. Adjust these settings after inspecting a few representative fields from your own experiment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_actual_inference_outcome",
+      "narration": "Enable Save and Verbose, choose a batch size of one, and click Run in Apply. Follow the console as each image is processed. Review failures before proceeding to measurement.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_actual_mask_and_flow_figures",
+      "narration": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
+      "focus": [
+        1000,
+        450,
+        2780,
+        640
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_actual_preview_image_picker",
+      "narration": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_actual_preview_result",
+      "narration": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
+      "focus": [
+        1000,
+        1160,
+        2780,
+        610
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20a_actual_zoomed_preview",
+      "narration": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
+      "focus": [
+        1010,
+        1280,
+        2750,
+        455
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_native_filter_reduces_objects",
+      "narration": "Open Live settings and increase Minimum cell area to remove small objects from the preview. The cutoff is in pixels; choose it according to your object sizes. Close the dialog to inspect the filtered result.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22b_actual_zoomed_filtered_preview",
+      "narration": "Compare the filtered outlines with the original image. Changing this live filter updates the preview without rewriting masks already saved by Apply. Rerun the batch with the intended settings when you need new saved outputs.",
+      "focus": [
+        1010,
+        1280,
+        2750,
+        455
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23b_actual_zoomed_restored_preview",
+      "narration": "Return Minimum cell area to zero to restore the unfiltered preview. Keep the input images, model identity, settings and saved masks together. Use Make Masks for corrections or Measure to extract object features from the reviewed masks.",
+      "focus": [
+        1010,
+        1280,
+        2750,
+        455
+      ],
+      "related_lessons": [
+        "07_mask",
+        "06_api"
+      ],
+      "hold_after": 0.7
+    }
   ]
 }
