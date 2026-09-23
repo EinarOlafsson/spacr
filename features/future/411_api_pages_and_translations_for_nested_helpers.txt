@@ -1770,3 +1770,14 @@ pass, including Spanish/French Percentiles spelled correctly as in English.
 Receipt: data/411_data_controls_2026-09-23.json. Together with the preceding
 batch this fills581 positions for80 source labels, without claiming that the
 whole locale catalogs or their eight previously named failures are resolved.
+
+2026-09-23 — CODEX: PLAQUE AND MASK-SAVE GUIDES
+Added docs/source/plaque_assay.rst, linked from the documentation contents and
+included in the source allowlist. It distinguishes detection-only Figure
+preview from per-well plaque segmentation and the combined figure_pass API,
+explains shared thresholds, saved condition/legend reviews, scale interpretation
+and discarded results after selection changes. The Make Masks guide now states
+the uint16 save-capacity refusal and existing TIFF/bundle preservation contract.
+The corrected Sphinx -W build passes;47 internal API/workflow links resolve.
+Receipt: data/411_plaque_and_save_guides_2026-09-23.json. No runtime/API source
+prose or signature changed. Translated prose and complete release remain open.

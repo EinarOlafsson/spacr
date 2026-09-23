@@ -38,6 +38,15 @@ curation. Existing history is retained when editing a previously curated
 mask. See :func:`spacr.qt.mask_engine.save_mask` and
 :class:`spacr.curation.CurationLog` for the file contract.
 
+The saved format has at most 65,535 positive labels. Saving refuses a binary
+mask with more connected objects, or an existing multi-label mask whose IDs
+exceed that range; it does not wrap oversized IDs into smaller numbers.
+A refused save preserves an existing TIFF or Cellpose bundle and its metadata.
+In ordinary mode, a mask with one foreground value is interpreted as binary
+and its connected components receive separate IDs. For primary/secondary
+relationships, use the exact-ID path described below. See
+:func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions.
+
 Canvas tools and navigation
 ---------------------------
 

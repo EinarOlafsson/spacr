@@ -130,6 +130,7 @@ Contents
    installers
    features
    make_masks
+   plaque_assay
    python_api
    settings_flow
    model_zoo
