@@ -236,3 +236,133 @@ def test_home_has_the_button_and_asks_the_window_for_it(qtbot):
     page.sample_project_requested.connect(lambda: asked.append(True))
     page._sample_project_button.click()
     assert asked, "the button asks the window to offer a sample project"
+
+
+@pytest.mark.parametrize("contents", [
+    "{", "null", "[]", '{"pathways": []}',
+    '{"pathways": [{"title": "Incomplete"}]}',
+    '{"pathways": {"broken": {"title": "Broken", "steps": '
+    '[{"module": "absent", "action": "Open"}]}}, "modules": {}}',
+])
+def test_unusable_workflow_maps_keep_the_fallback_routes_available(tmp_path, contents):
+    from spacr.qt.widgets import sample_project as sp
+
+    path = tmp_path / "workflows.json"
+    path.write_text(contents, encoding="utf-8")
+    routes = sp.pathways(path)
+    assert [route["id"] for route in routes] == [
+        "spacr_screen", "high_content", "train_model"]
+    assert all(route["title"] and route["modules"] for route in routes)
+
+
+@pytest.mark.parametrize("kind, expected", [
+    ("chooser", "chooser"), ("measurements", "test data"),
+    ("unavailable", ""), ("noncallable_chooser", "test data"),
+])
+def test_example_loader_dispatches_once_without_falling_through(monkeypatch, kind, expected):
+    from types import SimpleNamespace
+    from spacr.qt.widgets import measurements_example
+    from spacr.qt.widgets import sample_project as sp
+
+    calls = []
+    screen = SimpleNamespace()
+    monkeypatch.setattr(measurements_example, "load_test_data",
+                        lambda target: calls.append(("measurements", target)))
+    if kind != "unavailable":
+        screen._test_data_apply = object()
+    if kind == "chooser":
+        screen._choose_the_test_data = lambda: calls.append(("chooser", screen))
+    elif kind == "noncallable_chooser":
+        screen._choose_the_test_data = "not a loader"
+    assert sp.start_example(screen) == expected
+    assert calls == ([] if not expected else [
+        ("chooser" if kind == "chooser" else "measurements", screen)])
+
+
+def test_empty_pipeline_dialog_cannot_start_an_example(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QDialogButtonBox
+    from spacr.qt.widgets import sample_project as sp
+
+    dialog = sp.SampleProjectDialog(entries=[])
+    qtbot.addWidget(dialog)
+    chosen = []
+    dialog.chosen.connect(chosen.append)
+    assert dialog.selected() is None
+    assert dialog.summary.text() == dialog.steps.text() == ""
+    assert not dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok).isEnabled()
+    dialog.accept()
+    assert chosen == []
+
+    def accept_empty(target):
+        qtbot.addWidget(target)
+        target.accept()
+        return target.result()
+
+    monkeypatch.setattr(sp.SampleProjectDialog, "exec", accept_empty)
+    assert sp.offer_a_sample_project(None, chosen.append, entries=[]) == ""
+    assert chosen == []
+
+
+def test_unavailable_pipeline_destination_does_not_load_data_or_offer_walkthrough(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QMainWindow
+    from spacr.qt.widgets import sample_project as sp
+
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    opened, loaded = [], []
+
+    def accept_first(dialog):
+        qtbot.addWidget(dialog)
+        dialog.accept()
+        return dialog.result()
+
+    monkeypatch.setattr(sp.SampleProjectDialog, "exec", accept_first)
+    monkeypatch.setattr(sp, "start_example", loaded.append)
+    entry = sp.pathways()[0]
+    assert sp.offer_a_sample_project(window, opened.append, [entry]) == entry["modules"][0]
+    assert opened == [entry["modules"][0]]
+    assert loaded == []
+    assert not hasattr(window, "_sample_pathway_button")
+
+
+def test_legacy_pipeline_without_walkthrough_does_not_add_a_dead_button(qtbot):
+    from PySide6.QtWidgets import QMainWindow
+    from spacr.qt.widgets import sample_project as sp
+
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    sp._offer_pathway_walkthrough(window, dict(sp.FALLBACK[0]))
+    sp._offer_pathway_walkthrough(None, sp.pathways()[0])
+    assert not hasattr(window, "_sample_pathway_button")
+
+
+@pytest.mark.parametrize("contents", [None, "{", "null", "[]", "42", '{"modules": []}'])
+def test_fallback_pipeline_diagrams_remain_selectable_when_graph_map_is_unreadable(qtbot, monkeypatch, tmp_path, contents):
+    from PySide6.QtCore import Qt
+    from spacr.qt.widgets import sample_project as sp
+    from spacr.qt.widgets import workflow_diagram as wd
+
+    path = tmp_path / "map.json"
+    if contents is not None:
+        path.write_text(contents, encoding="utf-8")
+    with pytest.raises(OSError if contents is None else ValueError):
+        wd.workflow_map(path)
+    monkeypatch.setattr(sp, "workflow_map", lambda: wd.workflow_map(path))
+    entries = [dict(route) for route in sp.FALLBACK]
+    dialog = sp.SampleProjectDialog(entries=entries)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitExposed(dialog)
+    dialog.list.scrollToItem(dialog.list.item(1))
+    graph = dialog.diagrams[1]
+    graph.fit_diagram()
+    node = graph.nodes[entries[1]["modules"][0]]
+    point = graph.mapFromScene(node.sceneBoundingRect().center())
+    qtbot.mouseClick(graph.viewport(), Qt.LeftButton, pos=point)
+    qtbot.waitUntil(lambda: dialog.selected()["id"] == entries[1]["id"])
+    assert dialog.summary.text() == entries[1]["summary"]
+    assert "Inputs" in dialog.details.toPlainText()
+    assert "Outputs" in dialog.details.toPlainText()
+    assert set(graph.nodes) == set(entries[1]["modules"])
+    assert {(link["from"], link["to"]) for link in graph.links} == set(
+        zip(entries[1]["modules"], entries[1]["modules"][1:]))

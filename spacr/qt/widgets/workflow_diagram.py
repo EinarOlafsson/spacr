@@ -36,7 +36,8 @@ def workflow_map(path=None):
     source = Path(path) if path is not None else (
         Path(__file__).resolve().parents[2] / "resources/module_workflows.json")
     data = json.loads(source.read_text(encoding="utf-8"))
-    if not isinstance(data.get("modules"), dict) or not isinstance(data.get("artifacts"), dict):
+    if (not isinstance(data, dict) or not isinstance(data.get("modules"), dict)
+            or not isinstance(data.get("artifacts"), dict)):
         raise ValueError("Workflow map needs modules and artifacts.")
     return data
 

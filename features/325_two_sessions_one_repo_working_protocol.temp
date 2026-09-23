@@ -12692,3 +12692,29 @@ no repeated multi-GB install, runtime/API/UI change or relaxed coverage gate.
 Receipt288_starplast_boundary_coverage_2026-09-23.json. Two floor gaps closed;
 the old CI's11below-floor/71ratchet failures are not a current-head claim.
 No translation/tutorial action needed beyond the existing474installation docs.
+
+2026-09-23 — IMPLEMENTATION: 288 PIPELINE OVERVIEW RECOVERY COVERAGE CLAIM
+Claiming tests/qt/test_home_starts_a_sample_project.py for current bounded
+coverage of sample_project: malformed/missing map recovery, empty/cancelled
+selection, unavailable destination and the example loader dispatch. Current
+flowchart ordering/API links remain implemented. Will test the actual dialog
+and navigation boundaries; no tutorial/catalog or coverage baseline changes.
+
+288 recovery extension: workflow_diagram.workflow_map assumes JSON is an
+object before validating modules/artifacts. A syntactically valid list/null
+raises AttributeError, bypassing Pipeline overviews' ValueError fallback.
+Claiming that validation line and a real-file regression test; public API
+already documents ValueError, so no signature/prose or caption change.
+Dotted-module coverage again crashes in native QtCore import at test startup;
+directory-scoped instrumentation is running, as in the earlier483diagnosis.
+
+2026-09-23 — IMPLEMENTATION: 288 PIPELINE OVERVIEW RECOVERY VERIFIED
+48checks pass after all edits,90.70s,8G/no-swap/offscreen CPU. sample_project
+measures99.02percent combined coverage (171/173lines,32/32branches). Real-file
+fallback tests exposed workflow_map's list/null/number JSON AttributeError;
+validation now raises the already documented ValueError so fallback diagrams
+remain usable. Existing OPS route, translations, dependency ordering and
+localized API links pass. Receipt288_pipeline_overview_recovery_2026-09-23.json.
+Only runtime delta is workflow_diagram.workflow_map's validation body; no
+signature, docstring or caption changed. Please preserve current API prose.
+No coverage gate/baseline change, downloads, GPU work or full-suite claim.
