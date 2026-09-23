@@ -143,14 +143,22 @@ def test_the_generated_module_says_it_is_generated():
     assert "tools/build_help_search_index.py" in text
 
 
-def test_the_api_rows_are_the_published_symbols():
-    """``API_ENTRIES`` is the API manifest, not a selection from it.
+def test_the_api_rows_are_the_published_symbols(monkeypatch):
+    """Index public symbols and precisely the enabled nested helpers.
 
     The manifest is what the published pages are built from, so a symbol in
     one and not the other is a result that opens nothing, or a page nothing
     can find.
+
+    Enabled nested helpers can contain private name components. The shared
+    rollout list publishes their anchors explicitly; unrelated private
+    symbols remain excluded from Help search.
     """
     from spacr.qt.help_api_index import API_ENTRIES
+    monkeypatch.syspath_prepend(str(ROOT / "tools"))
+    from build_documentation_i18n import AUTOAPI_IGNORE
+    from nested_helper_docs import active_entries
+    from api_visibility import EXPLICIT_MODULES
 
     manifest = (ROOT / "docs" / "source" / "_static" / "i18n" / "api"
                 / "en.json")
@@ -159,10 +167,23 @@ def test_the_api_rows_are_the_published_symbols():
     published = set(json.loads(manifest.read_text("utf-8"))["symbols"])
     indexed = {symbol for symbol, _summary in API_ENTRIES}
     assert indexed <= published
-    private = {s for s in published
-               if any(p.startswith("_") and p != "__main__"
-                      for p in s.split("."))}
-    assert published - private == indexed
+    private = set()
+    for symbol in published:
+        suffix = symbol
+        for module in EXPLICIT_MODULES:
+            if symbol == module:
+                suffix = ""
+            elif symbol.startswith(module + "."):
+                suffix = symbol[len(module) + 1:]
+        if any(part.startswith("_") and part != "__main__"
+               for part in suffix.split(".")):
+            private.add(symbol)
+    helpers = {
+        entry.qualified_key
+        for entry in active_entries(ROOT, ignore_patterns=AUTOAPI_IGNORE)
+    }
+    assert helpers <= published
+    assert (published - private) | helpers == indexed
 
 
 def test_every_setting_consumer_is_addressable():

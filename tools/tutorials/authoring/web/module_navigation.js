@@ -1,91 +1,105 @@
 "use strict";
 window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
   "schema": 1,
-  "source_commit": "b4fe51944e0a846033cbf5692b288d0a3d962686",
+  "source_commit": "46bfd663f5d263298a374da1f2015227ba344f2f",
   "labels": {
     "en": [
       "Main modules",
       "Submodules",
       "Getting started",
-      "Help and utilities"
+      "Help and utilities",
+      "Home and pipelines"
     ],
     "es": [
       "Módulos principales",
       "Submódulos",
       "Primeros pasos",
-      "Ayuda y utilidades"
+      "Ayuda y utilidades",
+      "Inicio y flujos de trabajo"
     ],
     "fr": [
       "Modules principaux",
       "Sous-modules",
       "Premiers pas",
-      "Aide et utilitaires"
+      "Aide et utilitaires",
+      "Accueil et parcours"
     ],
     "hi": [
       "मुख्य मॉड्यूल",
       "उपमॉड्यूल",
       "शुरुआत करें",
-      "सहायता और उपयोगिताएँ"
+      "सहायता और उपयोगिताएँ",
+      "होम और कार्यप्रवाह"
     ],
     "it": [
       "Moduli principali",
       "Sottomoduli",
       "Primi passi",
-      "Guida e utilità"
+      "Guida e utilità",
+      "Home e flussi di lavoro"
     ],
     "pt-BR": [
       "Módulos principais",
       "Submódulos",
       "Primeiros passos",
-      "Ajuda e utilitários"
+      "Ajuda e utilitários",
+      "Início e fluxos de trabalho"
     ],
     "ja": [
       "メインモジュール",
       "サブモジュール",
       "はじめに",
-      "ヘルプとユーティリティ"
+      "ヘルプとユーティリティ",
+      "ホームとワークフロー"
     ],
     "zh-CN": [
       "主模块",
       "子模块",
       "入门",
-      "帮助与实用工具"
+      "帮助与实用工具",
+      "主页与工作流程"
     ],
     "da": [
       "Hovedmoduler",
       "Undermoduler",
       "Kom godt i gang",
-      "Hjælp og værktøjer"
+      "Hjælp og værktøjer",
+      "Hjem og arbejdsgange"
     ],
     "de": [
       "Hauptmodule",
       "Untermodule",
       "Erste Schritte",
-      "Hilfe und Werkzeuge"
+      "Hilfe und Werkzeuge",
+      "Startseite und Arbeitsabläufe"
     ],
     "is": [
       "Aðaleiningar",
       "Undireiningar",
       "Fyrstu skrefin",
-      "Hjálp og verkfæri"
+      "Hjálp og verkfæri",
+      "Heim og verkferlar"
     ],
     "ko": [
       "주요 모듈",
       "하위 모듈",
       "시작하기",
-      "도움말 및 유틸리티"
+      "도움말 및 유틸리티",
+      "홈 및 워크플로"
     ],
     "nb": [
       "Hovedmoduler",
       "Undermoduler",
       "Kom i gang",
-      "Hjelp og verktøy"
+      "Hjelp og verktøy",
+      "Hjem og arbeidsflyter"
     ],
     "sv": [
       "Huvudmoduler",
       "Undermoduler",
       "Kom igång",
-      "Hjälp och verktyg"
+      "Hjälp och verktyg",
+      "Hem och arbetsflöden"
     ]
   },
   "intro": {
@@ -94,14 +108,26 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
     "label_index": 2,
     "lessons": [
       "01_pypi_github",
-      "02_conda_install",
       "03_pip_install",
-      "04_platform_installers",
-      "05_home",
-      "06_api"
+      "02_conda_install",
+      "04_platform_installers"
     ]
   },
   "sections": [
+    {
+      "id": "orientation",
+      "label_index": 4,
+      "groups": [
+        {
+          "id": "orientation",
+          "title": "",
+          "kind": "intro",
+          "lessons": [
+            "05_home"
+          ]
+        }
+      ]
+    },
     {
       "id": "main",
       "label_index": 0,
@@ -133,6 +159,7 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "kind": "main",
           "module_keys": [
             "foreign",
+            "embeddings",
             "run_compare",
             "experiment_design",
             "power",
@@ -141,6 +168,7 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           ],
           "lessons": [
             "36_import",
+            "77_embeddings",
             "50_run_compare",
             "67_experiment_design",
             "68_power_design",
@@ -172,17 +200,11 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "title": "Assays",
           "kind": "main",
           "module_keys": [
-            "analyze_plaques",
-            "recruitment",
-            "invasion",
-            "replication"
+            "toxoplasma",
+            "plasmodium",
+            "candida"
           ],
-          "lessons": [
-            "24_plaque",
-            "25_recruitment",
-            "26_invasion",
-            "27_replication"
-          ]
+          "lessons": []
         }
       ]
     },
@@ -197,7 +219,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "host_lesson": "07_mask",
           "help_host": false,
           "lessons": [
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ]
         },
         {
@@ -260,7 +283,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
             "53_prediction_profiler",
             "71_investigate_hit",
             "72_volcano_explorer",
-            "73_parameter_sweep"
+            "73_parameter_sweep",
+            "75_regression_diagnostics"
           ]
         },
         {
@@ -271,7 +295,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "help_host": false,
           "lessons": [
             "31_external_masks",
-            "35_converter"
+            "35_converter",
+            "74_import_images"
           ]
         },
         {
@@ -324,6 +349,19 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           ]
         },
         {
+          "id": "toxoplasma",
+          "kind": "host",
+          "title": "Toxoplasma",
+          "host_lesson": null,
+          "help_host": false,
+          "lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
           "id": "db_browser",
           "kind": "host",
           "title": "Database Browser",
@@ -339,6 +377,7 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "kind": "help",
           "label_index": 3,
           "lessons": [
+            "06_api",
             "29_report",
             "30_plate_queue",
             "34_database",
@@ -454,20 +493,32 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
       "host_title": "Annotate"
     },
     "24_plaque": {
-      "kind": "main",
-      "app_key": "analyze_plaques"
+      "kind": "submodule",
+      "app_key": "analyze_plaques",
+      "host_app_key": "toxoplasma",
+      "host_lesson": null,
+      "host_title": "Toxoplasma"
     },
     "25_recruitment": {
-      "kind": "main",
-      "app_key": "recruitment"
+      "kind": "submodule",
+      "app_key": "recruitment",
+      "host_app_key": "toxoplasma",
+      "host_lesson": null,
+      "host_title": "Toxoplasma"
     },
     "26_invasion": {
-      "kind": "main",
-      "app_key": "invasion"
+      "kind": "submodule",
+      "app_key": "invasion",
+      "host_app_key": "toxoplasma",
+      "host_lesson": null,
+      "host_title": "Toxoplasma"
     },
     "27_replication": {
-      "kind": "main",
-      "app_key": "replication"
+      "kind": "submodule",
+      "app_key": "replication",
+      "host_app_key": "toxoplasma",
+      "host_lesson": null,
+      "host_title": "Toxoplasma"
     },
     "28_training_runs": {
       "kind": "submodule",
@@ -730,25 +781,56 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
       "host_app_key": "regression",
       "host_lesson": "13_regression",
       "host_title": "Regression"
+    },
+    "74_import_images": {
+      "kind": "submodule",
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "host_lesson": "36_import",
+      "host_title": "Import"
+    },
+    "75_regression_diagnostics": {
+      "kind": "submodule",
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "host_lesson": "13_regression",
+      "host_title": "Regression"
+    },
+    "77_embeddings": {
+      "kind": "main",
+      "app_key": "embeddings"
+    },
+    "76_ops": {
+      "kind": "submodule",
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "host_lesson": "07_mask",
+      "host_title": "Mask"
     }
   },
   "missing_tutorials": [
     {
-      "app_key": "import_images",
-      "title": "Import Images",
-      "host_app_key": "foreign",
+      "app_key": "candida",
+      "title": "Candida spp.",
+      "host_app_key": null,
       "status": "needs_tutorial"
     },
     {
-      "app_key": "ops",
-      "title": "OPS",
-      "host_app_key": "mask",
-      "status": "deferred_unvalidated_workflow"
+      "app_key": "host_pathogen",
+      "title": "Host–Pathogen Analysis",
+      "host_app_key": "toxoplasma",
+      "status": "needs_tutorial"
     },
     {
-      "app_key": "regression_diagnostics",
-      "title": "Diagnostics",
-      "host_app_key": "regression",
+      "app_key": "plasmodium",
+      "title": "Plasmodium spp.",
+      "host_app_key": null,
+      "status": "needs_tutorial"
+    },
+    {
+      "app_key": "toxoplasma",
+      "title": "Toxoplasma",
+      "host_app_key": null,
       "status": "needs_tutorial"
     }
   ],
@@ -825,6 +907,10 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
     "70_explain_cv",
     "71_investigate_hit",
     "72_volcano_explorer",
-    "73_parameter_sweep"
+    "73_parameter_sweep",
+    "74_import_images",
+    "75_regression_diagnostics",
+    "77_embeddings",
+    "76_ops"
   ]
 });

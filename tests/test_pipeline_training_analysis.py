@@ -307,8 +307,8 @@ def test_analyze_recruitment_runs_on_pipeline_db(spacr_measure_run):
 
     # The recruitment ratios are the whole point of the run: present AND
     # actually computed, not an all-NaN column from a failed division.
-    for col in ("pathogen_cell_mean_mean", "pathogen_cytoplasm_mean_mean",
-                "pathogen_nucleus_mean_mean"):
+    for col in ("pathogen_channel_1_cell_mean_ratio", "pathogen_channel_1_cytoplasm_mean_ratio",
+                "pathogen_channel_1_nucleus_mean_ratio"):
         assert col in cells.columns, (
             f"missing recruitment column {col}; got {list(cells.columns)[:25]}")
         assert cells[col].notna().any(), f"{col} is entirely NaN"

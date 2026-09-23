@@ -527,7 +527,15 @@ def test_the_gate_list_has_its_own_handle(qtbot):
     screen = GateEditorScreen()
     qtbot.addWidget(screen)
 
-    pairs = {tuple(type(sp.widget(i)).__name__ for i in range(sp.count()))
+    from spacr.qt.widgets.collapsible_splitter import FoldSection
+
+    def named(child):
+        """The pane's content: a folding section (item 471) wraps it."""
+        if isinstance(child, FoldSection):
+            child = child.body
+        return type(child).__name__
+
+    pairs = {tuple(named(sp.widget(i)) for i in range(sp.count()))
              for sp in screen.findChildren(QSplitter)}
     assert ("GateCanvas", "GateTree") in pairs, pairs
     # The console joined this splitter, so the body is three panes now. The

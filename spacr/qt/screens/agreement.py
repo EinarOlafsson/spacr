@@ -65,7 +65,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -77,6 +76,7 @@ from ..bridge import make_thread
 from ..hidpi import scaled_for
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .db_browser import resolve_db_path
 from ..widgets.sortable_table import install_sorting, table_item
 
@@ -222,13 +222,19 @@ class AgreementScreen(QWidget):
         src_row.addWidget(self._btn_open)
         outer.addLayout(src_row)
 
-        split = QSplitter(Qt.Horizontal, self)
+        body = CollapsibleSplitter(Qt.Vertical, self,
+                                   persist_key="agreement::body")
+        top = QWidget(body)
+        top_layout = QVBoxLayout(top)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(SPACING["xs"])
+        split = CollapsibleSplitter(Qt.Horizontal, top,
+                                    persist_key="agreement::tables")
 
-        left = QWidget(split)
+        left = QWidget()
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(SPACING["xs"])
-        left_layout.addWidget(QLabel("Annotation columns"))
         hint = QLabel("Tick two or more — one annotator cannot disagree "
                       "with anybody.")
         hint.setObjectName("Caption")
@@ -241,77 +247,75 @@ class AgreementScreen(QWidget):
         self._btn_compute = QPushButton("Compute agreement", left)
         self._btn_compute.clicked.connect(self.compute)
         left_layout.addWidget(self._btn_compute)
-        split.addWidget(left)
+        split.add_section(left, "Annotation columns",
+                          persist_key="agreement/Annotation columns",
+                          stretch=0, extent=260)
 
-        right = QWidget(split)
-        right_layout = QVBoxLayout(right)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(SPACING["xs"])
-
-        right_layout.addWidget(QLabel("Pairwise agreement"))
-        self._kappa_table = QTableWidget(0, len(_KAPPA_HEADERS), right)
+        right = CollapsibleSplitter(Qt.Vertical, split,
+                                    persist_key="agreement::right")
+        self._kappa_table = QTableWidget(0, len(_KAPPA_HEADERS))
         install_sorting(self._kappa_table)
         self._kappa_table.setHorizontalHeaderLabels(list(_KAPPA_HEADERS))
         self._prepare_table(self._kappa_table)
         self._kappa_table.currentCellChanged.connect(
             lambda row, *_: self._on_pair_row_changed(row))
-        right_layout.addWidget(self._kappa_table, 1)
+        right.add_section(self._kappa_table, "Pairwise agreement",
+                          persist_key="agreement/Pairwise agreement")
 
-        conf_row = QHBoxLayout()
-        conf_row.setSpacing(SPACING["sm"])
-        conf_row.addWidget(QLabel("Confusion matrix"))
-        self._pair_combo = QComboBox(right)
+        self._pair_combo = QComboBox()
         self._pair_combo.setMinimumWidth(220)
         self._pair_combo.currentIndexChanged.connect(
             lambda *_: self._show_confusion(self._pair_combo.currentIndex()))
-        conf_row.addWidget(self._pair_combo)
-        conf_row.addStretch(1)
-        right_layout.addLayout(conf_row)
-
-        self._confusion_table = QTableWidget(0, 0, right)
+        self._confusion_table = QTableWidget(0, 0)
         install_sorting(self._confusion_table)
         self._prepare_table(self._confusion_table)
-        right_layout.addWidget(self._confusion_table, 1)
+        right.add_section(self._confusion_table, "Confusion matrix",
+                          persist_key="agreement/Confusion matrix",
+                          actions=[self._pair_combo])
 
-        split.addWidget(right)
-        split.setStretchFactor(0, 0)
-        split.setStretchFactor(1, 1)
-        split.setSizes([260, 860])
-        outer.addWidget(split, 1)
+        split.add_pane(right, "Tables", stretch=1)
+        top_layout.addWidget(split, 1)
 
-        self._summary = QLabel("", self)
+        self._summary = QLabel("", top)
         self._summary.setWordWrap(True)
         self._summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        outer.addWidget(self._summary)
+        top_layout.addWidget(self._summary)
+        body.add_pane(top, "Agreement", stretch=1)
 
-        outer.addWidget(Divider())
+        review = QWidget(body)
+        review_layout = QVBoxLayout(review)
+        review_layout.setContentsMargins(0, 0, 0, 0)
+        review_layout.setSpacing(SPACING["xs"])
+        review_layout.addWidget(Divider())
 
         review_row = QHBoxLayout()
         review_row.setSpacing(SPACING["sm"])
-        self._review_label = QLabel("Disagreement review", self)
+        self._review_label = QLabel("Disagreement review", review)
         review_row.addWidget(self._review_label)
         review_row.addStretch(1)
-        review_row.addWidget(QLabel("Max rows", self))
-        self._limit_box = QSpinBox(self)
+        review_row.addWidget(QLabel("Max rows", review))
+        self._limit_box = QSpinBox(review)
         self._limit_box.setRange(*REVIEW_LIMIT_RANGE)
         self._limit_box.setSingleStep(50)
         self._limit_box.setValue(DEFAULT_REVIEW_LIMIT)
         self._limit_box.setToolTip(
             "(int) How many disagreeing rows to pull into the review list.")
         review_row.addWidget(self._limit_box)
-        outer.addLayout(review_row)
+        review_layout.addLayout(review_row)
 
-        review_split = QSplitter(Qt.Horizontal, self)
-        self._review_table = QTableWidget(0, 0, review_split)
+        review_split = CollapsibleSplitter(Qt.Horizontal, review,
+                                           persist_key="agreement::review")
+        self._review_table = QTableWidget(0, 0)
         install_sorting(self._review_table)
         self._prepare_table(self._review_table)
         self._review_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._review_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._review_table.currentCellChanged.connect(
             lambda row, *_: self.select_disagreement(row))
-        review_split.addWidget(self._review_table)
+        review_split.add_section(self._review_table, "Disagreeing rows",
+                                 persist_key="agreement/Disagreeing rows")
 
-        preview = QWidget(review_split)
+        preview = QWidget()
         preview_layout = QVBoxLayout(preview)
         preview_layout.setContentsMargins(0, 0, 0, 0)
         preview_layout.setSpacing(SPACING["xs"])
@@ -325,11 +329,13 @@ class AgreementScreen(QWidget):
         self._crop_caption.setWordWrap(True)
         self._crop_caption.setTextInteractionFlags(Qt.TextSelectableByMouse)
         preview_layout.addWidget(self._crop_caption)
-        review_split.addWidget(preview)
-        review_split.setStretchFactor(0, 1)
-        review_split.setStretchFactor(1, 0)
-        review_split.setSizes([760, 320])
-        outer.addWidget(review_split, 1)
+        review_split.add_section(preview, "Crop preview",
+                                 persist_key="agreement/Crop preview",
+                                 stretch=0, extent=320)
+        review_layout.addWidget(review_split, 1)
+        body.add_pane(review, "Review", stretch=1)
+        outer.addWidget(body, 1)
+        self._body_splitter = body
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")

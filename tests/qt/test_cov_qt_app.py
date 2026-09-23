@@ -258,6 +258,7 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
+    "toxoplasma": "Assays", "plasmodium": "Assays", "candida": "Assays",
     # REWRITTEN 2026-08-31, when Home was cut from seven categories to
     # four. The user wrote out the tiles they wanted, in the order they
     # wanted them, and this ledger is the record of where every app
@@ -333,6 +334,7 @@ EXPECTED_SECTIONS = {
 #: Absent from ``APP_STAGE`` means stable, so the two are checked
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
+    "toxoplasma": "alpha", "plasmodium": "alpha", "candida": "alpha",
     # New module, so alpha: the two pipelines it dispatches to are trusted,
     # the merged screen has not been run on real data.
     "classify_merged": "alpha",
@@ -405,7 +407,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Twenty-nine alpha, four beta, six stable. The alpha column is the
+    Thirty-two alpha, four beta, six stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
@@ -462,7 +464,7 @@ def test_every_app_carries_the_maturity_it_was_given():
     # registers them now. Each has declared stage='alpha' in `app_catalog`
     # since it was written; the column grew by three tiles, not by three
     # demotions.
-    assert counts == {"alpha": 29, "beta": 4, "stable": 6}
+    assert counts == {"alpha": 32, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -635,7 +637,8 @@ def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
     bar = Sidebar()
     qtbot.addWidget(bar)
     by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)}
-    for key in ("__home__", "mask", "invasion"):
+    assert "invasion" not in by_key, "Invasion is reached through Toxoplasma"
+    for key in ("__home__", "mask", "toxoplasma"):
         with qtbot.waitSignal(bar.nav_selected, timeout=1000) as blocker:
             by_key[key].click()
         assert blocker.args == [key]
@@ -1057,6 +1060,8 @@ def test_home_returns_to_the_startup_page(win):
 
 def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
     expected = {
+        "toxoplasma": "OrganismScreen", "plasmodium": "OrganismScreen",
+        "candida": "OrganismScreen",
         "annotate":      "AnnotateScreen",
         "make_masks":    "MakeMasksScreen",
         "queue":         "QueueScreen",
@@ -1093,7 +1098,7 @@ def test_every_other_key_builds_a_generic_app_screen(win):
     seeing, and the old shape could not fail on that at all.
     """
     from spacr.qt.screens.app_screen import AppScreen
-    dedicated = {"annotate", "make_masks", "queue", "db_browser", "agreement",
+    dedicated = {"toxoplasma", "plasmodium", "candida", "annotate", "make_masks", "queue", "db_browser", "agreement",
                  "plate_view", "model_compare", "align", "convert", "foreign",
                  "batch", "distributed_jobs", "model_zoo", "report", "train_compare",
                  "classifier_evaluation", "run_history",
@@ -1475,58 +1480,14 @@ def test_run_demo_generator_dispatches_on_the_demo_key(win, monkeypatch,
     assert seen == [str(tmp_path)]
 
 
-def test_cancelling_the_folder_picker_does_nothing(win, modals, pick_dir):
-    pick_dir[0] = ""
-    before = dict(win._screens)
-    win._on_load_demo("mask")
-    assert win._screens == before
-    assert not modals.warning
-    assert pick_dir[1], "the folder picker was never shown"
 
 
-def test_a_failing_generator_warns_and_stays_put(win, modals, pick_dir,
-                                                 tmp_path, monkeypatch):
-    from spacr.qt import synthetic as syn
-
-    def _boom(dst, **kw):
-        raise RuntimeError("disk full")
-
-    monkeypatch.setattr(syn, "generate_measure_demo", _boom)
-    pick_dir[0] = str(tmp_path)
-    win._on_load_demo("measure")
-    assert modals.warning == [("Demo generation failed", "disk full")]
-    assert "measure" not in win._screens
 
 
-def test_the_mask_demo_lands_in_the_mask_screen(win, modals, pick_dir,
-                                                tmp_path):
-    pick_dir[0] = str(tmp_path)
-    win._on_load_demo("mask")
-    assert not modals.warning
-    assert win._stack.currentWidget() is win._screens["mask"]
-    src_widget = win._screens["mask"]._settings_model._widgets["src"]
-    assert str(tmp_path) in src_widget.text()
-    assert win.statusBar().currentMessage().startswith("Loaded mask demo from")
 
 
-def test_a_demo_whose_screen_never_opened_is_dropped_quietly(
-        win, modals, pick_dir, tmp_path, monkeypatch):
-    pick_dir[0] = str(tmp_path)
-    monkeypatch.setattr(win, "_on_nav_selected", lambda key: None)
-    win._on_load_demo("mask")
-    assert not modals.warning
-    assert "mask" not in win._screens
 
 
-def test_a_demo_that_cannot_be_applied_warns(win, modals, pick_dir,
-                                             tmp_path, monkeypatch):
-    def _boom(widget, layout):
-        raise ValueError("bad settings csv")
-
-    pick_dir[0] = str(tmp_path)
-    monkeypatch.setattr(win, "_apply_demo_to_screen", _boom)
-    win._on_load_demo("mask")
-    assert modals.warning == [("Demo load failed", "bad settings csv")]
 
 
 def test_apply_demo_prefers_the_settings_model(win, tmp_path):
@@ -1604,8 +1565,6 @@ def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
         return real_load(*a, **k)
     monkeypatch.setattr(sutils, "load_settings", _spy)
 
-    class _Bare:
-        """No apply_settings_dict, no _open_source, no _open_folder."""
 
     bare = _Bare()
     win._apply_demo_to_screen(bare, layout)
@@ -1646,180 +1605,20 @@ def _write_settings_pack(root, app_key, rows):
     return path
 
 
-def test_the_e2e_demo_stops_when_the_user_says_no(win, modals):
-    modals.answers = [QMessageBox.No]
-    win._on_e2e_demo()
-    assert len(modals.questions) == 1
-    assert modals.questions[0][0] == "End-to-end demo"
-    assert not modals.warning
 
 
-def test_the_e2e_demo_stops_when_the_folder_picker_is_cancelled(
-        win, modals, pick_dir):
-    modals.answers = [QMessageBox.Yes]
-    pick_dir[0] = ""
-    win._on_e2e_demo()
-    assert pick_dir[1], "the folder picker was never shown"
-    assert not modals.warning
 
 
-def test_a_failed_download_is_reported(win, modals, pick_dir, tmp_path,
-                                       monkeypatch):
-    from spacr.qt import hf_download
-
-    def _fake(parent, dest, callback):
-        callback(None, "404 not found")
-
-    monkeypatch.setattr(hf_download, "download_toxo_mito_demo", _fake)
-    modals.answers = [QMessageBox.Yes]
-    pick_dir[0] = str(tmp_path)
-    win._on_e2e_demo()
-    assert modals.warning[0][0] == "Download"
-    assert "404 not found" in modals.warning[0][1]
 
 
-def test_a_successful_download_starts_the_chain(win, modals, pick_dir,
-                                                tmp_path, monkeypatch):
-    from spacr.qt import hf_download
-
-    class _Result:
-        dataset_path = tmp_path / "data"
-        settings_path = tmp_path / "settings"
-
-    def _fake(parent, dest, callback):
-        callback(_Result(), None)
-
-    monkeypatch.setattr(hf_download, "download_toxo_mito_demo", _fake)
-    # ONE question: whether to download at all. There is no second prompt
-    # since 2026-08-31 -- the import opens Mask Generation with the
-    # settings filled and stops, so there is no stage to consent to.
-    modals.answers = [QMessageBox.Yes]
-    pick_dir[0] = str(tmp_path)
-    win._on_e2e_demo()
-
-    assert [t for t, _x in modals.questions] == ["End-to-end demo"]
-    assert "Live Preview" in win.statusBar().currentMessage(), (
-        "the status bar does not tell the user what to press next")
 
 
-def test_the_chain_runs_mask_then_measure_then_opens_annotate(
-        win, modals, tmp_path, no_pipeline_runs, monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
-    applied = []
-    real_apply = AppScreen.apply_settings_dict
-
-    def _record(self, settings):
-        applied.append((self.app_key, dict(settings)))
-        return real_apply(self, settings)
-
-    monkeypatch.setattr(AppScreen, "apply_settings_dict", _record)
-
-    data = tmp_path / "toxo"
-    pack = tmp_path / "pack"
-    _write_settings_pack(pack, "mask", [
-        ["# a comment row", "ignored"],
-        ["orphan_row_with_one_column"],
-        [],
-        ["  nucleus_channel  ", "2"],
-        ["cell_diameter", "37.5"],
-        ["save", "TRUE"],
-        ["verbose", "false"],
-        ["custom_model", "/models/cyto3"],
-    ])
-    _write_settings_pack(pack, "measure", [["save_measurements", "true"]])
-
-    _write_settings_pack(pack, "mask", [
-        ["gone_in_this_version", "7"],
-    ] + [list(row) for row in (
-        ["  nucleus_channel  ", "2"], ["cell_diameter", "37.5"],
-        ["save", "TRUE"], ["verbose", "false"],
-        ["custom_model", "/models/cyto3"],
-        ["# a comment row", "ignored"], ["orphan_row_with_one_column"],
-    )])
-    win._run_e2e_chain(data, pack)
-
-    # NOTHING IS ASKED AND NOTHING IS RUN. The import opens one screen
-    # with its settings filled; the user presses Live Preview or Run.
-    assert modals.questions == []
-    assert no_pipeline_runs == []
-    assert set(win._screens) == {"mask"}
-
-    mask_settings = dict(applied)["mask"]
-    assert mask_settings["src"] == str(data)
-    assert mask_settings["nucleus_channel"] == 2
-    assert mask_settings["cell_diameter"] == 37.5
-    assert mask_settings["save"] is True
-    assert mask_settings["verbose"] is False
-    # DROPPED, and this assertion used to be its opposite.
-    # `custom_model` is not a Mask setting in this build -- the old
-    # loader wrote every row of the pack straight over the defaults, so
-    # it arrived in the settings dict and travelled into the pipeline to
-    # be ignored there. The test pinned that. Migration drops it.
-    assert "custom_model" not in mask_settings
-    assert "# a comment row" not in mask_settings
-    assert "orphan_row_with_one_column" not in mask_settings
-    # MIGRATED, not merged: a key this build has no setting for is
-    # dropped rather than carried into the pipeline to be ignored there.
-    assert "gone_in_this_version" not in mask_settings
-    # Defaults survive alongside the overrides
-    assert len(mask_settings) > 8
-    assert "Live Preview" in win.statusBar().currentMessage()
 
 
-def test_the_chain_without_a_settings_pack_uses_plain_defaults(
-        win, modals, tmp_path, no_pipeline_runs, monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
-    from spacr.qt.screens.settings_model import resolve_default_settings
-    applied = []
-    monkeypatch.setattr(AppScreen, "apply_settings_dict",
-                        lambda self, s: applied.append((self.app_key, dict(s))))
-
-    win._run_e2e_chain(tmp_path / "imgs", tmp_path / "missing-pack")
-
-    key, settings = applied[0]
-    assert key == "mask"
-    expected = dict(resolve_default_settings("mask"))
-    expected["src"] = str(tmp_path / "imgs")
-    assert settings == expected
 
 
-def test_the_chain_reports_a_screen_that_will_not_open(win, modals,
-                                                       tmp_path):
-    class _NoMask(dict):
-        def get(self, key, default=None):
-            return None if key == "mask" else super().get(key, default)
-
-    win._screens = _NoMask(win._screens)
-    win._run_e2e_chain(tmp_path, tmp_path)
-    assert len(modals.warning) == 1
-    title, body = modals.warning[0]
-    assert title == "Demo dataset"
-    # NAMES THE FOLDER. The dataset downloaded successfully; the only
-    # thing that failed is opening a screen, so the useful thing to say
-    # is where the data is so the user can point at it themselves.
-    assert str(tmp_path) in body
 
 
-def test_the_chain_reports_a_stage_that_blows_up(win, modals, tmp_path,
-                                                 monkeypatch):
-    from spacr.qt.screens.app_screen import AppScreen
-
-    def _boom(self, settings):
-        raise RuntimeError("settings rejected")
-
-    monkeypatch.setattr(AppScreen, "apply_settings_dict", _boom)
-    win._run_e2e_chain(tmp_path, tmp_path)
-
-    assert len(modals.warning) == 1
-    title, body = modals.warning[0]
-    assert title == "Demo settings"
-    # SAYS THE SCREEN IS STILL OPEN. The dataset downloaded and Mask
-    # Generation opened; only filling the form failed, so the user can
-    # still fill it themselves -- and a warning that does not say so
-    # reads as though the whole import failed.
-    assert "Mask Generation is open" in body
-    assert "settings rejected" in body
-    assert modals.questions == []
 
 
 # ===========================================================================
@@ -1883,23 +1682,28 @@ def test_being_up_to_date_says_so(win, qtbot, modals, monkeypatch):
 
 def test_accepting_an_upgrade_runs_pip(win, qtbot, modals, monkeypatch):
     import spacr.updater as updater
+    monkeypatch.setattr(updater, "editable_install_location", lambda: None)
+    restarted = []
+    monkeypatch.setattr(win, "_restart_after_package_upgrade", lambda: restarted.append(True))
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
     calls = []
     monkeypatch.setattr(updater, "run_pip_upgrade",
-                        lambda: (calls.append(1), 0)[1])
+                        lambda **kwargs: (calls.append(kwargs), 0)[1])
     modals.answers = [QMessageBox.Yes]
-    _run_update_check(win, qtbot, modals)
-    assert calls == [1]
+    win._check_for_updates()
+    qtbot.waitUntil(lambda: bool(restarted), timeout=5000)
+    assert calls == [{"target_version": "2.0.0"}]
     assert "1.0.0" in modals.questions[0][1]
     assert "2.0.0" in modals.questions[0][1]
-    assert modals.information[0][1].startswith("Upgrade finished")
+    assert restarted == [True]
 
 
 def test_a_failing_pip_upgrade_shows_its_exit_code(win, qtbot, modals,
                                                    monkeypatch):
     import spacr.updater as updater
+    monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
-    monkeypatch.setattr(updater, "run_pip_upgrade", lambda: 3)
+    monkeypatch.setattr(updater, "run_pip_upgrade", lambda **kwargs: 3)
     modals.answers = [QMessageBox.Yes]
     _run_update_check(win, qtbot, modals)
     assert "pip returned exit code 3" in modals.warning[0][1]
@@ -1907,6 +1711,7 @@ def test_a_failing_pip_upgrade_shows_its_exit_code(win, qtbot, modals,
 
 def test_declining_an_upgrade_does_nothing(win, qtbot, modals, monkeypatch):
     import spacr.updater as updater
+    monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
 
     def _must_not_run():
@@ -2317,7 +2122,7 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
 
 def test_shortcuts_are_installed_when_the_module_is_available(win):
     # BOTH HOLDERS, because a key can legitimately live on either. The menu
-    # builds Home and Preferences as QActions carrying Ctrl+H and Ctrl+P so
+    # builds Home and Preferences as QActions carrying Ctrl+0 and Ctrl+P so
     # it can print the accelerator beside the item -- which binds them -- and
     # `shortcuts.BOUND_ELSEWHERE` keeps `install` from binding a QShortcut
     # for the same sequence. Qt answers a key with two holders by firing
@@ -2328,7 +2133,7 @@ def test_shortcuts_are_installed_when_the_module_is_available(win):
     bound = {sc.key().toString() for sc in win.findChildren(QShortcut)}
     bound |= {seq.toString() for act in win.findChildren(QAction)
               for seq in act.shortcuts()}
-    for keys in ("Ctrl+H", "Ctrl+K", "Ctrl+1", "Ctrl+9", "F1"):
+    for keys in ("Ctrl+0", "Ctrl+K", "Ctrl+1", "Ctrl+9", "Ctrl+Shift+H", "F1"):
         assert keys in bound, f"{keys} was never bound"
     # And exactly one holder each, or they are ambiguous again.
     from spacr.qt import shortcuts as _sc
@@ -2638,14 +2443,14 @@ PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
 def _prewarmed_module_names():
     """The module names ``launch``'s background pre-warm imports.
 
-    Read out of the source of ``launch`` so that the two tests below compare
+    Read out of the prewarm helper so that the two tests below compare
     the code against :data:`PREWARMED_MODULES` rather than against each
     other.
     """
     import inspect
     import re
 
-    source = inspect.getsource(app_mod.launch)
+    source = inspect.getsource(app_mod._start_settings_prewarm)
     match = re.search(r"for mod in \(([^)]*)\):", source)
     assert match, "launch no longer pre-warms a tuple of module names"
     return [name.strip().strip("\"'")

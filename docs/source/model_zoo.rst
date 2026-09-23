@@ -10,6 +10,10 @@ Every published entry carries a SHA-256. An entry without one is refused
 rather than installed, because a truncated or substituted checkpoint cannot
 be told from the real one.
 
+For temporal model training, see :doc:`timeflows_training` for annotation
+assignment, crop supervision and checkpoint provenance. Changes to those
+training rules do not replace an existing downloaded checkpoint.
+
 .. include:: _generated/model_zoo_table.rst
 
 Models are hosted on their author's own Hugging Face account, so contributing

@@ -1,0 +1,399 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "Install and launch the separate Starplast desktop application.",
+      "label": "spacr._starplast#0",
+      "source": "Install and launch the separate Starplast desktop application.",
+      "source_sha256": "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+      "translation": "Installera och starta det separata skrivbordsprogrammet Starplast."
+    },
+    {
+      "context": "Starplast uses PyQt6 and never imports into spaCR's PySide6 process. Its environment lives under ``~/.spacr/apps`` (or ``SPACR_APPS_DIR``). Installation reuses the segmentation installers' interpreter discovery, isolated command environment and cancellable subprocess runner, without registering a detector.",
+      "label": "spacr._starplast#1",
+      "source": "Starplast uses PyQt6 and never imports into spaCR's PySide6 process. Its environment lives under ``~/.spacr/apps`` (or ``SPACR_APPS_DIR``). Installation reuses the segmentation installers' interpreter discovery, isolated command environment and cancellable subprocess runner, without registering a detector.",
+      "source_sha256": "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74",
+      "translation": "Starplast använder PyQt6 och importeras aldrig i spaCR:s PySide6-process. Dess miljö ligger under ``~/.spacr/apps`` (eller ``SPACR_APPS_DIR``). Installationen återanvänder segmenteringsinstallerarnas tolksökning, isolerade kommandomiljö och avbrytbara körning av underprocesser, utan att registrera någon detektor."
+    },
+    {
+      "context": "Default source when no sibling checkout or explicit source is available.",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source": "Default source when no sibling checkout or explicit source is available.",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "translation": "Standardkälla när varken en angränsande arbetskopia eller en uttrycklig källa finns."
+    },
+    {
+      "context": "Return the external-application folder without creating it.",
+      "label": "spacr._starplast.apps_root#0",
+      "source": "Return the external-application folder without creating it.",
+      "source_sha256": "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+      "translation": "Returnera mappen för externa program utan att skapa den."
+    },
+    {
+      "context": "explicit folder, otherwise ``SPACR_APPS_DIR`` or ``~/.spacr/apps``.",
+      "label": "spacr._starplast.apps_root#1",
+      "source": "explicit folder, otherwise ``SPACR_APPS_DIR`` or ``~/.spacr/apps``.",
+      "source_sha256": "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+      "translation": "uttryckligen angiven mapp, annars ``SPACR_APPS_DIR`` eller ``~/.spacr/apps``."
+    },
+    {
+      "context": "absolute application root.",
+      "label": "spacr._starplast.apps_root#2",
+      "source": "absolute application root.",
+      "source_sha256": "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a",
+      "translation": "absolut rotsökväg för program."
+    },
+    {
+      "context": "Prefer an explicit source or a sibling Starplast checkout, then GitHub.",
+      "label": "spacr._starplast.default_source#0",
+      "source": "Prefer an explicit source or a sibling Starplast checkout, then GitHub.",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "translation": "Välj i första hand en uttrycklig källa eller en angränsande Starplast-arbetskopia, därefter GitHub."
+    },
+    {
+      "context": "``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL.",
+      "label": "spacr._starplast.default_source#1",
+      "source": "``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL.",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "translation": "``SPACR_STARPLAST_SOURCE``, en lokal Git-arbetskopia eller en arkivadress."
+    },
+    {
+      "context": "Build an isolated environment, install Starplast and check its bundled data.",
+      "label": "spacr._starplast.install_starplast#0",
+      "source": "Build an isolated environment, install Starplast and check its bundled data.",
+      "source_sha256": "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+      "translation": "Skapa en isolerad miljö, installera Starplast och kontrollera medföljande data."
+    },
+    {
+      "context": "Local Git sources are archived from committed HEAD into temporary storage; pip never writes build files into the original checkout. A failed install removes only the environment created here, and retains ``starplast-install.log``.",
+      "label": "spacr._starplast.install_starplast#1",
+      "source": "Local Git sources are archived from committed HEAD into temporary storage; pip never writes build files into the original checkout. A failed install removes only the environment created here, and retains ``starplast-install.log``.",
+      "source_sha256": "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+      "translation": "Lokala Git-källor arkiveras från incheckad HEAD till tillfällig lagring; pip skriver aldrig byggfiler i den ursprungliga arbetskopian. En misslyckad installation tar endast bort den miljö som skapats här och behåller ``starplast-install.log``."
+    },
+    {
+      "context": "local Git checkout or pip repository URL; default_source otherwise.",
+      "label": "spacr._starplast.install_starplast#2",
+      "source": "local Git checkout or pip repository URL; default_source otherwise.",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "translation": "lokal Git-arbetskopia eller arkivadress för pip; annars default_source."
+    },
+    {
+      "context": "external-application folder.",
+      "label": "spacr._starplast.install_starplast#3",
+      "source": "external-application folder.",
+      "source_sha256": "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+      "translation": "mapp för externa program."
+    },
+    {
+      "context": "callback ``(step, steps, text)``; called off the main GUI execution path.",
+      "label": "spacr._starplast.install_starplast#4",
+      "source": "callback ``(step, steps, text)``; called off the GUI thread.",
+      "source_sha256": "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
+      "translation": "återanropsfunktion ``(step, steps, text)``; anropas utanför GUI-tråden."
+    },
+    {
+      "context": "threading.Event; cancels commands and their descendants.",
+      "label": "spacr._starplast.install_starplast#5",
+      "source": "threading.Event; cancels commands and their descendants.",
+      "source_sha256": "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+      "translation": "threading.Event; avbryter kommandon och deras underordnade processer."
+    },
+    {
+      "context": "optional subprocess-runner substitute for focused tests.",
+      "label": "spacr._starplast.install_starplast#6",
+      "source": "optional subprocess-runner substitute for focused tests.",
+      "source_sha256": "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+      "translation": "valfri ersättning för underprocessköraren vid riktade tester."
+    },
+    {
+      "context": "optional interpreter-preflight substitute for focused tests.",
+      "label": "spacr._starplast.install_starplast#7",
+      "source": "optional interpreter-preflight substitute for focused tests.",
+      "source_sha256": "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+      "translation": "valfri ersättning för tolkens förkontroll vid riktade tester."
+    },
+    {
+      "context": "completed environment path.",
+      "label": "spacr._starplast.install_starplast#8",
+      "source": "completed environment path.",
+      "source_sha256": "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+      "translation": "sökväg till den färdiginstallerade miljön."
+    },
+    {
+      "context": "installation failed, was cancelled, or folder is unowned.",
+      "label": "spacr._starplast.install_starplast#9",
+      "source": "installation failed, was cancelled, or folder is unowned.",
+      "source_sha256": "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+      "translation": "installationen misslyckades, avbröts eller mappen tillhör inte programmet."
+    },
+    {
+      "context": "the selected source is neither a suitable local Git checkout nor an allowed official repository URL.",
+      "label": "spacr._starplast.install_starplast#10",
+      "source": "the selected source is neither a suitable local Git checkout nor an allowed official repository URL.",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "translation": "den valda källan är varken en lämplig lokal Git-arbetskopia eller en tillåten officiell arkivadress."
+    },
+    {
+      "context": "Whether an owned environment has passed the import and bundled-data checks.",
+      "label": "spacr._starplast.is_installed#0",
+      "source": "Whether an owned environment has passed the import and bundled-data checks.",
+      "source_sha256": "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+      "translation": "Om en egen miljö har klarat importkontrollen och kontrollen av medföljande data."
+    },
+    {
+      "context": "external-application folder.",
+      "label": "spacr._starplast.is_installed#1",
+      "source": "external-application folder.",
+      "source_sha256": "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+      "translation": "mapp för externa program."
+    },
+    {
+      "context": "true only with a completed record and environment interpreter.",
+      "label": "spacr._starplast.is_installed#2",
+      "source": "true only with a completed record and environment interpreter.",
+      "source_sha256": "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0",
+      "translation": "sant endast om en slutförandepost och miljöns tolk finns."
+    },
+    {
+      "context": "Start Starplast as a separate process, logging output beside its environment.",
+      "label": "spacr._starplast.launch_starplast#0",
+      "source": "Start Starplast as a separate process, logging output beside its environment.",
+      "source_sha256": "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+      "translation": "Starta Starplast som en separat process och logga utdata bredvid dess miljö."
+    },
+    {
+      "context": "external-application folder.",
+      "label": "spacr._starplast.launch_starplast#1",
+      "source": "external-application folder.",
+      "source_sha256": "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+      "translation": "mapp för externa program."
+    },
+    {
+      "context": "optional subprocess.Popen substitute for focused tests.",
+      "label": "spacr._starplast.launch_starplast#2",
+      "source": "optional subprocess.Popen substitute for focused tests.",
+      "source_sha256": "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+      "translation": "valfri ersättning för subprocess.Popen vid riktade tester."
+    },
+    {
+      "context": "child process, which the UI monitors for launch errors.",
+      "label": "spacr._starplast.launch_starplast#3",
+      "source": "child process, which the UI monitors for launch errors.",
+      "source_sha256": "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+      "translation": "barnprocess som UI övervakar för startfel."
+    },
+    {
+      "context": "no completed environment exists.",
+      "label": "spacr._starplast.launch_starplast#4",
+      "source": "no completed environment exists.",
+      "source_sha256": "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163",
+      "translation": "ingen färdiginstallerad miljö finns."
+    },
+    {
+      "context": "Isolate Python, pip and Qt plugin lookup from the executing spaCR process.",
+      "label": "spacr._starplast.process_environment#0",
+      "source": "Isolate Python, pip and Qt plugin lookup from the running spaCR process.",
+      "source_sha256": "d7bd8cb8f372ad37e63619756cef63b92eeda9bb6b16d3568c578c4110f7b940",
+      "translation": "Isolera sökningen efter Python, pip och Qt-insticksmoduler från den körande spaCR-processen."
+    },
+    {
+      "context": "Starplast's virtual environment.",
+      "label": "spacr._starplast.process_environment#1",
+      "source": "Starplast's virtual environment.",
+      "source_sha256": "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+      "translation": "Starplasts virtuella miljö."
+    },
+    {
+      "context": "subprocess variables retaining desktop display and user settings.",
+      "label": "spacr._starplast.process_environment#2",
+      "source": "subprocess variables retaining desktop display and user settings.",
+      "source_sha256": "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83",
+      "translation": "underprocessvariabler som behåller skrivbordets visning och användarinställningar."
+    },
+    {
+      "context": "Install Starplast separately, then launch and monitor its desktop process.",
+      "label": "spacr.qt.starplast#0",
+      "source": "Install Starplast separately, then launch and monitor its desktop process.",
+      "source_sha256": "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6",
+      "translation": "Installera Starplast separat och starta och övervaka sedan dess skrivbordsprocess."
+    },
+    {
+      "context": "Explain the alpha app and download size before installing in its own environment.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog#0",
+      "source": "Explain the alpha app and download size before installing in its own environment.",
+      "source_sha256": "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+      "translation": "Förklara alfaprogrammet och nedladdningsstorleken före installationen i dess egen miljö."
+    },
+    {
+      "context": "owning organism page.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog#1",
+      "source": "owning organism page.",
+      "source_sha256": "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+      "translation": "organismsidan som äger dialogen."
+    },
+    {
+      "context": "optional external-application root.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog#2",
+      "source": "optional external-application root.",
+      "source_sha256": "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+      "translation": "valfri rotmapp för externa program."
+    },
+    {
+      "context": "optional installer substitute for tests.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog#3",
+      "source": "optional installer substitute for tests.",
+      "source_sha256": "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+      "translation": "valfri ersättning för installeraren vid tester."
+    },
+    {
+      "context": "Build the consent and progress controls; opening the dialog installs nothing.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog#4",
+      "source": "Build the consent and progress controls; opening the dialog installs nothing.",
+      "source_sha256": "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3",
+      "translation": "Skapa kontrollerna för samtycke och förlopp; ingenting installeras när dialogen öppnas."
+    },
+    {
+      "context": "Keep the dialog alive until its installer thread has stopped.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog.closeEvent#0",
+      "source": "Keep the dialog alive until its installer thread has stopped.",
+      "source_sha256": "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+      "translation": "Håll dialogen öppen tills dess installationstråd har stannat."
+    },
+    {
+      "context": "Qt close event; ignored while cancellation is pending.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog.closeEvent#1",
+      "source": "Qt close event; ignored while cancellation is pending.",
+      "source_sha256": "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+      "translation": "Qt-stängningshändelse; ignoreras medan avbrottet väntar på att slutföras."
+    },
+    {
+      "context": "None.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog.closeEvent#2",
+      "source": "None.",
+      "source_sha256": "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+      "translation": "None."
+    },
+    {
+      "context": "Cancel active subprocesses and defer closing until the worker has ended.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog.reject#0",
+      "source": "Cancel active subprocesses and defer closing until the worker has ended.",
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "translation": "Avbryt aktiva underprocesser och skjut upp stängningen tills bakgrundsarbetet har avslutats."
+    },
+    {
+      "context": "Start the install after the explicit button press, keeping Qt responsive.",
+      "label": "spacr.qt.starplast.StarplastInstallDialog.start#0",
+      "source": "Start the install after the explicit button press, keeping Qt responsive.",
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "translation": "Starta installationen efter det uttryckliga knapptrycket och låt Qt fortsätta svara."
+    },
+    {
+      "context": "Offer installation once, then launch the independent Starplast application.",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source": "Offer installation once, then launch the independent Starplast application.",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "translation": "Erbjud installation en gång och starta sedan det fristående programmet Starplast."
+    },
+    {
+      "context": "organism page requesting the launch.",
+      "label": "spacr.qt.starplast.open_starplast#1",
+      "source": "organism page requesting the launch.",
+      "source_sha256": "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+      "translation": "organismsidan som begär starten."
+    },
+    {
+      "context": "optional external-application folder.",
+      "label": "spacr.qt.starplast.open_starplast#2",
+      "source": "optional external-application folder.",
+      "source_sha256": "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+      "translation": "valfri mapp för externa program."
+    },
+    {
+      "context": "child process, or None if cancelled or launch failed.",
+      "label": "spacr.qt.starplast.open_starplast#3",
+      "source": "child process, or None if cancelled or launch failed.",
+      "source_sha256": "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3",
+      "translation": "barnprocess, eller None om starten avbröts eller misslyckades."
+    },
+    {
+      "context": "Clear all persistent selections and the transient compartment highlight.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components#0",
+      "source": "Clear all persistent selections and the transient compartment highlight.",
+      "source_sha256": "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e",
+      "translation": "Rensa alla bestående val och den tillfälliga markeringen av kompartmentet."
+    },
+    {
+      "context": "End the legend's transient highlight when the pointer leaves it.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter#0",
+      "source": "End the legend's transient highlight when the pointer leaves it.",
+      "source_sha256": "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+      "translation": "Avsluta legendens tillfälliga markering när pekaren lämnar den."
+    },
+    {
+      "context": "object receiving the event; only the legend viewport triggers highlight removal.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter#1",
+      "source": "object receiving the event; only the legend viewport triggers highlight removal.",
+      "source_sha256": "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+      "translation": "objektet som tar emot händelsen; endast legendens visningsyta utlöser borttagning av markeringen."
+    },
+    {
+      "context": "Qt event, inspected for a pointer-leave notification.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter#2",
+      "source": "Qt event, inspected for a pointer-leave notification.",
+      "source_sha256": "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+      "translation": "Qt-händelse som undersöks för en avisering om att pekaren lämnar området."
+    },
+    {
+      "context": "the parent widget's event-filter result.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter#3",
+      "source": "the parent widget's event-filter result.",
+      "source_sha256": "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b",
+      "translation": "resultatet från den överordnade widgetens händelsefilter."
+    },
+    {
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "label": "spacr.qt.organisms.ORGANISMS#1",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693",
+      "translation": "Varje post innehåller visningsnamn, beskrivning, den biologiska källans URL, filnamn för det medföljande diagrammet och en diagramanmärkning. ``sections`` innehåller tripplar med rubrik, text och länkade analysnycklar; ``links`` innehåller par med visningstext och URL. ``modules`` innehåller tupler med vägnyckel, titel, beskrivning och ikonnyckel. En väg med ``None`` anger en planerad analys vars ruta inte kan starta någon analys. ``starplast`` startar ett externt program från Toxoplasma-sidan; det är varken en nyckel i spaCR:s analysregister eller en segmenteringsmotor. Visningstext översätts vid användning; vägnycklar, URL:er och resursnamn förblir oförändrade."
+    },
+    {
+      "context": "Build upright artwork, a multi-select legend and compartment descriptions.",
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
+      "source": "Build upright artwork, a multi-select legend and compartment descriptions.",
+      "source_sha256": "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f",
+      "translation": "Skapa en upprätt illustration, en legend med flerval och kompartmentbeskrivningar."
+    },
+    {
+      "context": "Load the example data of the module ``screen`` shows.",
+      "label": "spacr.qt.widgets.sample_project.start_example#0",
+      "source": "Load the example data of the module ``screen`` shows.",
+      "source_sha256": "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+      "translation": "Läs in exempeldata för modulen som ``screen`` visar."
+    },
+    {
+      "context": "Each module already knows how to fetch its own example -- Annotate asks which half it needs and OPS has its sequencing-cycle sample -- so this calls what the module has rather than a second downloader.",
+      "label": "spacr.qt.widgets.sample_project.start_example#1",
+      "source": "Each module already knows how to fetch its own example -- Annotate asks which half it needs and OPS has its sequencing-cycle sample -- so this calls what the module has rather than a second downloader.",
+      "source_sha256": "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+      "translation": "Varje modul vet redan hur dess eget exempel hämtas: Annotate frågar vilken halva som behövs och OPS har sitt exempel med sekvenseringscykler. Därför anropas modulens befintliga funktion i stället för en andra nedladdare."
+    },
+    {
+      "context": "the module application view just opened.",
+      "label": "spacr.qt.widgets.sample_project.start_example#2",
+      "source": "the module screen just opened.",
+      "source_sha256": "bb63595b656f6a664a114f703ed8fc68a1102f33ce4c778649017d2789424dba",
+      "translation": "modulvyn som just öppnades."
+    },
+    {
+      "context": "what was started: ``\"chooser\"``, ``\"test data\"`` or ``\"\"``.",
+      "label": "spacr.qt.widgets.sample_project.start_example#3",
+      "source": "what was started: ``\"chooser\"``, ``\"test data\"`` or ``\"\"``.",
+      "source_sha256": "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503",
+      "translation": "det som startades: ``\"chooser\"``, ``\"test data\"`` eller ``\"\"``."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of isolated installer/services, event handling, multi-selection and OPS data loading; no native-speaker sign-off",
+  "schema": 1
+}

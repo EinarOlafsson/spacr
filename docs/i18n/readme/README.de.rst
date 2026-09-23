@@ -1,6 +1,6 @@
-|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Platforms| |Python| |Qt| |Tests| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
-.. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
+.. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
    :alt: Dokumentation
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
@@ -142,15 +142,15 @@ Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11: spaCR 1.5.0.9 herunterladen
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Windows-Online-Setup.exe
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel und Apple Silicon): spaCR 1.5.0.9 herunterladen
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-macOS-Universal-Online.pkg
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-Bit-Linux: spaCR 1.5.0.9 herunterladen
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Linux-x86_64-Online.run
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Ältere spaCR-Installationsprogramme
@@ -322,7 +322,7 @@ Assays
 
 Quantitative readouts for biological assays.
 
-| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+| |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -414,25 +414,20 @@ Quantitative readouts for biological assays.
    :alt: API für Graph Builder öffnen
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
    :width: 16.0%
-   :alt: API für Plaque Assay öffnen
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :alt: API für Toxoplasma öffnen
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
-.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
    :width: 16.0%
-   :alt: API für Recruitment öffnen
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :alt: API für Plasmodium spp. öffnen
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
-.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
    :width: 16.0%
-   :alt: API für Invasion Assay öffnen
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
-   :align: middle
-.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.0%
-   :alt: API für Replication Assay öffnen
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :alt: API für Candida spp. öffnen
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
 
 .. spacr-workflow-end

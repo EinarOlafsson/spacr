@@ -1,11 +1,25 @@
 {
-  "lesson": "13_regression", "language": "es",
-  "english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
-  "review": {"kind": "Editorial translation checked against English and the accepted real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish 759 stored results from the displayed 434-guide family.", "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes."]},
+  "lesson": "13_regression",
+  "language": "es",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "review": {
+    "kind": "Editorial translation checked against English and the accepted real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish 759 stored results from the displayed 434-guide family.",
+      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
+      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
+    ]
+  },
   "title": "Regression: un ejemplo real, de las tablas emparejadas a los resultados",
   "description": "Cargue el cribado de ejemplo descargable, configure un análisis limitado por permutación de guías, examine la consola y las figuras reales y encuentre las herramientas especializadas ahora integradas en Regression.",
-  "objectives": ["Cargar cuatro pares de tablas de puntuaciones y recuentos con el control visible de datos de prueba y elegir una carpeta de salida independiente.", "Distinguir método de inferencia, nivel informado y unidad de análisis, y reproducir el ejemplo limitado sin tomar su número de permutaciones como recomendación definitiva.", "Examinar resultados, figuras y límites diagnósticos reales, distinguiendo la inspección interactiva de una vista previa que recalcula el análisis.", "Localizar las herramientas anidadas de Regression, la ayuda opcional de IA y la función de entrada actual de Python."],
-  "prerequisite": "Abra spaCR y elija Regression en los módulos Core. El ejemplo descarga o reutiliza archivos de puntuaciones y recuentos almacenados en caché. El análisis grabado no necesita base de datos de mediciones, recortes de imágenes, servicio externo de anotación ni suscripción de IA. La breve ejecución por permutación demuestra el flujo de trabajo, no descubrimientos biológicos definitivos.",
+  "objectives": [
+    "Cargar cuatro pares de tablas de puntuaciones y recuentos con el control visible de datos de prueba y elegir una carpeta de salida independiente.",
+    "Distinguir método de inferencia, nivel informado y unidad de análisis, y reproducir el ejemplo limitado sin tomar su número de permutaciones como recomendación definitiva.",
+    "Examinar resultados, figuras y límites diagnósticos reales, distinguiendo la inspección interactiva de una vista previa que recalcula el análisis.",
+    "Localizar las herramientas anidadas de Regression, la ayuda opcional de IA y la función de entrada actual de Python."
+  ],
+  "prerequisite": "Grabado en spaCR 1.5.0.9. Abra spaCR y elija Regression en los módulos Core. El ejemplo descarga o reutiliza archivos de puntuaciones y recuentos almacenados en caché. El análisis grabado no necesita base de datos de mediciones, recortes de imágenes, servicio externo de anotación ni suscripción de IA. La breve ejecución por permutación demuestra el flujo de trabajo, no descubrimientos biológicos definitivos.",
   "scenes": [
     "Abra Regression desde los módulos Core. Relaciona las puntuaciones fenotípicas con la abundancia de guías y presenta asociaciones según el método de inferencia elegido. Las herramientas de la parte superior ahora pertenecen a este módulo; ya no son mosaicos independientes de Home.",
     "En Input Tables, elija Load test data. La aplicación descarga el cribado de ejemplo o reutiliza archivos verificados en caché; esta grabación usa la caché. La consola informa de cuatro tablas de puntuaciones y cuatro de recuentos, emparejadas por placa.",
@@ -19,7 +33,7 @@
     "El campo Regression backend no es un interruptor universal de aceleración. Se aplica a estimadores ajustados compatibles; cambiarlo no convierte esta demostración por permutación en una regresión por GPU. Otros módulos de spaCR tienen sus propias opciones de dispositivo: siga los controles y la consola de la operación que realmente se ejecuta.",
     "Elija none como fuente de anotación en este ejemplo autocontenido. Los resultados estadísticos no requieren consultar anotaciones génicas externas. En su cribado, use anotaciones adecuadas al organismo y al sistema de identificadores, sin suponer que todas las etiquetas de guías podrán resolverse.",
     "Borre la búsqueda, revise la carpeta de salida y pulse Run. Siga la consola real mientras alinea las entradas, aplica los filtros seleccionados y calcula resultados. Regression produce figuras diagnósticas directamente; esta grabación no tiene un interruptor Plot independiente que deba activarse.",
-    "El ejemplo terminado produjo cuatrocientos treinta y cuatro resultados de guías y trescientos veinticinco de genes, con cinco figuras. Finished indica que el software terminó; no certifica el diseño experimental ni establece descubrimientos biológicos. Lea las advertencias diagnósticas además de la línea de finalización.",
+    "El ejemplo terminado produjo cuatrocientos treinta y cuatro resultados de guías y trescientos veinticinco de genes, con cinco figuras. Finished indica que el software terminó; no certifica el diseño experimental ni establece descubrimientos biológicos. Lea las advertencias diagnósticas además de la línea de finalización. En esta ejecución falló el informe de intercambiabilidad; por tanto, los supuestos de la prueba de permutación aún requieren una evaluación independiente.",
     "Runs identifica el análisis guardado y Results muestra la ejecución seleccionada. Confirme la carpeta y los ajustes al comparar ejecuciones. Cambiar un valor del formulario no recalcula el resultado mostrado: ejecute de nuevo el análisis cuando quiera probar una decisión nueva.",
     "Results contiene la tabla de coeficientes y vistas interactivas junto a las figuras generadas. La ejecución contiene setecientas cincuenta y nueve filas entre ambos niveles; esta vista selecciona los cuatrocientos treinta y cuatro resultados de guías. Use Level para elegir la familia de pruebas. Inspeccionar resultados guardados interactivamente no repite la inferencia.",
     "Abra la vista p-values para examinar la distribución de resultados. Interprétela junto con la familia de pruebas seleccionada, la resolución de las permutaciones y los diagnósticos, no como evidencia automática de un efecto. El tutorial Diagnostics explica en detalle los paneles guardados de diseño e inferencia.",

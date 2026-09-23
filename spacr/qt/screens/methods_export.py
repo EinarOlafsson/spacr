@@ -55,6 +55,7 @@ from PySide6.QtWidgets import (
 from ...methods_export import (build_digest, render_methods, render_prompt,
                                render_results)
 from ..job_runner import JobRunner
+from ..widgets.collapsible_splitter import FoldSection
 from ..theme import SPACING, block_surface, register_widget_qss
 from .app_screen import ModuleHeader
 
@@ -305,7 +306,9 @@ class MethodsExportScreen(QWidget):
             4, "A draft that failed the number check, kept so you can see "
                "what the model claimed.")
         self._tabs.setTabVisible(4, False)
-        outer.addWidget(self._tabs, 1)
+        self.draft_section = FoldSection(
+            self._tabs, "Draft", persist_key=f"{APP_KEY}/Draft")
+        outer.addWidget(self.draft_section, 1)
 
 
     def sources(self) -> Dict[str, str]:

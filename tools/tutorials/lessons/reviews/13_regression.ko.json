@@ -1,11 +1,25 @@
 {
-  "lesson": "13_regression", "language": "ko",
-  "english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
-  "review": {"kind": "Editorial caption translation checked against English and the accepted real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish 759 stored results from the displayed 434-guide family.", "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes."]},
+  "lesson": "13_regression",
+  "language": "ko",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "review": {
+    "kind": "Editorial caption translation checked against English and the accepted real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish 759 stored results from the displayed 434-guide family.",
+      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
+      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
+    ]
+  },
   "title": "Regression: 짝지은 표에서 결과까지 실제 예제로 살펴보기",
   "description": "다운로드할 수 있는 예제 스크리닝 데이터를 불러와 제한된 규모의 가이드 순열 분석을 설정하고, 실제 콘솔과 그림을 확인하며 Regression 안으로 통합된 전문 도구를 찾습니다.",
-  "objectives": ["화면의 테스트 데이터 버튼으로 점수·계수 표 네 쌍을 불러오고 별도 출력 폴더를 선택합니다.", "추론 방법, 결과 수준, 분석 단위를 구분하고, 예제의 순열 횟수를 최종 분석 권장값으로 여기지 않으면서 제한된 실행을 재현합니다.", "실제 결과, 그림, 진단의 한계를 확인하고, 대화형 조회와 분석을 다시 계산하는 실시간 미리보기를 구분합니다.", "Regression의 하위 도구, 선택적인 AI 지원, 현재 Python 진입 함수를 찾습니다."],
-  "prerequisite": "spaCR를 열고 Core 모듈에서 Regression을 선택하세요. 예제는 점수·계수 파일을 다운로드하거나 캐시를 재사용합니다. 녹화한 분석에는 측정 데이터베이스, 잘라낸 이미지, 외부 주석 서비스, AI 구독이 필요하지 않습니다. 짧은 순열 실행은 작업 흐름을 보여 주며 확정적인 생물학적 발견을 뜻하지 않습니다.",
+  "objectives": [
+    "화면의 테스트 데이터 버튼으로 점수·계수 표 네 쌍을 불러오고 별도 출력 폴더를 선택합니다.",
+    "추론 방법, 결과 수준, 분석 단위를 구분하고, 예제의 순열 횟수를 최종 분석 권장값으로 여기지 않으면서 제한된 실행을 재현합니다.",
+    "실제 결과, 그림, 진단의 한계를 확인하고, 대화형 조회와 분석을 다시 계산하는 실시간 미리보기를 구분합니다.",
+    "Regression의 하위 도구, 선택적인 AI 지원, 현재 Python 진입 함수를 찾습니다."
+  ],
+  "prerequisite": "spaCR 1.5.0.9에서 녹화했습니다. spaCR를 열고 Core 모듈에서 Regression을 선택하세요. 예제는 점수·계수 파일을 다운로드하거나 캐시를 재사용합니다. 녹화한 분석에는 측정 데이터베이스, 잘라낸 이미지, 외부 주석 서비스, AI 구독이 필요하지 않습니다. 짧은 순열 실행은 작업 흐름을 보여 주며 확정적인 생물학적 발견을 뜻하지 않습니다.",
   "scenes": [
     "Core 모듈에서 Regression을 엽니다. 표현형 점수와 가이드의 양을 연결한 뒤, 선택한 추론 방법으로 연관성을 보고합니다. 위쪽 도구는 이제 이 모듈 안에 있으며 Home의 독립 타일이 아닙니다.",
     "Input Tables에서 Load test data를 선택합니다. 앱은 예제 스크리닝 데이터를 다운로드하거나 검증된 캐시 파일을 재사용합니다. 이 녹화에서는 캐시를 사용합니다. 콘솔에는 플레이트별로 짝지은 점수 표 네 개와 계수 표 네 개가 표시됩니다.",
@@ -19,7 +33,7 @@
     "Regression backend는 모든 작업에 적용되는 가속 스위치가 아닙니다. 지원되는 모델 적합 추정기에 적용되며, 이 필드를 바꾼다고 가이드 순열 시연이 GPU 회귀가 되지는 않습니다. 다른 spaCR 모듈에는 각각 장치 선택이 있으므로 실제 실행 중인 작업의 컨트롤과 콘솔을 확인하세요.",
     "이 독립적인 예제에서는 주석 출처를 none으로 선택합니다. 통계 결과를 얻는 데 외부 유전자 주석 조회는 필요하지 않습니다. 자신의 스크리닝에서는 생물종과 식별자 체계에 맞는 주석을 사용하고 모든 가이드 이름이 조회될 것이라고 가정하지 마세요.",
     "검색을 지우고 출력 폴더를 확인한 뒤 Run을 누릅니다. 입력 정렬, 선택한 필터 적용, 결과 계산을 실제 콘솔에서 확인합니다. Regression은 진단 그림을 직접 생성하므로 이 녹화에서 따로 켤 Plot 스위치는 없습니다.",
-    "완료된 예제는 가이드 결과 434개, 유전자 결과 325개, 그림 다섯 개를 생성했습니다. Finished는 소프트웨어 실행이 끝났다는 뜻이지 실험 설계가 타당하다거나 생물학적 발견이 확립되었다는 뜻은 아닙니다. 완료 문구와 함께 진단 경고도 읽으세요.",
+    "완료된 예제는 가이드 결과 434개, 유전자 결과 325개, 그림 다섯 개를 생성했습니다. Finished는 소프트웨어 실행이 끝났다는 뜻이지 실험 설계가 타당하다거나 생물학적 발견이 확립되었다는 뜻은 아닙니다. 완료 문구와 함께 진단 경고도 읽으세요. 이번 실행에서는 교환가능성 보고서 생성에 실패했으므로 순열 검정의 가정은 여전히 별도로 검토해야 합니다.",
     "Runs는 저장된 분석을 식별하고 Results는 선택한 실행을 표시합니다. 실행을 비교할 때 폴더와 설정을 확인하세요. 양식 값을 바꿔도 보고 있는 결과가 다시 계산되지는 않습니다. 새로운 선택을 시험하려면 분석을 다시 실행하세요.",
     "Results에는 생성된 그림 옆에 계수 표와 대화형 보기가 있습니다. 실행 전체에는 두 수준을 합해 759행이 있지만, 현재 보기는 가이드 결과 434개를 선택했습니다. Level로 검정군을 고릅니다. 저장된 출력을 대화형으로 살펴보는 것은 추론을 다시 실행하는 일이 아닙니다.",
     "p-values 보기를 열어 결과 분포를 확인합니다. 선택한 검정군, 순열 분해능, 진단과 함께 해석해야 하며 자동으로 효과의 증거로 여겨서는 안 됩니다. 별도 Diagnostics 튜토리얼에서 저장된 설계 및 추론 패널을 자세히 설명합니다.",

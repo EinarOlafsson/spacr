@@ -25,6 +25,7 @@ def verify_appearance(window):
 
     from spacr.qt import preferences as prefs
     from spacr.qt.widgets.ambient import AmbientWidget
+    from spacr.qt.widgets.dna_rain import DnaRainWidget
 
     if prefs.resolve_effective_theme() != CAPTURE_THEME:
         raise RuntimeError("Capture refused: the effective theme is not dark")
@@ -37,8 +38,27 @@ def verify_appearance(window):
         raise RuntimeError("Capture refused: visible backdrop widgets are not Blobs")
     if not any(widget.frames_painted > 0 for widget in visible):
         raise RuntimeError("Capture refused: the Blobs backdrop has not painted a frame")
+    if any(widget.isVisible() for widget in window.findChildren(DnaRainWidget)):
+        raise RuntimeError("Capture refused: DNA rain covers the requested Blobs backdrop")
     return {"theme": CAPTURE_THEME, "backdrop": CAPTURE_BACKDROP,
             "painted_frames": sum(widget.frames_painted for widget in visible)}
+
+
+def exclude_special_backdrops(window):
+    """Expose the shared Blobs backdrop in the recording namespace.
+
+    Map Barcodes normally draws its own DNA rain over the window backdrop.
+    Hiding that decorative layer is a capture presentation choice, like
+    excluding News. No application code, controls or analysis results change.
+    """
+    from spacr.qt.widgets.dna_rain import DnaRainWidget
+
+    hidden = []
+    for widget in window.findChildren(DnaRainWidget):
+        if widget.isVisible():
+            widget.hide()
+            hidden.append(type(widget).__name__)
+    return hidden
 
 
 def exclude_release_history(window):

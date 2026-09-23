@@ -28,12 +28,13 @@ from typing import List, Optional
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
     QTabWidget, QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.formula_editor import FormulaPanel
 from ..widgets.trellis_view import TrellisPanelWidget
@@ -67,6 +68,10 @@ class TrellisScreen(QWidget):
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         """Build the screen: the trellis panel beside the filter and column tabs.
+
+        Item 471: the panel and the side tabs share a draggable edge in a
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``trellis::body``), and the side tabs fold by their heading.
 
         :param parent: parent widget, or ``None``.
         :param link: shared selection link, passed to the panel and the filter.
@@ -115,10 +120,10 @@ class TrellisScreen(QWidget):
         head.addWidget(load)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="trellis::body")
         self.panel = TrellisPanelWidget(self, link=link)
-        body.addWidget(self.panel)
+        body.add_pane(self.panel, "Plot", stretch=1)
 
         side = QTabWidget(self)
         from ..preferences import scaled_px
@@ -128,9 +133,9 @@ class TrellisScreen(QWidget):
         self.formulas = FormulaPanel(self)
         self.formulas.formulas_changed.connect(self._on_formulas_changed)
         side.addTab(self.formulas, "Columns")
-        body.addWidget(side)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
+        body.add_section(side, "Filter and columns",
+                         persist_key="trellis/Filter and columns", stretch=0)
+        self._body_splitter = body
         outer.addWidget(body, 1)
         from ..dnd import install_for
         install_for(self, "trellis")

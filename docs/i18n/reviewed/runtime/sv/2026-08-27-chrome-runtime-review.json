@@ -80,13 +80,6 @@
       "translation": "Välj en mapp som innehåller `measurements/measurements.db`. Vänsterklicka på en bild för att tilldela klass 1, högerklicka för klass 2 och klicka igen för att ta bort märkningen — eller använd bara tangentbordet: 1–9 tilldelar en klass och går till nästa bildutsnitt. Annoteringarna sparas i bakgrunden."
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "Verklig datauppsättning från början till slut (Masker → Mätning → Annotering)…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
@@ -120,13 +113,6 @@
       "source_sha256": "ea49523d744c40bc900b4462c43132d1c8a8de5216fa8436cc0e8b3e89dddbe3",
       "source": "GPU",
       "translation": "GPU"
-    },
-    {
-      "table": "ui",
-      "key": "End-to-end demo",
-      "source_sha256": "c0c2495a8ff1c22537c1a759b62586ac1e3d6dbddf07b12e1568910af25b4b2c",
-      "source": "End-to-end demo",
-      "translation": "Demonstration från början till slut"
     },
     {
       "table": "ui",

@@ -45,12 +45,13 @@ from typing import List, Optional
 import pandas as pd
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
     QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.pca_view import PCAPanel
 from .graph_builder import read_table, table_names
@@ -154,17 +155,18 @@ class PCAScreen(QWidget):
         head.addWidget(self._to_annotate)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key=f"{APP_KEY}::body")
         self.pca = PCAPanel(self, link=link, threaded=threaded)
-        body.addWidget(self.pca)
+        body.add_pane(self.pca, "PCA", stretch=1)
 
         self.filters = DataFilterPanel(self, link=link)
         from ..preferences import scaled_px
         self.filters.setMaximumWidth(scaled_px(320))
-        body.addWidget(self.filters)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
+        self.filters_section = body.add_section(
+            self.filters, "Filter", persist_key=f"{APP_KEY}/Filter",
+            stretch=0)
+        self._body = body
         outer.addWidget(body, 1)
 
         self.pca.computed.connect(self._on_computed)

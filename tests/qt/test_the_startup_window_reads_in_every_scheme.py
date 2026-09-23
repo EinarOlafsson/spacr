@@ -18,8 +18,9 @@ the loading screen never read it. Two faults made the picture:
   (4.12:1), and at the start of a load all three phases are unlit, so the
   whole sentence is dark gray on black.
 
-Each case below sets one OS scheme (the application palette Qt hands spaCR
-before spaCR themes it) and one stored spaCR theme. It builds the real
+Each case supplies one reported OS scheme and one stored spaCR theme. The
+application palette is set independently because spaCR must not mistake its
+own applied palette for the operating system's preference. It builds the real
 ``LoadingScreen``, renders it, and measures every string the paint path draws
 against the background the paint path filled. Contrast is measured twice:
 from the pen it was drawn with, and from the pixels that came out.
@@ -66,9 +67,9 @@ def _effective(spacr_theme: str, os_scheme: str) -> str:
 
 
 @pytest.fixture
-def scheme(qapp):
+def scheme(qapp, monkeypatch):
     """Put an OS scheme and a stored spaCR theme in place; restore both."""
-    from spacr.qt import preferences
+    from spacr.qt import preferences, theme
 
     store = preferences._settings()
     real_config = os.path.join(os.path.expanduser("~"), ".config") + os.sep
@@ -77,10 +78,12 @@ def scheme(qapp):
                     "the theme and runs only inside tests/qt/conftest.py's "
                     "sandbox")
     saved_palette = QPalette(qapp.palette())
-    had_theme = store.contains(preferences._KEY_THEME)
-    saved_theme = store.value(preferences._KEY_THEME)
+    keys = (preferences._KEY_THEME, preferences._KEY_THEME_FOLLOW_SYSTEM_CHOSEN)
+    saved = {key: (store.contains(key), store.value(key)) for key in keys}
 
     def put(os_scheme: str, spacr_theme: str, applied: bool) -> str:
+        monkeypatch.setattr(theme, "system_colour_scheme",
+                            lambda app=None: os_scheme)
         palette = QPalette(qapp.palette())
         for role, colour in OS_PALETTES[os_scheme].items():
             palette.setColor(getattr(QPalette.ColorRole, role), QColor(colour))
@@ -90,16 +93,19 @@ def scheme(qapp):
             from spacr.qt.theme import apply_qpalette
 
             apply_qpalette(qapp, theme=preferences.resolve_effective_theme())
-        return _effective(spacr_theme, os_scheme)
+        effective = _effective(spacr_theme, os_scheme)
+        assert preferences.resolve_effective_theme() == effective
+        return effective
 
     yield put
 
     qapp.setPalette(saved_palette)
     store = preferences._settings()
-    if had_theme:
-        store.setValue(preferences._KEY_THEME, saved_theme)
-    else:
-        store.remove(preferences._KEY_THEME)
+    for key, (present, value) in saved.items():
+        if present:
+            store.setValue(key, value)
+        else:
+            store.remove(key)
     store.sync()
 
 

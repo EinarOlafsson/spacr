@@ -10,8 +10,6 @@ CPU, not an exception into a paint.
 from __future__ import annotations
 
 import os
-import sys
-import types
 
 import pytest
 
@@ -30,13 +28,10 @@ class _RecordingCellposeModel:
 
 @pytest.fixture
 def fake_cellpose(monkeypatch):
+    from cellpose import models
+
     _RecordingCellposeModel.calls = []
-    models = types.ModuleType("cellpose.models")
-    models.CellposeModel = _RecordingCellposeModel
-    package = types.ModuleType("cellpose")
-    package.models = models
-    monkeypatch.setitem(sys.modules, "cellpose", package)
-    monkeypatch.setitem(sys.modules, "cellpose.models", models)
+    monkeypatch.setattr(models, "CellposeModel", _RecordingCellposeModel)
     return _RecordingCellposeModel
 
 
@@ -82,6 +77,7 @@ def test_a_cuda_check_that_raises_still_lands_on_the_cpu(fake_cellpose,
     _build()
 
     assert fake_cellpose.calls[-1]["gpu"] is False
+    assert fake_cellpose.calls[-1]["use_bfloat16"] is False
 
 
 def test_the_preview_survives_an_accelerator_that_raises(fake_cellpose,
@@ -104,6 +100,7 @@ def test_the_preview_survives_an_accelerator_that_raises(fake_cellpose,
     _build()
 
     assert fake_cellpose.calls[-1]["gpu"] is False
+    assert fake_cellpose.calls[-1]["use_bfloat16"] is False
 
 
 def test_a_working_accelerator_is_believed(fake_cellpose, monkeypatch):
@@ -134,3 +131,65 @@ def test_an_explicit_caller_still_overrides_the_machine(fake_cellpose,
     preview_cellpose_model("cpsam", gpu=False)
 
     assert fake_cellpose.calls[-1]["gpu"] is False
+    assert fake_cellpose.calls[-1]["use_bfloat16"] is False
+
+
+@pytest.mark.parametrize("machine,requested,expected_gpu,expected_bfloat16", [
+    ({"gpu": True, "device": "cuda:0"}, False, False, False),
+    ({"gpu": True, "device": "cuda:0", "use_bfloat16": True}, False, False, False),
+    ({"gpu": True, "device": "cuda:0"}, None, True, True),
+    ({"gpu": True, "device": "mps", "use_bfloat16": False}, None, True, False),
+    ({"gpu": False, "device": "cpu", "use_bfloat16": False}, None, False, False),
+    ({"gpu": False, "device": "cpu", "use_bfloat16": False}, True, True, False),
+])
+def test_preview_device_override_keeps_precision_consistent(
+        fake_cellpose, monkeypatch, machine, requested, expected_gpu, expected_bfloat16):
+    import spacr.accelerator as accelerator
+    from spacr.qt.widgets.preview_contract import preview_cellpose_model
+
+    monkeypatch.setattr(accelerator, "cellpose_kwargs", lambda: dict(machine))
+    preview_cellpose_model("cpsam", gpu=requested)
+    kwargs = fake_cellpose.calls[-1]
+    assert kwargs["gpu"] is expected_gpu
+    assert kwargs.get("use_bfloat16", True) is expected_bfloat16
+    assert kwargs["device"] is None
+
+
+def test_unrelated_checkpoint_failure_retains_original_exception(fake_cellpose, monkeypatch):
+    from cellpose import models
+    from spacr.qt.widgets.preview_contract import preview_cellpose_model
+
+    failure = ValueError("checkpoint tensor dimensions are inconsistent")
+
+    def refuse(**kwargs):
+        raise failure
+
+    monkeypatch.setattr(models, "CellposeModel", refuse)
+    with pytest.raises(ValueError) as caught:
+        preview_cellpose_model("cpsam", gpu=False)
+    assert caught.value is failure
+    assert caught.value.__cause__ is None
+
+
+def test_legacy_checkpoint_failure_keeps_model_identity_and_cause(
+        fake_cellpose, monkeypatch, tmp_path):
+    from cellpose import models
+    from spacr.submodules import Cellpose3Checkpoint
+    from spacr.qt.widgets.preview_contract import preview_cellpose_model
+
+    checkpoint = tmp_path / "old model.pth"
+    checkpoint.write_bytes(b"legacy checkpoint fixture")
+    failure = ValueError("This model does not appear to be a CP4 model.")
+
+    def refuse(**kwargs):
+        assert kwargs["pretrained_model"] == str(checkpoint)
+        raise failure
+
+    monkeypatch.setattr(models, "CellposeModel", refuse)
+    with pytest.raises(Cellpose3Checkpoint) as caught:
+        preview_cellpose_model(checkpoint, gpu=False)
+    assert str(checkpoint) in str(caught.value)
+    assert "Cellpose 4-compatible checkpoint" in str(caught.value)
+    assert "plaque" not in str(caught.value)
+    assert caught.value.__cause__ is failure
+    assert checkpoint.read_bytes() == b"legacy checkpoint fixture"

@@ -1039,6 +1039,7 @@ class TestStylesheet:
         so those documented alphas belong to the same allow-list. The
         semantic Run/Propagate and Stop/Close buttons likewise use an
         explicitly requested 18% blue/red hover tint.
+        The Help search popup has the maintainer's fixed 80% surface.
         The assertion names them and demands they are the only ones,
         which is the same guarantee stated precisely rather than a
         blanket ban that a rule about something else happened to trip.
@@ -1051,6 +1052,7 @@ class TestStylesheet:
                 theme.css_color(theme.rim_colour(name), 0.35),
                 theme.css_color(palette["button_accent"], 0.18),
                 theme.css_color(palette["error"], 0.18),
+                theme.css_color(palette["surface_hi"], 0.8),
                 # The menu bar, and the window chrome in its corner. This
                 # bar is the frameless window's TITLE bar, so it sits over
                 # the animated backdrop; a fully opaque one reads as a
@@ -1066,6 +1068,9 @@ class TestStylesheet:
                 allowed.add(theme.css_color(hue, 0.72))
                 allowed.add(theme.css_color(hue, 0.14))
             found = set(re.findall(r"rgba\([^)]*\)", qss))
+            search = re.search(r"QFrame#HelpSearchResults\s*\{([^}]+)\}", qss)
+            assert search is not None
+            assert f'background-color: {theme.css_color(palette["surface_hi"], 0.8)};' in search[1]
             assert found <= allowed, (
                 f"{name} emits translucency the scrim solver did not "
                 f"authorise: {sorted(found - allowed)}")

@@ -312,6 +312,10 @@ def _cellpose3_row(model, ready):
 def picker(qapp, qtbot, tmp_path, monkeypatch):
     monkeypatch.setattr(mzp, "DEFAULT_MODEL_DIR", str(tmp_path))
     monkeypatch.setattr(mzp, "remembered_model_dir", lambda: str(tmp_path))
+    # Backend controls do not need a community-catalogue fetch. Its unrelated
+    # completion can redraw the picker and outlive these short tests.
+    monkeypatch.setattr(mzp.ModelZooPicker, "_warm_the_community_catalogue",
+                        lambda self: None)
     dialog = mzp.ModelZooPicker()
     # Cellpose 3 is opt-in in the current source strip. Exercise that control
     # before selecting its backend/model rows; hidden rows cannot be selected.
@@ -447,6 +451,10 @@ def test_a_cellpose3_card_says_whether_its_backend_is_here(monkeypatch):
 
 def test_the_zoo_checks_the_network_in_the_background_and_redraws(
         qtbot, picker, monkeypatch):
+    # Construction starts its own probe. Let that timer finish before
+    # measuring the deliberately held probe below; an unavailable backend
+    # can otherwise produce a legitimate startup refresh during the wait.
+    qtbot.waitUntil(lambda: not picker._probe_timer.isActive(), timeout=10_000)
     refreshed = []
     release = threading.Event()
 

@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from audit_staged_catalogs import CATALOGS
+from append_staged_lessons import NAV_PREFIX, JS_SUFFIX
 from build_navigation import build
 from coming_soon import COPY, EMBEDDINGS, OPS, PLACEHOLDERS
 from check_completed_matrix import digest
@@ -17,8 +18,8 @@ REMAINING_HOLDS = [identity for identity in PLACEHOLDERS
 
 def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
     result = validate(ROOT, require_browser=True)
-    assert result['routes'] == 77
-    assert result['ready'] == 76
+    assert result['routes'] == 81
+    assert result['ready'] == 80
     assert result['coming_soon'] == 1
 
 
@@ -43,17 +44,31 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     # Model Compare/Zoo are likewise their explicitly recorded subsets.
     # Map now includes real search, mapped counts and its explicit API subset.
     # Investigate Hit still must not be counted as a completed tutorial.
-    assert len(ready) == 76 and len(lessons) == 77
+    assert len(ready) == 80 and len(lessons) == 81
     assert [x['id'] for x in unavailable] == REMAINING_HOLDS
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
     assert len(embeddings['scenes']) == 11
     nav = build(english)
-    assert nav['missing_tutorials'] == []
+    manifest = json.loads((ROOT / 'release-manifest.json').read_text())
+    assert nav['missing_tutorials'] == manifest['outstanding_module_tutorials']
+    assert {row['app_key'] for row in nav['missing_tutorials']} == {
+        'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'}
     assert nav['routes']['76_ops']['host_app_key'] == 'mask'
+    navigation_text = (ROOT / 'web/module_navigation.js').read_text()
+    assert navigation_text.startswith(NAV_PREFIX) and navigation_text.endswith(JS_SUFFIX)
+    published_nav = json.loads(navigation_text[len(NAV_PREFIX):-len(JS_SUFFIX)])
+    assert published_nav['routes'] == nav['routes']
+    moved_assays = {'24_plaque', '25_recruitment', '26_invasion', '27_replication'}
     for lesson in lessons:
         route = nav['routes'].get(lesson['id'], {})
-        if route.get('kind') == 'submodule':
+        if lesson['id'] in moved_assays:
+            # Item 495 moved these routes after their existing recordings.
+            # The player's current breadcrumb comes from generated navigation;
+            # their preserved scripts/media still need the queued refresh.
+            assert lesson.get('host_app_key') is None
+            assert route['host_app_key'] == 'toxoplasma'
+        elif route.get('kind') == 'submodule':
             assert lesson['host_app_key'] == route['host_app_key']
     expected = [(x['id'], x.get('app_key'), x.get('host_app_key'), x.get('status'), len(x['scenes'])) for x in lessons]
     for filename in CATALOGS:
@@ -68,7 +83,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 3800
+    assert manifest['narration_tracks'] == 3314
     videos = {Path(r['path']).parts[2] for r in manifest['files']
               if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     assert videos == {x['id'] for x in ready}
@@ -94,4 +109,4 @@ def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
     assert readback['passed'] is True and not readback['download_failures'] and not readback['metadata_failures']
     assert readback['downloaded_sha256_matched'] == readback['files_expected'] == receipt['media_files']
     assert published['passed'] is True and published['media_root'] == receipt['media_root']
-    assert len(published['ready_playback_cases']) == 76
+    assert len(published['ready_playback_cases']) == 80

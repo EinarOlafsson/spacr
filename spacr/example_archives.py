@@ -49,6 +49,7 @@ __all__ = [
     "ExampleSet",
     "IMPORT_EXAMPLE_REPO",
     "INVASION_EXAMPLE_REPO",
+    "HOST_PATHOGEN_EXAMPLE_REPO",
     "MEASURE_EXAMPLE_REPO",
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
@@ -99,6 +100,7 @@ REPLICATION_EXAMPLE_REPO = "einarolafsson/spacr-example-replication"
 #: The Recruitment module's example: twelve control wells of the THP-1 RNF213
 #: screen, plate 1, whose own recruitment settings ship with it.
 RECRUITMENT_EXAMPLE_REPO = "einarolafsson/spacr-example-recruitment"
+HOST_PATHOGEN_EXAMPLE_REPO = "einarolafsson/spacr-example-host-pathogen"
 
 #: Import's test data: the same twelve planes written in every vendor format
 #: and filename convention Import reads, with their masks and measurements.
@@ -169,6 +171,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
     REPLICATION_EXAMPLE_REPO: "spacr-example-replication.tar",
     RECRUITMENT_EXAMPLE_REPO: "spacr-example-recruitment.tar",
+    HOST_PATHOGEN_EXAMPLE_REPO: "spacr-example-host-pathogen.tar",
     IMPORT_EXAMPLE_REPO: _IMPORT_EXAMPLE_ARCHIVE,
     INVASION_EXAMPLE_REPO: "spacr-example-invasion.tar",
     OPS_EXAMPLE_REPO: "spacr-example-ops.tar",
@@ -255,7 +258,7 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
     ExampleSet(
         key="mask",
         repo=DATASET_REPO,
-        summary="Mask demo: one raw toxo_mito plate, plus the settings to "
+        summary="Mask test data: one raw toxo_mito plate, plus the settings to "
                 "segment it.",
         bytes=400_000_000,
         markers=("*.tif",),
@@ -296,6 +299,18 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         markers=("measurements/measurements.db",
                  "settings/recruitment_settings.csv"),
         folder="recruitment",
+    ),
+    ExampleSet(
+        key="host_pathogen",
+        repo=HOST_PATHOGEN_EXAMPLE_REPO,
+        summary="Host–Pathogen test data: two real THP-1 RNF213 fields, "
+                "164 measured hosts and 97 vacuoles, with images and masks.",
+        bytes=114_000_000,
+        markers=("measurements/measurements.db", "settings/host_pathogen_settings.csv",
+                 "example_manifest.json", "merged/.spacr_plane_layout.json",
+                 "merged/PLATE1_E01_1_1.npy", "merged/PLATE1_E02_1_1.npy"),
+        folder="host_pathogen",
+        in_default=False,
     ),
     ExampleSet(
         key="invasion",
@@ -359,9 +374,7 @@ def example_set_folder(key: str) -> Path:
 def explain_download_failure(exc: BaseException) -> str:
     """Turn a download exception into something a user can act on.
 
-    This is the only demo in the Demos menu that needs the network — the six
-    synthetic generators are entirely offline — so it is the only one that can
-    fail for a reason outside spaCR. What the user saw before was
+    Downloading test data requires a network connection. What the user saw before was
     ``str(exc)``, which for the ordinary offline case is a nested urllib3
     dump::
 
@@ -381,13 +394,13 @@ def explain_download_failure(exc: BaseException) -> str:
     :returns: a multi-line message for the failure dialog.
     """
     offline_hint = (
-        "Every other entry in the Demos menu is synthetic and runs with no "
-        "network at all — use one of those to try the pipelines offline.")
+        "Use an already downloaded test dataset or your own local images "
+        "while offline. To fetch test data, reconnect and choose Load test data again.")
 
     if isinstance(exc, (ImportError, ModuleNotFoundError)):
         return (
-            "The real-dataset demo needs the 'huggingface_hub' package to "
-            "list the demo repository, and it is not installed in this "
+            "Downloading test data needs the 'huggingface_hub' package to "
+            "list the dataset repository, and it is not installed in this "
             f"environment ({exc}).\n\n"
             "Install it with:  pip install huggingface_hub\n\n"
             + offline_hint)
@@ -396,7 +409,7 @@ def explain_download_failure(exc: BaseException) -> str:
         return (
             f"{exc}\n\n"
             "The connection dropped part-way through. Nothing partial was "
-            "kept, so re-running the demo starts the file again.\n\n"
+            "kept, so re-running the download starts the file again.\n\n"
             + offline_hint)
 
     network_errors: tuple = (ConnectionError, TimeoutError, socket.gaierror)
@@ -411,7 +424,7 @@ def explain_download_failure(exc: BaseException) -> str:
 
     if isinstance(exc, network_errors):
         return (
-            "Could not reach huggingface.co, so the real demo dataset could "
+            "Could not reach huggingface.co, so the test dataset could "
             "not be downloaded. Check your internet connection (or your "
             "proxy settings) and try again.\n\n"
             + offline_hint)

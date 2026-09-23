@@ -1,0 +1,441 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "Flush each check immediately; completion is recorded only after saving.",
+      "label": "spacr.timeflows_model.main.record_validation#0",
+      "source": "Flush each check immediately; completion is recorded only after saving.",
+      "source_sha256": "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5",
+      "translation": "Vaciar el búfer de cada comprobación inmediatamente; la finalización se registra solo después de guardar."
+    },
+    {
+      "context": "Report one held-out check while preserving the training state.",
+      "label": "spacr.timeflows_model.train_timeflows.report_validation#0",
+      "source": "Report one held-out check while preserving the training state.",
+      "source_sha256": "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3",
+      "translation": "Informar de una comprobación con datos reservados conservando el estado de entrenamiento."
+    },
+    {
+      "context": "Shared supplied-mask linking scores and held-out checks for Timeflows training.",
+      "label": "spacr.timeflows_validation#0",
+      "source": "Shared supplied-mask linking scores and held-out checks for Timeflows training.",
+      "source_sha256": "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+      "translation": "Puntuaciones compartidas de enlace con máscaras proporcionadas y comprobaciones con datos reservados para entrenar Timeflows."
+    },
+    {
+      "context": "These measurements condition on the provided segmentation and track labels. They do not measure end-to-end segmentation or whole-movie tracking accuracy.",
+      "label": "spacr.timeflows_validation#1",
+      "source": "These measurements condition on the provided segmentation and track labels. They do not measure end-to-end segmentation or whole-movie tracking accuracy.",
+      "source_sha256": "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b",
+      "translation": "Estas mediciones están condicionadas a la segmentación y las etiquetas de seguimiento proporcionadas. No miden la exactitud de la segmentación completa ni del seguimiento de películas enteras."
+    },
+    {
+      "context": "Reject validation frames identical to any normalized training input.",
+      "label": "spacr.timeflows_validation.check_pair_holdout#0",
+      "source": "Reject validation frames identical to any normalized training input.",
+      "source_sha256": "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+      "translation": "Rechazar fotogramas de validación idénticos a cualquier entrada de entrenamiento normalizada."
+    },
+    {
+      "context": "Both endpoints participate. Channel filling, channel truncation and float32 conversion follow the model's own input adapter. This detects identical inputs across paths or dtypes, not near-duplicates or different frames of the same biological movie; the CLI separately rejects shared movie paths. Return the validation input fingerprints for provenance.",
+      "label": "spacr.timeflows_validation.check_pair_holdout#1",
+      "source": "Both endpoints participate. Channel filling, channel truncation and float32 conversion follow the model's own input adapter. This detects identical inputs across paths or dtypes, not near-duplicates or different frames of the same biological movie; the CLI separately rejects shared movie paths. Return the validation input fingerprints for provenance.",
+      "source_sha256": "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+      "translation": "Participan ambos extremos. El relleno y truncamiento de canales y la conversión a float32 siguen el adaptador de entrada del modelo. Esto detecta entradas idénticas entre rutas o tipos de datos, pero no duplicados aproximados ni distintos fotogramas de la misma película biológica; la CLI rechaza por separado las rutas de película compartidas. Devuelve las huellas de las entradas de validación para documentar su procedencia."
+    },
+    {
+      "context": "pairs whose input frames participate in training.",
+      "label": "spacr.timeflows_validation.check_pair_holdout#2",
+      "source": "pairs whose input frames participate in training.",
+      "source_sha256": "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+      "translation": "Pares cuyos fotogramas de entrada participan en el entrenamiento."
+    },
+    {
+      "context": "nonempty held-out pairs with both input endpoints.",
+      "label": "spacr.timeflows_validation.check_pair_holdout#3",
+      "source": "nonempty held-out pairs with both input endpoints.",
+      "source_sha256": "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+      "translation": "Pares reservados no vacíos con ambos extremos de entrada."
+    },
+    {
+      "context": "two normalized-input SHA-256 fingerprints per validation pair.",
+      "label": "spacr.timeflows_validation.check_pair_holdout#4",
+      "source": "two normalized-input SHA-256 fingerprints per validation pair.",
+      "source_sha256": "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+      "translation": "Dos huellas SHA-256 de entradas normalizadas por par de validación."
+    },
+    {
+      "context": "validation is empty or an input also occurs in training.",
+      "label": "spacr.timeflows_validation.check_pair_holdout#5",
+      "source": "validation is empty or an input also occurs in training.",
+      "source_sha256": "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17",
+      "translation": "La validación está vacía o una entrada también aparece en el entrenamiento."
+    },
+    {
+      "context": "Score source objects after excluding explicitly unknown successors.",
+      "label": "spacr.timeflows_validation.score_pair#0",
+      "source": "Score source objects after excluding explicitly unknown successors.",
+      "source_sha256": "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+      "translation": "Evaluar los objetos de origen tras excluir sucesores explícitamente desconocidos."
+    },
+    {
+      "context": "Shared track identities define the true links before target identities are shuffled. An absent target identity means no successor unless the source is in ``unknown_successors``; missing annotations are not detected automatically. An IoU control is added to the supplied prediction arms.",
+      "label": "spacr.timeflows_validation.score_pair#1",
+      "source": "Shared track identities define the true links before target identities are shuffled. An absent target identity means no successor unless the source is in ``unknown_successors``; missing annotations are not detected automatically. An IoU control is added to the supplied prediction arms.",
+      "source_sha256": "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+      "translation": "Las identidades de seguimiento compartidas definen los enlaces verdaderos antes de barajar las identidades de destino. Una identidad de destino ausente significa que no hay sucesor, salvo que el origen esté en ``unknown_successors``; las anotaciones ausentes no se detectan automáticamente. Se añade un control IoU a las variantes de predicción proporcionadas."
+    },
+    {
+      "context": "source masks with positive track identities and zero background.",
+      "label": "spacr.timeflows_validation.score_pair#2",
+      "source": "source masks with positive track identities and zero background.",
+      "source_sha256": "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+      "translation": "Máscaras de origen con identidades de seguimiento positivas y fondo cero."
+    },
+    {
+      "context": "target masks using the same track identities.",
+      "label": "spacr.timeflows_validation.score_pair#3",
+      "source": "target masks using the same track identities.",
+      "source_sha256": "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+      "translation": "Máscaras de destino con las mismas identidades de seguimiento."
+    },
+    {
+      "context": "named prediction key-value mappings accepted by :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` is reserved.",
+      "label": "spacr.timeflows_validation.score_pair#4",
+      "source": "named prediction dictionaries accepted by :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` is reserved.",
+      "source_sha256": "e5d18e910494ef6e5fea2f8bfc035aca3701d61548e1c20790737fd6bdb7af48",
+      "translation": "Diccionarios de predicción con nombre aceptados por :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` está reservado."
+    },
+    {
+      "context": "seed for shuffling target identities.",
+      "label": "spacr.timeflows_validation.score_pair#5",
+      "source": "seed for shuffling target identities.",
+      "source_sha256": "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+      "translation": "Semilla para barajar las identidades de destino."
+    },
+    {
+      "context": "source identities omitted from every score.",
+      "label": "spacr.timeflows_validation.score_pair#6",
+      "source": "source identities omitted from every score.",
+      "source_sha256": "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+      "translation": "Identidades de origen omitidas en todas las puntuaciones."
+    },
+    {
+      "context": "per-object truth, predictions, correctness and motion/density strata.",
+      "label": "spacr.timeflows_validation.score_pair#7",
+      "source": "per-object truth, predictions, correctness and motion/density strata.",
+      "source_sha256": "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278",
+      "translation": "Referencia, predicciones, corrección y estratos de movimiento y densidad por objeto."
+    },
+    {
+      "context": "Relabel target objects without changing their shapes or positions.",
+      "label": "spacr.timeflows_validation.scramble#0",
+      "source": "Relabel target objects without changing their shapes or positions.",
+      "source_sha256": "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+      "translation": "Reetiquetar los objetos de destino sin cambiar sus formas ni posiciones."
+    },
+    {
+      "context": "target label array, with zero reserved for background.",
+      "label": "spacr.timeflows_validation.scramble#1",
+      "source": "target label array, with zero reserved for background.",
+      "source_sha256": "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+      "translation": "Matriz de etiquetas de destino, con cero reservado para el fondo."
+    },
+    {
+      "context": "random seed for permuting the nonzero identities.",
+      "label": "spacr.timeflows_validation.scramble#2",
+      "source": "random seed for permuting the nonzero identities.",
+      "source_sha256": "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+      "translation": "Semilla aleatoria para permutar las identidades distintas de cero."
+    },
+    {
+      "context": "the relabelled array and original-to-shuffled identity mapping.",
+      "label": "spacr.timeflows_validation.scramble#3",
+      "source": "the relabelled array and original-to-shuffled identity mapping.",
+      "source_sha256": "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd",
+      "translation": "La matriz reetiquetada y la correspondencia de identidades originales a barajadas."
+    },
+    {
+      "context": "Aggregate object-weighted results with explicit missing-data denominators.",
+      "label": "spacr.timeflows_validation.summarise#0",
+      "source": "Aggregate object-weighted results with explicit missing-data denominators.",
+      "source_sha256": "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+      "translation": "Agregar resultados ponderados por objeto con denominadores explícitos para los datos ausentes."
+    },
+    {
+      "context": "per-object records from :func:`score_pair`.",
+      "label": "spacr.timeflows_validation.summarise#1",
+      "source": "per-object records from :func:`score_pair`.",
+      "source_sha256": "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+      "translation": "Registros por objeto de :func:`score_pair`."
+    },
+    {
+      "context": "overall, motion, density and joint-stratum summaries. Successor accuracy is ``None`` where no true successors are available; false links and abstentions are counts with their population sizes retained.",
+      "label": "spacr.timeflows_validation.summarise#2",
+      "source": "overall, motion, density and joint-stratum summaries. Successor accuracy is ``None`` where no true successors are available; false links and abstentions are counts with their population sizes retained.",
+      "source_sha256": "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248",
+      "translation": "Resúmenes globales, por movimiento, densidad y estratos conjuntos. La exactitud de sucesores es ``None`` cuando no hay sucesores verdaderos; los enlaces falsos y las abstenciones son recuentos que conservan sus tamaños de población."
+    },
+    {
+      "context": "Describe the default decoder used by both validation entry points.",
+      "label": "spacr.timeflows_validation.temporal_assignment_policy#0",
+      "source": "Describe the default decoder used by both validation entry points.",
+      "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
+      "translation": "Describir el decodificador predeterminado usado por ambos puntos de entrada de validación."
+    },
+    {
+      "context": "Score held-out pairs and controls without changing training state.",
+      "label": "spacr.timeflows_validation.validate_timeflows#0",
+      "source": "Score held-out pairs and controls without changing training state.",
+      "source_sha256": "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+      "translation": "Evaluar pares reservados y controles sin cambiar el estado de entrenamiento."
+    },
+    {
+      "context": "``pairs`` contain normalized frames and full track-label masks. Call :func:`check_pair_holdout` before training to verify exact input separation. The result includes per-object rows and displacement/density strata for the current model, IoU, zero-motion and oracle controls, plus a copied-frame check. Optional ``initial_head`` is a complete snapshot of the head/up parameters and buffers from training start. It is called ``initial_head`` because a resumed model's initial head is not necessarily untrained.",
+      "label": "spacr.timeflows_validation.validate_timeflows#1",
+      "source": "``pairs`` contain normalized frames and full track-label masks. Call :func:`check_pair_holdout` before training to verify exact input separation. The result includes per-object rows and displacement/density strata for the current model, IoU, zero-motion and oracle controls, plus a copied-frame check. Optional ``initial_head`` is a complete snapshot of the head/up parameters and buffers from training start. It is called ``initial_head`` because a resumed model's initial head is not necessarily untrained.",
+      "source_sha256": "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+      "translation": "``pairs`` contiene fotogramas normalizados y máscaras completas con etiquetas de seguimiento. Llame a :func:`check_pair_holdout` antes de entrenar para verificar la separación exacta de las entradas. El resultado incluye filas por objeto y estratos de desplazamiento y densidad para el modelo actual, controles IoU, de movimiento cero y oráculo, más una comprobación con un fotograma copiado. El ``initial_head`` opcional es una instantánea completa de los parámetros y búferes head/up al inicio del entrenamiento. Se llama ``initial_head`` porque la cabeza inicial de un modelo reanudado no tiene por qué estar sin entrenar."
+    },
+    {
+      "context": "Module training/evaluation modes, current head weights and CPU/selected CUDA random states are restored even if scoring raises. No optimizer is touched. The returned scores concern supplied masks, not segmentation performance, lineage or whole-movie tracking.",
+      "label": "spacr.timeflows_validation.validate_timeflows#2",
+      "source": "Module training/evaluation modes, current head weights and CPU/selected CUDA random states are restored even if scoring raises. No optimizer is touched. The returned scores concern supplied masks, not segmentation performance, lineage or whole-movie tracking.",
+      "source_sha256": "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+      "translation": "Los modos de entrenamiento y evaluación de los módulos, los pesos actuales de la cabeza y los estados aleatorios de CPU y CUDA seleccionada se restauran incluso si la evaluación lanza una excepción. No se modifica ningún optimizador. Las puntuaciones devueltas se refieren a las máscaras proporcionadas, no al rendimiento de segmentación, al linaje ni al seguimiento de películas enteras."
+    },
+    {
+      "context": "Timeflows network evaluated in its current state.",
+      "label": "spacr.timeflows_validation.validate_timeflows#3",
+      "source": "Timeflows network evaluated in its current state.",
+      "source_sha256": "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+      "translation": "Red Timeflows evaluada en su estado actual."
+    },
+    {
+      "context": "nonempty full-frame pairs with matching track identities.",
+      "label": "spacr.timeflows_validation.validate_timeflows#4",
+      "source": "nonempty full-frame pairs with matching track identities.",
+      "source_sha256": "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+      "translation": "Pares de fotogramas completos no vacíos con identidades de seguimiento coincidentes."
+    },
+    {
+      "context": "device used for inference and random-state preservation.",
+      "label": "spacr.timeflows_validation.validate_timeflows#5",
+      "source": "device used for inference and random-state preservation.",
+      "source_sha256": "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+      "translation": "Dispositivo usado para la inferencia y la conservación del estado aleatorio."
+    },
+    {
+      "context": "starting seed for target-identity shuffles, incremented per pair.",
+      "label": "spacr.timeflows_validation.validate_timeflows#6",
+      "source": "starting seed for target-identity shuffles, incremented per pair.",
+      "source_sha256": "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+      "translation": "Semilla inicial para barajar las identidades de destino, incrementada por par."
+    },
+    {
+      "context": "optional complete head/up parameter and buffer snapshot.",
+      "label": "spacr.timeflows_validation.validate_timeflows#7",
+      "source": "optional complete head/up parameter and buffer snapshot.",
+      "source_sha256": "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+      "translation": "Instantánea completa opcional de parámetros y búferes head/up."
+    },
+    {
+      "context": "per-object rows, stratified summaries, copied-frame controls and temporal assignment metadata.",
+      "label": "spacr.timeflows_validation.validate_timeflows#8",
+      "source": "per-object rows, stratified summaries, copied-frame controls and temporal assignment metadata.",
+      "source_sha256": "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+      "translation": "Filas por objeto, resúmenes estratificados, controles de fotograma copiado y metadatos de asignación temporal."
+    },
+    {
+      "context": "pairs are empty or the initial-head keys or shapes differ.",
+      "label": "spacr.timeflows_validation.validate_timeflows#9",
+      "source": "pairs are empty or the initial-head keys or shapes differ.",
+      "source_sha256": "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8",
+      "translation": "Los pares están vacíos o difieren las claves o formas de la cabeza inicial."
+    },
+    {
+      "context": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "label": "spacr.timeflows_model.ctc_pairs#0",
+      "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+      "translation": "Pares de entrenamiento de fotogramas consecutivos de una secuencia de Cell Tracking Challenge."
+    },
+    {
+      "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. With ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
+      "label": "spacr.timeflows_model.ctc_pairs#1",
+      "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. With ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
+      "source_sha256": "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
+      "translation": "Fotogramas de ``<movie>/<seq>/t*.tif``, máscaras completas de la segmentación silver ``<movie>/<seq>_ST/SEG/man_seg*.tif`` reetiquetadas mediante los marcadores de seguimiento ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Se omite un fotograma si falta cualquiera de las tres entradas y solo se forma un par con dos números de fotograma consecutivos. Se ignoran los nombres de archivo de máscaras de cortes y se rechazan los números de fotograma duplicados. Con ``segmentation='GT'``, las máscaras completas se leen de ``<seq>_GT/SEG``. Un origen cuyo marcador del siguiente fotograma no tiene una máscara completa inequívoca se excluye de ese par, en lugar de etiquetarse como desaparición."
+    },
+    {
+      "context": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "label": "spacr.timeflows_model.ctc_pairs#2",
+      "source": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "source_sha256": "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+      "translation": "La carpeta de la secuencia (p. ej., ``.../ctc_dic_hela_timelapse``)."
+    },
+    {
+      "context": "``'01'`` or ``'02'``.",
+      "label": "spacr.timeflows_model.ctc_pairs#3",
+      "source": "``'01'`` or ``'02'``.",
+      "source_sha256": "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+      "translation": "``'01'`` o ``'02'``."
+    },
+    {
+      "context": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "label": "spacr.timeflows_model.ctc_pairs#4",
+      "source": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "source_sha256": "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+      "translation": "Como máximo esta cantidad de pares, distribuidos uniformemente por la secuencia y elegidos antes de leer cualquier archivo. Establecer este límite acota los fotogramas cargados de secuencias largas; cargar colecciones completas puede requerir decenas de gigabytes de memoria."
+    },
+    {
+      "context": "``'ST'`` for silver masks (the training default), or ``'GT'`` for supplied ground-truth full masks during validation.",
+      "label": "spacr.timeflows_model.ctc_pairs#5",
+      "source": "``'ST'`` for silver masks (the training default), or ``'GT'`` for supplied ground-truth full masks during validation.",
+      "source_sha256": "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
+      "translation": "``'ST'`` para máscaras silver (predeterminado de entrenamiento), o ``'GT'`` para máscaras completas de referencia proporcionadas durante la validación."
+    },
+    {
+      "context": "the pairs, in time order.",
+      "label": "spacr.timeflows_model.ctc_pairs#6",
+      "source": "the pairs, in time order.",
+      "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+      "translation": "Los pares, en orden temporal."
+    },
+    {
+      "context": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
+      "label": "spacr.timeflows_model.ctc_pairs#7",
+      "source": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
+      "source_sha256": "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df",
+      "translation": "la secuencia o el límite, las identidades duplicadas de fotogramas o las matrices de anotaciones no son válidos."
+    },
+    {
+      "context": "Train the time head, then the whole network, on track-labelled pairs.",
+      "label": "spacr.timeflows_model.train_timeflows#0",
+      "source": "Train the time head, then the whole network, on track-labelled pairs.",
+      "source_sha256": "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+      "translation": "Entrena primero la cabeza temporal y después toda la red con pares etiquetados por trayectoria."
+    },
+    {
+      "context": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
+      "label": "spacr.timeflows_model.train_timeflows#1",
+      "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
+      "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+      "translation": "Entrenamiento en dos etapas: la segmentación de la red base ya está aprendida, por lo que se congela mientras aprende la nueva cabeza y después se entrena todo con una tasa de aprendizaje baja. Ambos fotogramas de cada par reciben los mismos aumentos de datos antes de calcular sus objetivos."
+    },
+    {
+      "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",
+      "label": "spacr.timeflows_model.train_timeflows#2",
+      "source": "A training crop keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable crops are retried up to 32 times per step. Censoring prevents incorrect targets at crop boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",
+      "source_sha256": "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+      "translation": "Un recorte de entrenamiento conserva supervisión solo para máscaras de origen completas y, cuando están presentes en el fotograma de destino completo, máscaras completas de sucesores. Un sucesor fuera del bloque recortado no es una desaparición. Las ausencias en las etiquetas de fotogramas completos proporcionadas siguen supervisándose; esto no valida esas anotaciones. Se vuelve a intentar el muestreo de recortes inutilizables hasta 32 veces por paso. La exclusión evita objetivos incorrectos en los bordes del recorte, pero elimina algunos ejemplos de movimiento rápido; no demuestra exactitud en todo el intervalo de movimientos."
+    },
+    {
+      "context": "from :func:`TimeflowsNet`.",
+      "label": "spacr.timeflows_model.train_timeflows#3",
+      "source": "from :func:`TimeflowsNet`.",
+      "source_sha256": "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+      "translation": "de :func:`TimeflowsNet`."
+    },
+    {
+      "context": "the training pairs.",
+      "label": "spacr.timeflows_model.train_timeflows#4",
+      "source": "the training pairs.",
+      "source_sha256": "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+      "translation": "los pares de entrenamiento."
+    },
+    {
+      "context": "steps with the backbone frozen.",
+      "label": "spacr.timeflows_model.train_timeflows#5",
+      "source": "steps with the backbone frozen.",
+      "source_sha256": "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+      "translation": "pasos con la red base congelada."
+    },
+    {
+      "context": "steps with everything trainable.",
+      "label": "spacr.timeflows_model.train_timeflows#6",
+      "source": "steps with everything trainable.",
+      "source_sha256": "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+      "translation": "pasos con todos los parámetros entrenables."
+    },
+    {
+      "context": "learning rate for the head stage.",
+      "label": "spacr.timeflows_model.train_timeflows#7",
+      "source": "learning rate for the head stage.",
+      "source_sha256": "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+      "translation": "tasa de aprendizaje de la etapa de la cabeza."
+    },
+    {
+      "context": "learning rate for the full stage.",
+      "label": "spacr.timeflows_model.train_timeflows#8",
+      "source": "learning rate for the full stage.",
+      "source_sha256": "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+      "translation": "tasa de aprendizaje de la etapa completa."
+    },
+    {
+      "context": "sampling weight per pair (:func:`pair_sampling_weights`); uniform when None.",
+      "label": "spacr.timeflows_model.train_timeflows#9",
+      "source": "sampling weight per pair (:func:`pair_sampling_weights`); uniform when None.",
+      "source_sha256": "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+      "translation": "peso de muestreo por par (:func:`pair_sampling_weights`); uniforme si es None."
+    },
+    {
+      "context": "the random seed.",
+      "label": "spacr.timeflows_model.train_timeflows#10",
+      "source": "the random seed.",
+      "source_sha256": "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+      "translation": "la semilla aleatoria."
+    },
+    {
+      "context": "``'cpu'`` or ``'cuda'``.",
+      "label": "spacr.timeflows_model.train_timeflows#11",
+      "source": "``'cpu'`` or ``'cuda'``.",
+      "source_sha256": "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+      "translation": "``'cpu'`` o ``'cuda'``."
+    },
+    {
+      "context": "``fn(line)`` for progress.",
+      "label": "spacr.timeflows_model.train_timeflows#12",
+      "source": "``fn(line)`` for progress.",
+      "source_sha256": "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+      "translation": "``fn(line)`` para informar del progreso."
+    },
+    {
+      "context": "optional held-out full-frame pairs. Exact input overlap with training is rejected before any optimizer update.",
+      "label": "spacr.timeflows_model.train_timeflows#13",
+      "source": "optional held-out full-frame pairs. Exact input overlap with training is rejected before any optimizer update.",
+      "source_sha256": "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+      "translation": "Pares reservados opcionales de fotogramas completos. El solapamiento exacto de entradas con el entrenamiento se rechaza antes de cualquier actualización del optimizador."
+    },
+    {
+      "context": "updates between held-out checks; defaults to one epoch of ``len(pairs)`` sampled updates. Initial and stage-end checks are always included. Must be positive when supplied.",
+      "label": "spacr.timeflows_model.train_timeflows#14",
+      "source": "updates between held-out checks; defaults to one epoch of ``len(pairs)`` sampled updates. Initial and stage-end checks are always included. Must be positive when supplied.",
+      "source_sha256": "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+      "translation": "Actualizaciones entre comprobaciones con datos reservados; por defecto, una época de ``len(pairs)`` actualizaciones muestreadas. Siempre se incluyen comprobaciones iniciales y al final de cada etapa. Debe ser positivo si se proporciona."
+    },
+    {
+      "context": "callback receiving each stratified validation report, including the stage, update count and current training loss. Optional validation never changes the returned loss-list contract.",
+      "label": "spacr.timeflows_model.train_timeflows#15",
+      "source": "callback receiving each stratified validation report, including the stage, update count and current training loss. Optional validation never changes the returned loss-list contract.",
+      "source_sha256": "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
+      "translation": "Función de retorno que recibe cada informe de validación estratificado, incluida la etapa, el número de actualizaciones y la pérdida actual de entrenamiento. La validación opcional nunca cambia el contrato de la lista de pérdidas devuelta."
+    },
+    {
+      "context": "the loss at every step.",
+      "label": "spacr.timeflows_model.train_timeflows#16",
+      "source": "the loss at every step.",
+      "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+      "translation": "la pérdida en cada paso."
+    },
+    {
+      "context": "no usable supervision remains after 32 sampled extracted image regions for a step; inspect the full masks and motion relative to the tile.",
+      "label": "spacr.timeflows_model.train_timeflows#17",
+      "source": "no usable supervision remains after 32 sampled crops for a step; inspect the full masks and motion relative to the tile.",
+      "source_sha256": "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885",
+      "translation": "no queda supervisión utilizable tras muestrear 32 recortes para un paso; inspeccione las máscaras completas y el movimiento en relación con el bloque."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of held-out validation, scoring controls, input separation and CTC segmentation selection; no native-speaker or model-accuracy sign-off",
+  "schema": 1
+}

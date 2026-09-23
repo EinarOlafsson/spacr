@@ -3592,6 +3592,9 @@ _HANDLERS = {
 #: spaCR. A drop target here would accept a folder and do nothing with it,
 #: which is worse than no target at all.
 NO_DROP_TARGET: Dict[str, str] = {
+    "toxoplasma": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "plasmodium": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "candida": "opens organism assays; image and table inputs belong to the chosen assay module",
     "experiment_design": "designs a plate layout from typed numbers; it "
                          "reads no file",
     "power": "computes a sample size from typed numbers; it reads no file",

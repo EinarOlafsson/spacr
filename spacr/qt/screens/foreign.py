@@ -88,6 +88,7 @@ from ..bridge import make_thread
 from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting
 
 __all__ = [
@@ -538,7 +539,9 @@ class ForeignScreen(QWidget):
 
         self._model = ColumnMapModel(self)
         self._model.mapping_edited.connect(self._on_mapping_edited)
-        self._table = QTableView(self)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="foreign::body")
+        self._table = QTableView()
         self._table.setModel(self._model)
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -546,16 +549,20 @@ class ForeignScreen(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._table.verticalHeader().setVisible(False)
-        outer.addWidget(self._table, 1)
+        split.add_section(self._table, "Column mapping",
+                          persist_key="foreign/Column mapping")
 
-        self._report = QPlainTextEdit(self)
+        self._report = QPlainTextEdit()
         self._report.setReadOnly(True)
-        self._report.setMaximumHeight(190)
         self._report.setPlaceholderText(
             "The columns that could not be mapped, the ones that collide with "
             "a spaCR name, the ones with no pixel size to convert them, and "
             "how many measurement rows found an object in the masks.")
-        outer.addWidget(self._report)
+        split.add_section(self._report, "Import report",
+                          persist_key="foreign/Import report", stretch=0,
+                          extent=190)
+        outer.addWidget(split, 1)
+        self._body_splitter = split
 
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])

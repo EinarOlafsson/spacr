@@ -60,6 +60,21 @@ def home_in_tmp(tmp_path, monkeypatch):
     return fake_home
 
 
+@pytest.fixture(autouse=True)
+def finish_window_jobs(request, qtbot):
+    """Let real preview/usage jobs retire before the next tutorial test."""
+    yield
+    if "main_window" in request.fixturenames:
+        from spacr.qt.job_runner import JobRunner
+
+        window = request.getfixturevalue("main_window")
+        qtbot.waitUntil(
+            lambda: all(runner.active_jobs() == 0
+                        for runner in window.findChildren(JobRunner)),
+            timeout=10000,
+        )
+
+
 class _Probe:
     """A Director bound to a window but with the render pipeline unused —
     we only want its real target/highlight resolution logic."""
@@ -130,7 +145,8 @@ def test_tutorial_narration_tracks_the_consolidated_interface(main_window,
         "Explore", "Assays", "Design",
     ))
     assert "Core, Analysis, Cellpose, and Sequencing" not in home
-    assert "Help menu contains Demos" in home
+    assert "Use Load test data within a module" in home
+    assert "Demos" not in home
 
     mask = " ".join(step.narration for step in build_steps("mask", main_window))
     assert all(object_type in mask for object_type in (
@@ -329,7 +345,7 @@ def test_deferred_targets_are_dead_before_their_step_and_live_after(
 
 
 def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
-                                                tmp_path, qt_theme_applied):
+                                                tmp_path, qt_theme_applied, qtbot):
     """Regression: _find_button matched on prefix only, and the Mask
     screen's child order puts "Run preview" ahead of "Run" — so the step
     narrating the actual run highlighted the preview button."""
@@ -340,6 +356,10 @@ def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
     _drive(main_window, steps, probe, qt_theme_applied)
 
     screen = main_window._screens["mask"]
+    # Live preview is built when its card first appears. Show it through
+    # the real visibility path before checking the ambiguous button names.
+    screen._on_preview_switch(True)
+    qtbot.waitUntil(lambda: _find_button(screen, "Run preview") is not None)
     # The ambiguity is real on this screen…
     labels = {b.text().strip() for b in screen.findChildren(
         __import__("PySide6.QtWidgets", fromlist=["QPushButton"]).QPushButton)}
@@ -426,11 +446,9 @@ def test_sidebar_steps_point_at_the_row_they_narrate(app_key, nav_key,
     probe.close()
 
 
-def test_demos_menu_step_points_at_the_demos_menu(main_window, home_in_tmp,
+def test_home_example_step_points_at_the_workspace(main_window, home_in_tmp,
                                                     tmp_path):
-    """Regression: the Demos step used the literal point (170, 15), which
-    is past the end of the menu bar's items — the cursor landed on blank
-    chrome. It now comes from the menu's own action geometry."""
+    """The example guidance cannot point to the retired Demos menu."""
     from spacr.qt.tutorial.scripts import _menu_target, build_steps
 
     probe = _Probe(main_window, tmp_path)
@@ -438,19 +456,12 @@ def test_demos_menu_step_points_at_the_demos_menu(main_window, home_in_tmp,
     menu_steps = [s for s in steps
                     if isinstance(s.target, tuple)
                     and s.target[0] is main_window.menuBar()]
-    assert len(menu_steps) == 1
-    _widget, offset = menu_steps[0].target
-    assert offset is not None
-
-    # Demos is under Help, so it has no geometry of its own on the bar. The
-    # step points at the final top-level menu (Help in the active language),
-    # which is where the user clicks. Do not compare its rendered label with
-    # English: earlier localization tests may retranslate this same window.
+    assert not menu_steps
+    example = next(step for step in steps if 'Use Load test data' in step.narration)
+    assert example.target == (main_window._stack, None)
+    assert example.highlight is main_window._stack
+    assert example.action is None
     mb = main_window.menuBar()
-    help_action = mb.actions()[-1]
-    rect = mb.actionGeometry(help_action)
-    assert rect.contains(*offset), (
-        f"menu target {offset} is outside the Demos item {rect}")
 
     # And the helper degrades loudly, not silently, for a missing menu.
     fallback = _menu_target(main_window, "NoSuchMenu")
@@ -583,24 +594,12 @@ def test_menu_bar_helper_returns_the_windows_menu_bar(main_window):
     assert _menu_bar(main_window) is main_window.menuBar()
 
 
-def test_open_demos_menu_returns_the_menu_and_never_pops_it_up(main_window,
+def test_legacy_demos_lookup_reports_retired_menu_without_popup(main_window,
                                                                  caplog):
-    """It must resolve the menu (so a rename is detectable) without
-    actually popping it up — a live popup would grab input for the rest
-    of the render."""
-    from PySide6.QtWidgets import QMenu
-
+    """Compatibility lookup reports the absent destination without a popup."""
     from spacr.qt.tutorial.scripts import _open_demos_menu
-    menu = _open_demos_menu(main_window)
-    # The QMenu itself, reached as a C++ child of the menu bar — which is
-    # what the test has always been named for. It used to hand back the
-    # bar's QAction instead, because the QMenu that `QAction.menu()`
-    # returns is only valid while that action wrapper is alive and so could
-    # not be returned at all. `findChildren` has no such lifetime.
-    assert isinstance(menu, QMenu)
-    assert menu.title().replace("&", "") == "Demos"
-    assert menu in main_window.menuBar().findChildren(QMenu)
-    # Resolving must not have opened anything.
+    with caplog.at_level("WARNING", logger="spacr.qt.tutorial"):
+        assert _open_demos_menu(main_window) is None
     from PySide6.QtWidgets import QApplication
     assert QApplication.activePopupWidget() is None
 

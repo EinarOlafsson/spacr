@@ -11,8 +11,9 @@ Welcome to spaCR
 .. note::
 
    You are reading the |docs-channel| documentation for spaCR
-   |spacr-version|. The public site follows released ``main``; nightly
-   builds validate upcoming changes without replacing the stable site.
+   |spacr-version|. The main site follows ``main``. The nightly preview follows
+   ``nightly`` and may describe features not yet in a release. Each branch
+   publishes its own API, guides and committed tutorial catalog automatically.
 
 A Python toolkit for quantifying and visualising phenotypic changes in
 high-throughput microscopy screens. Ships with a modern PySide6 GUI
@@ -29,7 +30,9 @@ The GUI groups its applications into four categories: *Core* for the
 segment-measure-classify pipeline, *Data* for getting images and tables in
 and running them at scale, *Tools* for the instruments you point at a
 project — hand mask correction, stitching, embeddings, gates, plots and
-quality control — and *Assays* for the parasite-specific readouts. The
+quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida
+organism guides. Choose an organism to see its available assays;
+planned analyses are marked Coming soon. The
 bands under "Applications and workflow" below are those categories, in that
 order, with the tiles each one holds.
 
@@ -80,6 +83,9 @@ in rather than gone. Home lists whatever the running build offers.
 Applications and workflow
 -------------------------
 
+New to spaCR? :doc:`Choose a workflow after installation <workflows>` for
+the first Home tile, the inputs each step needs, and what to open next.
+
 Every tile links to the API page used by that application's in-product help.
 
 .. include:: _generated/workflow_grid.rst
@@ -88,16 +94,17 @@ Every tile links to the API page used by that application's in-product help.
 Installation
 ------------
 
-The GUI lives behind the ``qt`` extra, so the desktop install must ask for
-it — plain ``pip install spacr`` gives you the pipelines but no PySide6, and
-``spacr`` will tell you so rather than launch.
+Install spaCR and launch the desktop application. The ``qt`` extra remains
+supported for desktop installations; current packages also include PySide6
+among their base dependencies.
 
 .. code-block:: bash
 
    python -m pip install "spacr[qt]"
    spacr                    # launch the Qt GUI
 
-Headless (cluster, server, CI) — no Qt, no display:
+For a terminal workflow on a cluster or server, use ``spacr-run`` without
+opening the desktop application:
 
 .. code-block:: bash
 
@@ -108,9 +115,11 @@ Headless (cluster, server, CI) — no Qt, no display:
 Learn spaCR
 -----------
 
-The `interactive tutorial library <tutorials/>`_ contains |lesson-count| narrated,
-step-by-step lessons covering every module, with 50 voices across eight
-languages. It is also reachable from the GUI:
+Start with installation, continue to Home and the pipeline overviews, then
+follow the module walkthrough for your task in the
+`interactive tutorial library <tutorials/>`_. Each lesson lists its available
+narration voices and captions. New English lessons can appear while their
+translations are being prepared. Open the library from the GUI through
 **Help → Tutorial (web)**.
 
 
@@ -121,8 +130,18 @@ Contents
    :maxdepth: 2
 
    installer_guide
+   system_requirements
+   workflows
    installers
    features
+   make_masks
+   cellpose_training
+   point_spread
+   recruitment
+   image_quality
+   host_pathogen
+   plaque_assay
+   timeflows_training
    python_api
    settings_flow
    model_zoo

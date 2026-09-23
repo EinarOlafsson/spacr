@@ -403,6 +403,27 @@ def preprocess_generate_masks(settings):
 
                         if not settings['preprocess']:
                             _check_archives_without_preprocessing(src)
+                            from .psf_pipeline import validate_psf_resume, _record_path
+                            if (settings.get('psf_operation', 'none') != 'none' or
+                                    _record_path(src).exists()):
+                                psf_channels = list(dict.fromkeys(
+                                    int(settings[f'{role}_channel'])
+                                    for role in ('nucleus', 'cell', 'pathogen',
+                                                 *ORGANELLE_ROLES)
+                                    if settings.get(f'{role}_channel') is not None))
+                                validate_psf_resume(
+                                    settings, src, psf_channels,
+                                    expected_fields=_normalized_npz_field_ids(mask_src))
+
+                        from .image_quality import screen_fields
+                        quality_paths = None
+                        if settings.get('image_qc_mode', 'off') != 'off':
+                            quality_paths = [os.path.join(src, 'stack', field + '.npy')
+                                             for field in _normalized_npz_field_ids(mask_src)]
+                        settings['image_qc_excluded_fields'] = screen_fields(src, settings, quality_paths)
+                        if quality_paths and len(settings['image_qc_excluded_fields']) == len(quality_paths):
+                            print('All fields were excluded by the saved image-quality policy; no masks generated.')
+                            break
 
                         if (not settings['preprocess'] and
                                 settings.get('illumination_correction', False)):
@@ -497,6 +518,8 @@ def preprocess_generate_masks(settings):
 
                                     print(f'Adjusting cell masks with nuclei and pathogen masks')
                                     adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                                    from .object import _run_seg_qc
+                                    _run_seg_qc(mask_src, settings, 'cell')
                                     stop = time.time()
                                     adjust_time = (stop-start)/60
                                     print(f'Cell mask adjustment: {adjust_time} min.')

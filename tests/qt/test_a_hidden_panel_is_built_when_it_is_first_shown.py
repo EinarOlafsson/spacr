@@ -104,6 +104,9 @@ def test_a_card_revealed_by_its_parent_builds_its_body(qtbot):
     card.build_body_when_first_shown(lambda: calls.append(1))
     host.show()
     qtbot.waitUntil(lambda: calls == [1], timeout=2000)
+    host.hide()
+    host.show()
+    assert calls == [1], "revealing the parent must build the body only once"
 
 
 # -- regression ---------------------------------------------------------------
@@ -114,6 +117,54 @@ def test_regression_opens_without_its_results_panel(qtbot):
     assert not _has(screen, "RegressionResultsPanel")
     assert not _has(screen, "MeasurementScanPanel")
     assert screen._results_panel_if_built() is None
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_results_dependencies_wait_until_the_panel_is_needed(
+        qtbot, monkeypatch, missing):
+    import builtins
+    import importlib
+
+    attempted = []
+    original_import = builtins.__import__
+    original_import_module = importlib.import_module
+
+    def record(name):
+        if name.endswith("measurement_scan_panel"):
+            attempted.append(name)
+            if missing:
+                raise ModuleNotFoundError("optional measurement dependency")
+
+    def importing(name, *args, **kwargs):
+        record(name)
+        return original_import(name, *args, **kwargs)
+
+    def importing_module(name, *args, **kwargs):
+        record(name)
+        return original_import_module(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", importing)
+    monkeypatch.setattr(importlib, "import_module", importing_module)
+    screen = _screen(qtbot, "regression")
+    assert attempted == [], "opening Regression imported its hidden results"
+    assert screen._part_is_owed(app_screen._REGRESSION_RESULTS)
+
+    screen._figures_card.setVisible(True)
+    assert attempted
+    assert not screen._part_is_owed(app_screen._REGRESSION_RESULTS)
+    if missing:
+        assert screen._results_panel_if_built() is None
+        assert screen._figures_card.body_layout.indexOf(
+            screen._queue_the_results_hold) >= 0
+        assert screen._figures_card.minimumHeight() == 0
+        assert screen._figures_card.body.isAncestorOf(screen._queue_the_results_hold)
+        assert not _has(screen, "RegressionResultsPanel")
+        screen._figures_card.hide()
+        screen._figures_card.show()
+        assert len(attempted) == 1, "failed imports were retried on every show"
+    else:
+        assert _has(screen, "RegressionResultsPanel")
+        assert _has(screen, "MeasurementScanPanel")
 
 
 def test_asking_for_the_results_panel_builds_all_of_it_once(qtbot):

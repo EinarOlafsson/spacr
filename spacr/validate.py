@@ -88,6 +88,7 @@ class Problem:
 
 
 APP_FUNCTIONS: Dict[str, str] = {
+    'host_pathogen': 'spacr.host_pathogen.analyze_host_pathogen',
     "mask": "spacr.core.preprocess_generate_masks",
     "timelapse": "spacr.core.preprocess_generate_masks_timelapse",
     "motility": "spacr.timelapse.automated_motility_assay",
@@ -148,7 +149,7 @@ try:
 except Exception:
     pass
 
-DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
+DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment", 'host_pathogen',
                      "activation", "classify", "classify_merged",
                      "invasion", "replication", "endodyogeny"})
 
@@ -973,6 +974,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
 
 
 _APP_EXTRA_KEYS: Dict[str, frozenset] = {
+    "measure": frozenset({"_psf_measurement_signature"}),
     "foreign": frozenset({
         "images", "masks", "measurements", "dst", "layout", "z_handling",
         "plate_naming", "measurement_table", "measurement_object", "image_key",
@@ -1465,6 +1467,25 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
 
+    if app == 'measure':
+        from .psf_measurement import prepare_measurement_psf
+        try:
+            prepare_measurement_psf(settings)
+        except (ValueError, OSError) as exc:
+            problems.append(Problem(
+                ERROR, 'psf_measurement_source', str(exc),
+                'Choose original intensities or configure a calibrated PSF for processed measurements.'))
+
+    if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
+        from .psf_pipeline import prepare_psf
+        try:
+            prepare_psf(settings)
+        except (ValueError, OSError) as exc:
+            problems.append(Problem(
+                ERROR, 'psf_operation', f'PSF preparation failed: {exc}',
+                'Set calibrated Y/X sampling and a matching measured kernel '
+                'or explicit Gaussian FWHM, or switch psf_operation to none.'))
+
     if app == "explain_cv":
         for key, label in (("db_path", "measurements database"),
                            ("predictions_file", "prediction CSV")):
@@ -1639,8 +1660,9 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
-    Nothing is loaded beyond one ``.npy`` header and a directory listing, so
-    this is safe to call before committing a GPU to a run.
+    Image data are checked through headers and directory listings. An enabled
+    PSF also loads its size-limited kernel to validate calibration and values;
+    no image processing or GPU inference is run.
 
     :param settings: the settings dict about to be handed to a pipeline.
     :param app_key: which pipeline, e.g. ``'mask'``, ``'measure'``,
@@ -1795,6 +1817,8 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
         return "Plan unavailable: settings is not a dict."
 
     app = _normalize_app(app_key)
+    if app == "regression":
+        return _describe_regression_plan(settings)
     srcs = _src_values(settings, app)
     inventories = [_inventory(src, settings, app) for src in srcs]
 
@@ -1847,6 +1871,51 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     for label, value in rows:
         lines.append(f"  {label.ljust(width)}  {value}" if label else f"  {' ' * width}  {value}")
     return "\n".join(lines)
+
+
+def _describe_regression_plan(settings: Dict[str, Any]) -> str:
+    """Describe paired table inputs without scanning an optional output root.
+
+    This is a plan, not a table-content audit. Blank pair members remain
+    visible; plate and well consistency is checked by the actual loader.
+    Legacy score/count lists keep their positional pairing, including blanks.
+    """
+    from itertools import zip_longest
+
+    rows = [("app", "regression (spacr.ml.perform_regression)")]
+    pairs = settings.get('paired_data') or []
+    if not pairs:
+        def paths(value):
+            return list(value) if isinstance(value, (list, tuple)) else ([] if value is None else [value])
+
+        pairs = [dict(score=score, count=count)
+                 for score, count in zip_longest(paths(settings.get('score_data')),
+                                                 paths(settings.get('count_data')))]
+        if pairs:
+            rows.append(('pairing', 'legacy score_data/count_data lists paired by position'))
+    if not isinstance(pairs, (list, tuple)):
+        rows.append(('inputs', 'invalid paired_data: expected score/count rows'))
+    elif not pairs:
+        rows.append(('inputs', 'no paired_data score/count inputs configured'))
+    else:
+        rows.append(('inputs', f'{len(pairs)} paired score/count row(s)'))
+        for number, pair in enumerate(pairs, 1):
+            if not isinstance(pair, dict):
+                rows.append((f'pair {number}', 'invalid row: expected a mapping'))
+                continue
+            rows.append((f'pair {number} score', _fmt(pair.get('score') or pair.get('score_data'))))
+            rows.append((f'pair {number} count', _fmt(pair.get('count') or pair.get('count_data'))))
+            if pair.get('plate') or pair.get('plateID'):
+                rows.append((f'pair {number} plate', str(pair.get('plate') or pair.get('plateID'))))
+            if pair.get('database') or pair.get('measurements'):
+                rows.append((f'pair {number} linked database', str(pair.get('database') or pair.get('measurements'))))
+    rows.append(('score column', _fmt(settings.get('dependent_variable'))))
+    rows.append(('output root', str(settings.get('src') or 'resolved from the paired inputs at run time')))
+    rows.append(('would write', 'results tables and configured regression plots/reports'))
+    width = max(len(label) for label, _ in rows)
+    return '\n'.join([
+        'Plan — what this run would do. Nothing has been written and no model has been loaded:',
+        '', *(f'  {label.ljust(width)}  {value}' for label, value in rows)])
 
 
 def _describe_inputs(inventories: Sequence[_Inventory]) -> str:

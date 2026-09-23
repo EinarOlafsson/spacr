@@ -187,16 +187,42 @@ def answer_the_dialog(monkeypatch):
                         lambda self: self.property("_pressed"))
 
 
+@pytest.fixture(autouse=True)
+def embedded_sign_ins(monkeypatch):
+    """Record embedded sign-ins without starting a vendor process."""
+    from spacr.qt.ai import pty_sign_in
+
+    started = []
+
+    class RecordedDialog:
+        def __init__(self, label, argv, parent=None):
+            self.label, self.argv = label, argv
+            self.closed = False
+            started.append(self)
+
+        def show(self):
+            pass
+
+        def close(self):
+            self.closed = True
+
+    monkeypatch.setattr(pty_sign_in, "pty_available", lambda: True)
+    monkeypatch.setattr(pty_sign_in, "SignInDialog", RecordedDialog)
+    return started
+
+
 def test_choosing_a_signed_out_provider_offers_to_sign_it_in(
-        slides, stub_gpt, answer_the_dialog):
+        slides, stub_gpt, answer_the_dialog, embedded_sign_ins):
     stub_gpt["provider"] = _StubProvider(installed=True, logged_in=False)
     launched = []
     slides._run_in_a_terminal = lambda cmd: (launched.append(cmd), True)[1]
 
     note = slides._start_provider_login("gpt")
 
-    assert launched == ["codex login"]
+    assert launched == []
+    assert [dialog.argv for dialog in embedded_sign_ins] == [["codex", "login"]]
     assert "GPT" in note
+    assert "terminal" not in note
 
 
 def test_a_signed_in_provider_is_not_asked_to_log_in_again(
@@ -225,14 +251,46 @@ def test_an_uninstalled_provider_is_offered_its_install_page(
 
 
 def test_with_no_terminal_the_command_is_named(slides, stub_gpt,
-                                               answer_the_dialog):
+                                               answer_the_dialog, monkeypatch):
     """Naming it beats starting it where its prompts cannot be answered."""
     stub_gpt["provider"] = _StubProvider(installed=True, logged_in=False)
+    from spacr.qt.ai import pty_sign_in
+
+    monkeypatch.setattr(pty_sign_in, "pty_available", lambda: False)
     slides._run_in_a_terminal = lambda cmd: False
 
     note = slides._start_provider_login("gpt")
 
     assert "codex login" in note
+
+
+def test_setup_closure_stops_the_embedded_sign_in(
+        slides, stub_gpt, answer_the_dialog, embedded_sign_ins):
+    slides._start_provider_login("gpt")
+    assert not embedded_sign_ins[0].closed
+    slides.reject()
+    assert embedded_sign_ins[0].closed
+
+
+def test_a_new_sign_in_closes_the_previous_window(
+        slides, stub_gpt, answer_the_dialog, embedded_sign_ins):
+    slides._start_provider_login("gpt")
+    slides._start_provider_login("gpt")
+    assert len(embedded_sign_ins) == 2
+    assert embedded_sign_ins[0].closed
+    assert not embedded_sign_ins[1].closed
+
+
+def test_a_platform_without_a_pty_uses_the_terminal_fallback(
+        slides, stub_gpt, answer_the_dialog, monkeypatch, embedded_sign_ins):
+    from spacr.qt.ai import pty_sign_in
+
+    monkeypatch.setattr(pty_sign_in, "pty_available", lambda: False)
+    launched = []
+    slides._run_in_a_terminal = lambda cmd: (launched.append(cmd), True)[1]
+    assert "GPT" in slides._start_provider_login("gpt")
+    assert launched == ["codex login"]
+    assert embedded_sign_ins == []
 
 
 @pytest.mark.parametrize("installed,logged_in,expected", [
@@ -278,3 +336,10 @@ def test_clicking_a_mark_selects_it_and_recolours_the_strip(
 def test_every_provider_has_a_mark():
     for code, _label, _command in PROVIDERS:
         assert code in MARKS, f"{code} has no mark to draw"
+
+
+def test_an_unmocked_embedded_sign_in_cannot_start_a_vendor_process():
+    from spacr.qt.ai import pty_sign_in
+
+    with pytest.raises(AssertionError, match="real embedded sign-in"):
+        pty_sign_in._spawn(["codex", "login"])

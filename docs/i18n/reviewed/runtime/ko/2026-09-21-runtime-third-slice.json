@@ -109,13 +109,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "translation": "임계값 보정 계수입니다. Otsu 임계값에 이 값을 곱한 뒤 사용합니다. 1보다 크면 기준이 엄격해져 객체가 줄어들고 희미한 객체는 제외됩니다. 1보다 작으면 더 어두운 픽셀까지 포함하며, 1이면 Otsu 자체 임계값을 사용합니다. Otsu detect에서 사용하며, Live 돋보기의 Otsu 모드에서도 영역 안에 뚜렷한 두 픽셀 집단이 있을 때 사용합니다.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
-    },
-    {
-      "table": "ui",
       "key": "Add a model",
       "source": "Add a model",
       "translation": "모델 추가",
@@ -141,6 +134,18 @@
       "source": "Add…",
       "translation": "추가…",
       "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf"
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "translation": "임계값 보정 계수입니다. Otsu 임계값에 이 값을 곱한 뒤 사용합니다. 1보다 크면 기준이 엄격해져 객체가 줄어들고 희미한 객체는 제외됩니다. 1보다 작으면 더 어두운 픽셀까지 포함하며, 1이면 Otsu 자체 임계값을 사용합니다. Otsu detect에서 사용하며, Live 돋보기의 Otsu 모드에서도 영역 안에 뚜렷한 두 픽셀 집단이 있을 때 사용합니다.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

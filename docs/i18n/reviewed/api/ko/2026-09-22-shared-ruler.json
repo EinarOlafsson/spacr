@@ -1,0 +1,259 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "A shared line ruler that measures image coordinates without changing pixels.",
+      "label": "spacr.qt.widgets.image_ruler#0",
+      "source": "A shared line ruler that measures image coordinates without changing pixels.",
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "translation": "픽셀을 변경하지 않고 이미지 좌표를 측정하는 공유 선형 자입니다."
+    },
+    {
+      "context": "Keep a line in image pixels and paint it through the host's transform.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler#0",
+      "source": "Keep a line in image pixels and paint it through the host's transform.",
+      "source_sha256": "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+      "translation": "선을 이미지 픽셀 단위로 유지하고 호스트의 변환을 통해 그립니다."
+    },
+    {
+      "context": "owning image canvas or view; defaults to None.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler#1",
+      "source": "owning image canvas or view; defaults to None.",
+      "source_sha256": "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+      "translation": "소유 이미지 캔버스 또는 뷰이며 기본값은 None입니다."
+    },
+    {
+      "context": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
+      "source": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
+      "source_sha256": "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c",
+      "translation": "호스트는 위젯에서 이미지로의 매핑을 :meth:`handle`에, 역방향 매핑을 :meth:`paint`에 전달합니다. 확대와 이동은 측정 길이를 변경하지 않습니다. 픽셀 단위는 항상 표시됩니다. 물리 단위에는 :meth:`set_spacing`을 통한 명시적이고 검증된 보정이 필요하며 카메라 배율을 추정하지 않습니다. 도구가 활성화된 동안 오른쪽 클릭하면 선을 지웁니다. 초기에는 선과 보정이 없고 그리기가 비활성화되어 있습니다."
+    },
+    {
+      "context": "Remove the line without changing tool activation or calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.clear#0",
+      "source": "Remove the line without changing tool activation or calibration.",
+      "source_sha256": "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+      "translation": "도구 활성화 상태나 보정을 바꾸지 않고 선을 제거합니다."
+    },
+    {
+      "context": "None; emits ``changed`` even when no line was present.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.clear#1",
+      "source": "None; emits ``changed`` even when no line was present.",
+      "source_sha256": "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c",
+      "translation": "None이며 선이 없었더라도 ``changed``를 발생시킵니다."
+    },
+    {
+      "context": "Consume ruler mouse gestures; return False for navigation gestures.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#0",
+      "source": "Consume ruler mouse gestures; return False for navigation gestures.",
+      "source_sha256": "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+      "translation": "자의 마우스 동작을 처리하며 탐색 동작에는 False를 반환합니다."
+    },
+    {
+      "context": "a mouse press, move or release from the host canvas.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#1",
+      "source": "a mouse press, move or release from the host canvas.",
+      "source_sha256": "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+      "translation": "호스트 캔버스에서 발생한 마우스 누름, 이동 또는 놓기 이벤트입니다."
+    },
+    {
+      "context": "widget QPointF -> image (x, y), or None off-image.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#2",
+      "source": "widget QPointF -> image (x, y), or None off-image.",
+      "source_sha256": "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+      "translation": "위젯 QPointF -> 이미지 (x, y)이며 이미지 밖이면 None입니다."
+    },
+    {
+      "context": "True for consumed ruler gestures; False when the host should handle the event. Coordinates outside the image do not move endpoints.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.handle#3",
+      "source": "True for consumed ruler gestures; False when the host should handle the event. Coordinates outside the image do not move endpoints.",
+      "source_sha256": "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb",
+      "translation": "처리한 자 동작에는 True를, 호스트가 이벤트를 처리해야 하면 False를 반환합니다. 이미지 밖의 좌표는 끝점을 이동시키지 않습니다."
+    },
+    {
+      "context": "Return pixel length and, only when calibrated, physical length.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.label#0",
+      "source": "Return pixel length and, only when calibrated, physical length.",
+      "source_sha256": "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+      "translation": "픽셀 길이를 반환하고 보정된 경우에만 물리적 길이도 반환합니다."
+    },
+    {
+      "context": "text with lengths to two decimal places; empty before a line exists.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.label#1",
+      "source": "text with lengths to two decimal places; empty before a line exists.",
+      "source_sha256": "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e",
+      "translation": "길이를 소수점 둘째 자리까지 표시하는 텍스트이며 선이 없으면 비어 있습니다."
+    },
+    {
+      "context": "Return the line length, or None before a line exists.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.length#0",
+      "source": "Return the line length, or None before a line exists.",
+      "source_sha256": "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+      "translation": "선의 길이를 반환하며 선이 없으면 None을 반환합니다."
+    },
+    {
+      "context": "False (default) uses image pixels; True uses calibrated per-axis spacing, including different horizontal and vertical values.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.length#1",
+      "source": "False (default) uses image pixels; True uses calibrated per-axis spacing, including different horizontal and vertical values.",
+      "source_sha256": "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+      "translation": "False(기본값)는 이미지 픽셀을 사용하고 True는 수평과 수직 값이 다른 경우를 포함하여 축별로 보정된 간격을 사용합니다."
+    },
+    {
+      "context": "Euclidean length as a float in pixels or ``unit``; None when no line exists or physical length is requested without calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.length#2",
+      "source": "Euclidean length as a float in pixels or ``unit``; None when no line exists or physical length is requested without calibration.",
+      "source_sha256": "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197",
+      "translation": "픽셀 또는 ``unit`` 단위의 유클리드 길이를 float로 반환합니다. 선이 없거나 보정 없이 물리적 길이를 요청하면 None입니다."
+    },
+    {
+      "context": "Draw endpoints, line and readout in widget coordinates.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#0",
+      "source": "Draw endpoints, line and readout in widget coordinates.",
+      "source_sha256": "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+      "translation": "끝점, 선 및 측정값을 위젯 좌표로 그립니다."
+    },
+    {
+      "context": "an active painter for the host canvas/viewport.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#1",
+      "source": "an active painter for the host canvas/viewport.",
+      "source_sha256": "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+      "translation": "호스트 캔버스 또는 뷰포트의 활성 페인터입니다."
+    },
+    {
+      "context": "image (x, y) -> widget QPointF or QPoint, or None.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#2",
+      "source": "image (x, y) -> widget QPointF or QPoint, or None.",
+      "source_sha256": "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+      "translation": "이미지 (x, y) -> 위젯 QPointF 또는 QPoint이며 None도 가능합니다."
+    },
+    {
+      "context": "None; draws nothing when a line or either mapped endpoint is missing.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.paint#3",
+      "source": "None; draws nothing when a line or either mapped endpoint is missing.",
+      "source_sha256": "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af",
+      "translation": "None이며 선이나 매핑된 끝점 중 하나라도 없으면 아무것도 그리지 않습니다."
+    },
+    {
+      "context": "Enable drawing; disabling preserves the finished line.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_active#0",
+      "source": "Enable drawing; disabling preserves the finished line.",
+      "source_sha256": "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+      "translation": "그리기를 활성화하며 비활성화해도 완성된 선은 유지됩니다."
+    },
+    {
+      "context": "whether unmodified left drags measure instead of edit.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_active#1",
+      "source": "whether unmodified left drags measure instead of edit.",
+      "source_sha256": "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+      "translation": "보조 키 없이 왼쪽 버튼으로 끌 때 편집 대신 측정할지 여부입니다."
+    },
+    {
+      "context": "None; emits ``changed`` after updating activation.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_active#2",
+      "source": "None; emits ``changed`` after updating activation.",
+      "source_sha256": "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa",
+      "translation": "None이며 활성화 상태를 갱신한 후 ``changed``를 발생시킵니다."
+    },
+    {
+      "context": "Set physical distance per image pixel, or clear calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#0",
+      "source": "Set physical distance per image pixel, or clear calibration.",
+      "source_sha256": "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+      "translation": "이미지 픽셀당 물리적 거리를 설정하거나 보정을 제거합니다."
+    },
+    {
+      "context": "positive finite distance per horizontal image pixel in ``unit``; defaults to None, which clears calibration and ignores ``y``.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#1",
+      "source": "positive finite distance per horizontal image pixel in ``unit``; defaults to None, which clears calibration and ignores ``y``.",
+      "source_sha256": "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+      "translation": "``unit`` 단위의 수평 이미지 픽셀당 양의 유한한 거리입니다. 기본값 None은 보정을 제거하고 ``y``를 무시합니다."
+    },
+    {
+      "context": "positive finite distance per vertical image pixel in ``unit``; defaults to None, which uses ``x`` for both axes.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#2",
+      "source": "positive finite distance per vertical image pixel in ``unit``; defaults to None, which uses ``x`` for both axes.",
+      "source_sha256": "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+      "translation": "``unit`` 단위의 수직 이미지 픽셀당 양의 유한한 거리입니다. 기본값 None은 두 축 모두에 ``x``를 사용합니다."
+    },
+    {
+      "context": "physical unit label; defaults to ``'µm'``. The caller supplies spacing in this unit; this method does not convert units.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#3",
+      "source": "physical unit label; defaults to ``'µm'``. The caller supplies spacing in this unit; this method does not convert units.",
+      "source_sha256": "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+      "translation": "물리 단위의 표기이며 기본값은 ``'µm'``입니다. 호출자가 이 단위로 간격을 제공하며 이 메서드는 단위를 변환하지 않습니다."
+    },
+    {
+      "context": "when spacing is nonpositive or nonfinite.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#4",
+      "source": "when spacing is nonpositive or nonfinite.",
+      "source_sha256": "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+      "translation": "간격이 양수가 아니거나 유한하지 않을 때입니다."
+    },
+    {
+      "context": "None; emits ``changed`` after updating calibration.",
+      "label": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing#5",
+      "source": "None; emits ``changed`` after updating calibration.",
+      "source_sha256": "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8",
+      "translation": "None이며 보정을 갱신한 후 ``changed``를 발생시킵니다."
+    },
+    {
+      "context": "The ten tools, in :data:`TOOL_MODES` order, because this vocabulary is what a reader needs before opening the application view:",
+      "label": "spacr.qt.screens.make_masks#2",
+      "source": "THE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what a reader needs before opening the screen:",
+      "source_sha256": "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
+      "translation": "화면을 열기 전에 알아야 할 용어이므로 :data:`TOOL_MODES` 순서대로 열 가지 도구를 설명합니다:"
+    },
+    {
+      "context": "**Ruler** is the tenth. Drag between image pixels to read a length without editing labels. Zoom and pan preserve it; right-click with Ruler selected clears it. The same ruler is available on the paired live preview canvases.",
+      "label": "spacr.qt.screens.make_masks#5",
+      "source": "**Ruler** is the tenth. Drag between image pixels to read a length without editing labels. Zoom and pan preserve it; right-click with Ruler selected clears it. The same ruler is available on the paired live preview canvases.",
+      "source_sha256": "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
+      "translation": "**자**는 열 번째 도구입니다. 이미지 픽셀 사이를 끌면 레이블을 편집하지 않고 길이를 읽을 수 있습니다. 확대와 이동은 측정을 유지하며 자를 선택한 상태에서 오른쪽 클릭하면 지웁니다. 같은 자를 두 개의 실시간 미리보기 캔버스에서도 사용할 수 있습니다."
+    },
+    {
+      "context": "Editor modes are assembled from :func:`tool_row_entries` and :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts non-mode actions into the same toolbar. The settings panel carries the operations that are not gestures -- object filling and relabeling, swapping object and background, size filtering and Otsu detection, with undo and redo over all of them -- alongside the brush, wand and display controls, and can be hidden to return its width to the canvas.",
+      "label": "spacr.qt.screens.make_masks#8",
+      "source": "Editor modes are assembled from :func:`tool_row_entries` and :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts non-mode actions into the same toolbar. The settings panel carries the operations that are not gestures -- object filling and relabeling, swapping object and background, size filtering and Otsu detection, with undo and redo over all of them -- alongside the brush, wand and display controls, and can be hidden to return its width to the canvas.",
+      "source_sha256": "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+      "translation": "편집기 모드는 :func:`tool_row_entries`와 :data:`TOOL_MODES`에서 구성됩니다. :meth:`MakeMasksScreen.add_toolbar_action`은 모드가 아닌 동작을 같은 도구 모음에 추가합니다. 설정 패널에는 브러시, 마법봉 및 표시 제어와 함께 제스처가 아닌 작업인 객체 채우기와 재레이블링, 객체와 배경 교환, 크기 필터링 및 Otsu 검출이 있으며 모두 실행 취소와 다시 실행을 지원합니다. 패널을 숨겨 해당 너비를 캔버스에 돌려줄 수 있습니다."
+    },
+    {
+      "context": "Image inversion and swapping object and background are separate operations. The first changes the image seen by the detector; the second changes labels.",
+      "label": "spacr.qt.screens.make_masks#9",
+      "source": "Image inversion and swapping object and background are separate operations. The first changes the image seen by the detector; the second changes labels.",
+      "source_sha256": "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+      "translation": "이미지 반전과 객체와 배경 교환은 별개의 작업입니다. 전자는 검출기가 보는 이미지를 바꾸고 후자는 레이블을 바꿉니다."
+    },
+    {
+      "context": "**Invert image**, in the Display category, is THE inversion. It draws the microscope field of view as its own negative and hands the detectors that same negative: both detect buttons and the live magnifier segment :meth:`MakeMasksScreen._detector_image`, so a threshold written for bright objects takes dark ones, and a banner above the image says so for as long as it is on. The corner readout's pixel intensity follows the inverted image. Object mean intensities and the object filter still read the loaded pixels. Saving writes label masks without changing the source image.",
+      "label": "spacr.qt.screens.make_masks#10",
+      "source": "**Invert image**, in the Display category, is THE inversion. It draws the field as its own negative and hands the detectors that same negative: both detect buttons and the live magnifier segment :meth:`MakeMasksScreen._detector_image`, so a threshold written for bright objects takes dark ones, and a banner above the image says so for as long as it is on. The corner readout's pixel intensity follows the inverted image. Object mean intensities and the object filter still read the loaded pixels. Saving writes label masks without changing the source image.",
+      "source_sha256": "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+      "translation": "표시 범주의 **이미지 반전**이 공통 반전 기능입니다. 시야를 음화로 그려 같은 음화를 검출기에 전달합니다. 두 검출 버튼과 실시간 돋보기는 :meth:`MakeMasksScreen._detector_image`를 분할하므로 밝은 객체용 임계값으로 어두운 객체를 검출할 수 있습니다. 기능이 켜져 있는 동안 이미지 위 배너에 이 상태가 표시됩니다. 모서리 판독값의 픽셀 강도는 반전된 이미지를 따릅니다. 객체 평균 강도와 객체 필터는 여전히 불러온 픽셀을 읽습니다. 저장은 원본 이미지를 변경하지 않고 레이블 마스크를 기록합니다."
+    },
+    {
+      "context": "It used to be two switches and they could disagree. A display-only \"Invert image\" drew a negative and left detection untouched; \"Invert for detection\" inverted what the detectors read and drew nothing. A curator could hold either without the other, and the first one's status line had to contradict the second one's banner. They are one switch because the reason for the switch is one intention: inverting a microscope field of view of dark objects so that Otsu and the magnifier can detect them. ``_cp_invert`` is now the same widget object as ``_invert_display`` under its old name, so the two cannot come apart.",
+      "label": "spacr.qt.screens.make_masks#11",
+      "source": "IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only \"Invert image\" drew a negative and left detection untouched; \"Invert for detection\" inverted what the detectors read and drew nothing. A curator could hold either without the other, and the first one's status line had to contradict the second one's banner. They are one switch because the reason for the switch is one intention: inverting a field of dark objects so that Otsu and the magnifier can detect them. ``_cp_invert`` is now the same widget object as ``_invert_display`` under its old name, so the two cannot come apart.",
+      "source_sha256": "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+      "translation": "이전에는 서로 다른 상태가 될 수 있는 두 스위치가 있었습니다. 표시 전용인 \"Invert image\" (이미지 반전)은 검출을 바꾸지 않고 음화를 그렸고, \"Invert for detection\" (검출용 반전)은 그리지 않은 채 검출기 입력만 반전했습니다. 둘 중 하나만 켤 수 있어서 첫 번째 상태 표시줄이 두 번째 배너와 모순될 수 있었습니다. 목적이 어두운 객체의 시야를 반전하여 Otsu와 돋보기로 검출하는 것이므로 이제 하나의 스위치로 통합되었습니다. ``_cp_invert``는 이제 ``_invert_display``와 같은 위젯 객체를 가리키는 이전 이름이므로 두 상태가 어긋날 수 없습니다."
+    },
+    {
+      "context": "**Swap object and background**, in Object operations, is the old \"Invert mask\" under the name that describes it -- it flips the LABEL image, which on an ordinary microscope field of view leaves one object covering the frame. It is not a picture invert and is deliberately not called one.",
+      "label": "spacr.qt.screens.make_masks#12",
+      "source": "**Swap object and background**, in Object operations, is the old \"Invert mask\" under the name that describes it -- it flips the LABEL image, which on an ordinary field leaves one object covering the frame. It is not a picture invert and is deliberately not called one.",
+      "source_sha256": "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+      "translation": "객체 작업의 **객체와 배경 교환**은 이전 \"Invert mask\" (마스크 반전)을 동작에 맞게 바꾼 이름입니다. 레이블 이미지를 뒤집으므로 일반적인 시야에서는 하나의 객체가 프레임 전체를 덮게 됩니다. 이미지 반전이 아니므로 의도적으로 그 명칭을 쓰지 않습니다."
+    },
+    {
+      "context": "The arithmetic. :func:`~spacr.qt.mask_engine.invert_normalized` normalises the microscope field of view to 0..1 on its own range and takes ``1 - v``, and the normalisation is not incidental: the Otsu correction is a MULTIPLIER on an absolute level, so normalising first is what makes one correction value mean the same thing on the next image. :func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and :func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the microscope field of view's range) are what this application view used before and are kept for other callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.",
+      "label": "spacr.qt.screens.make_masks#13",
+      "source": "THE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises the field to 0..1 on its own range and takes ``1 - v``, and the normalisation is not incidental: the Otsu correction is a MULTIPLIER on an absolute level, so normalising first is what makes one correction value mean the same thing on the next image. :func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and :func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the field's range) are what this screen used before and are kept for other callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.",
+      "source_sha256": "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
+      "translation": "계산 방식은 다음과 같습니다. :func:`~spacr.qt.mask_engine.invert_normalized`는 시야 자체 범위를 기준으로 0..1로 정규화한 뒤 ``1 - v``를 계산합니다. 정규화에는 이유가 있습니다. Otsu 보정은 절대 수준에 적용하는 배수이므로 먼저 정규화해야 하나의 보정값이 다음 이미지에서도 같은 의미를 가집니다. :func:`~spacr.qt.mask_engine.invert_intensity`(데이터형 보수)와 :func:`~spacr.qt.mask_engine.invert_for_detection`(시야 범위를 기준으로 한 반사)은 이 화면에서 이전에 사용했으며 다른 호출자를 위해 유지됩니다. :func:`~spacr.qt.mask_engine.invert_mask`는 레이블을 뒤집습니다."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of ruler units, per-axis calibration, defaults and return values, and changed Make Masks introductory paragraphs; no native-speaker sign-off. Eight unchanged paragraphs are retained from the prior catalog and are not claimed as newly reviewed.",
+  "schema": 1
+}

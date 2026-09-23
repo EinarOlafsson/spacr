@@ -1,0 +1,322 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Backend — {state}",
+      "source": "Backend — {state}",
+      "source_sha256": "a1d824f5681c2a78cca08e0f8c634fa3a1176476f226ad88560585963d370626",
+      "table": "ui",
+      "translation": "Bakände — {state}"
+    },
+    {
+      "key": "Segmentation backend — {state}",
+      "source": "Segmentation backend — {state}",
+      "source_sha256": "c3ff8e2a58c00915476383dc336d6c5d7e62651c789628496eaf2e5483c45965",
+      "table": "ui",
+      "translation": "Segmenteringsbakände — {state}"
+    },
+    {
+      "key": "Cellpose 3",
+      "source": "Cellpose 3",
+      "source_sha256": "58ce344a4815032661558ceb4ab601e0e4b1659e32b95b1c12267b854fe1e529",
+      "table": "ui",
+      "translation": "Cellpose 3"
+    },
+    {
+      "key": "SpotNet (DeepCell)",
+      "source": "SpotNet (DeepCell)",
+      "source_sha256": "8965df0743021cf80336b73b8b6340ef29151f18efae13f5e7e2131f1e15ffb8",
+      "table": "ui",
+      "translation": "SpotNet (DeepCell)"
+    },
+    {
+      "key": "Check it loads",
+      "source": "Check it loads",
+      "source_sha256": "ffaa383933f6fdeaa667ca037006bf345fad3b1aefadbe5a94144a55c0a93a27",
+      "table": "ui",
+      "translation": "Kontrollera att det går att läsa in"
+    },
+    {
+      "key": "Checking this computer can install it",
+      "source": "Checking this computer can install it",
+      "source_sha256": "1060e5e3109cbecb4bdbfc9c632ba0996a95f24ea689e582ad0783a137190a56",
+      "table": "ui",
+      "translation": "Kontrollerar om den här datorn kan installera det"
+    },
+    {
+      "key": "Create the environment",
+      "source": "Create the environment",
+      "source_sha256": "d0dd09da210a0fefe12922f74645de961dc30f95f7b21b40f20cafbe55d9f6a6",
+      "table": "ui",
+      "translation": "Skapa miljön"
+    },
+    {
+      "key": "Install PyTorch",
+      "source": "Install PyTorch",
+      "source_sha256": "c4f4fa74431c648e566465d7e668dd78aa1b9ead5f9c8ea668d028a969273d0f",
+      "table": "ui",
+      "translation": "Installera PyTorch"
+    },
+    {
+      "key": "Installing {name} failed. Nothing was left half-built.",
+      "source": "Installing {name} failed. Nothing was left half-built.",
+      "source_sha256": "5d27df61a9eb81683f9e1ab97dedace685e9ac6a5961dd9e4a9b317dfcbc4d52",
+      "table": "ui",
+      "translation": "Installationen av {name} misslyckades. Ingen halvfärdig installation lämnades kvar."
+    },
+    {
+      "key": "Licence: {licence}",
+      "source": "Licence: {licence}",
+      "source_sha256": "478e20af399b5e3bfbe4391dbcae571323eb1be23c732a859985f47bb1ffe12d",
+      "table": "ui",
+      "translation": "Licens: {licence}"
+    },
+    {
+      "key": "Not installable here: {reason}",
+      "source": "Not installable here: {reason}",
+      "source_sha256": "43911629a7f37e86fd263c1c943f82137ebdd4df7cb489bfe573d7936c292dbd",
+      "table": "ui",
+      "translation": "Kan inte installeras här: {reason}"
+    },
+    {
+      "key": "Plaque figure reader",
+      "source": "Plaque figure reader",
+      "source_sha256": "f29a25473ef0eb706858bdc13fcc3981465e587b942bf2684b9637e1eeef610b",
+      "table": "ui",
+      "translation": "Läsare för plackfigurer"
+    },
+    {
+      "key": "Uninstall {name}",
+      "source": "Uninstall {name}",
+      "source_sha256": "854cd3a72950c03d7c279a8e8bdf7d2710f641be4e9f70427ed22cf8ff6b8471",
+      "table": "ui",
+      "translation": "Avinstallera {name}"
+    },
+    {
+      "key": "Uninstalling {name} failed. Nothing was left half-built.",
+      "source": "Uninstalling {name} failed. Nothing was left half-built.",
+      "source_sha256": "9df279a3d2916db937a0151d82e666b76bf2ea4b5cbcae498fc30869351868e0",
+      "table": "ui",
+      "translation": "Avinstallationen av {name} misslyckades. Ingen halvfärdig installation lämnades kvar."
+    },
+    {
+      "key": "Update pip",
+      "source": "Update pip",
+      "source_sha256": "130e2dfa13fd57035d9883964c441ccb7d9f01efe1ebe5d2f75df09f9c86d8ae",
+      "table": "ui",
+      "translation": "Uppdatera pip"
+    },
+    {
+      "key": "step {step} of {steps}",
+      "source": "step {step} of {steps}",
+      "source_sha256": "7f403a7fbf422e17764b198d6f1ae8b05e4152a53241a511bb4a18b62f31abc2",
+      "table": "ui",
+      "translation": "steg {step} av {steps}"
+    },
+    {
+      "key": "{name} is installed",
+      "source": "{name} is installed",
+      "source_sha256": "aa3c05b81a41d7c17aa0b5e56ae5161bc4fcb9ed60d6d22a4edf0ab798061023",
+      "table": "ui",
+      "translation": "{name} är installerat"
+    },
+    {
+      "key": "{name} is installed and ready.",
+      "source": "{name} is installed and ready.",
+      "source_sha256": "ecc904b26d20f9c0afb09960c230e2c20bfca543e936a364bf6a8c2783e93d52",
+      "table": "ui",
+      "translation": "{name} är installerat och klart."
+    },
+    {
+      "key": "{name} is {reason}",
+      "source": "{name} is {reason}",
+      "source_sha256": "320d4fece6ddf54b0cd3317b289e9b99bf204e653c2c724f5576890692b72584",
+      "table": "ui",
+      "translation": "{name}: {reason}"
+    },
+    {
+      "key": "{name} was uninstalled.",
+      "source": "{name} was uninstalled.",
+      "source_sha256": "6a1bede62279675f82a6bf21e38d3390dc3ff04b2259c69b92f398799f16f29a",
+      "table": "ui",
+      "translation": "{name} har avinstallerats."
+    },
+    {
+      "key": "Install {name}",
+      "source": "Install {name}",
+      "source_sha256": "15d27e180bc64b4b3219b11337fa5e748c69724a16fc7b9918b5994ddaad2e9f",
+      "table": "ui",
+      "translation": "Installera {name}"
+    },
+    {
+      "key": "Install",
+      "source": "Install",
+      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
+      "table": "ui",
+      "translation": "Installera"
+    },
+    {
+      "key": "Uninstall",
+      "source": "Uninstall",
+      "source_sha256": "fe199528850a4e24c14d9ece87a07b40bdcfa5fe504c175c117b997c29259ca6",
+      "table": "ui",
+      "translation": "Avinstallera"
+    },
+    {
+      "key": "Try anyway",
+      "source": "Try anyway",
+      "source_sha256": "c73761e35faddb8c473fef67ed5c0d9281586cf7a390c2f58dbf162798c4181c",
+      "table": "ui",
+      "translation": "Försök i alla fall"
+    },
+    {
+      "key": "Removing…",
+      "source": "Removing…",
+      "source_sha256": "d4b09919ec929f15c19802296a06e97a0d0862e29e23c453d638fc0c3b87c641",
+      "table": "ui",
+      "translation": "Tar bort…"
+    },
+    {
+      "key": "Starting…",
+      "source": "Starting…",
+      "source_sha256": "bbe5fc3b9ef39f994c259eaf233d625a500b5219784c82f73b50808d4f79d5dc",
+      "table": "ui",
+      "translation": "Startar…"
+    },
+    {
+      "key": "Try again",
+      "source": "Try again",
+      "source_sha256": "d8b8392e2c542950ca64867168e4ef87d4ad606882d5898f826b51c6d553988f",
+      "table": "ui",
+      "translation": "Försök igen"
+    },
+    {
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d",
+      "table": "ui",
+      "translation": "Avbrutet. Ingenting lämnades kvar."
+    },
+    {
+      "key": "Cellpose 3 with its cyto3, cyto2, cyto and nuclei models, and any Cellpose-format model added from bioimage.io. It runs in an environment of its own, so spaCR's Cellpose 4 is untouched.",
+      "source": "Cellpose 3 with its cyto3, cyto2, cyto and nuclei models, and any Cellpose-format model added from bioimage.io. It runs in an environment of its own, so spaCR's Cellpose 4 is untouched.",
+      "source_sha256": "2ccf49f320a2bcfede8123f14cb6dc65a2b5779c55f6ec5c363e04ffc836bbbb",
+      "table": "ui",
+      "translation": "Cellpose 3 med modellerna cyto3, cyto2, cyto och nuclei samt modeller i Cellpose-format som lagts till från bioimage.io. Det körs i en egen miljö, så spaCR:s Cellpose 4 lämnas oförändrad."
+    },
+    {
+      "key": "Cellpose 3.1.1.3 is BSD-3-Clause (Copyright 2020 Howard Hughes Medical Institute). Cellpose downloads its cyto, cyto2, cyto3 and nuclei weights from cellpose.org itself, into the backend's own folder.",
+      "source": "Cellpose 3.1.1.3 is BSD-3-Clause (Copyright 2020 Howard Hughes Medical Institute). Cellpose downloads its cyto, cyto2, cyto3 and nuclei weights from cellpose.org itself, into the backend's own folder.",
+      "source_sha256": "26cffdd5b28ab7612450531eef251e716cd86dc623dcf9b52354df839833ef7d",
+      "table": "ui",
+      "translation": "Cellpose 3.1.1.3 använder BSD-3-Clause (Copyright 2020 Howard Hughes Medical Institute). Cellpose hämtar självt sina vikter för cyto, cyto2, cyto3 och nuclei från cellpose.org till bakändens egen mapp."
+    },
+    {
+      "key": "Published results: Stringer and Pachitariu, 'Cellpose3: one-click image restoration for improved cellular segmentation', Nature Methods 2025 (doi:10.1038/s41592-025-02595-5). The project's README publishes no results table. spaCR has not scored this backend on its own data.",
+      "source": "Published results: Stringer and Pachitariu, 'Cellpose3: one-click image restoration for improved cellular segmentation', Nature Methods 2025 (doi:10.1038/s41592-025-02595-5). The project's README publishes no results table. spaCR has not scored this backend on its own data.",
+      "source_sha256": "ef4f1d63b69b10bf9154d55e3e8d31931917a8da8ea0011baba2b67821b3d927",
+      "table": "ui",
+      "translation": "Publicerade resultat: Stringer och Pachitariu, 'Cellpose3: one-click image restoration for improved cellular segmentation', Nature Methods 2025 (doi:10.1038/s41592-025-02595-5). Projektets README innehåller ingen resultattabell. spaCR har inte utvärderat denna bakände på egna data."
+    },
+    {
+      "key": "DINOCell, a DINOv2 model that predicts Cellpose-style flows, for live-cell and label-free images. It pins its own torch, numpy and Cellpose, so it runs in an environment of its own.",
+      "source": "DINOCell, a DINOv2 model that predicts Cellpose-style flows, for live-cell and label-free images. It pins its own torch, numpy and Cellpose, so it runs in an environment of its own.",
+      "source_sha256": "a3f702425daa80fc51dc1c0efa2cc9cf3c96ff4e09ea7b084260118e5858ebd4",
+      "table": "ui",
+      "translation": "DINOCell är en DINOv2-modell som förutsäger flödesfält av Cellpose-typ för bilder av levande celler och bilder utan märkning. Den låser egna versioner av torch, numpy och Cellpose och körs därför i en egen miljö."
+    },
+    {
+      "key": "DINOCell 0.74 is MIT (Copyright 2026 Kaden Stillwagon); its weights, KadenStillwagon/DINOCell on Hugging Face, are MIT too.",
+      "source": "DINOCell 0.74 is MIT (Copyright 2026 Kaden Stillwagon); its weights, KadenStillwagon/DINOCell on Hugging Face, are MIT too.",
+      "source_sha256": "72540144a421385e487ec0bcd5f065041b729697b82cf3fdb72712bfdea7abde",
+      "table": "ui",
+      "translation": "DINOCell 0.74 använder MIT (Copyright 2026 Kaden Stillwagon); dess vikter, KadenStillwagon/DINOCell på Hugging Face, använder också MIT."
+    },
+    {
+      "key": "Published results (project README, read 2026-09-21; Stillwagon et al. 2026, arXiv:2604.10609): LIVECell test set SEG 0.784, DET 0.926, MMA 0.876, against Cellpose-SAM 0.710 / 0.852 / 0.807. spaCR has not scored this backend on its own data.",
+      "source": "Published results (project README, read 2026-09-21; Stillwagon et al. 2026, arXiv:2604.10609): LIVECell test set SEG 0.784, DET 0.926, MMA 0.876, against Cellpose-SAM 0.710 / 0.852 / 0.807. spaCR has not scored this backend on its own data.",
+      "source_sha256": "e44cae3aa8a6463c02eda7f7f4dc9480628e32745493d4e7badb85746332cf2b",
+      "table": "ui",
+      "translation": "Publicerade resultat (projektets README, läst 2026-09-21; Stillwagon et al. 2026, arXiv:2604.10609): LIVECell-testmängd SEG 0.784, DET 0.926, MMA 0.876, jämfört med Cellpose-SAM 0.710 / 0.852 / 0.807. spaCR har inte utvärderat denna bakände på egna data."
+    },
+    {
+      "key": "SAMCell, SAM ViT-B fine-tuned to predict a cell distance map, trained partly on LIVECell. It runs in an environment of its own.",
+      "source": "SAMCell, SAM ViT-B fine-tuned to predict a cell distance map, trained partly on LIVECell. It runs in an environment of its own.",
+      "source_sha256": "dd30360c7aee54665497cd3bd13a89a718f30e36d8377fa112617dba39b89bb8",
+      "table": "ui",
+      "translation": "SAMCell är SAM ViT-B finjusterad för att förutsäga en cellavståndskarta och delvis tränad på LIVECell. Den körs i en egen miljö."
+    },
+    {
+      "key": "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It fine-tunes facebook/sam-vit-base, which is Apache-2.0, and its checkpoints come from the project's GitHub release.",
+      "source": "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It fine-tunes facebook/sam-vit-base, which is Apache-2.0, and its checkpoints come from the project's GitHub release.",
+      "source_sha256": "2df9bd3e4998c3fb49c50eb42abd84b01257f640e8b8ef97d71866e6fe3b8a49",
+      "table": "ui",
+      "translation": "SAMCell 1.2.0 använder MIT (Copyright 2025 Saahil Sanganeriya). Den finjusterar facebook/sam-vit-base, som använder Apache-2.0, och dess modellcheckpoints kommer från projektets GitHub-utgåva."
+    },
+    {
+      "key": "Published results (project README, read 2026-09-21; Sanganeriya et al., PLOS ONE 2025, doi:10.1371/journal.pone.0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored this backend on its own data.",
+      "source": "Published results (project README, read 2026-09-21; Sanganeriya et al., PLOS ONE 2025, doi:10.1371/journal.pone.0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored this backend on its own data.",
+      "source_sha256": "0f19d30beb707b631947d60a43dd9af5b9bdf45d107166e6e540f5fb7ed161b3",
+      "table": "ui",
+      "translation": "Publicerade resultat (projektets README, läst 2026-09-21; Sanganeriya et al., PLOS ONE 2025, doi:10.1371/journal.pone.0319532): LIVECell-testmängd SEG 0.652, DET 0.893, OP_CSB 0.772, jämfört med Cellpose 0.589 / 0.779 / 0.684. spaCR har inte utvärderat denna bakände på egna data."
+    },
+    {
+      "key": "SpotNet finds fluorescent SPOTS -- single molecules, FISH puncta, sequencing-by-synthesis signals -- and returns their coordinates, not masks. Its environment contains TensorFlow and PyTorch. deepcell-spots 0.4.2 needs Python 3.7 to 3.10 available to create that environment; spaCR itself may use a newer Python. The weights need a free DeepCell token. trackpy and deepcell are pinned with it: deepcell-spots pins neither, and pip walked back to trackpy 0.2.3 (2014), whose setup.py cannot build (reported 2026-09-22).",
+      "source": "SpotNet finds fluorescent SPOTS -- single molecules, FISH puncta, sequencing-by-synthesis signals -- and returns their coordinates, not masks. Its environment contains TensorFlow and PyTorch. deepcell-spots 0.4.2 needs Python 3.7 to 3.10 available to create that environment; spaCR itself may use a newer Python. The weights need a free DeepCell token. trackpy and deepcell are pinned with it: deepcell-spots pins neither, and pip walked back to trackpy 0.2.3 (2014), whose setup.py cannot build (reported 2026-09-22).",
+      "source_sha256": "88693fbb013cb5010e20a27b3c2f7a3f16773c4b97affc4feb0beea0b3a7a39e",
+      "table": "ui",
+      "translation": "SpotNet hittar fluorescerande punkter — enskilda molekyler, FISH-punkter och signaler från sekvensering genom syntes — och returnerar deras koordinater, inte masker. Dess miljö innehåller TensorFlow och PyTorch. deepcell-spots 0.4.2 behöver en tillgänglig Python-version från 3.7 till 3.10 för att skapa miljön; spaCR självt kan använda en nyare Python. Vikterna kräver en kostnadsfri DeepCell-token. Även trackpy och deepcell är versionslåsta: deepcell-spots låser ingendera, och pip gick tillbaka till trackpy 0.2.3 (2014), vars setup.py inte går att bygga (rapporterat 2026-09-22)."
+    },
+    {
+      "key": "DeepCell's models and training data are licensed for non-commercial academic use only (a modified Apache licence), which is NOT the licence spaCR itself carries. Its weights are not public either: they are fetched from users.deepcell.org with a free account's access token, which spaCR reads from DEEPCELL_ACCESS_TOKEN. Read the licence before using SpotNet for anything commercial.",
+      "source": "DeepCell's models and training data are licensed for non-commercial academic use only (a modified Apache licence), which is NOT the licence spaCR itself carries. Its weights are not public either: they are fetched from users.deepcell.org with a free account's access token, which spaCR reads from DEEPCELL_ACCESS_TOKEN. Read the licence before using SpotNet for anything commercial.",
+      "source_sha256": "c72ddd6287391aebb44dd318d481f5b0682032a837a97a04cdc38fc1e68f1db6",
+      "table": "ui",
+      "translation": "DeepCells modeller och träningsdata är licensierade enbart för icke-kommersiell akademisk användning (en modifierad Apache-licens), vilket INTE är samma licens som spaCR självt använder. Vikterna är inte heller offentligt tillgängliga: de hämtas från users.deepcell.org med en åtkomsttoken för ett kostnadsfritt konto, som spaCR läser från DEEPCELL_ACCESS_TOKEN. Läs licensen innan du använder SpotNet kommersiellt."
+    },
+    {
+      "key": "Published results: Laubscher et al., 'Accurate single-molecule spot detection for image-based spatial transcriptomics with weakly supervised deep learning', Cell Systems 2024 (doi:10.1016/j.cels.2023.12.008). spaCR has not scored it on its own data.",
+      "source": "Published results: Laubscher et al., 'Accurate single-molecule spot detection for image-based spatial transcriptomics with weakly supervised deep learning', Cell Systems 2024 (doi:10.1016/j.cels.2023.12.008). spaCR has not scored it on its own data.",
+      "source_sha256": "49e6df019717828386d7d9ca66ca52b1f392ef31cf6e4515b0feb618cac1c6e4",
+      "table": "ui",
+      "translation": "Publicerade resultat: Laubscher et al., 'Accurate single-molecule spot detection for image-based spatial transcriptomics with weakly supervised deep learning', Cell Systems 2024 (doi:10.1016/j.cels.2023.12.008). spaCR har inte utvärderat det på egna data."
+    },
+    {
+      "key": "What Plaque Assay's Figure mode needs: the YOLO detector that finds plaque images in a figure, RapidOCR, which reads the panel letters and labels around them, and pdfplumber, which renders a PDF's pages and reads its text layer. Installed apart from spaCR so its torch and opencv cannot change spaCR's.",
+      "source": "What Plaque Assay's Figure mode needs: the YOLO detector that finds plaque images in a figure, RapidOCR, which reads the panel letters and labels around them, and pdfplumber, which renders a PDF's pages and reads its text layer. Installed apart from spaCR so its torch and opencv cannot change spaCR's.",
+      "source_sha256": "c0ac00c30fe44677e835a5e0946328677ef85ca88abdd3154ba779f19446c7c5",
+      "table": "ui",
+      "translation": "Det som figurläget i Plaque Assay behöver: YOLO-detektorn som hittar plackbilder i en figur, RapidOCR som läser panelbokstäverna och etiketterna omkring dem, samt pdfplumber som renderar PDF-sidor och läser deras textlager. De installeras separat från spaCR så att deras torch och opencv inte kan ändra spaCR:s versioner."
+    },
+    {
+      "key": "ultralytics is AGPL-3.0, RapidOCR Apache-2.0 and pdfplumber MIT. They are installed into this environment of their own and run in a separate process, so spaCR's own environment and licence are untouched.",
+      "source": "ultralytics is AGPL-3.0, RapidOCR Apache-2.0 and pdfplumber MIT. They are installed into this environment of their own and run in a separate process, so spaCR's own environment and licence are untouched.",
+      "source_sha256": "4db3d20730308a1d7dedb7c457005f59e4658a0a8eed02cbc062ee958d0ece2b",
+      "table": "ui",
+      "translation": "ultralytics använder AGPL-3.0, RapidOCR Apache-2.0 och pdfplumber MIT. De installeras i denna egna miljö och körs i en separat process, så spaCR:s egen miljö och licens lämnas oförändrade."
+    },
+    {
+      "key": "Published results: none for this use. The detector's own measurements on published figures are in item 424 (toxoplasma_well_detector_v2).",
+      "source": "Published results: none for this use. The detector's own measurements on published figures are in item 424 (toxoplasma_well_detector_v2).",
+      "source_sha256": "6c400a461a074af99587aa08550e75eb57f4f741c3f737fca64b065e096ed12b",
+      "table": "ui",
+      "translation": "Publicerade resultat: inga för denna användning. Detektorns egna mätningar på publicerade figurer finns i punkt 424 (toxoplasma_well_detector_v2)."
+    },
+    {
+      "key": "It installs into an environment of its own, {environment}, and spaCR's own environment is not changed. Downloads: {packages}. Allow about {size_gb:.0f} GB with CPU PyTorch and several more with CUDA. Installation can take several minutes. The window remains responsive; Cancel stops installation and removes the unfinished environment.",
+      "source": "It installs into an environment of its own, {environment}, and spaCR's own environment is not changed. Downloads: {packages}. Allow about {size_gb:.0f} GB with CPU PyTorch and several more with CUDA. Installation can take several minutes. The window remains responsive; Cancel stops installation and removes the unfinished environment.",
+      "source_sha256": "a4db3588d664440ff7372d1576766e3afbb69810a8735b9d2e3305e4e3406e17",
+      "table": "ui",
+      "translation": "Det installeras i en egen miljö, {environment}, och spaCR:s egen miljö ändras inte. Hämtningar: {packages}. Räkna med ungefär {size_gb:.0f} GB med CPU-PyTorch och flera GB till med CUDA. Installationen kan ta flera minuter. Fönstret fortsätter att svara; Avbryt stoppar installationen och tar bort den ofärdiga miljön."
+    },
+    {
+      "key": "Uninstalling {name} deletes its environment, {environment}, and everything downloaded into it. spaCR's own environment is not touched, and you can install it again at any time.",
+      "source": "Uninstalling {name} deletes its environment, {environment}, and everything downloaded into it. spaCR's own environment is not touched, and you can install it again at any time.",
+      "source_sha256": "5a60b88f24dbbd8d7bd6efbc41c1223a6eea4ca28b23c335c6294df5f4969476",
+      "table": "ui",
+      "translation": "Avinstallation av {name} tar bort dess miljö, {environment}, och allt som hämtats till den. spaCR:s egen miljö lämnas orörd, och du kan installera det igen när som helst."
+    }
+  ],
+  "review_kind": "AI-assisted source/target and technical review of backend descriptions, licence/provenance notes and installer controls. Bibliographic titles, reported scores, package names, versions and licence identifiers are retained. Two model names remain literal identities. No independent score verification or native-speaker sign-off.",
+  "schema": 1
+}

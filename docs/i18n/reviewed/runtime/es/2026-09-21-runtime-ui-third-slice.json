@@ -298,13 +298,6 @@
     },
     {
       "table": "ui",
-      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "translation": "Segmenta el campo abierto con un modelo. Ambos umbrales comienzan en los propios valores predeterminados de Cellpose.",
-      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
-    },
-    {
-      "table": "ui",
       "key": "Sending the approved report to GitHub…",
       "source": "Sending the approved report to GitHub…",
       "translation": "Enviando el informe aprobado a GitHub…",
@@ -354,10 +347,10 @@
     },
     {
       "table": "ui",
-      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "translation": "Muestra la imagen en negativo y detecta sobre ese mismo negativo: el campo se normaliza a 0..1 y cada píxel se convierte en 1 menos su valor, de modo que el más oscuro pasa a ser el más brillante. Así, Otsu y la lupa en tiempo real, que buscan objetos brillantes, pueden detectar objetos OSCUROS: un objeto oscuro en una imagen clara de campo claro se ve como uno fluorescente, tanto para el ojo como para el detector. LAS MÁSCARAS SE GENERAN A PARTIR DE LA IMAGEN INVERTIDA mientras esta opción está activa, y una advertencia sobre la imagen lo indica. La lectura al pasar el cursor, la categoría Filtro y la máscara guardada siguen usando los valores reales de la imagen, por lo que las mediciones no cambian. Esta opción es distinta de 'Swap object and background' en Operaciones de objetos, que invierte una MÁSCARA ya creada sin modificar la imagen.",
-      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789"
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "Invierte la imagen y los píxeles usados para la detección, de modo que los objetos oscuros se vuelvan claros. El campo se normaliza a 0..1 y cada píxel pasa a ser 1 menos su valor. La intensidad del píxel bajo el cursor refleja la inversión; la intensidad media de los objetos y los umbrales de Filtrar usan los valores originales cargados. Los datos de imagen cargados y la máscara existente no cambian. Para intercambiar el primer plano y el fondo de una máscara terminada, use «Intercambiar objeto y fondo» ('Swap object and background') en Operaciones de objetos."
     },
     {
       "table": "ui",
@@ -487,13 +480,6 @@
     },
     {
       "table": "ui",
-      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "translation": "La lupa en tiempo real también lee estos ajustes: el modo Cellpose utiliza el modelo, ambos umbrales, el diámetro y la normalización; DINOCell utiliza la probabilidad celular. El modo Otsu lee los ajustes de la categoría Otsu.",
-      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
-    },
-    {
-      "table": "ui",
       "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "translation": "Comando que ejecuta spaCR. Cópielo si prefiere ejecutarlo usted mismo en un terminal.",
@@ -561,6 +547,41 @@
       "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
       "translation": "No se pudo iniciar la autenticación desde aquí. Ejecute el comando de abajo en un terminal y pulse Listo.",
       "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "translation": "Muestra la imagen en negativo y detecta sobre ese mismo negativo: el campo se normaliza a 0..1 y cada píxel se convierte en 1 menos su valor, de modo que el más oscuro pasa a ser el más brillante. Así, Otsu y la lupa en tiempo real, que buscan objetos brillantes, pueden detectar objetos OSCUROS: un objeto oscuro en una imagen clara de campo claro se ve como uno fluorescente, tanto para el ojo como para el detector. LAS MÁSCARAS SE GENERAN A PARTIR DE LA IMAGEN INVERTIDA mientras esta opción está activa, y una advertencia sobre la imagen lo indica. La lectura al pasar el cursor, la categoría Filtro y la máscara guardada siguen usando los valores reales de la imagen, por lo que las mediciones no cambian. Esta opción es distinta de 'Swap object and background' en Operaciones de objetos, que invierte una MÁSCARA ya creada sin modificar la imagen.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789"
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "translation": "Segmenta el campo abierto con un modelo. Ambos umbrales comienzan en los propios valores predeterminados de Cellpose.",
+        "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "translation": "La lupa en tiempo real también lee estos ajustes: el modo Cellpose utiliza el modelo, ambos umbrales, el diámetro y la normalización; DINOCell utiliza la probabilidad celular. El modo Otsu lee los ajustes de la categoría Otsu.",
+        "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
+      }
     }
   ]
 }

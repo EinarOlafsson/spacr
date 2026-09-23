@@ -1,0 +1,243 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b",
+      "translation": "इस दृश्य क्षेत्र को छोड़ने के लिए चिह्नित करें और अगले पर जाएँ। कुछ भी मिटाया नहीं जाता: निर्णय छवियों के पास csv/keep_discard.csv में लिखा जाता है; दृश्य क्षेत्र, उसका मास्क और उसके ऑब्जेक्ट जस के तस रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9",
+      "translation": "इस दृश्य क्षेत्र को रखने के लिए चिह्नित करें और अगले पर जाएँ। निर्णय छवियों के पास csv/keep_discard.csv में छवि, उसके मास्क और मास्क में इस समय मौजूद ऑब्जेक्ट की संख्या के साथ लिखा जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
+      "translation": "आपके बनाए मास्क मापें। एक तालिका खुलती है जिसमें प्रत्येक पंक्ति एक दृश्य क्षेत्र और प्रत्येक स्तंभ एक चैनल या मास्क का प्रकार है। प्रक्रिया मापन मॉड्यूल से ही चलती है, इसलिए वही फ़ोल्डर और मापन डेटाबेस बनते हैं जो उस मॉड्यूल को चलाने पर बनते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "ब्रश, जादुई छड़ी, प्रदर्शन, स्वचालित फ़िल्टर, ऑब्जेक्ट संबंधी क्रियाएँ, Otsu, ऑब्जेक्ट पहचान और लाइव आवर्धक की सेटिंग्स को एक साथ दिखाएँ या छिपाएँ। इनके छिपने से खाली हुई चौड़ाई कैनवास को मिलती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "छवि और पहचान के लिए इस्तेमाल किए जाने वाले पिक्सेल उलटें, ताकि गहरे ऑब्जेक्ट चमकीले हो जाएँ। फ़ील्ड को 0..1 में सामान्यीकृत किया जाता है और फिर हर पिक्सेल का मान 1 में से उसके अपने मान को घटाकर मिलता है। कर्सर के नीचे पिक्सेल की तीव्रता उलटने के अनुसार बदलती है; ऑब्जेक्ट की औसत तीव्रता और फ़िल्टर की सीमाएँ मूल लोड किए गए मानों का उपयोग करती हैं। लोड किया गया छवि डेटा और मौजूदा मास्क नहीं बदलते। तैयार मास्क में अग्रभूमि और पृष्ठभूमि बदलने के लिए ऑब्जेक्ट संचालन में «ऑब्जेक्ट और पृष्ठभूमि बदलें» ('Swap object and background') का उपयोग करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
+      "translation": "चालू सीमाओं को स्क्रीन पर दिख रहे मास्क पर लागू करें। हटाया गया प्रत्येक ऑब्जेक्ट नीचे सूचीबद्ध होता है, साथ में वह क्षेत्रफल और औसत तीव्रता भी होती है जिनके आधार पर उसे हटाया गया। पूरी क्रिया एक चरण में पूर्ववत की जा सकती है।"
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
+      "translation": "पिछले फ़िल्टर ने जो हटाया उसकी सूची, प्रत्येक ऑब्जेक्ट के लिए एक पंक्ति: उसका पहचानकर्ता, जाँचा गया क्षेत्रफल और औसत तीव्रता, तथा वह सीमा जिसके कारण वह हटा। पहचानकर्ता वही हैं जो पॉइंटर के नीचे की रीडिंग में दिखते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
+      "translation": "रखने योग्य सबसे छोटे ऑब्जेक्ट का आकार, पिक्सेल में। छोटे ऑब्जेक्ट हटाने की क्रिया इस सीमा से नीचे का सब कुछ हटा देती है। Otsu पहचान और ऑब्जेक्ट पहचान भी इससे छोटा ऑब्जेक्ट नहीं बनातीं, इसलिए अवशेषों की आकार सीमा एक ही खाने से तय होती है।"
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5",
+      "translation": "फैलाने या सिकोड़ने का बटन एक बार दबाने पर प्रत्येक ऑब्जेक्ट की सीमा कितने पिक्सेल खिसकती है। दूरी सीधी रेखा में मापी जाती है, इसलिए 1 सीमा को चार सटे पड़ोसियों तक बढ़ाता है, कोनों तक नहीं। यदि ऑब्जेक्ट के पास फैलने की जगह थी, तो उतनी ही दूरी का सिकोड़ना फैलाव को पूर्ववत करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972",
+      "translation": "प्रत्येक ऑब्जेक्ट को इतने पिक्सेल बढ़ाएँ, केवल पृष्ठभूमि में। कोई ऑब्जेक्ट अपने पड़ोसी का पिक्सेल नहीं लेता और दो ऑब्जेक्ट एक नहीं बनते, इसलिए पहचानकर्ता और ऑब्जेक्ट की संख्या अपरिवर्तित रहते हैं। पूरी क्रिया एक चरण में पूर्ववत की जा सकती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966",
+      "translation": "प्रत्येक ऑब्जेक्ट की सीमा इतने पिक्सेल भीतर खींचें। हर ऑब्जेक्ट पड़ोसियों और पृष्ठभूमि दोनों से पीछे हटता है, इसलिए आपस में छूते दो ऑब्जेक्ट अलग हो जाते हैं। इस दूरी के दोगुने से पतला ऑब्जेक्ट गायब हो जाता है, और स्थिति पंक्ति बताती है कि कितने गायब हुए। पूरी क्रिया एक चरण में पूर्ववत की जा सकती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
+      "translation": "इस दृश्य क्षेत्र और Cellpose मोड में लाइव आवर्धक के बॉक्स का विभाजन किन मॉडल भारों से होगा। सूची में इस मशीन पर स्थापित Cellpose और मॉडल संग्रह के सभी Cellpose मॉडल हैं। अभी डाउनलोड न किया गया संग्रह का मॉडल धूसर दिखता है; उसे चुनने पर वह डाउनलोड होकर चयनित हो जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88",
+      "translation": "खुले दृश्य क्षेत्र का विभाजन ऑब्जेक्ट पहचान मॉडल से करें और बदलने या मिलाने की सेटिंग के अनुसार परिणाम जोड़ें। कोशिका प्रायिकता और प्रवाह वाले टैब में प्रक्रिया के मध्यवर्ती परिणाम भरते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146",
+      "translation": "सीमा खोजने और उस पर छवि विभाजित करने से पहले लगाया जाने वाला गॉसियन धुँधलापन, पिक्सेल में। यह शोर वाले दृश्य क्षेत्र को एक-एक पिक्सेल के हजारों ऑब्जेक्ट बनने से रोकता है। 0 पर सीमा सीधे कच्चे डेटा पर लगती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8",
+      "translation": "सीमा लगाने के बाद बचे क्षेत्रों के भीतर के छेद, लेबल देने से पहले भरें। इसके बिना किनारे से कम चमकीले मध्य वाला केंद्रक छल्ले के रूप में आता है। आवर्धक का Otsu मोड हमेशा ऐसा करता था, जबकि Otsu पहचान नहीं करती थी; इसलिए एक ही दृश्य क्षेत्र पर दोनों के परिणाम अलग हो सकते थे। अब दोनों इसी सेटिंग को पढ़ते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751",
+      "translation": "दो केंद्रों वाले क्षेत्र को उनके बीच की रिज पर दो भागों में बाँटें, पृष्ठभूमि से दूरी पर वाटरशेड विधि लगाकर। एक केंद्र वाला क्षेत्र पूरा रहता है, इसलिए यह हर क्षेत्र को नहीं काटता। विकल्प बंद हो तो आपस में छूती दो कोशिकाएँ एक ऑब्जेक्ट बनती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602",
+      "translation": "उन ऑब्जेक्ट को छोड़ दें जिन्हें दृश्य क्षेत्र का किनारा काटता है। उनका क्षेत्रफल और औसत तीव्रता ऑब्जेक्ट के बजाय फ़्रेम की स्थिति पर निर्भर करते हैं, इसलिए मापन के लिए पहचान करते समय उन्हें छोड़ना बेहतर है। केवल Otsu पहचान के लिए: लाइव आवर्धक में बॉक्स की सीमा के लिए अलग विकल्प है।"
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
+      "translation": "कौन सा चमक स्तर ऑब्जेक्ट बनेगा; सबसे धुँधले स्तर की गिनती 0 से शुरू होती है। 3 वर्गों में 2 चमकीले केंद्रकों को लेता है और 1 उनके चारों ओर का धुँधला प्रभामंडल लेता है, भीतर के केंद्रकों को नहीं। केवल वही स्तर लिया जाता है, जो दो से अधिक वर्ग रखने का उद्देश्य है। दो से अधिक वर्गों पर यह ऑब्जेक्ट के पृष्ठभूमि से अधिक चमकीले होने वाली सेटिंग की जगह लेता है: संख्या तय करती है कि कौन सा पक्ष लेना है।"
+    },
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37",
+      "translation": "वह वर्गाकार क्षेत्र जिसमें स्थानीय सीमा मापी जाती है, प्रत्येक पिक्सेल को केंद्र मानकर। इसे एक ऑब्जेक्ट से पर्याप्त बड़ा और रोशनी बदलने के स्थानिक पैमाने से छोटा रखें। बहुत छोटा होने पर बड़े ऑब्जेक्ट का अंदरूनी भाग अपनी ही पृष्ठभूमि बन जाता है और ऑब्जेक्ट खोखला मिलता है। बहुत बड़ा होने पर फिर पूरे दृश्य क्षेत्र की एक सीमा बन जाती है। सम संख्याएँ अगली विषम संख्या तक बढ़ाई जाती हैं ताकि वर्ग का केंद्र हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
+      "translation": "पूरे दृश्य क्षेत्र के लिए एक बार सीमा खोजने के बजाय हर पिक्सेल के आसपास की विंडो में अलग Otsu स्तर खोजें। कम रोशनी वाला कोना तब अपने स्थानीय परिवेश के सापेक्ष आँका जाता है; वहाँ के ऑब्जेक्ट खोते नहीं और चमकीला मध्य साफ रहता है। शोर वाली पृष्ठभूमि पर अतिरिक्त ऑब्जेक्ट मिल सकते हैं, जिन्हें न्यूनतम क्षेत्रफल की सीमा हटाती है। केवल दो वर्गों और Otsu पहचान के लिए।"
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1",
+      "translation": "Otsu मोड किसी ऑब्जेक्ट को कितनी आसानी से स्वीकार करे। कम चमकीले या कम निश्चित ऑब्जेक्ट लेने के लिए इसे बढ़ाएँ; केवल स्पष्ट ऑब्जेक्ट रखने के लिए घटाएँ। 0 डिफ़ॉल्ट सीमा है। मॉडल अपनी सीमाएँ ऑब्जेक्ट पहचान की सेटिंग्स से लेते हैं, इसलिए दूसरा मोड चुने जाने पर यह नियंत्रण धूसर रहता है।"
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+      "translation": "मास्क में पहले से ऑब्जेक्ट होने पर नया ऑब्जेक्ट क्या करे। काटने का नियम केवल उसके बिना लेबल वाले पिक्सेल रखता है, इसलिए पुराने ऑब्जेक्ट का कोई पिक्सेल नहीं जाता। छोड़ने का नियम पुराने ऑब्जेक्ट को छूते किसी भी नए ऑब्जेक्ट को छोड़ देता है। बदलने का नियम नए ऑब्जेक्ट को उसके ढके सभी पिक्सेल लेने देता है। माउस के नीचे के क्षेत्र की झलक में बॉक्स नियम का परिणाम दिखाता है: क्लिक से जोड़े जाने वाले भाग ठोस रंग में और हटने वाले भाग धुँधले दिखते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "“छवि उलटें” चालू है: प्रदर्शन और पहचान दोनों उलटी छवि का उपयोग करते हैं। कर्सर के नीचे पिक्सेल की तीव्रता उलटने के अनुसार बदलती है; ऑब्जेक्ट की औसत तीव्रता और फ़िल्टर की सीमाएँ मूल लोड किए गए मानों का उपयोग करती हैं। लोड किया गया छवि डेटा और मौजूदा मास्क नहीं बदलते।"
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
+        "translation": "बॉक्स के क्षेत्र का विभाजन करने वाला मॉडल। Otsu क्षेत्र पर अपना सीमा स्तर लगाता है और वाटरशेड से छूते ऑब्जेक्ट अलग करता है। इसे कोई स्थापना नहीं चाहिए; यह ऑब्जेक्ट संबंधी क्रियाओं के न्यूनतम क्षेत्रफल, सीमा सुधार और Otsu श्रेणी की बाकी सेटिंग्स का पालन करता है। मॉडल लोड न हो सके तो यही चलता है। Cellpose ऑब्जेक्ट पहचान के मॉडल, दोनों सीमाओं, व्यास और सामान्यीकरण को उपयोग करता है तथा GPU के बिना धीमा है। Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell और SAMCell हमेशा सूची में होते हैं और स्थापना तक धूसर रहते हैं। चुनने पर उन्हें अलग वातावरण में स्थापित करने का विकल्प मिलता है। Cellpose 3 ऑब्जेक्ट पहचान की दोनों सीमाएँ और व्यास पढ़ता है, DINOCell कोशिका प्रायिकता पढ़ता है और SAMCell अपनी सीमाएँ उपयोग करता है।"
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+        "translation": "छवि को नेगेटिव के रूप में दिखाएँ और उसी नेगेटिव पर ऑब्जेक्ट पहचानें: दृश्य क्षेत्र को 0..1 पर सामान्यीकृत किया जाता है और प्रत्येक पिक्सेल का नया मान 1 में से उसका पुराना मान घटाकर बनता है, इसलिए सबसे गहरा पिक्सेल सबसे चमकीला हो जाता है। इससे चमकीले ऑब्जेक्ट खोजने वाले Otsu और लाइव आवर्धक गहरे ऑब्जेक्ट भी पहचान सकते हैं। हल्के ब्राइटफ़ील्ड में गहरा ऑब्जेक्ट आँख और पहचान प्रक्रिया दोनों को प्रतिदीप्त ऑब्जेक्ट जैसा दिखता है। यह विकल्प चालू होने पर मास्क उलटी तीव्रता वाली छवि से बनते हैं, और छवि के ऊपर इसकी चेतावनी रहती है। पॉइंटर के नीचे की रीडिंग, फ़िल्टर श्रेणी और सहेजा जाने वाला मास्क छवि के वास्तविक मानों का उपयोग करते रहते हैं, इसलिए माप नहीं बदलते। यह ऑब्जेक्ट संबंधी क्रियाओं में ऑब्जेक्ट और पृष्ठभूमि को आपस में बदलने वाली क्रिया ('Swap object and background') से अलग है: वह तैयार मास्क को उलटती है और छवि को नहीं बदलती।"
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+        "translation": "Otsu के स्तर पर छवि की सीमा तय करें और ऊपर दिए न्यूनतम क्षेत्रफल का पालन करते हुए बचे क्षेत्रों को लेबल दें। सीमा से संबंधित सभी सेटिंग्स Otsu श्रेणी में हैं: सुधार, स्मूथिंग, कौन सा पक्ष ऑब्जेक्ट है, छेद भरना, छूते ऑब्जेक्ट अलग करना और फ़्रेम से कटे ऑब्जेक्ट हटाना।"
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "बॉक्स के क्षेत्र का विभाजन करने वाला मॉडल। Otsu क्षेत्र पर अपना सीमा स्तर लगाता है और वाटरशेड से छूते ऑब्जेक्ट अलग करता है। इसे कोई स्थापना नहीं चाहिए; यह ऑब्जेक्ट संबंधी क्रियाओं के न्यूनतम क्षेत्रफल, सीमा सुधार और Otsu श्रेणी की बाकी सेटिंग्स का पालन करता है। मॉडल लोड न हो सके तो यही चलता है। अनुकूली सीमा (Adaptive threshold), LoG blobs, DoG blobs, रिज फ़िल्टर (Ridge filter), हिस्टेरेसिस (Hysteresis) और U-Net कोशिकांग पहचान की अपनी विधियाँ हैं। ये विभाजन प्रक्रिया वाला ही कोड चलाती हैं और पहचान विधियाँ श्रेणी की सेटिंग्स पढ़ती हैं; हर पंक्ति का टूलटिप बताता है कि संबंधित विधि किन स्थितियों के लिए उपयुक्त है। Cellpose ऑब्जेक्ट पहचान के मॉडल, दोनों सीमाओं, व्यास और सामान्यीकरण को उपयोग करता है तथा GPU के बिना धीमा है। Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell और SAMCell हमेशा सूची में होते हैं और स्थापना तक धूसर रहते हैं। चुनने पर उन्हें अलग वातावरण में स्थापित करने का विकल्प मिलता है। Cellpose 3 ऑब्जेक्ट पहचान की दोनों सीमाएँ और व्यास पढ़ता है, DINOCell कोशिका प्रायिकता पढ़ता है और SAMCell अपनी सीमाएँ उपयोग करता है।"
+      }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+        "translation": "सीमा सुधार गुणक: उपयोग से पहले Otsu का स्तर इससे गुणा होता है। 1 से ऊपर सीमा अधिक कड़ी होती है, इसलिए ऑब्जेक्ट सिकुड़ते हैं और धुँधले ऑब्जेक्ट छूट जाते हैं। 1 से नीचे कम चमकीले पिक्सेल भी शामिल होते हैं; 1 पर Otsu का अपना स्तर रहता है। Otsu पहचान इसे उपयोग करती है; लाइव आवर्धक का Otsu मोड भी इसका उपयोग करता है जब क्षेत्र में दो स्पष्ट समूह हों।"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "दृश्य क्षेत्र को चमक के कितने स्तरों में बाँटना है। 2 Otsu का अपना विभाजन है, जिसमें पृष्ठभूमि और ऑब्जेक्ट के बीच एक सीमा होती है। जब दो से अधिक समूह हों, जैसे पृष्ठभूमि, धुँधला प्रभामंडल और चमकीले केंद्रक, तो संख्या बढ़ाएँ। इससे तीनों के बीच समझौते वाली एक सीमा के बजाय नीचे चुनी गई वांछित सीमा उपयोग होती है। केवल Otsu पहचान के लिए।"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "इस दृश्य क्षेत्र की तीव्रता का हिस्टोग्राम बनाएँ और उस पर ऊपर की सेटिंग्स से तय सीमा दिखाएँ। यह उसी फ़ंक्शन से प्राप्त स्तर है जिसे बटन उपयोग करता है। यदि निशान हिस्टोग्राम की घाटी के एक ओर है, तो सीमा सुधार गुणक बदलें।"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ]
+}

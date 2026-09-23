@@ -1,0 +1,21 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Apply these enhancements to the displayed image and subsequent detections. Blue means active. Click again to use unenhanced input while keeping these settings and existing masks. Measurements retain the original image values.",
+      "source": "Apply these enhancements to the displayed image and subsequent detections. Blue means active. Click again to use unenhanced input while keeping these settings and existing masks. Measurements retain the original image values.",
+      "source_sha256": "ef415d817b22e27995692ff2d78c5f599bdee06217ad7266914a040f1922e409",
+      "table": "ui",
+      "translation": "इन सुधारों को प्रदर्शित छवि और बाद के डिटेक्शन पर लागू करता है। नीला रंग सक्रिय स्थिति दर्शाता है। इन सेटिंग और मौजूदा मास्क को बनाए रखते हुए बिना सुधार वाला इनपुट इस्तेमाल करने के लिए फिर से क्लिक करें। मापों में छवि के मूल मान बरकरार रहते हैं।"
+    },
+    {
+      "key": "Clear all objects",
+      "source": "Clear all objects",
+      "source_sha256": "a708558d209a80906514190313b8f3c3f12d834045ce9e0d005f5047f435ed3d",
+      "table": "ui",
+      "translation": "सभी ऑब्जेक्ट साफ़ करें"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against explicit Apply/Compare behavior in 479–481; no native-speaker sign-off",
+  "schema": 1
+}

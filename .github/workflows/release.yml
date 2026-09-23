@@ -251,6 +251,38 @@ jobs:
           echo "::error::spacr $VERSION was not available on PyPI after 3 minutes."
           exit 1
 
+  biotools:
+    name: Update the bio.tools entry
+    # Nothing depends on this job. A registry that is down, or a token that
+    # has been invalidated, must not hold up a release that PyPI has already
+    # accepted -- it turns the run red and says why, and the release itself
+    # still completes through installers and github-release.
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, verify-pypi]
+    uses: ./.github/workflows/biotools.yml
+    with:
+      version: ${{ needs.bump.outputs.version }}
+    secrets: inherit
+
+  wikidata:
+    name: Update the Wikidata item
+    # Skips itself until the item id and bot password are configured, and
+    # like biotools it blocks nothing.
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, verify-pypi]
+    uses: ./.github/workflows/wikidata.yml
+    with:
+      version: ${{ needs.bump.outputs.version }}
+    secrets: inherit
+
   installers:
     name: Build and store native installers
     if: >-

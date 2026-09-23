@@ -1,0 +1,273 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Choose a primary mask from a different file than the editable output mask.",
+      "source": "Choose a primary mask from a different file than the editable output mask.",
+      "source_sha256": "f4eb46f59b85f7c81f9aded56307ab3eaf90f62497cc2281b616063adc04b9f2",
+      "table": "ui",
+      "translation": "Elija una máscara primaria de un archivo distinto al de la máscara de salida editable."
+    },
+    {
+      "key": "Choose primary mask",
+      "source": "Choose primary mask",
+      "source_sha256": "f548a6f4f78e54b7b2682c85d71e3fd203b10fecb97bdd97be00fb6a94a4fdd1",
+      "table": "ui",
+      "translation": "Elegir máscara primaria"
+    },
+    {
+      "key": "Choose primary-mask folder",
+      "source": "Choose primary-mask folder",
+      "source_sha256": "a09416d87618ef1dbe3ce1d5b913fd2381872f155cf9aa392be93fb53b24e774",
+      "table": "ui",
+      "translation": "Elegir carpeta de máscaras primarias"
+    },
+    {
+      "key": "Fill holes inside secondary objects",
+      "source": "Fill holes inside secondary objects",
+      "source_sha256": "b534d3ab180ddd396a55be1bf926fc1590d3346e250fa1434ea398a6b90d5577",
+      "table": "ui",
+      "translation": "Rellenar huecos de objetos secundarios"
+    },
+    {
+      "key": "Folder…",
+      "source": "Folder…",
+      "source_sha256": "2d4cb6972a826e7e2a54fd1188ba607a6ba0ac5da78e7fbc56605c8e51b35cf4",
+      "table": "ui",
+      "translation": "Carpeta…"
+    },
+    {
+      "key": "Fraction of the primary object's peak",
+      "source": "Fraction of the primary object's peak",
+      "source_sha256": "08774aab6d7bcd41105bf8f32b18382116d1048a8e0506d4dd83c88f3ae370a0",
+      "table": "ui",
+      "translation": "Fracción del máximo del objeto primario"
+    },
+    {
+      "key": "Gaussian smoothing before growth, in pixels. Primary labels are kept unchanged; no centres are detected.",
+      "source": "Gaussian smoothing before growth, in pixels. Primary labels are kept unchanged; no centres are detected.",
+      "source_sha256": "9d3dabedad5c785f7b643c803fc126d7dcbdf1173d601fd0575f773cf801524b",
+      "table": "ui",
+      "translation": "Suavizado gaussiano antes del crecimiento, en píxeles. Las etiquetas primarias se conservan; no se detectan centros."
+    },
+    {
+      "key": "Grow secondary objects from a separate labelled primary mask, keeping each primary object's ID. Choose a global threshold when nuclei are dark in the cell channel. Primary masks are read-only; missing, orphaned and incomplete relationships are reported. Click to accept objects; dragging does not merge primary identities. Post-detection morphology and splitting are bypassed to retain IDs. Try distance growth when bright structures pull intensity growth across cells.",
+      "source": "Grow secondary objects from a separate labelled primary mask, keeping each primary object's ID. Choose a global threshold when nuclei are dark in the cell channel. Primary masks are read-only; missing, orphaned and incomplete relationships are reported. Click to accept objects; dragging does not merge primary identities. Post-detection morphology and splitting are bypassed to retain IDs. Try distance growth when bright structures pull intensity growth across cells.",
+      "source_sha256": "04064c6c786a2fd69eb0789fdc7a99b6de426533e1b42466a24a0168b5ac36fa",
+      "table": "ui",
+      "translation": "Haga crecer objetos secundarios a partir de una máscara primaria etiquetada independiente, conservando el ID de cada objeto primario. Elija un umbral global cuando los núcleos sean oscuros en el canal celular. Las máscaras primarias son de solo lectura; se notifican relaciones faltantes, huérfanas e incompletas. Haga clic para aceptar objetos; arrastrar no fusiona identidades primarias. Se omiten la morfología y la división posteriores a la detección para conservar los ID. Pruebe el crecimiento por distancia cuando las estructuras brillantes lleven el crecimiento por intensidad a través de varias células."
+    },
+    {
+      "key": "Growth",
+      "source": "Growth",
+      "source_sha256": "66b06e996553a4e70d0f3a5a50c6b6877d23fb448cad524fef307399ebe36d5e",
+      "table": "ui",
+      "translation": "Crecimiento"
+    },
+    {
+      "key": "Intensity watershed",
+      "source": "Intensity watershed",
+      "source_sha256": "fba11eedf97f2130f719a25b415db1cc949d0a7bd71e96ee413f83e2e75c2385",
+      "table": "ui",
+      "translation": "Watershed de intensidad"
+    },
+    {
+      "key": "Load a primary mask before growing secondary objects.",
+      "source": "Load a primary mask before growing secondary objects.",
+      "source_sha256": "2bcb20b92aa2ca04281f3dc46df0ab1b461e038b161f4881e2f98bc427b3f56f",
+      "table": "ui",
+      "translation": "Cargue una máscara primaria antes de hacer crecer objetos secundarios."
+    },
+    {
+      "key": "Load a primary mask to inspect object relationships.",
+      "source": "Load a primary mask to inspect object relationships.",
+      "source_sha256": "99b90b71574567301bd101236381633f45d926d68eee80433dee014a406d11d4",
+      "table": "ui",
+      "translation": "Cargue una máscara primaria para revisar las relaciones entre objetos."
+    },
+    {
+      "key": "Load a valid primary mask before growing secondary objects.",
+      "source": "Load a valid primary mask before growing secondary objects.",
+      "source_sha256": "270ca1ea4e0f6e1ca97b0917e7c9fc675811d282913986efc26a00626c21496f",
+      "table": "ui",
+      "translation": "Cargue una máscara primaria válida antes de hacer crecer objetos secundarios."
+    },
+    {
+      "key": "Loading primary mask…",
+      "source": "Loading primary mask…",
+      "source_sha256": "1f7b851e3f212bae81a406c3bc407025ced78febe77f359a31f2603307bcff1a",
+      "table": "ui",
+      "translation": "Cargando máscara primaria…"
+    },
+    {
+      "key": "Masks (*.tif *.tiff *.png *.npy)",
+      "source": "Masks (*.tif *.tiff *.png *.npy)",
+      "source_sha256": "2783fdb093f527983a81a619bbbcffd1e5cb1761f47da9c9f661ea2d8fb1857c",
+      "table": "ui",
+      "translation": "Máscaras (*.tif *.tiff *.png *.npy)"
+    },
+    {
+      "key": "Matched",
+      "source": "Matched",
+      "source_sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+      "table": "ui",
+      "translation": "Emparejados"
+    },
+    {
+      "key": "Missing secondary",
+      "source": "Missing secondary",
+      "source_sha256": "b637e006e0f0de7648d7858411bd80d4e69d2012bb21a1decc3d0b74ca1b33e1",
+      "table": "ui",
+      "translation": "Secundario ausente"
+    },
+    {
+      "key": "No primary",
+      "source": "No primary",
+      "source_sha256": "ca56f962a8e530fd84d0adbfae084bef4dd8b1a990a781e114158bcae3e15a7b",
+      "table": "ui",
+      "translation": "Sin primario"
+    },
+    {
+      "key": "Not expanded",
+      "source": "Not expanded",
+      "source_sha256": "b09935b5a018becf31459c8309a039339c0372a7ce12a4c389d8cb8b2fcccd72",
+      "table": "ui",
+      "translation": "Sin expansión"
+    },
+    {
+      "key": "Paired secondary objects retain primary IDs; consecutive relabeling would break that association.",
+      "source": "Paired secondary objects retain primary IDs; consecutive relabeling would break that association.",
+      "source_sha256": "ce270d5e7258e3e3e89af24be37d3ca66722a749499f543ace7683aa660edaa2",
+      "table": "ui",
+      "translation": "Los objetos secundarios emparejados conservan los ID primarios; renumerarlos consecutivamente rompería esa asociación."
+    },
+    {
+      "key": "Primary and secondary masks must be saved to different files.",
+      "source": "Primary and secondary masks must be saved to different files.",
+      "source_sha256": "831eae3a0e73de1b99ddb056ade734f59e126634ed2dfe3fdd829cd1ec096abc",
+      "table": "ui",
+      "translation": "Las máscaras primarias y secundarias deben guardarse en archivos distintos."
+    },
+    {
+      "key": "Primary mask unavailable: {error}",
+      "source": "Primary mask unavailable: {error}",
+      "source_sha256": "8d6ba8d2bae1a4cfc59a0cad34e4826ba6cecb92f5d992f9c2d5a69b2ef4bcbf",
+      "table": "ui",
+      "translation": "Máscara primaria no disponible: {error}"
+    },
+    {
+      "key": "Primary masks",
+      "source": "Primary masks",
+      "source_sha256": "c7ac02b668aac077a6b4503aa0fcdd4ca1575aff13403c70f365db4336a15547",
+      "table": "ui",
+      "translation": "Máscaras primarias"
+    },
+    {
+      "key": "Primary not enclosed",
+      "source": "Primary not enclosed",
+      "source_sha256": "46dad5fc0de2b7b3a05bdda24640841f51c10b873245bd45b8d3dcd29545f924",
+      "table": "ui",
+      "translation": "Primario no contenido"
+    },
+    {
+      "key": "Primary object class",
+      "source": "Primary object class",
+      "source_sha256": "8aaaa284c86d05c1165873dadd8ef3ae8edd8adb4be12ba03071223b0278bdb1",
+      "table": "ui",
+      "translation": "Clase de objeto primario"
+    },
+    {
+      "key": "Primary-mask file or folder",
+      "source": "Primary-mask file or folder",
+      "source_sha256": "b482202accd2a41fb4951b7817ba7dc5e00b3a122a7d64d6609dd299519668c2",
+      "table": "ui",
+      "translation": "Archivo o carpeta de máscaras primarias"
+    },
+    {
+      "key": "Primary/secondary relationships will appear after detection.",
+      "source": "Primary/secondary relationships will appear after detection.",
+      "source_sha256": "dbaa16f93ab9a3881e1d5d057a19331d1ad4de4a158ca4c8c9ac119952131f67",
+      "table": "ui",
+      "translation": "Las relaciones primario/secundario aparecerán después de la detección."
+    },
+    {
+      "key": "Recrop requires a matching crop of both primary and secondary masks. Save this paired field before creating a separate crop.",
+      "source": "Recrop requires a matching crop of both primary and secondary masks. Save this paired field before creating a separate crop.",
+      "source_sha256": "471ead01cff1a689f9ea561950513e4442954eda18ae6432503d578313a6a8dd",
+      "table": "ui",
+      "translation": "Recrop requiere un recorte coincidente de las máscaras primaria y secundaria. Guarde este campo emparejado antes de crear un recorte independiente."
+    },
+    {
+      "key": "Secondary object class",
+      "source": "Secondary object class",
+      "source_sha256": "1ad50549f4eecc2c742265260c6809f06525b64d89b7ddfea1c2ac5f8c2b7c87",
+      "table": "ui",
+      "translation": "Clase de objeto secundario"
+    },
+    {
+      "key": "Secondary objects from primary masks",
+      "source": "Secondary objects from primary masks",
+      "source_sha256": "6257c37aba60b1bd0ccc2a4f71e309ddd4d5d9f0e33748b13a2d93d0562bc7d5",
+      "table": "ui",
+      "translation": "Objetos secundarios (máscara primaria)"
+    },
+    {
+      "key": "The primary mask belongs to a different field. Reload it for this image.",
+      "source": "The primary mask belongs to a different field. Reload it for this image.",
+      "source_sha256": "cb1847a7f361ad803a22fd2733fb68e0d68c47c58aeb01b4383bbc6ddaceeb95",
+      "table": "ui",
+      "translation": "La máscara primaria pertenece a otro campo. Vuelva a cargarla para esta imagen."
+    },
+    {
+      "key": "The primary mask changed. Wait for a new preview before accepting objects.",
+      "source": "The primary mask changed. Wait for a new preview before accepting objects.",
+      "source_sha256": "d9a9805abc3375d60cd61dd7c957fb59b834c54205f0c982e4f0d7b777f21ba1",
+      "table": "ui",
+      "translation": "La máscara primaria ha cambiado. Espere una vista previa nueva antes de aceptar objetos."
+    },
+    {
+      "key": "{name}: {count} ({ids})",
+      "source": "{name}: {count} ({ids})",
+      "source_sha256": "1a9eb4f7195346ccd3d1689b86976fd12ac513e0066bc6cba27a2973bc4a31c0",
+      "table": "ui",
+      "translation": "{name}: {count} ({ids})"
+    },
+    {
+      "key": "{n} primary objects ready.",
+      "source": "{n} primary objects ready.",
+      "source_sha256": "fcea91216ef1d6d9777ebdaf08b9a5848f375cc916fa12656b336fbbe2a2c704",
+      "table": "ui",
+      "translation": "{n} objetos primarios listos."
+    },
+    {
+      "key": "{method} detect",
+      "source": "{method} detect",
+      "source_sha256": "97af354027153914d71c8b0f1ffcda451058a0af766b07bcb4cfb9438dc7f818",
+      "table": "ui",
+      "translation": "Detectar: {method}"
+    },
+    {
+      "key": "Distance watershed",
+      "source": "Distance watershed",
+      "source_sha256": "5ae40105fea410b3e9cf741d45c34f339561d8746110ad791ee8ea770b4663a6",
+      "table": "ui",
+      "translation": "Watershed por distancia"
+    },
+    {
+      "key": "Intensity follows bright structures. Distance spreads from primary pixels. Common thresholds constrain the paths; fraction-of-peak trims after growth. Neither is CellProfiler Propagation.",
+      "source": "Intensity follows bright structures. Distance spreads from primary pixels. Common thresholds constrain the paths; fraction-of-peak trims after growth. Neither is CellProfiler Propagation.",
+      "source_sha256": "e500f65f9224e759b66b861a8ea2811d1de5cc33c896d62129a676609a52008d",
+      "table": "ui",
+      "translation": "La intensidad sigue las estructuras brillantes. La distancia se propaga desde los píxeles primarios. Los umbrales comunes limitan las rutas; la fracción del máximo recorta el resultado después del crecimiento. Ninguno de los métodos es CellProfiler Propagation."
+    },
+    {
+      "key": "The existing mask is not paired with this primary source. Use whole-image Replace or Clear all objects before accepting secondary objects.",
+      "source": "The existing mask is not paired with this primary source. Use whole-image Replace or Clear all objects before accepting secondary objects.",
+      "source_sha256": "b6fdc0b453e06d814171520650fab5bd74cc20f88012af97cdfcafb63a8eb3e1",
+      "table": "ui",
+      "translation": "La máscara existente no está emparejada con esta fuente primaria. Use Reemplazar en toda la imagen o Borrar todos los objetos antes de aceptar objetos secundarios."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of source pairing, read-only primary masks, identity preservation, growth methods and diagnostics. The count/ID template contains only placeholders and punctuation and remains identical. No native-speaker sign-off.",
+  "schema": 1
+}

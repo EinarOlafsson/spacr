@@ -1,0 +1,35 @@
+{
+  "language": "pt-BR",
+  "title": "Triagens com spaCR",
+  "section": "Fluxos de trabalho",
+  "description": "Acompanhe uma triagem agrupada baseada em imagens a partir de Home, passando por medições de imagens, classificação de fenótipos e contagens de códigos de barras, até a regressão.",
+  "objectives": [
+    "Escolher o módulo inicial de acordo com os dados já disponíveis.",
+    "Identificar quais dados cada módulo lê e grava.",
+    "Consultar as lições dos módulos e as descrições da API vinculadas para seguir ao próximo passo."
+  ],
+  "prerequisite": "Instale o spaCR e abra Home. Esta lição explica a navegação e a transferência de dados; as lições dos módulos vinculados trazem exemplos práticos com dados. As entradas e saídas incluem alternativas condicionais, explicadas para cada módulo.",
+  "scenes": [
+    "Comece em Home com o material que você já tem. Uma triagem agrupada baseada em imagens tem dois ramos de dados: as imagens descrevem o fenótipo, enquanto o sequenciamento identifica as perturbações representadas em cada poço. Mask, Measure, Annotate e Classify formam o ramo de imagens. Map Barcodes forma o ramo de sequenciamento. Regression reúne pontuações e contagens de guias compatíveis. São produtos de dados conectados, não seis botões que sempre precisam ser executados em uma ordem fixa.",
+    "Abra Mask a partir de Home. Selecione canais e modelos, examine uma prévia e então execute Mask. Measure utiliza os arrays mesclados; o banco de contagens ainda não é uma tabela de características. Dados de entrada: imagens de microscopia; checkpoint de segmentação. Dados de saída: imagens e máscaras de rótulos; máscaras de rótulos; contagens de objetos. De Mask para Measure: use o mesmo projeto e os índices de canal corretos para imagens e máscaras.",
+    "Abra Measure a partir de Home. Measure lê imagens e planos de rótulos em conjunto. Ative o salvamento de recortes se precisar de arquivos PNG; mantenha o banco de dados e o projeto de origem juntos para a leitura de recortes sob demanda. Dados de entrada: imagens e máscaras de rótulos; máscaras de rótulos. Dados de saída: objetos medidos; recortes de objetos. De Mask para Measure: use o mesmo projeto e os índices de canal corretos para imagens e máscaras. De Measure para Annotate: salve ou leia sob demanda recortes com identificadores de objeto estáveis. De Measure para Classify: escolha a família de imagens ou a tabular de acordo com a entrada.",
+    "Abra Annotate a partir de Home. Rotule objetos representativos em png_list antes do treinamento supervisionado. Use anotações separadas para perguntas diferentes e mantenha os grupos de treinamento e avaliação independentes. Dados de entrada: objetos medidos; recortes de objetos; regiões de seleção reutilizáveis. Dados de saída: anotações de treinamento. De Measure para Annotate: salve ou leia sob demanda recortes com identificadores de objeto estáveis. De Annotate para Classify: mantenha separados os grupos anotados de treinamento e avaliação.",
+    "Abra Classify a partir de Home. Escolha Computer Vision para recortes ou imagens de objetos lidas sob demanda, ou Tabular Machine Learning para colunas de características medidas. As duas famílias utilizam entradas diferentes. Dados de entrada: objetos medidos; recortes de objetos; anotações de treinamento. Dados de saída: pontuações de classificação de objetos; classificador de imagens treinado; classificador de características ajustado; pacote de avaliação do classificador. De Measure para Classify: escolha a família de imagens ou a tabular de acordo com a entrada. De Annotate para Classify: mantenha separados os grupos anotados de treinamento e avaliação. De Classify para Regression: selecione a coluna de pontuação CV ou ML desejada e preserve os identificadores de placa e poço.",
+    "Abra Map Barcodes a partir de Home. Forneça as referências que codificam seu experimento. Inspecione as contagens mapeadas e o controle de qualidade dos códigos de barras antes de associar as contagens de guias por poço às pontuações fenotípicas. Dados de entrada: leituras de sequenciamento. Dados de saída: contagens de guias por poço. De Map Barcodes para Regression: associe as contagens de guias às pontuações fenotípicas usando chaves consistentes de placa e poço.",
+    "Abra Regression a partir de Home. Faça corresponder os identificadores de placa e poço entre as entradas fenotípicas e as contagens de guias, selecione a variável de resposta e os controles, e examine os diagnósticos antes de interpretar os resultados positivos. Respostas medidas diretamente também são aceitas. Dados de entrada: pontuações de classificação de objetos; contagens de guias por poço; atribuições de códigos de barras ópticos; objetos medidos. Dados de saída: resultados de regressão e resultados positivos. De Classify para Regression: selecione a coluna de pontuação CV ou ML desejada e preserve os identificadores de placa e poço. De Map Barcodes para Regression: associe as contagens de guias às pontuações fenotípicas usando chaves consistentes de placa e poço. De OPS para Regression: junte ou agregue explicitamente os objetos decodificados para formar as entradas de fenótipos e guias antes de Regression; não se trata de uma transferência direta de CSV.",
+    "Antes de Regression, confira se as pontuações de imagens, as contagens de sequenciamento e o desenho experimental usam identificadores correspondentes de placa e poço. Preserve os identificadores de objeto, a coluna de anotações, as configurações do classificador e as referências de códigos de barras junto com a execução. Consulte as lições dos módulos vinculados para ver um exemplo prático de cada etapa; escolha o percurso guiado da triagem agrupada se quiser que Home oriente a navegação."
+  ],
+  "lesson": "78_spacr_screens",
+  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain the two independent image and sequencing branches and their per-well join.",
+      "Distinguish merged images/labels from counts, saved versus streamed crops, and CV versus tabular inputs.",
+      "Preserve separate training/evaluation groups, stable identities, direct measured responses, and the explicit OPS join/aggregation requirement.",
+      "Navigation overview only; no claim that the recording executed an experiment."
+    ]
+  }
+}

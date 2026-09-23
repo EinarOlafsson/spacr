@@ -60,6 +60,7 @@ from PySide6.QtWidgets import (
 )
 
 from .i18n import tr
+from .widgets.section import _logical_parent
 from .widgets.toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.settings_search")
@@ -196,7 +197,10 @@ class SettingsSearchBar(QWidget):
         self._screen = screen
         self._app_key = str(getattr(screen, "app_key", "") or "")
         self._model = getattr(screen, "_settings_model", None)
-        self._index: Dict[str, Tuple[QWidget, QWidget]] = {}
+        self._index: Dict[str, Tuple[QWidget, Optional[QWidget]]] = {}
+        #: The keys the last :meth:`apply` kept, which is what a row in a
+        #: category still waiting to be opened would show.
+        self._wanted: set = set()
         self._sections: List[QWidget] = list(
             getattr(screen, "_settings_sections", []) or [])
         self._restore_expanded: Optional[Dict[int, bool]] = None
@@ -323,7 +327,8 @@ class SettingsSearchBar(QWidget):
         is a different statement from "the filter excluded that setting".
         """
         return [key for key, (section, field) in self._index.items()
-                if _row_is_visible(section, field)]
+                if (key in self._wanted if field is None
+                    else _row_is_visible(section, field))]
 
     def indexed_keys(self) -> List[str]:
         """Every setting key the strip can show or hide."""
@@ -350,7 +355,9 @@ class SettingsSearchBar(QWidget):
         whole and only decides which heading is open.
 
         Nothing is rebuilt and no value is read or written: the row was
-        already on the form, and this shows its section and scrolls to it.
+        already on the form, and this shows its section and scrolls to it --
+        or, for a category not built yet (indexed with no field), the screen
+        builds it first, as opening it would.
         That is what makes arriving here from a search safe for a half-typed
         value -- the same property the filter has, for the same reason.
 
@@ -373,6 +380,13 @@ class SettingsSearchBar(QWidget):
         row = self._index.get(str(key))
         if row is None:
             return False
+        if row[1] is None:
+            opener = getattr(self._screen, "_open_the_heading_of", None)
+            if callable(opener):
+                opener(str(key))
+            row = self._index.get(str(key))
+            if row is None or row[1] is None:
+                return False
         section, field = row
         self._input.clear()
         self._modified.setChecked(False)
@@ -493,8 +507,45 @@ class SettingsSearchBar(QWidget):
         if model is None or not self._index:
             self._count.setText("")
             return
-
         total = len(self._index)
+        wanted, in_the_grid, grid_section, narrowing, essentials = \
+            self._wanted_now()
+
+        self._wanted = set(wanted)
+        for key, (section, field) in self._index.items():
+            if field is not None:
+                _set_row_visible(section, field, key in wanted)
+
+        shown_per_section: Dict[int, int] = {}
+        for key, (section, _field) in self._index.items():
+            if key in wanted:
+                shown_per_section[id(section)] = (
+                    shown_per_section.get(id(section), 0) + 1)
+        if grid_section is not None:
+            shown_per_section[id(grid_section)] = len(in_the_grid)
+
+        self._apply_section_state(
+            self._counting_the_sub_headings(shown_per_section),
+            narrowing, reopen)
+        self._count.setText(
+            self._compose_count(len(wanted), total, len(essentials)))
+
+    def keys_it_hides(self) -> set:
+        """The indexed settings :meth:`apply` would hide right now.
+
+        What the object rule asks before it sets rows
+        (``SettingsWidgets.rows_the_screen_hides``), so a row this strip is
+        about to hide is not shown by the rule first.
+        """
+        if self._model is None or not self._index:
+            return set()
+        wanted = self._wanted_now()[0]
+        return set(self._index) - wanted
+
+    def _wanted_now(self):
+        """What :meth:`apply` keeps: ``(wanted, in_the_grid, grid_section,
+        narrowing, essentials)``."""
+        model = self._model
         hidden: set = set()
         hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
         if callable(hidden_by_run):
@@ -545,25 +596,9 @@ class SettingsSearchBar(QWidget):
         wanted = narrowed(set(self._index) - hidden)
         in_the_grid = (narrowed(set(grid_keys) - lacking)
                        if grid_section is not None else set())
-
-        for key, (section, field) in self._index.items():
-            _set_row_visible(section, field, key in wanted)
-
-        shown_per_section: Dict[int, int] = {}
-        for key, (section, _field) in self._index.items():
-            if key in wanted:
-                shown_per_section[id(section)] = (
-                    shown_per_section.get(id(section), 0) + 1)
-        if grid_section is not None:
-            shown_per_section[id(grid_section)] = len(in_the_grid)
-
         narrowing = bool(query) or self._modified.isChecked() \
             or (self._level == ESSENTIALS and bool(essentials))
-        self._apply_section_state(
-            self._counting_the_sub_headings(shown_per_section),
-            narrowing, reopen)
-        self._count.setText(
-            self._compose_count(len(wanted), total, len(essentials)))
+        return wanted, in_the_grid, grid_section, narrowing, essentials
 
     def _counting_the_sub_headings(
             self, shown: Dict[int, int]) -> Dict[int, int]:
@@ -598,7 +633,7 @@ class SettingsSearchBar(QWidget):
                 continue
             reached = {id(section)}
             try:
-                node = section.parentWidget()
+                node = _logical_parent(section)
             except RuntimeError:
                 continue
             while node is not None:
@@ -607,7 +642,7 @@ class SettingsSearchBar(QWidget):
                     rolled[marker] = rolled.get(marker, 0) + count
                     reached.add(marker)
                 try:
-                    node = node.parentWidget()
+                    node = _logical_parent(node)
                 except RuntimeError:
                     break
         return rolled
@@ -694,6 +729,11 @@ class SettingsSearchBar(QWidget):
     def _build_index(self) -> None:
         """Map each setting key to the section and field widget showing it.
 
+        A setting in a category the screen has not built yet is mapped to
+        that category's heading with no field (``AppScreen._waiting_heading_of``),
+        so it is counted and filtered like any other, and revealing it builds
+        the category.
+
         Built from the model's own ``key -> widget`` map and the sections the
         screen kept, rather than by re-deriving the layout: the screen has
         already decided which key went where, and a second opinion here would
@@ -712,7 +752,9 @@ class SettingsSearchBar(QWidget):
         hid the whole sub-heading and everything under it.
         """
         widgets = getattr(self._model, "_widgets", {}) or {}
-        by_widget = {id(w): key for key, w in widgets.items()}
+        built = getattr(widgets, "built_items", None)
+        pairs = built() if callable(built) else widgets.items()
+        by_widget = {id(w): key for key, w in pairs}
         headings = {id(section) for section in self._sections}
         for section in self._sections:
             form = _form_of(section)
@@ -731,6 +773,10 @@ class SettingsSearchBar(QWidget):
                             break
                 if key is not None:
                     self._index[key] = (section, field)
+        waiting = getattr(self._screen, "_waiting_heading_of", None) or {}
+        for key, section in waiting.items():
+            if key not in self._index or self._index[key][1] is None:
+                self._index[key] = (section, None)
 
     def _apply_section_state(self, shown: Dict[int, int],
                              narrowing: bool, reopen: bool = True) -> None:

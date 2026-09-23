@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review of pipeline annotation handoffs, external image and mask import routes, and parasite assay pathway titles. Seven shared phrases match the generated workflow tutorial banks. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "वास्तविक फ़ीचर या निर्देशांक कॉलम पर सीमा या बहुभुज गेट निर्धारित करें, फिर सहेजे गए गेट को संगत वस्तुओं पर लागू करें। दिखाए गए गेट को एनोटेशन कॉलम में लिखने के लिए Annotate का उपयोग करें; चुने हुए ऑब्जेक्ट की समीक्षा करें और बाइनरी या बहुवर्गीय लेबल चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
+      "translation": "केवल इमेज आयात करने के लिए Import Images या Format Converter का उपयोग करें और Mask को फ़ॉर्मैट किए हुए इमेज प्रोजेक्ट पर सेट करें। केवल बाहरी माप विभाजन के इनपुट नहीं हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source_sha256": "a7dfb6c8e1f2c2cc6d0c3f9bc2104039ef4e48812f0803bd7f0a3cbae0aca976",
+      "translation": "स्पष्ट वस्तु और कॉलम मैपिंग के साथ बाहरी मापन आयात करें, या Import Images, Format Converter अथवा External Masks चुनें। आयातित मापन नया Measure रन नहीं हैं। मिलती हुई स्रोत इमेज और बाहरी पूर्णांक मास्क के साथ Import, Measure द्वारा उपयोग किए जाने वाले मर्ज किए हुए प्रोजेक्ट ऐरे बनाता है। अपनी फ़ाइलों के अनुसार मार्ग चुनें और मापने से पहले ऑब्जेक्ट पहचान जाँचें; यदि आयातित फ़ीचर तालिका में आवश्यक माप पहले से हैं, तो उसका सीधे उपयोग किया जा सकता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source_sha256": "1add3ee9b720d1a8cb1a2bd958ca943479479de99ad8433854e912dc545adaed",
+      "translation": "मर्ज किए हुए प्रोजेक्ट ऐरे बनाने के लिए मिलती हुई इमेज और बाहरी पूर्णांक मास्क आयात करें, फिर उस प्रोजेक्ट में Measure खोलें। यदि संगत माप पहले ही आयात या गणना किए जा चुके हैं, तो यह चरण छोड़ें। मौजूदा आयातित तालिका में दोहराए गए माप न जोड़ें।"
+    },
+    {
+      "table": "ui",
+      "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source_sha256": "73f0218ad1985f156a3b2d89f339a8294f2362cc568eb237b1c71c1fe269aaf9",
+      "translation": "मापे गए फ़ीचर या दिए गए एन्कोडर फ़ीचर का प्रक्षेपण करें और प्रतिनिधि क्रॉप देखें। क्लस्टर संभावित समूह है, सत्यापित फ़ीनोटाइप नहीं। समीक्षा किए हुए चयनों को संबंधित माप डेटाबेस के एनोटेशन कॉलम में लिखने के लिए लैसो और एनोटेशन नियंत्रणों का उपयोग करें। केवल ज्यामितीय चयन से जैविक फ़ीनोटाइप स्थापित नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source_sha256": "f85a9cc79c3583d7bbd5c3e52ae8a5247479704c29927f597ef10ab0848438c7",
+      "translation": "समीक्षा किए हुए गेट चयनों को एनोटेशन कॉलम में लिखें, फिर Classify में वही कॉलम और ऑब्जेक्ट समूह चुनें। सत्यापन ऑब्जेक्ट को प्रशिक्षण लेबल से अलग रखें।"
+    },
+    {
+      "table": "ui",
+      "key": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
+      "translation": "समीक्षा किए हुए लैसो चयनों को संबंधित ऑब्जेक्ट डेटाबेस के एनोटेशन कॉलम में लिखें, फिर Classify में वह कॉलम चुनें। क्रॉप जाँचें और लेबल सत्यापित करें; एम्बेडिंग क्लस्टर वास्तविक संदर्भ लेबल नहीं हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Toxoplasma and parasite imaging assays",
+      "source": "Toxoplasma and parasite imaging assays",
+      "source_sha256": "be0aa19bd2abd30b969eaa6418cb304235d465f0abc206fea610a9279fc59d33",
+      "translation": "Toxoplasma और परजीवी इमेजिंग परख"
+    }
+  ]
+}

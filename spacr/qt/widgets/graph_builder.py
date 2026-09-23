@@ -55,7 +55,7 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
-    QSpinBox, QSplitter, QVBoxLayout, QWidget,
+    QSpinBox, QVBoxLayout, QWidget,
 )
 
 from ...selection import Selection, object_keys
@@ -558,6 +558,8 @@ def _canvas_class():
             self.setAttribute(Qt.WA_TranslucentBackground, True)
             make_transparent(self)
             figure.patch.set_alpha(0.0)
+            from ..gui_scale import follow_canvas
+            follow_canvas(self)
 
         def paintEvent(self, event):  # noqa: N802 - Qt name
             """Draw the page panel, then let matplotlib draw over it."""
@@ -1673,10 +1675,16 @@ class GraphBuilderPanel(QWidget):
     spec_changed = Signal(object)
 
     def __init__(self, parent=None, *, link=None,
-                 source: str = "graph_builder"):
+                 source: str = "graph_builder", fold_key: str = ""):
         """Build the well, the drop zones and the canvas.
 
         :param parent: parent widget.
+        :param fold_key: the host module's key (item 471). Given, the width
+            the user drags the shelf | graph split to is remembered under
+            ``"<fold_key>::graph"`` and a fold of the Columns shelf or the
+            Graph under ``"<fold_key>/Columns"`` and ``"<fold_key>/Graph"``;
+            empty remembers nothing, which is what a test or a second host
+            that has not chosen a key wants.
         """
         super().__init__(parent)
         self.setObjectName("GraphBuilderPanel")
@@ -1687,8 +1695,12 @@ class GraphBuilderPanel(QWidget):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
 
-        splitter = QSplitter(Qt.Horizontal, self)
-        splitter.setChildrenCollapsible(False)
+        from .collapsible_splitter import CollapsibleSplitter
+
+        key = str(fold_key or "")
+        splitter = CollapsibleSplitter(
+            Qt.Horizontal, self, persist_key=f"{key}::graph" if key else "")
+        self.splitter = splitter
         outer.addWidget(splitter, 1)
 
         shelf = QWidget(self)
@@ -1752,13 +1764,14 @@ class GraphBuilderPanel(QWidget):
         self._clear.clicked.connect(self.clear_channels)
         shelf_layout.addWidget(self._clear)
 
-        splitter.addWidget(shelf)
+        self.shelf_section = splitter.add_section(
+            shelf, "Columns", persist_key=f"{key}/Columns" if key else "",
+            stretch=0, extent=300)
 
         self.canvas = GraphCanvas(self, link=link, source=source)
-        splitter.addWidget(self.canvas)
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        splitter.setSizes([300, 900])
+        self.canvas_section = splitter.add_section(
+            self.canvas, "Graph", persist_key=f"{key}/Graph" if key else "",
+            stretch=1, extent=900)
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 

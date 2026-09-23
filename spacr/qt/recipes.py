@@ -1,4 +1,6 @@
-"""Recipes — a named settings bundle you can reuse and hand to someone else.
+"""Settings templates — named bundles you can reuse and share.
+
+The historical Recipe API, JSON format and storage paths remain compatible.
 
 A lab does not run one set of settings; it runs a handful, each tied to a
 preparation. "Toxo PVM, 40×" is a real thing people say to each other, and
@@ -119,7 +121,7 @@ FORMAT_VERSION = 1
 
 #: The Help-menu label. Kept verbatim — ``spacr/qt/i18n.py`` keys its
 #: catalog on the English string.
-MENU_ACTION_TEXT = "Settings recipes…"
+MENU_ACTION_TEXT = "Settings templates…"
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
 
@@ -197,15 +199,16 @@ class Recipe:
             ``package.json`` to a segmentation run.
         """
         if not isinstance(data, dict) or "spacr_recipe" not in data:
-            raise ValueError("not a spaCR settings recipe")
+            raise ValueError(tr("not a spaCR settings template"))
         version = data.get("spacr_recipe")
         if not isinstance(version, int) or version > FORMAT_VERSION:
             raise ValueError(
-                f"recipe format {version!r} is newer than this spaCR "
-                f"understands (it reads up to {FORMAT_VERSION})")
+                tr("Template format {version} is newer than this spaCR "
+                   "understands (it reads up to {supported}).",
+                   version=repr(version), supported=FORMAT_VERSION))
         settings = data.get("settings")
         if not isinstance(settings, dict):
-            raise ValueError("recipe has no settings")
+            raise ValueError(tr("template has no settings"))
         return cls(
             name=str(data.get("name") or "Untitled"),
             app_key=str(data.get("app_key") or ""),
@@ -299,9 +302,9 @@ def version_note(recipe: Recipe, current: Optional[str] = None) -> str:
     made = recipe.spacr_version or "unknown"
     if made == now:
         return ""
-    return (f"This recipe was saved with spaCR {made}; you are running "
-            f"{now}. Settings that changed meaning or name in between are "
-            f"applied as written.")
+    return tr("This template was saved with spaCR {made}; you are running "
+              "{now}. Settings that changed meaning or name in between are "
+              "applied as written.", made=made, now=now)
 
 
 def compatibility_note(recipe: Recipe, model) -> str:
@@ -323,9 +326,10 @@ def compatibility_note(recipe: Recipe, model) -> str:
     if not unknown:
         return ""
     shown = ", ".join(unknown[:4])
-    more = f" and {len(unknown) - 4} more" if len(unknown) > 4 else ""
-    return (f"{len(unknown)} setting(s) in this recipe are not in this "
-            f"module any more and will be ignored: {shown}{more}.")
+    more = tr(" and {count} more", count=len(unknown) - 4) if len(unknown) > 4 else ""
+    return tr("{count} setting(s) in this template are not in this "
+              "module any more and will be ignored: {shown}{more}.",
+              count=len(unknown), shown=shown, more=more)
 
 
 def apply_recipe(recipe: Recipe, screen) -> int:
@@ -344,8 +348,8 @@ def apply_recipe(recipe: Recipe, screen) -> int:
     app_key = str(getattr(screen, "app_key", "") or "")
     if recipe.app_key and app_key and recipe.app_key != app_key:
         raise ValueError(
-            f"this recipe is for the {recipe.app_key!r} module, not "
-            f"{app_key!r}")
+            tr("This template is for the {source} module, not {target}.",
+               source=repr(recipe.app_key), target=repr(app_key)))
     apply_dict = getattr(screen, "apply_settings_dict", None)
     if not callable(apply_dict):
         raise ValueError("this screen cannot take settings")
@@ -393,7 +397,7 @@ class RecipeDialog(QDialog):
         self._app_key = str(getattr(screen, "app_key", "") or "")
         self._confirmation_runner: Callable[[QMessageBox], Any] = (
             lambda box: box.exec())
-        self.setWindowTitle(f"Settings recipes — {self._app_key or 'module'}")
+        self.setWindowTitle(tr("Settings templates — {module}", module=self._app_key or tr("module")))
         from .preferences import scaled_px
         
         self.setMinimumWidth(scaled_px(520))
@@ -403,9 +407,9 @@ class RecipeDialog(QDialog):
         column.setSpacing(8)
 
         self._intro = QLabel(
-            "A recipe is this module's settings under a name you chose. "
+            tr("A template is this module's settings under a name you chose. "
             "Save one when a plate is set up the way you want it; apply it "
-            "next time instead of retyping.", self)
+            "next time instead of retyping."), self)
         self._intro.setWordWrap(True)
         column.addWidget(self._intro)
 
@@ -457,8 +461,8 @@ class RecipeDialog(QDialog):
             self._list.setCurrentRow(0)
         else:
             self._detail.setText(
-                "No recipes yet for this module. Set the settings up the way "
-                "you want them, then use “Save current settings…”.")
+                tr("No templates yet for this module. Set the settings up the way "
+                   "you want them, then use “Save current settings…”."))
         self._refresh_buttons()
 
     def selected(self) -> Optional[Recipe]:
@@ -519,16 +523,16 @@ class RecipeDialog(QDialog):
         cannot be written is a normal condition, not a crash.
         """
         name, ok = QInputDialog.getText(
-            self, "Save recipe",
-            "Name this recipe — something you would say out loud, "
-            "like “Toxo PVM, 40×”:")
+            self, tr("Save template"),
+            tr("Name this template — something you would say out loud, "
+               "like “Toxo PVM, 40×”:"))
         if not ok or not str(name).strip():
             return
         try:
             recipe = capture_recipe(self._screen, str(name).strip())
             save_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, "Could not save recipe", str(exc))
+            QMessageBox.warning(self, tr("Could not save template"), str(exc))
             return
         self.reload()
 
@@ -549,7 +553,7 @@ class RecipeDialog(QDialog):
         if note or gap:
             box = QMessageBox(self)
             box.setIcon(QMessageBox.Information)
-            box.setWindowTitle("Recipe from a different spaCR")
+            box.setWindowTitle(tr("Template from a different spaCR"))
             box.setText(" ".join(part for part in (note, gap) if part))
             box.setInformativeText("Apply it anyway?")
             box.setStandardButtons(QMessageBox.Apply | QMessageBox.Cancel)
@@ -558,7 +562,7 @@ class RecipeDialog(QDialog):
         try:
             applied = apply_recipe(recipe, self._screen)
         except Exception as exc:
-            QMessageBox.warning(self, "Could not apply recipe", str(exc))
+            QMessageBox.warning(self, tr("Could not apply template"), str(exc))
             return
         self._detail.setText(
             f"Applied “{recipe.name}” — {applied} settings written.")
@@ -569,8 +573,8 @@ class RecipeDialog(QDialog):
         if recipe is None:
             return
         path, _filter = QFileDialog.getSaveFileName(
-            self, "Share recipe", f"{_slug(recipe.name)}.json",
-            "spaCR recipe (*.json)")
+            self, tr("Share template"), f"{_slug(recipe.name)}.json",
+            tr("spaCR settings template (*.json)"))
         if not path:
             return
         try:
@@ -588,7 +592,7 @@ class RecipeDialog(QDialog):
         adopted by this one.
         """
         path, _filter = QFileDialog.getOpenFileName(
-            self, "Import recipe", "", "spaCR recipe (*.json);;All files (*)")
+            self, tr("Import template"), "", tr("spaCR settings template (*.json);;All files (*)"))
         if not path:
             return
         try:
@@ -596,11 +600,11 @@ class RecipeDialog(QDialog):
             if recipe.app_key and self._app_key and \
                     recipe.app_key != self._app_key:
                 raise ValueError(
-                    f"that recipe is for the {recipe.app_key!r} module")
+                    tr("That template is for the {module} module.", module=repr(recipe.app_key)))
             recipe.app_key = recipe.app_key or self._app_key
             save_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, "Could not import recipe", str(exc))
+            QMessageBox.warning(self, tr("Could not import template"), str(exc))
             return
         self.reload()
 
@@ -612,7 +616,7 @@ class RecipeDialog(QDialog):
         try:
             delete_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, "Could not delete recipe", str(exc))
+            QMessageBox.warning(self, tr("Could not delete template"), str(exc))
             return
         self.reload()
 
@@ -632,7 +636,7 @@ def open_recipes(screen, parent: Optional[QWidget] = None) -> RecipeDialog:
 
 
 def install(screen) -> Optional[QToolButton]:
-    """Add a Recipes button to ``screen``'s settings search strip.
+    """Add a Templates button to ``screen``'s settings search strip.
 
     The strip is where a settings bundle belongs — directly above the
     settings it bundles — and it already exists, so this costs no chrome of
@@ -646,7 +650,7 @@ def install(screen) -> Optional[QToolButton]:
         return None
     button = QToolButton(bar)
     button.setObjectName(RECIPE_BUTTON_NAME)
-    caption = "Recipes"
+    caption = "Templates"
     button.setProperty("_spacr_i18n_text", caption)
     button.setText(tr(caption))
     button.setCursor(Qt.PointingHandCursor)
@@ -734,15 +738,15 @@ class _RecipeMenuHandler:
             screen = None
         if screen is None or getattr(screen, "_settings_model", None) is None:
             QMessageBox.information(
-                self._window, "Settings recipes",
-                "Open a module with a settings panel first — a recipe is a "
-                "bundle of one module's settings.")
+                self._window, tr("Settings templates"),
+                tr("Open a module with a settings panel first — a template is a "
+                   "bundle of one module's settings."))
             return
         open_recipes(screen, parent=self._window)
 
 
 def install_help_action(window: QMainWindow) -> Optional[QAction]:
-    """Add **Settings recipes…** to the window's Help menu.
+    """Add **Settings templates…** to the window's Help menu.
 
     Returns the action, or ``None`` when there is no Help menu or one is
     already installed. The command palette mirrors menu actions, so this
@@ -752,9 +756,10 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
     if menu is None:
         return None
     for act in menu.actions():
-        if act.text() == MENU_ACTION_TEXT:
+        if act.property("_spacr_i18n_text") == MENU_ACTION_TEXT or act.text() == tr(MENU_ACTION_TEXT):
             return None
-    action = QAction(MENU_ACTION_TEXT, window)
+    action = QAction(tr(MENU_ACTION_TEXT), window)
+    action.setProperty("_spacr_i18n_text", MENU_ACTION_TEXT)
     from .menus import set_menu_role
     set_menu_role(action, "none")
     action.setStatusTip(

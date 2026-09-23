@@ -1,10 +1,10 @@
 Modules reached from another screen
 -----------------------------------
 
-These do not have a tile on the home screen. Each one answers a
-question about a run its host produced rather than starting a run
-of its own, so it opens as a page beside that host's settings,
-already pointed at the same project.
+These modules open from another screen. Most appear beside their
+host's settings and use the same project. The four Toxoplasma
+assays instead open from tiles on the Toxoplasma organism page;
+each assay still reads its own required images or measurements.
 
 They are not second-class: each is shipped, translated and
 documented like any other module, and the ones that are pipelines
@@ -12,8 +12,8 @@ still run headlessly under ``spacr-run``. Every module below can
 also be reached from the command palette, which is the only route
 that covers all of them.
 
-Opened from a host's masthead
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Opened from a host screen
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Annotate** opens `Annotator Agreement <https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html>`_
 * **Classify** opens `Activation <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_, `Classifier Evaluation <https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html>`_, `Explain CV Model <https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html>`_, `Feature Explorer <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html>`_, `Training Runs <https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html>`_
@@ -27,6 +27,7 @@ Opened from a host's masthead
 * **Measure** opens `AnnData Export <https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html>`_, `Illumination <https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html>`_, `Motility Assay <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
 * **QC** opens `Control Charts <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html>`_, `Layer Viewer <https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html>`_, `Outliers <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html>`_
 * **Regression** opens Hit List, `Investigate Hit <https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html>`_, Methods & Results, `Prediction Profiler <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html>`_, Diagnostics, `Volcano Explorer <https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html>`_
+* **Toxoplasma** opens `Plaque Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques>`_, `Invasion Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion>`_, `Recruitment <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment>`_, `Replication Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication>`_
 
 Opened from the Help menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~

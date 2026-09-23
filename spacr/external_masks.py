@@ -22,6 +22,8 @@ not an input mask plane.
 """
 from __future__ import annotations
 
+from .schema import object_type_summary
+
 import json
 import os
 import re
@@ -222,7 +224,7 @@ class ExternalMaskPlan:
             f"  intensity mappings: {len(self.images)}",
             f"  fields ready: {len(self.stems)}",
             f"  intensity channels: {self.n_channels}",
-            f"  mask types: {', '.join(self.object_types) or 'none'}",
+            f"  mask types: {object_type_summary(self.object_types) or 'none'}",
             f"  destination: {self.destination}",
         ]
         for name in self.object_types:

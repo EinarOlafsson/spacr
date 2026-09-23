@@ -329,6 +329,50 @@ def test_which_run_this_is_never_comes_from_the_event_name(workflow):
         encoding="utf-8")
 
 
+@pytest.mark.parametrize("image_revision", ["checkout-commit", "caller-commit"])
+def test_build_and_smoke_use_the_checked_out_revision(workflow, tmp_path, image_revision):
+    """A called release's caller SHA must not label the selected source tree."""
+    import os
+    import shutil
+    import subprocess
+
+    shell = shutil.which("bash")
+    if shell is None:
+        pytest.skip("no bash on this machine")
+    commands = tmp_path / "commands"
+    commands.mkdir()
+    scripts = {
+        "git": '#!/bin/sh\nprintf "%s\\n" checkout-commit\n',
+        "docker": '#!/bin/sh\nprintf "%s\\n" "$@" > "$ARG_LOG"\n'
+                  'case "$1" in run) printf "%s\\n" "$VERSION";; '
+                  'image) printf "%s\\n" "$IMAGE_REVISION";; esac\n',
+    }
+    for name, script in scripts.items():
+        command = commands / name
+        command.write_text(script, encoding="utf-8")
+        command.chmod(0o700)
+    log = tmp_path / "arguments.log"
+    environment = dict(os.environ, PATH=str(commands) + os.pathsep + os.environ["PATH"],
+                       ARG_LOG=str(log), VERSION="1.5.0.9", VARIANT="cuda",
+                       TAGS="local:cuda", REF="local:cuda", GITHUB_SHA="caller-commit",
+                       IMAGE_REVISION=image_revision)
+    steps = workflow["jobs"]["image"]["steps"]
+    build = next(step["run"] for step in steps if step.get("name") == "Build")
+    result = subprocess.run([shell, "-c", build], env=environment,
+                            capture_output=True, text=True, check=False)
+    assert result.returncode == 0, result.stderr
+    arguments = log.read_text(encoding="utf-8").splitlines()
+    assert "SPACR_REVISION=checkout-commit" in arguments
+    assert "SPACR_REVISION=caller-commit" not in arguments
+    smoke = next(step["run"] for step in steps
+                 if step.get("name", "").startswith("Smoke") and "spacr --version" in step.get("run", ""))
+    result = subprocess.run([shell, "-c", smoke], env=environment,
+                            capture_output=True, text=True, check=False)
+    assert (result.returncode == 0) == (image_revision == "checkout-commit")
+    if image_revision != "checkout-commit":
+        assert "records revision caller-commit" in result.stdout
+
+
 def test_the_guide_only_promises_an_image_while_the_release_builds_one():
     """The user-facing claim and the wiring are one assertion, not two.
 
@@ -459,12 +503,46 @@ def test_the_build_context_still_holds_what_pip_install_needs():
         assert required not in patterns, (
             f".dockerignore excludes {required!r}, which `pip install .` reads."
         )
-    # And the four trees that make the difference are excluded.
-    for heavy in ("docs/", "tools/", "tests/", ".git"):
+    # Local agent worktrees contain another checkout and private scratch files.
+    for heavy in ("docs/", "tools/", "tests/", ".git", ".claude/"):
         assert heavy in patterns, (
             f".dockerignore no longer excludes {heavy!r}; the build context "
             f"goes back to 1.2 GB."
         )
+
+
+@pytest.mark.parametrize("version,ppa_calls", [("3.10", 0), ("3.12", 1)])
+def test_cuda_python_override_uses_the_distribution_without_a_ppa(
+        tmp_path, version, ppa_calls):
+    """Execute both apt setup blocks with recording stand-ins for commands."""
+    import shutil
+    import subprocess
+
+    shell = shutil.which("sh")
+    if shell is None:
+        pytest.skip("no POSIX shell on this machine")
+    commands = tmp_path / "commands"
+    commands.mkdir()
+    for name in ("apt-get", "add-apt-repository", "rm"):
+        command = commands / name
+        command.write_text(
+            '#!/bin/sh\nprintf "%s\\n" "${0##*/} $*" >> "$COMMAND_LOG"\n',
+            encoding="utf-8")
+        command.chmod(0o700)
+    blocks = [body for verb, body in _instructions(_dockerfile("cuda"))
+              if verb == "RUN" and "add-apt-repository" in body]
+    assert len(blocks) == 2, "build and runtime need the same interpreter"
+    for number, block in enumerate(blocks):
+        log = tmp_path / f"commands-{number}.log"
+        result = subprocess.run(
+            [shell, "-c", block], check=False, capture_output=True, text=True,
+            env={"PATH": str(commands), "PYTHON_VERSION": version,
+                 "COMMAND_LOG": str(log)})
+        assert result.returncode == 0, result.stderr
+        calls = log.read_text(encoding="utf-8").splitlines()
+        assert calls.count("add-apt-repository -y ppa:deadsnakes/ppa") == ppa_calls
+        assert calls.count("apt-get update") == 1 + ppa_calls
+        assert any(f"python{version}" in call for call in calls)
 
 
 def test_every_shell_step_in_the_workflow_parses(workflow):
@@ -517,8 +595,10 @@ def test_the_smoke_script_imports_nothing_heavy_at_module_scope():
         elif isinstance(node, ast.ImportFrom) and node.level == 0:
             top_level.add((node.module or "").split(".")[0])
 
-    heavy = sorted(name for name in top_level
-                   if name and name not in sys.stdlib_module_names)
+    from tests.stdlib_inventory import stdlib_names
+
+    standard = stdlib_names()
+    heavy = sorted(name for name in top_level if name and name not in standard)
     assert not heavy, (
         f"smoke_pipeline.py imports {heavy} at module scope; import them "
         f"inside the function that uses them."

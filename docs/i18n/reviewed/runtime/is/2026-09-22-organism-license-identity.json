@@ -1,0 +1,14 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "CC BY 4.0",
+      "source": "CC BY 4.0",
+      "source_sha256": "c46701fbec1318d7fce249ac24b8cbf1fb6a1b17225e75bd9e71020fcad2e0bd",
+      "table": "ui",
+      "translation": "CC BY 4.0"
+    }
+  ],
+  "review_kind": "Technical identity review: the Creative Commons license identifier CC BY 4.0 remains exact in every language.",
+  "schema": 1
+}

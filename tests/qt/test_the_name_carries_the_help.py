@@ -22,7 +22,17 @@ def _survey(screen):
     Counting `_widgets` instead is misleading: touching it MATERIALISES lazy
     widgets that were never placed on any form, which is what made an early
     measurement read 1,551 rows on a screen showing 106.
+
+    A category the user has not opened keeps its body off the page until it
+    is opened, so the survey opens each one first -- the only way a user
+    reaches those rows too.
     """
+    for section in list(getattr(screen, "_settings_sections", ()) or ()):
+        try:
+            if section._body_is_detached() and not section.isHidden():
+                section.set_expanded(True)
+        except RuntimeError:
+            continue
     on_field = []
     on_name = 0
     for form in screen.findChildren(QFormLayout):
@@ -70,7 +80,9 @@ def test_the_help_is_on_the_name_not_the_field(window, qapp, key):
     Essentials, the level a module opens at, Measure shows eleven settings;
     before 8d7426b59 (GitHub #120) the object rule ran after the settings
     search and put the rows Essentials excludes back on the form, which is
-    how Essentials used to clear the "> 20" bar here.
+    how Essentials used to clear the "> 20" bar here. Every category is
+    opened first, as a user reaching every row would: since 2026-09-22 a
+    closed category's rows are not built until it is.
     """
     from spacr.qt.settings_search import remember_disclosure
 
@@ -78,6 +90,8 @@ def test_the_help_is_on_the_name_not_the_field(window, qapp, key):
     window._on_nav_selected(key)
     qapp.processEvents()
     screen = window._screens[key]
+    screen._open_every_waiting_heading()
+    qapp.processEvents()
 
     on_field, on_name = _survey(screen)
 

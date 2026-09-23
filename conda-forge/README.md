@@ -1,25 +1,32 @@
 # spaCR on conda-forge
 
-Conda-forge requires one human-reviewed onboarding pull request before it can
-publish a new package. The spaCR onboarding request is
-[`conda-forge/staged-recipes#34352`](https://github.com/conda-forge/staged-recipes/pull/34352).
-The reference v1 recipe in `recipe/recipe.yaml` uses the same immutable PyPI
-source archive and license metadata.
+spaCR is published on [conda-forge](https://anaconda.org/conda-forge/spacr).
+Create a separate environment to install it:
 
-## One-time onboarding
+```bash
+conda create -n spacr -c conda-forge spacr
+conda activate spacr
+spacr-run --list
+spacr-qt
+```
 
-1. Keep the onboarding pull request green and respond to conda-forge review.
-2. After merge, conda-forge creates
-   `conda-forge/spacr-feedstock` and publishes the initial package.
-3. Copy `conda-forge.yml` from this directory to the root of the generated
-   feedstock and merge that feedstock change.
+The authoritative build recipe and configuration live in
+[`conda-forge/spacr-feedstock`](https://github.com/conda-forge/spacr-feedstock).
+The one-time onboarding is complete. Version 1.5.0.8 was published on
+2026-09-19 after [feedstock PR #3](https://github.com/conda-forge/spacr-feedstock/pull/3)
+merged automatically. Its main-channel artifact and checksum were verified
+on 2026-09-23; this check did not perform a fresh environment installation.
 
-The recipe uses the PyPI source archive. Its dependency names are
-translated to their conda-forge distribution names, including `torch` to
-`pytorch`, `opencv-python-headless` to `opencv`, `tables` to `pytables`, and
-`nvidia-ml-py` to `pynvml`.
+The reference recipe in this directory is a source-repository mirror;
+conda-forge does not build from it. As of 2026-09-23, this mirror names the
+published 1.5.0.9 PyPI archive, whose download and SHA-256 were verified;
+the feedstock and conda package are still at 1.5.0.8. Their dependency pins
+and build details also differ. The feedstock carries
+`tensorboard-2.20.patch`. Compare against
+the feedstock before proposing recipe or configuration changes; copying the
+mirror over the feedstock would discard those changes.
 
-## Automatic releases after onboarding
+## Automatic releases
 
 The source repository publishes PyPI and GitHub first. The conda-forge bot
 then detects the new PyPI version, updates the recipe version and source hash,
@@ -28,3 +35,7 @@ passing version update. Conda-forge publishes the package from that merge.
 
 Dependency-list changes still require an ordinary feedstock recipe edit.
 Version-only releases require no manual conda command or upload token.
+The bot's update can lag PyPI: check the feedstock pull requests and the
+published package before describing an update as pending. Keep the mirror's
+version and source hash current separately; changing the mirror does not
+trigger a conda-forge release.

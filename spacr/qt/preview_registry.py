@@ -79,6 +79,11 @@ class PreviewSpec:
 #: app key -> its preview. The ones marked ``owned_by_screen`` are built by
 #: ``AppScreen`` itself; the rest are attached by :func:`install`.
 PREVIEWS: Dict[str, PreviewSpec] = {
+    'host_pathogen': PreviewSpec(
+        builder='spacr.qt.widgets.host_pathogen_preview:build_host_pathogen_preview_card',
+        fill='spacr.qt.widgets.host_pathogen_preview:fill_host_pathogen_preview_card',
+        title='Live preview',
+        tooltip='Inspect one measured field, its host/vacuole/parasite masks and recruitment results.'),
     "mask": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
         owned_by_screen=True),
@@ -397,6 +402,12 @@ def _attach(screen: QWidget, app_key: str,
         card.deleteLater()
         return None
     card.setVisible(False)
+    adopt = getattr(screen, "adopt_runtime_pane", None)
+    if callable(adopt):
+        try:
+            adopt(card, focus=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not name the preview's pane", exc_info=True)
 
     from .widgets.preview_refresh import install_refresh_button
 
@@ -407,18 +418,26 @@ def _attach(screen: QWidget, app_key: str,
         install_refresh_button(screen, card, None,
                                panel_getter=lambda: host.panel)
 
-    toggle = QToolButton()
-    toggle.setObjectName("SettingsPreviewToggle")
-    toggle.setText(spec.title)
-    toggle.setCheckable(True)
-    toggle.setCursor(Qt.PointingHandCursor)
+    if app_key == 'host_pathogen':
+        from .widgets.ai_toggle_label import AiToggleLabel
+
+        toggle = AiToggleLabel(screen, text='Live', tooltip=spec.tooltip)
+    else:
+        toggle = QToolButton()
+        toggle.setObjectName("SettingsPreviewToggle")
+        toggle.setText(spec.title)
+        toggle.setCheckable(True)
+        toggle.setCursor(Qt.PointingHandCursor)
     toggle.setToolTip(spec.tooltip or
                       "Show a preview of what these settings produce.")
     toggle.toggled.connect(host.on_toggled)
     host.toggle = toggle
 
     bar = getattr(screen, "_settings_search", None)
-    if bar is not None and hasattr(bar, "add_trailing_widget"):
+    heading = getattr(screen, '_actions_heading_row', None)
+    if app_key == 'host_pathogen' and heading is not None:
+        heading.addWidget(toggle)
+    elif bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
     else:
         toggle.setParent(screen)
@@ -503,6 +522,12 @@ def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:
     if wrap is None or actions is None:
         return False
     layout = wrap.layout()
+    holder = actions.parentWidget()
+    if (holder is not None and holder is not wrap
+            and wrap.isAncestorOf(holder)
+            and holder.layout() is not None
+            and holder.layout().indexOf(actions) >= 0):
+        layout = holder.layout()
     if layout is None:
         return False
     index = layout.indexOf(actions)

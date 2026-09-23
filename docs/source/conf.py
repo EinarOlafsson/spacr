@@ -14,6 +14,8 @@ from pathlib import Path
 _SOURCE_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_SOURCE_ROOT / 'tools'))
 import nested_helper_docs as _nested_helper_docs
+import api_visibility as _api_visibility
+from docs_version import source_version as _source_version
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(__file__, '..', '..', 'spacr')
@@ -24,23 +26,7 @@ project   = 'spaCR'
 author    = 'Einar Birnir Olafsson'
 copyright = f'2025-2026, {author}'
 
-try:
-    from importlib.metadata import version as _ver
-except ImportError:
-    from importlib_metadata import version as _ver
-try:
-    release = _ver('spacr')
-except Exception:
-    # Fall back to reading spacr/version.py when the editable install
-    # didn't lay down .egg-info metadata.
-    sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..', '..')
-    ))
-    try:
-        import spacr as _spacr_pkg
-        release = getattr(_spacr_pkg, '__version__', '') or 'dev'
-    except Exception:
-        release = 'dev'
+release = _source_version(_SOURCE_ROOT)
 version = release
 
 _source_branch = os.environ.get('GITHUB_REF_NAME', '').strip()
@@ -138,9 +124,12 @@ autoapi_keep_files           = True
 autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical inside
 # A changed rollout must invalidate AutoAPI's otherwise unchanged source cache.
 spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))
+spacr_explicit_api_modules = tuple(sorted(_api_visibility.EXPLICIT_MODULES))
 
 
 def autoapi_prepare_jinja_env(env):
+    import build_module_workflows
+    build_module_workflows.prepare_jinja(env, root=_SOURCE_ROOT)
     _nested_helper_docs.prepare_jinja(
         env, root=_SOURCE_ROOT, ignore_patterns=autoapi_ignore,
     )
@@ -176,8 +165,14 @@ for _api_catalog_name in sorted(os.listdir(_api_catalog_dir)):
         for _chunk in iter(lambda: _stream.read(1024 * 1024), b''):
             _api_catalog_hasher.update(_chunk)
 _api_catalog_version = _api_catalog_hasher.hexdigest()[:16]
+_api_publication_language = os.environ.get('SPACR_DOCS_API_LANGUAGE', 'all')
+if _api_publication_language not in ('all', 'english'):
+    raise ValueError('SPACR_DOCS_API_LANGUAGE must be all or english')
 html_js_files = [
-    ('api_i18n.js', {'data-api-catalog-version': _api_catalog_version}),
+    ('api_i18n.js', {
+        'data-api-catalog-version': _api_catalog_version,
+        'data-api-language': _api_publication_language,
+    }),
 ]
 
 # -- Tutorial media --------------------------------------------------------
@@ -255,6 +250,9 @@ html_theme_options = {
 
 def _skip_implementation_data(app, what, name, obj, skip, options):
     """Hide mutable module state while retaining documented constants."""
+    explicit_policy = _api_visibility.explicit_page_policy(name)
+    if explicit_policy is not None:
+        return explicit_policy
     helper_policy = _nested_helper_docs.helper_page_policy(what, name, obj, skip, options)
     if helper_policy is not None:
         return helper_policy
@@ -267,5 +265,6 @@ def _skip_implementation_data(app, what, name, obj, skip, options):
 
 def setup(app):
     app.add_config_value('spacr_nested_helper_modules', (), 'env')
+    app.add_config_value('spacr_explicit_api_modules', (), 'env')
     _nested_helper_docs.register_sphinx_directive(app)
     app.connect('autoapi-skip-member', _skip_implementation_data)

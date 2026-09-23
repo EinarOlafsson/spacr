@@ -1,0 +1,35 @@
+{
+  "language": "de",
+  "title": "spaCR-Screens",
+  "section": "Arbeitsabläufe",
+  "description": "Verfolgen Sie einen gepoolten bildbasierten Screen von Home über Bildmessungen, Phänotypklassifikation und Barcode-Zählungen bis zur Regression.",
+  "objectives": [
+    "Das passende Startmodul anhand der bereits vorhandenen Daten wählen.",
+    "Erkennen, welche Daten jedes Modul liest und schreibt.",
+    "Die verknüpften Modullektionen und API-Beschreibungen für den nächsten Schritt nutzen."
+  ],
+  "prerequisite": "Installieren Sie spaCR und öffnen Sie Home. Diese Lektion erklärt die Navigation und die Datenübergaben; die verknüpften Modullektionen enthalten durchgearbeitete Datenbeispiele. Ein- und Ausgaben umfassen bedingte Alternativen, die beim jeweiligen Modul erklärt werden.",
+  "scenes": [
+    "Beginnen Sie auf Home mit dem Material, das Sie bereits haben. Ein gepoolter bildbasierter Screen hat zwei Datenzweige: Bilder beschreiben den Phänotyp, während die Sequenzierung die in jedem Well vertretenen Perturbationen identifiziert. Mask, Measure, Annotate und Classify bilden den Bildzweig. Map Barcodes bildet den Sequenzierungszweig. Regression führt kompatible Scores und Guide-Zählungen zusammen. Es handelt sich um verbundene Datenprodukte, nicht um sechs Schaltflächen, die immer in einer festen Reihenfolge ausgeführt werden müssen.",
+    "Öffnen Sie Mask auf Home. Wählen Sie Kanäle und Modelle, prüfen Sie eine Vorschau und führen Sie dann Mask aus. Measure verarbeitet die zusammengeführten Arrays; die Zähldatenbank ist noch keine Merkmalstabelle. Eingabedaten: Mikroskopbilder; Segmentierungscheckpoint. Ausgabedaten: Bilder und Labelmasken; Labelmasken; Objektanzahlen. Mask zu Measure: Verwenden Sie dasselbe Projekt und die richtigen Kanalindizes für Bilder und Masken.",
+    "Öffnen Sie Measure auf Home. Measure liest Bilder und Label-Ebenen gemeinsam. Aktivieren Sie das Speichern von Ausschnitten, wenn Sie PNG-Dateien benötigen; halten Sie für gestreamte Ausschnitte Datenbank und Quellprojekt zusammen. Eingabedaten: Bilder und Labelmasken; Labelmasken. Ausgabedaten: Gemessene Objekte; Objektausschnitte. Mask zu Measure: Verwenden Sie dasselbe Projekt und die richtigen Kanalindizes für Bilder und Masken. Measure zu Annotate: Speichern oder streamen Sie Ausschnitte mit stabilen Objektkennungen. Measure zu Classify: Wählen Sie die Bild- oder Tabellenfamilie passend zu Ihrer Eingabe.",
+    "Öffnen Sie Annotate auf Home. Annotieren Sie repräsentative Objekte in png_list vor dem überwachten Training. Verwenden Sie getrennte Annotationen für verschiedene Fragestellungen und halten Sie Trainings- und Auswertungsgruppen voneinander unabhängig. Eingabedaten: Gemessene Objekte; Objektausschnitte; Wiederverwendbare Gates. Ausgabedaten: Trainingsannotationen. Measure zu Annotate: Speichern oder streamen Sie Ausschnitte mit stabilen Objektkennungen. Annotate zu Classify: Halten Sie annotierte Trainings- und Auswertungsgruppen getrennt.",
+    "Öffnen Sie Classify auf Home. Wählen Sie Computer Vision für Ausschnitte oder gestreamte Objektbilder beziehungsweise Tabular Machine Learning für gemessene Merkmalsspalten. Die beiden Familien verarbeiten unterschiedliche Eingaben. Eingabedaten: Gemessene Objekte; Objektausschnitte; Trainingsannotationen. Ausgabedaten: Objektklassifikationsscores; Trainierter Bildklassifikator; Angepasster Merkmalsklassifikator; Auswertungspaket für Klassifikatoren. Measure zu Classify: Wählen Sie die Bild- oder Tabellenfamilie passend zu Ihrer Eingabe. Annotate zu Classify: Halten Sie annotierte Trainings- und Auswertungsgruppen getrennt. Classify zu Regression: Wählen Sie die gewünschte CV- oder ML-Scorespalte und bewahren Sie die Platten- und Well-Kennungen.",
+    "Öffnen Sie Map Barcodes auf Home. Geben Sie die Referenzen an, die Ihr Experiment kodieren. Prüfen Sie zugeordnete Zählwerte und die Barcode-Qualitätskontrolle, bevor Sie Guide-Zählungen pro Well mit Phänotypscores verknüpfen. Eingabedaten: Sequenzierungsreads. Ausgabedaten: Guide-Zählungen pro Well. Map Barcodes zu Regression: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel.",
+    "Öffnen Sie Regression auf Home. Gleichen Sie Platten- und Well-Kennungen zwischen Phänotyp- und Guide-Zähldaten ab, wählen Sie Zielgröße und Kontrollen und prüfen Sie die Diagnostik, bevor Sie Treffer interpretieren. Direkt gemessene Zielgrößen werden ebenfalls unterstützt. Eingabedaten: Objektklassifikationsscores; Guide-Zählungen pro Well; Optische Barcode-Zuordnungen; Gemessene Objekte. Ausgabedaten: Regressionsergebnisse und Treffer. Classify zu Regression: Wählen Sie die gewünschte CV- oder ML-Scorespalte und bewahren Sie die Platten- und Well-Kennungen. Map Barcodes zu Regression: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel. OPS zu Regression: Verknüpfen beziehungsweise aggregieren Sie dekodierte Objekte vor Regression ausdrücklich zu Phänotyp- und Guide-Eingaben; dies ist keine direkte CSV-Übergabe.",
+    "Prüfen Sie vor Regression, ob Bildscores, Sequenzierungszählungen und Versuchsplan übereinstimmende Platten- und Well-Kennungen verwenden. Bewahren Sie Objektkennungen, Annotationsspalte, Klassifikatoreinstellungen und Barcode-Referenzen zusammen mit dem Lauf auf. Nutzen Sie die verknüpften Modullektionen für ein durchgearbeitetes Beispiel jedes Schritts; wählen Sie die Führung für gepoolte Screens, wenn Home Sie durch die Navigation leiten soll."
+  ],
+  "lesson": "78_spacr_screens",
+  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain the two independent image and sequencing branches and their per-well join.",
+      "Distinguish merged images/labels from counts, saved versus streamed crops, and CV versus tabular inputs.",
+      "Preserve separate training/evaluation groups, stable identities, direct measured responses, and the explicit OPS join/aggregation requirement.",
+      "Navigation overview only; no claim that the recording executed an experiment."
+    ]
+  }
+}

@@ -18,6 +18,8 @@ def _forbidden_probe(*_args, **_kwargs):
 
 
 def _render_both(monkeypatch, kind):
+    for key in ('CUDA_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES', 'SPACR_DEVICE'):
+        monkeypatch.delenv(key, raising=False)
     found = acc.Accelerator(
         kind=kind, device=kind, label="Fake " + kind,
         float64=kind != "mps",
@@ -36,7 +38,7 @@ def _render_both(monkeypatch, kind):
     monkeypatch.setattr(doctor, "_import_torch", lambda: torch)
     monkeypatch.setattr(
         doctor, "_nvidia_driver", lambda: "fake-driver" if kind == "cuda" else None)
-    monkeypatch.setattr(acc, "inspect_torch", lambda _torch: found)
+    monkeypatch.setattr(acc, "inspect_torch", lambda _torch, **kwargs: found)
     monkeypatch.setattr(acc, "resolve", lambda: found)
     monkeypatch.setattr(acc, "_torch", _forbidden_probe)
     monkeypatch.setattr(acc, "_opengl_likely", lambda: True)

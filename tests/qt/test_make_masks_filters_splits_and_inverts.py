@@ -556,7 +556,7 @@ def test_there_is_one_invert_and_it_is_the_display_one(screen):
     assert screen._cp_invert is screen._invert_display
     assert screen._cp_invert.text() == "Invert image"
     assert category(screen, "Display").isAncestorOf(screen._cp_invert)
-    assert not category(screen, "Object detection").isAncestorOf(
+    assert not category(screen, "Detection method").isAncestorOf(
         screen._cp_invert)
 
 
@@ -633,6 +633,14 @@ def test_the_region_is_inverted_about_the_whole_fields_range(screen):
 
 
 def test_the_request_key_carries_invert(screen):
+    """Invert is in the key, found by NAME and not by counting from the end.
+
+    The key is ``(field, box)`` then :data:`mm._MODEL_SETTING_FIELDS`
+    positionally then the border rule, and that tuple grows: item 473 added
+    the enhancement chain and the organelle methods' parameters after
+    invert, which moved a position this test used to count backwards to.
+    """
+    place = 2 + mm._MODEL_SETTING_FIELDS.index("invert")
     screen._magnifier.set_enabled(True)
     screen._magnifier.hover(QPointF(*canvas_xy(30, 30)))
     off = screen._magnifier.build_request()
@@ -640,7 +648,7 @@ def test_the_request_key_carries_invert(screen):
     on = screen._magnifier.build_request()
     assert off is not None and on is not None
     assert off.key != on.key
-    assert on.key[-2] is True and off.key[-2] is False
+    assert on.key[place] is True and off.key[place] is False
 
 
 def test_the_box_paints_the_inverted_region(qtbot, screen):

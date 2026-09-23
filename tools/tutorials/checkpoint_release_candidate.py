@@ -26,6 +26,7 @@ def checkpoint(root, *, include_web_media=False):
     validate(root, include_hosted_media=True, require_browser=True)
     target = REPO / 'tools/tutorials/release_candidate'
     previous = target / 'checkpoint.json'
+    previous_records = read(previous)['files'] if previous.exists() else []
     include_web_media = include_web_media or (previous.exists() and read(previous).get('web_media_in_git', False))
     selected = {'index.html', 'app_v2.js', 'styles.css', 'voice_catalog.js',
                 'module_navigation.js', 'lesson_catalog.js', 'TUTORIAL_MEDIA_NOTICE.md', 'favicon.svg'}
@@ -60,6 +61,15 @@ def checkpoint(root, *, include_web_media=False):
         if report.get('passed') is not True or report.get('player_sha256') != digest(root / 'web/app_v2.js'):
             raise ValueError('Mutation checks describe a different player')
         copy_checked(mutations, target / 'placeholder-mutation-checks.json', copied, target)
+    selected_paths = {record['path'] for record in copied}
+    for record in previous_records:
+        relative = Path(record['path'])
+        if (relative.parts and relative.parts[0] == 'web'
+                and not relative.is_absolute() and '..' not in relative.parts
+                and record['path'] not in selected_paths):
+            stale = target / relative
+            if stale.is_file() and digest(stale) == record['sha256']:
+                stale.unlink()
     write(target / 'checkpoint.json', {'private_candidate': str(root),
           'manifest_sha256': digest(root / 'release-manifest.json'), 'files': copied,
           'web_media_in_git': bool(include_web_media), 'narration_and_4k_in_git': False,

@@ -127,23 +127,3 @@ class TestMigratingAPack:
         text = report.summary()
         assert "2 settings loaded" in text
         assert "b to c" in text and "d" in text
-
-
-def test_the_import_does_not_start_a_run(monkeypatch, tmp_path):
-    """Nothing is executed. The user presses Live Preview or Run.
-
-    Asserted on the SOURCE of the chain rather than by driving a window,
-    because what must not happen is a call that no longer exists -- and
-    the readable way to pin "this does not run anything" is that the
-    method body contains no run invocation.
-    """
-    import inspect
-
-    from spacr.qt.app import MainWindow
-
-    body = inspect.getsource(MainWindow._run_e2e_chain)
-    assert "_on_run()" not in body, (
-        "importing the demo starts a pipeline again; the user should press "
-        "Live Preview or Run themselves")
-    assert "apply_settings_dict" in body, (
-        "the demo no longer fills the settings form")

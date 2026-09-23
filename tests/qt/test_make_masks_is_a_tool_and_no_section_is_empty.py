@@ -43,21 +43,17 @@ def test_make_masks_is_under_tools(qapp):
 
 
 def test_the_declared_layout_is_the_one_that_was_asked_for(qapp):
-    """Core 6 / Data 7 / Tools 5 / Assays 4.
+    """Pin the requested categories and their three organism assay doors.
 
-    Counted from SECTION_TILE_ORDER rather than from what draws: two of
-    those keys are folded onto host mastheads by instruction 318, so
-    twenty tiles appear rather than twenty-two. The LAYOUT is what was
-    asked for; the folding is a later decision on top of it.
-
-    Data 6 -> 7 on 2026-09-11 with Embeddings. Flagged rather than
-    absorbed: the other three counts are the maintainer's specification
-    and are unchanged, and if Embeddings belongs somewhere other than
-    Data -- or belongs in TILELESS_APPS with no tile at all -- this line
-    and `SECTION_TILE_ORDER` are the two places to move it.
+    Data gained Embeddings on2026-09-11. On2026-09-22 the organism pages
+    replaced four direct assay tiles; the individual assays remain reachable
+    within Toxoplasma. Their ordering is explicit below rather than inferred
+    from whatever the registry happens to contain.
     """
     wanted = {app_module.SECTION_CORE: 6, app_module.SECTION_DATA: 7,
-              app_module.SECTION_TOOLS: 5, app_module.SECTION_ASSAYS: 4}
+              app_module.SECTION_TOOLS: 5, app_module.SECTION_ASSAYS: 3}
+    assert app_module.SECTION_TILE_ORDER[app_module.SECTION_ASSAYS] == (
+        "toxoplasma", "plasmodium", "candida")
     actual = {name: len(keys)
               for name, keys in app_module.SECTION_TILE_ORDER.items()}
     assert actual == wanted

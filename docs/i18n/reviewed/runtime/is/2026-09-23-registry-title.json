@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted source-context review of settings templates and measured host/vacuole/parasite preview controls. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Host–Pathogen live preview",
+      "source": "Host–Pathogen live preview",
+      "source_sha256": "4f55456ed4b03243cb9c31199bec36867b7806fdd117f001d4154ed7ce1a0af5",
+      "translation": "Rauntímaforskoðun hýsils og sýkils"
+    }
+  ]
+}

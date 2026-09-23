@@ -1,8 +1,8 @@
-|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Platforms| |Python| |Qt| |Tests| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
-.. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
+.. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Documentation
+   :alt: API Documentation
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Interactive tutorials
@@ -91,6 +91,20 @@ well identifiers live in one SQLite project.
 Runs as a desktop application or headlessly on a workstation, server or
 cluster.
 
+Try spaCR
+~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+A first run needs no data: Import, Make Masks, Annotate and the assay screens
+each download an example dataset from a **Load test data…** button.
+``spacr-download`` fetches them from a terminal.
+
 Hardware support
 ~~~~~~~~~~~~~~~~
 
@@ -135,10 +149,10 @@ Hardware support
 
 
 Install spaCR
--------------
+~~~~~~~~~~~~~
 
 Desktop application
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 The installers bundle their own Python. Conda is not required.
 
@@ -149,15 +163,15 @@ The installers bundle their own Python. Conda is not required.
 .. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Download spaCR 1.5.0.9 for Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Windows-Online-Setup.exe
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: Download spaCR 1.5.0.9 for macOS 11+ (Intel and Apple silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-macOS-Universal-Online.pkg
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Download spaCR 1.5.0.9 for 64-bit Linux
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Linux-x86_64-Online.run
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Earlier spaCR installers
@@ -181,12 +195,13 @@ On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper
 blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
 
 See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall,
-offline and troubleshooting instructions.
+offline and troubleshooting instructions, and `system requirements
+<docs/source/system_requirements.rst>`_ for workstation and server recommendations
+and the GPU compatibility tables.
 
 PyPI installation
-~~~~~~~~~~~~~~~~~
+-----------------
 
-For the PyPI release, install spaCR with pip inside a Conda environment.
 Python 3.12 has the widest choice of optional scientific packages:
 
 .. code-block:: bash
@@ -217,7 +232,7 @@ Optional integrations are installed separately, for example
 compatibility table.
 
 Conda-forge installation
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 The official conda-forge package installs spaCR and its desktop dependencies
 into the active environment:
@@ -230,7 +245,7 @@ into the active environment:
    spacr
 
 Install from source
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Clone the repository and install it in editable mode, so your working copy
 *is* the installed package and edits take effect without reinstalling::
@@ -259,7 +274,7 @@ pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
 which is the usual cause.
 
 Install from source (light)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 Contributors need the history; to only run spaCR, take one of these,
 measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
@@ -360,7 +375,7 @@ Assays
 
 Quantitative readouts for biological assays.
 
-| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+| |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
 .. |Module_mask| image:: spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -452,25 +467,20 @@ Quantitative readouts for biological assays.
    :alt: Open the Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |Module_analyze_plaques| image:: spacr/resources/icons/workflow/apps/analyze_plaques.png
+.. |Module_toxoplasma| image:: spacr/resources/icons/workflow/apps/toxoplasma.png
    :width: 16.0%
-   :alt: Open the Plaque Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :alt: Open the Toxoplasma API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
-.. |Module_recruitment| image:: spacr/resources/icons/workflow/apps/recruitment.png
+.. |Module_plasmodium| image:: spacr/resources/icons/workflow/apps/plasmodium.png
    :width: 16.0%
-   :alt: Open the Recruitment API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :alt: Open the Plasmodium spp. API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
-.. |Module_invasion| image:: spacr/resources/icons/workflow/apps/invasion.png
+.. |Module_candida| image:: spacr/resources/icons/workflow/apps/candida.png
    :width: 16.0%
-   :alt: Open the Invasion Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
-   :align: middle
-.. |Module_replication| image:: spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.0%
-   :alt: Open the Replication Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :alt: Open the Candida spp. API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
 
 .. spacr-workflow-end
@@ -521,7 +531,7 @@ tooltip. Browse the `setting animation gallery
 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Data
-----
+~~~~
 
 Reference datasets
 ~~~~~~~~~~~~~~~~~~
@@ -755,7 +765,7 @@ to a bug report.
 
 
 Contributing and support
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Submit bug reports and focused feature requests through
 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_.

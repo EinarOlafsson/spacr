@@ -80,13 +80,6 @@
       "translation": "Wählen Sie einen Ordner mit `measurements/measurements.db`. Klicken Sie mit der linken Maustaste auf ein Bild, um Klasse 1 zuzuweisen, mit der rechten Maustaste für Klasse 2, und klicken Sie erneut, um die Zuweisung zu löschen — oder arbeiten Sie ausschließlich mit der Tastatur: Mit 1–9 weisen Sie eine Klasse zu und wechseln zum nächsten Bildausschnitt. Annotationen werden im Hintergrund gespeichert."
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "Realer End-to-End-Datensatz (Masken → Messen → Annotieren)…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

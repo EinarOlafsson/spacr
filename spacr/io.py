@@ -4,7 +4,7 @@ import readlif.reader
 import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageOps
+from PIL import Image
 from collections import defaultdict, Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -44,6 +44,7 @@ pyczi = None
 
 from .errors import RunLedger
 from .image_colors import read_image_rgb
+from .classification_pixels import DECLARED_UINT8, read_classification_image, validate_policy
 from .tiff_io import write_tiff
 
 LOG = logging.getLogger(__name__)
@@ -647,11 +648,15 @@ class NoClassDataset(Dataset):
         Default ``True``.
     :param load_to_memory: If True, decode all images once and hold them
         in RAM. Default ``False``.
+    :param crop_loading_policy: ``declared_uint8_v1`` uses shared crop decoding;
+        ``stored_pil_v1`` preserves untagged historical checkpoints.
     """
 
-    def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False):
+    def __init__(self, data_dir, transform=None, shuffle=True, load_to_memory=False,
+                 *, crop_loading_policy=DECLARED_UINT8):
         """Enumerate files in ``data_dir`` and optionally preload them."""
         self.data_dir = data_dir
+        self.crop_loading_policy = validate_policy(crop_loading_policy)
         self.transform = transform
         self.shuffle = shuffle
         self.load_to_memory = load_to_memory
@@ -671,8 +676,7 @@ class NoClassDataset(Dataset):
         :param img_path: Path to the image file.
         :returns: PIL ``Image`` in RGB mode.
         """
-        img = Image.open(img_path).convert('RGB')
-        return img
+        return read_classification_image(img_path, self.crop_loading_policy)
 
     def __len__(self):
         """Return the number of images in the dataset."""
@@ -715,13 +719,17 @@ class spacrDataset(Dataset):
         supplied together with ``specific_labels``, directory scanning
         is skipped.
     :param specific_labels: Labels paired with ``specific_files``.
+    :param crop_loading_policy: ``declared_uint8_v1`` uses shared crop decoding;
+        ``stored_pil_v1`` preserves untagged historical checkpoints.
     :raises ValueError: If no non-hidden image files are found for any
         requested class.
     """
 
-    def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
+    def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None,
+                 *, crop_loading_policy=DECLARED_UINT8):
         """Build the filename/label lists and optionally preload images."""
         self.data_dir = data_dir
+        self.crop_loading_policy = validate_policy(crop_loading_policy)
         self.classes = loader_classes
         self.transform = transform
         self.shuffle = shuffle
@@ -788,8 +796,8 @@ class spacrDataset(Dataset):
             is what makes every sample the same shape for the transform.
         :returns: A ``PIL.Image.Image`` in mode ``RGB``.
         """
-        with Image.open(img_path) as source:
-            return ImageOps.exif_transpose(source).convert('RGB').copy()
+        return read_classification_image(img_path, self.crop_loading_policy,
+                                         legacy_orient=True)
 
     def __len__(self):
         """Return the number of samples in the dataset."""
@@ -973,24 +981,27 @@ class TarImageDataset(Dataset):
     and surfaced as :attr:`crop_format` instead; an archive without one
     reports None, which is every tar written before this existed.
 
-    The pixels are handed over exactly as they are stored. A legacy archive is
-    NOT silently un-reversed here: a model's weights are tied to the channel
-    order it was trained on, so correcting the order at inference time would
-    quietly invalidate every model trained before the fix. :attr:`crop_format`
-    is what lets a caller notice.
+    New datasets default to declared channel order and uint8 narrowing through
+    the shared crop decoder. Inference must pass the model's recorded policy;
+    untagged older checkpoints use ``stored_pil_v1`` to preserve their pixels.
 
     :param tar_path: Path to the tar archive.
     :param transform: Optional callable applied to each PIL image.
+    :param crop_loading_policy: ``declared_uint8_v1`` (default), or
+        ``stored_pil_v1`` for historical model inputs.
     """
 
-    def __init__(self, tar_path, transform=None):
+    def __init__(self, tar_path, transform=None, *, crop_loading_policy=DECLARED_UINT8):
         """Enumerate archive members without extracting."""
         self.tar_path = tar_path
         self.transform = transform
         self.crop_format = None
+        self.crop_loading_policy = validate_policy(crop_loading_policy)
+        self._crop_markers = {}
 
         from . import crops
         with tarfile.open(self.tar_path, 'r') as f:
+            self._archive_names = set(f.getnames())
             self.members = []
             for m in f.getmembers():
                 if not m.isfile():
@@ -998,9 +1009,20 @@ class TarImageDataset(Dataset):
                 if os.path.basename(m.name) == crops.CROP_FORMAT_SIDECAR:
                     try:
                         payload = json.loads(f.extractfile(m).read().decode('utf-8'))
-                        self.crop_format = int(payload.get('spacr_crop_format'))
-                    except Exception:
-                        self.crop_format = None
+                        fmt = crops._coerce_format(payload.get('spacr_crop_format'))
+                        if fmt is None:
+                            raise ValueError("unsupported crop format")
+                        directory = os.path.normpath(os.path.dirname(m.name))
+                        if directory in self._crop_markers:
+                            raise ValueError("duplicate crop format marker")
+                        self._crop_markers[directory] = payload
+                        if directory == '.':
+                            self.crop_format = fmt
+                    except (ValueError, TypeError, AttributeError) as exc:
+                        if self.crop_loading_policy == DECLARED_UINT8:
+                            raise ValueError(f"Invalid tar crop marker {m.name}: {exc}") from exc
+                    continue
+                if m.name.endswith(crops.CROP_MIGRATION_SUFFIX):
                     continue
                 self.members.append(m)
 
@@ -1013,12 +1035,39 @@ class TarImageDataset(Dataset):
         with tarfile.open(self.tar_path, 'r') as f:
             m = self.members[idx]
             img_file = f.extractfile(m)
-            img = Image.open(BytesIO(img_file.read())).convert("RGB")
+            fmt = (self._member_crop_format(m.name)
+                   if self.crop_loading_policy == DECLARED_UINT8 else 1)
+            img = read_classification_image(BytesIO(img_file.read()),
+                                             self.crop_loading_policy, fmt=fmt)
 
         if self.transform:
             img = self.transform(img)
 
         return img, m.name
+
+    def _member_crop_format(self, name):
+        """Resolve a member's nearest folder marker, including migration state."""
+        from . import crops
+
+        directory = os.path.normpath(os.path.dirname(name))
+        while directory not in self._crop_markers and directory not in ('.', '/'):
+            directory = os.path.dirname(directory) or '.'
+        marker = self._crop_markers.get(directory)
+        if marker is None:
+            return crops.CROP_FORMAT_LEGACY_BGR
+        migration = marker.get('migration')
+        source = crops._coerce_format((migration or marker).get('from')
+                                      or marker.get('migrated_from')) or crops.CROP_FORMAT_LEGACY_BGR
+        basename = os.path.basename(name)
+        if name + crops.CROP_MIGRATION_SUFFIX in self._archive_names:
+            return source
+        if basename in set((migration or marker).get('unconverted') or ()):
+            return source
+        if migration:
+            watermark = migration.get('done_through')
+            if watermark is None or basename > str(watermark):
+                return source
+        return int(marker['spacr_crop_format'])
 
 def load_images_from_paths(images_by_key):
     """Load images grouped by key into NumPy arrays.
@@ -1897,17 +1946,18 @@ def _invalidate_v1_segmentation_outputs(src):
 
 
 def _correct_v1_segmentation_batch(
-        stack, filenames, channels, settings, illumination_session):
+        stack, filenames, channels, settings, illumination_session, psf_session=None):
     """Correct selected V1 channels on a private batch copy.
 
     :returns: ``(working_stack, field_ids)``; without a session the original
         stack and an empty tuple are returned unchanged.
     """
-    if illumination_session is None:
+    if illumination_session is None and psf_session is None:
         return stack, ()
     from .measure_hooks import PreprocessingContext
 
-    working = np.array(stack, copy=True)
+    working = np.array(stack, copy=True, dtype=(
+        np.float32 if psf_session is not None and psf_session.plan else None))
     field_ids = []
     for index, filename in enumerate(filenames):
         field_id = os.path.splitext(os.path.basename(str(filename)))[0]
@@ -1916,9 +1966,11 @@ def _correct_v1_segmentation_batch(
             channels=list(channels),
             settings=settings,
         )
-        selected = working[index][..., list(channels)]
-        corrected = illumination_session.correct(
-            field_id, selected, context)
+        selected = stack[index][..., list(channels)]
+        corrected = (illumination_session.correct(field_id, selected, context)
+                     if illumination_session is not None else selected)
+        if psf_session is not None:
+            corrected = psf_session.correct(corrected)
         working[index][..., list(channels)] = corrected
         field_ids.append(field_id)
     return working, tuple(field_ids)
@@ -1927,7 +1979,7 @@ def _correct_v1_segmentation_batch(
 def _concatenate_and_normalize_impl(
         src, channels, save_dtype=np.float32, settings=None,
         illumination_session=None, archive_output_fldr=None,
-        only_fields=None, first_batch_index=0):
+        only_fields=None, first_batch_index=0, psf_session=None):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -1942,6 +1994,9 @@ def _concatenate_and_normalize_impl(
     :param illumination_session: optional segmentation-only illumination
         session. It corrects private copies of the selected channels before
         normalisation and records completion only after each NPZ is durable.
+    :param psf_session: optional PSF session captured for this run. Applies
+        after illumination on each field before padding or normalization;
+        preserves floating point intensities and records archive identities.
     :param only_fields: when given, the field stems to normalise; every other
         ``.npy`` in ``src`` is left out. Used, without a timelapse, to rebuild
         only the fields a damaged or missing archive held.
@@ -2002,7 +2057,7 @@ def _concatenate_and_normalize_impl(
             grouped_names = sorted(
                 filename for group in time_stack_path_lists
                 for filename in group)
-            if (illumination_session is not None and
+            if ((illumination_session is not None or psf_session is not None) and
                     grouped_names != source_npy_names):
                 missing = sorted(set(source_npy_names) - set(grouped_names))
                 raise ValueError(
@@ -2033,7 +2088,7 @@ def _concatenate_and_normalize_impl(
                 stack = np.stack(stack_region)
                 stack, _field_ids = _correct_v1_segmentation_batch(
                     stack, filenames_region, channels, settings,
-                    illumination_session)
+                    illumination_session, psf_session)
 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels, 
@@ -2056,7 +2111,7 @@ def _concatenate_and_normalize_impl(
         except Exception as e:
             print(f"Error processing files, make sure filenames metadata is structured plate_well_field_time.npy")
             print(f"Error: {e}")
-            if illumination_session is not None:
+            if illumination_session is not None or psf_session is not None:
                 raise
     else:
         for file in _listdir_visible(src):
@@ -2092,6 +2147,12 @@ def _concatenate_and_normalize_impl(
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
 
             if stack_ls and ((i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files):
+                if psf_session is not None:
+                    stack_ls = [
+                        _correct_v1_segmentation_batch(
+                            array[None], [filename], channels, settings,
+                            illumination_session, psf_session)[0][0]
+                        for array, filename in zip(stack_ls, filenames_batch)]
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
                     max_dims = np.max(np.array(list(unique_shapes)), axis=0)
@@ -2106,9 +2167,10 @@ def _concatenate_and_normalize_impl(
                 else:
                     stack = np.stack(stack_ls)
 
-                stack, _field_ids = _correct_v1_segmentation_batch(
-                    stack, filenames_batch, channels, settings,
-                    illumination_session)
+                if psf_session is None:
+                    stack, _field_ids = _correct_v1_segmentation_batch(
+                        stack, filenames_batch, channels, settings,
+                        illumination_session)
                 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels,
@@ -2132,7 +2194,7 @@ def _concatenate_and_normalize_impl(
                 filenames_batch = []
                 padded_stack_ls = []
 
-    if illumination_session is not None:
+    if illumination_session is not None or psf_session is not None:
         staged_fields = _normalized_npz_field_ids(archive_output_fldr)
         if set(staged_fields) != set(intended_fields):
             missing = sorted(set(intended_fields) - set(staged_fields))
@@ -2140,13 +2202,18 @@ def _concatenate_and_normalize_impl(
             raise RuntimeError(
                 'incomplete illumination fields before V1 publication: '
                 f'missing={missing}, unexpected={extra}')
+        if psf_session is not None:
+            from .cancellation import checkpoint
+            checkpoint()
         _publish_v1_normalized_archives(
             archive_output_fldr, output_fldr)
         _invalidate_v1_segmentation_outputs(os.path.dirname(src))
         settings['resume'] = False
-        for field_id in staged_fields:
-            illumination_session.mark_completed(field_id)
-        illumination_session.finish(intended_fields)
+        for session in (illumination_session, psf_session):
+            if session is not None:
+                for field_id in staged_fields:
+                    session.mark_completed(field_id)
+                session.finish(intended_fields)
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
     ledger.finalize()
     return output_fldr
@@ -2154,7 +2221,7 @@ def _concatenate_and_normalize_impl(
 
 def concatenate_and_normalize(
         src, channels, save_dtype=np.float32, settings=None,
-        illumination_session=None):
+        illumination_session=None, psf_session=None):
     """Concatenate, optionally correct, and normalise V1 field arrays.
 
     :param src: directory containing per-field ``.npy`` channel arrays.
@@ -2164,9 +2231,12 @@ def concatenate_and_normalize(
     :param illumination_session: optional segmentation-only correction
         session. Corrected archives are staged privately and published as one
         complete set; the staging directory is removed on success or failure.
+    :param psf_session: optional PSF session from ``spacr.psf_pipeline``.
+        Uses the same complete-set publication; cancellation leaves its
+        provenance incomplete and prevents reuse of partially processed data.
     :returns: the ``masks/`` directory containing normalised NPZ archives.
     """
-    if illumination_session is None:
+    if illumination_session is None and psf_session is None:
         return _concatenate_and_normalize_impl(
             src, channels, save_dtype=save_dtype, settings=settings)
 
@@ -2178,7 +2248,7 @@ def concatenate_and_normalize(
         return _concatenate_and_normalize_impl(
             src, channels, save_dtype=save_dtype, settings=settings,
             illumination_session=illumination_session,
-            archive_output_fldr=staging_dir)
+            archive_output_fldr=staging_dir, psf_session=psf_session)
 
 
 def _get_lists_for_normalization(settings):
@@ -2577,9 +2647,12 @@ def _inspect_normalized_archive(path):
 
     ``numpy.savez_compressed`` writes the zip directory last, so an archive
     cut short by a killed run has none and does not open. Beyond that, every
-    member's recorded extent has to fit inside the file, ``data.npy`` has to
-    begin with a readable array header, and ``filenames.npy``, which is
-    small, is read.
+    member's recorded extent has to fit inside the file. ``data.npy`` needs
+    a readable numeric-array header and enough declared bytes for its shape
+    and dtype; object-valued pixels are refused. The small ``filenames.npy``
+    array is read and must contain one filename per batch field. Legacy
+    object-valued filenames are not unpickled and cannot establish field
+    coverage. Pixel arrays are not materialized or fully CRC-scanned.
 
     :param path: the ``.npz`` archive.
     :returns: ``(ok, reason, fields, planes)``. ``reason`` is ``'done'`` when
@@ -2588,6 +2661,7 @@ def _inspect_normalized_archive(path):
         not read without unpickling. ``planes`` is the length of the last axis
         of ``data``, or ``None`` when it is damaged.
     """
+    import math
     import zipfile
     import zlib
     from numpy.lib import format as npy_format
@@ -2610,9 +2684,14 @@ def _inspect_normalized_archive(path):
                             'the file', None, None)
             with archive.open('data.npy') as member:
                 if npy_format.read_magic(member) == (1, 0):
-                    shape = npy_format.read_array_header_1_0(member)[0]
+                    shape, _, dtype = npy_format.read_array_header_1_0(member)
                 else:
-                    shape = npy_format.read_array_header_2_0(member)[0]
+                    shape, _, dtype = npy_format.read_array_header_2_0(member)
+                if dtype.hasobject:
+                    return False, 'data.npy requires unpickling', None, None
+                expected = member.tell() + math.prod(shape) * dtype.itemsize
+                if members['data.npy'].file_size < expected:
+                    return False, 'truncated: data.npy pixels are incomplete', None, None
             planes = int(shape[-1]) if shape else None
             with archive.open('filenames.npy') as member:
                 try:
@@ -2621,6 +2700,8 @@ def _inspect_normalized_archive(path):
                     if 'allow_pickle' not in str(exc):
                         raise
                     return True, 'done', None, planes
+            if not shape or names.ndim != 1 or names.size != shape[0]:
+                return False, 'filenames count does not match data.npy fields', None, None
     except zipfile.BadZipFile as exc:
         return False, f'not a complete zip archive ({exc})', None, None
     except (OSError, ValueError, EOFError, KeyError, zlib.error) as exc:
@@ -2760,6 +2841,11 @@ def _check_archives_without_preprocessing(src):
     :class:`zipfile.BadZipFile` the segmenter would raise on it. Fields of
     ``stack/`` that no whole archive lists are reported, not normalised.
 
+    Earlier quarantines continue to raise on subsequent runs until a valid
+    same-name replacement exists, or readable archives cover every existing
+    stack field. Legacy archives with unreadable object-valued filenames
+    cannot establish that coverage. Quarantined evidence is retained.
+
     :param src: the plate folder holding ``masks/``.
     :returns: the names of the whole archives.
     :raises FileNotFoundError: when an archive is damaged.
@@ -2767,9 +2853,13 @@ def _check_archives_without_preprocessing(src):
     masks_path = os.path.join(src, 'masks')
     stack_path = os.path.join(src, 'stack')
     checked = _check_normalized_archives(masks_path)
-    damaged = checked['damaged']
+    stack_fields = _stack_field_stems(stack_path)
+    earlier = set(checked['earlier']) - set(checked['archives'])
+    if (stack_fields and not checked['unlisted']
+            and stack_fields <= checked['covered']):
+        earlier.clear()
+    damaged = sorted({name for name, _ in checked['damaged']} | earlier)
     if damaged:
-        stack_fields = _stack_field_stems(stack_path)
         raw = (_raw_image_names(src) or
                _raw_image_names(os.path.join(src, 'orig')) or
                _channel_folders(src))
@@ -2790,18 +2880,17 @@ def _check_archives_without_preprocessing(src):
         raise FileNotFoundError(
             f'{len(damaged)} normalised archive(s) in {masks_path} were '
             f'damaged by an earlier run '
-            f'({_name_list(name for name, _ in damaged)}) and have been set '
+            f'({_name_list(damaged)}) and have been set '
             f'aside as <name>.damaged. preprocess is off, so they are not '
             f'built again.{way_out}')
     if not checked['unlisted']:
-        missing = _stack_field_stems(stack_path) - checked['covered']
+        missing = stack_fields - checked['covered']
         if missing and checked['archives']:
             print(f'{len(missing)} field(s) in stack/ are in no archive in '
                   f'{masks_path}: {_name_list(sorted(missing))}. preprocess '
                   f'is off, so they are not normalised and get no masks; '
                   f'turn preprocess on to add them.')
-    return [name for name in checked['archives']
-            if name not in dict(damaged)]
+    return checked['archives']
 
 
 def _next_archive_index(masks_path):
@@ -2876,6 +2965,16 @@ def _resume_normalized_archives(settings, src, mask_channels):
     """
     stack_path = os.path.join(src, 'stack')
     masks_path = os.path.join(src, 'masks')
+    from zipfile import BadZipFile
+    from .psf_pipeline import validate_psf_resume, _record_path
+    psf_tracked = (settings.get('psf_operation', 'none') != 'none' or
+                   _record_path(src).exists())
+    if psf_tracked:
+        try:
+            validate_psf_resume(settings, src, mask_channels,
+                                expected_fields=_normalized_npz_field_ids(masks_path))
+        except (ValueError, OSError, EOFError, BadZipFile):
+            return False
     _set_aside_damaged_stacks(stack_path)
     try:
         _rebuild_stacks_from_raw(settings, src)
@@ -2910,7 +3009,7 @@ def _resume_normalized_archives(settings, src, mask_channels):
     missing = stack_fields - covered
     if not missing:
         return True
-    if (settings.get('illumination_correction', False) or
+    if (settings.get('illumination_correction', False) or psf_tracked or
             settings.get('timelapse', False)):
         print(f'{len(missing)} field(s) in stack/ are in no whole archive; '
               f'this archive set is rebuilt whole from stack/.')
@@ -3315,11 +3414,15 @@ def preprocess_img_data(settings):
             pipeline_style='v1',
         )
 
+    from .psf_pipeline import _prepare_segmentation_psf
+    psf_session = _prepare_segmentation_psf(settings, src, mask_channels)
+
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
                               save_dtype=np.float32,
                               settings=settings,
-                              illumination_session=illumination_session)
+                              illumination_session=illumination_session,
+                              psf_session=psf_session)
         
     for key in mask_channel_keys:
         ch = settings.get(key)
@@ -4403,6 +4506,9 @@ def _load_and_concatenate_arrays(
 
     count=0
     reference_files = _listdir_visible(reference_folder)
+    from .image_quality import excluded_fields
+    rejected_quality = excluded_fields(src)
+    reference_files = [name for name in reference_files if name not in rejected_quality]
     all_imgs = len(reference_files)
     time_ls = []
     layout_written = False
@@ -5883,10 +5989,9 @@ def mark_crop_output_folder(folder, fmt=None, source_folder=None,
     unmarked folder of corrected ones -- the one state that is silently
     misread.
 
-    ``fmt=None`` inherits the format from ``source_folder``. That is what
-    keeps a byte-for-byte copy honestly labelled: copying legacy crops into a
-    training folder produces legacy crops, and marking that folder as current
-    would reverse every channel name attached to the model trained on it.
+    ``fmt=None`` inherits the format from ``source_folder``. Byte-for-byte
+    copies retain their source format: formats 1 and 3 use declared order,
+    while format 2 needs channel reversal when read by a declared-order model.
 
     :param folder: the folder about to be filled.
     :param fmt: the format to record; None inherits from ``source_folder``.
@@ -5925,7 +6030,9 @@ def generate_dataset(settings=None):
 
     ``crop_source`` chooses where the images come from. ``'png'`` (and
     ``'auto'`` wherever a crop folder exists) is the behaviour above,
-    unchanged: the files are byte-copied into the tar. ``'merged'`` (and
+    unchanged for uniform source formats: files are byte-copied into the tar
+    with their format marker. Mixed formats are decoded into declared uint8
+    copies in the archive only. ``'merged'`` (and
     ``'auto'`` on a project with no crop folder) cuts every crop out of
     ``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be
     built with no PNG folder on disk at all, and is rebuilt at the *current*
@@ -6045,7 +6152,8 @@ def generate_dataset(settings=None):
         print(f"Warning: {os.path.basename(tar_name)} exists, saving as {os.path.basename(tar_name_2)} ")
         tar_name = os.path.join(dst, tar_name_2)
 
-    if n_on_demand:
+    source_format = _crop_format_of_items(selected_paths)
+    if n_on_demand or source_format is None:
         written, skipped = _write_crop_tar(selected_paths, tar_name, settings)
         if written == 0:
             raise RuntimeError(
@@ -6089,6 +6197,12 @@ def generate_dataset(settings=None):
 
     written = 0
     with tarfile.open(tar_name, 'w') as final_tar:
+        from .crops import CROP_FORMAT_SIDECAR
+
+        marker = json.dumps({'spacr_crop_format': source_format}).encode('utf-8')
+        info = tarfile.TarInfo(CROP_FORMAT_SIDECAR)
+        info.size = len(marker)
+        final_tar.addfile(info, BytesIO(marker))
         for temp_tar_path in temp_tar_files:
             with tarfile.open(temp_tar_path, 'r') as temp_tar:
                 for member in temp_tar.getmembers():
@@ -6179,9 +6293,9 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
 def _write_crop_tar(items, tar_name, settings=None):
     """Write ``items`` into ``tar_name``, cutting on-demand crops as it goes.
 
-    ``items`` may mix plain PNG paths (byte-copied, exactly as the parallel
-    path does) and :class:`LazyCropPNG` handles (cut out of ``merged/*.npy``
-    and stored as current-format RGB PNGs).
+    ``items`` may mix PNG paths and :class:`LazyCropPNG` handles. Uniform
+    formats retain their original bytes; mixed formats become declared uint8
+    copies. Source files are never modified.
 
     The archive also carries a ``.spacr_crop_format.json`` member, the same
     marker :mod:`spacr.crops` writes into a crop folder, so "which channel
@@ -6200,14 +6314,16 @@ def _write_crop_tar(items, tar_name, settings=None):
     written = 0
     skipped = 0
     used = set()
+    fmt = _crop_format_of_items(items)
+    canonicalize = fmt is None
+    if canonicalize:
+        fmt = crops.CROP_FORMAT_CURRENT
+        print("Mixed crop formats: writing declared-order uint8 copies into the tar.")
     with tarfile.open(tar_name, 'w') as tar:
         marker = json.dumps({
-            'spacr_crop_format': crops.CROP_FORMAT_CURRENT,
-            'channel_order': 'rgb',
-            'narrowing': 'high-byte',
-            'note': ('Cut on demand from merged/*.npy by spacr.io.'
-                     'generate_dataset; png_dims[0] is each member\'s red '
-                     'channel.'),
+            'spacr_crop_format': fmt,
+            'note': ('Uniform source formats preserve stored pixels. Mixed '
+                     'formats are decoded to declared uint8 copies.'),
             'png_dims': list((settings or {}).get('png_dims') or []),
         }, indent=2, sort_keys=True).encode('utf-8')
         info = tarfile.TarInfo(crops.CROP_FORMAT_SIDECAR)
@@ -6221,8 +6337,13 @@ def _write_crop_tar(items, tar_name, settings=None):
                     name = item.name or f"crop_{i}.png"
                 else:
                     name = os.path.basename(str(item))
-                    with open(str(item), 'rb') as handle:
-                        payload = handle.read()
+                    if canonicalize:
+                        buf = BytesIO()
+                        Image.fromarray(crops.read_crop_png(str(item))).save(buf, format='PNG')
+                        payload = buf.getvalue()
+                    else:
+                        with open(str(item), 'rb') as handle:
+                            payload = handle.read()
             except Exception as exc:
                 skipped += 1
                 if skipped <= 5:
@@ -6925,7 +7046,8 @@ def _cv_group_ids(filenames, group_by, verbose=True):
 def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=32,
                         classes=None, n_jobs=None, pin_memory=False, normalize=False,
                         channels=None, augment=False, verbose=False,
-                        group_by='well', class_balance='none', seed=0):
+                        group_by='well', class_balance='none', seed=0,
+                        crop_loading_policy=DECLARED_UINT8):
     """Build one ``(train_loader, val_loader)`` pair per cross-validation fold.
 
     The dataset under ``src/<mode>`` is read once and then re-split k ways, so
@@ -6949,6 +7071,8 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
     :param group_by: fold grouping level, one of ``CV_GROUP_LEVELS``.
     :param class_balance: one of ``CLASS_BALANCE_MODES``, train loaders only.
     :param seed: seed for the deterministic fold assignment.
+    :param crop_loading_policy: crop decoding policy recorded on each loader;
+        defaults to declared channel order and high-byte uint8 narrowing.
     :returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of
         ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,
         ``warnings``, ``imbalance`` and ``groups``.
@@ -6967,7 +7091,8 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
     data_dir = _classification_data_dir(src, mode, classes)
     transform = _classification_transform(image_size, channel_idx, normalize)
     data = spacrDataset(data_dir, classes, transform=transform,
-                        shuffle=True, pin_memory=pin_memory)
+                        shuffle=True, pin_memory=pin_memory,
+                        crop_loading_policy=crop_loading_policy)
 
     labels = dataset_labels(data)
     filenames = dataset_filenames(data)
@@ -7004,6 +7129,8 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
             val_dataset, batch_size=batch_size, shuffle=False,
             num_workers=num_workers, pin_memory=pin_memory,
             persistent_workers=use_persistent)
+        train_loader.crop_loading_policy = data.crop_loading_policy
+        val_loader.crop_loading_policy = data.crop_loading_policy
         fold_loaders.append((train_loader, val_loader))
 
     info = {
@@ -7024,7 +7151,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=None, n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=None,
                      augment=False, verbose=False, class_balance='none',
-                     seed=42, group_by='none'):
+                     seed=42, group_by='none', crop_loading_policy=DECLARED_UINT8):
     """Build ``spacrDataLoader`` objects for training, validation, or testing.
 
     Reads class subfolders under ``src/<mode>``, applies the requested
@@ -7052,6 +7179,8 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     :param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition
         identity entirely on one side of the ordinary validation holdout.
         ``none`` retains the legacy per-object random split.
+    :param crop_loading_policy: crop decoding policy recorded on each loader;
+        defaults to declared channel order and high-byte uint8 narrowing.
     :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
         for ``mode='test'``, the test loader (plus optional metadata).
     :raises ValueError: if ``class_balance`` is not a recognised mode.
@@ -7080,7 +7209,8 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     transform = _classification_transform(image_size, channels, normalize)
 
     data = spacrDataset(data_dir, classes, transform=transform,
-                        shuffle=True, pin_memory=pin_memory)
+                        shuffle=True, pin_memory=pin_memory,
+                        crop_loading_policy=crop_loading_policy)
 
     num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
     use_persistent = num_workers > 0
@@ -7132,6 +7262,8 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                                  pin_memory=pin_memory,
                                  persistent_workers=use_persistent)
         train_fig = None
+        train_loaders.crop_loading_policy = data.crop_loading_policy
+        val_loaders.crop_loading_policy = data.crop_loading_policy
         return train_loaders, val_loaders, train_fig
 
     else:
@@ -7152,6 +7284,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                                    persistent_workers=use_persistent)
         val_loaders = []
         train_fig = None
+        train_loaders.crop_loading_policy = data.crop_loading_policy
         return train_loaders, val_loaders, train_fig
 
 def generate_training_dataset(settings):
@@ -7844,31 +7977,24 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
 def _crop_format_of_items(items, db_path=None):
     """Return the crop format the items share, or None when they disagree.
 
-    Copied PNGs keep whatever format the folder they came from was in, so the
-    destination has to be stamped with *that*, not with the current one --
-    marking a folder of legacy crops as RGB reverses every channel name
-    attached to a model trained on it. Crops cut on demand are always current.
+    Resolve each PNG independently so interrupted migrations are respected.
+    Uniform copies retain that format; mixed sources need normalization in the
+    destination. Crops cut on demand are always current.
     """
     from . import crops
 
     formats = set()
-    folders = set()
     for item in items:
         if isinstance(item, LazyCropPNG):
             formats.add(crops.CROP_FORMAT_CURRENT)
         else:
-            folders.add(os.path.dirname(os.path.abspath(str(item))))
-    for folder in folders:
-        try:
-            formats.add(crops.crop_folder_format(folder, db_path=db_path))
-        except Exception:
-            formats.add(crops.CROP_FORMAT_LEGACY_BGR)
+            formats.add(crops.crop_format_for_png(str(item), db_path=db_path))
     if len(formats) == 1:
         return formats.pop()
     return None
 
 
-def _write_class_item(item, dst_dir):
+def _write_class_item(item, dst_dir, *, canonicalize=False, db_path=None):
     """Put one crop into ``dst_dir``: copy a path, cut a :class:`LazyCropPNG`."""
     if isinstance(item, LazyCropPNG):
         out = os.path.join(dst_dir, item.name or 'crop.png')
@@ -7876,7 +8002,12 @@ def _write_class_item(item, dst_dir):
             handle.write(item.png_bytes())
         return out
     out = os.path.join(dst_dir, os.path.basename(str(item)))
-    shutil.copy(str(item), out)
+    if canonicalize:
+        from .crops import read_crop_png
+
+        Image.fromarray(read_crop_png(str(item), db_path=db_path)).save(out)
+    else:
+        shutil.copy(str(item), out)
     return out
 
 
@@ -7891,12 +8022,10 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
     The two are interchangeable, so a training set can be built with no crop
     folder on disk at all.
 
-    Each destination class folder is stamped with the crop-format sidecar
-    *before* it is filled: with the current format when the crops were cut
-    here, with the source folder's format when they were copied out of one,
-    and not at all (loudly) when one class mixes the two. Leaving a folder of
-    crops unmarked is what makes it legacy by default, which is the one
-    outcome that silently reverses the channels a model is trained on.
+    Each destination class folder is stamped before it is filled. Uniform
+    source formats keep their original bytes and marker. Mixed source formats
+    are decoded into declared uint8 crops in the destination only, so no
+    generated folder silently loses its channel-order record.
 
     :param dst: Output root; ``train`` and ``test`` subfolders are created.
     :param class_data: Sequence of per-class lists of paths and/or
@@ -7924,14 +8053,19 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
 
     every_item = [item for data in class_data for item in data]
     fmt = _crop_format_of_items(every_item, db_path=db_path)
-    if every_item and fmt is None:
-        print(f"Warning: this dataset mixes crops of more than one format, so "
-              f"{dst} is left unmarked. Migrate the legacy folders first: "
-              f"python -m spacr.crops <root>")
-    elif every_item:
+    canonicalize = bool(every_item and fmt is None)
+    if canonicalize:
+        from .crops import CROP_FORMAT_CURRENT
+
+        fmt = CROP_FORMAT_CURRENT
+        print(f"This dataset mixes crops of more than one format; writing "
+              f"declared-order uint8 copies into {dst}. Source images are unchanged.")
+    if every_item:
         os.makedirs(dst, exist_ok=True)
-        mark_crop_output_folder(dst, fmt=fmt, classes=list(map(str, classes)),
-                                split='train/test')
+        from .crops import write_crop_folder_marker
+
+        write_crop_folder_marker(dst, fmt=fmt, classes=list(map(str, classes)),
+                                 split='train/test')
 
     from .classifier_evaluation import grouped_split, split_group_values
 
@@ -7986,12 +8120,15 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         if not data:
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
+        write_crop_folder_marker(train_class_dir, fmt=fmt)
+        write_crop_folder_marker(test_class_dir, fmt=fmt)
         train_data, test_data = grouped_splits[class_index]
 
         for item in train_data:
             start = time.time()
             try:
-                _write_class_item(item, train_class_dir)
+                _write_class_item(item, train_class_dir, canonicalize=canonicalize,
+                                   db_path=db_path)
             except Exception as exc:
                 failed += 1
                 if failed <= 5:
@@ -8004,7 +8141,8 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         for item in test_data:
             start = time.time()
             try:
-                _write_class_item(item, test_class_dir)
+                _write_class_item(item, test_class_dir, canonicalize=canonicalize,
+                                   db_path=db_path)
             except Exception as exc:
                 failed += 1
                 if failed <= 5:

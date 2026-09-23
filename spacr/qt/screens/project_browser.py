@@ -58,13 +58,14 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QFileDialog, QHBoxLayout, QHeaderView, QLabel,
     QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton, QSpinBox,
-    QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
 from .. import path_probe
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
 
@@ -116,6 +117,11 @@ class ProjectBrowserScreen(QWidget):
                  threaded: bool = True,
                  roots: Tuple[str, ...] = ()) -> None:
         """Build the project browser.
+
+        Item 471: the project table ("Projects") and the detail pane
+        ("Project details") fold by their headings and share a draggable
+        edge in a
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.
 
         :param parent: parent widget, or ``None``.
         :param threaded: scan on a worker thread. Set ``False`` in tests so a
@@ -180,7 +186,8 @@ class ProjectBrowserScreen(QWidget):
         self._root_list.setToolTip("Folders searched for projects")
         outer.addWidget(self._root_list)
 
-        split = QSplitter(Qt.Horizontal)
+        split = CollapsibleSplitter(Qt.Horizontal,
+                                    persist_key="project_browser::body")
         self._table = QTableWidget(0, len(COLUMNS))
         install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(COLUMNS))
@@ -194,7 +201,8 @@ class ProjectBrowserScreen(QWidget):
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         self._table.itemDoubleClicked.connect(self._on_double_clicked)
-        split.addWidget(self._table)
+        split.add_section(self._table, "Projects",
+                          persist_key="project_browser/Projects", stretch=3)
 
         self._detail = QPlainTextEdit()
         self._detail.setObjectName("ProjectBrowserDetail")
@@ -202,10 +210,11 @@ class ProjectBrowserScreen(QWidget):
         self._detail.setPlaceholderText(
             "Pick a project to see its stages, what is stale and why, and "
             "what could run next.")
-        split.addWidget(self._detail)
+        split.add_section(self._detail, "Project details",
+                          persist_key="project_browser/Project details",
+                          stretch=2)
         mark_surface(self._root_list, self._table, self._detail)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 2)
+        self._body_splitter = split
         outer.addWidget(split, 1)
 
         self._refresh_root_list()

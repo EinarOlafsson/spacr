@@ -30,6 +30,8 @@ from spacr.doctor import FAIL, PASS, WARN
 def _fake_accelerator_probes(monkeypatch):
     """Keep capability resolution and backend fallbacks on the fake machine."""
     from spacr import accelerator
+    for key in ('CUDA_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES', 'SPACR_DEVICE'):
+        monkeypatch.delenv(key, raising=False)
 
     original_import = doctor._import_torch
 
@@ -112,7 +114,7 @@ def test_the_metal_row_says_what_is_still_on_the_cpu(ctx, monkeypatch):
     # happened to have no CUDA.
     from spacr import accelerator
 
-    monkeypatch.setattr(accelerator, "capabilities", lambda: (
+    monkeypatch.setattr(accelerator, "capabilities", lambda **kwargs: (
         ("Segmentation (Cellpose)", True, "on the GPU"),
         ("UMAP / t-SNE / clustering", False, "cuML is CUDA-only"),
     ))

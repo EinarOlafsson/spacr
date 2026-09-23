@@ -22,7 +22,9 @@ from __future__ import annotations
 
 import logging
 import os
+from concurrent.futures import CancelledError
 from dataclasses import dataclass, field
+from threading import Event
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -33,7 +35,7 @@ from PySide6.QtWidgets import (
     QComboBox, QDialog, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSizePolicy,
-    QSpinBox, QSplitter, QTabBar, QTabWidget, QVBoxLayout, QWidget,
+    QSpinBox, QTabBar, QTabWidget, QVBoxLayout, QWidget,
 )
 
 from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
@@ -42,6 +44,7 @@ from ...cell_montage import (                                   # noqa: E402
     DEFAULT_SCORE_COLUMN, MAX_OBJECTS, WINDOW_HALF_WIDTHS,
 )
 from ..hidpi import scaled_for                               # noqa: E402
+from ..i18n import tr
 from ..theme import close_mark_button, install_close_marks   # noqa: E402
 
 LOG = logging.getLogger(__name__)
@@ -569,7 +572,7 @@ def no_score_refusal(score_csvs, troubles=()) -> str:
     return (message + (" " + details if details else "")).strip()
 
 
-def load(request: MontageRequest) -> MontageLoad:
+def load(request: MontageRequest, *, progress=None, cancelled=None) -> MontageLoad:
     """Select the objects behind one coefficient and cut their crops.
 
     **Runs on a worker thread and touches no widget.** Every failure comes
@@ -577,7 +580,34 @@ def load(request: MontageRequest) -> MontageLoad:
     caller is a tab that must stay on screen and say why.
 
     :param request: what to draw.
+    :param progress: optional callback receiving stage text on the calling
+        thread. A GUI caller must relay it through a queued Qt signal.
+    :param cancelled: optional zero-argument predicate checked between reads
+        and processing stages. An operation already in progress may finish.
     :returns: the plans, the crops, and which source drew them.
+    """
+    def step(message):
+        if cancelled is not None and cancelled():
+            raise CancelledError()
+        if progress is not None:
+            progress(message)
+        if cancelled is not None and cancelled():
+            raise CancelledError()
+
+    try:
+        result = _load(request, step)
+        step(tr('Preparing the montage for display…'))
+        return result
+    except CancelledError:
+        return MontageLoad(request=request, error=tr('Montage loading cancelled.'))
+
+
+def _load(request, step):
+    """Read and select a montage, reporting cancellable stage boundaries.
+
+    :param request: the immutable montage request.
+    :param step: callback receiving stage text; may raise CancelledError.
+    :returns: measurement selection and image crops, or an explained refusal.
     """
     from ...cell_montage import (
         CROP_SHAPES, MontageError, fractions_from_counts,
@@ -601,6 +631,7 @@ def load(request: MontageRequest) -> MontageLoad:
                   "Attach one to a plate row first.",
             unavailable=True)
 
+    step(tr('Reading per-well guide fractions…'))
     folder = request.results_path
     if folder and os.path.isfile(folder):
         folder = os.path.dirname(os.path.abspath(folder))
@@ -632,7 +663,9 @@ def load(request: MontageRequest) -> MontageLoad:
             unavailable=True)
     frames = []
     troubles: List[str] = []
-    for db_path in request.databases:
+    for number, db_path in enumerate(request.databases, 1):
+        step(tr('Reading database {number} of {total}: {name}',
+                number=number, total=len(request.databases), name=db_path))
         try:
             objects = load_montage_objects(
                 db_path, object_type=request.object_type,
@@ -641,6 +674,8 @@ def load(request: MontageRequest) -> MontageLoad:
         except Exception as error:                              # noqa: BLE001
             troubles.append(f"{os.path.basename(db_path)}: {error}")
             continue
+        step(tr('Resolving crop paths for database {number} of {total} ({rows} objects)…',
+                number=number, total=len(request.databases), rows=len(objects)))
         objects = objects.copy()
         root = experiment_root(db_path)
         from ...crops import reanchor_frame
@@ -665,6 +700,7 @@ def load(request: MontageRequest) -> MontageLoad:
     route_notes: List[str] = []
     shape = str(request.crop_shape or "object")
     for root in sorted(set(objects["montage_source_root"].astype(str))):
+        step(tr('Finding crop images in {folder}…', folder=root))
         here = objects[objects["montage_source_root"].astype(str) == root]
         choice = resolve_montage_crop_source(
             _crop_settings(request, root), object_type=request.object_type,
@@ -711,6 +747,7 @@ def load(request: MontageRequest) -> MontageLoad:
                           for r, c in sorted(sources.items()))),
         available=True)
 
+    step(tr('Selecting cells consistent with {name}…', name=request.name))
     cap = int(request.cap) if request.cap else MAX_OBJECTS
     from ...cell_montage import WINDOW_HALF_WIDTHS
 
@@ -770,8 +807,10 @@ def load(request: MontageRequest) -> MontageLoad:
             request=request, error=f"Could not select the montage: {error}")
 
     images: List[Tuple[Any, ...]] = []
-    for plan in plans:
-        images.append(_cut(plan, sources, request, troubles))
+    for number, plan in enumerate(plans, 1):
+        step(tr('Reading crops for montage {number} of {total}…',
+                number=number, total=len(plans)))
+        images.append(_cut(plan, sources, request, troubles, step=step))
 
     notes = tuple(route_notes) + tuple(f"NOTE {t}" for t in troubles)
     if notes:
@@ -807,13 +846,15 @@ def _with_notes(plan, notes: Tuple[str, ...]):
 
 
 def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
-         troubles: List[str]) -> Tuple[Any, ...]:
+         troubles: List[str], *, step=None) -> Tuple[Any, ...]:
     """Cut every crop one plan names, bucketed by plate.
 
     Bucketed because ``MergedCropSource.get_many`` opens each ``.npy`` once
     for the whole batch it is given, and the timing table in the module
     docstring is what that buys: 0.95 ms/crop against 13.36 ms when the same
     crops arrive one field at a time.
+
+    :param step: optional cancellable stage callback before each source read.
     """
     rows = plan.rows()
     out: List[Any] = [None] * len(rows)
@@ -821,6 +862,8 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
     for index, row in enumerate(rows):
         buckets.setdefault(str(row.get("montage_source_root", "")), []).append(index)
     for root, positions in buckets.items():
+        if step is not None:
+            step(tr('Reading {count} crops from {folder}…', count=len(positions), folder=root))
         choice = sources.get(root)
         if choice is None:
             troubles.append(f"{root} has no crop source; its objects are blank")
@@ -1046,8 +1089,10 @@ class _WellTab(QWidget):
         self._note.setWordWrap(True)
         self._note.setVisible(False)
         layout.addWidget(self._note)
-        split = QSplitter(Qt.Vertical)
-        split.setChildrenCollapsible(False)
+        from .collapsible_splitter import CollapsibleSplitter
+        split = CollapsibleSplitter(Qt.Vertical,
+                                    persist_key="regression::cells")
+        self._split = split
 
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
@@ -1059,7 +1104,8 @@ class _WellTab(QWidget):
         self._scroll.setWidget(self._body)
         self._scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        split.addWidget(self._scroll)
+        split.add_section(self._scroll, "Cells", stretch=3, extent=380,
+                          persist_key="regression/Cells")
 
         self._thumb_px = THUMBNAIL_PX
         #: The size the user asked for, which is the CEILING the fitted
@@ -1092,10 +1138,8 @@ class _WellTab(QWidget):
         self._caption = QPlainTextEdit()
         self._caption.setReadOnly(True)
         self._caption.setMinimumHeight(70)
-        split.addWidget(self._caption)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 1)
-        split.setSizes([380, 140])
+        split.add_section(self._caption, "Caption", stretch=1, extent=140,
+                          persist_key="regression/Caption")
         layout.addWidget(split, 1)
 
     def set_content(self, rows, crops: Sequence[Any], caption: str,
@@ -1459,6 +1503,7 @@ class CellMontageView(QWidget):
 
     #: Emitted with the sentence explaining a load that produced no montage.
     montage_failed = Signal(str)
+    _load_progress = Signal(object, str)
 
     NOTHING_SELECTED = (
         "Click a coefficient — a dot on the volcano or a row in the "
@@ -1540,6 +1585,8 @@ class CellMontageView(QWidget):
         #: the grid is emptied the moment the two disagree.
         self._shown_key: str = ""
         self._pending: Optional[MontageRequest] = None
+        self._load_cancel = Event()
+        self._load_progress.connect(self._on_load_progress)
         #: The reason a load found this run cannot produce a montage at all,
         #: remembered so the button greys out instead of inviting the same
         #: click again. Cleared by anything that changes the inputs.
@@ -1559,6 +1606,10 @@ class CellMontageView(QWidget):
         self._show = QPushButton("Show the cells")
         self._show.clicked.connect(self.build)
         controls.addWidget(self._show)
+        self._cancel = QPushButton(tr('Cancel'), self)
+        self._cancel.setToolTip(tr('Stop this montage and queued selections after the current read finishes.'))
+        self._cancel.clicked.connect(self.cancel_loading)
+        controls.addWidget(self._cancel)
 
         self._object = QComboBox(self)
         for name in OBJECT_CHOICES:
@@ -1799,8 +1850,7 @@ class CellMontageView(QWidget):
             self._name, self._level, self._effect = "", "gene", None
         if self._key != self._shown_key:
             self._drop_montage()
-            self._jobs.cancel()
-            self._pending = None
+            self._cancel_loading()
         self._unavailable = ""
         self._refresh_controls()
         self._announce()
@@ -2070,13 +2120,55 @@ class CellMontageView(QWidget):
         if not self._multivariate_is_ready(request):
             return False
         self._pending = request
+        self._load_cancel = Event()
+        cancelled = self._load_cancel
         self._drop_montage()
         self._set_status(
             f"Loading the cells behind {request.name}… reading "
             f"{len(request.databases)} database(s).")
         self._refresh_controls()
-        self._jobs.submit(lambda r=request: load(r), self._on_loaded)
+        def report(message):
+            if not cancelled.is_set():
+                try:
+                    self._load_progress.emit(cancelled, message)
+                except RuntimeError:
+                    cancelled.set()
+
+        def work():
+            try:
+                return load(request, progress=report, cancelled=cancelled.is_set)
+            except Exception as error:
+                return MontageLoad(request=request, error=tr(
+                    'The montage load failed: {error}', error=str(error)))
+
+        self._jobs.submit(work, self._on_loaded)
         return True
+
+    def _on_load_progress(self, token, message):
+        """Accept progress from the current load on the GUI thread."""
+        if token is self._load_cancel and not token.is_set() and self._pending is not None:
+            self._set_status(message)
+
+    def _cancel_loading(self):
+        """Retire current progress/results and request cooperative worker exit."""
+        self._load_cancel.set()
+        self._jobs.cancel()
+        self._pending = None
+
+    def cancel_loading(self):
+        """Cancel the active montage and queued selections without blocking.
+
+        :returns: whether there was a current montage request to cancel.
+            An existing database or filesystem read may finish before exit;
+            no later stage or stale result is shown.
+        """
+        active = self._pending is not None
+        self._queue.clear()
+        self._cancel_loading()
+        if active:
+            self._set_status(tr('Montage loading cancelled; the current disk operation may finish.'))
+        self._refresh_controls()
+        return active
 
     def clear_picking_override(self) -> None:
         """Clear a temporary picking fallback.
@@ -2712,8 +2804,7 @@ class CellMontageView(QWidget):
         """
         self._unavailable = ""
         showing = bool(self._plans)
-        self._jobs.cancel()
-        self._pending = None
+        self._cancel_loading()
         self._apply_shape_availability(MontageLoad())
         if showing:
             if self._can_redraw_without_loading():
@@ -2890,6 +2981,8 @@ class CellMontageView(QWidget):
 
     def _refresh_controls(self) -> None:
         """Disable controls that cannot act and show the reason."""
+        self._cancel.setVisible(self._pending is not None)
+        self._cancel.setEnabled(self._pending is not None)
         reason = self.reason()
         self._show.setEnabled(not reason)
         self._show.setToolTip(reason or (
@@ -3152,7 +3245,10 @@ class CellMontageView(QWidget):
         116) whose Cells tab kept showing the run before the one he had just
         loaded.
         """
+        self._cancel_loading()
+        self._queue.clear()
         self._clear()
+        self._refresh_controls()
 
     def _clear(self) -> None:
         """Empty every open well tab's grid, leaving the tabs standing."""
@@ -3182,7 +3278,8 @@ class CellMontageView(QWidget):
         and waits a bounded time rather than joining on the GUI thread, which
         is the freeze it exists to remove.
         """
-        self._pending = None
+        self._cancel_loading()
+        self._queue.clear()
         if self._annotation_panel is not None:
             self._annotation_panel.shutdown()
         self._jobs.shutdown()

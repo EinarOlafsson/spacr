@@ -62,10 +62,11 @@ def _make_screen(app_key=None, host=None):
     from PySide6.QtWidgets import (
         QCheckBox, QComboBox, QFormLayout, QGroupBox, QHBoxLayout, QLabel,
         QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea,
-        QSpinBox, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout,
+        QSpinBox, QTableWidget, QTableWidgetItem, QVBoxLayout,
         QWidget,
     )
     from ..i18n import set_translatable_text
+    from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
 
     from ..job_runner import JobRunner
     from ..widgets.file_list import FilePathListWidget
@@ -91,7 +92,9 @@ def _make_screen(app_key=None, host=None):
             self._runner = JobRunner(self, app_key=APP_KEY)
 
             outer = QVBoxLayout(self)
-            splitter = QSplitter(Qt.Horizontal, self)
+            splitter = CollapsibleSplitter(
+                Qt.Horizontal, self, persist_key=f"{APP_KEY}::body")
+            self._body = splitter
             outer.addWidget(splitter)
 
             left = QScrollArea(self)
@@ -229,7 +232,8 @@ def _make_screen(app_key=None, host=None):
             form.addLayout(buttons)
             form.addStretch(1)
             left.setWidget(panel)
-            splitter.addWidget(left)
+            splitter.add_pane(left, "Sweep settings", mode=EDGE, stretch=1,
+                              fold_key=f"{APP_KEY}/Sweep settings")
 
             right = QWidget(self)
             right_layout = QVBoxLayout(right)
@@ -239,7 +243,13 @@ def _make_screen(app_key=None, host=None):
             self.progress = QProgressBar(right)
             self.progress.setVisible(False)
             right_layout.addWidget(self.progress)
-            self.table = QTableWidget(0, 0, right)
+            output = CollapsibleSplitter(
+                Qt.Vertical, right, persist_key=f"{APP_KEY}::results")
+            self._output = output
+            trials = QWidget(right)
+            trials_layout = QVBoxLayout(trials)
+            trials_layout.setContentsMargins(0, 0, 0, 0)
+            self.table = QTableWidget(0, 0, trials)
             install_sorting(self.table)
             self.table.setSelectionBehavior(QTableWidget.SelectRows)
             self.table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -249,39 +259,45 @@ def _make_screen(app_key=None, host=None):
                 "Double-click a row to re-run that trial and draw its "
                 "figures below. They are live figures: right-click one to "
                 "restyle it.")
-            right_layout.addWidget(self.table, 1)
+            trials_layout.addWidget(self.table, 1)
 
             row_buttons = QHBoxLayout()
-            self.refresh_button = QPushButton("Refresh results", right)
+            self.refresh_button = QPushButton("Refresh results", trials)
             self.refresh_button.clicked.connect(self.load_results)
             row_buttons.addWidget(self.refresh_button)
             self.show_button = QPushButton("Show figures for selected row",
-                                           right)
+                                           trials)
             self.show_button.clicked.connect(self._on_row_activated)
             self.show_button.setEnabled(False)
             row_buttons.addWidget(self.show_button, 1)
-            right_layout.addLayout(row_buttons)
+            trials_layout.addLayout(row_buttons)
             self.table.itemSelectionChanged.connect(
                 lambda: self.show_button.setEnabled(
                     self.table.currentRow() >= 0))
 
-            self.trial_status = QLabel("", right)
+            self.trial_status = QLabel("", trials)
             self.trial_status.setWordWrap(True)
-            right_layout.addWidget(self.trial_status)
+            trials_layout.addWidget(self.trial_status)
+            self.trials_section = output.add_section(
+                trials, "Trials", persist_key=f"{APP_KEY}/Trials",
+                stretch=1)
 
             from ..widgets.regression_results import RegressionResultsPanel
             self.results = RegressionResultsPanel(right)
             self.results.setMinimumHeight(320)
-            right_layout.addWidget(self.results, 1)
+            self.results_section = output.add_section(
+                self.results, "Regression results",
+                persist_key=f"{APP_KEY}/Regression results", stretch=1)
 
             from ..widgets.figure_queue import FigureQueue
             self.figures = FigureQueue(parent=right)
             self.figures.setMinimumHeight(200)
             self.figures.hide()
-            right_layout.addWidget(self.figures, 1)
-            splitter.addWidget(right)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 2)
+            self.figures_section = output.add_section(
+                self.figures, "Figures", persist_key=f"{APP_KEY}/Figures",
+                stretch=1)
+            right_layout.addWidget(output, 1)
+            splitter.add_pane(right, "Sweep results", stretch=2)
 
             from ..dnd import install_for
             install_for(self, APP_KEY, self)

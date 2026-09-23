@@ -39,7 +39,13 @@ def copy_checked(source, target, records, root, expected=None):
     if expected is not None and actual != expected:
         raise ValueError(f'Source changed after verification: {source}')
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, target)
+    with tempfile.NamedTemporaryFile(dir=target.parent, prefix=target.name + '.', delete=False) as stream:
+        temporary = Path(stream.name)
+    try:
+        shutil.copy2(source, temporary)
+        temporary.replace(target)
+    finally:
+        temporary.unlink(missing_ok=True)
     if digest(target) != actual:
         raise ValueError(f'Copy differs from source: {target}')
     records.append({'path': target.relative_to(root).as_posix(),

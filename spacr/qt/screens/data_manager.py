@@ -48,6 +48,7 @@ from .. import path_probe
 from ..theme import (SPACING, block_surface, font_px,
                      register_widget_qss)
 from .app_screen import ModuleHeader
+from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import register_declared
@@ -442,7 +443,10 @@ class DataManagerScreen(QWidget):
         self.tabs.addTab(self._build_usage_tab(), "Usage")
         self.tabs.addTab(self._build_prune_tab(), "Prune")
         self.tabs.addTab(self._build_archive_tab(), "Archive")
-        outer.addWidget(self.tabs, 1)
+        self._tabs_section = FoldSection(
+            self.tabs, "Project data",
+            persist_key="data_manager/Project data")
+        outer.addWidget(self._tabs_section, 1)
 
         self._follow_path_probes()
         self._update_controls()
@@ -595,12 +599,18 @@ class DataManagerScreen(QWidget):
         buttons.addWidget(self.delete_button)
         layout.addLayout(buttons)
 
+        split = CollapsibleSplitter(Qt.Vertical, page,
+                                    persist_key="data_manager::prune")
         self.prune_table = self._table("DataManagerPrune", _PRUNE_COLUMNS)
-        layout.addWidget(self.prune_table, 2)
-
-        layout.addWidget(QLabel("Kept, and why:", page))
+        split.add_section(self.prune_table, "Can be deleted",
+                          persist_key="data_manager/Can be deleted",
+                          stretch=2)
         self.kept_table = self._table("DataManagerKept", _KEPT_COLUMNS)
-        layout.addWidget(self.kept_table, 1)
+        split.add_section(self.kept_table, "Kept, and why",
+                          persist_key="data_manager/Kept, and why",
+                          stretch=1)
+        layout.addWidget(split, 1)
+        self._prune_splitter = split
         return page
 
     def _build_archive_tab(self) -> QWidget:

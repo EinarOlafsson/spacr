@@ -55,11 +55,12 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
     QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
-    QSplitter, QVBoxLayout, QWidget, QTabWidget,
+    QVBoxLayout, QWidget, QTabWidget,
 )
 
 from ..job_runner import JobRunner
 from ..theme import SPACING, page_tabs_qss, register_widget_qss
+from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.gate_search_panel import GateSearchPanel
 from ..widgets.formula_editor import FormulaPanel
@@ -116,6 +117,48 @@ def _side_tabs_qss(palette: dict, opacity) -> str:
 
 
 register_widget_qss(SIDE_TABS_NAME, _side_tabs_qss, replace=True)
+
+#: Pane names in the screen's body splitter (item 471). The Filter / Search
+#: tabs and the console each collapse to the right: a click on the handle
+#: beside them hides or shows them, and a drag resizes them. They are EDGE
+#: panes rather than headed sections so the tab strip stays level with the
+#: graph's one row of settings, which a heading above it would push down.
+SIDE_PANE = "Filter and search"
+CONSOLE_PANE = "Console"
+
+
+#: The width the Filter / Search tabs open at before the user drags them.
+SIDE_OPEN_WIDTH = 260
+
+
+class _SideTabs(QTabWidget):
+    """The Filter / Search tabs, asking for the width they always opened at.
+
+    The Search page's content is wide, and the tab widget's own size hint
+    follows it (about 570 px). The body splitter opens a fixed-width pane at
+    its size hint, which would take twice the room the column had before;
+    the hint is capped at :data:`SIDE_OPEN_WIDTH` so the column opens as it
+    did, and a drag widens it as far as the user wants.
+    """
+
+    def sizeHint(self):                                      # noqa: N802
+        """The usual hint, no wider than :data:`SIDE_OPEN_WIDTH`."""
+        hint = super().sizeHint()
+        hint.setWidth(min(hint.width(), SIDE_OPEN_WIDTH))
+        return hint
+
+
+def _start_console_folded(body) -> None:
+    """Start the console collapsed, as it always started.
+
+    It used to open at zero width with nothing to say it was there; it is
+    now a collapsed pane whose handle carries the arrow that opens it. The
+    fold is made on the user's behalf, so it is never stored.
+
+    :param body: the screen's body splitter.
+    """
+    if not body.is_collapsed(CONSOLE_PANE):
+        body.set_collapsed(CONSOLE_PANE, True, by_user=False)
 
 
 class _AxisCutoffDialog(QDialog):
@@ -360,8 +403,8 @@ class GateEditorScreen(QWidget):
         axes.addWidget(self._z, 1)
         self._set_z_visible(False)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(True)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key=f"{APP_KEY}::body")
         self.gates = GateEditorPanel(self, link=link)
         self.gates.gates_changed.connect(self._on_gates_changed)
         self.gates.axes_requested.connect(self._on_axes_requested)
@@ -372,7 +415,7 @@ class GateEditorScreen(QWidget):
         self._install_graph_context_menu()
         self.gates.tool_row.insertLayout(0, axes, 3)
         self.gates.tool_row.insertLayout(0, self._chips)
-        body.addWidget(self.gates)
+        body.add_pane(self.gates, "Graph and gates", stretch=1, extent=700)
 
         self.console = GateConsole(self)
         self.console.setToolTip(
@@ -400,7 +443,7 @@ class GateEditorScreen(QWidget):
         filter_scroll.setWidgetResizable(True)
         filter_scroll.viewport().setAutoFillBackground(False)
 
-        self.side_tabs = QTabWidget(self)
+        self.side_tabs = _SideTabs(self)
         self.side_tabs.setObjectName(SIDE_TABS_NAME)
         self.side_tabs.addTab(filter_scroll, "Filter")
         self.search = GateSearchPanel(self)
@@ -422,13 +465,13 @@ class GateEditorScreen(QWidget):
         except Exception:
             pass
 
-        body.addWidget(side)
-
-        body.addWidget(self.console)
-        body.setStretchFactor(0, 1)
-        body.setStretchFactor(1, 0)
-        body.setStretchFactor(2, 0)
-        body.setSizes([700, 260, 0])
+        body.add_pane(side, SIDE_PANE, mode=EDGE, stretch=0,
+                      extent=SIDE_OPEN_WIDTH,
+                      fold_key=f"{APP_KEY}/{SIDE_PANE}")
+        body.add_pane(self.console, CONSOLE_PANE, mode=EDGE, stretch=0,
+                      extent=self.console.minimumWidth(),
+                      fold_key=f"{APP_KEY}/{CONSOLE_PANE}")
+        _start_console_folded(body)
         outer.addWidget(body, 1)
         self._body = body
         for watched in (self.gates.body, self.side_tabs):
@@ -454,8 +497,8 @@ class GateEditorScreen(QWidget):
     def align_side_panel(self) -> int:
         """Line the Filter / Search page up with the graph and gate table.
 
-        The maintainer, 2026-09-21: every setting above the graph is ONE row,
-        the tabs of the panel on the right sit level with that row, and the
+        Settings above the graph share one row. The tabs of the panel on
+        the right sit level with that row, and the
         containers under both start at the same height. The row is the graph
         panel's own tool row -- the table chips and the X / Y / Z pickers
         were moved into it -- so the tabs already start level with it; what

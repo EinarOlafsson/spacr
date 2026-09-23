@@ -1,0 +1,35 @@
+{
+  "language": "ko",
+  "title": "spaCR 스크리닝",
+  "section": "작업 흐름",
+  "description": "Home에서 시작해 이미지 측정, 표현형 분류, 바코드 계수, 회귀 분석으로 이어지는 이미지 기반 풀링 스크리닝을 살펴봅니다.",
+  "objectives": [
+    "이미 보유한 데이터에 따라 시작 모듈을 선택합니다.",
+    "각 모듈이 읽고 쓰는 데이터를 파악합니다.",
+    "연결된 모듈 강의와 API 설명을 참고하여 다음 단계로 진행합니다."
+  ],
+  "prerequisite": "spaCR을 설치하고 Home을 여세요. 이 강의는 화면 이동과 데이터 전달을 설명하며, 연결된 모듈 강의에서 데이터를 사용하는 실제 작업 예제를 제공합니다. 입력과 출력에는 조건에 따라 선택하는 대안이 있으며 각 모듈에서 설명합니다.",
+  "scenes": [
+    "Home에서 이미 보유한 자료로 시작하세요. 이미지 기반 풀링 스크리닝에는 두 데이터 분기가 있습니다. 이미지는 표현형을 설명하고, 시퀀싱은 각 웰에 포함된 교란을 식별합니다. Mask, Measure, Annotate, Classify는 이미지 분기를 구성합니다. Map Barcodes는 시퀀싱 분기를 구성합니다. Regression은 서로 호환되는 점수와 가이드 카운트를 결합합니다. 이들은 서로 연결된 데이터 산출물이며, 항상 정해진 순서로 실행해야 하는 여섯 개의 버튼이 아닙니다.",
+    "Home에서 Mask를 여세요. 채널과 모델을 선택하고 미리보기를 확인한 다음 Mask를 실행하세요. Measure는 병합된 배열을 사용합니다. 계수 데이터베이스는 아직 특징 테이블이 아닙니다. 입력 데이터는 현미경 이미지와 분할 모델 체크포인트입니다. 출력 데이터는 이미지와 레이블 마스크, 레이블 마스크, 객체 수입니다. Mask에서 Measure로 전달할 때는 같은 프로젝트와 올바른 이미지 및 마스크 채널 인덱스를 사용하세요.",
+    "Home에서 Measure를 여세요. Measure는 이미지와 레이블 평면을 함께 읽습니다. PNG 파일이 필요하면 잘라낸 이미지 저장을 활성화하세요. 잘라낸 이미지를 필요할 때 읽으려면 데이터베이스와 원본 프로젝트를 함께 보관하세요. 입력 데이터는 이미지와 레이블 마스크, 레이블 마스크입니다. 출력 데이터는 측정된 객체와 객체별 잘라낸 이미지입니다. Mask에서 Measure로 전달할 때는 같은 프로젝트와 올바른 이미지 및 마스크 채널 인덱스를 사용하세요. Measure에서 Annotate로 전달할 때는 안정적인 객체 식별자를 유지한 잘라낸 이미지를 저장하거나 필요할 때 읽으세요. Measure에서 Classify로 전달할 때는 입력에 맞는 이미지 계열 또는 표 형식 계열을 선택하세요.",
+    "Home에서 Annotate를 여세요. 지도 학습 전에 png_list에서 대표적인 객체에 레이블을 지정하세요. 서로 다른 질문에는 별도의 주석을 사용하고 학습 그룹과 평가 그룹을 독립적으로 유지하세요. 입력 데이터는 측정된 객체, 객체별 잘라낸 이미지, 재사용 가능한 게이트입니다. 출력 데이터는 학습용 주석입니다. Measure에서 Annotate로 전달할 때는 안정적인 객체 식별자를 유지한 잘라낸 이미지를 저장하거나 필요할 때 읽으세요. Annotate에서 Classify로 전달할 때는 주석이 지정된 학습 그룹과 평가 그룹을 분리하세요.",
+    "Home에서 Classify를 여세요. 잘라낸 이미지나 필요할 때 읽는 객체 이미지에는 Computer Vision을, 측정된 특징 열에는 Tabular Machine Learning을 선택하세요. 두 계열은 서로 다른 입력을 사용합니다. 입력 데이터는 측정된 객체, 객체별 잘라낸 이미지, 학습용 주석입니다. 출력 데이터는 객체 분류 점수, 학습된 이미지 분류기, 데이터에 적합된 특징 분류기, 분류기 평가 데이터 묶음입니다. Measure에서 Classify로 전달할 때는 입력에 맞는 이미지 계열 또는 표 형식 계열을 선택하세요. Annotate에서 Classify로 전달할 때는 주석이 지정된 학습 그룹과 평가 그룹을 분리하세요. Classify에서 Regression으로 전달할 때는 원하는 CV 또는 ML 점수 열을 선택하고 플레이트와 웰 식별자를 유지하세요.",
+    "Home에서 Map Barcodes를 여세요. 실험을 인코딩하는 참조 서열을 제공하세요. 웰별 가이드 카운트를 표현형 점수와 연결하기 전에 매핑된 카운트와 바코드 품질 관리 결과를 확인하세요. 입력 데이터는 시퀀싱 리드입니다. 출력 데이터는 웰별 가이드 카운트입니다. Map Barcodes에서 Regression으로 전달할 때는 일관된 플레이트 및 웰 키를 사용하여 가이드 카운트를 표현형 점수와 연결하세요.",
+    "Home에서 Regression을 여세요. 표현형 입력과 가이드 카운트 입력 사이의 플레이트 및 웰 식별자를 맞추고, 반응 변수와 대조군을 선택한 다음, 히트를 해석하기 전에 진단 결과를 확인하세요. 직접 측정한 반응값도 지원합니다. 입력 데이터는 객체 분류 점수, 웰별 가이드 카운트, 광학 바코드 할당 결과, 측정된 객체입니다. 출력 데이터는 회귀 결과와 히트입니다. Classify에서 Regression으로 전달할 때는 원하는 CV 또는 ML 점수 열을 선택하고 플레이트와 웰 식별자를 유지하세요. Map Barcodes에서 Regression으로 전달할 때는 일관된 플레이트 및 웰 키를 사용하여 가이드 카운트를 표현형 점수와 연결하세요. OPS에서 Regression으로 전달할 때는 Regression 전에 디코딩된 객체를 명시적으로 조인하거나 집계하여 표현형 및 가이드 입력을 만드세요. CSV를 그대로 전달하는 경로가 아닙니다.",
+    "Regression 전에 이미지 점수, 시퀀싱 카운트, 실험 배치가 서로 일치하는 플레이트 및 웰 식별자를 사용하는지 확인하세요. 객체 식별자, 주석 열, 분류기 설정, 바코드 참조 서열을 실행 기록과 함께 보관하세요. 각 단계의 실제 작업 예제는 연결된 모듈 강의를 참고하세요. Home이 화면 이동을 안내하도록 하려면 풀링 스크리닝 가이드를 선택하세요."
+  ],
+  "lesson": "78_spacr_screens",
+  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain the two independent image and sequencing branches and their per-well join.",
+      "Distinguish merged images/labels from counts, saved versus streamed crops, and CV versus tabular inputs.",
+      "Preserve separate training/evaluation groups, stable identities, direct measured responses, and the explicit OPS join/aggregation requirement.",
+      "Navigation overview only; no claim that the recording executed an experiment."
+    ]
+  }
+}

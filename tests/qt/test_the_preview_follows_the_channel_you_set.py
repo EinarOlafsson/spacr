@@ -52,11 +52,13 @@ def panel(qtbot, plate: Path):
     return widget
 
 
-def _shown(panel) -> str:
-    """What the display-channel box is showing."""
-    box = panel._channel_box
-    written = box.itemData(box.currentIndex())
-    return written if isinstance(written, str) and written else box.currentText()
+def _assert_shown(panel, qtbot, channel):
+    """The selected channel file and its pixels agree with the table."""
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert panel._column_channels[panel._table_col] == channel
+    assert panel._image_path.name == (
+        f"plate1_A01_T0001F001L01A01Z01C{channel + 1:02d}.tif")
+    np.testing.assert_array_equal(panel._image, 11 + channel)
 
 
 def _choose_object(panel, caption: str) -> None:
@@ -68,29 +70,29 @@ def _choose_object(panel, caption: str) -> None:
     pytest.skip(f"this build offers no {caption!r} object")
 
 
-def test_typing_a_channel_moves_the_view_onto_it(panel):
+def test_typing_a_channel_moves_the_view_onto_it(panel, qtbot):
     """The report: cell is primary, Ch 1 is up, cell channel becomes 2."""
     _choose_object(panel, "cell")
     panel._cell_channel.setValue(1)
-    assert _shown(panel) == "Ch 1"
+    _assert_shown(panel, qtbot, 1)
 
     panel._cell_channel.setValue(2)
 
-    assert _shown(panel) == "Ch 2"
+    _assert_shown(panel, qtbot, 2)
 
 
-def test_each_compartment_is_followed(panel):
+def test_each_compartment_is_followed(panel, qtbot):
     """Not only cell: nucleus and pathogen are set the same way."""
     for caption, spinner in (("nucleus", panel._nucleus_channel),
                              ("pathogen", panel._pathogen_channel)):
         _choose_object(panel, caption)
         spinner.setValue(1)
-        assert _shown(panel) == "Ch 1", caption
+        _assert_shown(panel, qtbot, 1)
         spinner.setValue(2)
-        assert _shown(panel) == "Ch 2", caption
+        _assert_shown(panel, qtbot, 2)
 
 
-def test_a_channel_the_set_does_not_have_leaves_the_view_alone(panel):
+def test_a_channel_the_set_does_not_have_leaves_the_view_alone(panel, qtbot):
     """Three channels are written as C01-C03 and shown as Ch 0, 1 and 2.
 
     Typing 7 into cell channel asks for a plane that is not in this set. The
@@ -100,14 +102,14 @@ def test_a_channel_the_set_does_not_have_leaves_the_view_alone(panel):
     """
     _choose_object(panel, "cell")
     panel._cell_channel.setValue(1)
-    assert _shown(panel) == "Ch 1"
+    _assert_shown(panel, qtbot, 1)
 
     panel._cell_channel.setValue(7)
 
-    assert _shown(panel) == "Ch 1"
+    _assert_shown(panel, qtbot, 1)
 
 
-def test_two_objects_leave_the_view_alone(panel):
+def test_two_objects_leave_the_view_alone(panel, qtbot):
     """With cell + nucleus neither channel is the answer, so nothing moves.
 
     The rule `_follow_object_channel` already had, kept: a view that flickered
@@ -116,16 +118,16 @@ def test_two_objects_leave_the_view_alone(panel):
     """
     _choose_object(panel, "cell")
     panel._cell_channel.setValue(1)
-    assert _shown(panel) == "Ch 1"
+    _assert_shown(panel, qtbot, 1)
     _choose_object(panel, "cell + nucleus")
-    before = _shown(panel)
+    before = panel._image_path
 
     panel._cell_channel.setValue(3)
 
-    assert _shown(panel) == before
+    assert panel._image_path == before
 
 
-def test_the_canvas_is_repainted_once_per_keystroke(panel, monkeypatch):
+def test_the_canvas_is_repainted_once_per_keystroke(panel, qtbot, monkeypatch):
     """The follow repaints when it moves, so the caller must not repaint again.
 
     Two repaints per keystroke means the full-size image is redrawn twice
@@ -133,12 +135,14 @@ def test_the_canvas_is_repainted_once_per_keystroke(panel, monkeypatch):
     """
     _choose_object(panel, "cell")
     panel._cell_channel.setValue(1)
+    _assert_shown(panel, qtbot, 1)
 
     calls = []
     monkeypatch.setattr(type(panel), "_refresh_canvases",
                         lambda self: calls.append(1))
 
     panel._cell_channel.setValue(2)
+    _assert_shown(panel, qtbot, 2)
     assert len(calls) == 1, calls
 
     calls.clear()

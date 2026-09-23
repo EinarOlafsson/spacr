@@ -236,5 +236,5 @@ class TestTheWholeRun:
         a table pinned to a fixed width is a table with the guide names
         elided."""
         assert tab.body.count() == 2
-        assert tab.body.widget(0) is tab.plot
-        assert tab.body.widget(1) is tab.table
+        assert tab.body.widget(0).body is tab.plot
+        assert tab.body.widget(1).body is tab.table

@@ -126,7 +126,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -146,6 +145,7 @@ from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import (
     EXAMPLE_TABLE, install_test_data_button,
 )
@@ -1528,20 +1528,17 @@ class DbBrowserScreen(LinkedView, QWidget):
         edit_row.addWidget(self._edit_note, 1)
         outer.addLayout(edit_row)
 
-        split = QSplitter(Qt.Horizontal, self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="db_browser::body")
 
-        left = QWidget(split)
-        left_layout = QVBoxLayout(left)
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(SPACING["xs"])
-        left_layout.addWidget(QLabel("Tables"))
-        self._table_list = QListWidget(left)
+        self._table_list = QListWidget()
         self._table_list.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table_list.currentItemChanged.connect(self._on_table_selected)
-        left_layout.addWidget(self._table_list, 1)
-        split.addWidget(left)
+        split.add_section(self._table_list, "Tables",
+                          persist_key="db_browser/Tables", stretch=0,
+                          extent=220)
 
-        right = QWidget(split)
+        right = QWidget()
         right_layout = QVBoxLayout(right)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(SPACING["xs"])
@@ -1606,11 +1603,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         page_row.addWidget(self._page_size_box)
         right_layout.addLayout(page_row)
 
-        split.addWidget(right)
-        split.setStretchFactor(0, 0)
-        split.setStretchFactor(1, 1)
-        split.setSizes([220, 900])
+        split.add_section(right, "Table preview",
+                          persist_key="db_browser/Table preview")
         outer.addWidget(split, 1)
+        self._body_splitter = split
 
         filt_row = QHBoxLayout()
         filt_row.setSpacing(SPACING["sm"])

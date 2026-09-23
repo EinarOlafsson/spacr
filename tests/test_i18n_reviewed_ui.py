@@ -20,14 +20,23 @@ from i18n_reviewed_ui import LANGUAGES, REVIEWED_UI_TRANSLATIONS  # noqa: E402
 # and a ROUTE in Icelandic (leiðin) -- all three are "path" in the sense of a
 # way to walk, and none is the sense of a source directory.  The reviewed row
 # is the fix, and the pin moves with it rather than after it.
-REVIEWED_UI_SOURCE_COUNT = 87
-REVIEWED_UI_SOURCE_SHA256 = "d0931a39009b4916bc4a247c1803c92316951318182bbd6b5815cc3094fe25a6"
-REVIEWED_UI_CONTENT_SHA256 = "f24504b25664a03e2328c8eb6cc0d693837ab6cea291b3fb01fc38c42ea51d50"
+# 2026-09-23: ten organism/flowchart additions since 01a1cc3c4, and one
+# retired caption ("Plates"). Existing surviving translations are unchanged.
+REVIEWED_UI_ADDED_SINCE_87 = {
+    "Biofilm", "Cytosol", "Filamentation", "Golgi", "None declared",
+    "Rhoptries", "Vacuole", "cytosol", "rhoptries 1", "rhoptries 2",
+}
+REVIEWED_UI_SOURCE_COUNT = 96
+REVIEWED_UI_SOURCE_SHA256 = "f4ee698624947edc011706b0960ff4817d8447c7a75d1a954b5e4e4df788a603"
+REVIEWED_UI_CONTENT_SHA256 = "5a8b993b0af899ed194085efbda7443e51f16a4700aef555e2b698aa607aaed0"
 
 
 def test_reviewed_ui_vocabulary_is_complete_and_pinned():
     """Every reviewed source must provide a nonblank value in every locale."""
     assert len(REVIEWED_UI_TRANSLATIONS) == REVIEWED_UI_SOURCE_COUNT
+    assert REVIEWED_UI_ADDED_SINCE_87 <= set(REVIEWED_UI_TRANSLATIONS)
+    assert "Plates" not in REVIEWED_UI_TRANSLATIONS
+    assert len(set(REVIEWED_UI_TRANSLATIONS) - REVIEWED_UI_ADDED_SINCE_87) + 1 == 87
     digest = hashlib.sha256("\0".join(sorted(REVIEWED_UI_TRANSLATIONS)).encode("utf-8")).hexdigest()
     assert digest == REVIEWED_UI_SOURCE_SHA256
     content_digest = hashlib.sha256(

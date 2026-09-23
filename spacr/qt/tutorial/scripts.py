@@ -5,9 +5,9 @@ engine handles narration synthesis + capture + mux; these functions
 only choose the narration text, the UI actions, and the cursor
 targets.
 
-Every script follows the same core sequence: open the application, load
-a synthetic dataset through the Demos menu, highlight the relevant settings,
-and start the run.
+Scripts open the application, prepare an isolated recording fixture,
+highlight the relevant settings, and start the run. Fixture preparation is
+internal to recording; users load module test data or their own projects.
 
 Two rules keep a script from quietly pointing at nothing:
 
@@ -30,6 +30,7 @@ import logging
 from typing import Any, List
 
 from .engine import Step
+from ..i18n import tr
 
 LOG = logging.getLogger("spacr.qt.tutorial")
 
@@ -102,8 +103,10 @@ def _nav_to(window, app_key: str):
 
 
 def _load_demo(window, demo_key: str, tmp_root: str):
-    """Bypass the file dialog — call the internals directly with a
-    scratch destination. Same code path the Demos menu uses."""
+    """Prepare an internal recording fixture in an isolated scratch folder.
+
+    This is a recorder action, not a user-facing menu or download control.
+    """
     from pathlib import Path
 
     def _do():
@@ -311,12 +314,11 @@ def _build_home_steps(window) -> List[Step]:
             hold_ms=500,
         ),
         Step(
-            "The Help menu contains Demos for selected core workflows. "
-            "Each entry generates a small synthetic dataset, writes its "
-            "settings, and opens the corresponding module.",
-            action=lambda: _open_demos_menu(window),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
+            tr("Use Load test data within a module to load its example project. "
+               "Home's pathway walkthroughs explain where to start and how "
+               "the modules pass data to one another."),
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=800,
         ),
         Step(
@@ -391,14 +393,13 @@ def _build_mask_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load Mask demo from Help, Demos. The command generates a "
-            "small synthetic acquisition, writes a compatible settings "
-            "file, and applies those settings to this screen.",
+            tr("Start with an image project. Use Load test data within Mask "
+               "for an example, or select your image folder. Check the "
+               "channel assignments before running."),
             action=lambda: (_load_demo(window, "mask", tmp_root)(),
                              _capture_screen()),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
-            show_pointer=True,
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=800,
         ),
         Step(
@@ -469,13 +470,13 @@ def _build_measure_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load Measure demo from Help, Demos. It provides representative "
-            "merged arrays and applies a valid measurement configuration.",
+            tr("Select a project with merged images and masks. Load test data "
+               "provides an example. Check the image and label channels "
+               "before measuring."),
             action=lambda: (_load_demo(window, "measure", tmp_root)(),
                              _capture()),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
-            show_pointer=True,
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=800,
         ),
         Step(
@@ -540,13 +541,13 @@ def _build_crop_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load Crop demo from Help, Demos. It configures Measure to "
-            "export object crops from the supplied merged arrays.",
+            tr("Use Measure to export object crops. Select the project "
+               "containing the merged images and masks, then enable "
+               "crop saving and choose the object type."),
             action=lambda: (_load_demo(window, "crop", tmp_root)(),
                              _capture()),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
-            show_pointer=True,
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=800,
         ),
         Step(
@@ -612,14 +613,13 @@ def _build_classify_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load Classify demo from Help, Demos. It generates a small "
-            "synthetic crop collection with example labels and opens the "
-            "annotation grid.",
+            tr("Open a crop project in Annotate. Load test data provides "
+               "an example. Choose the annotation column and label "
+               "representative objects."),
             action=lambda: (_load_demo(window, "classify", tmp_root)(),
                              _capture()),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
-            show_pointer=True,
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=1000,
         ),
         Step(
@@ -709,15 +709,13 @@ def _build_map_barcodes_steps(window) -> List[Step]:
             hold_ms=700,
         ),
         Step(
-            "Load Map Barcodes demo from Help, Demos. It writes a small FASTQ "
-            "and the barcode references that go with it, then points the "
-            "module at them, so the run below is real work on real reads "
-            "rather than a walkthrough of an empty form.",
+            tr("Select your FASTQ files and matching barcode references. "
+               "Load test data provides an example. Check the column, row "
+               "and guide references before mapping."),
             action=lambda: (_load_demo(window, "map_barcodes", tmp_root)(),
                              _capture()),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
-            show_pointer=True,
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=1000,
         ),
         Step(
@@ -1069,14 +1067,13 @@ def _build_timelapse_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load Timelapse demo from Help, Demos. It generates eight frames "
-            "per field and applies settings with tracking enabled, which "
-            "activates the Timelapse switch and reveals its categories.",
+            tr("In Mask, choose the image folder for your time series. "
+               "Enable Timelapse, then configure the time metadata "
+               "and tracking settings."),
             action=lambda: (_load_demo(window, "timelapse", tmp_root)(),
                              _capture()),
-            target=_menu_target(window, "Demos"),
-            highlight=_menu_bar(window),
-            show_pointer=True,
+            target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=800,
         ),
         Step(

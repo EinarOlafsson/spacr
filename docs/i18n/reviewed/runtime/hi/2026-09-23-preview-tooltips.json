@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review of cancellation, asynchronous saving, enhancement comparisons and optional scale/time estimates. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page",
+      "source": "Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page",
+      "source_sha256": "447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3",
+      "translation": "सबसे बड़े 25% प्लाक से अनुपलब्ध मानों का सुझाव दें। RH/HFF नियंत्रण जैसी वृद्धि मानी जाती है; मौजूदा माप सुरक्षित रहते हैं। API: spacr.plaque_growth.estimate_page"
+    },
+    {
+      "table": "ui",
+      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.",
+      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.",
+      "source_sha256": "77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0",
+      "translation": "कॉन्फ़िगर किए गए संवर्धनों का पूर्वावलोकन मूल असंवर्धित छवि के साथ दिखाएँ। आवर्धक का बॉक्स उपलब्ध होने पर उसका क्षेत्र, अन्यथा पूरा दृश्य क्षेत्र दिखाया जाता है, ताकि हर चरण का प्रभाव देखकर आँका जा सके। प्रसंस्करण पृष्ठभूमि में चलता है। रद्द करें से तुलना बंद हो जाती है; चल रहा फ़िल्टर अपना परिणाम दिखाए बिना पूरा होता है। पहचान प्रक्रिया की तरह, काटने से पहले पूरे दृश्य क्षेत्र का सामान्यीकरण किया जाता है।"
+    }
+  ]
+}

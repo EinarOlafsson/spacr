@@ -850,6 +850,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
 
 
             batch_filenames = filenames[i: i+batch_size].tolist()
+            from .image_quality import filter_batch
+            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
 
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(
@@ -1235,6 +1237,8 @@ def generate_cellpose_masks(src, settings, object_type):
                 batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
 
             batch_filenames = filenames[i: i+batch_size].tolist()
+            from .image_quality import filter_batch
+            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
 
             if not settings['plot']:
                 batch, batch_filenames = _check_masks(
@@ -1518,6 +1522,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
             start = time.time()
             batch = stack[i: i + batch_size]
             batch_filenames = filenames[i: i + batch_size].tolist()
+            from .image_quality import filter_batch
+            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
             if not settings.get('plot', False):
                 offered = len(batch_filenames)
                 batch, batch_filenames = _check_masks(

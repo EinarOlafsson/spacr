@@ -335,9 +335,10 @@ class TestLoadingTheModelThroughSpacrsOwnResolver:
         built = {}
 
         class _Model:
-            def __init__(self, gpu=False, pretrained_model=None, device=None):
+            def __init__(self, gpu=False, pretrained_model=None, device=None,
+                         use_bfloat16=True):
                 built.update(gpu=gpu, pretrained_model=pretrained_model,
-                             device=device)
+                             device=device, use_bfloat16=use_bfloat16)
 
         monkeypatch.setattr(utils, "_resolve_cellpose_pretrained",
                             lambda name: f"resolved::{name}")
@@ -350,6 +351,8 @@ class TestLoadingTheModelThroughSpacrsOwnResolver:
         import torch
         assert built["gpu"] is torch.cuda.is_available()
         assert built["device"].type in ("cuda", "cpu")
+        if not built["gpu"]:
+            assert built["use_bfloat16"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -530,8 +533,6 @@ class TestARunWhoseMasksCannotBeCombined:
         monkeypatch.setattr(screen, "_cellpose_model", lambda name: object())
         # No QApplication to put a wait cursor on: the headless half of the
         # same call, which must not skip the run or the restore.
-        monkeypatch.setattr(mm, "QApplication",
-                            types.SimpleNamespace(instance=lambda: None))
 
         def _boom(current, new, mode):
             raise ValueError("shapes do not match")
@@ -542,22 +543,22 @@ class TestARunWhoseMasksCannotBeCombined:
                             lambda title, text: warned.append((title, text)))
         before = screen._canvas.mask.copy()
 
-        assert screen.run_cellpose() == 0
+        with monkeypatch.context() as cursor_patch:
+            cursor_patch.setattr(mm, "QApplication",
+                                 types.SimpleNamespace(instance=lambda: None))
+            assert screen.run_cellpose() == 0
 
         assert warned == [("Object detection failed",
                            "shapes do not match")]
         assert np.array_equal(screen._canvas.mask, before)
         assert screen._btn_cellpose.isEnabled()
 
-    def test_the_toolbar_button_runs_the_same_thing(self, screen,
+    def test_the_toolbar_button_handles_an_empty_field(self, screen,
                                                      monkeypatch):
-        runs = []
-        monkeypatch.setattr(screen, "run_cellpose",
-                            lambda: runs.append(1) or 0)
-
+        screen._canvas.image = None
         screen._on_detect_cellpose()
-
-        assert runs == [1]
+        assert screen._detection_request is None
+        assert 'Open a folder' in screen._status_label.text()
 
 
 # ---------------------------------------------------------------------------

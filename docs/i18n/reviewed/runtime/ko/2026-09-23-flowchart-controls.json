@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review of view fitting, zoom/pan instructions and handoff legend. Fit is a viewport action in both current callers. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Fit",
+      "source": "Fit",
+      "source_sha256": "9f872ed43d00d8bdb372b1c05bd345b22f2ad5f7f41e06656d05625602e065b1",
+      "translation": "화면에 맞추기"
+    },
+    {
+      "table": "ui",
+      "key": "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.",
+      "source": "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.",
+      "source_sha256": "29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2",
+      "translation": "{key} 키를 누른 채 마우스 휠을 돌려 확대하거나 축소하세요. 빈 공간을 드래그하여 화면을 이동하세요. 화면에 맞추기를 누르면 전체 지도가 표시됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.",
+      "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.",
+      "source_sha256": "a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42",
+      "translation": "실선 화살표: 문서에 설명된 데이터 전달. 점선 화살표: 데이터 유형이 일치하지만 호환성 확인이 필요한 연결."
+    }
+  ]
+}

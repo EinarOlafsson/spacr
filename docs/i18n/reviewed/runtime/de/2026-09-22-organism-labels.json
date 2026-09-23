@@ -1,0 +1,728 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Adhesion",
+      "source": "Adhesion",
+      "source_sha256": "c3f00ea2f856ca6a23cb738c4be58391299178cbba1fd7cc5818c7767d7a491d",
+      "table": "ui",
+      "translation": "Adhäsion"
+    },
+    {
+      "key": "Antifungal response",
+      "source": "Antifungal response",
+      "source_sha256": "241b2fa2d05955fd734a491ce33e718f97b6c1daffecdc217018a30c1d48a21d",
+      "table": "ui",
+      "translation": "Reaktion auf Antimykotika"
+    },
+    {
+      "key": "Antifungal response and interpretation",
+      "source": "Antifungal response and interpretation",
+      "source_sha256": "f5242d70f979e0f77ba6cd785bd9840fbdaec0f0db3c5a2b6a1894982d36ecc7",
+      "table": "ui",
+      "translation": "Reaktion auf Antimykotika und Interpretation"
+    },
+    {
+      "key": "Apicoplast",
+      "source": "Apicoplast",
+      "source_sha256": "875353f910c1cde08eb482df892f3de9380577ac0d78d3d224120149f6ca74d3",
+      "table": "ui",
+      "translation": "Apikoplast"
+    },
+    {
+      "key": "Biology source: CDC",
+      "source": "Biology source: CDC",
+      "source_sha256": "88bc4983d36165dcb646962c8d36b20e0fa0fc28db9c2450283f6e4de22eeb10",
+      "table": "ui",
+      "translation": "Biologische Quelle: CDC"
+    },
+    {
+      "key": "Blood-stage staging",
+      "source": "Blood-stage staging",
+      "source_sha256": "c9ebcb12cca961d3a3895379155255474c35d403713b14e8faa8b5bdd17594fc",
+      "table": "ui",
+      "translation": "Bestimmung der Blutstadien"
+    },
+    {
+      "key": "Bradyzoite conversion",
+      "source": "Bradyzoite conversion",
+      "source_sha256": "3180c02cbd134d02debb97fe1f15863f8cfc3aa0b2c9f57e546118e8df9a81a3",
+      "table": "ui",
+      "translation": "Umwandlung zu Bradyzoiten"
+    },
+    {
+      "key": "Bud",
+      "source": "Bud",
+      "source_sha256": "900c03379649a46d53440a3d89edb89d167de6189a0b9663d62545e439b8dbc5",
+      "table": "ui",
+      "translation": "Knospe"
+    },
+    {
+      "key": "Bud neck",
+      "source": "Bud neck",
+      "source_sha256": "2666ff16cbc5de1922f1698e6b97930948e268ad2aa6ba8366bd7ef33f4493ab",
+      "table": "ui",
+      "translation": "Knospenhals"
+    },
+    {
+      "key": "Building an image-analysis workflow",
+      "source": "Building an image-analysis workflow",
+      "source_sha256": "ee3d118cc5f181f63847cb4716c29e59bc78b8e9b2b3939e86f5d00c82380a04",
+      "table": "ui",
+      "translation": "Einen Bildanalyseablauf aufbauen"
+    },
+    {
+      "key": "Cell compartments",
+      "source": "Cell compartments",
+      "source_sha256": "60d08349ad4c920c2f3dce31091cae9ebc27b0dcf9e72bfdd86716cf001c36ed",
+      "table": "ui",
+      "translation": "Zellkompartimente"
+    },
+    {
+      "key": "Cell membrane",
+      "source": "Cell membrane",
+      "source_sha256": "bc2a746f6b2203e33bc87fdc45bfb93d8a0c8ffa1154c2dc19e260f1cba48fb0",
+      "table": "ui",
+      "translation": "Zellmembran"
+    },
+    {
+      "key": "Cell traversal",
+      "source": "Cell traversal",
+      "source_sha256": "1608c68ff3ee6ff9bef2f6733d10f3c7dc9ecc99bf0bc8520deed485bbeb1837",
+      "table": "ui",
+      "translation": "Zelldurchquerung"
+    },
+    {
+      "key": "Cell wall",
+      "source": "Cell wall",
+      "source_sha256": "a1a244c90215f608b9d5a2b590ffc0be4d0a10bc8acac755f4bec759713f5530",
+      "table": "ui",
+      "translation": "Zellwand"
+    },
+    {
+      "key": "Clear components",
+      "source": "Clear components",
+      "source_sha256": "e7eb92a5de9a2dfb3f2ede2e23ed6434f95d8a40d51d7fef494af21d47f38e22",
+      "table": "ui",
+      "translation": "Auswahl löschen"
+    },
+    {
+      "key": "Coming soon",
+      "source": "Coming soon",
+      "source_sha256": "4f7d64017689437e6d93f5724f3f797054f3935d98a13148025b616b8db8fb2c",
+      "table": "ui",
+      "translation": "Demnächst verfügbar"
+    },
+    {
+      "key": "Cytosol",
+      "source": "Cytosol",
+      "source_sha256": "acb20e6d07128b9b53a525f3f9ffb664b29e1296286cd976d1d66a610d023dec",
+      "table": "ui",
+      "translation": "Zytosol"
+    },
+    {
+      "key": "Drag to resize the information pane.",
+      "source": "Drag to resize the information pane.",
+      "source_sha256": "4443a1975cc9cf65fb366d6f73ef138f926780eeb902fcaddfa187c53eb44d2c",
+      "table": "ui",
+      "translation": "Ziehen, um die Größe des Informationsbereichs zu ändern."
+    },
+    {
+      "key": "Drug response imaging",
+      "source": "Drug response imaging",
+      "source_sha256": "0b2cf4f9f536584d638e2455bc45f5bc03650606894f35e2ca8049d29dacc463",
+      "table": "ui",
+      "translation": "Bildanalyse der Arzneimittelreaktion"
+    },
+    {
+      "key": "Egress",
+      "source": "Egress",
+      "source_sha256": "66a3afae1562b6ae01f3d6ff5678d66d697991a86ed127050a04b9024e116d85",
+      "table": "ui",
+      "translation": "Austritt"
+    },
+    {
+      "key": "Endoplasmic reticulum",
+      "source": "Endoplasmic reticulum",
+      "source_sha256": "38a4f0db501408019e00e1a0e4f86977ca143b579c8bc28e235af0bfd59a88bb",
+      "table": "ui",
+      "translation": "Endoplasmatisches Retikulum"
+    },
+    {
+      "key": "Entry and the intracellular niche",
+      "source": "Entry and the intracellular niche",
+      "source_sha256": "6fd51cf54627f5366ac7f536c0c028a6296dd688834433614f48c3fe0ceffa6d",
+      "table": "ui",
+      "translation": "Eintritt und intrazelluläre Nische"
+    },
+    {
+      "key": "Epithelial invasion",
+      "source": "Epithelial invasion",
+      "source_sha256": "e3961aae4140cd213fe4371c4eb780d6eddd9c12d45c1786528a5fb98968b17b",
+      "table": "ui",
+      "translation": "Invasion von Epithelzellen"
+    },
+    {
+      "key": "Filamentation",
+      "source": "Filamentation",
+      "source_sha256": "aa3d01b3d270db80ad1cd4b0372f663496b0539e5778758984ca351e1184f797",
+      "table": "ui",
+      "translation": "Filamentbildung"
+    },
+    {
+      "key": "From a phenotype to candidate proteins",
+      "source": "From a phenotype to candidate proteins",
+      "source_sha256": "cab26290c6aacd5c73b17d4ed71ded2d5e06dcce33504b7d534748edb7c7d47e",
+      "table": "ui",
+      "translation": "Vom Phänotyp zu Kandidatenproteinen"
+    },
+    {
+      "key": "Gametocyte maturity",
+      "source": "Gametocyte maturity",
+      "source_sha256": "4b50f531c6dfb5dcaef4207ccb9abfcb2c86bb295c29cdcccf438c1f25d9170e",
+      "table": "ui",
+      "translation": "Gametozytenreife"
+    },
+    {
+      "key": "Genome browser",
+      "source": "Genome browser",
+      "source_sha256": "8a359efbe04441d05b46b4e8dcef710ccf08245a7764bfc686872ba6513c570f",
+      "table": "ui",
+      "translation": "Genombrowser"
+    },
+    {
+      "key": "Germ tube formation",
+      "source": "Germ tube formation",
+      "source_sha256": "86b79050b19103ad74909e4ad2d0089cdb545d7814fc89dfeebd1d9c4e98961c",
+      "table": "ui",
+      "translation": "Keimschlauchbildung"
+    },
+    {
+      "key": "Gliding motility",
+      "source": "Gliding motility",
+      "source_sha256": "89922117981c6f8c71ecee678c98ccd5634d48ca7ac6364eed68ff4759ad18dd",
+      "table": "ui",
+      "translation": "Gleitbewegung"
+    },
+    {
+      "key": "Golgi",
+      "source": "Golgi",
+      "source_sha256": "530c226aa661a812a56a8c0df9401c12e6630f939089dd042b4175cb37b6b84e",
+      "table": "ui",
+      "translation": "Golgi"
+    },
+    {
+      "key": "Golgi apparatus",
+      "source": "Golgi apparatus",
+      "source_sha256": "eb43519a26919057d943c20565af10981ba607f28f780bb11d169a339ab53548",
+      "table": "ui",
+      "translation": "Golgi-Apparat"
+    },
+    {
+      "key": "Host cell damage",
+      "source": "Host cell damage",
+      "source_sha256": "67245986ec9f6e4fb0525df1deefe1d2afbe7a7c4a4d9c8d3ea11160e4515b22",
+      "table": "ui",
+      "translation": "Wirtszellschädigung"
+    },
+    {
+      "key": "Information and modules divider",
+      "source": "Information and modules divider",
+      "source_sha256": "421cfac600dac71049d871879b61eeed00a7cb1d51c7e00c42994edbf29630bb",
+      "table": "ui",
+      "translation": "Trenner zwischen Informationen und Modulen"
+    },
+    {
+      "key": "Inner membrane complex",
+      "source": "Inner membrane complex",
+      "source_sha256": "f0f51cb5922195e0789b4dda469f1d1ceb5a23f491bb7a9d9e4880a3d52bcd4a",
+      "table": "ui",
+      "translation": "Innerer Membrankomplex"
+    },
+    {
+      "key": "Interactions with host cells",
+      "source": "Interactions with host cells",
+      "source_sha256": "7445eab4fadad149bc71122aae45f5e06d96f1dc31219ba57b4a18687cd5f288",
+      "table": "ui",
+      "translation": "Wechselwirkungen mit Wirtszellen"
+    },
+    {
+      "key": "Liver infection and parasite movement",
+      "source": "Liver infection and parasite movement",
+      "source_sha256": "083050425d757a00011ca62cd1f608ebbfb4d7463f382b59a3f4fb5724cfc124",
+      "table": "ui",
+      "translation": "Leberinfektion und Parasitenbewegung"
+    },
+    {
+      "key": "Liver-stage growth",
+      "source": "Liver-stage growth",
+      "source_sha256": "a7647a676deb0d5ad56e05c526e993a748002200f628d5ab8e4a88bc3eac4c75",
+      "table": "ui",
+      "translation": "Wachstum im Leberstadium"
+    },
+    {
+      "key": "Merozoite invasion",
+      "source": "Merozoite invasion",
+      "source_sha256": "483ac34c77c52912bf8e7bdd4941180f7f8ab93801af1d65c241c5923fba622a",
+      "table": "ui",
+      "translation": "Merozoiteninvasion"
+    },
+    {
+      "key": "Micronemes",
+      "source": "Micronemes",
+      "source_sha256": "5d67db693814e9b15dd8e15d59963c88adc1f463fc175637798d3aab62c601c7",
+      "table": "ui",
+      "translation": "Mikronemen"
+    },
+    {
+      "key": "Microtubule cytoskeleton",
+      "source": "Microtubule cytoskeleton",
+      "source_sha256": "b1baa168e8c8bc5d616cbab5110b26996c3c0b91e5fadf94ba9bf08717ce7a8c",
+      "table": "ui",
+      "translation": "Mikrotubuli-Zytoskelett"
+    },
+    {
+      "key": "Mitochondrion",
+      "source": "Mitochondrion",
+      "source_sha256": "fbe996924480c41b872d5917763d24e7368a184a9a438b4012bf6ca7cd02341a",
+      "table": "ui",
+      "translation": "Mitochondrium"
+    },
+    {
+      "key": "Morphology",
+      "source": "Morphology",
+      "source_sha256": "1d4f3bd58f89ce455626c3eabade25685a47238a3f7288590b976628e589b168",
+      "table": "ui",
+      "translation": "Morphologie"
+    },
+    {
+      "key": "Morphology and the transition to filaments",
+      "source": "Morphology and the transition to filaments",
+      "source_sha256": "8469d2f385de378d33dd0089e2dc326aabde6f9c9999f50f64bd64c9a8cdf9f5",
+      "table": "ui",
+      "translation": "Morphologie und Übergang zur Filamentbildung"
+    },
+    {
+      "key": "Movement, exit and persistent stages",
+      "source": "Movement, exit and persistent stages",
+      "source_sha256": "effda509cd258a714f62060419daf7c8760098459056fb2ed8ee31bbac471633",
+      "table": "ui",
+      "translation": "Bewegung, Austritt und persistierende Stadien"
+    },
+    {
+      "key": "Nucleolus",
+      "source": "Nucleolus",
+      "source_sha256": "38b8a42af3057e71fe044e1327134bc6e4784d55412877579e165c177f00054b",
+      "table": "ui",
+      "translation": "Nukleolus"
+    },
+    {
+      "key": "PM - integral",
+      "source": "PM - integral",
+      "source_sha256": "a2c831f1138ed1eed7463c88af3b6f3c1e3c8911e9744aa9464b94f57e3f125d",
+      "table": "ui",
+      "translation": "PM - integrale Proteine"
+    },
+    {
+      "key": "PM - peripheral 1",
+      "source": "PM - peripheral 1",
+      "source_sha256": "fd0ab2c4a8a0d2365ad25d9cc8cb955dd5bc19998247ed0f106241dadfebd092",
+      "table": "ui",
+      "translation": "PM - periphere Proteine 1"
+    },
+    {
+      "key": "PM - peripheral 2",
+      "source": "PM - peripheral 2",
+      "source_sha256": "3b542f8cd2edc71b57e3bef63d87c62f85727f88c52b2a0f13ecb8490b37a28c",
+      "table": "ui",
+      "translation": "PM - periphere Proteine 2"
+    },
+    {
+      "key": "Parasitaemia",
+      "source": "Parasitaemia",
+      "source_sha256": "8f4a5df10d24db12215a0daee225461477315b2e77522a3cbb82bec496fa3b1a",
+      "table": "ui",
+      "translation": "Parasitämie"
+    },
+    {
+      "key": "Phagocytosis",
+      "source": "Phagocytosis",
+      "source_sha256": "c408c63cffb3e3ef16766ca827ba61efb3133fd6bc836a41328212df85c55bd5",
+      "table": "ui",
+      "translation": "Phagozytose"
+    },
+    {
+      "key": "Replication and the complete lytic cycle",
+      "source": "Replication and the complete lytic cycle",
+      "source_sha256": "588f72307cb7e2ebbb3a11bacc0d6fc1607b734cb54cfcf95d0329bdbffcd3d9",
+      "table": "ui",
+      "translation": "Replikation und vollständiger lytischer Zyklus"
+    },
+    {
+      "key": "Rhoptries",
+      "source": "Rhoptries",
+      "source_sha256": "39f558ffaf011f3d817d46d4cd1176e3483727e8708929abda09b570e97a0ff0",
+      "table": "ui",
+      "translation": "Rhoptrien"
+    },
+    {
+      "key": "Sources and research resources",
+      "source": "Sources and research resources",
+      "source_sha256": "fe7fc8a51bba19b14aba6c8b3bbb9a4105a4918fd7ba1a8f7f2095f1419ff74b",
+      "table": "ui",
+      "translation": "Quellen und Forschungsressourcen"
+    },
+    {
+      "key": "Sporozoite motility",
+      "source": "Sporozoite motility",
+      "source_sha256": "3832a42a6759a4e67125d18eb885a22de67d78d36f8489bcbd91ee262aab4e99",
+      "table": "ui",
+      "translation": "Sporozoitenbeweglichkeit"
+    },
+    {
+      "key": "Surface attachment and community growth",
+      "source": "Surface attachment and community growth",
+      "source_sha256": "564f771e175172b9e5162d58b20fc8b1e3903e32d0713e85da93d4787877f233",
+      "table": "ui",
+      "translation": "Oberflächenanhaftung und gemeinschaftliches Wachstum"
+    },
+    {
+      "key": "Toxoplasma hyperLOPIT atlas",
+      "source": "Toxoplasma hyperLOPIT atlas",
+      "source_sha256": "a9e2e6bde71410b04722bb5f5b273d6b5c3ea5dd3bd46c8f4796b882a64fa5c0",
+      "table": "ui",
+      "translation": "Toxoplasma-hyperLOPIT-Atlas"
+    },
+    {
+      "key": "Transmission stages and compound responses",
+      "source": "Transmission stages and compound responses",
+      "source_sha256": "10587d552ba52636dcc33ef87704862ad01e07a11ebe260f0052ea9cf1ae9cbc",
+      "table": "ui",
+      "translation": "Übertragungsstadien und Reaktionen auf Wirkstoffe"
+    },
+    {
+      "key": "UniProt compartment",
+      "source": "UniProt compartment",
+      "source_sha256": "e5dcacb4f47772809457a200fb83959d8fd9d6571be87dee104f25012c95b997",
+      "table": "ui",
+      "translation": "UniProt-Kompartiment"
+    },
+    {
+      "key": "Vacuole",
+      "source": "Vacuole",
+      "source_sha256": "a904d6cb7f46412e4e6258c04f0650150994f86469479f7de1e8bd17bab8a999",
+      "table": "ui",
+      "translation": "Vakuole"
+    },
+    {
+      "key": "apicoplast",
+      "source": "apicoplast",
+      "source_sha256": "99ef93997f1ad47b2d99037538ad605fe13723dc299e3db46dd6b871c7b1a78f",
+      "table": "ui",
+      "translation": "Apikoplast"
+    },
+    {
+      "key": "cytosol",
+      "source": "cytosol",
+      "source_sha256": "1b9602cc90b14b7eb8f1022a85d945aaec68d4fc4a65ac630d90d7730c7d7344",
+      "table": "ui",
+      "translation": "Zytosol"
+    },
+    {
+      "key": "dense granules",
+      "source": "dense granules",
+      "source_sha256": "30067cb9c4285b23e26615c27e7f6a95d71bcac62efcd9401f7175c43051f5df",
+      "table": "ui",
+      "translation": "dichte Granula"
+    },
+    {
+      "key": "hyperLOPIT compartment",
+      "source": "hyperLOPIT compartment",
+      "source_sha256": "d39089d9511eea171a5b25d5faf4c6a6e3d9dc5fd4399609cd72593f6a21879b",
+      "table": "ui",
+      "translation": "hyperLOPIT-Kompartiment"
+    },
+    {
+      "key": "micronemes",
+      "source": "micronemes",
+      "source_sha256": "a507511b24e6524d8471475da3151211e27bfc82e0077379c0e8100bbc63263f",
+      "table": "ui",
+      "translation": "Mikronemen"
+    },
+    {
+      "key": "mitochondrion - membranes",
+      "source": "mitochondrion - membranes",
+      "source_sha256": "39f03c757ae491f62111d3678f84954c062049833250c469ce393cffc93c8ce2",
+      "table": "ui",
+      "translation": "Mitochondrium - Membranen"
+    },
+    {
+      "key": "mitochondrion - soluble",
+      "source": "mitochondrion - soluble",
+      "source_sha256": "267aaa062008d5ae3ce0dbbdf6388c12d6449528715e3520522b879e98189aed",
+      "table": "ui",
+      "translation": "Mitochondrium - lösliche Proteine"
+    },
+    {
+      "key": "nucleolus",
+      "source": "nucleolus",
+      "source_sha256": "295d818a956b8e20063ee7682097786b384b1c261563339198cddfba26a90249",
+      "table": "ui",
+      "translation": "Nukleolus"
+    },
+    {
+      "key": "nucleus - chromatin",
+      "source": "nucleus - chromatin",
+      "source_sha256": "08c4fd3c98465903b12473a1b0e6399b7ff577e347feaab20bd9d5417b431f15",
+      "table": "ui",
+      "translation": "Zellkern - Chromatin"
+    },
+    {
+      "key": "nucleus - non-chromatin",
+      "source": "nucleus - non-chromatin",
+      "source_sha256": "8e3e23199805e42c6fa59a38b326a585a5be3a0ac8da7327b4b0828c70833604",
+      "table": "ui",
+      "translation": "Zellkern - außerhalb des Chromatins"
+    },
+    {
+      "key": "rhoptries 1",
+      "source": "rhoptries 1",
+      "source_sha256": "6affbde0fd67e0e8d5df6a20c1ffa4d931ad9f3caa3c8122ed8ff1d2dbe5ac7e",
+      "table": "ui",
+      "translation": "Rhoptrien 1"
+    },
+    {
+      "key": "rhoptries 2",
+      "source": "rhoptries 2",
+      "source_sha256": "39047ee3eeea711d2fffd7ebb226b12a8f107cbeb82dd950e481ec979632e689",
+      "table": "ui",
+      "translation": "Rhoptrien 2"
+    },
+    {
+      "key": "tubulin cytoskeleton",
+      "source": "tubulin cytoskeleton",
+      "source_sha256": "5a68ad205bf9c64c6ef2fd5ea9cc2d9f23b53d90852fb6337537a9fe74609ceb",
+      "table": "ui",
+      "translation": "Tubulin-Zytoskelett"
+    },
+    {
+      "key": "Classify gametocyte stage and sex from images.",
+      "source": "Classify gametocyte stage and sex from images.",
+      "source_sha256": "385448cebc21a836d4876d56035b4d39429918fe9eacc6b630435d9f22e9d59b",
+      "table": "ui",
+      "translation": "Stadium und Geschlecht von Gametozyten anhand von Bildern klassifizieren."
+    },
+    {
+      "key": "Classify rings, trophozoites and schizonts.",
+      "source": "Classify rings, trophozoites and schizonts.",
+      "source_sha256": "cc9dd519a8cba54b744a0c9136d80f9178ca8c9b8905478d42e50868186b66d1",
+      "table": "ui",
+      "translation": "Ringformen, Trophozoiten und Schizonten klassifizieren."
+    },
+    {
+      "key": "Classify yeast, pseudohyphal and hyphal forms.",
+      "source": "Classify yeast, pseudohyphal and hyphal forms.",
+      "source_sha256": "ec1f3a1b3123cbba989172890ade5937731a713eb839f8f93c060c303c83b9be",
+      "table": "ui",
+      "translation": "Hefe-, Pseudohyphen- und Hyphenformen klassifizieren."
+    },
+    {
+      "key": "Count fungal cells bound to a host-cell monolayer.",
+      "source": "Count fungal cells bound to a host-cell monolayer.",
+      "source_sha256": "9567810798bbd418d72264f6b2a98d75e2c563507226f8754b2c3f0e95954d50",
+      "table": "ui",
+      "translation": "An eine Wirtszellmonoschicht gebundene Pilzzellen zählen."
+    },
+    {
+      "key": "Count infected red blood cells per field.",
+      "source": "Count infected red blood cells per field.",
+      "source_sha256": "93e141c3814c8d39be2821687e635cd2e2c00d09a0074347694354b4fd608acf",
+      "table": "ui",
+      "translation": "Infizierte rote Blutkörperchen pro Bildfeld zählen."
+    },
+    {
+      "key": "Count parasites per vacuole.",
+      "source": "Count parasites per vacuole.",
+      "source_sha256": "68fb1b5297be450ecc3846aeae4ea5b82df2394df0163889592cbe1e84ed78d8",
+      "table": "ui",
+      "translation": "Parasiten pro Vakuole zählen."
+    },
+    {
+      "key": "Distinguish attached and invaded parasites.",
+      "source": "Distinguish attached and invaded parasites.",
+      "source_sha256": "d889bde25c3cd9ec1d5de446f4ad15a74559ac414dc0bd424ab07ce7f0c1195f",
+      "table": "ui",
+      "translation": "Angeheftete von eingedrungenen Parasiten unterscheiden."
+    },
+    {
+      "key": "Distinguish internalised and extracellular fungi.",
+      "source": "Distinguish internalised and extracellular fungi.",
+      "source_sha256": "54fbdb66f88690e2e8e1e21a8fd81b88bac65c2a4c2b2762add677c83ae05d1b",
+      "table": "ui",
+      "translation": "Aufgenommene von extrazellulären Pilzen unterscheiden."
+    },
+    {
+      "key": "Explore the Toxoplasma knowledge map in a separate alpha application.",
+      "source": "Explore the Toxoplasma knowledge map in a separate alpha application.",
+      "source_sha256": "dc6814b3e6c76ecd4db0c5a1a2f43f2d750b333b5e626b7947a53d2b46df1105",
+      "table": "ui",
+      "translation": "Die Toxoplasma-Wissenskarte in einer separaten Alpha-Anwendung erkunden."
+    },
+    {
+      "key": "Follow parasite entry into red blood cells.",
+      "source": "Follow parasite entry into red blood cells.",
+      "source_sha256": "d039a516fe5e38f236018b2907351f0fba0554f3b6c33da69935f8258f481091",
+      "table": "ui",
+      "translation": "Den Eintritt von Parasiten in rote Blutkörperchen verfolgen."
+    },
+    {
+      "key": "Follow vacuole rupture and parasite exit over time.",
+      "source": "Follow vacuole rupture and parasite exit over time.",
+      "source_sha256": "021f0ff786ba87170c3f9cb1917e27d6d2c1c63d064a29803bf86457349857c1",
+      "table": "ui",
+      "translation": "Vakuolenruptur und Parasitenaustritt im Zeitverlauf verfolgen."
+    },
+    {
+      "key": "Hover over the cell to identify a compartment. Check several labels to keep them highlighted.",
+      "source": "Hover over the cell to identify a compartment. Check several labels to keep them highlighted.",
+      "source_sha256": "3ba9ceadc5108f2f680a811c436426f7cd5e5b9048828e974b925294e6c32912",
+      "table": "ui",
+      "translation": "Den Mauszeiger über die Zelle bewegen, um ein Kompartiment zu identifizieren. Mehrere Bezeichnungen auswählen, damit sie hervorgehoben bleiben."
+    },
+    {
+      "key": "Infection frequency and blood-stage development",
+      "source": "Infection frequency and blood-stage development",
+      "source_sha256": "2c67e8d8786509d2cbb648038c6ddc1eb34b75ac8fc183412f9d271b4ebf676d",
+      "table": "ui",
+      "translation": "Infektionshäufigkeit und Entwicklung im Blutstadium"
+    },
+    {
+      "key": "Measure biofilm area and thickness over time.",
+      "source": "Measure biofilm area and thickness over time.",
+      "source_sha256": "9463858e9629c1c014406404d373814f189ba3a851d55c056da4c53c3994cb45",
+      "table": "ui",
+      "translation": "Biofilmfläche und -dicke im Zeitverlauf messen."
+    },
+    {
+      "key": "Measure extracellular parasite trails and speed.",
+      "source": "Measure extracellular parasite trails and speed.",
+      "source_sha256": "786ecbdd9410ef735b4d10a993c6777f38caa96ffeffb3d694c827babf68a529",
+      "table": "ui",
+      "translation": "Extrazelluläre Parasitenspuren und Geschwindigkeit messen."
+    },
+    {
+      "key": "Measure gliding trails and speed.",
+      "source": "Measure gliding trails and speed.",
+      "source_sha256": "24a22f74cd589c2aca8926c7afd9f0e7fd72c227647d5f47f05d14707974d1ed",
+      "table": "ui",
+      "translation": "Gleitspuren und Geschwindigkeit messen."
+    },
+    {
+      "key": "Measure growth and morphology across antifungal concentrations.",
+      "source": "Measure growth and morphology across antifungal concentrations.",
+      "source_sha256": "50118dd5f192cf26892ac4ce05e5f1617dea683d6c46a9b67a282ddabf7aad79",
+      "table": "ui",
+      "translation": "Wachstum und Morphologie über verschiedene Antimykotikakonzentrationen messen."
+    },
+    {
+      "key": "Measure growth inhibition across compound concentrations.",
+      "source": "Measure growth inhibition across compound concentrations.",
+      "source_sha256": "254210075a8316458728c08caa6c2eae4eca7dcc140f2714e7125e52b3dff3f1",
+      "table": "ui",
+      "translation": "Wachstumshemmung über verschiedene Wirkstoffkonzentrationen messen."
+    },
+    {
+      "key": "Measure host-protein enrichment at the vacuole.",
+      "source": "Measure host-protein enrichment at the vacuole.",
+      "source_sha256": "438dc8942e7700e3f01bb3e2387d34d8c1bd5c68c12943a3ec1c7465336231af",
+      "table": "ui",
+      "translation": "Anreicherung von Wirtsproteinen an der Vakuole messen."
+    },
+    {
+      "key": "Measure monolayer integrity and host-cell loss.",
+      "source": "Measure monolayer integrity and host-cell loss.",
+      "source_sha256": "8e51c06e370554393511f402638dce0151c6b06f3fa88fbf2d82fed4a71b8141",
+      "table": "ui",
+      "translation": "Integrität der Monoschicht und Verlust von Wirtszellen messen."
+    },
+    {
+      "key": "Measure parasite number and size in hepatocytes.",
+      "source": "Measure parasite number and size in hepatocytes.",
+      "source_sha256": "7afef61a2a81c6e3345cf74ce24286e199b1e372e43406fb43bf1f0f64cb6a23",
+      "table": "ui",
+      "translation": "Anzahl und Größe von Parasiten in Hepatozyten messen."
+    },
+    {
+      "key": "Measure the frequency and extent of filament growth.",
+      "source": "Measure the frequency and extent of filament growth.",
+      "source_sha256": "82c9015d5126f454d2dfae0d8714b93f3e0146040791b317b6d3f302dd9f083b",
+      "table": "ui",
+      "translation": "Häufigkeit und Ausmaß der Filamentbildung messen."
+    },
+    {
+      "key": "Measure wounded host cells along parasite paths.",
+      "source": "Measure wounded host cells along parasite paths.",
+      "source_sha256": "308cd0b10acdd4683406777796eedfd766e3de377104377184a86eaf1b03ea0d",
+      "table": "ui",
+      "translation": "Geschädigte Wirtszellen entlang der Parasitenwege messen."
+    },
+    {
+      "key": "Protein found in or associated with cytoplasmic granules.",
+      "source": "Protein found in or associated with cytoplasmic granules.",
+      "source_sha256": "a4537c5bc7638ea0c2e5f72350fa127711fe747987abe4caead989b9369c8cc0",
+      "table": "ui",
+      "translation": "Protein, das in zytoplasmatischen Granula vorkommt oder mit ihnen assoziiert ist."
+    },
+    {
+      "key": "Quantify cyst-wall staining and stage conversion.",
+      "source": "Quantify cyst-wall staining and stage conversion.",
+      "source_sha256": "f7359aed28a389c5eb537a71e3eb706c0222fb0b45092293bf03e692294d322d",
+      "table": "ui",
+      "translation": "Zystenwandfärbung und Stadienumwandlung quantifizieren."
+    },
+    {
+      "key": "Quantify early germ-tube emergence per cell.",
+      "source": "Quantify early germ-tube emergence per cell.",
+      "source_sha256": "e6fa52b8c6853c2bf50e7f77798c7caeae604aa9d05942c64b5f6188c3784a18",
+      "table": "ui",
+      "translation": "Frühe Keimschlauchbildung pro Zelle quantifizieren."
+    },
+    {
+      "key": "Quantify plaque number and size.",
+      "source": "Quantify plaque number and size.",
+      "source_sha256": "c0d42dc824bba34169d53fe155c1c39c169c1b5ea329971b075e99254261237c",
+      "table": "ui",
+      "translation": "Anzahl und Größe von Plaques quantifizieren."
+    },
+    {
+      "key": "Quantify uptake by phagocytes.",
+      "source": "Quantify uptake by phagocytes.",
+      "source_sha256": "e1fe4d3def4e5e7b039bbbf1c6eb18327b115e6d0fbd0ca8a14f5995fe6993be",
+      "table": "ui",
+      "translation": "Aufnahme durch Phagozyten quantifizieren."
+    },
+    {
+      "key": "The cytosol is the unstructured aqueous phase of the cytoplasm excluding organelles, membranes, and insoluble cytoskeletal components.",
+      "source": "The cytosol is the unstructured aqueous phase of the cytoplasm excluding organelles, membranes, and insoluble cytoskeletal components.",
+      "source_sha256": "814f3c80504529adf51b464e59102ded816cb4680adf5a1b3ac734466a418953",
+      "table": "ui",
+      "translation": "Das Zytosol ist die unstrukturierte wässrige Phase des Zytoplasmas ohne Organellen, Membranen und unlösliche Zytoskelettbestandteile."
+    },
+    {
+      "key": "The membrane label uses the mitochondrial outline; it has no separate shape.",
+      "source": "The membrane label uses the mitochondrial outline; it has no separate shape.",
+      "source_sha256": "1054435f12271962099712c6459c83aba484d64a3c340acdd9417aaa1f3d12e8",
+      "table": "ui",
+      "translation": "Die Membranbezeichnung verwendet den Umriss des Mitochondriums; sie hat keine eigene Form."
+    },
+    {
+      "key": "These LOPIT classes share one anatomical outline; the diagram does not distinguish their protein populations.",
+      "source": "These LOPIT classes share one anatomical outline; the diagram does not distinguish their protein populations.",
+      "source_sha256": "8f055515a0024bb91671b0c52b7c8c4c60ab9c332ea4030a9313e8ee00b26671",
+      "table": "ui",
+      "translation": "Diese LOPIT-Klassen teilen sich einen anatomischen Umriss; das Diagramm unterscheidet ihre Proteinpopulationen nicht."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of organism module labels/readouts, numbered hyperLOPIT classes, compartment vocabulary and diagram instructions. Natural same-spelling terms have explicit complete vocabulary rows. No native-speaker sign-off; longer introductions and organelle descriptions are a separate outstanding batch.",
+  "schema": 1
+}

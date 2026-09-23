@@ -659,7 +659,7 @@ def test_finish_handler_still_calls_back_when_the_dialog_is_already_gone(
 # "you are offline" and never say what to do instead.
 
 
-def test_offline_failure_names_the_network_and_points_at_the_synthetic_demos():
+def test_offline_failure_names_the_network_and_points_at_local_test_data():
     """A ConnectionError must not reach the user as a urllib3 dump."""
     import requests
 
@@ -672,7 +672,8 @@ def test_offline_failure_names_the_network_and_points_at_the_synthetic_demos():
 
     assert "huggingface.co" in message
     assert "internet connection" in message
-    assert "synthetic" in message and "no network" in message
+    assert "downloaded test dataset" in message and "offline" in message
+    assert "demo" not in message.lower()
     assert "urllib3" not in message and "MaxRetryError" not in message
 
 
@@ -681,7 +682,7 @@ def test_missing_huggingface_hub_says_which_package_and_how_to_install_it():
         ImportError("huggingface_hub is not installed: No module named "
                     "'huggingface_hub'"))
     assert "pip install huggingface_hub" in message
-    assert "synthetic" in message
+    assert "Load test data" in message
 
 
 def test_a_truncated_transfer_says_nothing_partial_was_kept():
@@ -711,7 +712,7 @@ def test_explain_survives_an_environment_without_requests(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", _no_requests)
     message = hf.explain_download_failure(RuntimeError("some transport failure"))
     assert "some transport failure" in message
-    assert "synthetic" in message
+    assert "Load test data" in message
 
 
 def test_list_files_names_the_missing_package(monkeypatch):

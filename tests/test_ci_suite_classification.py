@@ -335,21 +335,35 @@ def test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail():
     ]
 
 
-def test_file_shards_are_stable_disjoint_and_cover_every_test_module():
+def _file_shard_counts():
+    return sorted({2, QT_SHARD_COUNT, int(_qt_job()["with"]["file_shard_count"])})
+
+
+def _files_in_shards(files, count):
+    shards: dict[int, set[Path]] = {index: set() for index in range(count)}
+    for path in files:
+        shards[_ci_file_shard(path, count)].add(path)
+    return list(shards.values())
+
+
+def test_file_shards_are_disjoint_and_cover_every_test_module():
     files = sorted((ROOT / "tests").rglob("test_*.py"))
     qt_files = {path for path in files if "qt" in _automatic_ci_markers(path)}
     assert qt_files
 
-    for count in sorted({2, QT_SHARD_COUNT, int(_qt_job()["with"]["file_shard_count"])}):
-        shards = [
-            {path for path in files if _ci_file_shard(path, count) == index}
-            for index in range(count)
-        ]
+    for count in _file_shard_counts():
+        shards = _files_in_shards(files, count)
         # Every file in exactly one shard: none twice, none dropped.
         assert sum(len(shard) for shard in shards) == len(files)
         assert set().union(*shards) == set(files)
         # And every shard carries Qt files, so none of the matrix is idle.
         assert all(shard & qt_files for shard in shards)
+
+
+def test_file_shards_are_stable_across_absolute_and_relative_paths():
+    files = sorted((ROOT / "tests").rglob("test_*.py"))
+    assert files
+    for count in _file_shard_counts():
         assert all(
             _ci_file_shard(path, count)
             == _ci_file_shard(path.relative_to(ROOT), count)

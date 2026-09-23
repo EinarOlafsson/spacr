@@ -1,0 +1,479 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "The ONE folder every example dataset unpacks into.",
+      "label": "spacr.example_archives.example_plate_folder#0",
+      "source": "The ONE folder every example dataset unpacks into.",
+      "source_sha256": "9646738cee9945bfd32ff9693fac0538cac036fff04ecee571ffa02c21c3b86d",
+      "translation": "Der gemeinsame Ordner, in den alle Beispieldatensätze entpackt werden."
+    },
+    {
+      "context": "``~/.cache/spacr/example_data/plate1`` -- a real spaCR plate directory, holding whichever of ``merged/``, ``data/``, ``measurements/`` and ``settings/`` have been downloaded.",
+      "label": "spacr.example_archives.example_plate_folder#1",
+      "source": "``~/.cache/spacr/example_data/plate1`` -- a real spaCR plate directory, holding whichever of ``merged/``, ``data/``, ``measurements/`` and ``settings/`` have been downloaded.",
+      "source_sha256": "f0327f68d496ee33de1391cb7e13ba0ae1dba36c0952c9783147115d8c1ba0b8",
+      "translation": "``~/.cache/spacr/example_data/plate1`` -- ein echtes spaCR-Plattenverzeichnis mit den bereits heruntergeladenen Unterordnern ``merged/``, ``data/``, ``measurements/`` und ``settings/``."
+    },
+    {
+      "context": "One folder because the sets are used together. `data/` is the extracted image regions and `measurements/measurements.db` is what indexes them; downloading them into separate trees meant the two halves of one plate could not be opened at once, and the user had to know which download had put what where. Each archive's members are relative to this folder, so the three unpack into it side by side and compose into a plate that Measure, Annotate and Classify can all be pointed at.",
+      "label": "spacr.example_archives.example_plate_folder#2",
+      "source": "ONE FOLDER BECAUSE THE SETS ARE USED TOGETHER. `data/` is the crops and `measurements/measurements.db` is what indexes them; downloading them into separate trees meant the two halves of one plate could not be opened at once, and the user had to know which download had put what where. Each archive's members are relative to this folder, so the three unpack into it side by side and compose into a plate that Measure, Annotate and Classify can all be pointed at.",
+      "source_sha256": "f313b64a4f16fa3e1f45c9e0e51f1a4b8d9b4224c6d484525256774b4cd5d22c",
+      "translation": "Ein gemeinsamer Ordner ist nötig, weil die Datensätze zusammen verwendet werden. `data/` enthält die Bildausschnitte; `measurements/measurements.db` verzeichnet sie. Beim Herunterladen in getrennte Verzeichnisbäume ließen sich die beiden Teile derselben Mikrotiterplatte nicht gemeinsam öffnen, und die Nutzer mussten wissen, welcher Download welche Dateien wohin geschrieben hatte. Die Einträge jedes Archivs sind relativ zu diesem Ordner angegeben. So werden die drei Archive nebeneinander darin entpackt und ergeben eine Platte, die Measure, Annotate und Classify gemeinsam verwenden können."
+    },
+    {
+      "context": "The assay examples are not stages of this laboratory microplate and each has a folder of its own beside it; see :func:`example_set_folder`.",
+      "label": "spacr.example_archives.example_plate_folder#3",
+      "source": "The assay examples are not stages of this plate and each has a folder of its own beside it; see :func:`example_set_folder`.",
+      "source_sha256": "c83131edf11aa53c1454339f198d00210aec884c47404843352309bdeed50535",
+      "translation": "Die Assay-Beispiele sind keine Verarbeitungsstufen dieser Mikrotiterplatte und erhalten jeweils einen eigenen Ordner daneben; siehe :func:`example_set_folder`."
+    },
+    {
+      "context": "The set called ``key``.",
+      "label": "spacr.example_archives.example_set#0",
+      "source": "The set called ``key``.",
+      "source_sha256": "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
+      "translation": "Der Datensatz mit dem Namen ``key``."
+    },
+    {
+      "context": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` or ``invasion``.",
+      "label": "spacr.example_archives.example_set#1",
+      "source": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` or ``invasion``.",
+      "source_sha256": "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
+      "translation": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` oder ``invasion``."
+    },
+    {
+      "context": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",
+      "label": "spacr.example_archives.example_set#2",
+      "source": "naming the keys that do exist. A typo that returned ``None`` would download nothing and report success, which is the one outcome a download command must never produce.",
+      "source_sha256": "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68",
+      "translation": "mit den tatsächlich verfügbaren Schlüsseln. Würde ein Tippfehler lediglich ``None`` zurückgeben, würde nichts heruntergeladen und trotzdem Erfolg gemeldet. Genau das darf ein Download-Befehl niemals tun."
+    },
+    {
+      "context": "Where the set called ``key`` unpacks: its folder beside the plate.",
+      "label": "spacr.example_archives.example_set_folder#0",
+      "source": "Where the set called ``key`` unpacks: its folder beside the plate.",
+      "source_sha256": "70e988c3adc6dd11e0e2f3d35a36b16273dd21e3b7450a9db93cd707a7477c58",
+      "translation": "Der Zielordner des Datensatzes ``key`` neben dem gemeinsamen Plattenordner."
+    },
+    {
+      "context": "an :data:`EXAMPLE_SETS` key.",
+      "label": "spacr.example_archives.example_set_folder#1",
+      "source": "an :data:`EXAMPLE_SETS` key.",
+      "source_sha256": "12fb45e3866852f8638dcbf540d63931741d2a17268087735c41e47933cbf218",
+      "translation": "ein Schlüssel aus :data:`EXAMPLE_SETS`."
+    },
+    {
+      "context": "``~/.cache/spacr/example_data/<folder>``. Not created here.",
+      "label": "spacr.example_archives.example_set_folder#2",
+      "source": "``~/.cache/spacr/example_data/<folder>``. Not created here.",
+      "source_sha256": "3a458a252220826bea4c4ac3e522688ff201248d0f304650d12b93e91eac3eef",
+      "translation": "``~/.cache/spacr/example_data/<folder>``. Der Ordner wird hier nicht angelegt."
+    },
+    {
+      "context": "as :func:`example_set` does.",
+      "label": "spacr.example_archives.example_set_folder#3",
+      "source": "as :func:`example_set` does.",
+      "source_sha256": "ff1b6b38baf10d0bfbde7e2e02e4b72f59e78de426583603cb88bcb449c22922",
+      "translation": "wie bei :func:`example_set`."
+    },
+    {
+      "context": "One way the same fields were written, and how Import reads it back.",
+      "label": "spacr.import_examples.ImportVariant#0",
+      "source": "One way the same fields were written, and how Import reads it back.",
+      "source_sha256": "7972398ddedee853c6432b1b8e40944da506d742292390e4ef0a9283340a2caa",
+      "translation": "Eine Speicherform derselben Bildfelder und die zugehörige Einlesemethode von Import."
+    },
+    {
+      "context": "the folder under ``variants/`` and the chooser's route key.",
+      "label": "spacr.import_examples.ImportVariant#1",
+      "source": "the folder under ``variants/`` and the chooser's route key.",
+      "source_sha256": "1fb18899628a8ef23dfb01a8461c6ee50e64dfde6ab1b7a89d62027718eee41f",
+      "translation": "der Ordner unter ``variants/`` und der Routenschlüssel des Auswahldialogs."
+    },
+    {
+      "context": "the button text.",
+      "label": "spacr.import_examples.ImportVariant#2",
+      "source": "the button text.",
+      "source_sha256": "cb57c4f5cfbf88bfd70d3907cd8590f3e197514ee5f21e416d949e88ea72d2c6",
+      "translation": "der Schaltflächentext."
+    },
+    {
+      "context": "``'import'`` for the Import application view itself (images, masks and a measurement table), ``'convert'`` for the Format Converter (images only).",
+      "label": "spacr.import_examples.ImportVariant#3",
+      "source": "``'import'`` for the Import screen itself (images, masks and a measurement table), ``'convert'`` for the Format Converter (images only).",
+      "source_sha256": "fc0c904f6ea9a9968cb3a2cad8c5b6415fc038064220ecc8fc57850f30dc584a",
+      "translation": "``'import'`` für die Import-Ansicht selbst (Bilder, Masken und eine Messtabelle), ``'convert'`` für den Format Converter (nur Bilder)."
+    },
+    {
+      "context": "the filename convention to parse by, or ``'auto'`` for folders and tokens.",
+      "label": "spacr.import_examples.ImportVariant#4",
+      "source": "the filename convention to parse by, or ``'auto'`` for folders and tokens.",
+      "source_sha256": "4ca859e35081d932e0662d315fc00140999177805dac13af71b3b9bba483c875",
+      "translation": "die Konvention zum Auswerten der Dateinamen oder ``'auto'`` für Ordner und Namenstoken."
+    },
+    {
+      "context": "the pattern, for ``metadata_type='custom'``.",
+      "label": "spacr.import_examples.ImportVariant#5",
+      "source": "the pattern, for ``metadata_type='custom'``.",
+      "source_sha256": "9e4353c4a0f0bcd12b63a634e31e1d2aed784e2572af1441344eac99cd049957",
+      "translation": "das Muster für ``metadata_type='custom'``."
+    },
+    {
+      "context": "what the image files are, in words.",
+      "label": "spacr.import_examples.ImportVariant#6",
+      "source": "what the image files are, in words.",
+      "source_sha256": "4c91431cb9d4eba6feec5a7e2d0ca7bc8bafa8abdb08ec3d84b8cd1b8f5c3fbc",
+      "translation": "das Format der Bilddateien, in Worten beschrieben."
+    },
+    {
+      "context": "one image path from the variant, relative to its ``plate1`` folder, so the chooser can show what the names look like before anything is downloaded.",
+      "label": "spacr.import_examples.ImportVariant#7",
+      "source": "one image path from the variant, relative to its ``plate1`` folder, so the chooser can show what the names look like before anything is downloaded.",
+      "source_sha256": "6813327199c220d8f59d650f0a774cf7eecaeb4a67ee4c15f46ac53a21b9400a",
+      "translation": "ein Bildpfad dieser Variante, relativ zu ihrem Ordner ``plate1``. Damit zeigt der Auswahldialog die Namensstruktur bereits vor dem Herunterladen."
+    },
+    {
+      "context": "anything the reader should know about this variant.",
+      "label": "spacr.import_examples.ImportVariant#8",
+      "source": "anything the reader should know about this variant.",
+      "source_sha256": "411f8b2d00eae352041dc3d6643a04f9fd816955cbb06f1155cf329a5da40e46",
+      "translation": "zusätzliche Hinweise zu dieser Variante."
+    },
+    {
+      "context": "The paragraph the chooser shows on hover.",
+      "label": "spacr.import_examples.ImportVariant.description#0",
+      "source": "The paragraph the chooser shows on hover.",
+      "source_sha256": "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641",
+      "translation": "Der Absatz, den der Auswahldialog beim Darüberfahren mit der Maus anzeigt."
+    },
+    {
+      "context": "Where the unpacked set lives.",
+      "label": "spacr.import_examples.import_example_folder#0",
+      "source": "Where the unpacked set lives.",
+      "source_sha256": "015dc808999863f748a5ea8823bc795749f39bfc1f9825059bc9f3424287c0ea",
+      "translation": "Der Speicherort des entpackten Datensatzes."
+    },
+    {
+      "context": "the shared example plate the archive unpacks into; :func:`spacr.example_archives.example_plate_folder` when omitted.",
+      "label": "spacr.import_examples.import_example_folder#1",
+      "source": "the shared example plate the archive unpacks into; :func:`spacr.example_archives.example_plate_folder` when omitted.",
+      "source_sha256": "b8068ec4e1d91ebb95a0da8f8146ef4104cef54ae6c9f74594a93638dac75473",
+      "translation": "der gemeinsame Beispielplattenordner, in den das Archiv entpackt wird; ohne Angabe wird :func:`spacr.example_archives.example_plate_folder` verwendet."
+    },
+    {
+      "context": "``<plate folder>/import_example``. Not created here.",
+      "label": "spacr.import_examples.import_example_folder#2",
+      "source": "``<plate folder>/import_example``. Not created here.",
+      "source_sha256": "77c7435604a4540c3e50e9e18d3c24f4a088ef9fa264c8eb9bf3533f9d825a69",
+      "translation": "``<plate folder>/import_example``. Der Ordner wird hier nicht angelegt."
+    },
+    {
+      "context": "The variant called ``key``.",
+      "label": "spacr.import_examples.import_variant#0",
+      "source": "The variant called ``key``.",
+      "source_sha256": "fd9459f1344e12bce28579a051d3058a67e90ff90ed3ef3c7dc60b5dc3d83c5b",
+      "translation": "Die Variante mit dem Namen ``key``."
+    },
+    {
+      "context": "a key from :data:`IMPORT_VARIANTS`.",
+      "label": "spacr.import_examples.import_variant#1",
+      "source": "a key from :data:`IMPORT_VARIANTS`.",
+      "source_sha256": "eafc0f01e4afece086eb512cbd64884ae3f6f508f821f38d5163d29453df5018",
+      "translation": "ein Schlüssel aus :data:`IMPORT_VARIANTS`."
+    },
+    {
+      "context": "naming the keys that exist.",
+      "label": "spacr.import_examples.import_variant#2",
+      "source": "naming the keys that exist.",
+      "source_sha256": "f6cf36cba5863961b98bf52e767773c5561b1bc2fad4b919d57da489243a76a1",
+      "translation": "mit den tatsächlich verfügbaren Schlüsseln."
+    },
+    {
+      "context": "Whether a complete copy of the set -- or of one variant -- is here.",
+      "label": "spacr.import_examples.is_present#0",
+      "source": "Whether a complete copy of the set -- or of one variant -- is here.",
+      "source_sha256": "0a6e1300997ba56c78cda480ff7d67e1122e9842d3128b2b9270868a82b46612",
+      "translation": "Ob eine vollständige Kopie des Datensatzes oder einer einzelnen Variante vorliegt."
+    },
+    {
+      "context": "the unpacked ``import_example`` folder.",
+      "label": "spacr.import_examples.is_present#1",
+      "source": "the unpacked ``import_example`` folder.",
+      "source_sha256": "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+      "translation": "der entpackte Ordner ``import_example``."
+    },
+    {
+      "context": "one variant, or every variant when omitted.",
+      "label": "spacr.import_examples.is_present#2",
+      "source": "one variant, or every variant when omitted.",
+      "source_sha256": "8119b0a2dd82b55cd6e8f63596bb4a0a14494c788a3f013bb3e9efbb0c9b4b3b",
+      "translation": "eine Variante; ohne Angabe werden alle Varianten geprüft."
+    },
+    {
+      "context": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
+      "label": "spacr.import_examples.is_present#3",
+      "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
+      "source_sha256": "53aa5915d0a3b623a973f0c39bd2f7706ea02be2aaa5f554c061a6cf3b1b6560",
+      "translation": "``True`` nur dann, wenn das Manifest vorhanden ist und jede darin für die betreffende Variante beziehungsweise die betreffenden Varianten aufgeführte Datei auf dem Datenträger liegt. Ein nur teilweise entpackter Datensatz gilt als fehlend und wird deshalb erneut heruntergeladen."
+    },
+    {
+      "context": "Every row of the set's ``manifest.csv``.",
+      "label": "spacr.import_examples.manifest_rows#0",
+      "source": "Every row of the set's ``manifest.csv``.",
+      "source_sha256": "7b8b1b0605c93dcd593965f7294364fa99c9943d1b1f730503b16ad09e851048",
+      "translation": "Alle Zeilen der Datei ``manifest.csv`` des Datensatzes."
+    },
+    {
+      "context": "the unpacked ``import_example`` folder.",
+      "label": "spacr.import_examples.manifest_rows#1",
+      "source": "the unpacked ``import_example`` folder.",
+      "source_sha256": "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+      "translation": "der entpackte Ordner ``import_example``."
+    },
+    {
+      "context": "the rows, or ``[]`` when there is no readable manifest.",
+      "label": "spacr.import_examples.manifest_rows#2",
+      "source": "the rows, or ``[]`` when there is no readable manifest.",
+      "source_sha256": "60261846398d8ae5fc98af20e6ad423f6ba76470a660133123c9ea4e168555f6",
+      "translation": "die Zeilen oder ``[]``, wenn kein lesbares Manifest vorliegt."
+    },
+    {
+      "context": "What the chooser fills in for one variant.",
+      "label": "spacr.import_examples.variant_inputs#0",
+      "source": "What the chooser fills in for one variant.",
+      "source_sha256": "68b5521934d083c8ff341c2539c629882dc413307c7d78ff55220674c35f6540",
+      "translation": "Die Werte, die der Auswahldialog für eine Variante einträgt."
+    },
+    {
+      "context": "the unpacked ``import_example`` folder.",
+      "label": "spacr.import_examples.variant_inputs#1",
+      "source": "the unpacked ``import_example`` folder.",
+      "source_sha256": "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+      "translation": "der entpackte Ordner ``import_example``."
+    },
+    {
+      "context": "the variant.",
+      "label": "spacr.import_examples.variant_inputs#2",
+      "source": "the variant.",
+      "source_sha256": "b5a1938e8f2a2e387c414a0180327a16196a3b46bf19fda63f03380dadb30d09",
+      "translation": "die Variante."
+    },
+    {
+      "context": "``images`` (the ``plate1`` folder), ``masks`` (``{object: folder}`` for the import route, empty for the converter), ``measurements`` (the table, or ``''``), ``metadata_type`` and ``custom_regex``.",
+      "label": "spacr.import_examples.variant_inputs#3",
+      "source": "``images`` (the ``plate1`` folder), ``masks`` (``{object: folder}`` for the import route, empty for the converter), ``measurements`` (the table, or ``''``), ``metadata_type`` and ``custom_regex``.",
+      "source_sha256": "abd2213f1467c5d6aa9418bdd61f5f970a552a64263d36a78f0dea983630c6de",
+      "translation": "``images`` (der Ordner ``plate1``), ``masks`` (``{object: folder}`` für die Import-Route, leer für den Konverter), ``measurements`` (die Tabelle oder ``''``), ``metadata_type`` und ``custom_regex``."
+    },
+    {
+      "context": "Trace every spaCR Python function and method at DEBUG level.",
+      "label": "spacr.logging_util.enable_function_trace#0",
+      "source": "Trace every spaCR Python function and method at DEBUG level.",
+      "source_sha256": "e387dfbb4cbc4de30cd81a7374c8241a97004315bc3b65229ff9cfaec4972ff4",
+      "translation": "Protokolliert Aufrufe jeder spaCR-Python-Funktion und -Methode auf der Stufe DEBUG."
+    },
+    {
+      "context": "The hook is installed for the calling thread, all future Python threads, and—on Python 3.12+—threads that already exist.  Calls outside the spaCR package are ignored.  Repeated calls are idempotent.",
+      "label": "spacr.logging_util.enable_function_trace#1",
+      "source": "The hook is installed for the calling thread, all future Python threads, and—on Python 3.12+—threads that already exist.  Calls outside the spaCR package are ignored.  Repeated calls are idempotent.",
+      "source_sha256": "3b7fdaed4b932de593cccddbe72b2b9175119d89905f8a7e2532de3145c9bc4b",
+      "translation": "Der Hook wird für den aufrufenden Thread, alle zukünftigen Python-Threads und unter Python 3.12+ auch für bereits vorhandene Threads eingerichtet. Aufrufe außerhalb des spaCR-Pakets werden ignoriert. Wiederholte Aufrufe sind idempotent."
+    },
+    {
+      "context": "This is intentionally verbose and has measurable overhead.  With it installed, the Home application view took 7.4 s to become usable, against 4.0-4.2 s without it.  Nothing in the GUI installs it, and the *Verbose logging* preference does not either.  Normal operation has no profile hook installed.",
+      "label": "spacr.logging_util.enable_function_trace#2",
+      "source": "This is intentionally verbose and has measurable overhead.  With it installed, the Home screen took 7.4 s to become usable, against 4.0-4.2 s without it.  Nothing in the GUI installs it, and the *Verbose logging* preference does not either.  Normal operation has no profile hook installed.",
+      "source_sha256": "6e879b390946643068fc47b60d7173c79b6b342c5d3b0aa4ae8e2bce6ed2026c",
+      "translation": "Diese Aufrufprotokollierung ist absichtlich ausführlich und verursacht messbaren Mehraufwand. Mit installiertem Hook benötigte die Home-Ansicht 7.4 s, bis sie bedienbar war, ohne ihn 4.0-4.2 s. Weder die GUI noch die Einstellung *Verbose logging* installiert diesen Hook. Im normalen Betrieb ist kein Profiling-Hook eingerichtet."
+    },
+    {
+      "context": "Return whether spaCR function-level DEBUG tracing is active.",
+      "label": "spacr.logging_util.function_trace_enabled#0",
+      "source": "Return whether spaCR function-level DEBUG tracing is active.",
+      "source_sha256": "2881c61d02416f9c16941c932112052b2c554c458e5f9dbd621eff275a1fb2f9",
+      "translation": "Gibt an, ob die DEBUG-Aufrufprotokollierung für spaCR-Funktionen aktiv ist."
+    },
+    {
+      "context": "The trace is controlled by :func:`enable_function_trace` and :func:`disable_function_trace`.  The GUI's *Verbose logging* preference does not install it.  It never records arguments or return values, which avoids copying large arrays and keeps API structured-data names or filesystem metadata out of the diagnostic log.",
+      "label": "spacr.logging_util.function_trace_enabled#1",
+      "source": "The trace is controlled by :func:`enable_function_trace` and :func:`disable_function_trace`.  The GUI's *Verbose logging* preference does not install it.  It never records arguments or return values, which avoids copying large arrays and keeps API keys or filesystem metadata out of the diagnostic log.",
+      "source_sha256": "f1d47f968517b35b2303bb2dff82d08901f40c8129dbc5c4a6ad1345fec5dbc5",
+      "translation": "Sie wird durch :func:`enable_function_trace` und :func:`disable_function_trace` gesteuert. Die GUI-Einstellung *Verbose logging* richtet sie nicht ein. Argumente und Rückgabewerte werden niemals aufgezeichnet. Das vermeidet Kopien großer Arrays und hält API-Schlüssel sowie Dateisystem-Metadaten aus dem Diagnoseprotokoll heraus."
+    },
+    {
+      "context": "One row of the FEATURES table: one field, and the files that make it.",
+      "label": "spacr.measure.FieldRow#0",
+      "source": "One row of the FEATURES table: one field, and the files that make it.",
+      "source_sha256": "e285ea0c0282f8eb3646bf127889deef5ef335deabe941283b6d9f8c470464bd",
+      "translation": "Eine Zeile der FEATURES-Tabelle: ein Bildfeld und die zugehörigen Dateien."
+    },
+    {
+      "context": "A row becomes exactly one ``merged/<stem>.npy``, so it is also one field in the measurements database.",
+      "label": "spacr.measure.FieldRow#1",
+      "source": "A row becomes exactly one ``merged/<stem>.npy``, so it is also one field in the measurements database.",
+      "source_sha256": "29c2da29f60a19b7b6f272893f6cdd6559c6f8ee9953d8715500b17786a61b29",
+      "translation": "Aus jeder Zeile entsteht genau eine Datei ``merged/<stem>.npy``. Damit entspricht sie auch genau einem Bildfeld in der Messdatenbank."
+    },
+    {
+      "context": "what the row is called in the table's first column, taken from the filenames. It is not the database identity; :attr:`well` and :attr:`field` are.",
+      "label": "spacr.measure.FieldRow#2",
+      "source": "what the row is called in the table's first column, taken from the filenames. It is not the database identity; :attr:`well` and :attr:`field` are.",
+      "source_sha256": "8e652a624a52dff6670b30962280568ca048b83850e0766ea8fdd3a2b5d959be",
+      "translation": "die aus den Dateinamen abgeleitete Bezeichnung in der ersten Tabellenspalte. Sie ist nicht die Datenbankkennung; diese ergibt sich aus :attr:`well` und :attr:`field`."
+    },
+    {
+      "context": "``channel index -> source path``. The indices are positions on the merged array's image data channel axis, counted from zero.",
+      "label": "spacr.measure.FieldRow#3",
+      "source": "``channel index -> source path``. The indices are positions on the merged array's channel axis, counted from zero.",
+      "source_sha256": "4e7561d7ea8c79b3eea2c96caa7d051b7a54adade5bb389d06fb921842ec0504",
+      "translation": "``channel index -> source path``. Die Indizes sind die ab null gezählten Positionen auf der Kanalachse des zusammengeführten Arrays."
+    },
+    {
+      "context": "``role -> source path``, for the roles this row supplies. The same mask file may appear in several rows, which is how one drawn mask is measured against several acquisitions.",
+      "label": "spacr.measure.FieldRow#4",
+      "source": "``role -> source path``, for the roles this row supplies. The same mask file may appear in several rows, which is how one drawn mask is measured against several acquisitions.",
+      "source_sha256": "76540453cab1d4dc6de41d0a5f3c86a9e2f25b2d99a880a7052fd1de05197942",
+      "translation": "``role -> source path`` für die Maskenrollen dieser Zeile. Dieselbe Maskendatei kann in mehreren Zeilen vorkommen, damit eine gezeichnete Maske für mehrere Aufnahmen ausgewertet werden kann."
+    },
+    {
+      "context": "the microplate sample position id this microscope field of view is filed under. Hand-drawn microscope fields of view did not come from a laboratory microplate, so they share one microplate sample position by default and the table shows it rather than inventing a different one per row.",
+      "label": "spacr.measure.FieldRow#5",
+      "source": "the well id this field is filed under. Hand-drawn fields did not come from a plate, so they share one well by default and the table shows it rather than inventing a different one per row.",
+      "source_sha256": "902fd16410a6da53745bc084242158c23b90ee8b2084c283644c9e2fc0cc8fbe",
+      "translation": "die Kennung des Wells der Mikrotiterplatte, dem dieses Bildfeld zugeordnet ist. Handgezeichnete Bildfelder stammen nicht von einer Mikrotiterplatte und teilen deshalb standardmäßig ein Well. Die Tabelle zeigt dies an, statt für jede Zeile ein anderes Well zu erfinden."
+    },
+    {
+      "context": "the microscope field of view number within that microplate sample position, unique per row.",
+      "label": "spacr.measure.FieldRow#6",
+      "source": "the field number within that well, unique per row.",
+      "source_sha256": "05f6d02f40532009ba9db62ec41b3981bf13faab90ea6d6fe500bf3d5ef3563a",
+      "translation": "die innerhalb dieses Wells je Zeile eindeutige Bildfeldnummer."
+    },
+    {
+      "context": "The ``plate_well_field`` name this row is written and measured as.",
+      "label": "spacr.measure.FieldRow.stem#0",
+      "source": "The ``plate_well_field`` name this row is written and measured as.",
+      "source_sha256": "c0e4518cf1b75d9b85222cadd1533ec884bdb4e593a00fc4d67a7647f2ae2774",
+      "translation": "Der Name ``plate_well_field``, unter dem diese Zeile gespeichert und gemessen wird."
+    },
+    {
+      "context": "the plate name the whole table carries.",
+      "label": "spacr.measure.FieldRow.stem#1",
+      "source": "the plate name the whole table carries.",
+      "source_sha256": "ef2f7113495648da6adc2ac78b33aa1404926b611e8135c3be898530f5af643a",
+      "translation": "der Plattenname der gesamten Tabelle."
+    },
+    {
+      "context": "the stem, which :func:`spacr.schema.parse_field_stem` reads back into the laboratory microplate, row, column and microscope field of view the database is keyed by.",
+      "label": "spacr.measure.FieldRow.stem#2",
+      "source": "the stem, which :func:`spacr.schema.parse_field_stem` reads back into the plate, row, column and field the database is keyed by.",
+      "source_sha256": "462be973d4b54d626584decdeeabe1fcd6c5dadb104e19977ed06795af1d48de",
+      "translation": "der Dateistamm, aus dem :func:`spacr.schema.parse_field_stem` die Mikrotiterplatte, Zeile, Spalte und das Bildfeld wiederherstellt, die gemeinsam den Datenbankschlüssel bilden."
+    },
+    {
+      "context": "Rows are microscope fields of view, columns are image data channels and mask types.",
+      "label": "spacr.measure.FieldTable#0",
+      "source": "Rows are fields, columns are channels and mask types.",
+      "source_sha256": "bebdf9806bbffab3f1d3d341aa9ce60377bae00865ffc8d5e5dc003a2db03a23",
+      "translation": "Zeilen entsprechen Bildfeldern, Spalten den Kanälen und Maskentypen."
+    },
+    {
+      "context": "This is the thing the FEATURES window edits and the only input :func:`measure_from_field_table` needs. It is deliberately Qt-free: the window drives it, and the tests drive it without a window.",
+      "label": "spacr.measure.FieldTable#1",
+      "source": "This is the thing the FEATURES window edits and the only input :func:`measure_from_field_table` needs. It is deliberately Qt-free: the window drives it, and the tests drive it without a window.",
+      "source_sha256": "487250a6291c65e15d37eaa5cd6671a4187329e09b0b0eafc60c94e0875ca806",
+      "translation": "Dieses Datenmodell wird im FEATURES-Fenster bearbeitet und ist die einzige benötigte Eingabe für :func:`measure_from_field_table`. Es ist bewusst unabhängig von Qt: Das Fenster und die Tests ohne Fenster arbeiten mit demselben Modell."
+    },
+    {
+      "context": "one :class:`FieldRow` per field, in table order.",
+      "label": "spacr.measure.FieldTable#2",
+      "source": "one :class:`FieldRow` per field, in table order.",
+      "source_sha256": "179443f0cc450ea6a75363357fc21eb52e8bfbd3516cc2595132d9dbf0b5eb92",
+      "translation": "eine :class:`FieldRow` pro Bildfeld in Tabellenreihenfolge."
+    },
+    {
+      "context": "how many channel columns the table has.",
+      "label": "spacr.measure.FieldTable#3",
+      "source": "how many channel columns the table has.",
+      "source_sha256": "403a03f62afb9df522313eec5d0a3e7d9add18ee2ff54ec6d2fa0d936073de4b",
+      "translation": "die Anzahl der Kanalspalten der Tabelle."
+    },
+    {
+      "context": "which mask columns it has, in :data:`spacr.crops.MASK_PLANE_ORDER` order -- which is the order the image layers are stacked in, so the two cannot drift.",
+      "label": "spacr.measure.FieldTable#4",
+      "source": "which mask columns it has, in :data:`spacr.crops.MASK_PLANE_ORDER` order -- which is the order the planes are stacked in, so the two cannot drift.",
+      "source_sha256": "1f68cbb044f6340f5c7a1defde3fc6913a9f3e56cff09e3c5d21ee43cd47a903",
+      "translation": "die vorhandenen Maskenspalten in der Reihenfolge von :data:`spacr.crops.MASK_PLANE_ORDER`. In derselben Reihenfolge werden die Bildebenen gestapelt, sodass die Zuordnungen nicht auseinanderlaufen können."
+    },
+    {
+      "context": "the laboratory microplate name every row's stem starts with. It names where the files came from rather than claiming a laboratory microplate that was never run.",
+      "label": "spacr.measure.FieldTable#5",
+      "source": "the plate name every row's stem starts with. It names where the files came from rather than claiming a plate that was never run.",
+      "source_sha256": "2b9b65b31f11a9963a97ddc9cc1d54d95e9c7660dfcd103983559d4c465727b7",
+      "translation": "der Plattenname, mit dem der Dateistamm jeder Zeile beginnt. Er bezeichnet die Herkunft der Dateien, statt eine Mikrotiterplatte zu behaupten, die nie verwendet wurde."
+    },
+    {
+      "context": "which channel token owns which channel column, by position: ``channel_tokens[i]`` is the token that column ``i`` means. the table remembers this because the table outlives the drop. The ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property of a SET of tokens, and a user fills this table one microscope field of view at a time, so without a memory the second drop would rank its own files from scratch and put ``C2`` in column 0 beside the first drop's ``C1``. Empty means no column means any particular token yet -- every cell was filled by browsing rather than by the regex.",
+      "label": "spacr.measure.FieldTable#6",
+      "source": "which channel token owns which channel column, by position: ``channel_tokens[i]`` is the token that column ``i`` means. THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property of a SET of tokens, and a user fills this table one field at a time, so without a memory the second drop would rank its own files from scratch and put ``C2`` in column 0 beside the first drop's ``C1``. Empty means no column means any particular token yet -- every cell was filled by browsing rather than by the regex.",
+      "source_sha256": "d76f12e476201e1f72a80dc7d2809f3a23b6070801726d77dd0444005ed196d4",
+      "translation": "die Zuordnung der Kanal-Namenstoken zu den Kanalspalten nach Position: ``channel_tokens[i]`` ist das Token, für das die Spalte ``i`` steht. Die Tabelle merkt sich diese Zuordnung über einzelne Ablegevorgänge hinaus. Die Zuordnung von ``C1``/``C2`` zu den Spalten 0 und 1 ergibt sich aus einer Menge von Token, während die Tabelle Bildfeld für Bildfeld gefüllt wird. Ohne gespeicherte Zuordnung würde der zweite Ablegevorgang seine Dateien neu einordnen und ``C2`` in Spalte 0 neben ``C1`` aus dem ersten Vorgang setzen. Eine leere Zuordnung bedeutet, dass noch keine Spalte einem bestimmten Token entspricht: Alle Zellen wurden über die Dateiauswahl und nicht über den regulären Ausdruck gefüllt."
+    },
+    {
+      "context": "Whether the table is complete enough to measure.",
+      "label": "spacr.measure.FieldTable.is_ready#0",
+      "source": "Whether the table is complete enough to measure.",
+      "source_sha256": "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286",
+      "translation": "Ob die Tabelle vollständig genug für eine Messung ist."
+    },
+    {
+      "context": "``role -> plane index`` on the merged array this table would write.",
+      "label": "spacr.measure.FieldTable.mask_dims#0",
+      "source": "``role -> plane index`` on the merged array this table would write.",
+      "source_sha256": "9ab904d3ed09e0d7d69333300e1afccf7c1aaa7fe0c2d9df1c28043ec4dfdedc",
+      "translation": "``role -> plane index`` im zusammengeführten Array, das diese Tabelle schreiben würde."
+    },
+    {
+      "context": "The masks follow the image data channels with no gap, which is the only layout :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes the indices from the image data channel count and the order and refuses a manifest that disagrees.",
+      "label": "spacr.measure.FieldTable.mask_dims#1",
+      "source": "The masks follow the channels with no gap, which is the only layout :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes the indices from the channel count and the order and refuses a manifest that disagrees.",
+      "source_sha256": "15c8035da0ab9b6deb5f350de97bb02f9e5516b3982d37509bef17a777978b36",
+      "translation": "Die Masken folgen ohne Lücke auf die Kanäle. Nur diese Anordnung wird von :func:`spacr.crops.read_merged_plane_layout` akzeptiert: Die Funktion berechnet die Indizes aus der Kanalanzahl und der Reihenfolge erneut und weist ein davon abweichendes Manifest zurück."
+    },
+    {
+      "context": "The mask columns in merged-image layer order, duplicates removed.",
+      "label": "spacr.measure.FieldTable.ordered_roles#0",
+      "source": "The mask columns in merged-plane order, duplicates removed.",
+      "source_sha256": "3c826d54a96d95f9ac10c06b4d36888f36c8d5ee8c94e2312444bc020d00fad6",
+      "translation": "Die Maskenspalten in der Reihenfolge der zusammengeführten Bildebenen, ohne Duplikate."
+    },
+    {
+      "context": "Everything that would stop this table being measured, as sentences.",
+      "label": "spacr.measure.FieldTable.problems#0",
+      "source": "Everything that would stop this table being measured, as sentences.",
+      "source_sha256": "abcfa7d1ae77a459290b322065ec54214a60077cfbd0dd12fa6a1419dc3ebd80",
+      "translation": "Alle Gründe, die eine Messung dieser Tabelle verhindern würden, als Sätze."
+    },
+    {
+      "context": "Empty means :func:`measure_from_field_table` will run. The window shows these live, so a user never presses a Run button that is going to refuse.",
+      "label": "spacr.measure.FieldTable.problems#1",
+      "source": "Empty means :func:`measure_from_field_table` will run. The window shows these live, so a user never presses a Run button that is going to refuse.",
+      "source_sha256": "27a3cddda3e8d3bd59d62cfa995c0077c59008558e449474cf0ebbe9e9ce4515",
+      "translation": "Eine leere Liste bedeutet, dass :func:`measure_from_field_table` ausgeführt werden kann. Das Fenster zeigt die Gründe laufend an, damit die Nutzer nicht erst durch einen abgewiesenen Ausführungsversuch davon erfahren."
+    }
+  ],
+  "review": {
+    "corrections": [
+      "Preserve shared example-plate layout, chooser routes, complete-download checks and all protected paths and identifiers.",
+      "Describe microscopy fields, plate identity and FEATURES channel-token persistence accurately instead of literal dinner-plate and window-driving mistranslations.",
+      "Distinguish API credentials from data-field names and function tracing from verbose logging; retain thread coverage, idempotence and measured timing."
+    ],
+    "device": "cpu",
+    "draft_model": "Helsinki-NLP/opus-mt-en-de",
+    "kind": "AI-assisted technical and German-language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted linguistic and technical review against the consolidated detection panel; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Detection method",
+      "source": "Detection method",
+      "translation": "检测方法",
+      "source_sha256": "387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858"
+    },
+    {
+      "table": "ui",
+      "key": "Method",
+      "source": "Method",
+      "translation": "方法",
+      "source_sha256": "52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce"
+    },
+    {
+      "table": "ui",
+      "key": "What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.",
+      "source": "What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.",
+      "translation": "用于查找对象的方法及其读取的设置，同时控制检测按钮和实时放大镜。",
+      "source_sha256": "0ae7e6ba12cd1c6ea2256fff604320bab483fccda5888c76a826b481e8f831b9"
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.",
+      "translation": "实时放大镜也使用这些设置：Cellpose 模式使用模型、两个阈值、直径和归一化设置，DINOCell 使用细胞概率。在上方选择其他方法后，这里将显示该方法的设置。",
+      "source_sha256": "1a647d07653a25d8a80c82004d9b6df1cafb925cad3ac77924b9d49b87b12237"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "translation": "使用对象检测模型对当前打开的视野进行分割，并按替换或合并设置应用结果。“细胞概率”和“流场”选项卡会显示此次运行的中间结果。",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88"
+    },
+    {
+      "table": "ui",
+      "key": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
+      "source": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
+      "translation": "用于查找对象的算法同时适用于检测按钮和实时放大镜。Otsu 及其下方的阈值算法以一个阈值划分视野，无需安装额外组件；极大值与传播方法从每个明亮中心向外扩展对象，从而分开两个相互接触的对象；细胞器方法与细胞器检测使用相同的代码；Cellpose 和各后端采用模型。选择不同的行会改变此类别显示的设置，每行的提示说明适用情形。",
+      "source_sha256": "ea95731b1b53d915a2a7b82ef71b3d45bf4ff895a2081c2d166de23bb8ccf5b3"
+    }
+  ]
+}

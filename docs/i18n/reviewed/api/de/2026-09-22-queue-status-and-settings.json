@@ -1,0 +1,276 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Build the settings key-value mapping this job's module will actually receive.",
+      "label": "spacr.batch.resolve_job_settings#0",
+      "source": "Build the settings dict this job's module will actually receive.",
+      "source_sha256": "361a98216d45fcbc50039d94033a3100d16902ce6d2007e6d925fcaa6cf75497",
+      "translation": "Erstellt das Einstellungswörterbuch, das das Modul dieses Auftrags tatsächlich erhält."
+    },
+    {
+      "context": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline key-value mapping) read under today's setting names, then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration and coercion so a value the CLI accepts is a value the work list accepts.",
+      "label": "spacr.batch.resolve_job_settings#1",
+      "source": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline dict) read under today's setting names, then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration and coercion so a value the CLI accepts is a value the queue accepts.",
+      "source_sha256": "999932b87419b7d4b83512692055d60b43babd06daeb01c1d4d01b2bff1f883c",
+      "translation": "Die Ebenen entsprechen genau denen von ``spacr-run``: zuerst die Modulvorgaben, dann die Einstellungsdatei oder das direkt übergebene Wörterbuch mit den heutigen Einstellungsnamen und schließlich die Überschreibungen durch ``--set``. Verwendet werden der Lader, die Migration und die Typumwandlung aus :mod:`spacr.cli`, damit die Auftragswarteschlange dieselben Werte akzeptiert wie die CLI."
+    },
+    {
+      "context": "the job.",
+      "label": "spacr.batch.resolve_job_settings#2",
+      "source": "the job.",
+      "source_sha256": "ab32a6bee3394a11f5ace1044fecdf2c1fd3d64d54a8570582677d9d7c142d1e",
+      "translation": "der Auftrag."
+    },
+    {
+      "context": "the resolved settings.",
+      "label": "spacr.batch.resolve_job_settings#3",
+      "source": "the resolved settings.",
+      "source_sha256": "858085d79fd71ac0d56dc841fe6fb302a0e61cd3e0f3c5a03c2c8081ac351a49",
+      "translation": "die aufgelösten Einstellungen."
+    },
+    {
+      "context": "on an unknown module, an unreadable settings file, an unknown override structured-data name or an uncoercible override value.",
+      "label": "spacr.batch.resolve_job_settings#4",
+      "source": "on an unknown module, an unreadable settings file, an unknown override key or an uncoercible override value.",
+      "source_sha256": "ffe212d5105b491343d6967369a83ac636db634992df6e260b3b72842cfe86ef",
+      "translation": "bei einem unbekannten Modul, einer unlesbaren Einstellungsdatei, einem unbekannten Überschreibungsschlüssel oder einem Überschreibungswert, dessen Typ nicht umgewandelt werden kann."
+    },
+    {
+      "context": "Build the settings key-value mapping the workflow will actually receive.",
+      "label": "spacr.cli.resolve_settings#0",
+      "source": "Build the settings dict the pipeline will actually receive.",
+      "source_sha256": "239f2f5b46b63e213eaa07698a39944f3bdfd995e398dc130e8e0680cc91bd87",
+      "translation": "Erstellt das Einstellungswörterbuch, das die Verarbeitung tatsächlich erhält."
+    },
+    {
+      "context": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
+      "label": "spacr.cli.resolve_settings#1",
+      "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
+      "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+      "translation": "Die Ebenen werden in aufsteigender Priorität angewendet: die eigenen Vorgaben des Moduls, die Einstellungsdatei und dann die Überschreibungen durch ``--set``. Zuerst wird die Datei unter den heutigen Namen eingelesen; siehe :func:`_under_todays_names`. Ohne diesen Schritt würde ein unter einem alten Namen gespeicherter Wert von der bereits unter dem neuen Namen vorhandenen Vorgabe verdrängt."
+    },
+    {
+      "context": "module being executed.",
+      "label": "spacr.cli.resolve_settings#2",
+      "source": "module being run.",
+      "source_sha256": "c998f8049bcc807beabebb18310e626c88529dc5ac089a2d3a5ce5fa2785155c",
+      "translation": "das ausgeführte Modul."
+    },
+    {
+      "context": "path to the settings file, or None for defaults only.",
+      "label": "spacr.cli.resolve_settings#3",
+      "source": "path to the settings file, or None for defaults only.",
+      "source_sha256": "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
+      "translation": "Pfad zur Einstellungsdatei oder None, wenn nur Vorgaben verwendet werden sollen."
+    },
+    {
+      "context": "``key=value`` strings.",
+      "label": "spacr.cli.resolve_settings#4",
+      "source": "``key=value`` strings.",
+      "source_sha256": "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
+      "translation": "Zeichenketten der Form ``key=value``."
+    },
+    {
+      "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
+      "label": "spacr.cli.resolve_settings#5",
+      "source": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
+      "source_sha256": "71cd8a699d1f3109ac9f4f9da2a60e25c20d1190a4f8238e0ac01a0e9cd97806",
+      "translation": "Liste für Migrationshinweise, die direkt an :func:`_under_todays_names` weitergegeben wird. Ein Aufrufer, der vor der Ausführung einen Prüfbericht ausgibt, übergibt diese Hinweise an :func:`_preflight`, damit die bei der Zusammenführung übernommenen Schlüssel dort weiterhin genannt werden."
+    },
+    {
+      "context": "the fully-resolved settings key-value mapping.",
+      "label": "spacr.cli.resolve_settings#6",
+      "source": "the fully-resolved settings dict.",
+      "source_sha256": "2cc6a76c58a49d195847a74804f935ee41c29975c1c3418beefdc05931028e87",
+      "translation": "das vollständig aufgelöste Einstellungswörterbuch."
+    },
+    {
+      "context": "on any unreadable file, unknown structured-data name or bad value.",
+      "label": "spacr.cli.resolve_settings#7",
+      "source": "on any unreadable file, unknown key or bad value.",
+      "source_sha256": "6e3e14af2ace89206379e9a90bddf7fe57a7ee2d5b07cf2af8e1d11c09eb14ca",
+      "translation": "bei einer unlesbaren Datei, einem unbekannten Schlüssel oder einem ungültigen Wert."
+    },
+    {
+      "context": "Where the external curation tool keeps one of a work list's files.",
+      "label": "spacr.curation_queue.external_record#0",
+      "source": "Where the external curation tool keeps one of a queue's files.",
+      "source_sha256": "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
+      "translation": "Der Speicherort einer Warteschlangendatei des externen Kurationswerkzeugs."
+    },
+    {
+      "context": "the work list folder.",
+      "label": "spacr.curation_queue.external_record#1",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "translation": "der Ordner der Arbeitsliste."
+    },
+    {
+      "context": ":data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "label": "spacr.curation_queue.external_record#2",
+      "source": ":data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "source_sha256": "afd2263f9e1e9a04c1c98815c19ae8d7901cd249a445e0e5db9a3d0b935824c3",
+      "translation": ":data:`EXTERNAL_STATUS_SUFFIX` oder :data:`EXTERNAL_SCORES_SUFFIX`."
+    },
+    {
+      "context": "``<parent>/<name><suffix>``, beside the work list folder rather than in it. The folder is made absolute first, without touching the disk, so ``.`` has a name to put in front of the suffix.",
+      "label": "spacr.curation_queue.external_record#3",
+      "source": "``<parent>/<name><suffix>``, beside the queue folder rather than in it. The folder is made absolute first, without touching the disk, so ``.`` has a name to put in front of the suffix.",
+      "source_sha256": "308b928276a7a6d63062888e47e191bad6e4dfec90b33c9e021d179db9ad141e",
+      "translation": "``<parent>/<name><suffix>``, neben dem Warteschlangenordner statt darin. Zuerst wird der Ordnerpfad ohne Datenträgerzugriff in einen absoluten Pfad umgewandelt, damit auch ``.`` einen Namen erhält, der vor das Suffix gesetzt werden kann."
+    },
+    {
+      "context": "Draft object counts for ``items``, cached in ``curate_drafts.csv``.",
+      "label": "spacr.curation_queue.load_draft_counts#0",
+      "source": "Draft object counts for ``items``, cached in ``curate_drafts.csv``.",
+      "source_sha256": "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+      "translation": "Objektanzahlen der Entwürfe für ``items``, zwischengespeichert in ``curate_drafts.csv``."
+    },
+    {
+      "context": "Reading three hundred drafts at every launch is slow, so counts are cached by stem and only stems missing from the cache are read. Counts drive ORDERING only: a stale one mis-sorts a field, it never loses work.",
+      "label": "spacr.curation_queue.load_draft_counts#1",
+      "source": "Reading three hundred drafts at every launch is slow, so counts are cached by stem and only stems missing from the cache are read. Counts drive ORDERING only: a stale one mis-sorts a field, it never loses work.",
+      "source_sha256": "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+      "translation": "Dreihundert Entwürfe bei jedem Start einzulesen ist langsam. Deshalb werden die Anzahlen nach Dateistamm zwischengespeichert und nur die Entwürfe eingelesen, deren Dateistamm im Cache fehlt. Die Anzahlen bestimmen ausschließlich die Reihenfolge: Ein veralteter Wert kann ein Bildfeld falsch einsortieren, aber niemals bereits geleistete Arbeit verlieren lassen."
+    },
+    {
+      "context": "So an unreadable cache is recounted, never reported as an error. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
+      "label": "spacr.curation_queue.load_draft_counts#2",
+      "source": "SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
+      "source_sha256": "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
+      "translation": "Ein unlesbarer Cache führt deshalb zu einer Neuzählung und löst keine Ausnahme aus. Eine Datei, deren Schreiben durch einen Absturz unterbrochen wurde, kann ungültiges UTF-8 enthalten. Würde dieser Fehler weitergegeben, würde eine bloße Optimierung die gesamte Sitzung beenden, obwohl die Entwürfe auf dem Datenträger liegen und maßgeblich sind."
+    },
+    {
+      "context": "the work list folder.",
+      "label": "spacr.curation_queue.load_draft_counts#3",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "translation": "der Ordner der Arbeitsliste."
+    },
+    {
+      "context": "the fields to count.",
+      "label": "spacr.curation_queue.load_draft_counts#4",
+      "source": "the fields to count.",
+      "source_sha256": "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+      "translation": "die Bildfelder, deren Objekte gezählt werden sollen."
+    },
+    {
+      "context": "whether to write the cache back. A failure to write is announced, never reported as an error — a read-only folder must still open.",
+      "label": "spacr.curation_queue.load_draft_counts#5",
+      "source": "whether to write the cache back. A failure to write is announced, never raised — a read-only folder must still open.",
+      "source_sha256": "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
+      "translation": "ob der Cache zurückgeschrieben werden soll. Ein Schreibfehler wird gemeldet, löst aber keine Ausnahme aus; auch ein schreibgeschützter Ordner muss sich öffnen lassen."
+    },
+    {
+      "context": "where progress goes; defaults to :func:`print`.",
+      "label": "spacr.curation_queue.load_draft_counts#6",
+      "source": "where progress goes; defaults to :func:`print`.",
+      "source_sha256": "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+      "translation": "Empfänger der Fortschrittsmeldungen; standardmäßig :func:`print`."
+    },
+    {
+      "context": "``{stem: n_objects}`` for every item given.",
+      "label": "spacr.curation_queue.load_draft_counts#7",
+      "source": "``{stem: n_objects}`` for every item given.",
+      "source_sha256": "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158",
+      "translation": "``{stem: n_objects}`` für jedes übergebene Element."
+    },
+    {
+      "context": "Read the work list's scores file, when there is one.",
+      "label": "spacr.curation_queue.load_probabilities#0",
+      "source": "Read the queue's scores file, when there is one.",
+      "source_sha256": "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
+      "translation": "Liest die Datei mit den Wahrscheinlichkeitswerten der Arbeitsliste, sofern sie vorhanden ist."
+    },
+    {
+      "context": "the work list folder.",
+      "label": "spacr.curation_queue.load_probabilities#1",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "translation": "der Ordner der Arbeitsliste."
+    },
+    {
+      "context": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
+      "label": "spacr.curation_queue.load_probabilities#2",
+      "source": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
+      "source_sha256": "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
+      "translation": "``{stem: probability}`` oder ``{}``, wenn keine Datei mit Wahrscheinlichkeitswerten vorhanden ist (siehe :func:`scores_path`). In diesem Fall wechseln ``prob`` und ``easy`` mit einer ausdrücklichen Meldung auf ihre Ersatzreihenfolge."
+    },
+    {
+      "context": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
+      "label": "spacr.curation_queue.load_probabilities#3",
+      "source": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
+      "source_sha256": "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028",
+      "translation": "wenn ``curate_scores.csv`` vorhanden ist, aber keine Dateistammspalte oder keine erkannte Wahrscheinlichkeitsspalte enthält. Eine vorhandene, aber unbrauchbare Datei ist ein Fehler, der die Verarbeitung anhalten soll; eine fehlende Datei ist ein normaler Zustand."
+    },
+    {
+      "context": "Where this work list's probabilities are read from, if anywhere.",
+      "label": "spacr.curation_queue.scores_path#0",
+      "source": "Where this queue's probabilities are read from, if anywhere.",
+      "source_sha256": "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
+      "translation": "Der Speicherort, aus dem die Wahrscheinlichkeiten dieser Arbeitsliste gelesen werden, sofern vorhanden."
+    },
+    {
+      "context": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
+      "label": "spacr.curation_queue.scores_path#1",
+      "source": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
+      "source_sha256": "20ef1f8bb91368c0ca4075a90fd17021aa4b14afdb330e05ff49c96ab81e0b34",
+      "translation": "Zuerst wird ``<folder>/curate_scores.csv`` verwendet. Fehlt diese Datei, wird ``<parent>/<name>_scores.csv`` des externen Kurationswerkzeugs verwendet, wenn ihre Kopfzeile eine Spalte ``stem`` und eine Wahrscheinlichkeitsspalte enthält. So werden die Wahrscheinlichkeitswerte des Plaque-Projekts gespeichert. Eine Datei neben dem Ordner, die nicht wie eine Datei mit solchen Werten aufgebaut ist, wird übersprungen und darf die Sitzung nicht beenden."
+    },
+    {
+      "context": "the work list folder.",
+      "label": "spacr.curation_queue.scores_path#2",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "translation": "der Ordner der Arbeitsliste."
+    },
+    {
+      "context": "the scores file, or ``None`` when there is none.",
+      "label": "spacr.curation_queue.scores_path#3",
+      "source": "the scores file, or ``None`` when there is none.",
+      "source_sha256": "de78a6fa2c90c41c1c3272eccd7a1a02fe075e7982c24b8d5853d4f351350163",
+      "translation": "die Datei mit den Wahrscheinlichkeitswerten oder ``None``, wenn keine vorhanden ist."
+    },
+    {
+      "context": "Where this work list's resume record is read from and written to.",
+      "label": "spacr.curation_queue.status_path#0",
+      "source": "Where this queue's resume record is read from and written to.",
+      "source_sha256": "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
+      "translation": "Der Speicherort, aus dem der Fortsetzungsstatus dieser Arbeitsliste gelesen und in den er zurückgeschrieben wird."
+    },
+    {
+      "context": "``<folder>/curate_status.csv``, inside the work list folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every microscope field of view already done or skipped as undone while the other tool went on reading the first.",
+      "label": "spacr.curation_queue.status_path#1",
+      "source": "``<folder>/curate_status.csv``, inside the queue folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every field already done or skipped as undone while the other tool went on reading the first.",
+      "source_sha256": "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
+      "translation": "Normalerweise ist dies ``<folder>/curate_status.csv`` innerhalb des Warteschlangenordners, damit der Status zusammen mit den Bildern zwischen Rechnern synchronisiert wird. Eine Ausnahme gilt, wenn diese Datei im Ordner fehlt und daneben die Statusdatei des externen Kurationswerkzeugs, ``<parent>/<name>_status.csv``, mit den Spalten ``stem`` und ``state`` liegt. Dann ist diese Datei maßgeblich und wird an ihrem vorhandenen Ort gelesen und zurückgeschrieben. Die mit diesem Werkzeug kuratierten Datensätze bewahren ihren Fortschritt dort auf und haben keine entsprechende Datei im Ordner. Eine zweite Datei anzulegen würde bereits abgeschlossene oder übersprungene Bildfelder wieder als unbearbeitet öffnen, während das andere Werkzeug weiterhin die erste Datei liest."
+    },
+    {
+      "context": "the work list folder.",
+      "label": "spacr.curation_queue.status_path#2",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "translation": "der Ordner der Arbeitsliste."
+    },
+    {
+      "context": "the path of the resume record, which need not exist yet.",
+      "label": "spacr.curation_queue.status_path#3",
+      "source": "the path of the resume record, which need not exist yet.",
+      "source_sha256": "f91d80771d725a919870b912560eb9e40aa05dfb852af6af9cd26f1b5909acd9",
+      "translation": "der Pfad der Datei mit dem Fortsetzungsstatus; die Datei muss noch nicht vorhanden sein."
+    }
+  ],
+  "review": {
+    "corrections": [
+      "Translate retained English settings precedence and migration explanations; preserve CLI literals and error conditions.",
+      "Use probability values rather than musical scores, and continuation status rather than a curriculum vitae.",
+      "Preserve missing-versus-unusable-file behavior, authoritative external status locations, nonfatal cache errors and ordering-only counts."
+    ],
+    "device": "cpu",
+    "draft_model": "Helsinki-NLP/opus-mt-en-de",
+    "kind": "AI-assisted technical and German-language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

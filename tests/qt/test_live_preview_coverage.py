@@ -807,7 +807,7 @@ class TestZoomView:
                            QPoint(0, -120), Qt.NoButton, Qt.NoModifier,
                            Qt.ScrollUpdate, False)
         a.wheelEvent(down)
-        assert a.scale_factor() == pytest.approx(1.20 * 0.833)
+        assert a.scale_factor() == pytest.approx(1.0)
 
     def test_shift_wheel_scrolls_instead_of_zooming(self, qtbot):
         a, _ = self._pair(qtbot)

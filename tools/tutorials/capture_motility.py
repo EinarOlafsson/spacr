@@ -94,7 +94,7 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
     requested = dict(src=str(root), channels=[0, 1], cell_channel=1, nucleus_channel=0,
                      pathogen_channel=None, tracked_object='cell', pixels_per_um=2.0,
                      seconds_per_frame=60, reuse_existing_measurements=False,
-                     max_displacement=50, straightness_filter=False, n_jobs=1,
+                     max_displacement=50, drop_straight_tracks=False, n_jobs=1,
                      infection_intensity_qc_scope='none', infection_intensity_strategy='histogram',
                      infection_intensity_qc_graphs=True, motility_xlim=(-30, 30), motility_ylim=(-30, 30))
     if 'plot' in screen._settings_model._widgets:

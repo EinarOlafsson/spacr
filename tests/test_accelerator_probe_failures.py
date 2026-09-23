@@ -82,7 +82,7 @@ def test_a_broken_probe_does_not_hide_a_later_working_backend(monkeypatch):
     found = acc.Accelerator(kind='xpu', device='xpu', label='Intel GPU')
     monkeypatch.setattr(acc, '_cuda_or_rocm', Mock(side_effect=OSError('broken driver')))
     monkeypatch.setattr(acc, '_mps', lambda torch: None)
-    monkeypatch.setattr(acc, '_xpu', lambda torch: found)
+    monkeypatch.setattr(acc, '_xpu', lambda torch, **kwargs: found)
     monkeypatch.setattr(acc, '_torch', lambda: SimpleNamespace())
     monkeypatch.delenv(acc.ENV_DEVICE, raising=False)
     assert acc.inspect_torch(object()) is found
@@ -138,7 +138,7 @@ def test_device_questions_and_cellpose_arguments_agree(monkeypatch, kind, gpu, d
     kwargs = acc.cellpose_kwargs()
     assert kwargs['gpu'] is gpu
     assert kwargs['device'] == acc.torch_device()
-    if gpu and not brain:
+    if not gpu or not brain:
         assert kwargs['use_bfloat16'] is False
     else:
         assert 'use_bfloat16' not in kwargs

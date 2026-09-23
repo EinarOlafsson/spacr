@@ -329,8 +329,8 @@
     },
     {
       "path": "tests/test_web_player_contract.py",
-      "sha256": "30745626c0e011f4499d593709c5ab96cf7c70827c7de17d77cebfddb5e80888",
-      "bytes": 12130
+      "sha256": "f9afeaf232ec9f148bf6b6a56e3b4dbe745961eb3e7dc04341cbf23d4772c686",
+      "bytes": 14443
     },
     {
       "path": "catalog/10_classify_cv_override.json",
@@ -574,8 +574,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
-      "bytes": 88580
+      "sha256": "3f0e6384184a162c1ac5b8a52d813107247b36c60f2931b366bf82b3b367b55e",
+      "bytes": 88804
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -649,8 +649,8 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "72da1f511cd313cb041fb9ec9ebea0159fafcb560cf51a885b23b0a83c4f562e",
-      "bytes": 15675
+      "sha256": "15e1e997c2d724e47d8d3ab6396b31805a6f8e6f177d7755fb24cea3c5548d08",
+      "bytes": 15673
     },
     {
       "path": "web/lesson_catalog.js",
@@ -1407,7 +1407,7 @@
     {
       "source": "web/index.html",
       "published": "docs/source/_extra/tutorials/index.html",
-      "published_sha256": "748cd2b83d9565e878b3f383d445d0ec06b0c3cf7d4fbf98e263cb2a3f14e254"
+      "published_sha256": "03c38ee89575d849ed4e7f7239b381b693d439312d3295a668f9398a32cbcbe8"
     },
     {
       "source": "web/lesson_catalog.js",

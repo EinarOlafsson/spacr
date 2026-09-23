@@ -499,6 +499,7 @@ def stream_masks_from_stack(
     postprocess_settings: Optional[Dict[str, Any]] = None,
     object_type: str = "cell",
     illumination_session: Optional[Any] = None,
+    psf_session: Optional[Any] = None,
 ) -> List[StackFile]:
     """Batch the field stacks through Cellpose, then append the mask
     channel(s) to the SAME npy files.
@@ -528,6 +529,10 @@ def stream_masks_from_stack(
         normalisation/Cellpose; persisted intensity planes and scratch NPZs
         remain raw, and completion is recorded only after the combined stack
         has been atomically replaced.
+    :param psf_session: optional captured PSF session. Processes selected
+        intensities after illumination and before normalization, padding or
+        Cellpose. Stored image channels stay raw; only the appended labels
+        depend on PSF processing.
     :returns: the same list, with each :class:`StackFile.shape` /
         ``.channels`` updated to reflect the appended mask channel.
     """
@@ -553,18 +558,12 @@ def stream_masks_from_stack(
             "cellpose is required for v2 mask streaming"
         ) from e
 
-    import torch
-
-    from .accelerator import is_gpu, torch_device
-
-    use_gpu = is_gpu()
-    device = torch_device()
+    from .accelerator import cellpose_kwargs
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type)
     model = cp_models.CellposeModel(
-        gpu=use_gpu,
         pretrained_model=pretrained,
-        device=device,
+        **cellpose_kwargs(),
     )
 
     _record_cellpose_hash(model, model_name)
@@ -600,6 +599,8 @@ def stream_masks_from_stack(
                 )
                 selected = illumination_session.correct(
                     sf.field_id, selected, context)
+            if psf_session is not None:
+                selected = psf_session.correct(selected)
             selected_images.append(selected)
 
         if postprocess_settings is not None:
@@ -710,6 +711,8 @@ def stream_masks_from_stack(
             sf.channels = sf.channels + [mask_channel_name]
             if illumination_session is not None:
                 illumination_session.mark_completed(sf.field_id)
+            if psf_session is not None:
+                psf_session.mark_completed(sf.field_id)
 
         if not keep_npz:
             try:
@@ -736,6 +739,8 @@ def stream_masks_from_stack(
 
     if illumination_session is not None:
         illumination_session.finish(sf.field_id for sf in stacks)
+    if psf_session is not None:
+        psf_session.finish(sf.field_id for sf in stacks)
 
     return stacks
 
@@ -848,6 +853,12 @@ def run_v2(
     stacks = stream_originals_to_stack(
         src, mapper, channels=channels, channel_names=channel_names,
     )
+    from .image_quality import screen_fields
+    rejected_quality = set(screen_fields(src, postprocess_settings or {},
+                                         [stack.path for stack in stacks], channels))
+    stacks = [stack for stack in stacks if stack.path.name not in rejected_quality]
+    if not stacks:
+        return {'mapper': mapper, 'stacks': [], 'dst': src / 'merged'}
     illumination_session = None
     if (stacks and illumination_settings and
             illumination_settings.get('illumination_correction', False)):
@@ -860,6 +871,11 @@ def run_v2(
             channels=persisted_positions,
             pipeline_style='v2',
         )
+    from .psf_pipeline import _prepare_segmentation_psf
+    psf_session = _prepare_segmentation_psf(
+        postprocess_settings or {}, src,
+        _cellpose_channel_indices(channels_for_cellpose, len(stacks[0].channels)),
+        pipeline_style="v2")
     stream_masks_from_stack(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
@@ -872,6 +888,7 @@ def run_v2(
         postprocess_settings=postprocess_settings,
         object_type=object_type,
         illumination_session=illumination_session,
+        psf_session=psf_session,
     )
     return {"mapper": mapper, "stacks": stacks,
             "dst": src / "merged"}

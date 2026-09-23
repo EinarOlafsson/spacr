@@ -25,13 +25,6 @@
     },
     {
       "table": "ui",
-      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "translation": "将视野划分为多少个亮度区间。2 表示 Otsu 原本的划分方式，用一个阈值区分背景与对象。当视野中存在两类以上的像素群体，例如背景、暗晕和明亮的细胞核时，可增大此值。此时不再用一个折中阈值区分全部三类，而是采用您在下方选择的目标边界。仅用于 Otsu detect。",
-      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
-    },
-    {
-      "table": "ui",
       "key": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
       "source": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
       "translation": "每个视野包含的强度通道数。每个通道对应表格中的一列，合并数组的通道编号遵循列的顺序。",
@@ -232,6 +225,18 @@
       "source": "Music bed",
       "translation": "背景音乐",
       "source_sha256": "a3b649dac67ac6d7354ee7ae235ba3b4c86dc950876b264506e55dade0e51a27"
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "translation": "将视野划分为多少个亮度区间。2 表示 Otsu 原本的划分方式，用一个阈值区分背景与对象。当视野中存在两类以上的像素群体，例如背景、暗晕和明亮的细胞核时，可增大此值。此时不再用一个折中阈值区分全部三类，而是采用您在下方选择的目标边界。仅用于 Otsu detect。",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

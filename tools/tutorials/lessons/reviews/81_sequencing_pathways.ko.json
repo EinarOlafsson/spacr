@@ -1,0 +1,38 @@
+{
+  "language": "ko",
+  "title": "시퀀싱 모듈과 모듈 간 연결",
+  "section": "작업 흐름",
+  "description": "시퀀싱 및 광학 바코드 작업 흐름을 표현형 점수, 회귀, 실험 설계, 검정력 추정, 용량 반응 분석 및 실행 비교와 연결합니다.",
+  "scenes": [
+    "Home에서 연구 질문과 바코드 데이터 유형을 먼저 확인합니다. Map Barcodes는 시퀀싱 파일을 읽고, 광학 풀링 스크리닝은 OPS를 통해 정합된 주기별 이미지를 읽습니다. 두 방식 모두 바코드 식별 정보와 실험 사이의 명시적인 대응 관계가 필요합니다. Regression은 호환되는 교란 계수와 표현형 점수를 연결하며, 바코드 해독을 대신하지 않습니다. 스크리닝을 계획할 때 Experiment Design과 Power는 데이터 수집 전에 사용하고, Dose-Response와 Run Compare는 수집 후 적합한 결과를 살펴보는 데 사용합니다.",
+    "Home에서 Map Barcodes를 엽니다. 실험 정보를 부호화하는 참조 데이터를 제공합니다. 웰별 가이드 계수를 표현형 점수와 짝짓기 전에 매핑된 계수와 바코드 품질 관리 결과를 확인합니다. 입력 데이터: 시퀀싱 리드. 출력 데이터: 웰별 가이드 계수. Map Barcodes에서 Regression으로: 일관된 플레이트 및 웰 키를 사용하여 가이드 계수를 표현형 점수와 짝짓습니다. Map Barcodes에서 Barcode QC로: 가이드를 필터링하기 전에 매핑과 커버리지를 확인합니다.",
+    "Home에서 Map Barcodes를 연 다음 Barcode QC를 선택합니다. 가이드 계수를 필터링하기 전에 매핑 깊이, 커버리지, 충돌 및 위치 효과를 살펴봅니다. 입력 데이터: 웰별 가이드 계수. 출력 데이터: 품질 관리 결과, 그림 및 표 내보내기. Map Barcodes에서 Barcode QC로: 가이드를 필터링하기 전에 매핑과 커버리지를 확인합니다.",
+    "Home에서 Mask를 연 다음 OPS를 선택합니다. 시퀀싱 주기별 이미지와 표현형 이미지 정렬을 사용하여 핵별 바코드를 해독합니다. Regression 전에 해독한 식별 정보를 집계하거나 호환되는 표현형 입력과 조인합니다. OPS 데이터베이스는 FASTQ 기반 계수 CSV를 그대로 대체하지 않습니다. 입력 데이터: 현미경 이미지, 정렬된 모자이크 및 좌표. 출력 데이터: 광학 바코드 할당. OPS에서 Regression으로: Regression 전에 해독한 객체를 표현형 및 가이드 입력과 명시적으로 조인하거나 집계합니다. CSV를 바로 전달하는 과정이 아닙니다.",
+    "Home에서 Regression을 엽니다. 표현형 입력과 가이드 계수 입력의 플레이트 및 웰 식별자를 일치시키고 반응 변수와 대조군을 선택한 뒤, 히트를 해석하기 전에 진단 결과를 살펴봅니다. 직접 측정한 반응도 지원합니다. 입력 데이터: 객체 분류 점수, 웰별 가이드 계수, 광학 바코드 할당, 측정된 객체. 출력 데이터: 회귀 결과 및 히트. Classify에서 Regression으로: 원하는 CV 또는 ML 점수 열을 선택하고 플레이트 및 웰 식별 정보를 유지합니다. Map Barcodes에서 Regression으로: 일관된 플레이트 및 웰 키를 사용하여 가이드 계수를 표현형 점수와 짝짓습니다. OPS에서 Regression으로: Regression 전에 해독한 객체를 표현형 및 가이드 입력과 명시적으로 조인하거나 집계합니다. CSV를 바로 전달하는 과정이 아닙니다. Regression에서 Run Compare로: 호환되는 저장된 결과 집합과 해당 설정을 비교합니다.",
+    "Home에서 Power / Design을 엽니다. 선택한 효과 크기와 변동성을 바탕으로 필요한 표본 규모를 추정합니다. 예비 실험 측정값은 필요에 따라 가정을 뒷받침하는 근거로 사용할 수 있습니다. 입력 데이터: 스크리닝 설계 및 검정력 추정, 측정된 객체, 실험 배치. 출력 데이터: 스크리닝 설계 및 검정력 추정. Experiment Design에서 Power / Design으로: 실험 배치를 사용하여 표본 추출 가정을 정한 다음 설계를 수정합니다.",
+    "Home에서 Experiment Design을 엽니다. 조건, 대조군, 반복 및 플레이트 제약을 입력한 다음 데이터 수집 전에 실험 배치를 내보냅니다. 입력 데이터: 스크리닝 설계 및 검정력 추정. 출력 데이터: 실험 배치. Experiment Design에서 Power / Design으로: 실험 배치를 사용하여 표본 추출 가정을 정한 다음 설계를 수정합니다. Experiment Design에서 Dose–Response로: 먼저 실험을 수행하고 측정하며, 용량 및 조건 식별 정보를 유지합니다.",
+    "Home에서 Dose–Response를 엽니다. 곡선 적합 전에 용량 및 반응 열, 대조군, 단위를 제공합니다. 이 경로에는 시퀀싱이 필요하지 않습니다. 입력 데이터: 측정된 객체, 실험 배치. 출력 데이터: 분석 결과, 그림 및 표 내보내기. Experiment Design에서 Dose–Response로: 먼저 실험을 수행하고 측정하며, 용량 및 조건 식별 정보를 유지합니다.",
+    "Home에서 Run Compare를 엽니다. 호환되는 저장된 설정, 계수 및 히트 목록을 비교합니다. 입력 데이터가 달라진 경우를 통제된 모델 비교로 취급하지 마세요. 입력 데이터: 실행 기록 및 산출물, 회귀 결과 및 히트. 출력 데이터: 실행 또는 모델 비교. Regression에서 Run Compare로: 호환되는 저장된 결과 집합과 해당 설정을 비교합니다.",
+    "Python에서 spacr.sim.run_multiple_simulations를 통해 풀링 스크리닝 시뮬레이션 매개변수 탐색을 사용합니다. 이 작업 흐름은 API 전용이며 Home 타일이나 메뉴 항목이 없습니다. Python 매개변수 탐색 API를 사용하여 명시한 스크리닝 설계 가정을 검토합니다. 매개변수 조합을 펼치고 프로세스 풀에서 시뮬레이션을 실행하여 합성 데이터의 요약 통계를 기록하며, None을 반환합니다. 실행 전에 max_workers를 명시적으로 작은 값으로 설정하고 매개변수 격자 범위를 제한하세요. 출력은 실험 데이터의 Regression에 필요한 측정값이나 바코드 계수를 대신하지 않습니다. 가정을 기록하고 결과를 계획의 근거로 사용합니다. 계획 가정을 선택할 때 합성 데이터 요약을 검토한 뒤, 해당 가정을 Power / Design 또는 Experiment Design에 수동으로 옮깁니다. 두 도구 모두 이 시뮬레이션 데이터베이스를 가져오지 않으며, 시뮬레이션 설정 격자를 내보내지도 않습니다. 입력 데이터: 풀링 스크리닝 시뮬레이션 가정. 출력 데이터: 합성 스크리닝 시뮬레이션 요약.",
+    "시퀀싱 참조 데이터와 플레이트 배치를 계수와 함께 보관하고, 회귀를 해석하기 전에 이미지 기반 점수와의 조인을 확인합니다. 광학 할당에는 별도의 객체 조인과 집계가 필요하며, 시퀀싱 계수 파일을 자동으로 그대로 대체할 수 없습니다. 계획 가정, 적합된 효과, 완료된 실행 간 비교를 서로 다른 결과로 구분합니다. 연결된 강의와 Home에서 시작하는 안내가 각 실험 유형의 경로를 보여 줍니다."
+  ],
+  "objectives": [
+    "이미 보유한 데이터에 따라 시작 모듈을 선택합니다.",
+    "각 모듈이 읽고 쓰는 데이터를 파악합니다.",
+    "연결된 모듈 강의와 API 설명을 참고하여 다음 단계로 진행합니다."
+  ],
+  "prerequisite": "spaCR을 설치하고 Home을 여세요. 이 강의는 화면 이동과 데이터 전달을 설명하며, 연결된 모듈 강의에서 데이터를 사용하는 실제 작업 예제를 제공합니다. 입력과 출력에는 조건에 따라 선택하는 대안이 있으며 각 모듈에서 설명합니다.",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain separate sequencing and optical barcode workflows and their explicit phenotype joins.",
+      "Distinguish prospective design/power assumptions from measured dose responses and completed-run comparisons.",
+      "Keep the simulation API, None return and max_workers literal, bounded CPU process-pool guidance, synthetic output caveat and manual transfer to planning tools.",
+      "Navigation and data-handoff overview only; no claim that the capture executed an experiment."
+    ]
+  }
+}

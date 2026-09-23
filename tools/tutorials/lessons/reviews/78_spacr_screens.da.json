@@ -1,0 +1,35 @@
+{
+  "language": "da",
+  "title": "Screening med spaCR",
+  "section": "Arbejdsgange",
+  "description": "Følg en poolet billedbaseret screening fra Home gennem billedmålinger, fænotypeklassifikation og stregkodetællinger til regression.",
+  "objectives": [
+    "Vælge startmodul ud fra de data, der allerede er til rådighed.",
+    "Identificere hvilke data hvert modul læser og skriver.",
+    "Bruge de tilknyttede modullektioner og API-beskrivelser til næste trin."
+  ],
+  "prerequisite": "Installér spaCR, og åbn Home. Denne lektion forklarer navigation og dataoverdragelse; de tilknyttede modullektioner indeholder gennemarbejdede dataeksempler. Input og output omfatter betingede alternativer, som forklares for hvert modul.",
+  "scenes": [
+    "Begynd på Home med det materiale, du allerede har. En poolet billedbaseret screening har to datagrene: billeder beskriver fænotypen, mens sekventering identificerer de perturbationer, der er repræsenteret i hver brønd. Mask, Measure, Annotate og Classify udgør billedgrenen. Map Barcodes udgør sekventeringsgrenen. Regression samler kompatible scorer og guideantal. Det er sammenkoblede dataprodukter, ikke seks knapper, der altid skal køres i en fast rækkefølge.",
+    "Åbn Mask fra Home. Vælg kanaler og modeller, undersøg en forhåndsvisning, og kør derefter Mask. Measure bruger de sammenflettede arrays; tællingsdatabasen er endnu ikke en tabel med egenskaber. Inputdata: mikroskopibilleder; segmenteringscheckpoint. Outputdata: billeder og labelmasker; labelmasker; objektantal. Mask til Measure: brug det samme projekt og de korrekte kanalindekser for billeder og masker.",
+    "Åbn Measure fra Home. Measure læser billeder og labelplaner sammen. Aktivér lagring af udsnit, hvis du har brug for PNG-filer; behold databasen og kildeprojektet sammen til udsnit, der læses efter behov. Inputdata: billeder og labelmasker; labelmasker. Outputdata: målte objekter; objektudsnit. Mask til Measure: brug det samme projekt og de korrekte kanalindekser for billeder og masker. Measure til Annotate: gem eller læs udsnit efter behov med stabile objektidentifikatorer. Measure til Classify: vælg billedfamilien eller den tabulære familie, der passer til dine input.",
+    "Åbn Annotate fra Home. Mærk repræsentative objekter i png_list før superviseret træning. Brug separate annoteringer til forskellige spørgsmål, og hold trænings- og evalueringsgrupper uafhængige. Inputdata: målte objekter; objektudsnit; genanvendelige udvælgelsesområder. Outputdata: træningsannoteringer. Measure til Annotate: gem eller læs udsnit efter behov med stabile objektidentifikatorer. Annotate til Classify: hold annoterede trænings- og evalueringsgrupper adskilt.",
+    "Åbn Classify fra Home. Vælg Computer Vision til udsnit eller objektbilleder, der læses efter behov, eller Tabular Machine Learning til kolonner med målte egenskaber. De to familier bruger forskellige input. Inputdata: målte objekter; objektudsnit; træningsannoteringer. Outputdata: klassifikationsscorer for objekter; trænet billedklassifikator; tilpasset egenskabsklassifikator; evalueringspakke til klassifikatorer. Measure til Classify: vælg billedfamilien eller den tabulære familie, der passer til dine input. Annotate til Classify: hold annoterede trænings- og evalueringsgrupper adskilt. Classify til Regression: vælg den ønskede CV- eller ML-scorekolonne, og bevar plade- og brøndidentifikatorerne.",
+    "Åbn Map Barcodes fra Home. Angiv de referencer, der koder dit eksperiment. Undersøg de tildelte tællinger og kvalitetskontrollen af stregkoder, før du parrer guideantal pr. brønd med fænotypescorer. Inputdata: sekventeringslæsninger. Outputdata: guideantal pr. brønd. Map Barcodes til Regression: par guideantal med fænotypescorer ved hjælp af konsistente plade- og brøndnøgler.",
+    "Åbn Regression fra Home. Match plade- og brøndidentifikatorer mellem fænotypeinput og guideantal, vælg responsvariabel og kontroller, og undersøg diagnostikken, før du fortolker hits. Direkte målte responser understøttes også. Inputdata: klassifikationsscorer for objekter; guideantal pr. brønd; optiske stregkodetildelinger; målte objekter. Outputdata: regressionsresultater og hits. Classify til Regression: vælg den ønskede CV- eller ML-scorekolonne, og bevar plade- og brøndidentifikatorerne. Map Barcodes til Regression: par guideantal med fænotypescorer ved hjælp af konsistente plade- og brøndnøgler. OPS til Regression: sammenkobl eller aggregér eksplicit de afkodede objekter til fænotype- og guideinput før Regression; dette er ikke en direkte CSV-overdragelse.",
+    "Kontrollér før Regression, at billedscorer, sekventeringstællinger og forsøgsopstilling bruger matchende plade- og brøndidentifikatorer. Bevar objektidentifikatorer, annoteringskolonne, klassifikatorindstillinger og stregkodereferencer sammen med kørslen. Brug de tilknyttede modullektioner til et gennemarbejdet eksempel på hvert trin; vælg gennemgangen for poolet screening, hvis du vil have Home til at guide navigationen."
+  ],
+  "lesson": "78_spacr_screens",
+  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain the two independent image and sequencing branches and their per-well join.",
+      "Distinguish merged images/labels from counts, saved versus streamed crops, and CV versus tabular inputs.",
+      "Preserve separate training/evaluation groups, stable identities, direct measured responses, and the explicit OPS join/aggregation requirement.",
+      "Navigation overview only; no claim that the recording executed an experiment."
+    ]
+  }
+}

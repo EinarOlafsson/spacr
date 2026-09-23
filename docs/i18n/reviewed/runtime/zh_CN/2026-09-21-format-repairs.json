@@ -74,13 +74,6 @@
     },
     {
       "table": "ui",
-      "key": "Legend saved to {path}; conditions proposed again.",
-      "source": "Legend saved to {path}; conditions proposed again.",
-      "source_sha256": "45b6d593a2ab88a487925e158e7d9b827567e447edeb2e6f1c35f5e82e9f5d99",
-      "translation": "图注已保存到 {path}，已重新提出条件建议。"
-    },
-    {
-      "table": "ui",
       "key": "Loading preview from {path}…",
       "source": "Loading preview from {path}…",
       "source_sha256": "58e81fac77039aa6251fca9a783a1e7ad61dc1ff6f71088c6b26e937dab7b89c",
@@ -165,13 +158,6 @@
     },
     {
       "table": "ui",
-      "key": "panel {p}",
-      "source": "panel {p}",
-      "source_sha256": "1310203403e5b686482e2459530d6c5d9c207a1dddde680958c2474331f52caf",
-      "translation": "面板 {p}"
-    },
-    {
-      "table": "ui",
       "key": "{count} plaques, mean area {area:.0f} px",
       "source": "{count} plaques, mean area {area:.0f} px",
       "source_sha256": "ee9823ecfbf3716288a38cd3ca4fe79255546be135c3fa163bb5710e4d3a6ac7",
@@ -232,6 +218,19 @@
       "source": "{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.",
       "source_sha256": "870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c",
       "translation": "{paper}：{n} 个图版，其中 {m} 个有图注（许可协议 {licence}），位于 {path}。"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "This plaque-preview caption identifies a figure subpanel, not a GUI panel.",
+      "record": {
+        "table": "ui",
+        "key": "panel {p}",
+        "source": "panel {p}",
+        "source_sha256": "1310203403e5b686482e2459530d6c5d9c207a1dddde680958c2474331f52caf",
+        "translation": "面板 {p}"
+      }
     }
   ]
 }

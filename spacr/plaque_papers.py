@@ -290,6 +290,8 @@ class Annotation:
     conflict: bool = False
     conflict_terms: List[str] = field(default_factory=list)
     approved: Optional[bool] = None
+    pixels_per_um: Optional[float] = None
+    formation_hours: Optional[float] = None
 
 
 def _conflict_reason(a: "Annotation") -> str:
@@ -1485,6 +1487,40 @@ def measure_region(labels: np.ndarray, *, px_per_mm: Optional[float] = None
     return rows
 
 
+def calibration_number(value, *, name, allow_zero=False):
+    """Parse an optional finite calibration value without treating invalid input as missing."""
+    if value is None or str(value).strip() in ('', 'None'):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f'{name} must be a number or blank.') from exc
+    if not np.isfinite(number) or number < 0 or (number == 0 and not allow_zero):
+        raise ValueError(f'{name} must be finite and ' + ('nonnegative.' if allow_zero else 'positive.'))
+    return number
+
+
+def calibration_values(annotation, scale=None, formation_hours=None):
+    """Return per-well size, scale and timing metadata for preview and saved tables.
+
+    The well diameter is the mean detected bounding-box extent, not a fitted
+    circle or a segmentation-model diameter. It remains available without a
+    physical ruler. Time is entered metadata, never inferred from plaque size.
+    """
+    region = annotation.region
+    hours = calibration_number(annotation.formation_hours, name='formation_hours', allow_zero=True)
+    source = 'manual annotation' if hours is not None else 'unknown'
+    if hours is None:
+        hours = calibration_number(formation_hours, name='formation_hours', allow_zero=True)
+        if hours is not None:
+            source = 'settings'
+    ppm = getattr(scale, 'px_per_mm', None)
+    return dict(well_diameter_px=(region.width + region.height) / 2.0,
+                well_diameter_method='mean detected bounding-box extent',
+                pixels_per_um=ppm / 1000.0 if ppm else None,
+                formation_hours=hours, formation_time_source=source)
+
+
 def _ruler(region: Region, plate_format: Optional[str],
            min_axis_ratio: float = 0.9) -> Optional[float]:
     """Pixels per mm when the image is a whole well of a known plate.
@@ -1712,17 +1748,20 @@ def _legend_scale_facts(text: str) -> Dict[str, Any]:
 def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
                        words: Sequence[Word], *, caption: str = "",
                        annotations: Optional[Sequence[Annotation]] = None,
-                       plate_format: Optional[str] = None) -> List[_Scale]:
+                       plate_format: Optional[str] = None,
+                       pixels_per_um: Optional[float] = None) -> List[_Scale]:
     """The ruler, if any, for every plaque image in one figure.
 
-    In order of preference:
+    Manual per-annotation ``pixels_per_um`` overrides the global value,
+    which overrides automatic rulers. Values must be finite and positive.
+    In order of preference among automatic rulers:
 
     1. a scale bar in or directly under the image, its length read from the
        label beside it (``1 mm``);
-    2. a scale bar on another image of the same grid and the same size -- a
-       figure prints one bar per panel of identically scaled crops;
-    3. a scale bar inside the image with no label, when the panel's legend
+    2. a scale bar inside the image with no label, when the panel's legend
        passage (or the legend) states its length (``_Scale bar, 500 µm``);
+    3. agreeing scale bars on other images of the same grid and approximately
+       the same size, discovered from either labels or legend passages;
     4. a whole well (a nearly square box) of a plate format the settings
        give, or else that the legend names (``6-well plates``) -- the same
        ruler the plate pipeline uses.
@@ -1731,6 +1770,9 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
     stated magnification is recorded on every image of the panel but never
     used: a printed figure has been rescaled since the picture was taken.
     More than one plate format in a legend is not guessed between.
+    Conflicting peer calibrations leave an image without its own bar in
+    pixels, with a conflict note; they do not fall through to well-size
+    calibration. An image's own bar takes priority over peer bars.
 
     :param image: the figure, ``H x W x 3``.
     :param regions: its plaque images.
@@ -1743,6 +1785,7 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
         from the settings; it wins over the legend.
     :returns: one :class:`_Scale` per region.
     """
+    pixels_per_um = calibration_number(pixels_per_um, name='pixels_per_um')
     whole = _legend_scale_facts(caption)
     if annotations:
         passages = [_legend_scale_facts(a.legend_text) if a.legend_text else {}
@@ -1766,31 +1809,44 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
                 own[index] = _Scale(length / mm, "scale bar",
                                    f"{word.text} bar = {length} px")
                 break
-    block = _blocks(regions) if regions else []
-    out: List[_Scale] = []
     for index, r in enumerate(regions):
-        facts = passages[index] if index < len(passages) else {}
-        magnification = facts.get("magnification") or whole["magnification"]
         if index in own:
-            out.append(replace(own[index], magnification=magnification))
             continue
-        twin = next((own[j] for j in own if block[j] == block[index]
-                     and abs(regions[j].width - r.width) <= 0.1 * max(r.width, 1)
-                     and abs(regions[j].height - r.height) <= 0.1 * max(r.height, 1)),
-                    None)
-        if twin is not None:
-            out.append(_Scale(twin.px_per_mm, "scale bar, same panel",
-                             twin.detail, magnification))
-            continue
+        facts = passages[index] if index < len(passages) else {}
         bar_mm = facts.get("bar_mm") or whole["bar_mm"]
         if bar_mm:
             bar = _unlabelled_bar(image, r)
             if bar is not None:
                 length = bar[2] - bar[0]
                 stated = facts.get("bar_text") or whole["bar_text"]
-                out.append(_Scale(length / bar_mm, "scale bar, length from legend",
-                                 f"{stated!r}: bar = {length} px", magnification))
+                own[index] = _Scale(length / bar_mm, "scale bar, length from legend",
+                                    f"{stated!r}: bar = {length} px")
+    block = _blocks(regions) if regions else []
+    out: List[_Scale] = []
+    for index, r in enumerate(regions):
+        facts = passages[index] if index < len(passages) else {}
+        magnification = facts.get("magnification") or whole["magnification"]
+        manual = calibration_number(annotations[index].pixels_per_um, name='pixels_per_um') if annotations and index < len(annotations) else None
+        if manual is not None or pixels_per_um is not None:
+            value = manual if manual is not None else pixels_per_um
+            out.append(_Scale(value * 1000.0, 'manual annotation' if manual is not None else 'settings',
+                              f'{value:g} px/µm', magnification))
+            continue
+        if index in own:
+            out.append(replace(own[index], magnification=magnification))
+            continue
+        peers = [own[j] for j in own if block[j] == block[index]
+                     and abs(regions[j].width - r.width) <= 0.1 * max(r.width, 1)
+                     and abs(regions[j].height - r.height) <= 0.1 * max(r.height, 1)]
+        if peers:
+            twin = peers[0]
+            if not all(np.isclose(peer.px_per_mm, twin.px_per_mm) for peer in peers[1:]):
+                out.append(_Scale(None, "none", "conflicting scale bars; sizes in pixels",
+                                  magnification))
                 continue
+            out.append(_Scale(twin.px_per_mm, "scale bar, same panel",
+                             twin.detail, magnification))
+            continue
         chosen, where = plate_format, "settings"
         if not chosen:
             chosen, where = facts.get("plate_format") or whole["plate_format"], "legend"
@@ -1912,6 +1968,16 @@ TABLES: Dict[str, Tuple[Tuple[str, str], ...]] = {
         ("duplicate_of_path", "TEXT"), ("measured", "INTEGER"),
         ("run_id", "INTEGER"), ("noted", "REAL")),
 }
+
+
+_CALIBRATION_COLUMNS = (
+    ('well_diameter_px', 'REAL'), ('well_diameter_method', 'TEXT'),
+    ('pixels_per_um', 'REAL'), ('formation_hours', 'REAL'), ('formation_time_source', 'TEXT'),
+    ('estimated_pixels_per_um', 'REAL'), ('estimated_formation_hours', 'REAL'),
+    ('estimation_source', 'TEXT'), ('growth_estimate_provenance', 'TEXT'),
+)
+for _table in ('regions', 'figure_annotations'):
+    TABLES[_table] += _CALIBRATION_COLUMNS
 
 
 def open_database(path: Any) -> sqlite3.Connection:
@@ -2445,7 +2511,7 @@ def _figure_words(image: np.ndarray, regions: Sequence[Region],
 
 def _annotation_row(figure: Figure, paper: Paper, index: int, a: Annotation,
                     scale: _Scale, *, measured: bool, region_id: Optional[int],
-                    run_id: Optional[int]) -> Dict[str, Any]:
+                    run_id: Optional[int], formation_hours=None) -> Dict[str, Any]:
     """One row of the ``figure_annotations`` table.
 
     :param figure: the figure.
@@ -2471,7 +2537,7 @@ def _annotation_row(figure: Figure, paper: Paper, index: int, a: Annotation,
             "approved": None if a.approved is None else int(a.approved),
             "measured": int(measured), "region_id": region_id,
             "scale_source": scale.source, "px_per_mm": scale.px_per_mm,
-            "run_id": run_id}
+            **calibration_values(a, scale, formation_hours), "run_id": run_id}
 
 
 def _measure_figure(connection: sqlite3.Connection, paper: Paper,
@@ -2549,7 +2615,8 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
         return
     scales = _scales_for_regions(image, regions, words, caption=figure.caption,
                                 annotations=annotations,
-                                plate_format=kw["plate_format"])
+                                plate_format=kw["plate_format"],
+                                pixels_per_um=kw.get("pixels_per_um"))
     crops.mkdir(parents=True, exist_ok=True)
     measured: List[Tuple[int, Annotation, List[Dict[str, Any]], str, _Scale]] = []
     for index, a in enumerate(annotations, start=1):
@@ -2557,7 +2624,7 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
         if a.approved is False:
             _insert(connection, "figure_annotations", _annotation_row(
                 figure, paper, index, a, scale, measured=False,
-                region_id=None, run_id=run_id))
+                region_id=None, run_id=run_id, formation_hours=kw.get("formation_hours")))
             continue
         r = a.region
         crop = image[r.y0:r.y1, r.x0:r.x1]
@@ -2570,6 +2637,11 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
         areas = [row["area_px"] for _i, a, rows, *_ in measured if a.panel == panel
                  for row in rows]
         medians[panel] = float(np.median(areas)) if areas else 0.0
+    from .plaque_growth import estimates_from_settings
+    growth = estimates_from_settings([
+        dict(well=i, areas_px=[r['area_px'] for r in rows],
+             **calibration_values(a, scale, kw.get('formation_hours')))
+        for i, a, rows, _path, scale in measured], kw.get('growth_settings') or {})
     for index, a, rows, crop_path, scale in measured:
         r = a.region
         cursor = _insert(connection, "regions", {
@@ -2590,11 +2662,19 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
             "size_unit": scale.unit, "words_source": words_source,
             "region_index": index, "detector": kw["detector_id"],
             "segmenter": kw["segmenter_id"], "imgsz": json.dumps(list(kw["imgsz"])),
-            "run_id": run_id})
+            **calibration_values(a, scale, kw.get("formation_hours")),
+            **growth.get(index, {}), "run_id": run_id})
         region_id = int(cursor.lastrowid)
         _insert(connection, "figure_annotations", _annotation_row(
             figure, paper, index, a, scale, measured=True, region_id=region_id,
-            run_id=run_id))
+            run_id=run_id, formation_hours=kw.get("formation_hours")))
+        if index in growth:
+            values = growth[index]
+            connection.execute(
+                "UPDATE figure_annotations SET estimated_pixels_per_um=?, estimated_formation_hours=?, "
+                "estimation_source=?, growth_estimate_provenance=? WHERE region_id=?",
+                (values['estimated_pixels_per_um'], values['estimated_formation_hours'],
+                 values['estimation_source'], values['growth_estimate_provenance'], region_id))
         median = medians.get(a.panel) or 0.0
         connection.executemany(
             "INSERT INTO plaques (region_id, label, area_px, area_mm2, "
@@ -2628,7 +2708,11 @@ PAPER_FILE = "paper.json"
 #: proposed and why, the conflict flag among them.
 ANNOTATION_COLUMNS = ("file", "region", "condition", "approved", "panel",
                       "label_text", "legend_text", "source", "strength",
-                      "conflict", "conflict_reason")
+                      "conflict", "conflict_reason", "well_diameter_px",
+                      "well_diameter_method", "pixels_per_um", "formation_hours",
+                      "resolved_pixels_per_um", "resolved_formation_hours",
+                      "scale_source", "formation_time_source", "estimated_pixels_per_um",
+                      "estimated_formation_hours", "estimation_source", "growth_estimate_provenance")
 
 
 def read_legends(path: Any) -> Dict[str, str]:
@@ -2688,6 +2772,10 @@ def read_annotation_overrides(path: Any) -> Dict[Tuple[str, int], Dict[str, Any]
         approved = str(row.get("approved", "")).strip().lower()
         out[key] = {"condition": (row.get("condition") or "").strip(),
                     "approved": approved in ("1", "true", "yes", "ok")}
+        for name in ('pixels_per_um', 'formation_hours'):
+            value = calibration_number(row.get(name), name=name, allow_zero=name == 'formation_hours')
+            if value is not None:
+                out[key][name] = value
     return out
 
 
@@ -2746,7 +2834,10 @@ def _annotation_file_row(file: str, region: int, a: Annotation, *,
             "panel": a.panel or "", "label_text": a.label_text,
             "legend_text": a.legend_text, "source": a.source,
             "strength": a.strength, "conflict": bool(a.conflict),
-            "conflict_reason": _conflict_reason(a)}
+            "conflict_reason": _conflict_reason(a),
+            "well_diameter_px": (a.region.width + a.region.height) / 2.0,
+            "well_diameter_method": 'mean detected bounding-box extent',
+            "pixels_per_um": a.pixels_per_um, "formation_hours": a.formation_hours}
 
 
 def apply_overrides(stem: str, annotations: List[Annotation],
@@ -2770,6 +2861,8 @@ def apply_overrides(stem: str, annotations: List[Annotation],
             if edit["condition"] and edit["condition"] != a.condition:
                 a.condition, a.source, a.strength = edit["condition"], "manual", "manual"
             a.approved = bool(edit["approved"])
+            a.pixels_per_um = calibration_number(edit.get('pixels_per_um'), name='pixels_per_um')
+            a.formation_hours = calibration_number(edit.get('formation_hours'), name='formation_hours', allow_zero=True)
         elif confirm_each:
             a.approved = False
     return annotations
@@ -2870,7 +2963,7 @@ def measure_figure_folder(
         src: Any, dst: Any = None, *, detector: str = DEFAULT_DETECTOR,
         segmenter: str = DEFAULT_SEGMENTER, imgsz: Sequence[int] = DEFAULT_IMGSZ,
         confidence: float = 0.25, confirm_each: bool = False,
-        plate_format: Optional[str] = None, legends: Any = None,
+        plate_format: Optional[str] = None, pixels_per_um=None, formation_hours=None, growth_settings=None, legends: Any = None,
         annotations: Any = None, read_text: Optional[Callable] = None,
         detect: Optional[Callable] = None, segment: Optional[Callable] = None,
         text_options: Optional[TextOptions] = None) -> Dict[str, Any]:
@@ -2894,6 +2987,12 @@ def measure_figure_folder(
     :param confidence: minimum detector score.
     :param confirm_each: measure only images a person approved.
     :param plate_format: plate format for whole-well images.
+    :param pixels_per_um: optional positive manual pixel scale; per-well
+        annotations override this value, then automatic rulers are considered.
+    :param formation_hours: optional nonnegative elapsed time in hours;
+        per-well manual times take precedence. Stored as metadata, not inferred.
+    :param growth_settings: optional experimental growth settings consumed by
+        :func:`spacr.plaque_growth.estimates_from_settings`; disabled by default.
     :param legends: CSV of legends, see :func:`read_legends`.
     :param annotations: CSV of reviews, see :func:`read_annotation_overrides`.
     :param read_text: ``fn(path) -> [Word]``.
@@ -2902,6 +3001,8 @@ def measure_figure_folder(
     :param text_options: how the text is read (:class:`TextOptions`).
     :returns: the summary, with ``awaiting_approval`` added.
     """
+    pixels_per_um = calibration_number(pixels_per_um, name='pixels_per_um')
+    formation_hours = calibration_number(formation_hours, name='formation_hours', allow_zero=True)
     src = Path(src)
     dst = Path(dst) if dst else src / "plaque_figures"
     dst.mkdir(parents=True, exist_ok=True)
@@ -2942,7 +3043,8 @@ def measure_figure_folder(
                         detector_path=detector_path, detector_id=detector_id,
                         segmenter_id=segmenter_id, imgsz=imgsz,
                         confidence=confidence, confirm_each=True,
-                        plate_format=plate_format,
+                        plate_format=plate_format, pixels_per_um=pixels_per_um, formation_hours=formation_hours,
+                        growth_settings=growth_settings,
                         ask_legend=lambda *_a: None, review=review,
                         read_text=read_text or read_words, detect=detect,
                         segment=segment, summary=summary,

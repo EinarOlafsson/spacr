@@ -8,7 +8,7 @@ from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QLabel, QListWidget, QTableWidget, QTableWidgetItem, QWidget
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "tutorials"))
-from capture_policy import configure_appearance, verify_appearance, verify_visible_paths
+from capture_policy import configure_appearance, exclude_special_backdrops, verify_appearance, verify_visible_paths
 
 
 @pytest.fixture
@@ -40,6 +40,21 @@ def test_a_real_dark_window_with_painted_blobs_is_accepted(recording):
     receipt = verify_appearance(window)
     assert receipt == {"theme": "dark", "backdrop": "blobs",
                        "painted_frames": backdrop.frames_painted}
+
+
+def test_a_module_specific_animation_cannot_hide_behind_the_global_blobs_check(recording):
+    from spacr.qt.widgets.dna_rain import DnaRainWidget
+
+    window, backdrop, _ = recording
+    rain = DnaRainWidget(window)
+    rain.setGeometry(window.rect())
+    rain.show()
+    with pytest.raises(RuntimeError, match="DNA rain"):
+        verify_appearance(window)
+    assert exclude_special_backdrops(window) == ['DnaRainWidget']
+    assert not rain.isVisible() and backdrop.isVisible()
+    assert verify_appearance(window)['backdrop'] == 'blobs'
+    assert exclude_special_backdrops(window) == []
 
 
 @pytest.mark.parametrize("drift", ["saved_theme", "painted_palette", "backdrop", "hidden", "disabled"])

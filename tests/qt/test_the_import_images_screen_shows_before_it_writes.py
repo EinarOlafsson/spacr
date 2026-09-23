@@ -604,3 +604,121 @@ def test_the_scan_runs_off_the_gui_thread(qtbot, qt_theme_applied, corpus):
         for thread, _worker in list(widget._jobs):
             thread.quit()
             thread.wait(5000)
+
+
+def test_cancelled_pickers_preserve_the_proposal(screen, corpus, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+
+    _scanned(screen, corpus["cellvoyager"])
+    plan, root, destination = screen.plan(), screen.root_path(), screen.destination_path()
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *args: "")
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args: ("", ""))
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args: ("", ""))
+    screen._pick_root()
+    screen._pick_destination()
+    screen._pick_save_plan()
+    screen._pick_load_plan()
+    assert screen.plan() is plan
+    assert (screen.root_path(), screen.destination_path()) == (root, destination)
+
+
+def test_picker_plan_round_trip_keeps_the_proposal_without_importing(
+    screen, corpus, tmp_path, monkeypatch,
+):
+    from PySide6.QtWidgets import QFileDialog
+
+    root = str(corpus["cellvoyager"].root)
+    destination = tmp_path / "project"
+    choices = iter((root, str(destination)))
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *args: next(choices))
+    screen._pick_root()
+    screen._pick_destination()
+    assert screen.scan()
+    rows = screen.proposal_row_count()
+    saved = tmp_path / "plan.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args: (str(saved), "JSON"))
+    screen._pick_save_plan()
+    assert saved.is_file()
+    screen.set_root("")
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args: (str(saved), "JSON"))
+    screen._pick_load_plan()
+    assert screen.root_path() == root and screen.proposal_row_count() == rows
+    assert screen.can_import() and not destination.exists()
+
+
+def test_save_failure_keeps_the_current_plan_usable(screen, corpus, tmp_path, monkeypatch):
+    from spacr.qt.screens import image_import as ui
+
+    _scanned(screen, corpus["cellvoyager"])
+    plan = screen.plan()
+    def unwritable(*args):
+        raise OSError("read-only folder")
+    monkeypatch.setattr(ui.imp, "save_plan", unwritable)
+    assert not screen.save_plan(str(tmp_path / "plan.json"))
+    assert "read-only folder" in screen.status_text()
+    assert screen.plan() is plan and screen.can_import()
+
+
+def test_empty_destination_refuses_import_without_writing(screen, corpus):
+    _scanned(screen, corpus["cellvoyager"])
+    screen.set_destination("")
+    assert not screen.run_import()
+    assert "Choose a destination" in screen.status_text()
+
+
+def test_empty_scan_result_clears_the_previous_proposal(screen, corpus):
+    _scanned(screen, corpus["cellvoyager"])
+    screen._on_plan_ready(None)
+    screen._on_answer_edited()
+    screen._refresh_report()
+    assert screen.plan() is None and screen.proposal_row_count() == 0
+    assert screen.question_count() == 0 and screen.report_text() == ""
+    assert not screen.can_import()
+
+
+@pytest.mark.parametrize("failure_at", ["work", "completion"])
+def test_synchronous_job_failure_is_reported_and_controls_recover(screen, failure_at):
+    finished = []
+    screen.job_finished.connect(finished.append)
+    def fail(*args):
+        raise ValueError("unreadable image")
+    work, completion = (fail, lambda value: None) if failure_at == "work" else (lambda: 1, fail)
+    assert not screen._run_job(work, completion)
+    assert finished == [False] and not screen.is_busy()
+    assert screen._btn_scan.isEnabled()
+    assert "unreadable image" in screen.status_text()
+
+
+def test_failed_queued_completion_reports_failure_without_stranding_controls(screen):
+    finished = []
+    screen.job_finished.connect(finished.append)
+    def fail(value):
+        assert value == "result"
+        raise OSError("result unavailable")
+    screen._busy = True
+    screen._pending.append(({"result": "result"}, fail))
+    screen._on_job_settled(True)
+    assert finished == [False] and screen._pending == []
+    assert not screen.is_busy() and screen._btn_scan.isEnabled()
+    assert "result unavailable" in screen.status_text()
+
+
+@pytest.mark.parametrize("text, expected", [("traceback\nOSError: missing", "OSError: missing"), ("", "unknown error")])
+def test_worker_failure_reports_its_last_line_inline(screen, text, expected):
+    screen._busy = True
+    screen._on_worker_error_text(text)
+    screen._on_job_settled(False)
+    assert expected in screen.status_text()
+    assert not screen.is_busy() and screen._btn_scan.isEnabled()
+
+
+def test_worker_capture_passes_back_the_actual_result_and_propagates_failure():
+    result, box = object(), {}
+    ImageImportScreen._capture(lambda: result, box)
+    assert box["result"] is result
+    def fail():
+        raise OSError("missing image")
+    box = {}
+    with pytest.raises(OSError, match="missing image"):
+        ImageImportScreen._capture(fail, box)
+    assert box == {}

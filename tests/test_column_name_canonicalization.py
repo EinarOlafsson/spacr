@@ -496,7 +496,7 @@ def test_calculate_recruitment_accepts_a_pre_migration_frame():
     })
     out = _calculate_recruitment(df, channel=1)
 
-    assert out['pathogen_outside_cell_q75_mean'].tolist() == [6.0]
+    assert out['pathogen_channel_1_cell_outside_q75_ratio'].tolist() == [6.0]
     # and the frame it hands back speaks the canonical spelling
     assert 'pathogen_channel_1_outside_percentile_75' in out.columns
 

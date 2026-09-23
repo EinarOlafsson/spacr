@@ -23,14 +23,12 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QEvent, QRectF, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QKeySequence, QPixmap, QShortcut
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDialog,
-    QGraphicsScene,
-    QGraphicsView,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -49,6 +47,7 @@ from ...qc_quarantine import (
 from .. import path_probe
 from ..i18n import current_language, tr
 from ..job_runner import JobRunner
+from .zoom_view import ZoomableImageView
 
 LOG = logging.getLogger("spacr.qt.qc_field_browser")
 
@@ -669,64 +668,13 @@ def _pixmap(rgb: np.ndarray) -> QPixmap:
     return QPixmap.fromImage(image.copy())
 
 
-class _FieldView(QGraphicsView):
-    """Fit-on-load image canvas with wheel zoom and drag panning.
-
-    :param parent: parent widget; ownership only.
-    """
-
-    def __init__(self, parent=None) -> None:
-        """Build the view with its own scene, fitted on first load."""
-        super().__init__(parent)
-        self._scene = QGraphicsScene(self)
-        self.setScene(self._scene)
-        self._item = None
-        self._user_zoomed = False
-        self.setFrameShape(QGraphicsView.NoFrame)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
-
-    def set_pixmap(self, pixmap: QPixmap) -> None:
-        """Show a new image, fitted, and forget any zoom the user had applied.
-
-        :param pixmap: the composite to show; a null one clears the view.
-        """
-        self._scene.clear()
-        self._item = self._scene.addPixmap(pixmap)
-        self._scene.setSceneRect(QRectF(pixmap.rect()))
-        self._user_zoomed = False
-        self.resetTransform()
-        if not pixmap.isNull():
-            self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
-
-    def clear_image(self) -> None:
-        """Empty the view."""
-        self._scene.clear()
-        self._item = None
-
-    def wheelEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Zoom on the wheel, and remember that the user did.
-
-        Once they have zoomed, a resize stops re-fitting -- a view that snapped
-        back to fit every time the splitter moved would undo the inspection the
-        zoom was for.
-
-        :param event: the wheel event.
-        """
-        factor = 1.2 if event.angleDelta().y() > 0 else (1.0 / 1.2)
-        self.scale(factor, factor)
-        self._user_zoomed = True
-        event.accept()
-
-    def resizeEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Re-fit the image, unless the user has zoomed.
-
-        :param event: the resize event.
-        """
-        super().resizeEvent(event)
-        if not self._user_zoomed and self._item is not None:
-            self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
+#: The QC browser's image canvas. It USED TO BE DEFINED HERE, as
+#: ``_FieldView``; item 473 needed the same fit-zoom-pan view for its
+#: raw-versus-enhanced window and moved it to
+#: :mod:`spacr.qt.widgets.zoom_view` rather than write a second one. The
+#: old name stays because this file reads well with it and because a name
+#: in a test is a name worth not breaking; the class is the shared one.
+_FieldView = ZoomableImageView
 
 
 class QCFieldBrowser(QDialog):

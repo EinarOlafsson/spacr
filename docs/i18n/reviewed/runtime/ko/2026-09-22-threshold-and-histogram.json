@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted linguistic and technical review against corrected CPU threshold and histogram contracts; no native-speaker sign-off",
+  "reused_review_sources": [],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source_sha256": "e924c7c449871b9e8e06735b38d58c6a16d4c255501803fb96211f2335337ea8",
+      "translation": "전경 선택 전에 적용하는 임곗값 계수입니다(기본값 1, 범위 0.1~5). 양의 전역 임곗값과 로컬 Otsu에서는 계수를 높이면 밝거나 어두운 픽셀이 더 적게 남습니다. Sauvola와 Niblack은 로컬 임곗값에 직접 계수를 곱합니다. 임곗값이 양수이면 계수를 높일수록 밝은 픽셀은 더 적게, 어두운 픽셀은 더 많이 남으며, 음수이면 방향이 반대가 됩니다. Multi-Otsu는 클래스 경계를 이동하므로 선택한 중간 구간에 픽셀이 추가되거나 제외될 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source_sha256": "5b68e468bb932052c654fd47ed0253554f685e9f89cd92fdf6092684c7265632",
+      "translation": "단위가 없는 로컬 대비 가중치입니다(기본값 0.2, 범위 -2~2). Niblack은 T=m-k*s를 사용합니다. k를 높이면 임곗값이 낮아져 밝은 픽셀은 더 많이, 어두운 픽셀은 더 적게 남습니다. Sauvola는 T=m*(1+k*(s/R-1))를 사용하며, m은 로컬 평균, s는 그 표준편차입니다. 검출기가 값 범위를 재조정하지 않은 부동소수점 입력을 받으므로 여기서는 R=1입니다. k의 영향은 m과 s/R에 따라 달라집니다. 강도 스케일을 변경한 후 미리보기를 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source_sha256": "5d06859f9f2e876e2669097b4ab2f168ccf73565eab91973e9a58a23f9ee03f4",
+      "translation": "가우스 가중 로컬 평균에서 빼는 값입니다(기본값 5). 오프셋을 높이면 임곗값이 낮아져 정리 전에 더 많은 전경 픽셀이 남습니다. 음의 오프셋은 더 엄격합니다. 단위는 처리된 이미지에 따릅니다. 적응형 임곗값에서는 평활화된 강도이고, 적응형 임곗값을 사용하는 능선 필터에서는 능선 응답입니다. 원시 강도에 맞는 오프셋은 0~1 범위의 응답을 압도할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source_sha256": "df20e4ff6040325eab80c7bba5240243086ecad441ad0f65a75168df8e7fe0ad",
+      "translation": "로컬 대비가 객체를 구분하는 불균일한 조명에 적합합니다. 평균에 로컬 대비 가중치를 적용합니다. 이미지의 강도 스케일을 확인하세요. 이 검출기는 부동소수점 입력의 스케일을 재조정하지 않고 R=1을 사용합니다. 밝은 객체와 양의 k를 사용할 때 일정한 양의 값을 가진 윈도도 전경이 될 수 있습니다. 빈 영역을 자동으로 제외하지는 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source_sha256": "f3c95763bc78580a1849b1c6a3666638e31397a3e345a1b884a9f02e6677ffcc",
+      "translation": "로컬 강도 통계가 객체를 구분하는 불균일한 조명에 적합하며, 윈도 평균에서 표준편차의 k배를 뺀 값을 사용합니다. k를 높이면 임곗값이 낮아져 배경을 포함한 밝은 픽셀이 더 많이 남습니다. 음의 k는 임곗값을 높입니다. 어두운 객체에서는 픽셀 포함 방향이 반대가 됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source_sha256": "75f6c992f2d348554ad9cca515f18a0d87798a4947a578b0a988e3626cbb8016",
+      "translation": "시야를 나눌 밝기 구간의 수입니다. 2는 배경과 객체 사이에 하나의 임곗값을 두는 원래 Otsu 분할입니다. 시야에 배경, 희미한 후광, 밝은 세포핵처럼 두 개를 넘는 집단이 있으면 이 수를 높이세요. 그러면 세 집단 사이의 절충 임곗값 대신 아래에서 선택한 원하는 경계로 분할선이 이동합니다. Multi-Otsu는 두 가지 돋보기 범위와 전체 이미지 검출에서 이 클래스 수를 사용합니다. 각 범위는 자체 픽셀로 임곗값을 추정합니다. 작은 영역에는 요청한 클래스 수를 만들 만큼 서로 다른 강도값이 없을 수 있습니다. 일반 Otsu 모드에서는 이 수가 여전히 전체 이미지 검출에만 적용됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Calculating threshold histogram…",
+      "source": "Calculating threshold histogram…",
+      "source_sha256": "9311940b1f0c43e1ff2af6b1e282f208ac26636371db2b22691664e03228ec9e",
+      "translation": "임곗값 히스토그램 계산 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source_sha256": "0a2e984308728e976e6a33941563bf6bc703a32668a112babc2813e6c4ce9617",
+      "translation": "임곗값: {levels} ({description}). 검출 버튼이 평활화된 검출기 입력에 사용하는 임곗값입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source_sha256": "e3f08d69a58b793e17b05762304b482590fd5c8d444dae4905d95ad53d9d8349",
+      "translation": "로컬 임곗값은 픽셀마다 다릅니다({description}). 따라서 단일 임곗값 선을 그리지 않습니다. 히스토그램은 로컬 임곗값을 적용하기 전의 평활화된 검출기 입력을 보여 줍니다."
+    },
+    {
+      "table": "ui",
+      "key": "Open a field first — a histogram needs an image.",
+      "source": "Open a field first — a histogram needs an image.",
+      "source_sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a",
+      "translation": "먼저 시야를 여세요. 히스토그램에는 이미지가 필요합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source_sha256": "ab0ab5e43f2f379d1d4a4d06fc6b5958541e321dcfab5f6089db010a2702693c",
+      "translation": "반전, 정규화, 향상 및 평활화 후 전체 시야의 검출기 입력을 선택한 방법의 임곗값과 함께 미리 봅니다. 로컬 방법에는 단일 임곗값 표시가 없습니다. 계산은 백그라운드에서 실행됩니다. 창을 닫으면 이번 계산을 버립니다. 설정을 변경한 후 다시 열어 미리보기를 갱신하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source_sha256": "d0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3",
+      "translation": "열 때의 전체 시야와 설정을 저장한 스냅샷입니다. 이미지나 설정을 변경한 후에는 히스토그램을 다시 여세요."
+    },
+    {
+      "table": "ui",
+      "key": "Threshold histogram failed: {error}",
+      "source": "Threshold histogram failed: {error}",
+      "source_sha256": "9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89",
+      "translation": "임곗값 히스토그램 실패: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "{method} histogram",
+      "source": "{method} histogram",
+      "source_sha256": "cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e",
+      "translation": "{method} 히스토그램"
+    }
+  ]
+}

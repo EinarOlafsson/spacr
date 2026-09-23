@@ -167,8 +167,12 @@ def find_uv() -> Optional[str]:
     return found or None
 
 
-def upgrade_command(pre_release: bool = False) -> list:
-    """The command that upgrades this installation, whichever tool owns it."""
+def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
+    """Upgrade this interpreter, optionally to the exact version offered.
+
+    :param pre_release: allow prerelease packages.
+    :param target_version: explicit version selected by the update check.
+    """
     uv = find_uv()
     if uv:
         args = [uv, "pip", "install", "--upgrade",
@@ -177,7 +181,11 @@ def upgrade_command(pre_release: bool = False) -> list:
         args = [sys.executable, "-m", "pip", "install", "--upgrade"]
     if pre_release:
         args.append("--pre")
-    args.append("spacr")
+    if target_version is not None:
+        from packaging.version import Version
+        args.append(f"spacr=={Version(str(target_version))}")
+    else:
+        args.append("spacr")
     return args
 
 
@@ -228,23 +236,50 @@ def editable_install_location() -> Optional[str]:
         os.path.isfile(os.path.join(here, "pyproject.toml")) else None
 
 
-def run_pip_upgrade(pre_release: bool = False):
+def run_pip_upgrade(pre_release: bool = False, *, target_version=None):
     """Upgrade ``spacr`` in place, capturing what the packaging tool said.
 
     :param pre_release: pass ``--pre`` so pre-releases and ``.postN``
         versions are considered.
+    :param target_version: install this exact offered version and verify it in
+        a fresh process before reporting success. None retains an unpinned upgrade.
     :returns: ``(exit_code, output)`` with combined stdout and stderr. Captured
         output remains available to desktop installations launched without a
         terminal.
     """
     editable = editable_install_location()
     if editable:
-        return (0, (
+        return (2 if target_version is not None else 0, (
             f"spaCR is installed in editable mode from {editable}, so there "
             f"is nothing to upgrade: that folder IS the package, and pip "
             f"would replace it with a release build. Update it with `git "
             f"pull` there instead.\n"))
-    return run_install_command(upgrade_command(pre_release))
+    result = run_install_command(upgrade_command(pre_release, target_version=target_version))
+    if result[0] != 0 or target_version is None:
+        return result
+    probe = [sys.executable, "-I", "-c",
+             "from importlib.metadata import version; print(version('spacr'))"]
+    code, output = run_install_command(probe, timeout=30)
+    from packaging.version import InvalidVersion, Version
+    try:
+        verified = code == 0 and Version(output.strip()) == Version(str(target_version))
+    except InvalidVersion:
+        verified = False
+    if not verified:
+        return 1, (result[1] + "\nThe installer finished but the active interpreter "
+                   f"did not verify spaCR {target_version}. Version check: {output.strip()}")
+    return result
+
+
+def launch_updated_app() -> int:
+    """Launch the updated Qt application after the old event loop has stopped.
+
+    :returns: process identifier of the detached replacement application.
+    :raises OSError: the replacement could not be started.
+    """
+    from .install_cleanup import _spawn_detached
+    from .restart_state import command
+    return _spawn_detached(command(), cwd=os.path.expanduser("~"))
 
 
 def run_install_command(args, timeout: float = 1800.0):

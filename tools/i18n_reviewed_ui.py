@@ -5,7 +5,7 @@ button caption or a dense scientific introduction without application
 context.  Several grammatically valid translations consequently used
 the wrong sense: a microplate *well* became an interjection, a scientific
 *figure* became a number, an image *crop* became agriculture, and a parameter
-*sweep* became cleaning.  This module is the small human-reviewed vocabulary
+*sweep* became cleaning.  This module is the small reviewed vocabulary
 layer for those high-risk captions.
 
 The catalog builder consumes :data:`REVIEWED_UI_TRANSLATIONS` before any
@@ -48,6 +48,70 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    "Fit": _row(
+        "Anpassa", "Einpassen", "Ajustar", "适应窗口", "Ajustar",
+        "पूरा दिखाएँ", "화면에 맞추기", "Aðlaga að glugga", "Ajuster"),
+    "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.": _row(
+        "Håll ned {key} och rulla mushjulet för att zooma. Dra i en tom yta för att flytta vyn. Anpassa visar hela kartan.",
+        "Halten Sie {key} gedrückt und drehen Sie das Mausrad zum Zoomen. Ziehen Sie eine freie Fläche, um die Ansicht zu verschieben. Einpassen zeigt die gesamte Übersicht.",
+        "Mantén pulsada {key} y gira la rueda del ratón para ampliar o reducir. Arrastra un espacio vacío para desplazarte. Ajustar muestra el mapa completo.",
+        "按住 {key} 并滚动鼠标滚轮可缩放。拖动空白区域可平移视图。点击“适应窗口”可显示整个图。",
+        "Mantenha {key} pressionada e gire a roda do mouse para ampliar ou reduzir. Arraste uma área vazia para mover a visualização. Ajustar mostra o mapa inteiro.",
+        "ज़ूम करने के लिए {key} दबाए रखें और माउस का पहिया घुमाएँ। दृश्य को खिसकाने के लिए खाली जगह पर खींचें। ‘पूरा दिखाएँ’ से पूरा मानचित्र दिखता है।",
+        "{key} 키를 누른 채 마우스 휠을 돌려 확대하거나 축소하세요. 빈 공간을 드래그하여 화면을 이동하세요. 화면에 맞추기를 누르면 전체 지도가 표시됩니다.",
+        "Haltu {key} niðri og skrunaðu með músarhjólinu til að þysja. Dragðu á auðu svæði til að færa sýnina. Aðlaga að glugga sýnir allt kortið.",
+        "Maintenez {key} et faites tourner la molette pour zoomer. Faites glisser une zone vide pour déplacer la vue. Ajuster affiche toute la carte."),
+    "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.": _row(
+        "Heldragna pilar: dokumenterade dataöverföringar. Streckade pilar: matchande datatyper som kräver kompatibilitetskontroll.",
+        "Durchgezogene Pfeile: dokumentierte Datenübergaben. Gestrichelte Pfeile: passende Datentypen, deren Kompatibilität geprüft werden muss.",
+        "Flechas continuas: transferencias de datos documentadas. Flechas discontinuas: tipos de datos coincidentes que requieren comprobar la compatibilidad.",
+        "实线箭头：已说明的数据传递。虚线箭头：数据类型匹配，但仍需检查兼容性。",
+        "Setas contínuas: transferências de dados documentadas. Setas tracejadas: tipos de dados correspondentes que exigem verificação de compatibilidade.",
+        "सतत रेखा वाले तीर: दस्तावेज़ों में वर्णित डेटा हस्तांतरण। खंडित रेखा वाले तीर: मेल खाते डेटा प्रकार, जिनकी संगतता जाँचना आवश्यक है।",
+        "실선 화살표: 문서에 설명된 데이터 전달. 점선 화살표: 데이터 유형이 일치하지만 호환성 확인이 필요한 연결.",
+        "Heildregnar örvar: skjalfestar gagnatilfærslur. Örvar með brotalínum: samsvarandi gagnategundir sem þarf að kanna samhæfni á.",
+        "Flèches pleines : transferts de données documentés. Flèches en pointillés : types de données correspondants dont la compatibilité doit être vérifiée."),
+    "None declared": _row(
+        "Inga angivna", "Keine deklariert", "Ninguno declarado", "未声明",
+        "Nenhum declarado", "कोई घोषित नहीं", "선언된 항목 없음",
+        "Ekkert tilgreint", "Aucun déclaré"),
+    # Organism vocabulary reviewed in its compartment/module context. Some
+    # natural target nouns equal English; each has a complete locale row.
+    'Cytosol': _row(
+        'Cytosol', 'Zytosol', 'Citosol',
+        '细胞质基质', 'Citosol', 'कोशिकाद्रव्य द्रव',
+        '세포질액', 'Frymivökvi', 'Cytosol'),
+    'Filamentation': _row(
+        'Filamentbildning', 'Filamentbildung', 'Filamentación',
+        '丝状生长', 'Filamentação', 'तंतु निर्माण',
+        '사상체 형성', 'Þráðmyndun', 'Filamentation'),
+    'Golgi': _row(
+        'Golgi', 'Golgi', 'Golgi',
+        '高尔基体', 'Golgi', 'गॉल्जी',
+        '골지체', 'Golgi', 'Golgi'),
+    'Rhoptries': _row(
+        'Roptrier', 'Rhoptrien', 'Roptrias',
+        '棒状体', 'Roptrias', 'रॉप्ट्री',
+        '롭트리', 'Roptríur', 'Rhoptries'),
+    'Vacuole': _row(
+        'Vakuol', 'Vakuole', 'Vacuola',
+        '液泡', 'Vacúolo', 'रिक्तिका',
+        '액포', 'Safabóla', 'Vacuole'),
+    'cytosol': _row(
+        'cytosol', 'Zytosol', 'citosol',
+        '细胞质基质', 'citosol', 'कोशिकाद्रव्य द्रव',
+        '세포질액', 'frymivökvi', 'cytosol'),
+    'rhoptries 1': _row(
+        'roptrier 1', 'Rhoptrien 1', 'roptrias 1',
+        '棒状体 1', 'roptrias 1', 'रॉप्ट्री 1',
+        '롭트리 1', 'roptríur 1', 'rhoptries 1'),
+    'rhoptries 2': _row(
+        'roptrier 2', 'Rhoptrien 2', 'roptrias 2',
+        '棒状体 2', 'roptrias 2', 'रॉप्ट्री 2',
+        '롭트리 2', 'roptríur 2', 'rhoptries 2'),
+    "Biofilm": _row(
+        "Biofilm", "Biofilm", "Biopelícula", "生物膜", "Biofilme",
+        "जैवफ़िल्म", "바이오필름", "Örveruþekja", "Biofilm"),
     # Scientific display nouns.  These rows deliberately choose the plotting,
     # imaging, tabular-data, and microplate senses rather than everyday ones.
     # "Source" is the field's label after the 2026-09-04 rename from "Path".
@@ -298,17 +362,6 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         "플레이트",
         "plata",
         "plaque",
-    ),
-    "Plates": _row(
-        "Plattor",
-        "Platten",
-        "Placas",
-        "板",
-        "Placas",
-        "प्लेट",
-        "플레이트",
-        "Plötur",
-        "Plaques",
     ),
     "Plate:": _row(
         "Platta:",
@@ -897,16 +950,16 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         "Vista stíl…",
         "Enregistrer le style…",
     ),
-    "Save recipe": _row(
-        "Spara recept",
-        "Rezept speichern",
-        "Guardar receta",
-        "保存配置方案",
-        "Salvar receita",
-        "सेटिंग रेसिपी सहेजें",
-        "설정 레시피 저장",
-        "Vista stillingauppskrift",
-        "Enregistrer la recette de paramètres",
+    "Save template": _row(
+        "Spara mall",
+        "Vorlage speichern",
+        "Guardar plantilla",
+        "保存模板",
+        "Salvar modelo",
+        "टेम्पलेट सहेजें",
+        "템플릿 저장",
+        "Vista sniðmát",
+        "Enregistrer le modèle",
     ),
     "Save current settings…": _row(
         "Spara aktuella inställningar…",

@@ -10,6 +10,7 @@ the whole app is usable without a mouse:
     Ctrl+Shift+H  Search spaCR from the field beside the Help menu
     F1  / ?       Show the shortcuts cheat sheet
     Ctrl+P        Open Preferences
+    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %
     Ctrl+/        Open the AI Console
     Ctrl+End      Jump to the newest console line
     F11           Toggle full screen
@@ -25,8 +26,8 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import QEvent, Qt
-from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QShortcut
+from PySide6.QtCore import QEvent, QRectF, Qt
+from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QPen, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -83,7 +84,7 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
                  "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
-    ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
+    ShortcutSpec("Ctrl+Shift+R", "Settings templates",     "Actions"),
     ShortcutSpec("Ctrl+T",       "Pause or resume the background",
                  "Background"),
     ShortcutSpec("Ctrl+R",       "Restart the background", "Background"),
@@ -92,6 +93,8 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
     ShortcutSpec("Z + scroll",   "Resize the interface text",
                  "Background"),
+    ShortcutSpec("Ctrl+Alt+0",   "Reset GUI scale and font scale to 100%",
+                 "Navigation"),
     ShortcutSpec("F11",          "Full screen",            "Actions"),
     ShortcutSpec("Ctrl+Shift+H", "Search spaCR from the Help bar", "Help"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
@@ -273,6 +276,7 @@ def install(window: QMainWindow) -> None:
     _bind(window, "Ctrl+Shift+H", lambda: _focus_help_search(window))
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
+    _bind(window, "Ctrl+Alt+0", lambda: _reset_every_scale(window))
     _bind(window, "?",      lambda: _help_key(window))
     for i in range(1, 10):
         _bind(window, f"Ctrl+{i}",
@@ -445,6 +449,24 @@ def _open_preferences(window: QMainWindow) -> None:
         LOG.debug("preferences dialog not available: %s", e)
 
 
+def _reset_every_scale(window: QMainWindow) -> None:
+    """Put GUI scale, font scale and every preview scale back to 100 %, now.
+
+    The backup way out of a scale too small to read (item 471): it needs no
+    reading and asks nothing. Ctrl+Alt rather than Ctrl+Shift, which some
+    Windows keyboard setups take for switching layout, and 0 rather than a
+    letter, because Cmd+Option+0 is not one of the combinations macOS
+    reserves.
+
+    :param window: the main window.
+    """
+    try:
+        from .gui_scale import reset_every_scale
+        reset_every_scale(window)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not reset the scales", exc_info=True)
+
+
 def _toggle_ai(window: QMainWindow) -> None:
     """Toggle the AI switch on the currently active AppScreen."""
     try:
@@ -534,6 +556,23 @@ OVERLAY_CARD_NAME = "ShortcutOverlayCard"
 OVERLAY_SCROLL_NAME = "ShortcutOverlayScroll"
 
 
+class _ShortcutCard(QWidget):
+    """Paint the rounded shortcut surface independently of global stylesheet timing."""
+
+    def paintEvent(self, event):
+        """Keep the background 80-percent opaque and shortcut text fully opaque."""
+        from .theme import active_palette
+
+        palette = active_palette()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        fill = QColor(palette["surface"])
+        fill.setAlphaF(.8)
+        painter.setBrush(fill)
+        painter.setPen(QPen(QColor(palette["border"]), 1))
+        painter.drawRoundedRect(QRectF(self.rect()).adjusted(.5, .5, -.5, -.5), 16, 16)
+
+
 class ShortcutOverlay(QWidget):
     """The ``?`` overlay — every shortcut, over the window, dismissed by any key.
 
@@ -568,8 +607,11 @@ class ShortcutOverlay(QWidget):
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setFocusPolicy(Qt.StrongFocus)
 
-        self._card = QWidget(self)
+        self._card = _ShortcutCard(self)
         self._card.setObjectName(OVERLAY_CARD_NAME)
+        self._card.setStyleSheet(
+            "QWidget#ShortcutOverlayCard, QScrollArea#ShortcutOverlayScroll, "
+            "QScrollArea#ShortcutOverlayScroll QWidget { background: transparent; border: none; }")
         card_layout = QVBoxLayout(self._card)
         card_layout.setContentsMargins(0, 0, 0, 0)
         card_layout.setSpacing(0)
@@ -636,10 +678,8 @@ class ShortcutOverlay(QWidget):
         window.installEventFilter(self)
 
     def paintEvent(self, event) -> None:
-        """Dim whatever is behind the card."""
-        painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor(0, 0, 0, 170))
-        painter.end()
+        """Leave the main window visible around the translucent shortcut card."""
+        pass
 
     def resizeEvent(self, event) -> None:
         """Keep the card centred when the window resizes."""
@@ -709,7 +749,9 @@ def _focus_settings_search(window: QMainWindow) -> None:
 
     Ctrl+F on a settings form should mean "find a setting", which is the
     only thing on that screen anyone searches. Screens without a strip are
-    left alone rather than swallowing the key.
+    left alone rather than swallowing the key. A settings column collapsed to
+    the left is opened first (item 471): the caret cannot go into a box
+    nobody can see.
     """
     try:
         screen = window._stack.currentWidget()
@@ -718,6 +760,12 @@ def _focus_settings_search(window: QMainWindow) -> None:
     bar = getattr(screen, "_settings_search", None)
     if bar is None:
         return
+    reveal = getattr(screen, "reveal_settings", None)
+    if callable(reveal):
+        try:
+            reveal()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not open the settings column", exc_info=True)
     try:
         bar._input.setFocus()
         bar._input.selectAll()
@@ -772,7 +820,8 @@ def show_cheat_sheet(parent) -> None:
         overlay.setFocus()
         return overlay
 
-    dlg = QDialog(parent)
+    from .widgets.workflow_diagram import DiagramDialog
+    dlg = DiagramDialog(parent)
     dlg.setWindowTitle("spaCR — Keyboard shortcuts")
     from .preferences import scaled_px
     
@@ -839,7 +888,7 @@ QLabel#ShortcutOverlayKeys {{
     color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayLabel {{
-    color: {palette["fg_dim"]};
+    color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayHint {{
     color: {palette["fg_dim"]};

@@ -1,0 +1,154 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "Persistent, selectable explanations of every element in a workflow.",
+      "label": "spacr.qt.widgets.pipeline_details#0",
+      "source": "Persistent, selectable explanations of every element in a pipeline.",
+      "source_sha256": "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3",
+      "translation": "Explicaciones persistentes y seleccionables de cada elemento de una canalización."
+    },
+    {
+      "context": "Show a workflow's dependency stages as module and connection cards.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails#0",
+      "source": "Show a pipeline's dependency stages as module and connection cards.",
+      "source_sha256": "58d11fd96f30c2b5b2ecc76cd58fcdd02ff6e3ef5f90ce30d033dd8e0d94df88",
+      "translation": "Mostrar las etapas de dependencia de una canalización como tarjetas de módulos y conexiones."
+    },
+    {
+      "context": "owning dialog. Cards fill its available width, and text wraps when the window width changes. Selecting a graph element only changes its border; it never rebuilds the text or scrolls the panel.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails#1",
+      "source": "owning dialog. Cards fill its available width, and text wraps when the window width changes. Selecting a graph element only changes its border; it never rebuilds the text or scrolls the panel.",
+      "source_sha256": "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+      "translation": "Diálogo propietario. Las tarjetas ocupan su anchura disponible y el texto se ajusta cuando cambia la anchura de la ventana. Al seleccionar un elemento del grafo solo cambia su borde; nunca se reconstruye el texto ni se desplaza el panel."
+    },
+    {
+      "context": "Create a rounded, translucent pane with a stable scroll position.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails#2",
+      "source": "Create a rounded, translucent pane with a stable scroll position.",
+      "source_sha256": "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138",
+      "translation": "Crear un panel redondeado y translúcido con una posición de desplazamiento estable."
+    },
+    {
+      "context": "Outline the corresponding module or connection without moving text.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element#0",
+      "source": "Outline the corresponding module or connection without moving text.",
+      "source_sha256": "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+      "translation": "Delinear el módulo o la conexión correspondiente sin mover el texto."
+    },
+    {
+      "context": "module key, or source and destination joined by →.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element#1",
+      "source": "module key, or source and destination joined by →.",
+      "source_sha256": "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4",
+      "translation": "Clave del módulo, o bien origen y destino unidos por →."
+    },
+    {
+      "context": "Build cards once for a newly selected workflow, in dependency order.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline#0",
+      "source": "Build cards once for a newly selected pipeline, in dependency order.",
+      "source_sha256": "470b2916eea05beeb8e95a23104e9060a6891cfc1e9529aa54ca5575aba381e4",
+      "translation": "Construir una sola vez las tarjetas de una canalización recién seleccionada, en orden de dependencia."
+    },
+    {
+      "context": "pathway metadata including title and summary.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline#1",
+      "source": "pathway metadata including title and summary.",
+      "source_sha256": "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+      "translation": "Metadatos de la ruta, incluidos el título y el resumen."
+    },
+    {
+      "context": "matching WorkflowView with nodes, positions and edges.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline#2",
+      "source": "matching WorkflowView with nodes, positions and edges.",
+      "source_sha256": "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74",
+      "translation": "WorkflowView correspondiente con nodos, posiciones y aristas."
+    },
+    {
+      "context": "Return all visible explanation text for accessibility and inspection.",
+      "label": "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText#0",
+      "source": "Return all visible explanation text for accessibility and inspection.",
+      "source_sha256": "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0",
+      "translation": "Devolver todo el texto explicativo visible para accesibilidad e inspección."
+    },
+    {
+      "context": "Add external inputs to a display copy without changing runnable steps.",
+      "label": "spacr.qt.widgets.sample_project.pathway_graph#0",
+      "source": "Add external inputs to a display copy without changing runnable steps.",
+      "source_sha256": "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+      "translation": "Añadir entradas externas a una copia de visualización sin cambiar los pasos ejecutables."
+    },
+    {
+      "context": "pathway metadata with optional external input records.",
+      "label": "spacr.qt.widgets.sample_project.pathway_graph#1",
+      "source": "pathway metadata with optional external input records.",
+      "source_sha256": "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+      "translation": "Metadatos de la ruta con registros opcionales de entradas externas."
+    },
+    {
+      "context": "shared module/artifact map, left unchanged.",
+      "label": "spacr.qt.widgets.sample_project.pathway_graph#2",
+      "source": "shared module/artifact map, left unchanged.",
+      "source_sha256": "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+      "translation": "Mapa compartido de módulos y artefactos, que se deja sin cambios."
+    },
+    {
+      "context": "runnable module dependencies, left unchanged.",
+      "label": "spacr.qt.widgets.sample_project.pathway_graph#3",
+      "source": "runnable module dependencies, left unchanged.",
+      "source_sha256": "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+      "translation": "Dependencias de los módulos ejecutables, que se dejan sin cambios."
+    },
+    {
+      "context": "display map, node keys and dependencies including input nodes.",
+      "label": "spacr.qt.widgets.sample_project.pathway_graph#4",
+      "source": "display map, node keys and dependencies including input nodes.",
+      "source_sha256": "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068",
+      "translation": "Mapa de visualización, claves de nodos y dependencias, incluidos los nodos de entrada."
+    },
+    {
+      "context": "Build a vertical pane divider with a thin blue, draggable handle.",
+      "label": "spacr.qt.widgets.workflow_diagram.diagram_splitter#0",
+      "source": "Build a vertical pane divider with a thin blue, draggable handle.",
+      "source_sha256": "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+      "translation": "Construir una división vertical entre paneles con un tirador azul fino que se puede arrastrar."
+    },
+    {
+      "context": "owning dialog or container.",
+      "label": "spacr.qt.widgets.workflow_diagram.diagram_splitter#1",
+      "source": "owning dialog or container.",
+      "source_sha256": "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+      "translation": "Diálogo o contenedor propietario."
+    },
+    {
+      "context": "non-collapsing QSplitter; callers add the diagram and details.",
+      "label": "spacr.qt.widgets.workflow_diagram.diagram_splitter#2",
+      "source": "non-collapsing QSplitter; callers add the diagram and details.",
+      "source_sha256": "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf",
+      "translation": "QSplitter que no se puede contraer; quien lo llama añade el diagrama y los detalles."
+    },
+    {
+      "context": "Build a resizable, scrollable explanation area shared by diagrams.",
+      "label": "spacr.qt.widgets.workflow_diagram.details_box#0",
+      "source": "Build a resizable, scrollable explanation area shared by diagrams.",
+      "source_sha256": "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+      "translation": "Construir un área de explicación compartida por los diagramas, redimensionable y con desplazamiento."
+    },
+    {
+      "context": "owning widget; defaults to None.",
+      "label": "spacr.qt.widgets.workflow_diagram.details_box#1",
+      "source": "owning widget; defaults to None.",
+      "source_sha256": "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+      "translation": "Widget propietario; el valor predeterminado es None."
+    },
+    {
+      "context": "QTextBrowser with external API links enabled and introductory text. Its minimum height is six body-font lines; the splitter sets its height.",
+      "label": "spacr.qt.widgets.workflow_diagram.details_box#2",
+      "source": "QTextBrowser with external API links enabled and introductory text. Its minimum height is six body-font lines; the splitter sets its height.",
+      "source_sha256": "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a",
+      "translation": "QTextBrowser con enlaces externos a la API habilitados y texto introductorio. Su altura mínima es de seis líneas de la fuente del cuerpo; el divisor establece su altura."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of persistent pipeline details, external input display copies and diagram splitters; no native-speaker or model-accuracy sign-off",
+  "schema": 1
+}

@@ -752,6 +752,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions.addWidget(self._cancel_btn)
         actions.addWidget(self._settings_btn)
         actions.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "measure", actions)
+        self._scale_control.scaler.add_hook(self._on_preview_scale)
+        from ..gui_scale import add_listener, current_scale
+        add_listener(self._on_gui_scale)
+        if current_scale() != 1.0:
+            self._on_gui_scale(current_scale())
         root.addLayout(actions)
 
         self._grid_scroll = QScrollArea()
@@ -1684,6 +1691,30 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         except Exception:
             pass
         return label
+
+    def _on_preview_scale(self, scale: float) -> None:
+        """Size the crop thumbnails with the preview's own scale.
+
+        The GUI scale multiplies it: a thumbnail is a pixmap sized to a
+        number, which no setter the scaling layer watches ever sees.
+
+        :param scale: the preview scale; the thumbnails are 132 px at 100 %.
+        """
+        from ..gui_scale import current_scale
+
+        self._preview_scale_value = float(scale)
+        self._thumb_px = max(8, int(round(132 * float(scale)
+                                          * current_scale())))
+        if self._crops:
+            self._render_grid()
+
+    def _on_gui_scale(self, _scale: float) -> None:
+        """Re-size the thumbnails after a change of GUI scale.
+
+        :param _scale: the new GUI scale; read back through
+            :func:`spacr.qt.gui_scale.current_scale`.
+        """
+        self._on_preview_scale(getattr(self, "_preview_scale_value", 1.0))
 
     def _render_grid(self) -> None:
         """Draw the crops, grouped and headed by phenotype."""

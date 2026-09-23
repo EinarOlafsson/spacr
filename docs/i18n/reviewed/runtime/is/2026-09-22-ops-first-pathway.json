@@ -1,0 +1,21 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source_sha256": "cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea",
+      "table": "ui",
+      "translation": "Byrjaðu á «Heim (Home)», opnaðu «Grímur (Mask)» og síðan «OPS»; tilgreindu upprunalegar myndir umferða og staðsetninga og samstillingu við svipgerðarmyndirnar."
+    },
+    {
+      "key": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source_sha256": "94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903",
+      "table": "ui",
+      "translation": "«Samstilla og sauma saman (Align & Stitch)» er valfrjálst þegar skoða þarf rúmfræði myndflísa eða varpa hnitum; það er ekki forsenda fyrir OPS-dæminu. Samsett mynd ein og sér kemur ekki í stað raðgreiningarumferðanna. OPS-töflur krefjast skýrrar tengingar og samantektar eftir auðkennum fyrir aðhvarfsgreiningu; leiðsögnin framkvæmir ekki þessa umbreytingu sjálfkrafa."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review against the OPS-first sample route; optional preparation prefix retains the earlier reviewed note unchanged; no native-speaker sign-off",
+  "schema": 1
+}

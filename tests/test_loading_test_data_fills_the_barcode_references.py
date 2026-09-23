@@ -13,10 +13,27 @@ is a test that fails when GitHub is slow.
 
 import hashlib
 import os
+from pathlib import Path
 
 import pytest
 
 from spacr import settings as S
+
+
+@pytest.fixture
+def packaged_references(tmp_path, monkeypatch):
+    """An isolated package-data layout containing the real reference bytes."""
+    package = tmp_path / "spacr"
+    data = package / "resources" / "data"
+    data.mkdir(parents=True)
+    copies = {}
+    for kind in S._BUNDLED_BARCODE_FILES:
+        original = Path(S.bundled_barcode_path(kind))
+        copied = data / original.name
+        copied.write_bytes(original.read_bytes())
+        copies[kind] = copied
+    monkeypatch.setattr(S, "__file__", str(package / "settings.py"))
+    return copies
 
 
 def test_the_pinned_barcode_hashes_are_the_bundled_files():
@@ -112,74 +129,59 @@ def test_an_unknown_reference_is_refused_by_both_entry_points():
         S._ensure_bundled_barcode("protein")
 
 
-def test_a_missing_table_is_fetched_and_written(tmp_path, monkeypatch):
+def test_a_missing_table_is_fetched_and_written(packaged_references):
     """The fetch path runs when, and only when, the local copy is gone."""
-    real = S.bundled_barcode_path("row")
-    payload = open(real, "rb").read()
-    moved = tmp_path / "barcodes_row.csv"
-    os.replace(real, moved)
+    path = packaged_references["row"]
+    payload = path.read_bytes()
+    path.unlink()
     asked = []
 
     def fetch(url):
         asked.append(url)
         return payload
 
-    try:
-        got = S._ensure_bundled_barcode("row", fetch=fetch)
-        assert got == real
-        assert open(got, "rb").read() == payload
-        assert len(asked) == 1 and asked[0] == S._bundled_barcode_url("row")
-        # And the second call is served locally, so a screen that fills the
-        # references twice does not fetch twice.
-        S._ensure_bundled_barcode("row", fetch=fetch)
-        assert len(asked) == 1
-    finally:
-        os.replace(moved, real) if moved.exists() else None
-        if not os.path.exists(real):
-            open(real, "wb").write(payload)
+    got = S._ensure_bundled_barcode("row", fetch=fetch)
+    assert got == str(path)
+    assert Path(got).read_bytes() == payload
+    assert len(asked) == 1 and asked[0] == S._bundled_barcode_url("row")
+    assert S._ensure_bundled_barcode("row", fetch=fetch) == str(path)
+    assert len(asked) == 1
 
 
-def test_a_fetched_table_that_is_not_the_right_one_is_not_written(tmp_path):
+def test_a_fetched_table_that_is_not_the_right_one_is_not_written(
+        packaged_references):
     """A wrong table maps reads to the wrong wells and still finishes.
 
     So the bytes are checked before they are written, and a mismatch leaves
     no file behind -- a half-right CSV on disk would be served from the local
     path forever after, and the check would never run again.
     """
-    real = S.bundled_barcode_path("column")
-    payload = open(real, "rb").read()
-    moved = tmp_path / "barcodes_column.csv"
-    os.replace(real, moved)
-
-    try:
-        with pytest.raises(ValueError, match="not the one this release ships"):
-            S._ensure_bundled_barcode(
-                "column", fetch=lambda url: b"name,sequence\nfake,ACGT\n")
-        assert not os.path.exists(real)
-        assert not os.path.exists(f"{real}.partial")
-    finally:
-        os.replace(moved, real)
+    path = packaged_references["column"]
+    path.unlink()
+    with pytest.raises(ValueError, match="not the one this release ships"):
+        S._ensure_bundled_barcode(
+            "column", fetch=lambda url: b"name,sequence\nfake,ACGT\n")
+    assert not path.exists()
+    assert not Path(f"{path}.partial").exists()
 
 
-def test_a_reference_that_cannot_be_produced_leaves_the_others_filled(tmp_path):
+def test_a_reference_that_cannot_be_produced_leaves_the_others_filled(
+        packaged_references):
     """One unavailable table must not cost the user the other two.
 
     "Load test data" that raises is worse than one that fills what it can:
     an empty field is a state the screen already knows how to show.
     """
-    real = S.bundled_barcode_path("grna")
-    payload = open(real, "rb").read()
-    moved = tmp_path / "barcodes_grna.csv"
-    os.replace(real, moved)
+    packaged_references["grna"].unlink()
     settings = {}
 
-    try:
-        def fetch(url):
-            raise OSError("no route to host")
+    def fetch(url):
+        raise OSError("no route to host")
 
-        filled = S._fill_missing_barcode_references(settings, fetch=fetch)
+    filled = S._fill_missing_barcode_references(settings, fetch=fetch)
 
-        assert sorted(filled) == ["column_csv", "row_csv"]
-        assert not settings.get("grna_csv")
-    finally:
-        os.replace(moved, real)
+    assert sorted(filled) == ["column_csv", "row_csv"]
+    assert not settings.get("grna_csv")
+    for kind in ("column", "row"):
+        assert settings[S.BUNDLED_BARCODE_SETTING[kind]] == str(
+            packaged_references[kind])

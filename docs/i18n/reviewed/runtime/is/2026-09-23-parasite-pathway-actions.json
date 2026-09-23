@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted linguistic and implementation-context review of the replication and differential-staining invasion actions, preserving vacuole identity and control requirements. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
+      "translation": "Teldu sníkjudýr út frá skýrum auðkennum frymisbóla og berðu saman dreifingar milli skilyrða; auðkenni hýsilfrumu eitt og sér skilgreinir ekki frymisbólu."
+    },
+    {
+      "table": "ui",
+      "key": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source_sha256": "240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815",
+      "translation": "Notaðu nauðsynlegar mælingar með tveggja lita aðgreinandi litun og viðmið fyrir grunnlitun til að greina á milli viðloðunar og innrásar."
+    }
+  ]
+}

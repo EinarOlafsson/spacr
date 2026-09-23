@@ -339,18 +339,22 @@ def _generator_module():
 
 # --------------------------------------------------------------- the release
 
-def test_the_release_helper_still_bumps_the_icon_block(tmp_path):
+@pytest.mark.parametrize("asset_prefix", ["SpaCR", "spaCR"])
+def test_the_release_helper_still_bumps_the_icon_block(tmp_path, asset_prefix):
     """The next release must be able to move all three links forward."""
     helper = _release_module()
     working = tmp_path / "README.rst"
-    working.write_text(README.read_text(encoding="utf-8"), encoding="utf-8")
+    source = README.read_text(encoding="utf-8")
+    source = re.sub(r"/spacr-", "/" + asset_prefix + "-", source, flags=re.IGNORECASE)
+    working.write_text(source, encoding="utf-8")
 
     updated = helper._updated_readme_text(working, "9.9.9")
     start = updated.find(BEGIN)
     block = updated[start:updated.find(END) + len(END)]
 
     for fragment in PLATFORM_ASSETS.values():
-        expected = ASSET_URL.format(version="9.9.9", fragment=fragment)
+        expected = ASSET_URL.format(version="9.9.9", fragment=fragment).replace(
+            "/SpaCR-", "/" + asset_prefix + "-")
         assert expected in block, f"{expected} is not in the bumped block"
     assert "1.5.0" not in block, "a stale version survived the bump"
     assert block.count("/platforms/") == 4, "the artwork links were rewritten"

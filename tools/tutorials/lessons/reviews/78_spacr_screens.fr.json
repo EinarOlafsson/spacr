@@ -1,0 +1,35 @@
+{
+  "language": "fr",
+  "title": "Criblages spaCR",
+  "section": "Parcours",
+  "description": "Suivez un criblage groupé fondé sur l’imagerie depuis Home, en passant par les mesures d’images, la classification des phénotypes et les comptages de codes-barres, jusqu’à la régression.",
+  "objectives": [
+    "Choisir le module de départ selon les données déjà disponibles.",
+    "Identifier les données lues et écrites par chaque module.",
+    "Consulter les leçons et les descriptions d’API liées pour passer à l’étape suivante."
+  ],
+  "prerequisite": "Installez spaCR et ouvrez Home. Cette leçon explique la navigation et les transferts de données ; les leçons des modules liés fournissent les exemples pratiques. Les entrées et les sorties comprennent des alternatives conditionnelles, expliquées pour chaque module.",
+  "scenes": [
+    "Commencez sur Home avec les éléments dont vous disposez déjà. Un criblage groupé fondé sur l’imagerie comporte deux branches de données : les images décrivent le phénotype, tandis que le séquençage identifie les perturbations représentées dans chaque puits. Mask, Measure, Annotate et Classify constituent la branche d’imagerie. Map Barcodes constitue la branche de séquençage. Regression réunit les scores et les comptages de guides compatibles. Ce sont des produits de données reliés entre eux, pas six boutons à exécuter systématiquement dans un ordre fixe.",
+    "Ouvrez Mask depuis Home. Choisissez les canaux et les modèles, examinez un aperçu, puis lancez Mask. Measure utilise les tableaux fusionnés ; la base de comptages n’est pas encore une table de caractéristiques. Données d’entrée : images de microscopie ; point de contrôle de segmentation. Données de sortie : images et masques d’étiquettes ; masques d’étiquettes ; nombres d’objets. De Mask à Measure : utilisez le même projet et les bons indices de canaux pour les images et les masques.",
+    "Ouvrez Measure depuis Home. Measure lit ensemble les images et les plans d’étiquettes. Activez l’enregistrement des extraits si vous avez besoin de fichiers PNG ; conservez ensemble la base de données et le projet source pour les extraits lus à la demande. Données d’entrée : images et masques d’étiquettes ; masques d’étiquettes. Données de sortie : objets mesurés ; extraits d’objets. De Mask à Measure : utilisez le même projet et les bons indices de canaux pour les images et les masques. De Measure à Annotate : enregistrez ou lisez à la demande des extraits avec des identifiants d’objets stables. De Measure à Classify : choisissez la famille d’images ou la famille tabulaire selon vos entrées.",
+    "Ouvrez Annotate depuis Home. Annotez des objets représentatifs dans png_list avant l’entraînement supervisé. Utilisez des annotations distinctes pour les différentes questions et gardez indépendants les groupes d’entraînement et d’évaluation. Données d’entrée : objets mesurés ; extraits d’objets ; portes de sélection réutilisables. Données de sortie : annotations d’entraînement. De Measure à Annotate : enregistrez ou lisez à la demande des extraits avec des identifiants d’objets stables. D’Annotate à Classify : séparez les groupes annotés d’entraînement et d’évaluation.",
+    "Ouvrez Classify depuis Home. Choisissez Computer Vision pour les extraits ou les images d’objets lus à la demande, ou Tabular Machine Learning pour les colonnes de caractéristiques mesurées. Les deux familles utilisent des entrées différentes. Données d’entrée : objets mesurés ; extraits d’objets ; annotations d’entraînement. Données de sortie : scores de classification des objets ; classificateur d’images entraîné ; classificateur de caractéristiques ajusté ; ensemble de données d’évaluation du classificateur. De Measure à Classify : choisissez la famille d’images ou la famille tabulaire selon vos entrées. D’Annotate à Classify : séparez les groupes annotés d’entraînement et d’évaluation. De Classify à Regression : sélectionnez la colonne de scores CV ou ML voulue et préservez les identifiants de plaque et de puits.",
+    "Ouvrez Map Barcodes depuis Home. Fournissez les références qui codent votre expérience. Vérifiez les comptages attribués et le contrôle qualité des codes-barres avant d’associer les comptages de guides par puits aux scores phénotypiques. Données d’entrée : lectures de séquençage. Données de sortie : comptages de guides par puits. De Map Barcodes à Regression : associez les comptages de guides aux scores phénotypiques avec des clés cohérentes de plaque et de puits.",
+    "Ouvrez Regression depuis Home. Faites correspondre les identifiants de plaque et de puits entre les données phénotypiques et les comptages de guides, choisissez la variable réponse et les contrôles, puis examinez les diagnostics avant d’interpréter les résultats positifs. Les réponses mesurées directement sont également prises en charge. Données d’entrée : scores de classification des objets ; comptages de guides par puits ; attributions de codes-barres optiques ; objets mesurés. Données de sortie : résultats de régression et résultats positifs. De Classify à Regression : sélectionnez la colonne de scores CV ou ML voulue et préservez les identifiants de plaque et de puits. De Map Barcodes à Regression : associez les comptages de guides aux scores phénotypiques avec des clés cohérentes de plaque et de puits. De OPS à Regression : joignez ou agrégez explicitement les objets décodés pour constituer les entrées phénotypiques et de guides avant Regression ; il ne s’agit pas d’un transfert direct de CSV.",
+    "Avant Regression, vérifiez que les scores d’images, les comptages de séquençage et le plan expérimental utilisent des identifiants de plaque et de puits concordants. Conservez les identifiants d’objets, la colonne d’annotations, les paramètres du classificateur et les références de codes-barres avec l’exécution. Consultez les leçons des modules liés pour un exemple pratique de chaque étape ; choisissez le parcours guidé du criblage groupé pour que Home vous accompagne dans la navigation."
+  ],
+  "lesson": "78_spacr_screens",
+  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain the two independent image and sequencing branches and their per-well join.",
+      "Distinguish merged images/labels from counts, saved versus streamed crops, and CV versus tabular inputs.",
+      "Preserve separate training/evaluation groups, stable identities, direct measured responses, and the explicit OPS join/aggregation requirement.",
+      "Navigation overview only; no claim that the recording executed an experiment."
+    ]
+  }
+}

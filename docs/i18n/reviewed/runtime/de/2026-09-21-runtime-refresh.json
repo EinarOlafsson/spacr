@@ -95,13 +95,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "annotation_source",
-      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
-      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d",
-      "translation": "Legt fest, mit den Annotationen welchen Organismus die Regressionsergebnisse verknüpft werden. 'toxoplasma' verwendet standardmäßig die mitgelieferten Tabellen für Toxoplasma gondii und benötigt kein Netzwerk. Jeder andere Organismusname oder jede NCBI-Taxon-ID -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- ruft die Einträge dieses Organismus aus UniProt ab; eine einzelne Zugangskennung wie P04637 ruft genau diesen Eintrag ab. Das Ergebnis wird neben den Ausgaben zwischengespeichert, sodass ein erneuter Lauf kein Netzwerk benötigt. Erkennt spaCR einen Namen nicht, bleiben die Ergebnisse ohne Annotation, und ähnliche Namen werden angezeigt. Für keine Annotation leer lassen. Standard 'toxoplasma'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "auto_file_issues",
       "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
       "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62",
@@ -134,13 +127,6 @@
       "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
       "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df",
       "translation": "Umrissbreite als Anteil der Objektgröße statt als feste Pixelzahl, damit die relative Breite über verschiedene crop_size-Werte erhalten bleibt. Größere Werte machen Grenzen in kleinen Vorschaubildern deutlicher, verdecken aber mehr Pixel im Objektinneren. Standard 0.1."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "metadata_type",
-      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
-      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5",
-      "translation": "Dateinamenkonvention zum Einlesen der Rohbilder, ausgewählt aus einer nach Herstellern gruppierten Liste: Yokogawa CV7000/CV8000 ('cellvoyager', Standard) und CQ1, PerkinElmer/Revvity Opera Phenix und Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan und EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X und Matrix Screener sowie Micro-Manager. 'custom' verwendet custom_regex. 'auto' benennt die Dateien im Ordner vor dem Einlesen zunächst nach der Yokogawa-Konvention um (mit custom_regex, falls angegeben, sonst durch automatische Erkennung). Als vorläufig markierte Konventionen wurden aus tatsächlichen Dateinamen öffentlicher Datensätze rekonstruiert, nicht der Herstellerdokumentation entnommen. Eine falsche Konvention kann Platten-, Well-, Feld- oder Kanalkennungen falsch zuordnen und Bilder in falsche Kanalordner legen. Prüfen Sie die Auswahl deshalb vor dem Lauf mit 'Test on my folder'."
     },
     {
       "table": "setting_tooltips",
@@ -389,13 +375,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
-      "translation": "Korrekturfaktor für den Schwellenwert: Der Otsu-Schwellenwert wird vor der Anwendung damit multipliziert. Oberhalb von 1 ist er strenger: Objekte schrumpfen, schwache verschwinden. Unterhalb von 1 werden dunklere Pixel einbezogen; 1 entspricht dem ursprünglichen Otsu-Schwellenwert. Sowohl die Otsu-Erkennung als auch der Otsu-Modus der Live-Lupe verwenden ihn, wenn ein Bereich zwei klar getrennte Populationen enthält."
-    },
-    {
-      "table": "ui",
       "key": "Add a model",
       "source": "Add a model",
       "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c",
@@ -477,13 +456,6 @@
       "source": "Cancelled. Nothing was left behind.",
       "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d",
       "translation": "Abgebrochen. Es wurden keine Dateien zurückgelassen."
-    },
-    {
-      "table": "ui",
-      "key": "Channels",
-      "source": "Channels",
-      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
-      "translation": "Kanäle"
     },
     {
       "table": "ui",
@@ -711,13 +683,6 @@
     },
     {
       "table": "ui",
-      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
-      "translation": "Zeigt das Intensitätshistogramm dieses Felds und markiert den Schwellenwert aus den obigen Einstellungen. Die Schaltfläche verwendet denselben Wert aus derselben Funktion. Liegt die Markierung neben einem Histogrammtal, lässt sich ihre Position mit dem Korrekturfaktor anpassen."
-    },
-    {
-      "table": "ui",
       "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d",
@@ -872,13 +837,6 @@
     },
     {
       "table": "ui",
-      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
-      "translation": "Anzahl der Helligkeitsklassen, in die das Feld aufgeteilt wird. 2 entspricht der ursprünglichen Otsu-Aufteilung mit einem Schwellenwert zwischen Hintergrund und Objekten. Erhöhen, wenn das Feld mehr als zwei Populationen enthält -- etwa Hintergrund, einen schwachen Halo und helle Kerne. Statt eines einzigen Kompromisswerts zwischen allen dreien wird dann die unten gewählte, tatsächlich gewünschte Grenze verwendet. Nur für die Otsu-Erkennung."
-    },
-    {
-      "table": "ui",
       "key": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
       "source": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
       "source_sha256": "b61cea307d14ff759a572ea63d34af6b297031973807bdcdd9cd2e516d1b3a26",
@@ -963,10 +921,10 @@
     },
     {
       "table": "ui",
-      "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
-      "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
-      "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535",
-      "translation": "Invertieren für die Erkennung ist aktiviert: Alle Masken -- Objekterkennung, Otsu-Erkennung und Live-Lupe -- werden aus dem INVERTIERTEN Bild erzeugt. Die Werteanzeige und die Kategorie Filter melden weiterhin die tatsächlichen Bildwerte. 'Invert image' (Bild invertieren) unter Anzeige ist ein separater Schalter, der nur die Darstellung verändert."
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "Bild invertieren ist eingeschaltet: Darstellung und Erkennung verwenden das INVERTIERTE Bild. Die Pixelintensität unter dem Mauszeiger folgt der Invertierung; mittlere Objektintensitäten und Schwellenwerte unter Filtern verwenden die ursprünglich geladenen Werte. Die geladenen Bilddaten und die vorhandene Maske bleiben unverändert."
     },
     {
       "table": "ui",
@@ -1411,13 +1369,6 @@
     },
     {
       "table": "ui",
-      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705",
-      "translation": "Segmentiert das geöffnete Feld mit einem Modell. Beide Schwellenwerte beginnen bei den Standardwerten von Cellpose."
-    },
-    {
-      "table": "ui",
       "key": "Sending the approved report to GitHub…",
       "source": "Sending the approved report to GitHub…",
       "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0",
@@ -1467,10 +1418,10 @@
     },
     {
       "table": "ui",
-      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
-      "translation": "Zeigt das Bild als Negativ und führt die Erkennung auf demselben Negativ aus: Das Feld wird auf 0..1 normalisiert und jeder Pixelwert durch 1 minus seinen Wert ersetzt. Das dunkelste Pixel wird dadurch zum hellsten. So können Otsu und die Live-Lupe, die nach hellen Objekten suchen, DUNKLE Objekte erkennen: Ein dunkles Objekt in einem hellen Durchlichtbild erscheint für Auge und Detektor wie ein fluoreszierendes Objekt. BEI AKTIVIERTER OPTION WERDEN MASKEN AUS DEM INVERTIERTEN BILD ERZEUGT; darauf weist eine dauerhafte Warnung über dem Bild hin. Mauszeiger-Werteanzeige, Filterkategorie und gespeicherte Maske verwenden weiterhin die tatsächlichen Bildwerte, sodass sich Messwerte nicht ändern. Dies ist nicht 'Swap object and background' (Objekt und Hintergrund vertauschen) in Objektoperationen: Dort wird eine fertige MASKE umgekehrt, ohne die Bilddarstellung zu ändern."
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "Invertiert das Bild und die zur Erkennung verwendeten Pixel, sodass dunkle Objekte hell werden. Das Bildfeld wird auf 0..1 normalisiert; anschließend wird jeder Pixelwert durch 1 minus seinen Wert ersetzt. Die Pixelintensität unter dem Mauszeiger folgt der Invertierung; mittlere Objektintensitäten und Schwellenwerte unter Filtern verwenden die ursprünglich geladenen Werte. Die geladenen Bilddaten und die vorhandene Maske bleiben unverändert. Zum Vertauschen von Vordergrund und Hintergrund in einer fertigen Maske verwenden Sie «Objekt und Hintergrund vertauschen» ('Swap object and background') unter Objektoperationen."
     },
     {
       "table": "ui",
@@ -1600,13 +1551,6 @@
     },
     {
       "table": "ui",
-      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf",
-      "translation": "Die Live-Lupe liest diese Einstellungen ebenfalls: Der Cellpose-Modus verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung; DINOCell verwendet die Zellwahrscheinlichkeit. Der Otsu-Modus liest stattdessen die Otsu-Kategorie."
-    },
-    {
-      "table": "ui",
       "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
@@ -1730,20 +1674,6 @@
       "source": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
       "source_sha256": "7ba7fb2343daf2f4a73ceebe583fbcb1dc8c8c29e631dd2893ebbd34ae5011d3",
       "translation": "Dieses Modell veröffentlicht keine Prüfsumme, so dass spaCR eine abgeschnittene oder ersetzte Datei nicht von der realen Datei unterscheiden kann."
-    },
-    {
-      "table": "ui",
-      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
-      "translation": "Segmentiert das Bild mit dem Otsu-Schwellenwert und markiert die verbleibenden Objekte unter Berücksichtigung der oben festgelegten Mindestfläche. Alle Schwellenwerteinstellungen befinden sich in der Otsu-Kategorie: Korrektur, Glättung, helle oder dunkle Objekte, Füllen von Löchern, Trennen sich berührender Objekte und Entfernen angeschnittener Objekte."
-    },
-    {
-      "table": "ui",
-      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
-      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
-      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be",
-      "translation": "Segmentiert mit dem Otsu-Schwellenwert. Steuert die Otsu-Erkennung und den Otsu-Modus der Live-Lupe."
     },
     {
       "table": "ui",
@@ -1898,13 +1828,6 @@
       "source": "Which convention fits?",
       "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802",
       "translation": "Welche Konvention passt?"
-    },
-    {
-      "table": "ui",
-      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
-      "translation": "Modell zur Segmentierung des Bereichs im Lupenfenster. Otsu verwendet den Otsu-Schwellenwert und trennt sich berührende Objekte mit einer Wasserscheidentransformation. Es benötigt keine zusätzliche Installation, berücksichtigt die Mindestfläche unter Objektoperationen sowie Korrekturfaktor und weitere Einstellungen der Otsu-Kategorie und springt ein, wenn ein Modell nicht geladen werden kann. Cellpose verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung aus Objekterkennung und ist ohne GPU langsam. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell und SAMCell sind immer aufgeführt, aber bis zur Installation ausgegraut. Ihre Auswahl bietet die Installation in einer eigenen Umgebung an. Cellpose 3 liest beide Schwellenwerte und den Durchmesser aus Objekterkennung, DINOCell die Zellwahrscheinlichkeit; SAMCell verwendet eigene Schwellenwerte."
     },
     {
       "table": "ui",
@@ -2178,6 +2101,137 @@
       "source": "{name} is not installed. Choosing it offers to install it.",
       "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff",
       "translation": "{name} ist nicht installiert. Durch Auswählen wird seine Installation angeboten."
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
+        "translation": "Modell zur Segmentierung des Bereichs im Lupenfenster. Otsu verwendet den Otsu-Schwellenwert und trennt sich berührende Objekte mit einer Wasserscheidentransformation. Es benötigt keine zusätzliche Installation, berücksichtigt die Mindestfläche unter Objektoperationen sowie Korrekturfaktor und weitere Einstellungen der Otsu-Kategorie und springt ein, wenn ein Modell nicht geladen werden kann. Cellpose verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung aus Objekterkennung und ist ohne GPU langsam. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell und SAMCell sind immer aufgeführt, aber bis zur Installation ausgegraut. Ihre Auswahl bietet die Installation in einer eigenen Umgebung an. Cellpose 3 liest beide Schwellenwerte und den Durchmesser aus Objekterkennung, DINOCell die Zellwahrscheinlichkeit; SAMCell verwendet eigene Schwellenwerte."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+        "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+        "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535",
+        "translation": "Invertieren für die Erkennung ist aktiviert: Alle Masken -- Objekterkennung, Otsu-Erkennung und Live-Lupe -- werden aus dem INVERTIERTEN Bild erzeugt. Die Werteanzeige und die Kategorie Filter melden weiterhin die tatsächlichen Bildwerte. 'Invert image' (Bild invertieren) unter Anzeige ist ein separater Schalter, der nur die Darstellung verändert."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+        "translation": "Zeigt das Bild als Negativ und führt die Erkennung auf demselben Negativ aus: Das Feld wird auf 0..1 normalisiert und jeder Pixelwert durch 1 minus seinen Wert ersetzt. Das dunkelste Pixel wird dadurch zum hellsten. So können Otsu und die Live-Lupe, die nach hellen Objekten suchen, DUNKLE Objekte erkennen: Ein dunkles Objekt in einem hellen Durchlichtbild erscheint für Auge und Detektor wie ein fluoreszierendes Objekt. BEI AKTIVIERTER OPTION WERDEN MASKEN AUS DEM INVERTIERTEN BILD ERZEUGT; darauf weist eine dauerhafte Warnung über dem Bild hin. Mauszeiger-Werteanzeige, Filterkategorie und gespeicherte Maske verwenden weiterhin die tatsächlichen Bildwerte, sodass sich Messwerte nicht ändern. Dies ist nicht 'Swap object and background' (Objekt und Hintergrund vertauschen) in Objektoperationen: Dort wird eine fertige MASKE umgekehrt, ohne die Bilddarstellung zu ändern."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705",
+        "translation": "Segmentiert das geöffnete Feld mit einem Modell. Beide Schwellenwerte beginnen bei den Standardwerten von Cellpose."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf",
+        "translation": "Die Live-Lupe liest diese Einstellungen ebenfalls: Der Cellpose-Modus verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung; DINOCell verwendet die Zellwahrscheinlichkeit. Der Otsu-Modus liest stattdessen die Otsu-Kategorie."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+        "translation": "Segmentiert das Bild mit dem Otsu-Schwellenwert und markiert die verbleibenden Objekte unter Berücksichtigung der oben festgelegten Mindestfläche. Alle Schwellenwerteinstellungen befinden sich in der Otsu-Kategorie: Korrektur, Glättung, helle oder dunkle Objekte, Füllen von Löchern, Trennen sich berührender Objekte und Entfernen angeschnittener Objekte."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+        "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+        "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be",
+        "translation": "Segmentiert mit dem Otsu-Schwellenwert. Steuert die Otsu-Erkennung und den Otsu-Modus der Live-Lupe."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "Modell zur Segmentierung des Bereichs im Lupenfenster. Otsu verwendet den Otsu-Schwellenwert und trennt sich berührende Objekte mit einer Wasserscheidentransformation. Es benötigt keine zusätzliche Installation, berücksichtigt die Mindestfläche unter Objektoperationen sowie Korrekturfaktor und weitere Einstellungen der Otsu-Kategorie und springt ein, wenn ein Modell nicht geladen werden kann. Adaptive Schwellenwertbildung (Adaptive threshold), LoG blobs, DoG blobs, der Kantenlinienfilter (Ridge filter), Hysterese (Hysteresis) und U-Net sind die eigenen Methoden der Organellerkennung. Sie verwenden denselben Code wie ein Segmentierungslauf und lesen die Kategorie Erkennungsmethoden; der Tooltip der jeweiligen Zeile erklärt, wofür die Methode geeignet ist. Cellpose verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung aus Objekterkennung und ist ohne GPU langsam. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell und SAMCell sind immer aufgeführt, aber bis zur Installation ausgegraut. Ihre Auswahl bietet die Installation in einer eigenen Umgebung an. Cellpose 3 liest beide Schwellenwerte und den Durchmesser aus Objekterkennung, DINOCell die Zellwahrscheinlichkeit; SAMCell verwendet eigene Schwellenwerte."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Channels",
+        "source": "Channels",
+        "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+        "translation": "Kanäle"
+      }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+        "translation": "Korrekturfaktor für den Schwellenwert: Der Otsu-Schwellenwert wird vor der Anwendung damit multipliziert. Oberhalb von 1 ist er strenger: Objekte schrumpfen, schwache verschwinden. Unterhalb von 1 werden dunklere Pixel einbezogen; 1 entspricht dem ursprünglichen Otsu-Schwellenwert. Sowohl die Otsu-Erkennung als auch der Otsu-Modus der Live-Lupe verwenden ihn, wenn ein Bereich zwei klar getrennte Populationen enthält."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "Zeigt das Intensitätshistogramm dieses Felds und markiert den Schwellenwert aus den obigen Einstellungen. Die Schaltfläche verwendet denselben Wert aus derselben Funktion. Liegt die Markierung neben einem Histogrammtal, lässt sich ihre Position mit dem Korrekturfaktor anpassen."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "Anzahl der Helligkeitsklassen, in die das Feld aufgeteilt wird. 2 entspricht der ursprünglichen Otsu-Aufteilung mit einem Schwellenwert zwischen Hintergrund und Objekten. Erhöhen, wenn das Feld mehr als zwei Populationen enthält -- etwa Hintergrund, einen schwachen Halo und helle Kerne. Statt eines einzigen Kompromisswerts zwischen allen dreien wird dann die unten gewählte, tatsächlich gewünschte Grenze verwendet. Nur für die Otsu-Erkennung."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

@@ -20,7 +20,7 @@ import os
 import re
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 __all__ = [
     'SchemaError', 'WellParseError', 'KeyParseError',
@@ -36,7 +36,7 @@ __all__ = [
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
     'ORGANELLE_ROLES', 'SEGMENTED_ROLES', 'DERIVED_ROLES', 'CHILD_ROLES',
     'ALL_ROLES', 'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
-    'is_object_type',
+    'is_object_type', 'object_type_summary',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
     'canonical_column_name', 'canonical_rename_plan',
     'parse_int_token', 'row_index_from_letters', 'letters_from_row_index',
@@ -316,6 +316,59 @@ _OBJECT_TYPE_SET = frozenset(OBJECT_TYPES)
 _OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(sorted(
     (kind for kind in OBJECT_TYPES if kind not in _ORGANELLE_ROLE_SET),
     key=len, reverse=True))
+
+
+def object_type_summary(roles: Sequence[str]) -> str:
+    """Describe object types once, collapsing organelle slots into a regex.
+
+    :param roles: internal object identifiers, in display order.
+    :returns: comma-separated types. Organelle identifiers are represented
+        by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots.
+        This changes presentation only, never stored identifiers or parsing.
+    """
+    values = list(dict.fromkeys(str(role) for role in roles))
+    slots = [role for role in values if role in ORGANELLE_ROLES]
+    if not slots:
+        return ", ".join(values)
+    suffixes = {role[len('organelle'):] for role in slots}
+    alternatives = []
+    for length in sorted({len(value) for value in suffixes if value}):
+        group = {value for value in suffixes if len(value) == length}
+        if len(group) == 26 ** length:
+            alternatives.append('[a-z]' if length == 1 else f'[a-z]{{{length}}}')
+        elif length == 1:
+            alternatives.append(_letter_class(group))
+        else:
+            tails = {}
+            for value in group:
+                tails.setdefault(value[:-1], set()).add(value[-1])
+            alternatives.extend(prefix + _letter_class(letters)
+                                for prefix, letters in sorted(tails.items()))
+    suffix = '|'.join(alternatives)
+    pattern = 'organelle'
+    if suffix:
+        pattern += '(?:' + suffix + ')' if len(alternatives) > 1 or '' in suffixes else suffix
+        if '' in suffixes:
+            pattern += '?'
+    result = []
+    for role in values:
+        if role in slots:
+            if pattern not in result:
+                result.append(pattern)
+        else:
+            result.append(role)
+    return ', '.join(result)
+
+
+def _letter_class(letters):
+    """Compress consecutive suffix characters into one regex character class."""
+    runs = []
+    for letter in sorted(letters):
+        if runs and ord(letter) == ord(runs[-1][-1]) + 1:
+            runs[-1] += letter
+        else:
+            runs.append(letter)
+    return '[' + ''.join(run[0] + '-' + run[-1] if len(run) > 2 else run for run in runs) + ']'
 
 
 def _split_organelle_id(text: str, lowered: str):
@@ -1695,7 +1748,7 @@ def parse_prcfo(text: Any) -> ObjectID:
             f'{text!r} is not a prcfo: {object_key!r} is not an object id. '
             f'An object component is a label behind a prefix — '
             f'{OBJECT_PREFIX!r} when the type is not stated, or the object '
-            f'type itself ({", ".join(OBJECT_TYPES)}).')
+            f'type itself ({object_type_summary(OBJECT_TYPES)}).')
     field = parse_prcf(KEY_SEPARATOR.join(parts))
     return field.with_object(object_label, object_type=object_type)
 
@@ -1966,7 +2019,7 @@ class ObjectTableSchema:
         return (
             f'{self.object_type}_{self.object_type}',
             f'{self.object_type}_cell_id',
-        )
+        ) + (('pathogen_id',) if self.object_type in ORGANELLE_ROLES else ())
 
     @property
     def optional_columns(self) -> Tuple[str, ...]:

@@ -1,5 +1,33 @@
 # Tutorial refresh — 9 September 2026
 
+## User walkthroughs — maintainer direction, 23 September 2026
+
+Order the library as setup (GitHub/PyPI, pip, Conda, platform installers),
+Home, pipeline overviews, then module walkthroughs and their related tools.
+The sidebar, displayed numbering, Next, Previous and Continue use that order;
+existing lesson URLs and saved progress retain their stable identities.
+
+Every tutorial teaches the user to use the module. Start with the task and
+inputs, open the module from its current location, load its test data when
+available, explain the few settings that affect the task, run the operation,
+and show where to inspect and save its outputs. State the next useful step.
+For overview lessons, show the route and data handoff and link the worked
+module example. Keep exhaustive API details in the linked reference.
+
+Narration and captions do not recount implementation history, our testing,
+recording arrangements, checksums, acceptance receipts or benchmark exercises.
+Explain a limitation only when it changes the user's next action or the
+interpretation of the displayed output, and give the practical action with it.
+Do not repeatedly explain what a module or demonstration is not.
+
+Keep capture provenance and verification in authoring evidence. These checks
+still apply; their results are not the tutorial script. Changing narration
+requires matching captions and audio. Reuse a recorded scene only when its
+visible controls and results match the revised instructions. Show newly
+available test-data routes in new captures rather than describing them over
+unrelated old frames. Translation incompatibilities remain registered English
+fallbacks and do not hold back an otherwise ready English tutorial.
+
 This lane owns tutorials only. Application changes belong to the other sessions.
 The working repository is `/mnt/firecuda2/codex/repo/spacr`, branch `nightly`.
 
@@ -48,11 +76,46 @@ the real CPU Otsu magnifier and FEATURES assignment and measurement from two
 genuine Measure example arrays under `example_data/plate1/merged`. It assigns
 image and mask columns through real file pickers and verifies saved cell
 identities, areas and raw intensities against the source arrays. No GPU model
-is used. `--mask-editor-tour` remains the separate full editing route.
+is used. Add `--mask-editor-tour` to record these readouts and the complete
+editing route in one session on the same field; readout frame names receive a
+`readouts_` prefix to preserve both sets of scenes. `--editor-detect` additionally
+runs the real local model on the recropped field. The neutral capture wrapper
+disables GPU access, so that optional detection uses the CPU and requires local
+weights in the staged profile.
 
 The new frames and catalog wording are work in progress, not published
 videos. GPU rendering/translation must wait for 20 consecutive observed idle
 minutes. Source-bound receipts in `evidence/` identify completed captures.
+
+The pooled-screen overview (lesson 78) uses
+`capture_refresh.py --module workflow_overview --workflow-overview` with the
+neutral capture wrapper. It opens all six modules through actual Home tiles,
+returns through Home, and records eight scenes matching the shared workflow
+map. It starts no analysis or download; the linked module lessons contain
+the worked experiments. The recorder expands Settings through its real
+splitter and sizes the Regression table columns for readable inputs.
+The capture policy hides Map Barcodes' decorative DNA layer so the shared
+Blobs backdrop remains visible, records this presentation change, and rejects
+any frame that still shows DNA rain. Application defaults and analysis are
+unchanged. These recordings and their translations remain private until the
+complete media and language checks pass.
+
+Add ``--workflow-lesson 81_sequencing_pathways`` for the sequencing overview.
+This records eight native GUI routes, including Map Barcodes → Barcode QC and
+Mask → OPS, and opens the simulation function's genuine local API reference
+from Help search. It does not execute that Python workflow. The recorder clears
+Barcode QC's nonexistent default input through its Clear button, widens the
+Power and Dose-Response panes, sizes table cells, and folds OPS Actions for the
+navigation-only view. All eleven scenes remain bound to the shared map.
+Use ``--workflow-lesson 80_image_analysis_pathways`` for the eighteen-scene
+image-analysis route. The four assays open through their actual Toxoplasma
+tiles; the Gate Editor filter pane is widened through its splitter. Set
+``SPACR_TUTORIAL_OFFLINE=1`` on the neutral capture wrapper to isolate the
+recording's network. Both Python-only entries then open the real local Help
+reference consistently, with displayed text checked against the current
+source. No API workflow executes during this navigation capture.
+The staged-player verifier's ``--sentence-cues`` option checks every native
+English caption at its recorded speech midpoint in a separate evidence folder.
 
 Annotate's recorder opens `stage/example_data/plate1`, which must be the same
 private dataset bound onto the downloader cache. For existing exported crops,
@@ -146,17 +209,43 @@ each ready English video/audio pair, seeking, and ready/unavailable transitions.
 catalogs, route metadata, browser evidence and all media hashes under
 `tools/tutorials/release_candidate/`. The maintainer subsequently requested all
 remaining work pushed: `--include-web-media` includes web videos, posters, fonts
-and examples. Narration and 4K media remain in the private candidate/original
-workspace pending separate media-host upload approval; they are not in Git.
+and examples. Narration and 4K media live on the media host rather than in Git.
+The maintainer's 23 September request authorizes publication of ready work on
+nightly, with main following its own branch updates.
 
 The candidate is an **offline preview**: its narration and 4K roots are relative
 to its sibling `media_host/`. Do not copy that index directly into live docs or
-run the legacy publisher against the old authoring catalogs. Release requires a
-separately approved deployment with final hosted roots and live-byte verification.
+run the legacy publisher against the old authoring catalogs. Publication still
+requires final hosted roots and verification of the actual served bytes.
 On 15 September 2026 the maintainer approved it for `release-candidate-8738b_pd`:
 `publish_release_candidate.py` uploaded `media_host/` to a new media revision,
 read every byte back, and wrote the Pages tree pinned to that commit (see
-`release_candidate/README.md`). Pages deploys with the merge to `main`.
+`release_candidate/README.md`). Pushes to `nightly` publish the nightly preview;
+pushes to `main` publish the main site through the documentation workflow.
+
+To add ready lessons without waiting for every translation and voice, use
+`build_appended_candidate.py --stage STAGE --baseline VERIFIED_CANDIDATE
+--lesson ID` (repeat `--lesson` in contiguous number order). Run this through
+`tools/run_capped.sh` with a private `HOME` and `XDG_CONFIG_HOME`.
+The baseline must match the published lesson catalogs and immutable media
+revision and carry complete readback evidence. Existing lesson objects and
+media stay intact. Every offered new audio track is decoded and checked
+against its current script; missing or stale translations use English and
+are listed in the candidate's `translation-compatibility.json`. Existing
+uncovered module routes remain recorded rather than blocking unrelated lessons.
+
+For an updated existing tutorial, add `--replace-existing` and name only the
+lessons being replaced. Their identifiers and module routes stay fixed. The
+builder replaces their scripts, videos and offered audio together; unrelated
+lesson objects and media remain byte-identical. Old translations fall back to
+the revised English until a review matches that source. Old narration tracks
+are not carried into a replacement lesson's available voice list.
+
+The resulting candidate still needs `verify_release_candidate.py` and
+`check_placeholder_mutations.py`, followed by the normal immutable upload,
+readback and Pages-tree steps in `publish_release_candidate.py`. A partially
+populated voice or translation matrix does not count as complete tutorial
+authoring: keep its missing work tracked after publication.
 
 1. Preserve and reconcile authoring/published sources; measure the live registry.
 2. Capture the current Home/navigation and rebuild each runtime Core lesson using
@@ -371,6 +460,16 @@ was reused via a link inside the refresh environment. No app dependency or
 pronunciation rule changed, and no second dictionary download was required.
 
 ### Regression and Diagnostics recording
+
+For CPU recordings that show the run journal, use
+`bash tools/tutorials/run_neutral_capture.sh <private-stage> <python-executable>
+--module regression --download --run --settings-tour --ai-controls`.
+The wrapper gives the unchanged application a neutral Linux account inside a
+private user/mount namespace. Its normal home lookup resolves to the staged
+profile, so journal paths can appear honestly in the console without exposing
+the maintainer's account. The host account database is unchanged. The wrapper
+caps memory, uses two CPU threads, hides the stale NAS mount and keeps the
+existing appearance/path acceptance checks. It is intentionally CPU-only.
 
 `capture_refresh.py --module regression --download --run --ai-controls
 --platform xcb` downloads the four actual example score/count pairs. A fresh

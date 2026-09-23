@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted linguistic and implementation-context review of workflow descriptions and external inputs, including compartment assays, independent validation, object identities, sequencing reads and optional branches. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment.",
+      "source": "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment.",
+      "source_sha256": "802ba9ffda607999e9d298d53739207ad72b1051d34aa51533bdf416ba579c02",
+      "translation": "학습된 체크포인트를 호환되는 채널을 가진 독립 이미지에 적용하세요. 전체 실험을 처리하기 전에 분할 품질을 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+      "source": "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+      "source_sha256": "4928f37e74d3dab33e3cfae0014ecc84868ccf39673499874aff083bb9137727",
+      "translation": "기존 실험의 데이터 구성에 맞는 경로를 선택해 spaCR로 가져오세요. 이미지만 있는 데이터는 분할이 필요합니다. 서로 대응하는 이미지와 정수 마스크를 측정용 프로젝트로 변환할 수 있습니다. 기존 특징 테이블에는 명시적인 열 및 객체 매핑이 필요하며, 이미 탐색에 사용할 수 있는 상태일 수도 있습니다. 후속 분기로 진행하기 전에 식별 정보, 채널 및 잘라낸 이미지 경로를 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+      "source": "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+      "source_sha256": "45fa5a8d3e312352925cdf4834dda7431d823e94750827767b19abbb45c36c3f",
+      "translation": "검토하고 정리한 이미지와 정수 마스크 쌍으로 분할 모델을 만드세요. Make Masks에서 대표 이미지를 수정하고, Cellpose Workbench에서 학습한 뒤, 생성된 체크포인트를 Mask에서 선택하세요. 전체 실험을 처리하기 전에 독립 시야에서 평가하세요. 학습 이미지는 따로 보류한 데이터에 대한 정확도 평가를 대신하지 못합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow.",
+      "source": "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow.",
+      "source_sha256": "0956005ae8967da23d7478697ce0c6881bf54e7bdfc67bb7f831b894c5d5dbd1",
+      "translation": "검출하려면 플라크 이미지를, 분석하려면 기존 플라크 마스크를 선택하세요. 플라크 면적이 물리 단위로 필요하면 이미지 보정 정보를 제공하세요. 이 분기에는 세포 구획을 측정하는 Measure 워크플로가 필요하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+      "source": "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+      "source_sha256": "511950227e5da9319c46cd58bb646ee26467f6c8453f93f8c83885094975e2f3",
+      "translation": "실험에 맞는 분석을 선택하세요. 모집, 침입 및 복제 분석은 측정된 객체와 각 분석에 필요한 구획 식별 정보 및 염색 채널을 사용합니다. 모집 분석은 구획의 강도를 비교하고, 침입 분석은 차등 염색으로 세포 내부와 외부의 기생충을 구별하며, 복제 분석은 해당 액포 안의 기생충 수를 셉니다. Plaque Assay는 플라크 이미지나 마스크를 사용하는 독립 분기로, 물리 단위의 면적을 구하려면 보정 정보가 필요합니다. 다이어그램은 이러한 분석을 묶어서 보여 주며, 한 분석을 다른 분석보다 먼저 실행해야 한다는 뜻은 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "source": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "source_sha256": "a26c6872399beab6e673eff697dced61cce1045e36b8e40aa1a38cf173802942",
+      "translation": "이미지에서 얻은 표현형과 가이드 RNA의 풍부도를 결합해 섭동의 순위를 매기세요. 이미지를 분할하고 측정한 뒤 Annotate, Gate Editor 또는 Image UMAP에서 검토된 레이블을 만들고 분류기를 학습하고 검증하세요. 별도의 분기에서 대응하는 시퀀싱 리드를 매핑하세요. 실험 식별 정보를 기준으로 호환되는 표현형 점수와 가이드 RNA 수를 결합해 Regression에 사용하세요. 어노테이션 및 분할 경로는 선택 가능한 대안이며, 모든 분기를 실행할 필요는 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Compatible phenotype responses",
+      "source": "Compatible phenotype responses",
+      "source_sha256": "7a4000ab59a144008eadc652d92c85f00a5fe814dbc2250f5e3c47fc83efa421",
+      "translation": "호환되는 표현형 반응"
+    },
+    {
+      "table": "ui",
+      "key": "Conditions, controls and design assumptions",
+      "source": "Conditions, controls and design assumptions",
+      "source_sha256": "00873fecd214df3510e39dfc5f1fb689d57f1de9840879f5a6efdc44187d8a2f",
+      "translation": "조건, 대조군 및 설계 가정"
+    },
+    {
+      "table": "ui",
+      "key": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "source": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "source_sha256": "7764cf9bfa52bff9e8bcefe7f5eb268df6eee712323eb85801f9af6771537bb3",
+      "translation": "원본 시퀀싱 주기와 해당 표현형 이미지로 광학 풀링 스크리닝을 디코딩하세요. Mask를 통해 OPS에 들어가 주기/사이트 정렬과 바코드 디코딩을 확인한 뒤, 디코딩된 객체 식별 정보를 표현형 반응과 연결하고 호환되는 입력을 집계해 Regression에 사용하세요. Align & Stitch는 선택 사항이며, 이어 붙인 이미지만으로 시퀀싱 주기를 대체할 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "source": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "source_sha256": "f4df2fba7df0893839a5641cf1a4cb59d69357bd65990f825fd57a5df3c6edeb",
+      "translation": "취득 전에 조건, 대조군, 반복 및 플레이트 배정을 설계하세요. 효과 크기와 변동성에 대한 명시적인 가정 아래 Power / Design으로 필요한 표본 수를 탐색하세요. 예비 측정은 이러한 가정의 근거가 될 수 있습니다. 설계 결과의 전달은 계획상의 의존 관계이며, 실험을 자동으로 실행하는 것은 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Effect sizes, variability and optional pilot data",
+      "source": "Effect sizes, variability and optional pilot data",
+      "source_sha256": "5e90417ef82a1083666a45ca606120d981ef59c3487f8c64736dbe4dc854bd42",
+      "translation": "효과 크기, 변동성 및 선택적 예비 데이터"
+    },
+    {
+      "table": "ui",
+      "key": "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required.",
+      "source": "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required.",
+      "source_sha256": "2676abc41aa7319569a456da722a6b6db0d87af7d411bf3b92d6a5f76c9c35a2",
+      "translation": "실험 조건, 대조군, 반복 요구 사항 및 플레이트 제약을 입력하세요. 직접 입력할 수 있으므로 기존 데이터 파일이 필요하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Existing masks and matching images",
+      "source": "Existing masks and matching images",
+      "source_sha256": "3dad69df12ebbba0f7ed2b7a5a46ba41b7d0fff63f103ce33a16dd9a8b5bcc93",
+      "translation": "기존 마스크 및 대응 이미지"
+    },
+    {
+      "table": "ui",
+      "key": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "source": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "source_sha256": "cc908905b3f3400f45db5fdd1e459f7fa349539ff4b31a58996797de310a863e",
+      "translation": "초기 표현형 레이블 없이 분할과 측정이 완료된 실험을 탐색하세요. Image UMAP에서 측정 특징이나 인코딩된 이미지 특징을 비교하고, 대표적인 잘라낸 이미지를 확인한 뒤, Gate Editor에서 재현 가능한 선택 영역을 만드세요. 지도 학습 전에 Annotate에서 후보 레이블을 검토하세요. 클러스터나 게이트는 표현형에 대한 가설이며, 그 표현형의 검증은 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "External measurements and object mappings",
+      "source": "External measurements and object mappings",
+      "source_sha256": "f9dfdd4933e05aac17211f81d7461b9ad036b6903a3d6688b2d0253e3e89583e",
+      "translation": "외부 측정값 및 객체 매핑"
+    },
+    {
+      "table": "ui",
+      "key": "FASTQ: R1/R2, R1 only or R2 only",
+      "source": "FASTQ: R1/R2, R1 only or R2 only",
+      "source_sha256": "4d600c1e56cbf720f4400b574809974f82ecdad914510d39fe18e421efe7eb2a",
+      "translation": "FASTQ: R1/R2, R1만 또는 R2만"
+    },
+    {
+      "table": "ui",
+      "key": "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+      "source": "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+      "source_sha256": "2108f79c2014d0b16f568e21abf723d6fb232aec6e5b9f21dd5db10e21cd02a8",
+      "translation": "순서가 있는 이미지 시퀀스에서 분할된 객체를 추적한 뒤 측정값과 움직임을 정량화하세요. 프레임 순서, 프레임 간격, 객체 식별 정보 및 픽셀 보정을 확인하세요. 기존 마스크가 있으면 원본 이미지와 함께 가져오고, 운동성을 해석하기 전에 추적 프로젝트의 식별 정보가 유효한지 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+      "source": "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+      "source_sha256": "d9c6fd39a73c4b07446468319ba19ced1feb73d9b02a54fa957f4ff83f08ad36",
+      "translation": "플라크 실험에서는 Toxoplasma에서 Plaque Assay를 열고 플라크 이미지나 기존 플라크 마스크를 제공하세요. 플라크 수와 면적을 비교하기 전에 검출 결과와 보정을 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
+      "translation": "이미지만 가져오는 경우 Import Images 또는 Format Converter를 사용하고, Mask에서 변환된 이미지 프로젝트를 지정하세요. 외부 측정값만으로는 분할 입력이 되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+      "source": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+      "source_sha256": "9a4cef246a936419c0da56425ac2ad0847dc493c213c8531d9c1f176898a9087",
+      "translation": "분할 결과가 이미 있다면 대응 이미지와 외부 마스크를 spaCR 프로젝트로 가져오고 생성된 객체 식별 정보를 확인하세요. 필요한 배열이 있으면 분할을 건너뛰고 Measure로 진행하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features.",
+      "source": "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features.",
+      "source_sha256": "7f13b3165916d853f3740d632ff70566b65986f208853c64233e88bab2019d11",
+      "translation": "객체, 시야 및 열의 매핑을 명시해 기존 특징 테이블을 가져오세요. 이미지 탐색이 필요하면 대응하는 잘라낸 이미지 경로를 제공하세요. 가져온 특징에 이미 포함된 행을 다시 측정하지 마세요."
+    },
+    {
+      "table": "ui",
+      "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source_sha256": "a7dfb6c8e1f2c2cc6d0c3f9bc2104039ef4e48812f0803bd7f0a3cbae0aca976",
+      "translation": "객체/열 매핑을 명시해 외부 측정값을 가져오거나 Import Images, Format Converter 또는 External Masks를 선택하세요. 가져온 측정값은 Measure를 새로 실행한 결과가 아닙니다. 대응하는 원본 이미지와 외부 정수 마스크가 있으면 Import가 Measure에서 사용하는 병합된 프로젝트 배열을 만듭니다. 파일에 맞는 경로를 선택하고 측정 전에 객체 식별 정보를 확인하세요. 필요한 측정값이 이미 포함된 특징 테이블은 가져온 뒤 바로 사용할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source_sha256": "1add3ee9b720d1a8cb1a2bd958ca943479479de99ad8433854e912dc545adaed",
+      "translation": "대응하는 이미지와 외부 정수 마스크를 가져와 병합된 프로젝트 배열을 만든 뒤 해당 프로젝트에서 Measure를 여세요. 호환되는 측정값을 이미 가져왔거나 계산했다면 이 단계를 건너뛰세요. 기존에 가져온 테이블에 중복 측정값을 추가하지 마세요."
+    },
+    {
+      "table": "ui",
+      "key": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring.",
+      "source": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring.",
+      "source_sha256": "0a723bc82978d9583ae3d8b0e882d1f16e1cd3e914922203e2630f512afe5e11",
+      "translation": "원본 이미지를 대응하는 정수 객체 레이블 마스크와 함께 가져오세요. 객체 클래스와 시야 식별 정보를 보존하세요. 이는 새 마스크를 생성하는 대신 사용할 수 있는 경로입니다. 측정 전에 가져온 프로젝트를 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Independent microscopy images",
+      "source": "Independent microscopy images",
+      "source_sha256": "f36d096d8093277c3b61a5a91d44a126a8c0dc7819cfa868641a7c8cd74381a3",
+      "translation": "독립 현미경 이미지"
+    },
+    {
+      "table": "ui",
+      "key": "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff.",
+      "source": "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff.",
+      "source_sha256": "86c1039c992cd763b3e9c05ddd64c49a4284324485e2cdbc095d4d94c4c0d448",
+      "translation": "디코딩된 객체 식별 정보를 표현형 반응과 연결하고 Regression에서 요구하는 분석 단위로 집계하세요. 객체/웰 식별 정보와 가이드 RNA 배정을 확인하세요. OPS 테이블을 FASTQ 계수 CSV로 바로 전달할 수는 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Microscopy images",
+      "source": "Microscopy images",
+      "source_sha256": "720acb68cbea4e37df825eb0b09022d3b081578e59a7ae908abd92125e2328e8",
+      "translation": "현미경 이미지"
+    },
+    {
+      "table": "ui",
+      "key": "Microscopy images and optional starting masks",
+      "source": "Microscopy images and optional starting masks",
+      "source_sha256": "70d225a5585b62af67cb548576ede075cc3e265b60ac63c823ed574d63cd07d2",
+      "translation": "현미경 이미지 및 선택적 초기 마스크"
+    },
+    {
+      "table": "ui",
+      "key": "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set.",
+      "source": "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set.",
+      "source_sha256": "06983b26d5b18d98cc45b06b9a9ff6d0a58982901b840de61cbc834c1e13a669",
+      "translation": "대표 이미지를 열고, 필요한 경우 기존 정수 마스크를 가져와 수정하세요. 검토하고 정리한 대응 쌍을 저장하고, 별도의 검증 이미지는 학습 세트에 포함하지 마세요."
+    },
+    {
+      "table": "ui",
+      "key": "Plaque images or existing plaque masks",
+      "source": "Plaque images or existing plaque masks",
+      "source_sha256": "36c64631b2b74b1cd417f792c616926bfc582a5e40d947695f0113595ed02a2e",
+      "translation": "플라크 이미지 또는 기존 플라크 마스크"
+    },
+    {
+      "table": "ui",
+      "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source_sha256": "73f0218ad1985f156a3b2d89f339a8294f2362cc568eb237b1c71c1fe269aaf9",
+      "translation": "측정 특징 또는 제공된 인코더 특징을 투영하고 대표적인 잘라낸 이미지를 확인하세요. 클러스터는 후보 그룹이며 검증된 표현형이 아닙니다. 올가미와 어노테이션 도구를 사용해 검토된 선택 영역을 해당 측정 데이터베이스의 어노테이션 열에 기록하세요. 기하학적 선택 영역만으로 생물학적 표현형이 입증되지는 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "source": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "source_sha256": "5298e47838850398f88807a65db40892382afdc2ba42a5fe819a601356506605",
+      "translation": "시퀀싱 없이 영상 실험을 정량화하세요. 현미경 이미지로 시작하거나 기존 마스크를 원본 이미지와 함께 가져와 객체를 측정한 뒤, 임베딩을 탐색하거나 게이트로 집단을 정의하거나 그림을 만드세요. 이러한 후속 분기는 서로 다른 질문에 답하며 독립적으로 사용할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Segmented image project",
+      "source": "Segmented image project",
+      "source_sha256": "c5857f398ec997e05f2f73207f56ada10aae1be9e4cb5d009ec23ffe3bdfa618",
+      "translation": "분할된 이미지 프로젝트"
+    },
+    {
+      "table": "ui",
+      "key": "Sequencing cycles and phenotype images",
+      "source": "Sequencing cycles and phenotype images",
+      "source_sha256": "2d5f50bbe22ad5c8b2b4c5d2f1e2d9cb64f0d9083ad4767be90a1fd6ebf187ba",
+      "translation": "시퀀싱 주기 및 표현형 이미지"
+    },
+    {
+      "table": "ui",
+      "key": "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort.",
+      "source": "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort.",
+      "source_sha256": "96e425a0b17cea2bdbd087b38d1f998f9995c8e7bbf66e8d53d2f2d52df9ad54",
+      "translation": "효과 크기와 변동성에 대한 가정을 명시하세요. 필요하면 호환되는 예비 측정값을 사용하세요. 가정의 변화가 필요한 표본 수집 노력에 어떤 영향을 주는지 검토하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+      "source": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+      "source_sha256": "3dbf314fc68ed3a42868c635036e6241faafa718d2918c9743e50dc9f34b9aea",
+      "translation": "gzip으로 압축한 FASTQ 파일과 바코드 참조 CSV 파일을 제공하세요. R1/R2에는 paired 모드를 사용하세요. 단일 말단 리드에는 single 모드를 선택하고, 파일 및 추출 방향에 맞게 single_direction을 R1 또는 R2로 설정하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding.",
+      "source": "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding.",
+      "source_sha256": "bf08e3919034b30697c5922c5e84d75e3d08be3a58453f27c906d31409e0851f",
+      "translation": "원본 주기/사이트 이미지, 채널 배정 및 해당 표현형 정렬 정보를 제공하세요. 주기와 사이트 식별 정보를 보존하세요. 모자이크 출력만으로는 디코딩할 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment.",
+      "source": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment.",
+      "source_sha256": "dcb49c536bbed51d119b5ca8bd41e37913e10de8806560e4cbd6d1e428bb01a9",
+      "translation": "채널 식별 정보와 시야 이름이 있는 원본 현미경 이미지를 제공하세요. 시계열이라면 프레임 순서와 시간 정보를 보존하세요. 이 실험의 객체에 적합한 분할 설정을 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.",
+      "source": "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.",
+      "source_sha256": "5509c5c687e14fe50ca5548f8b03361cac9b8d17399908919eb7566f4580414d",
+      "translation": "Mask 또는 Import의 병합된 이미지 배열과 대응하는 객체 레이블 평면을 사용하세요. 측정 전에 채널 역할, 객체 식별 정보 및 자르기 설정을 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source_sha256": "f85a9cc79c3583d7bbd5c3e52ae8a5247479704c29927f597ef10ab0848438c7",
+      "translation": "검토된 게이트 선택을 어노테이션 열에 기록한 뒤 Classify에서 동일한 열과 객체 집단을 선택하세요. 검증 객체를 학습 레이블과 분리해 두세요."
+    },
+    {
+      "table": "ui",
+      "key": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
+      "translation": "검토된 올가미 선택을 해당 객체 데이터베이스의 어노테이션 열에 기록한 뒤 Classify에서 그 열을 선택하세요. 잘라낸 이미지를 확인하고 레이블을 검증하세요. 임베딩 클러스터는 정답 데이터가 아닙니다."
+    }
+  ]
+}

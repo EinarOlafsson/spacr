@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "base_model",
+      "source": "Base model",
+      "source_sha256": "9922fc98cc51cfbfe95d6b00af9ec9418784c4c849170aeabd6367f5d150d05c",
+      "translation": "आधार मॉडल"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confirm_annotations",
+      "source": "Confirm annotations",
+      "source_sha256": "ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12",
+      "translation": "एनोटेशन की पुष्टि करें"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_confidence",
+      "source": "Figure confidence",
+      "source_sha256": "f37e6544f17a69c0d3f378e8dffc34594314f08a73e68a7d0cca070d8d53140d",
+      "translation": "डिटेक्टर का विश्वास-स्तर"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_detector",
+      "source": "Figure detector",
+      "source_sha256": "f2a338f37de72fa2321927f56900b47b062c275d38d7c5761ce70c0af0f08ee9",
+      "translation": "आकृति डिटेक्टर"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_imgsz",
+      "source": "Figure imgsz",
+      "source_sha256": "70cbbc06e6235528539ac4d5495130eb5281d94e28bfc4b23eecf71a981be2fa",
+      "translation": "डिटेक्टर इनपुट आकार"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_read_text",
+      "source": "Figure read text",
+      "source_sha256": "e5defc31897230668d1f2f5628d949a4ed9cf0474a5f1c63b5e8e4c3fa566736",
+      "translation": "आकृतियों का पाठ पढ़ें"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_mode",
+      "source": "Plaque mode",
+      "source_sha256": "84f94598660e6453d03264a82067ba2c0707aca9f437a4bda6f9b42f9b8a9a6c",
+      "translation": "प्लाक मोड"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_ignore",
+      "source": "Text ignore",
+      "source_sha256": "207f84635b6ebcf344a8ec8496977594494f16978b86d4f9aa6bcb155426dab6",
+      "translation": "अनदेखा किया जाने वाला पाठ"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_min_confidence",
+      "source": "Text min confidence",
+      "source_sha256": "464af619516137c86e6e73c7f625e593ea2dd1b936a723a863478d8457212ec5",
+      "translation": "पाठ का न्यूनतम विश्वास-स्तर"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_order",
+      "source": "Text order",
+      "source_sha256": "c69361473025889eaea03128a1af6ba6b3b41f6bc411f1c370cdc6fddba6ba4f",
+      "translation": "पाठ का क्रम"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_panel_reach",
+      "source": "Text panel reach",
+      "source_sha256": "2e2d5b1d0cd3b18fd1a459da09b238ca08e426e0c6afd138dfc321c412005231",
+      "translation": "पैनल अक्षर की खोज-सीमा"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_above",
+      "source": "Text reach above",
+      "source_sha256": "ff0b3a0401952ea169f42ea3e8f58ea0e44097985f55b087899862a4c2484697",
+      "translation": "ऊपर की खोज-सीमा"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_below",
+      "source": "Text reach below",
+      "source_sha256": "0172a8aedb7811a0f3d91034a29d91aa01a0c0740fc18fadafc1ffd341edb05b",
+      "translation": "नीचे की खोज-सीमा"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_left",
+      "source": "Text reach left",
+      "source_sha256": "e285faba23ac0817a70bcd128203563e8c29a1d433bab70ad5b04e5d255f4a88",
+      "translation": "बाईं ओर की खोज-सीमा"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reread",
+      "source": "Text reread",
+      "source_sha256": "4815dfc08eb6c8413dc38457e2248dbbdd5746d926ca4685cba6f774256f6207",
+      "translation": "पाठ दोबारा पढ़ें"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reread_scale",
+      "source": "Text reread scale",
+      "source_sha256": "99c783c877a4545eb9bf5af20f1618df4885bf2f4784d11b8faf23c608ba34c5",
+      "translation": "दोबारा पढ़ने का आवर्धन"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_separator",
+      "source": "Text separator",
+      "source_sha256": "a1b4086101600a35f39f621f3e4524d8700c62623aba06caf73d8fbba21a76d6",
+      "translation": "पाठ विभाजक"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_above",
+      "source": "Text use above",
+      "source_sha256": "ebad8879527dc29bd7942296ea64a1c7cc6d4b8b7f315c69b8110bd81f7a33ca",
+      "translation": "ऊपर का पाठ उपयोग करें"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_below",
+      "source": "Text use below",
+      "source_sha256": "941bea1abb38906055c2d09f0f9228dac790fe888206916c6be8da64dcb434ea",
+      "translation": "नीचे का पाठ उपयोग करें"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_left",
+      "source": "Text use left",
+      "source_sha256": "dd3413558cb5d7a36d004b5cea0133e05f337557d2d1514d45ccebf53f19443a",
+      "translation": "बाईं ओर का पाठ उपयोग करें"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "base_model",
+      "source": "Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
+      "source_sha256": "02df0d545ca4af497d88c2cf7790246e4d258ac618effbc17acc37456abfd057",
+      "translation": "Cellpose प्रशिक्षण: वे भार जिनसे प्रशिक्षण शुरू होता है। 'cpsam' मानक Cellpose-SAM है। मॉडल संग्रह की कुंजी, जैसे 'toxoplasma_plaque_v2', या किसी चेकपॉइंट का पथ देने पर प्रशिक्षण उस मॉडल से आगे चलता है; इस तरह फाइन-ट्यूनिंग का दूसरा चरण पहले पर आधारित होता है। शुरुआती मॉडल को रन की सेटिंग के साथ दर्ज किया जाता है। डिफ़ॉल्ट 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confirm_annotations",
+      "source": "Figure mode: measure only images whose condition a person approved in the Figure preview (saved to figure_annotations.csv in the source folder); the others are counted as waiting. Default False.",
+      "source_sha256": "c1abdf01536cd38799534d038cbba751891e83e0c1bd82185dd79a0e296f905f",
+      "translation": "प्रकाशित आकृति मोड: केवल उन छवियों को मापें जिनकी प्रयोगात्मक परिस्थिति को किसी व्यक्ति ने आकृति पूर्वावलोकन में स्वीकार किया है। स्वीकृति स्रोत फ़ोल्डर की figure_annotations.csv फ़ाइल में सहेजी जाती है; बाकी छवियाँ प्रतीक्षारत गिनी जाती हैं। डिफ़ॉल्ट False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_confidence",
+      "source": "Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25.",
+      "source_sha256": "e924b788a58c589949a81bf90d955c32fbe40978cbe09a149b4e3c5160385780",
+      "translation": "प्रकाशित आकृति मोड: किसी बॉक्स को प्लाक छवि मानने के लिए डिटेक्टर का न्यूनतम स्कोर, 0 से 1 तक। डिफ़ॉल्ट 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_detector",
+      "source": "Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
+      "source_sha256": "81adda124c35d2151b43f4dfa22e646eb01a274c7c30b72f277d4d8ec784d68b",
+      "translation": "प्रकाशित आकृति मोड: आकृति के भीतर प्लाक छवियाँ खोजने वाले YOLO डिटेक्टर की मॉडल-संग्रह कुंजी या चेकपॉइंट का पथ। डिफ़ॉल्ट 'toxoplasma_well_detector_v2', जिसकी प्रकाशित आकृतियों में काटे गए प्लाक पैनल खोजने की क्षमता का मूल्यांकन किया गया है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_imgsz",
+      "source": "Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'.",
+      "source_sha256": "f9cc7de360ffec8cf35085e50911195ac7832e8bb703628844cb31f397f72731",
+      "translation": "प्रकाशित आकृति मोड: कॉमा से अलग किए गए डिटेक्टर इनपुट आकार। सभी आकारों पर पहचान की जाती है और उनके बॉक्स मिलाए जाते हैं। 640 पूरे हल्के पैनल खोजता है और 1280 छोटे तनुकरण बिंदु; कोई एक आकार अकेले दोनों नहीं खोजता। डिफ़ॉल्ट '640,1280'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_read_text",
+      "source": "Figure mode: read the text printed around each plaque image (needs RapidOCR, part of spacr[papers]) to annotate it with its panel and condition. False names each image by its figure, row and column only. Default True.",
+      "source_sha256": "ce6b97f8a8b74958687ae5555e4f8fa7a0b66d2f1cd987c08a3587986de9fd86",
+      "translation": "प्रकाशित आकृति मोड: हर प्लाक छवि के आसपास छपे पाठ को पढ़कर उसके पैनल और प्रयोगात्मक परिस्थिति का एनोटेशन करें। इसके लिए spacr[papers] में शामिल RapidOCR चाहिए। False होने पर हर छवि का नाम केवल आकृति, पंक्ति और स्तंभ से बनता है। डिफ़ॉल्ट True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_mode",
+      "source": "What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
+      "source_sha256": "e3523637f364946f0b6f49aa7a328c7b6bcb481dcec98fb03ae1857f36856207",
+      "translation": "प्लाक परीक्षण (Plaque Assay) क्या पढ़ता है। 'plaque' ऐसी छवियाँ लेता है जिनमें से प्रत्येक एक प्लाक क्षेत्र, यानी एक वेल या काटी गई प्लाक छवि, दिखाती है; यह प्लाक का विभाजन करता है और per_image तथा per_plaque तालिकाएँ लिखता है। 'figure' प्रकाशित आकृतियाँ लेता है: YOLO डिटेक्टर हर आकृति में प्लाक छवियाँ खोजता है। आसपास के पैनल अक्षर, स्तंभ और पंक्ति लेबल पढ़कर आकृति की व्याख्या से जोड़े जाते हैं। हर छवि को उसकी प्रयोगात्मक परिस्थिति से एनोटेट किया जाता है और प्लाक का विभाजन करके परिणाम plaque_figures/plaque_figures.db में लिखे जाते हैं। डिफ़ॉल्ट 'plaque'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_ignore",
+      "source": "Figure mode, text detection: Comma-separated regular expressions; a word matching any is not used as a label, for example scale bars and axis numbers: '^\\\\d+$, [uμ]m$'. Default ''.",
+      "source_sha256": "c7e9a0498f07e9524c4f6a88a5875551b0da2208b595d2395df510b60e4ce4e7",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: कॉमा से अलग किए गए नियमित व्यंजक। किसी भी व्यंजक से मेल खाने वाला शब्द लेबल के रूप में उपयोग नहीं होता, जैसे स्केल बार और अक्षों की संख्याएँ: '^\\\\d+$, [uμ]m$'. डिफ़ॉल्ट ''."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_min_confidence",
+      "source": "Figure mode, text detection: Ignore OCR words the reader scored below this (0-1). Raise it when stray specks are read as text. Default 0.0.",
+      "source_sha256": "71b1b9f1aedf3329d9eb254ea5b2e9310fd9d05868ed7e5c753daa7797143eba",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: उन OCR शब्दों को अनदेखा करें जिनका पहचानकर्ता द्वारा दिया गया स्कोर इस सीमा से कम है (0-1)। यदि छोटे धब्बे पाठ समझे जा रहे हों तो इसे बढ़ाएँ। डिफ़ॉल्ट 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_order",
+      "source": "Figure mode, text detection: Which labels come first when they are joined into one condition: a comma-separated order of above, left and below. Default 'above,left,below'.",
+      "source_sha256": "88abe3e53f682988c9686cc41f2b665af5d3364392865f87015b553af55e87c1",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: लेबल को एक प्रयोगात्मक परिस्थिति में जोड़ते समय उनका क्रम; ऊपर, बाईं ओर और नीचे की स्थितियों का कॉमा से अलग क्रम। डिफ़ॉल्ट 'above,left,below'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_panel_reach",
+      "source": "Figure mode, text detection: How far up and left of a grid's top-left corner the panel letter (A, B, C...) may sit, in image sizes. Raise it when the letter is set far from the images; lower it when another panel's letter is taken. Default 1.0.",
+      "source_sha256": "e14c76b01d94d2dbd290f34fdf904bd21120c17eb05eac888932e547a358dc07",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: पैनल अक्षर (A, B, C...) छवि ग्रिड के ऊपरी बाएँ कोने से ऊपर और बाईं ओर कितनी दूर हो सकता है, छवि के आकार की इकाइयों में। अक्षर छवियों से दूर हो तो इसे बढ़ाएँ; दूसरे पैनल का अक्षर चुना जा रहा हो तो घटाएँ। डिफ़ॉल्ट 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_above",
+      "source": "Figure mode, text detection: How far above the grid of plaque images a column header may sit, in image heights. Raise it when headers are printed well above the images; lower it when the header of a neighbouring panel is picked up. Default 1.0.",
+      "source_sha256": "698b44dff1f5a4a5c4d4c7ec5f25b3d874c66dc7255edfdd5fca03f93abe5731",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: स्तंभ शीर्षक प्लाक छवियों के ग्रिड से कितना ऊपर हो सकता है, छवि की ऊँचाई की इकाइयों में। शीर्षक बहुत ऊपर हों तो बढ़ाएँ; पड़ोसी पैनल का शीर्षक चुना जा रहा हो तो घटाएँ। डिफ़ॉल्ट 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_below",
+      "source": "Figure mode, text detection: How far below the grid text may sit and still count as a label, in image heights. Default 0.5.",
+      "source_sha256": "adba49e07eaae864f743cd8116e55385c372650a039d6e2770af584ca2118a92",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: ग्रिड के नीचे कितनी दूर तक के पाठ को लेबल माना जा सकता है, छवि की ऊँचाई की इकाइयों में। डिफ़ॉल्ट 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_left",
+      "source": "Figure mode, text detection: How far left of the grid a row label may sit, in image widths. Raise it when row labels are set far to the left; lower it when text from the panel on the left is picked up. Default 1.0.",
+      "source_sha256": "ccb203f755b8316ae4727e034f1b44d09f482d855c8beb23233cb5f735b32fe8",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: पंक्ति लेबल ग्रिड के बाईं ओर कितनी दूर हो सकता है, छवि की चौड़ाई की इकाइयों में। लेबल बहुत दूर बाईं ओर हों तो बढ़ाएँ; बाएँ पैनल का पाठ चुना जा रहा हो तो घटाएँ। डिफ़ॉल्ट 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reread",
+      "source": "Figure mode, text detection: Read the text around each grid of images a second time, enlarged, which finds small or rotated labels the first reading missed. Default True.",
+      "source_sha256": "d451c873f83e4e164194d2e22ec7f4de1fb25d0657464d04fe6c99b76c6cc5a6",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: हर छवि ग्रिड के आसपास का पाठ बड़ा करके दूसरी बार पढ़ें। इससे पहली बार छूट गए छोटे या घूमे हुए लेबल मिलते हैं। डिफ़ॉल्ट True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reread_scale",
+      "source": "Figure mode, text detection: How many times to enlarge the text around each grid for the second reading. Default 3.",
+      "source_sha256": "18f8ea213a4563eab2c7172295c8d48a93056a11f88ac6845b490d465deb094a",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: दूसरी बार पढ़ने के लिए हर ग्रिड के आसपास के पाठ को कितने गुना बड़ा करना है। डिफ़ॉल्ट 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_separator",
+      "source": "Figure mode, text detection: What joins the labels into one condition. Default ' / '.",
+      "source_sha256": "d7634d92e10e99fda04571f5437d8fbcb601afedf166a25a8c949eab3fc13eb1",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: लेबल को एक प्रयोगात्मक परिस्थिति में जोड़ने वाला पाठ। डिफ़ॉल्ट ' / '."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_above",
+      "source": "Figure mode, text detection: Use the column header printed above each image as part of its condition. Default True.",
+      "source_sha256": "a0aff21f64e7ba644ca9c3b90346ecdd2bc6723c8d53d2e7cd01823cf6c80562",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: हर छवि के ऊपर छपे स्तंभ शीर्षक को उसकी प्रयोगात्मक परिस्थिति के भाग के रूप में उपयोग करें। डिफ़ॉल्ट True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_below",
+      "source": "Figure mode, text detection: Use text printed under the images as part of the condition. Turn off when captions or axis labels sit under the images. Default True.",
+      "source_sha256": "9529336b33d40999347ea62510479a48f8681bc9bd56b4999aa9c5316da2dd79",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: छवियों के नीचे छपे पाठ को प्रयोगात्मक परिस्थिति के भाग के रूप में उपयोग करें। यदि नीचे चित्र-विवरण या अक्ष लेबल हों तो इसे बंद करें। डिफ़ॉल्ट True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_left",
+      "source": "Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.",
+      "source_sha256": "bbe9791694ee60c254cc9012fb5a148ccd7e39879d273364fa4693ac882f4aed",
+      "translation": "प्रकाशित आकृति मोड, पाठ पहचान: हर छवि के बाईं ओर छपे पंक्ति लेबल को उसकी प्रयोगात्मक परिस्थिति के भाग के रूप में उपयोग करें। डिफ़ॉल्ट True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
+      "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16",
+      "translation": "प्लाक विभाजन के लिए Cellpose चेकपॉइंट। मॉडल संग्रह की कुंजी देने पर पहली बार उपयोग में चेकसम से सत्यापित चेकपॉइंट डाउनलोड होता है। 'toxoplasma_plaque_v2', जाँचे और सुधारे गए v5 डेटा पर प्रशिक्षित cpsam_plaque_r5 है। फ़ाइल-सिस्टम पथ अपना चेकपॉइंट चुनता है। 'bundled' पैकेज के साथ आने वाला पुराना मॉडल है; यह Cellpose 3 चेकपॉइंट है और इसे Cellpose 3 चाहिए। मॉडल बदलने से सभी प्लाक गणनाएँ बदल सकती हैं, इसलिए दर्ज किए गए रन में चुना गया मान सुरक्षित रखना चाहिए। डिफ़ॉल्ट 'toxoplasma_plaque_v2'."
+    }
+  ]
+}

@@ -32,6 +32,14 @@ def test_the_mark_names_the_model_or_the_method(monkeypatch, mode, model, shown)
 
 def test_a_language_without_the_new_row_keeps_its_own_word(monkeypatch):
     monkeypatch.setenv(i18n.ENV_LANGUAGE, "sv")
+    real_tr = i18n.tr
+
+    def without_named_caption(source, *args, **kwargs):
+        if source == "Updating {name}…":
+            return source.format(**kwargs)
+        return real_tr(source, *args, **kwargs)
+
+    monkeypatch.setattr(i18n, "tr", without_named_caption)
     caption = make_masks._updating_caption("cpsam")
     assert caption.endswith("cpsam")
     assert "Updating" not in caption

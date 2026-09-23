@@ -95,13 +95,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "annotation_source",
-      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
-      "translation": "De qual organismo obter as anotações a serem associadas aos resultados da regressão. 'toxoplasma' usa as tabelas de Toxoplasma gondii incluídas no programa, que não precisam de rede e são a opção padrão. Qualquer outro nome de organismo ou identificador de táxon NCBI — 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' — obtém as entradas desse organismo no UniProt; um identificador de acesso individual, como P04637, recupera apenas essa entrada. O resultado fica em cache junto aos arquivos de saída, dispensando a rede em uma nova execução. Se spaCR não reconhecer o nome, os resultados ficam sem anotações e o programa informa quais nomes são semelhantes. Deixe vazio para não adicionar anotações. Padrão: 'toxoplasma'.",
-      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "auto_file_issues",
       "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
       "translation": "Relatar uma execução que falhou como um problema no repositório público de spaCR no GitHub. O relatório inclui o traceback, as configurações da execução e as versões do software, com caminhos, nomes de usuário e de máquina e credenciais ocultados. Quando o envio de problemas está definido como 'always' (o padrão), o relatório é enviado automaticamente, uma vez por erro, se houver uma sessão iniciada no GitHub. Com 'ask', ele é aberto em uma prévia e só é enviado quando você pressiona Enviar relatório. Padrão: True.",
@@ -134,13 +127,6 @@
       "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
       "translation": "Largura do contorno como fração do tamanho do objeto, em vez de um número fixo de pixels, preservando a largura relativa entre diferentes valores de crop_size. Valores maiores tornam os limites mais visíveis em miniaturas pequenas, mas cobrem mais pixels do interior. Padrão: 0.1.",
       "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "metadata_type",
-      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
-      "translation": "Convenção de nomes de arquivos usada para interpretar imagens brutas, escolhida em uma lista agrupada por fabricante: Yokogawa CV7000/CV8000 ('cellvoyager', o padrão) e CQ1, PerkinElmer/Revvity Opera Phenix e Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan e EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X e Matrix Screener, e Micro-Manager. 'custom' usa custom_regex, e 'auto' primeiro renomeia os arquivos da pasta conforme a convenção Yokogawa (usando custom_regex quando fornecida; caso contrário, detecção automática) antes da interpretação. As convenções marcadas como provisórias foram reconstruídas a partir de nomes de arquivos reais encontrados em conjuntos de dados públicos, em vez de obtidas na documentação dos fabricantes. Uma convenção incorreta pode atribuir identificadores errados de placa, poço, campo ou canal e colocar imagens em pastas de canais incorretas. Use 'Test on my folder' (Testar na minha pasta) para conferir antes de executar.",
-      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5"
     },
     {
       "table": "setting_tooltips",
@@ -389,13 +375,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "translation": "Fator de correção do limiar: o nível calculado por Otsu é multiplicado por ele antes do uso. Acima de 1, o critério é mais rigoroso: os objetos diminuem e os de sinal fraco são excluídos. Abaixo de 1, inclui pixels menos intensos; 1 usa o nível calculado por Otsu. A detecção por Otsu usa esse fator, assim como o modo Otsu da lupa ao vivo quando uma região contém duas populações bem distintas.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
-    },
-    {
-      "table": "ui",
       "key": "Add a model",
       "source": "Add a model",
       "translation": "Adicionar um modelo",
@@ -480,13 +459,6 @@
     },
     {
       "table": "ui",
-      "key": "Channels",
-      "source": "Channels",
-      "translation": "Canais",
-      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
-    },
-    {
-      "table": "ui",
       "key": "Choose a database or a folder first",
       "source": "Choose a database or a folder first",
       "translation": "Escolha um banco de dados ou uma pasta primeiro",
@@ -561,6 +533,29 @@
       "source": "Could not file the issue: the reporter would not start.",
       "translation": "Não foi possível registrar o problema: a ferramenta de envio não iniciou.",
       "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Channels",
+        "source": "Channels",
+        "translation": "Canais",
+        "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
+      }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "translation": "Fator de correção do limiar: o nível calculado por Otsu é multiplicado por ele antes do uso. Acima de 1, o critério é mais rigoroso: os objetos diminuem e os de sinal fraco são excluídos. Abaixo de 1, inclui pixels menos intensos; 1 usa o nível calculado por Otsu. A detecção por Otsu usa esse fator, assim como o modo Otsu da lupa ao vivo quando uma região contém duas populações bem distintas.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

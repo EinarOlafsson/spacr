@@ -4,7 +4,7 @@ import time
 
 
 def record_preview(app, window, screen, root, captures, capture, settle, write_json, timeout):
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.widgets.card import Card
@@ -48,6 +48,10 @@ def record_preview(app, window, screen, root, captures, capture, settle, write_j
                 raise ValueError('The real preview directory picker did not open')
             dialog.accepted.connect(lambda: accepted.append(True))
             dialog.resize(1400, 950)
+            dialog.setDirectory(str(root.parent))
+            dialog.setSidebarUrls([QUrl.fromLocalFile(str(root.parent))])
+            dialog.setHistory([str(root.parent)])
+            settle(.3)
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
             click(edit)
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)

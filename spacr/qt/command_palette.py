@@ -277,13 +277,22 @@ class CommandPalette(QDialog):
             except Exception:
                 LOG.debug("could not reveal %r through the strip", key,
                           exc_info=True)
+        opener = getattr(screen, "_open_the_heading_of", None)
+        if callable(opener):
+            try:
+                opener(key)
+            except Exception:
+                LOG.debug("could not open the category of %r", key,
+                          exc_info=True)
         widget = (getattr(screen, "_settings_model", None)
                   and screen._settings_model._widgets.get(key))
         if widget is None:
             return
         for section in getattr(screen, "_settings_sections", []) or []:
             try:
-                if section.isAncestorOf(widget):
+                holds = getattr(section, "_holds", None)
+                if (holds(widget) if callable(holds)
+                        else section.isAncestorOf(widget)):
                     section.set_expanded(True)
                     break
             except (AttributeError, RuntimeError):

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "13_regression",
+  "version": "1.5.0.9",
+  "source_commit": "7e7d2931633e1f021a9cfb1550bc9e7fe373f53f",
+  "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v1",
+  "capture_accepted": false,
+  "published": false,
+  "process_exit_code": 1,
+  "reason": "Visible run-journal location uses the maintainer home directory. Capture guard refused the frame; guard was not weakened and no rejected screenshot was saved.",
+  "completed": [
+    "Downloaded four paired score/count tables through the real GUI",
+    "Nine settings searches, settings unchanged",
+    "Actual CPU guide-permutation analysis journal reports success"
+  ],
+  "settings_tour_sha256": "28eb37853e92b20c478c03735a364084c48f4d9c522a2e82bc615c00918c216e",
+  "journal_sha256": "4b6b6347c1e5659abbc644a5cb848fba55d7e433e362bd8bc9104426b6187335",
+  "guard_diagnostic_sha256": "eda6d9201a4fc31da8d34cf8cef1a1a1ef7cb91505b7f8a7342f7315e2bcd399",
+  "limitations": [
+    "No narrated master from this attempt",
+    "Scientific outputs not independently accepted",
+    "Run log records a nonfatal exchangeability-report TypeError; no claim of complete diagnostics"
+  ],
+  "next": "Resolve the real run-journal display path before recapturing; retain privacy guard."
+}

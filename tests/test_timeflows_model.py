@@ -77,6 +77,77 @@ def test_sampling_weights_favour_the_rare_large_moves():
     assert np.isclose(weights[-1], weights[:-1].sum())
 
 
+def _independent_pairs(mixed_sizes):
+    """Six small moves and one large move, with unrelated starting positions."""
+    pairs = []
+    for index, step in enumerate([1, 1, 1, 1, 1, 1, 14]):
+        shape = (80, 96) if mixed_sizes and index % 2 else (64, 64)
+        labels = np.zeros((2,) + shape, np.int32)
+        x = 10 if index % 2 else 35
+        for frame in (0, 1):
+            _disc(shape, 24, x + frame * step, 5, 1, labels[frame])
+        pairs.append(tm._Pair((labels[0] > 0).astype(np.float32),
+                              (labels[1] > 0).astype(np.float32),
+                              labels[0], labels[1]))
+    return pairs
+
+
+@pytest.mark.parametrize("mixed_sizes", [False, True])
+def test_pair_weights_follow_real_endpoints_across_movie_boundaries(mixed_sizes):
+    pairs = _independent_pairs(mixed_sizes)
+    weights = tm._training_pair_sampling_weights(pairs)
+    np.testing.assert_allclose(weights, [1 / 12] * 6 + [1 / 2])
+    order = np.array([6, 2, 0, 4, 1, 5, 3])
+    reordered = tm._training_pair_sampling_weights([pairs[index] for index in order])
+    np.testing.assert_allclose(reordered, weights[order])
+
+
+def test_independent_and_contiguous_sampling_agree_for_one_complete_movie():
+    images, labels = _movie(frames=4, step=6)
+    pairs = [tm._Pair(images[t], images[t + 1], labels[t], labels[t + 1])
+             for t in range(3)]
+    np.testing.assert_allclose(tm._training_pair_sampling_weights(pairs),
+                               tm.pair_sampling_weights(labels))
+    assert tm._training_pair_sampling_weights([]).shape == (0,)
+
+
+@pytest.mark.parametrize("mixed_sizes", [False, True])
+def test_cli_trains_with_pair_weights_and_records_them(tmp_path, monkeypatch, mixed_sizes):
+    import json
+    import sys
+    import types
+
+    pairs = _independent_pairs(mixed_sizes)
+    monkeypatch.setattr(tm, "ctc_pairs", lambda movie, sequence, max_pairs: pairs if sequence == "01" else [])
+    monkeypatch.setitem(sys.modules, "cellpose", types.SimpleNamespace(
+        models=types.SimpleNamespace(CellposeModel=lambda **kwargs: types.SimpleNamespace(net=None))))
+    monkeypatch.setattr(tm, "CellposeSamFeatures", lambda net: None)
+    monkeypatch.setattr(tm, "TimeflowsNet", lambda net: types.SimpleNamespace(state_dict=lambda: {}))
+    seen = {}
+
+    def train(net, actual_pairs, **kwargs):
+        assert actual_pairs == pairs
+        seen.update(kwargs)
+        return [0.1]
+
+    monkeypatch.setattr(tm, "train_timeflows", train)
+    target = tmp_path / "model.pt"
+    assert tm.main(["--movies", "ctc-example", "--out", str(target), "--device", "cpu"]) == 0
+    expected = [1 / 12] * 6 + [1 / 2]
+    np.testing.assert_allclose(seen["weights"], expected)
+    record = json.loads(target.with_suffix(".pt.json").read_text())
+    assert record["sampling"]["strategy"] == "inverse_frequency_displacement_bins"
+    assert record["sampling"]["bins"] == 5
+    assert record["window_supervision"] == {
+        "policy": "complete_source_and_present_successor_masks",
+        "tile_size": tm.TILE, "maximum_attempts_per_step": 32,
+        "full_frame_disappearances_supervised": True}
+    assert record["annotation_assignment"] == {
+        "policy": "one_object_per_track_one_track_per_object",
+        "missing_successor_full_mask": "censor_source_supervision"}
+    np.testing.assert_allclose(record["sampling"]["weights"], expected)
+
+
 def test_ctc_markers_relabel_the_silver_masks():
     seg = np.zeros((20, 20), np.int32)
     seg[2:8, 2:8] = 5
@@ -150,3 +221,32 @@ def test_a_ctc_movie_becomes_consecutive_track_labelled_pairs(tmp_path):
     assert len(pairs) == 2
     assert set(np.unique(pairs[0].labels_t)) == {0, 11, 22}
     assert pairs[0].frame_t.max() <= 1.0
+
+
+def test_a_training_window_is_the_encoder_tile_and_shared_by_both_frames():
+    """2026-09-22: whole CTC frames failed the encoder's fixed 32 x 32 position
+    embedding; training reads one shared 256 px window per pair."""
+    import numpy as np
+
+    from spacr import timeflows_model as tm
+
+    rng = np.random.default_rng(0)
+    frame = rng.random((600, 700)).astype(np.float32)
+    labels = np.zeros((600, 700), dtype=np.int32)
+    labels[300:320, 400:420] = 7
+    moved = np.roll(labels, 5, axis=1)
+    frames, labs = tm.random_window([frame, frame * 2], [labels, moved], rng)
+    assert all(f.shape == (tm.TILE, tm.TILE) for f in frames + labs)
+    assert np.allclose(frames[1], frames[0] * 2), "the same window of both frames"
+    assert (labs[0] == 7).any(), "the window holds the object it was centred on"
+
+
+def test_a_small_frame_is_padded_to_the_tile():
+    import numpy as np
+
+    from spacr import timeflows_model as tm
+
+    rng = np.random.default_rng(1)
+    frames, labs = tm.random_window([np.ones((100, 120), np.float32)] * 2,
+                                    [np.zeros((100, 120), np.int32)] * 2, rng)
+    assert frames[0].shape == (tm.TILE, tm.TILE)

@@ -14,6 +14,7 @@ idealistic-eagle (Cellpose-SAM, the Cellpose 4 kind).
 """
 from __future__ import annotations
 
+import pytest
 import json
 import os
 from pathlib import Path
@@ -91,7 +92,7 @@ def test_kinds_name_the_cellpose3_kind():
 
 def test_every_backend_is_listed_with_its_state_reason_and_licence(tmp_path):
     rows = {e.key: e for e in zoo.installable_backend_entries()}
-    assert set(rows) == {"cellpose3_v1", "dinocell_v1", "papers_v1", "samcell_v1"}
+    assert set(rows) == {"cellpose3_v1", "dinocell_v1", "papers_v1", "samcell_v1", "spotnet_v1"}
     cellpose3 = rows["cellpose3_v1"]
     assert (cellpose3.kind, cellpose3.source) == ("backend", "installable")
     assert cellpose3.uri == "backend:cellpose3" and cellpose3.path == ""
@@ -192,7 +193,7 @@ def test_the_catalogue_lists_them_without_the_network(tmp_path):
     kinds = [e.kind for e in zoo.catalogue(remote=False,
                                            include_plugins=False)]
     assert kinds.count("cellpose3") == 4
-    assert kinds.count("backend") == 4
+    assert kinds.count("backend") == 5
 
 
 def test_a_row_names_the_backend_it_needs():
@@ -312,3 +313,117 @@ def test_a_comparison_runs_each_side_where_it_belongs(tmp_path, monkeypatch,
                         field_names=["f"])
     assert cellpose4 == [ours.path]
     assert [s.model_name for s in stub_cellpose3.built] == [theirs.path]
+
+
+def test_spotnet_is_listed_with_its_licence_and_its_python_limit():
+    """2026-09-22, the maintainer asked for DeepCell's SpotNet in the zoo.
+
+    It finds fluorescent spots rather than cells, so it is not a
+    segmentation backend; its licence is non-commercial, which spaCR's is
+    not, and deepcell-spots 0.4.2 needs Python 3.7 to 3.10. All three have
+    to reach the person reading the row.
+    """
+    from spacr import model_zoo as mz
+    from spacr._segmentation_backends import _SPECS, _SPOTNET, _spec
+
+    spot = _SPECS[_SPOTNET]
+    assert _spec("spotnet") is spot, "found by its own name, not as a segmenter"
+    assert spot.segments is False
+    assert spot.python == ((3, 7), (3, 10))
+    assert "NON-COMMERCIAL" in spot.licence.upper()
+    assert "DEEPCELL_ACCESS_TOKEN" in spot.licence_note
+
+    (row,) = [e for e in mz.installable_backend_entries()
+              if e.key == "spotnet_v1"]
+    assert row.kind == "backend"
+    assert "NON-COMMERCIAL" in row.licence.upper()
+    assert any("DEEPCELL_ACCESS_TOKEN" in note for note in row.notes)
+    assert any("spot" in note.lower() for note in (row.trained_on,) + row.notes)
+
+
+def test_spotnet_is_not_offered_as_a_segmentation_backend():
+    from spacr._segmentation_backends import _BACKEND_NAMES, _backend_name
+
+    assert "spotnet" not in _BACKEND_NAMES
+    with pytest.raises(ValueError):
+        _backend_name("spotnet")
+
+
+def test_spotnet_pins_the_dependencies_deepcell_spots_leaves_open():
+    """Reported 2026-09-22: the install walked back to trackpy 0.2.3, whose
+    setup.py imports ez_setup and cannot build. deepcell-spots pins nothing,
+    so spaCR pins what it needs."""
+    from spacr._segmentation_backends import _SPECS, _SPOTNET
+
+    requirements = _SPECS[_SPOTNET].requirements
+    assert any(r.startswith("trackpy==") for r in requirements)
+    assert any(r.startswith("deepcell==") for r in requirements)
+    assert requirements[-1].startswith("deepcell-spots==")
+
+
+def test_spotnet_installs_its_torch_dependencies_from_the_requested_index(tmp_path):
+    spec = SB._spec("spotnet")
+    plan = SB._install_plan(spec, str(tmp_path / "spotnet"), ("python3.10",),
+                            torch_index="https://download.pytorch.org/whl/cpu")
+    torch_step = next(step for step in plan if step.label == "Install PyTorch")
+    assert "torch" in torch_step.argv and "torchvision" in torch_step.argv
+    assert torch_step.argv[-2:] == ("--index-url", "https://download.pytorch.org/whl/cpu")
+    assert plan.index(torch_step) < next(i for i, step in enumerate(plan)
+                                       if step.label == "Install SpotNet (DeepCell)")
+
+
+@pytest.mark.parametrize("count", [0, 1, 2, 5])
+@pytest.mark.parametrize("container", [np.array, list, tuple])
+def test_spotnet_worker_unpacks_one_batch_and_preserves_subpixel_coordinates(
+        tmp_path, count, container):
+    image = np.arange(80, dtype=np.uint16).reshape(8, 10)
+    path = tmp_path / "spots.npy"
+    np.save(path, image)
+    coordinates = np.array([[i + .25, i + 1.75] for i in range(count)])
+    calls = []
+
+    def predict(batch, *, threshold):
+        calls.append(threshold)
+        assert batch.shape == (1, 8, 10, 1)
+        assert batch.dtype == np.float32
+        np.testing.assert_array_equal(batch[0, ..., 0], image)
+        return container([coordinates])
+
+    adapters = {"spotnet": SimpleNamespace(predict=predict)}
+    result = SB._worker_detect_spots({"image": path, "threshold": .7}, adapters)
+    assert result == {"spots": coordinates.tolist()}
+    assert calls == [.7]
+    assert json.loads(json.dumps(result)) == result
+    np.testing.assert_array_equal(np.load(path), image)
+
+
+@pytest.mark.parametrize("found", [[], np.zeros((2, 1, 2)), np.array(3),
+                                  np.ones((1, 2, 3)), np.zeros((1, 2, 0)),
+                                  np.zeros((1, 0, 3)), np.array([[[np.nan, 1]]])])
+def test_spotnet_worker_refuses_missing_extra_or_malformed_predictions(tmp_path, found):
+    path = tmp_path / "spots.npy"
+    np.save(path, np.zeros((8, 10)))
+    model = SimpleNamespace(predict=lambda *a, **kw: found)
+    with pytest.raises(ValueError, match="SpotNet"):
+        SB._worker_detect_spots({"image": path}, {"spotnet": model})
+
+
+@pytest.mark.parametrize("threshold", [-.1, 1.1, np.nan, np.inf])
+def test_spotnet_rejects_invalid_threshold_before_loading_weights(tmp_path, threshold):
+    path = tmp_path / "spots.npy"
+    np.save(path, np.zeros((8, 10)))
+    adapters = {}
+    with pytest.raises(ValueError, match="threshold"):
+        SB._worker_detect_spots({"image": path, "threshold": threshold}, adapters)
+    assert adapters == {}
+
+
+@pytest.mark.parametrize("image", [np.zeros((8, 10, 2)), np.zeros((0, 10)),
+                                  np.zeros((8,)), np.full((8, 10), np.nan)])
+def test_spotnet_rejects_invalid_images_before_loading_weights(tmp_path, image):
+    path = tmp_path / "spots.npy"
+    np.save(path, image)
+    adapters = {}
+    with pytest.raises(ValueError, match="image"):
+        SB._worker_detect_spots({"image": path}, adapters)
+    assert adapters == {}

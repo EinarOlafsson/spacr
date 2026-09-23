@@ -29,7 +29,7 @@ from spacr.qt.app import (APPS, SECTION_ORDER, SECTIONS,
                           MainWindow, Sidebar, _ChromeButton, _LiveSections,
                           _PipelinePreloader, _UpdateWorker,
                           _call_screen_factory, _insert_position,
-                          app_is_visible, app_stage, demo_label_for_app,
+                          app_is_visible, app_stage,
                           register_app, registered_entry, registered_metadata,
                           unregister_app, visible_apps)
 
@@ -383,20 +383,6 @@ def test_an_unregistered_key_still_has_a_stage(qapp):
 # the Demos menu's hint
 # ---------------------------------------------------------------------------
 
-def test_a_module_with_no_demo_gets_no_demo_name(qapp):
-    """The caller says something generic rather than naming a demo that would
-    take the user somewhere else."""
-    assert demo_label_for_app("no_such_app_key_at_all") is None
-
-    targets = MainWindow.DEMO_TARGETS
-    assert targets, "the demo table is empty"
-    for demo_key, (target, _generator) in targets.items():
-        label = demo_label_for_app(target)
-        if label is not None:
-            assert isinstance(label, str) and label
-            break
-    else:
-        pytest.fail("no demo resolved to a label")
 
 
 # ---------------------------------------------------------------------------

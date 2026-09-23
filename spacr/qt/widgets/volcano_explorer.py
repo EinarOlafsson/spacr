@@ -49,7 +49,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -68,6 +67,7 @@ from ...volcano_style import (
     render_volcano,
     validate_style,
 )
+from .collapsible_splitter import CollapsibleSplitter
 from .sortable_table import install_sorting, table_item
 
 #: What an optional column menu calls "leave this unset". Spelled once,
@@ -328,6 +328,13 @@ class VolcanoExplorer(QWidget):
                  style: VolcanoStyle | None = None, parent=None):
         """Build the volcano, its style controls and its detail panel.
 
+        Item 471: the plot ("Volcano plot") and the selected-point table
+        ("Selected point") are sections of a vertical
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        -- each folds by its heading, and the edge between them drags -- and
+        that column shares a draggable edge with the style controls, whose
+        categories already fold.
+
         :param results: the fitted table to plot.
         :param style: how to draw it.
         :param parent: parent widget.
@@ -359,7 +366,9 @@ class VolcanoExplorer(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        splitter = QSplitter(Qt.Horizontal, self)
+        splitter = CollapsibleSplitter(Qt.Horizontal, self,
+                                       persist_key="volcano_explorer::body")
+        self._splitter = splitter
         outer.addWidget(splitter)
 
         from .graph_builder import _canvas_class
@@ -378,21 +387,27 @@ class VolcanoExplorer(QWidget):
         self._problem_line.setWordWrap(True)
         self._problem_line.setVisible(False)
 
-        left = QWidget(self)
-        left_layout = QVBoxLayout(left)
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.addWidget(self._canvas, 1)
-        left_layout.addWidget(self._problem_line)
-        left_layout.addWidget(self._build_detail_panel())
-        splitter.addWidget(left)
+        plot = QWidget(self)
+        plot_layout = QVBoxLayout(plot)
+        plot_layout.setContentsMargins(0, 0, 0, 0)
+        plot_layout.addWidget(self._canvas, 1)
+        plot_layout.addWidget(self._problem_line)
+        left = CollapsibleSplitter(Qt.Vertical,
+                                   persist_key="volcano_explorer::plot")
+        left.add_section(plot, "Volcano plot",
+                         persist_key="volcano_explorer/Volcano plot",
+                         stretch=1)
+        left.add_section(self._build_detail_panel(), "Selected point",
+                         persist_key="volcano_explorer/Selected point",
+                         stretch=0)
+        self._plot_splitter = left
+        splitter.add_pane(left, "Plot", stretch=3)
 
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
         scroll.setMinimumWidth(300)
         scroll.setWidget(self._build_controls())
-        splitter.addWidget(scroll)
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 1)
+        splitter.add_pane(scroll, "Style", stretch=1)
 
         self.setAcceptDrops(True)
         if not self._results.empty:

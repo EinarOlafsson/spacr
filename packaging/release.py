@@ -545,6 +545,8 @@ def installer_index_rows(releases) -> list[tuple[str, dict[str, str]]]:
     """
     rows = {}
     for release in releases:
+        if release.get("draft") or release.get("prerelease"):
+            continue
         tag = str(release.get("tag_name") or "")
         found = {}
         for asset in release.get("assets") or ():
@@ -694,20 +696,108 @@ def fetch_releases(url: str = GITHUB_RELEASES_API):
     recorded list in a test without reaching the network.
 
     :param url: the releases endpoint.
-    :returns: the decoded JSON list.
+    :returns: all pages of published stable releases, newest first as supplied
+        by GitHub. Drafts and prereleases are excluded from public downloads.
     """
     import json
     import os
     import urllib.request
 
-    request = urllib.request.Request(
-        url, headers={"Accept": "application/vnd.github+json",
-                      "User-Agent": "spacr-release-helper"})
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if token:
-        request.add_header("Authorization", f"Bearer {token}")
-    with urllib.request.urlopen(request, timeout=60) as response:
-        return json.load(response)
+    releases = []
+    seen = set()
+    while url:
+        if url in seen:
+            raise ValueError("GitHub release pagination repeated a page")
+        seen.add(url)
+        request = urllib.request.Request(
+            url, headers={"Accept": "application/vnd.github+json",
+                          "User-Agent": "spacr-release-helper"})
+        if token:
+            request.add_header("Authorization", f"Bearer {token}")
+        with urllib.request.urlopen(request, timeout=60) as response:
+            page = json.load(response)
+            if not isinstance(page, list):
+                raise ValueError("GitHub releases response must be a list")
+            releases.extend(r for r in page if not r.get("draft") and not r.get("prerelease"))
+            next_page = re.search(r'<([^>]+)>;\s*rel="next"', response.headers.get("Link", ""))
+            url = next_page.group(1) if next_page else ""
+            if url and not url.startswith("https://api.github.com/repos/EinarOlafsson/spacr/releases?"):
+                raise ValueError("Unexpected GitHub releases pagination URL")
+    return releases
+
+
+def published_installer_version(releases) -> tuple[str, dict[str, str]]:
+    """Latest stable release with an actual installer for every platform.
+
+    A wheel-only release or a partially uploaded installer release cannot
+    supply the README's three downloads. The archive still lists partial rows.
+    """
+    required = {suffix for _label, suffix in PLATFORMS}
+    for version, assets in installer_index_rows(releases):
+        if required <= assets.keys():
+            return version, assets
+    raise ValueError("No published stable release has all three installers")
+
+
+def sync_published_installer_links(root: Path, releases) -> list[Path]:
+    """Refresh every README's installer block and the archive from one snapshot.
+
+    Preserve translated prose and use the exact published asset URLs. This
+    does not change the package version, download binaries or publish a site.
+    All README blocks are validated before any source is written.
+    """
+    version, assets = published_installer_version(releases)
+    readme = root / "README.rst"
+    updates = {}
+    for path in (readme, *_localized_readmes(readme, None)):
+        text = _updated_readme_text(path, version)
+        for _label, suffix in PLATFORMS:
+            text = _installer_url_pattern(suffix).sub(lambda _match: assets[suffix], text)
+        updates[path] = text
+    updates[root / INSTALLER_INDEX_PATH] = render_installer_index(releases, version)
+    for path, text in updates.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return list(updates)
+
+
+def installer_publication_errors(text: str, releases, *, archive=False) -> list[str]:
+    """Compare source RST or rendered HTML download links with published assets.
+
+    Archive pages must contain every published installer; README download rows
+    must match the latest complete release. No guessed filenames or local
+    package-version assumptions enter this comparison.
+    """
+    from html import unescape
+
+    version, latest = published_installer_version(releases)
+    expected = ({url for _version, assets in installer_index_rows(releases)
+                 for url in assets.values()} if archive else set(latest.values()))
+    found = {match.group(0) for _label, suffix in PLATFORMS
+             for match in _installer_url_pattern(suffix).finditer(unescape(text))}
+    errors = ["Missing published installer: " + url for url in sorted(expected - found)]
+    errors += ["Unexpected or stale installer: " + url for url in sorted(found - expected)]
+    if archive:
+        marked = re.findall(r"\b(\d+(?:\.\d+){2,3})\s+\(current\)", unescape(text))
+        if marked != [version]:
+            errors.append(f"Archive current marker {marked!r} must be {[version]!r}")
+    return errors
+
+
+def audit_installer_publication(root: Path, releases, *, site_html=None) -> list[str]:
+    """Read-only check of local download entry points and optional public HTML."""
+    readme = root / "README.rst"
+    pages = [(p, False) for p in (readme, *_localized_readmes(readme, None))]
+    pages.append((root / INSTALLER_INDEX_PATH, True))
+    errors = []
+    for path, archive in pages:
+        errors.extend(f"{path}: {error}" for error in installer_publication_errors(
+            path.read_text(encoding="utf-8"), releases, archive=archive))
+    if site_html is not None:
+        errors.extend("Public website: " + error for error in installer_publication_errors(
+            site_html, releases, archive=True))
+    return errors
 
 
 def write_installer_index(
@@ -734,8 +824,10 @@ def write_installer_index(
                 current_installers, read_version(setup_path)),
         ]
     destination.parent.mkdir(parents=True, exist_ok=True)
+    current_version = (read_version(setup_path) if current_installers is not None
+                       else published_installer_version(releases)[0])
     destination.write_text(
-        render_installer_index(releases, read_version(setup_path)),
+        render_installer_index(releases, current_version),
         encoding="utf-8")
     return destination
 
@@ -895,6 +987,15 @@ def main() -> int:
         help=("folder containing the just-built release installers; adds the "
               "new row before the GitHub release itself exists"))
 
+    for command in ("sync-published", "audit-published"):
+        publication_parser = subparsers.add_parser(
+            command, help="synchronize or audit installer links against GitHub releases")
+        publication_parser.add_argument("--root", type=Path, default=Path("."))
+        publication_parser.add_argument("--releases", type=Path,
+                                        help="recorded GitHub release list for offline use")
+        if command == "audit-published":
+            publication_parser.add_argument("--site", help="also audit this public archive URL")
+
     args = parser.parse_args()
     if args.command == "version":
         print(read_version(args.setup))
@@ -920,6 +1021,24 @@ def main() -> int:
             if args.releases else None)
         print(write_installer_index(
             args.output, args.setup, releases, args.current_installers))
+    elif args.command in ("sync-published", "audit-published"):
+        import json
+        releases = (json.loads(args.releases.read_text(encoding="utf-8"))
+                    if args.releases else fetch_releases())
+        if args.command == "sync-published":
+            for path in sync_published_installer_links(args.root, releases):
+                print(path)
+        else:
+            site_html = None
+            if args.site:
+                import urllib.request
+                with urllib.request.urlopen(args.site, timeout=30) as response:
+                    site_html = response.read().decode("utf-8")
+            errors = audit_installer_publication(args.root, releases, site_html=site_html)
+            if errors:
+                print("\n".join(errors))
+                return 1
+            print("Installer publication matches GitHub's published assets.")
     else:
         for path in collect_installers(
                 args.source, args.destination, args.readme, args.setup,

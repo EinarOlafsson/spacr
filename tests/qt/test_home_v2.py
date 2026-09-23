@@ -297,6 +297,7 @@ def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
 #: installed, so Plate Viewer draws its own and the override that pointed it
 #: at Map Barcodes was removed with four others.
 DELIBERATE_SHARED_ARTWORK = {
+    frozenset({"Toxoplasma", "Replication Assay"}),
     frozenset({"Mask", "Model Compare"}),
     frozenset({"Annotate", "Annotator Agreement"}),
     frozenset({"Cellpose Masks", "Train Cellpose"}),
@@ -854,6 +855,7 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
 ALPHA_MODULES = {
+    "toxoplasma", "plasmodium", "candida",
     # `model_zoo` and `model_compare` stood at the front of this line until
     # they became buttons on the Make Masks masthead. A stage is a property
     # of a TILE, so both left with their rows -- the colour their buttons

@@ -1,0 +1,290 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "label": "spacr.timeflows_model.ctc_pairs#0",
+      "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+      "translation": "하나의 Cell Tracking Challenge 영상에서 얻은 연속 프레임 학습 쌍."
+    },
+    {
+      "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
+      "label": "spacr.timeflows_model.ctc_pairs#1",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
+      "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
+      "source_sha256": "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+      "translation": "프레임은 ``<movie>/<seq>/t*.tif``에서, 전체 마스크는 silver 분할 ``<movie>/<seq>_ST/SEG/man_seg*.tif``에서 읽고 추적 마커 ``<movie>/<seq>_GT/TRA/man_track*.tif``에 따라 다시 라벨링합니다(:func:`track_masks_from_ctc`). 세 입력 중 하나라도 없는 프레임은 건너뛰며, 연속된 프레임 번호끼리만 쌍을 만듭니다. 슬라이스 마스크 파일명은 무시하고 중복 프레임 번호는 거부합니다. 원본 객체의 다음 프레임 마커에 명확한 전체 마스크가 없으면 해당 쌍에서 그 객체의 감독 신호를 제외하며, 소실로 라벨링하지 않습니다."
+    },
+    {
+      "context": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "label": "spacr.timeflows_model.ctc_pairs#2",
+      "source": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "source_sha256": "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+      "translation": "영상 폴더(예: ``.../ctc_dic_hela_timelapse``)."
+    },
+    {
+      "context": "``'01'`` or ``'02'``.",
+      "label": "spacr.timeflows_model.ctc_pairs#3",
+      "source": "``'01'`` or ``'02'``.",
+      "source_sha256": "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+      "translation": "``'01'`` 또는 ``'02'``."
+    },
+    {
+      "context": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "label": "spacr.timeflows_model.ctc_pairs#4",
+      "source": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "source_sha256": "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+      "translation": "영상 전체에 균등하게 분포하도록 파일을 읽기 전에 선택한, 최대 이 개수의 쌍입니다. 긴 영상에서 불러올 프레임 수를 제한하려면 이 한도를 설정하세요. 전체 모음을 불러오면 수십 기가바이트의 메모리가 필요할 수 있습니다."
+    },
+    {
+      "context": "the pairs, in time order.",
+      "label": "spacr.timeflows_model.ctc_pairs#5",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
+      "source": "the pairs, in time order.",
+      "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+      "translation": "시간순으로 정렬한 쌍."
+    },
+    {
+      "context": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
+      "label": "spacr.timeflows_model.ctc_pairs#6",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
+      "source": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
+      "source_sha256": "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df",
+      "translation": "시퀀스 또는 제한값, 중복 프레임 식별자 또는 주석 배열이 잘못되었습니다."
+    },
+    {
+      "context": "Full object masks labelled with their TRACK ids.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#0",
+      "source": "Full object masks labelled with their TRACK ids.",
+      "source_sha256": "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+      "translation": "TRACK 식별자로 라벨링된 전체 객체 마스크입니다."
+    },
+    {
+      "context": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#1",
+      "source": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
+      "source_sha256": "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+      "translation": "Cell Tracking Challenge는 추적 참조를 MARKERS로 제공합니다. 이는 각 세포 안의 작은 영역으로, 각 프레임에서 궤적 식별자로 라벨링됩니다. 전체 윤곽은 프레임별로 라벨링된 silver ``ST/SEG`` 마스크로 별도 제공됩니다. 일대일 할당만 유지합니다. 객체에는 정확히 하나의 마커 식별자가 있어야 하고, 해당 마커는 다른 분할 객체와 겹치면 안 됩니다. 마커가 없거나 병합 또는 분할된 할당은 추측하지 않고 제외합니다."
+    },
+    {
+      "context": "one frame's instance labels, any ids.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#2",
+      "source": "one frame's instance labels, any ids.",
+      "source_sha256": "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+      "translation": "한 프레임의 인스턴스 라벨이며 식별자는 임의의 값입니다."
+    },
+    {
+      "context": "the same frame's TRA markers, labelled by track id.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#3",
+      "source": "the same frame's TRA markers, labelled by track id.",
+      "source_sha256": "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+      "translation": "궤적 식별자로 라벨링된 같은 프레임의 TRA 마커입니다."
+    },
+    {
+      "context": "int64 ``segmentation`` relabelled by track id, 0 elsewhere.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#4",
+      "source": "int64 ``segmentation`` relabelled by track id, 0 elsewhere.",
+      "source_sha256": "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+      "translation": "궤적 식별자로 다시 라벨링한 int64 ``segmentation``이며, 나머지 위치는 0입니다."
+    },
+    {
+      "context": "annotations are not matching 2-D non-negative integer arrays, or marker IDs cannot be represented in int64.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#5",
+      "source": "annotations are not matching 2-D non-negative integer arrays, or marker IDs cannot be represented in int64.",
+      "source_sha256": "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e",
+      "translation": "주석이 서로 일치하는 비음수 정수 2-D 배열이 아니거나 마커 식별자를 int64로 표현할 수 없습니다."
+    },
+    {
+      "context": "Train the time head, then the whole network, on track-labelled pairs.",
+      "label": "spacr.timeflows_model.train_timeflows#0",
+      "source": "Train the time head, then the whole network, on track-labelled pairs.",
+      "source_sha256": "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+      "translation": "궤적 라벨이 있는 쌍으로 시간 예측 헤드를 먼저 학습한 뒤 전체 네트워크를 학습합니다."
+    },
+    {
+      "context": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
+      "label": "spacr.timeflows_model.train_timeflows#1",
+      "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
+      "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+      "translation": "두 단계로 학습합니다. 백본의 분할은 이미 학습되어 있으므로 새 헤드가 학습하는 동안 백본을 동결하고, 이후 낮은 학습률로 전체를 학습합니다. 각 쌍의 두 프레임에 동일한 데이터 증강을 적용한 뒤 목표값을 계산합니다."
+    },
+    {
+      "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",
+      "label": "spacr.timeflows_model.train_timeflows#2",
+      "source": "A training crop keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable crops are retried up to 32 times per step. Censoring prevents incorrect targets at crop boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",
+      "source_sha256": "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+      "translation": "학습용 잘라내기는 온전한 원본 마스크에 대해서만 감독 신호를 유지하며, 후속 객체가 전체 대상 프레임에 있으면 그 마스크도 온전해야 합니다. 타일 밖에 있는 후속 객체는 소실된 것이 아닙니다. 제공된 전체 프레임 라벨에서의 부재는 계속 감독 신호로 사용되지만, 이것이 주석의 정확성을 검증하지는 않습니다. 사용할 수 없는 잘라내기는 단계당 최대 32번 다시 시도합니다. 이러한 제외는 잘라내기 경계의 잘못된 목표값을 방지하지만 빠른 움직임의 일부 예제도 제거하므로 전체 움직임 범위의 정확성을 입증하지 않습니다."
+    },
+    {
+      "context": "from :func:`TimeflowsNet`.",
+      "label": "spacr.timeflows_model.train_timeflows#3",
+      "source": "from :func:`TimeflowsNet`.",
+      "source_sha256": "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+      "translation": ":func:`TimeflowsNet`에서 생성합니다."
+    },
+    {
+      "context": "the training pairs.",
+      "label": "spacr.timeflows_model.train_timeflows#4",
+      "source": "the training pairs.",
+      "source_sha256": "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+      "translation": "학습 쌍입니다."
+    },
+    {
+      "context": "steps with the backbone frozen.",
+      "label": "spacr.timeflows_model.train_timeflows#5",
+      "source": "steps with the backbone frozen.",
+      "source_sha256": "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+      "translation": "백본을 동결한 상태의 학습 단계 수입니다."
+    },
+    {
+      "context": "steps with everything trainable.",
+      "label": "spacr.timeflows_model.train_timeflows#6",
+      "source": "steps with everything trainable.",
+      "source_sha256": "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+      "translation": "모든 매개변수를 학습할 수 있는 단계 수입니다."
+    },
+    {
+      "context": "learning rate for the head stage.",
+      "label": "spacr.timeflows_model.train_timeflows#7",
+      "source": "learning rate for the head stage.",
+      "source_sha256": "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+      "translation": "헤드 학습 단계의 학습률입니다."
+    },
+    {
+      "context": "learning rate for the full stage.",
+      "label": "spacr.timeflows_model.train_timeflows#8",
+      "source": "learning rate for the full stage.",
+      "source_sha256": "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+      "translation": "전체 학습 단계의 학습률입니다."
+    },
+    {
+      "context": "sampling weight per pair (:func:`pair_sampling_weights`); uniform when None.",
+      "label": "spacr.timeflows_model.train_timeflows#9",
+      "source": "sampling weight per pair (:func:`pair_sampling_weights`); uniform when None.",
+      "source_sha256": "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+      "translation": "쌍별 샘플링 가중치입니다(:func:`pair_sampling_weights`). None이면 균등합니다."
+    },
+    {
+      "context": "the random seed.",
+      "label": "spacr.timeflows_model.train_timeflows#10",
+      "source": "the random seed.",
+      "source_sha256": "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+      "translation": "난수 시드입니다."
+    },
+    {
+      "context": "``'cpu'`` or ``'cuda'``.",
+      "label": "spacr.timeflows_model.train_timeflows#11",
+      "source": "``'cpu'`` or ``'cuda'``.",
+      "source_sha256": "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+      "translation": "``'cpu'`` 또는 ``'cuda'``입니다."
+    },
+    {
+      "context": "``fn(line)`` for progress.",
+      "label": "spacr.timeflows_model.train_timeflows#12",
+      "source": "``fn(line)`` for progress.",
+      "source_sha256": "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+      "translation": "진행 상황을 알리는 ``fn(line)``입니다."
+    },
+    {
+      "context": "the loss at every step.",
+      "label": "spacr.timeflows_model.train_timeflows#13",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
+      "source": "the loss at every step.",
+      "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+      "translation": "각 단계의 손실값입니다."
+    },
+    {
+      "context": "no usable supervision remains after 32 sampled extracted image regions for a step; inspect the full masks and motion relative to the tile.",
+      "label": "spacr.timeflows_model.train_timeflows#14",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
+      "source": "no usable supervision remains after 32 sampled crops for a step; inspect the full masks and motion relative to the tile.",
+      "source_sha256": "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885",
+      "translation": "한 단계에서 32개 영역을 샘플링한 뒤에도 사용할 수 있는 감독 신호가 없습니다. 전체 마스크와 타일에 대한 상대적인 움직임을 확인하세요."
+    },
+    {
+      "context": "Register the backbone and build the head and upsampler.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.__init__#0",
+      "source": "Register the backbone and build the head and upsampler.",
+      "source_sha256": "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+      "translation": "백본을 등록하고 헤드와 업샘플링 모듈을 만듭니다."
+    },
+    {
+      "context": "The backbone (or its ``net``) is registered as ``encoder`` when it is a module, so its weights train and move with the network.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.__init__#1",
+      "source": "The backbone (or its ``net``) is registered as ``encoder`` when it is a module, so its weights train and move with the network.",
+      "source_sha256": "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae",
+      "translation": "백본 또는 그 ``net``이 모듈이면 ``encoder``로 등록하여 가중치가 네트워크와 함께 학습되고 이동하도록 합니다."
+    },
+    {
+      "context": "Join both frames' backbone features and predict the time maps.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#0",
+      "source": "Join both frames' backbone features and predict the time maps.",
+      "source_sha256": "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+      "translation": "두 프레임의 백본 특징을 결합하여 시간 맵을 예측합니다."
+    },
+    {
+      "context": "frame ``t``, ``(B, 3, H, W)``.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#1",
+      "source": "frame ``t``, ``(B, 3, H, W)``.",
+      "source_sha256": "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+      "translation": "프레임 ``t``이며 모양은 ``(B, 3, H, W)``입니다."
+    },
+    {
+      "context": "frame ``t+1``, the same shape.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#2",
+      "source": "frame ``t+1``, the same shape.",
+      "source_sha256": "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+      "translation": "프레임 ``t+1``이며 모양은 같습니다."
+    },
+    {
+      "context": "``(B, 3, H, W)``: the vector ``(dy, dx)`` and the successor logit.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#3",
+      "source": "``(B, 3, H, W)``: the vector ``(dy, dx)`` and the successor logit.",
+      "source_sha256": "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205",
+      "translation": "``(B, 3, H, W)``: 벡터 ``(dy, dx)``와 후속 객체 존재 여부의 로짓입니다."
+    },
+    {
+      "context": "The new layers' parameters: the head and the upsampler.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.head_parameters#0",
+      "source": "The new layers' parameters: the head and the upsampler.",
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "translation": "새 레이어인 헤드와 업샘플링 모듈의 매개변수입니다."
+    },
+    {
+      "context": "Apply this call's quarter-turns and optional flip to ``array``.",
+      "label": "spacr.timeflows_model.augment_pair.apply#0",
+      "source": "Apply this call's quarter-turns and optional flip to ``array``.",
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "translation": "이번 호출의 4분의 1회전들과 선택적 뒤집기를 ``array``에 적용합니다."
+    },
+    {
+      "context": "Map frame number to path for the ``prefix*.tif`` files in ``folder``.",
+      "label": "spacr.timeflows_model.ctc_pairs.indexed#0",
+      "source": "Map frame number to path for the ``prefix*.tif`` files in ``folder``.",
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "translation": "``prefix*.tif`` 파일의 프레임 번호를 ``folder`` 내 경로에 대응시킵니다."
+    },
+    {
+      "context": "Microscope image field origins covering ``extent`` with a quarter-microscope image field overlap.",
+      "label": "spacr.timeflows_model.predict_pair.starts#0",
+      "source": "Tile origins covering ``extent`` with a quarter-tile overlap.",
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "translation": "타일의 4분의 1만큼 겹치면서 ``extent``를 덮는 타일 시작점입니다."
+    },
+    {
+      "context": "Train ``params`` for ``steps`` steps, the backbone frozen or not.",
+      "label": "spacr.timeflows_model.train_timeflows.run#0",
+      "source": "Train ``params`` for ``steps`` steps, the backbone frozen or not.",
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "translation": "백본을 동결하거나 학습 가능하게 두고 ``params``를 ``steps``단계 동안 학습합니다."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of strict annotation assignment, crop supervision and seven nested helpers; no native-speaker or accuracy sign-off",
+  "schema": 1
+}

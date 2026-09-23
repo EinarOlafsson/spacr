@@ -1,0 +1,243 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b",
+      "translation": "Merktu þetta myndsvið til útilokunar og farðu á það næsta. Engu er eytt: ákvörðunin er skráð í csv/keep_discard.csv við hlið myndanna og myndsviðið, maskinn og hlutirnir í því haldast óbreytt."
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9",
+      "translation": "Merktu þetta myndsvið til varðveislu og farðu á það næsta. Ákvörðunin er skráð í csv/keep_discard.csv við hlið myndanna, ásamt myndinni, maskanum og þeim fjölda hluta sem maskinn inniheldur núna."
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
+      "translation": "Mældu maskana sem þú teiknaðir. Opnar töflu þar sem hver röð er myndsvið og hver dálkur er rás eða tegund maska. Keyrslan fer í gegnum mælingaeininguna sjálfa, svo möppurnar og mælingagagnagrunnurinn eru þau úttök sem venjuleg mælingakeyrsla býr til."
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "Sýndu eða feldu allar stillingarnar sem einn hóp: pensil, töfrasprota, birtingu, sjálfvirka síun, aðgerðir á hlutum, Otsu, hlutagreiningu og lifandi stækkunargler. Teikniflöturinn nýtir breiddina sem losnar."
+    },
+    {
+      "table": "ui",
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "Snýr við myndinni og mynddílunum sem notaðir eru við greiningu svo dökkir hlutir verði bjartir. Myndsviðið er staðlað á bilið 0..1 og gildi hvers mynddíls verður síðan 1 að frádregnu eigin gildi. Styrkur mynddíls undir bendlinum fylgir viðsnúningnum; meðalstyrkur hluta og þröskuldar í Síu nota upphaflegu innlesnu gildin. Innlesin myndgögn og fyrirliggjandi maski haldast óbreytt. Til að víxla forgrunni og bakgrunni í fullgerðum maska skaltu nota «Víxla hlut og bakgrunni» ('Swap object and background') undir Hlutaaðgerðir."
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
+      "translation": "Beittu virkum mörkum á maskann á skjánum. Hver hlutur sem er fjarlægður birtist í listanum fyrir neðan, ásamt flatarmálinu og meðalstyrknum sem voru notuð við matið. Hægt er að afturkalla aðgerðina í einu skrefi."
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
+      "translation": "Það sem síðasta síun fjarlægði, ein röð fyrir hvern hlut: auðkenni hans, flatarmálið og meðalstyrkurinn sem voru metin, og mörkin sem leiddu til útilokunar hans. Auðkennin eru þau sömu og birtast við aflestur undir bendli."
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
+      "translation": "Minnsti hlutur sem á að halda, í myndpunktum. Aðgerðin sem fjarlægir smáa hluti eyðir öllu undir þessum mörkum. Hvorki Otsu-greining né hlutagreining skilar hlut undir mörkunum, svo ein stilling ræður því hvað telst vera smáagnir."
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5",
+      "translation": "Hve marga myndpunkta jaðar hvers hlutar færist við eina útvíkkun eða minnkun. Fjarlægðin er mæld í beinni línu: 1 færir jaðarinn yfir á fjóra næstu nágranna en ekki hornin. Minnkun afturkallar jafnstóra útvíkkun ef hluturinn hafði pláss til að stækka."
+    },
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972",
+      "translation": "Stækkaðu hvern hlut um þennan fjölda myndpunkta, eingöngu inn á bakgrunninn. Hlutur tekur aldrei myndpunkt frá nágranna sínum og tveir hlutir renna aldrei saman, svo auðkenni og fjöldi hluta haldast óbreytt. Hægt er að afturkalla aðgerðina í einu skrefi."
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966",
+      "translation": "Færðu jaðar hvers hlutar inn um þennan fjölda myndpunkta. Hver hlutur dregst bæði frá nágrönnum sínum og frá bakgrunninum, svo tveir samliggjandi hlutir skiljast að. HLUTUR SEM ER MJÓRRI EN TVÖFÖLD FJARLÆGÐIN HVERFUR og stöðulínan sýnir hve margir hurfu. Hægt er að afturkalla aðgerðina í einu skrefi."
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
+      "translation": "Hvaða líkanavigtir greina hluti á þessu myndsviði og í reit lifandi stækkunarglersins í Cellpose-ham. Listinn inniheldur Cellpose sem er uppsett á þessari vél og öll Cellpose-líkön í líkanasafninu. Líkan úr safninu sem hefur ekki enn verið sótt er grátt; þegar það er valið er því hlaðið niður og það valið til notkunar."
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88",
+      "translation": "Greindu hluti á opna myndsviðinu með hlutagreiningarlíkaninu og felldu niðurstöðuna inn samkvæmt stillingunni fyrir að skipta út eða sameina. Fyllir flipana fyrir frumulíkur og flæðisvið með milliniðurstöðum keyrslunnar."
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146",
+      "translation": "Gauss-sléttun, í myndpunktum, áður en þröskuldurinn er fundinn og myndin þröskulduð. Hún kemur í veg fyrir að myndsvið með suði skili þúsund hlutum sem hver er aðeins einn myndpunktur. Við 0 eru óunnin gögn þröskulduð."
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8",
+      "translation": "Fylltu göt inni á þröskulduðum svæðum áður en þau eru merkt. Án þess verður kjarni sem er dekkri í miðjunni en á jaðrinum að hring. Otsu-hamur stækkunarglersins hefur alltaf gert þetta en Otsu-greining gerði það ekki, svo niðurstöðurnar gátu verið ólíkar fyrir sama myndsvið. Nú nota báðar þessa stillingu."
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751",
+      "translation": "Skiptu klumpi með tveimur miðjum í tvennt við hrygginn á milli þeirra, með vatnaskilaaðferð á fjarlægðinni frá bakgrunninum. Klumpur með einni miðju helst heill; aðgerðin skiptir því ekki öllu. Ef slökkt er á þessu teljast tvær samliggjandi frumur einn hlutur."
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602",
+      "translation": "Slepptu hlutum sem jaðar myndsviðsins sker í gegnum. Flatarmál þeirra og meðalstyrkur ráðast af staðsetningu myndrammans fremur en hlutnum sjálfum, svo betra er að sleppa þeim þegar mæla á greinda hluti. Aðeins fyrir Otsu-greiningu: lifandi stækkunarglerið hefur eigin stillingu fyrir jaðar reitsins."
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
+      "translation": "Hvaða birtibil verður að hlutum, talið frá 0 fyrir það dimmasta. Með 3 flokkum tekur 2 björtu kjarnana en 1 daufa bauginn UMHVERFIS þá án kjarnanna innan hans. Aðeins þetta tiltekna bil er tekið, sem er tilgangurinn með fleiri en tveimur flokkum. Þegar flokkarnir eru fleiri en tveir kemur þetta í stað stillingarinnar um að hlutir séu bjartari en bakgrunnur: talan tilgreinir hvaða hlið á að nota."
+    },
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37",
+      "translation": "Ferningurinn sem staðbundni þröskuldurinn er mældur í, með miðju á hverjum myndpunkti. Hafðu hann talsvert stærri en einn hlut en minni en þann kvarða sem lýsingin breytist á. Sé hann of lítill verður innviði stórs hlutar eigin bakgrunnur og hluturinn kemur út holur. Sé hann of stór verður þröskuldurinn aftur sameiginlegur fyrir allt myndsviðið. Sléttar tölur eru hækkaðar í næstu oddatölu svo ferningurinn hafi miðju."
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
+      "translation": "Finndu Otsu-gildi sérstaklega í glugga um hvern myndpunkt í stað eins gildis fyrir allt myndsviðið. Horn með daufri lýsingu er þá metið miðað við sitt eigið umhverfi, svo hlutir þar tapast ekki á meðan bjarta miðjan helst hrein. Þetta getur gefið fleiri hluti á bakgrunni með suði; lágmarksflatarmálið síar þá frá. Aðeins með tveimur flokkum og aðeins fyrir Otsu-greiningu."
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1",
+      "translation": "Hve auðveldlega Otsu-hamurinn samþykkir hlut. Hækkaðu gildið til að taka með dekkri eða óvissari hluti; lækkaðu það til að halda aðeins skýrum hlutum. 0 er sjálfgefna viðmiðið. Líkönin nota í staðinn þröskulda úr stillingum hlutagreiningar, svo þessi stilling er grá meðan annar hamur er valinn."
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+      "translation": "Hvað nýr hlutur gerir þar sem maskinn inniheldur þegar hlut. Klipping heldur aðeins ómerktum myndpunktum hans, svo enginn eldri hlutur tapar myndpunkti. Slepping útilokar alla nýja hluti sem snerta eldri hlut. Útskipting leyfir nýja hlutnum að taka alla myndpunkta sem hann þekur. Í forskoðun svæðisins undir bendlinum sýnir reiturinn hvað reglan skilur eftir: það sem smellur myndi bæta við er sýnt með heilum lit og það sem hann myndi fjarlægja er sýnt dauflega."
+    },
+    {
+      "table": "ui",
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "„Snúa við mynd“ er virkt: bæði birting og greining nota VIÐSNÚNU myndina. Styrkur mynddíls undir bendlinum fylgir viðsnúningnum; meðalstyrkur hluta og þröskuldar í Síu nota upphaflegu innlesnu gildin. Innlesin myndgögn og fyrirliggjandi maski haldast óbreytt."
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
+        "translation": "Hvaða líkan greinir hluti á svæðinu í reitnum. Otsu þröskuldar svæðið við Otsu-gildið og aðskilur samliggjandi hluti með vatnaskilaaðferð. Það krefst engrar uppsetningar, notar lágmarksflatarmál úr aðgerðum á hlutum ásamt þröskuldsleiðréttingu og öðrum stillingum Otsu-flokksins, og er notað þegar ekki er hægt að hlaða líkani. Cellpose notar líkanið, báða þröskuldana, þvermálið og stöðlunina úr stillingum hlutagreiningar og er hægt án GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell og SAMCell eru alltaf á listanum en grá þar til þau eru uppsett. Þegar eitt þeirra er valið er boðið að setja það upp í sérstöku umhverfi. Cellpose 3 notar báða þröskuldana og þvermálið úr hlutagreiningu, DINOCell notar frumulíkurnar og SAMCell notar eigin þröskulda."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+        "translation": "Sýndu myndina sem negatífu og greindu hluti á sömu negatífu: myndsviðið er staðlað á bilið 0..1 og gildi hvers myndpunkts verður 1 mínus fyrra gildi hans, svo dekksti myndpunkturinn verður sá bjartasti. Þannig geta Otsu og lifandi stækkunarglerið, sem leita að björtum hlutum, fundið DÖKKA hluti. Dökkur hlutur á ljósum bakgrunni í bjartsviðsmynd birtist bæði auganu og greiningunni eins og flúrljómandi hlutur. MASKARNIR ERU BÚNIR TIL ÚR UMSNÚNU MYNDINNI meðan þetta er virkt og viðvörun um það helst fyrir ofan myndina. Aflesning undir bendli, síuflokkurinn og maskinn sem þú vistar nota áfram raunveruleg gildi myndarinnar, svo mælingarnar breytast ekki. Þetta er annað en að skipta á hlut og bakgrunni ('Swap object and background') í aðgerðum á hlutum: sú aðgerð snýr við fullgerðum MASKA en breytir ekki myndinni."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+        "translation": "Þröskuldaðu myndina við Otsu-gildið og merktu það sem eftir stendur, með lágmarksflatarmálinu hér að ofan. Allar þröskuldastillingar eru í Otsu-flokknum: leiðrétting, sléttun, hvor hliðin telst hlutur, fylling gata, aðskilnaður samliggjandi hluta og útilokun hluta sem myndramminn sker."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "Hvaða líkan greinir hluti á svæðinu í reitnum. Otsu þröskuldar svæðið við Otsu-gildið og aðskilur samliggjandi hluti með vatnaskilaaðferð. Það krefst engrar uppsetningar, notar lágmarksflatarmál úr aðgerðum á hlutum ásamt þröskuldsleiðréttingu og öðrum stillingum Otsu-flokksins, og er notað þegar ekki er hægt að hlaða líkani. Aðlögunarþröskuldur (Adaptive threshold), LoG blobs, DoG blobs, hryggsía (Ridge filter), hysteresis (Hysteresis) og U-Net eru eigin aðferðir frumulíffæragreiningar. Þær keyra sama kóða og skiptingarkeyrsla og lesa stillingarnar í flokknum Greiningaraðferðir; vísbending við hverja línu útskýrir hvað aðferðin hentar fyrir. Cellpose notar líkanið, báða þröskuldana, þvermálið og stöðlunina úr stillingum hlutagreiningar og er hægt án GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell og SAMCell eru alltaf á listanum en grá þar til þau eru uppsett. Þegar eitt þeirra er valið er boðið að setja það upp í sérstöku umhverfi. Cellpose 3 notar báða þröskuldana og þvermálið úr hlutagreiningu, DINOCell notar frumulíkurnar og SAMCell notar eigin þröskulda."
+      }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+        "translation": "Leiðréttingarstuðull fyrir þröskuld: Otsu-gildið er margfaldað með honum áður en það er notað. Yfir 1 er strangara, svo hlutir minnka og daufir hlutir falla út. Undir 1 tekur með dekkri myndpunkta; 1 er óbreytt Otsu-gildi. Otsu-greining notar stuðulinn, og einnig Otsu-hamur lifandi stækkunarglersins þegar svæðið hefur tvo skýrt aðgreinda hópa."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "Hve mörg birtubil myndsviðinu er skipt í. 2 er venjuleg skipting með Otsu, einn þröskuldur á milli bakgrunns og hluta. Hækkaðu gildið ef myndsviðið hefur fleiri en tvo hópa, til dæmis bakgrunn, daufan baug og bjarta kjarna. Þá færist þröskuldurinn frá málamiðlun milli allra þriggja hópa að þeim skilum sem þú velur hér að neðan. Aðeins fyrir Otsu-greiningu."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "Teiknaðu tíðnirit styrkgilda þessa myndsviðs og merktu þröskuldinn sem stillingarnar hér að ofan gefa. Þetta er sama gildi og hnappurinn notar, fengið úr sama falli. Ef merkið liggur til hliðar við dal í tíðniritinu er leiðréttingarstuðullinn það sem á að breyta."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ]
+}

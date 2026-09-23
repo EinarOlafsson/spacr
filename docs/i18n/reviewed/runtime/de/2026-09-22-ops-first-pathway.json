@@ -1,0 +1,21 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source_sha256": "cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea",
+      "table": "ui",
+      "translation": "Beginnen Sie auf «Startseite (Home)», öffnen Sie «Masken (Mask)» und dann «OPS»; geben Sie die Originalbilder der Zyklen und Positionen sowie die Registrierung zu den Phänotypbildern an."
+    },
+    {
+      "key": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source_sha256": "94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903",
+      "table": "ui",
+      "translation": "«Ausrichten und zusammenfügen (Align & Stitch)» ist optional, wenn Ihre Bilder eine Prüfung der Kachelgeometrie oder eine Koordinatenabbildung benötigen; es ist keine Voraussetzung für das OPS-Beispiel. Ein zusammengesetztes Bild allein kann die Sequenzierungszyklen nicht ersetzen. OPS-Tabellen erfordern vor der Regression eine explizite Verknüpfung und Aggregation anhand der Identitäten; die Einführung führt diese Umwandlung nicht automatisch aus."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review against the OPS-first sample route; optional preparation prefix retains the earlier reviewed note unchanged; no native-speaker sign-off",
+  "schema": 1
+}

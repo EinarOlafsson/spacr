@@ -1,0 +1,537 @@
+{
+  "title": "spaCR screens",
+  "description": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
+  "introduction": "Start on Home with the material you already have. A pooled image-based screen has two data branches: images describe the phenotype, while sequencing identifies the perturbations represented in each well. Mask, Measure, Annotate and Classify build the image branch. Map Barcodes builds the sequencing branch. Regression brings compatible scores and guide counts together. These are connected data products, not six buttons that must always be run in a fixed order.",
+  "conclusion": "Before Regression, check that the image scores, sequencing counts and experimental layout use matching plate and well identities. Preserve the object identifiers, annotation column, classifier settings and barcode references with the run. Use the linked module lessons for a worked example of each step; choose the pooled-screen walkthrough when you want Home to guide the navigation.",
+  "pathways": [
+    "pooled_screen"
+  ],
+  "modules": [
+    "mask",
+    "measure",
+    "annotate",
+    "classify_merged",
+    "map_barcodes",
+    "regression"
+  ],
+  "schema_version": 1,
+  "source": "spacr/resources/module_workflows.json",
+  "module_contracts": {
+    "mask": {
+      "name": "Mask",
+      "home": "mask",
+      "parent": null,
+      "api_module": "spacr.core",
+      "lesson": "07_mask",
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "outputs": [
+        "merged",
+        "masks",
+        "counts"
+      ],
+      "guidance": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "declared_ports": {
+        "key": "mask",
+        "consumes": [
+          {
+            "kind": "raw-images",
+            "role": "images",
+            "path": "",
+            "pattern": "*|orig/*|consolidated/*",
+            "required": true,
+            "min_count": 1,
+            "extensions": [
+              ".tif",
+              ".tiff",
+              ".png",
+              ".jpg",
+              ".jpeg",
+              ".bmp"
+            ],
+            "shape": null,
+            "tables": [],
+            "description": "raw files in src, orig/ or consolidated/"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "merged-arrays",
+            "role": "merged",
+            "path": "merged",
+            "pattern": "*.npy",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": {
+              "ndim": 3,
+              "min_planes": 2,
+              "dtype": ""
+            },
+            "tables": [],
+            "description": "image channels and label masks, one array per field"
+          },
+          {
+            "kind": "object-counts",
+            "role": "counts",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "object counts and the run-status stamp"
+          },
+          {
+            "kind": "masks",
+            "role": "masks",
+            "path": "masks",
+            "pattern": "*",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "per-object label arrays; removed by cleanup"
+          },
+          {
+            "kind": "settings-csv",
+            "role": "settings",
+            "path": "settings/gen_mask_settings.csv",
+            "pattern": "",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the settings this run used"
+          }
+        ],
+        "summary": "raw microscope files to merged arrays carrying label masks"
+      }
+    },
+    "measure": {
+      "name": "Measure",
+      "home": "measure",
+      "parent": null,
+      "api_module": "spacr.measure",
+      "lesson": "08_measure",
+      "inputs": [
+        "merged",
+        "masks"
+      ],
+      "outputs": [
+        "measurements",
+        "crops"
+      ],
+      "guidance": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "declared_ports": {
+        "key": "measure",
+        "consumes": [
+          {
+            "kind": "merged-arrays",
+            "role": "merged",
+            "path": "merged",
+            "pattern": "*.npy",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": {
+              "ndim": 3,
+              "min_planes": 2,
+              "dtype": ""
+            },
+            "tables": [],
+            "description": "one array per field, written by mask"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "one table per object type"
+          },
+          {
+            "kind": "crops",
+            "role": "crops",
+            "path": "data",
+            "pattern": "**/*_png",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "single-object PNGs, when save_png is on"
+          }
+        ],
+        "summary": "merged arrays to per-object measurements and crops"
+      }
+    },
+    "annotate": {
+      "name": "Annotate",
+      "home": "annotate",
+      "parent": null,
+      "api_module": "spacr.qt.screens.annotate",
+      "lesson": "09_annotate",
+      "inputs": [
+        "measurements",
+        "crops",
+        "gates"
+      ],
+      "outputs": [
+        "labels"
+      ],
+      "guidance": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+    },
+    "classify_merged": {
+      "name": "Classify",
+      "home": "classify_merged",
+      "parent": null,
+      "api_module": "spacr.classify",
+      "lesson": "41_classify",
+      "inputs": [
+        "measurements",
+        "crops",
+        "labels"
+      ],
+      "outputs": [
+        "scores",
+        "classifier",
+        "feature_model",
+        "evaluation"
+      ],
+      "guidance": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "declared_ports": {
+        "key": "classify_merged",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the feature table, and png_list when the image classifier is the one being fitted"
+          },
+          {
+            "kind": "crops",
+            "role": "crops",
+            "path": "data",
+            "pattern": "**/*_png",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the crops themselves, when not read from a tar"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "model-weights",
+            "role": "model",
+            "path": "model",
+            "pattern": "**/*.pth",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the trained classifier"
+          },
+          {
+            "kind": "predictions",
+            "role": "scores",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "per-object scores merged back into the database"
+          }
+        ],
+        "summary": "crops or measured features to a trained classifier and per-object scores"
+      }
+    },
+    "map_barcodes": {
+      "name": "Map Barcodes",
+      "home": "map_barcodes",
+      "parent": null,
+      "api_module": "spacr.sequencing",
+      "lesson": "12_map_barcodes",
+      "inputs": [
+        "fastq"
+      ],
+      "outputs": [
+        "barcode_counts"
+      ],
+      "guidance": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "declared_ports": {
+        "key": "map_barcodes",
+        "consumes": [
+          {
+            "kind": "sequencing-reads",
+            "role": "reads",
+            "path": "",
+            "pattern": "*.fastq.gz",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "paired or single-end reads"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "barcode-map",
+            "role": "reads_h5",
+            "path": "",
+            "pattern": "*/annotated_reads.h5",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "one row per read, with its three barcodes"
+          },
+          {
+            "kind": "barcode-map",
+            "role": "combinations",
+            "path": "",
+            "pattern": "*/unique_combinations.csv",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "collapsed well x gRNA counts"
+          }
+        ],
+        "summary": "FASTQ reads to row / column / gRNA barcode assignments"
+      }
+    },
+    "regression": {
+      "name": "Regression",
+      "home": "regression",
+      "parent": null,
+      "api_module": "spacr.ml",
+      "lesson": "13_regression",
+      "inputs": [
+        "scores",
+        "barcode_counts",
+        "ops_tables",
+        "measurements"
+      ],
+      "outputs": [
+        "regression"
+      ],
+      "guidance": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "declared_ports": {
+        "key": "regression",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the scores being regressed"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "regression-results",
+            "role": "results",
+            "path": "results",
+            "pattern": "**/results*.csv",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "coefficients, and the significant subset"
+          }
+        ],
+        "summary": "measurements plus a barcode map to gene-level hits"
+      }
+    }
+  },
+  "pathway_steps": {
+    "pooled_screen": {
+      "title": "A pooled spaCR screen",
+      "home_app": "mask",
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Start on Home and open Mask. Load the example data, check channels and segmentation, then run.",
+          "after": []
+        },
+        {
+          "module": "map_barcodes",
+          "action": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
+          "after": []
+        },
+        {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure with the Mask project and create measurements and object crops.",
+          "after": [
+            "mask",
+            "foreign"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Open Annotate, inspect representative objects and save phenotype labels.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "gate_editor",
+          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify, choose images or measured features, and inspect held-out predictions.",
+          "after": [
+            "annotate",
+            "gate_editor",
+            "umap"
+          ]
+        },
+        {
+          "module": "regression",
+          "action": "Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.",
+          "after": [
+            "classify_merged",
+            "map_barcodes"
+          ]
+        }
+      ],
+      "description": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        },
+        {
+          "id": "fastq",
+          "title": "FASTQ: R1/R2, R1 only or R2 only",
+          "artifacts": [
+            "fastq"
+          ],
+          "targets": [
+            "map_barcodes"
+          ],
+          "description": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation."
+        }
+      ]
+    }
+  },
+  "connections": [
+    {
+      "from": "mask",
+      "to": "measure",
+      "artifacts": [
+        "merged"
+      ],
+      "handoff": "Use the same project and the correct image/mask channel indices."
+    },
+    {
+      "from": "measure",
+      "to": "annotate",
+      "artifacts": [
+        "measurements",
+        "crops"
+      ],
+      "handoff": "Save or stream crops with stable object identities."
+    },
+    {
+      "from": "measure",
+      "to": "classify_merged",
+      "artifacts": [
+        "measurements",
+        "crops"
+      ],
+      "handoff": "Choose the image or tabular family to match your input."
+    },
+    {
+      "from": "annotate",
+      "to": "classify_merged",
+      "artifacts": [
+        "labels"
+      ],
+      "handoff": "Keep labelled training and evaluation groups separate."
+    },
+    {
+      "from": "classify_merged",
+      "to": "regression",
+      "artifacts": [
+        "scores"
+      ],
+      "handoff": "Select the intended CV or ML score column and preserve plate/well identity."
+    },
+    {
+      "from": "map_barcodes",
+      "to": "regression",
+      "artifacts": [
+        "barcode_counts"
+      ],
+      "handoff": "Pair guide counts with phenotype scores using consistent plate/well keys."
+    }
+  ]
+}

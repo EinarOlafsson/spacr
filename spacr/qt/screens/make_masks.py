@@ -6,7 +6,7 @@ time, and its masthead opens the Cellpose workflows that produced them.
 :class:`MakeMasksScreen` loads images and labelled masks from
 ``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.
 
-THE NINE TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
+THE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
 a reader needs before opening the screen:
 
 **Brush** and **Erase** paint and unpaint the active label a pixel at a time.
@@ -37,6 +37,10 @@ objects the box cuts through are dropped, because an object whose boundary is
 where the mouse was released is not that object; and the labels that survive
 are renumbered from one.
 
+**Ruler** is the tenth. Drag between image pixels to read a length without
+editing labels. Zoom and pan preserve it; right-click with Ruler selected
+clears it. The same ruler is available on the paired live preview canvases.
+
 Each field has a :class:`spacr.curation.CurationLog`, initialized from any
 existing sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and
 ledger together, allowing :func:`spacr.curation.is_curated` to distinguish
@@ -56,17 +60,17 @@ object and background, size filtering and Otsu detection, with undo and redo
 over all of them -- alongside the brush, wand and display controls, and can
 be hidden to return its width to the canvas.
 
-THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME. Only the
-second changes what a detector reads, and the
-captions are what tell them apart on the panel.
+Image inversion and swapping object and background are separate operations.
+The first changes the image seen by the detector; the second changes labels.
 
 **Invert image**, in the Display category, is THE inversion. It draws the
 field as its own negative and hands the detectors that same negative: both
 detect buttons and the live magnifier segment
 :meth:`MakeMasksScreen._detector_image`, so a threshold written for bright
 objects takes dark ones, and a banner above the image says so for as long as
-it is on. The corner readout, the object filter and the saved mask go on
-reading the pixels that were loaded, so nothing measured moves.
+it is on. The corner readout's pixel intensity follows the inverted image.
+Object mean intensities and the object filter still read the loaded pixels.
+Saving writes label masks without changing the source image.
 
 IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only "Invert
 image" drew a negative and left detection untouched; "Invert for detection"
@@ -167,8 +171,11 @@ from PySide6.QtWidgets import (
 )
 
 from ...curation import CurationLog
+from .. import cpu_modes
+from .. import detect_chain
 from .. import iconset
 from .. import mask_engine as engine
+from .. import organelle_modes
 from .. import prefs
 from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
@@ -324,6 +331,7 @@ MODE_ZOOM = "zoom"
 #: writes and :func:`spacr.qt.mask_engine.retire_recropped_original` for
 #: what happens to the field it was cut out of.
 MODE_RECROP = "recrop"
+MODE_RULER = "ruler"
 
 #: The tools that fill the toolbar row, in the order they appear there:
 #: ``(mode, label, icon key)``. THE ROW IS BUILT FROM THIS TABLE and not
@@ -342,6 +350,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
     (MODE_RECROP,       "Recrop",       "recrop"),
+    (MODE_RULER,        "Ruler",        "measure"),
 ]
 
 
@@ -391,26 +400,6 @@ SETTINGS_WIDTH = 380
 #: handle, so the gap is also where the settings are dragged wider.
 SETTINGS_GAP = 12
 
-def thin_hover_line_sheet() -> str:
-    """The splitter-handle style for the gap beside the settings.
-
-    The gap is :data:`SETTINGS_GAP` wide on purpose, so it is easy to grab,
-    and the theme's hover rule painted all of it blue: a twelve-pixel bar.
-    Hovered, only a two-pixel line down its middle turns the accent colour,
-    through a gradient with hard stops; the rest stays the gap it was.
-
-    :returns: a stylesheet for the settings/image splitter.
-    """
-    accent = active_palette().get("accent", "#4c8dff")
-    lo, hi = 0.5 - 1.0 / SETTINGS_GAP, 0.5 + 1.0 / SETTINGS_GAP
-    return (
-        "QSplitter::handle:horizontal:hover { background: qlineargradient("
-        "x1:0, y1:0, x2:1, y2:0, "
-        f"stop:0 transparent, stop:{lo:.4f} transparent, "
-        f"stop:{lo + 0.0001:.4f} {accent}, stop:{hi:.4f} {accent}, "
-        f"stop:{hi + 0.0001:.4f} transparent, stop:1 transparent); }}")
-
-
 #: Width of the shortcut list beside the views, in pixels. FIXED, so every
 #: pixel a wider window gives the right-hand pane goes to the image; the list
 #: is a dozen short lines and does not want the room. Wide enough that the
@@ -428,9 +417,15 @@ _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 #: layout is a list of TITLES, so a user who folded the old one away would
 #: find it open again after a rename and would have to fold it a second time;
 #: reading the stored list through this keeps their arrangement.
-#: Cellpose-SAM is now Object detection, and Auto-filter objects is now the
-#: Filter category.
-_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection",
+#: Cellpose-SAM became Object detection and Auto-filter objects became the
+#: Filter category; item 473 then folded Otsu, Object detection and its own
+#: Detection methods into ONE "Detection method" category, because they
+#: were three categories answering one question -- what finds the objects
+#: -- and only one of them was ever being read.
+_RENAMED_CATEGORIES = {"Cellpose-SAM": "Detection method",
+                       "Object detection": "Detection method",
+                       "Otsu": "Detection method",
+                       "Detection methods": "Detection method",
                        "Auto-filter objects": "Filter"}
 
 #: The two inks this screen cannot take from the shipped stylesheet: the
@@ -453,11 +448,10 @@ INVERT_WARNING_NAME = "MakeMasksInvertWarning"
 #: while it is hidden. It sits between the tool row and the image, where
 #: nothing can fold it away.
 INVERT_WARNING_TEXT = (
-    "Invert for detection is on: every mask — Object detection, Otsu detect "
-    "and the Live magnifier — is being generated from the INVERTED image. "
-    "The readout and the Filter category still report the image's real "
-    "values, and 'Invert image' in Display is a separate switch that "
-    "changes only the picture.")
+    "Invert image is on: the picture and detection use the INVERTED image. "
+    "Hover pixel intensity follows the inversion; object mean intensity "
+    "and Filter thresholds use the original loaded values. "
+    "The loaded image data and existing mask are unchanged.")
 
 #: How many removal rows the Filter category's ledger shows before it
 #: scrolls. The ledger has one row per removed object, and a
@@ -508,6 +502,7 @@ SHORTCUT_HINTS = (
     ("M", "Live magnifier"),
     ("Magnifier: wheel", "Box zoom"),
     ("Magnifier: Shift + wheel", "Box size"),
+    ("Ctrl+L+right click", "Lock / unlock box"),
     ("Magnifier: drag", "Add the objects it passes over"),
     ("Magnifier, whole image: right", "Remove the object under it"),
 )
@@ -591,6 +586,105 @@ class _MaskLoadWorker(QThread):
             )
 
 
+class _MethodGroup(QWidget):
+    """One family of detection settings inside the Detection method category.
+
+    The category holds four of these -- the threshold family's, Cellpose's,
+    the organelle methods' and the propagation's -- and shows the one the
+    chosen mode reads. A GROUP AND NOT A ROW RULE, because these families
+    are not all forms: the threshold group has toggles, a histogram button
+    and two nested form layouts, and hiding those one at a time would be a
+    list of widget names that goes stale the day one is added.
+
+    It carries ``body_layout`` so the builders that used to fill a
+    :class:`~spacr.qt.widgets.section.Section` fill one of these instead,
+    unchanged.
+
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(self, parent=None):
+        """Build an empty group with a vertical body layout."""
+        super().__init__(parent)
+        self.body_layout = QVBoxLayout(self)
+        self.body_layout.setContentsMargins(0, 0, 0, 0)
+        self.body_layout.setSpacing(SPACING["sm"])
+
+
+class _EnhanceRequest(NamedTuple):
+    """One whole-field enhanced picture to build, off the GUI thread.
+
+    ``key`` is what :class:`_NewestRequestWorker` matches two requests by:
+    the base array and the chain, which together are the whole of what the
+    answer depends on.
+    """
+
+    key: tuple
+    image: np.ndarray
+    chain: Any
+    cancelled: Any = None
+
+
+class _CompareRequest(NamedTuple):
+    """An immutable comparison snapshot with cooperative result cancellation."""
+
+    key: tuple
+    image: np.ndarray
+    box: tuple
+    chain: Any
+    normalized: bool
+    percentiles: tuple
+    cancelled: Any
+
+
+def _compare_picture_for(request):
+    """Prepare the detector's input on a worker, stretching before cropping."""
+    if request.cancelled.is_set():
+        return None
+    base = request.image
+    if request.normalized:
+        base = engine.normalize_for_detection(base, *request.percentiles)
+    if request.cancelled.is_set():
+        return None
+    x0, y0, x1, y1 = request.box
+    result = detect_chain.prepare(base[y0:y1, x0:x1], request.chain,
+                                  cancel=request.cancelled)
+    return None if request.cancelled.is_set() else result
+
+
+class _EnhancedImage(NamedTuple):
+    """Scientific intensities and their separately scaled display picture."""
+
+    prepared: np.ndarray
+    picture: np.ndarray
+
+
+def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[_EnhancedImage]:
+    """The enhanced field as a drawable picture. ON THE WORKER THREAD.
+
+    The chain in float (:func:`spacr.qt.detect_chain.prepare`), then back
+    onto the loaded field's own unsigned range so
+    :func:`_box_grey_table` can index it and :func:`refresh` can stretch
+    it. A float field has no integer range to return to and is handed back
+    as it is.
+
+    :param request: the field and the chain.
+    :returns: the picture, or None when there is nothing to draw.
+    """
+    base = request.image
+    if base is None:
+        return None
+    out = detect_chain.prepare(base, request.chain, cancel=request.cancelled)
+    dtype = np.dtype(base.dtype)
+    if out is base or dtype.kind != "u":
+        return _EnhancedImage(out, out)
+    low = float(np.min(out)) if out.size else 0.0
+    span = (float(np.max(out)) - low) if out.size else 1.0
+    top = float(np.iinfo(dtype).max)
+    scaled = (np.asarray(out, dtype=np.float64) - low) / (span or 1.0) * top
+    return _EnhancedImage(out, np.clip(scaled, 0, top).astype(dtype))
+
+
 class _MaskCanvas(QLabel):
     """QLabel that displays the composited image+mask (optionally zoomed
     into a sub-region) and captures mouse events for brush / erase /
@@ -626,10 +720,19 @@ class _MaskCanvas(QLabel):
     #: small, or a re-draw of one already cut — because what it becomes is
     #: two files and a queue position, and none of that is a canvas's job.
     recrop_requested = Signal(int, int, int, int)
+    #: A whole-field enhanced picture finished on the worker thread, as
+    #: ``(the base array it was made from, the chain, the picture)``.
+    #: Connected to :meth:`_take_enhanced` in ``__init__``, which is what
+    #: carries it from the worker thread to this one.
+    enhanced_ready = Signal(object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
+        from ..widgets.image_ruler import ImageRuler
+
+        self.ruler = ImageRuler(self)
+        self.ruler.changed.connect(self.update)
         #: What the corner readout says about the pixel under the mouse, or
         #: None while the mouse is off the image.
         self.readout: Optional[engine.PixelReadout] = None
@@ -658,6 +761,24 @@ class _MaskCanvas(QLabel):
         #: Off by default, which keeps the stretch a view setting.
         self.detect_on_normalized: bool = False
         self._detection_cache: Optional[tuple] = None
+        #: The pre-detection chain the detectors read the field through
+        #: (:mod:`spacr.qt.detect_chain`), and whether the canvas DRAWS
+        #: what that chain produced instead of the field as loaded. Both
+        #: are view-and-detection settings in the same sense the two
+        #: percentiles are: :attr:`image` keeps the numbers off disk.
+        self.enhance_chain = detect_chain.NO_CHAIN
+        self.enhance_display: bool = False
+        self._enhanced_cache: Optional[tuple] = None
+        self._enhanced_picture: Optional[tuple] = None
+        self._enhance_failure = None
+        #: The whole-field enhanced picture is built OFF THIS THREAD; see
+        #: :meth:`enhanced_picture`. ``_enhance_asked`` is the
+        #: ``(base, chain)`` a request is already out for, so a repaint
+        #: while one is running does not ask again.
+        self._enhance_worker = None
+        self._enhance_cancel = threading.Event()
+        self._enhance_asked: Optional[tuple] = None
+        self.enhanced_ready.connect(self._take_enhanced)
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -750,9 +871,16 @@ class _MaskCanvas(QLabel):
         """
         self.image = image
         self.mask = mask
+        self.ruler.clear()
+        self.ruler.set_spacing()
         self._gesture_points = []
         self.recrop_boxes = []
         self._inverted = self._inverted_of = None
+        self._detection_cache = None
+        self._enhanced_cache = self._enhanced_picture = None
+        self._enhance_failure = None
+        self._enhance_asked = None
+        self._enhance_cancel.set()
         self._lookup = self._lookup_mask = self._lookup_image = None
         self.readout = None
         if self.magnifier is not None:
@@ -812,14 +940,21 @@ class _MaskCanvas(QLabel):
             self._inverted_of = self.image
         return self._inverted
 
-    def detection_source(self) -> Optional[np.ndarray]:
-        """The intensities the detectors read.
+    def detection_base(self) -> Optional[np.ndarray]:
+        """The field the enhancement chain starts from.
 
         :meth:`displayed_source` -- the loaded field, or its inversion with
         Invert on -- and, with :attr:`detect_on_normalized` on, that array
         stretched between :attr:`norm_lo` and :attr:`norm_hi` exactly as
         :meth:`refresh` stretches it for drawing, so Otsu, Cellpose and the
         magnifier segment the picture the curator is looking at.
+
+        THE STRETCH IS THE CHAIN'S FIRST STAGE and it is here rather than
+        in :mod:`spacr.qt.detect_chain` because its two levels are
+        percentiles of the WHOLE FIELD: taken inside the magnifier's box
+        they would be a different stretch in every box. Everything after it
+        is applied to whatever region is being detected, which is the box
+        for the magnifier and the field for the detect buttons.
 
         Cached against the array and the two percentiles: the magnifier asks
         on every mouse move, and a percentile pass over a megapixel field
@@ -838,6 +973,144 @@ class _MaskCanvas(QLabel):
         self._detection_cache = (base, key[1], key[2], out)
         return out
 
+    def detection_source(self) -> Optional[np.ndarray]:
+        """The WHOLE FIELD as a detector on it reads it: base plus the chain.
+
+        What the detect buttons segment and what the active Apply button
+        draws. The magnifier does NOT come through here: its box is
+        enhanced on the worker thread, region by region, so a heavy step is
+        never a frozen window and item 407's progress and Cancel have
+        something to cover.
+
+        Cached against the base array and the chain, because drawing the
+        enhanced field asks on every repaint.
+
+        :returns: the array, or None with no image.
+        """
+        base = self.detection_base()
+        if base is None:
+            return None
+        chain = self.enhance_chain or detect_chain.NO_CHAIN
+        cached = self._enhanced_cache
+        if cached is not None and cached[0] is base and cached[1] == chain:
+            return cached[2]
+        if chain.psf_operation != 'none':
+            from ..i18n import tr
+
+            failure = self._enhance_failure
+            if failure is not None and failure[0] is base and failure[1] == chain:
+                raise ValueError(failure[2])
+            self._ask_for_enhanced(base, chain)
+            raise ValueError(tr('Image enhancement is updating. Wait for it to finish before detecting objects.'))
+        out = detect_chain.prepare(base, chain)
+        self._enhanced_cache = (base, chain, out)
+        return out
+
+    def enhanced_picture(self) -> Optional[np.ndarray]:
+        """The enhanced field as a PICTURE, and never at the cost of a frame.
+
+        The chain works in float and the box's picture is a look-up table
+        indexed by an unsigned integer value (:func:`_box_grey_table`), so
+        an enhanced field is put back on the loaded field's own integer
+        range before anything draws it. The numbers a detector read are the
+        float ones; this is the picture of them.
+
+        IT IS BUILT ON A WORKER THREAD AND THIS METHOD NEVER WAITS. A chain
+        over a whole field is filters over four megapixels -- a rolling ball
+        at the default is about a second, and a curator is free to ask for
+        the exact one, which is fifteen. This is called from
+        :meth:`refresh`, which runs on every edit, every stroke point and
+        every zoom, so a second spent here is a second the window does not
+        answer in. The first call for a new field or a new chain starts the
+        work and hands back the field as loaded; when the picture arrives
+        (:attr:`enhanced_ready`) the canvas refreshes and shows it.
+
+        :returns: the enhanced picture, the field as loaded while one is
+            being built, or None with no image.
+        """
+        base = self.detection_base()
+        if base is None:
+            return None
+        chain = self.enhance_chain or detect_chain.NO_CHAIN
+        if not detect_chain.pre_active(chain):
+            return base
+        cached = self._enhanced_picture
+        if cached is not None and cached[0] is base and cached[1] == chain:
+            return cached[2]
+        failure = self._enhance_failure
+        if failure is not None and failure[0] is base and failure[1] == chain:
+            return base
+        self._ask_for_enhanced(base, chain)
+        return base
+
+    def _ask_for_enhanced(self, base: np.ndarray, chain) -> None:
+        """Start the enhanced picture for ``(base, chain)`` on the worker.
+
+        One request at a time and the newest wins
+        (:class:`_NewestRequestWorker`): dragging the background radius
+        makes a request per step, and every one but the last is about a
+        picture nobody will see.
+        """
+        asked = self._enhance_asked
+        if asked is not None and asked[0] is base and asked[1] == chain:
+            return
+        self._enhance_asked = (base, chain)
+        self._enhance_failure = None
+        self._enhance_cancel.set()
+        self._enhance_cancel = threading.Event()
+        if self._enhance_worker is None:
+            self._enhance_worker = _NewestRequestWorker(
+                _enhanced_picture_for, self._enhanced_done,
+                name="spacr-enhance")
+        self._enhance_worker.submit(
+            _EnhanceRequest(key=(id(base), chain, id(self._enhance_cancel)),
+                            image=base, chain=chain, cancelled=self._enhance_cancel))
+
+    def _enhanced_done(self, request, result, error) -> None:
+        """Deliver the finished picture or exception to Qt from the worker."""
+        if request.cancelled is not None and request.cancelled.is_set():
+            return
+        if error is not None:
+            LOG.warning("the enhanced picture could not be built",
+                        exc_info=error)
+        if error is None and result is None:
+            return
+        try:
+            self.enhanced_ready.emit((request.image, request.chain,
+                                     error if error is not None else result))
+        except RuntimeError:
+            pass
+
+    def _take_enhanced(self, payload) -> None:
+        """Keep a finished enhanced picture and draw it, on the GUI thread."""
+        from ..i18n import tr
+
+        base, chain, picture = payload
+        asked = self._enhance_asked
+        if asked is not None and asked[0] is base and asked[1] == chain:
+            self._enhance_asked = None
+        if self.detection_base() is not base or self.enhance_chain != chain:
+            return
+        if isinstance(picture, Exception):
+            self._enhance_failure = (base, chain, str(picture))
+            self.status.emit(tr('Image enhancement failed: {error}', error=str(picture)))
+            return
+        self._enhance_failure = None
+        if isinstance(picture, _EnhancedImage):
+            self._enhanced_cache = (base, chain, picture.prepared)
+            picture = picture.picture
+        self._enhanced_picture = (base, chain, picture)
+        if self.enhance_display:
+            self.refresh()
+
+    def close_enhancer(self) -> bool:
+        """Stop the enhanced-picture worker; True when none is left running."""
+        self._enhance_cancel.set()
+        worker = self._enhance_worker
+        self._enhance_worker = None
+        self._enhance_asked = None
+        return True if worker is None else worker.close()
+
     def refresh(self) -> None:
         """Recompose image + mask overlay and repaint the canvas pixmap.
 
@@ -848,8 +1121,9 @@ class _MaskCanvas(QLabel):
         self._schedule_readout()
         if self.image is None or self.mask is None:
             return
-        img = engine.normalize_uint16(self.displayed_source(),
-                                      self.norm_lo, self.norm_hi)
+        source = (self.enhanced_picture() if self.enhance_display
+                  else self.displayed_source())
+        img = engine.normalize_uint16(source, self.norm_lo, self.norm_hi)
         x0, y0, x1, y1 = self._viewport_bounds()
         sub_img = img[y0:y1, x0:x1]
         sub_mask = self.mask[y0:y1, x0:x1]
@@ -1020,7 +1294,7 @@ class _MaskCanvas(QLabel):
         self.zoom_at(anchor[0], anchor[1], factor)
         event.accept()
 
-    def effective_wand_tolerance(self) -> float:
+    def effective_wand_tolerance(self, source=None) -> float:
         """The tolerance the wand will actually flood with, right now.
 
         Relative by default: a percentage of this image's own intensity
@@ -1028,10 +1302,46 @@ class _MaskCanvas(QLabel):
         data. Switching ``wand_relative`` off restores a plain absolute
         value for the case where somebody knows the exact grey-level
         distance they want.
+
+        :param source: optional applied picture; defaults to loaded pixels.
         """
-        if self.wand_relative and self.image is not None:
-            return engine.relative_tolerance(self.image, self.wand_tol_pct)
+        source = self.image if source is None else source
+        if self.wand_relative and source is not None:
+            return engine.relative_tolerance(source, self.wand_tol_pct)
         return float(self.wand_tolerance)
+
+    def wand_source(self):
+        """Return original pixels with Apply off, or the ready applied picture.
+
+        The applied picture keeps the source dtype's intensity units, so
+        absolute Wand tolerances retain those units. Relative tolerances
+        follow its new intensity range. While enhancement is pending or
+        failed, return None and explain why; no raw-pixel flood substitutes
+        for an applied enhancement. Post-detection morphology and splitting
+        remain detector operations, not manual Wand edits.
+        """
+        from ..i18n import tr
+
+        if not self.enhance_display:
+            return self.image
+        base = self.detection_base()
+        chain = self.enhance_chain or detect_chain.NO_CHAIN
+        if base is None:
+            return None
+        if not detect_chain.pre_active(chain):
+            return base
+        cached = self._enhanced_picture
+        if cached is not None and cached[0] is base and cached[1] == chain:
+            if chain.psf_operation != 'none' and self._enhanced_cache is not None:
+                return self._enhanced_cache[2]
+            return cached[2]
+        failure = self._enhance_failure
+        if failure is not None and failure[0] is base and failure[1] == chain:
+            self.status.emit(tr('Image enhancement failed: {error}', error=failure[2]))
+            return None
+        self._ask_for_enhanced(base, chain)
+        self.status.emit(tr('Image enhancement is updating. Try the Wand again when it finishes.'))
+        return None
 
     def wand_rescue_settings(self) -> dict:
         """The rescue settings, keyed as :mod:`spacr.qt.wand_rescue` wants.
@@ -1078,6 +1388,10 @@ class _MaskCanvas(QLabel):
         self._paint_magnifier()
         self._paint_drag()
         self._paint_readout()
+        if self.ruler.start is not None:
+            painter = QPainter(self)
+            self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
+            painter.end()
 
     def _paint_drag(self) -> None:
         """Draw the outline, cut or rectangle being dragged, if there is one."""
@@ -1117,7 +1431,8 @@ class _MaskCanvas(QLabel):
             self._lookup_dirty = False
             return lookup
         try:
-            lookup = engine.ObjectLookup(self.mask, self.image)
+            lookup = engine.ObjectLookup(self.mask, self.image,
+                                         preserve_ids=getattr(self, 'preserve_ids', False))
         except Exception:                                    # noqa: BLE001
             LOG.debug("the readout could not measure the mask", exc_info=True)
             return None
@@ -1132,6 +1447,16 @@ class _MaskCanvas(QLabel):
 
         :param pos: where the mouse is, in widget coordinates, or ``None``
             when it has left the canvas.
+        THE READOUT READS :meth:`detection_base` AND NOT
+        :meth:`detection_source`, so it never runs the enhancement chain.
+        This method is called on EVERY MOUSE MOVE, and a chain is filters
+        over a whole field: pointing the readout at the chain's output made
+        choosing a background subtraction freeze the window, because the
+        first move after choosing it ran the estimate on the GUI thread.
+        What the readout is for is the value under the cursor -- as loaded,
+        or stretched when "Detect on the normalized image" is on -- and the
+        stretch is exactly what :meth:`detection_base` is.
+
         :param measure: also report the object under the pixel. False while
             a button is held, because a brush stroke changes the mask on every
             move and the object is re-read when the stroke ends.
@@ -1142,7 +1467,7 @@ class _MaskCanvas(QLabel):
         spot = (None if pos is None or self.image is None
                 else self._canvas_to_image(pos.x(), pos.y()))
         if spot is not None:
-            source = self.detection_source()
+            source = self.detection_base()
             lookup = self._object_lookup() if measure else None
             if lookup is not None:
                 readout = lookup.at(*spot)
@@ -1509,6 +1834,24 @@ class _MaskCanvas(QLabel):
         if self.mask is None:
             return super().mousePressEvent(event)
 
+        if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
+            return
+
+        magnifier = self.magnifier
+        if (magnifier is not None and magnifier.enabled
+                and magnifier._lock_key_down
+                and event.modifiers() & Qt.ControlModifier
+                and event.button() == Qt.RightButton):
+            if event.buttons() == event.button():
+                self._swallowed.clear()
+                self._ctrl_click = None
+                if not magnifier.locked:
+                    magnifier.hover(event.position())
+                magnifier.set_locked(not magnifier.locked)
+            self._swallowed.add(event.button())
+            event.accept()
+            return
+
         if event.buttons() == event.button():
             self._swallowed.clear()
             self._ctrl_click = (
@@ -1575,6 +1918,12 @@ class _MaskCanvas(QLabel):
             self.update()
             return
 
+        wand_input = None
+        if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
+            wand_input = self.wand_source()
+            if wand_input is None:
+                return
+
         self._emit_stroke_start()
 
         if self.mode == MODE_ERASE_OBJECT:
@@ -1586,9 +1935,9 @@ class _MaskCanvas(QLabel):
 
         if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
             action = "add" if self.mode == MODE_WAND_ADD else "erase"
-            tolerance = self.effective_wand_tolerance()
+            tolerance = self.effective_wand_tolerance(wand_input)
             self.mask, report = wand_rescue.magic_wand(
-                self.image, self.mask, pt[0], pt[1],
+                wand_input, self.mask, pt[0], pt[1],
                 tolerance, self.wand_max_pixels, action=action,
                 **self.wand_rescue_settings(),
             )
@@ -1597,6 +1946,14 @@ class _MaskCanvas(QLabel):
                 kind="wand", target=(255 if action == "add" else 0),
                 action=action, tolerance=round(float(tolerance), 3),
                 relative=bool(self.wand_relative), **report,
+                input_kind='enhanced_picture' if self.enhance_display else 'as_loaded',
+                invert=bool(self.enhance_display and self.invert_display),
+                normalization_percentiles=([float(self.norm_lo), float(self.norm_hi)]
+                    if self.enhance_display and self.detect_on_normalized else None),
+                **detect_chain.provenance(
+                    self.enhance_chain._replace(morphology='none', split=False)
+                    if self.enhance_display else detect_chain.NO_CHAIN,
+                    percentile_stretch=self.enhance_display and self.detect_on_normalized),
             )
             return
 
@@ -1614,6 +1971,8 @@ class _MaskCanvas(QLabel):
         away from it must not turn into a magnifier stroke or a sweep.
         """
         if self.mask is None:
+            return
+        if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
             return
         self.update_readout(event.position(),
                             measure=event.buttons() == Qt.NoButton)
@@ -1683,6 +2042,8 @@ class _MaskCanvas(QLabel):
         reason, before the generic stroke end below can close somebody
         else's stroke with it.
         """
+        if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
+            return
         self._schedule_readout()
         if self._ctrl_click is not None:
             if event.button() == self._ctrl_click:
@@ -2168,6 +2529,15 @@ class _MagnifierRequest(NamedTuple):
     (or ``"image"`` for the whole field), every setting a model reads and,
     for a region, whether cut objects are left out -- and it is what a click
     is matched to its result by.
+
+    ``otsu_classes`` and ``otsu_foreground_class`` snapshot Multi-Otsu's
+    class count and selected zero-based intensity band. The default count
+    of 2 preserves legacy callers; Multi-Otsu enforces at least 3 classes.
+    A None foreground class selects the brightest band. Both fields are
+    appended to the request and settings key to preserve existing positions.
+    ``detection_percentiles`` is None for raw detector input or the saved
+    whole-field (low, high) display percentiles applied before cropping.
+    It is separate from model normalization and is also part of the key.
     """
 
     key: tuple
@@ -2204,6 +2574,24 @@ class _MagnifierRequest(NamedTuple):
     #: request: the same box under the same settings with Invert on and off
     #: are two different questions with two different answers.
     invert: bool = False
+    #: The pre- and post-detection chain (:mod:`spacr.qt.detect_chain`).
+    #: Applied by :func:`_segment_region` on the WORKER thread: a non-local
+    #: means over a whole field is minutes, and item 407's progress and
+    #: Cancel are only worth having if the slow part is behind them.
+    chain: Any = detect_chain.NO_CHAIN
+    #: Every organelle method's parameters
+    #: (:class:`spacr.qt.organelle_modes.MethodParams`). All of them
+    #: whichever mode is chosen, for the reason every other setting is
+    #: here: a mode that cannot run hands the request to another, which
+    #: must find its own settings in it.
+    method_params: Any = organelle_modes.DEFAULT_PARAMS
+    #: The CPU modes' parameters
+    #: (:class:`spacr.qt.cpu_modes.CpuParams`) -- Sauvola's and Niblack's
+    #: k, and everything Maxima + propagate reads.
+    cpu_params: Any = cpu_modes.DEFAULT_PARAMS
+    #: The local window, in pixels, that Sauvola and Niblack measure in.
+    #: The Otsu category's own "Local window", read by them too.
+    otsu_window: int = OTSU_LOCAL_WINDOW
     #: The Overlap rule the box is to draw its promise in, and the mask it
     #: is to be read against: the pixels the mask already owns inside
     #: ``box``, and a number that changes whenever the canvas is handed a
@@ -2218,6 +2606,12 @@ class _MagnifierRequest(NamedTuple):
     #: and whether the run is still wanted. None for a region, which is
     #: small enough to finish. Not part of ``key``, for the same reason.
     ticket: Any = None
+    otsu_classes: int = 2
+    otsu_foreground_class: Optional[int] = None
+    detection_percentiles: Optional[tuple] = None
+    primary_token: tuple = ()
+    primary_labels: Optional[np.ndarray] = None
+    primary_provenance: Optional[dict] = None
 
 
 class _RunCancelled(Exception):
@@ -2374,7 +2768,9 @@ _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
                          "otsu_smoothing", "otsu_fill_holes", "otsu_split",
-                         "invert")
+                         "invert", "chain", "method_params", "cpu_params",
+                         "otsu_window", "otsu_classes", "otsu_foreground_class",
+                         "detection_percentiles", "primary_token")
 
 
 class _MagnifierResult(NamedTuple):
@@ -2417,24 +2813,6 @@ class _MagnifierResult(NamedTuple):
         return int(sum(np.asarray(part).nbytes
                        for part in (self.labels, self.overlay, self.ghost)
                        if part is not None))
-
-
-def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
-    """Threshold and watershed the region; needs nothing installed.
-
-    Reads the Otsu category's settings -- the threshold correction, the
-    smoothing, whether holes are filled and whether a blob with two centres
-    is cut in two -- and the magnifier's own sensitivity. This mode was
-    once called ``classical``; the old name still reaches it, through
-    :func:`canonical_magnifier_mode`.
-    """
-    return engine._classical_region_labels(
-        request.crop, sensitivity=request.sensitivity,
-        bright=request.bright, min_area=request.min_area,
-        correction=request.otsu_correction,
-        smoothing=request.otsu_smoothing,
-        fill_holes=request.otsu_fill_holes,
-        split_touching=request.otsu_split)
 
 
 def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
@@ -2601,12 +2979,156 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
     return labels
 
 
+def _cellpose_installed() -> bool:
+    """Whether Cellpose can be imported here, WITHOUT importing it.
+
+    :func:`importlib.util.find_spec`, so a package that pulls in torch is
+    located and not loaded. A spec lookup that raises counts as absent.
+    """
+    try:
+        return find_spec("cellpose") is not None
+    except (ImportError, ValueError):
+        return False
+
+
+def _threshold_label(name: str) -> str:
+    """The caption a threshold algorithm goes under in a box."""
+    if name == "otsu":
+        return "Otsu"
+    return cpu_modes.THRESHOLD_LABELS.get(name, str(name).title())
+
+
+def _threshold_segmenter(request: _MagnifierRequest, load_model=None):
+    """Cut the region at the level the chosen ALGORITHM finds.
+
+    Otsu, Li's minimum cross entropy, Yen, Triangle, IsoData, Mean,
+    Minimum, Multi-Otsu, Sauvola and Niblack all arrive here, and the mode
+    name maps to the algorithm name
+    (:func:`spacr.qt.cpu_modes.engine_algorithm`). Every named threshold
+    except plain Otsu uses :func:`spacr.qt.mask_engine._otsu_instances`,
+    the same engine as the detect button. The request supplies smoothing,
+    correction, polarity, hole filling, splitting and minimum area. Only
+    Multi-Otsu reads its class count and band; Sauvola and Niblack read
+    window and local k. None of these modes reads magnifier Sensitivity
+    or applies the legacy crop stretch, opening or noise-floor fallback.
+    Thresholds are estimated from the requested pixels, so different
+    crops can still yield different results.
+
+    Plain Otsu keeps :func:`spacr.qt.mask_engine._classical_region_labels`
+    and its existing sensitivity/noise-floor behavior.
+    """
+    mode = canonical_magnifier_mode(request.mode)
+    params = request.cpu_params
+    if mode in cpu_modes.THRESHOLD_LABELS:
+        multi = mode == cpu_modes.MULTIOTSU
+        return engine._otsu_instances(
+            request.crop, bright=request.bright, min_area=request.min_area,
+            correction=request.otsu_correction,
+            smoothing=request.otsu_smoothing,
+            fill_holes=request.otsu_fill_holes,
+            split_touching=request.otsu_split,
+            algorithm=cpu_modes.engine_algorithm(mode),
+            classes=max(3, int(request.otsu_classes)) if multi else 2,
+            foreground_class=request.otsu_foreground_class if multi else None,
+            window=int(request.otsu_window), local_k=float(params.local_k))
+    return engine._classical_region_labels(
+        request.crop, sensitivity=request.sensitivity,
+        bright=request.bright, min_area=request.min_area,
+        correction=request.otsu_correction,
+        smoothing=request.otsu_smoothing,
+        fill_holes=request.otsu_fill_holes,
+        split_touching=request.otsu_split,
+        algorithm=cpu_modes.engine_algorithm(mode),
+        window=int(request.otsu_window),
+        local_k=float(params.local_k))
+
+
+def _propagate_segmenter(request: _MagnifierRequest, load_model=None):
+    """Grow one object out of each bright centre of the region.
+
+    Seeded watershed on inverted intensity; see
+    :func:`spacr.qt.mask_engine.maxima_propagate_instances`. How many
+    centres were found is carried back on the request's ticket-free path
+    through :data:`_LAST_PROPAGATE_SEEDS`, because it is the number a
+    curator tunes the settings against and the labels alone do not show
+    it: an object that never grew and a centre that was never found look
+    the same.
+    """
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+    found = cpu_modes.propagate(
+        request.crop, request.cpu_params, min_area=int(request.min_area),
+        fill_holes=bool(request.otsu_fill_holes))
+    _LAST_PROPAGATE_SEEDS[request.scope] = (found.seeds, found.level)
+    if ticket is not None:
+        ticket.check()
+    return found.labels
+
+
+def _secondary_segmenter(request: _MagnifierRequest, load_model=None):
+    """Grow the request's copied primary labels without discovering new seeds."""
+    if request.primary_labels is None:
+        raise ValueError("Choose and load a primary mask before growing secondary objects.")
+    return cpu_modes.secondary(
+        request.crop, request.primary_labels, request.cpu_params,
+        min_area=request.min_area, fill_holes=request.otsu_fill_holes).labels
+
+
+#: ``scope -> (centres found, the level they were grown to)`` for the last
+#: propagation of each scope. Read by the screen's status line. A plain
+#: dict and not a signal: it is written on the worker and read on the GUI
+#: thread right after the result arrives, and a stale entry can only say a
+#: number about a run that has just been superseded.
+_LAST_PROPAGATE_SEEDS: dict = {}
+
+
+def _organelle_segmenter(request: _MagnifierRequest, load_model=None):
+    """Segment the region with one of organelle detection's own methods.
+
+    Adaptive, LoG, DoG, ridge, hysteresis and U-Net reach this one
+    function, and it reaches :mod:`spacr.qt.organelle_modes`, which reaches
+    :func:`spacr.object._segment_single_image` -- the routine the organelle
+    mask pipeline's own workers call. THERE IS NO SECOND COPY of any of
+    these methods: a block size tuned on the box under the mouse is the
+    block size a mask run will read, and a method that is fixed in the
+    engine is fixed here on the same day.
+
+    ``load_model`` is the CELLPOSE loader and is not used; a U-Net is
+    loaded from the path the U-Net parameters name.
+
+    A WHOLE-IMAGE RUN CAN BE CANCELLED BETWEEN STEPS AND NOT INSIDE ONE.
+    :class:`_RunTicket`'s progress is Cellpose's tiles, counted by a
+    forward hook on its network (:func:`_counting_tiles`); a scikit-image
+    filter has no tiles, so the bar stays indeterminate and Cancel is
+    honoured at the boundaries -- before the chain, before the detector,
+    after it. That is the honest bar rather than a thin one: these runs are
+    seconds on a field where Cellpose-SAM on a CPU is most of an hour. The
+    exception a curator can feel is a heavy chain step over a whole field,
+    which :func:`spacr.qt.detect_chain.heavy_steps` warns about before it
+    is switched on.
+    """
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+    labels = organelle_modes.segment(
+        request.crop, canonical_magnifier_mode(request.mode),
+        request.method_params, min_area=int(request.min_area))
+    if ticket is not None:
+        ticket.check()
+    return labels
+
+
 #: ``mode -> segmenter``, in the order the Mode box offers them. A segmenter
 #: takes ``(request, load_model)`` and returns labels shaped like
 #: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
 #: :func:`_segment_region` gives it the Otsu fallback for nothing.
 _MAGNIFIER_SEGMENTERS = {
-    "otsu": _otsu_segmenter,
+    "otsu": _threshold_segmenter,
+    **{mode: _threshold_segmenter for mode in cpu_modes.threshold_modes()},
+    cpu_modes.PROPAGATE: _propagate_segmenter,
+    cpu_modes.SECONDARY: _secondary_segmenter,
+    **{mode: _organelle_segmenter for mode in organelle_modes.modes()},
     "cellpose": _cellpose_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
 }
@@ -2630,9 +3152,13 @@ def canonical_magnifier_mode(mode) -> str:
     return _MAGNIFIER_MODE_ALIASES.get(name, name)
 
 
-#: The two modes the Mode box builds itself, as ``mode -> its caption``.
-#: The rest are named by :data:`_MAGNIFIER_BACKENDS`.
-_MAGNIFIER_MODE_LABELS = {"otsu": "Otsu", "cellpose": "Cellpose"}
+#: The modes the Mode box builds itself, as ``mode -> its caption``: Otsu,
+#: organelle detection's own methods (:mod:`spacr.qt.organelle_modes`) and
+#: Cellpose. The rest are named by :data:`_MAGNIFIER_BACKENDS`.
+_MAGNIFIER_MODE_LABELS = {"otsu": "Otsu",
+                          **cpu_modes.MODE_LABELS,
+                          **organelle_modes.MODE_LABELS,
+                          "cellpose": "Cellpose"}
 
 
 def _magnifier_mode_label(mode: str) -> str:
@@ -2690,24 +3216,67 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
         the worker thread.
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
+
+    Classical CPU detection errors are reported to the caller without
+    substituting Otsu. For example, Minimum may not find two histogram
+    maxima and Multi-Otsu may have too few distinct intensities. Neither
+    failure means the method is unavailable; a later crop can try again.
     """
+    if request.ticket is not None:
+        request.ticket.check()
+    chain = request.chain or detect_chain.NO_CHAIN
+    prepared = detect_chain.prepare(
+        request.crop, chain,
+        cancel=request.ticket.cancelled if request.ticket is not None else None)
+    if prepared is not request.crop:
+        request = request._replace(crop=prepared)
     if request.ticket is not None:
         request.ticket.check()
     mode = canonical_magnifier_mode(request.mode)
     segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
+    if mode == cpu_modes.SECONDARY:
+        labels = segmenter(request, load_model)
+        if request.ticket is not None:
+            request.ticket.check()
+        return labels, mode, ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
-    elif segmenter is not _otsu_segmenter:
+    elif (mode in cpu_modes.THRESHOLD_LABELS
+          or mode in organelle_modes.MODE_LABELS and mode != "unet"):
+        labels = segmenter(request, load_model)
+        return _finished_labels(labels, chain, prepared), mode, ""
+    elif mode != "otsu":
         try:
-            return segmenter(request, load_model), mode, ""
+            labels = segmenter(request, load_model)
+            return _finished_labels(labels, chain, prepared), mode, ""
         except _RunCancelled:
             raise
         except Exception as exc:                            # noqa: BLE001
             LOG.warning("magnifier mode %s could not run; using Otsu",
                         request.mode, exc_info=True)
             note = f"{type(exc).__name__}: {exc}"
-    return _otsu_segmenter(request, load_model), "otsu", note
+    return (_threshold_segmenter(request._replace(mode="otsu"), load_model),
+            "otsu", note)
+
+
+def _finished_labels(labels, chain, image):
+    """The chain's last two stages, for every mode but Otsu.
+
+    THE OTSU MODE IS LEFT ALONE and keeps the "Fill holes inside an object"
+    and "Split objects that touch" of its own category, which it has always
+    had. The chain's morphology and split would arrive on top of them, and
+    the first thing either does is read the detection back as ONE
+    foreground -- so a pair Otsu had just cut apart would be joined again
+    before being cut a second time. The chain's split is there to give the
+    other threshold methods what Otsu already has, not to give Otsu it
+    twice.
+
+    :param labels: what the mode found.
+    :param chain: the request's chain.
+    :param image: the image the mode read, as the split's landscape.
+    """
+    return detect_chain.finish(labels, chain, intensity=image)
 
 
 def _candidate_overlay(labels: np.ndarray, colour) -> np.ndarray:
@@ -2956,11 +3525,14 @@ def _ghosted_overlay(labels: np.ndarray, overlay: np.ndarray,
     rule = _canonical_overlap_rule(request.overlap)
     if occupied is None or overlay is None or rule == "replace":
         return None
-    occupied = np.asarray(occupied) > 0
+    exact_ids = request.mode == cpu_modes.SECONDARY
+    occupied = ((np.asarray(occupied) > 0) & (np.asarray(occupied) != labels)
+                if exact_ids else np.asarray(occupied) > 0)
     if occupied.shape != np.asarray(labels).shape or not occupied.any():
         return None
     kept = engine._surviving_region_objects(
-        labels, occupied, overlap=rule, min_area=int(request.min_area))
+        labels, occupied, overlap=rule, min_area=int(request.min_area),
+        preserve_ids=exact_ids)
     lost = (np.asarray(labels) > 0) & (kept == 0)
     if not lost.any():
         return None
@@ -3022,6 +3594,61 @@ def _object_window(result: _MagnifierResult, label: int) -> Optional[tuple]:
     return (int(cols[0]), int(rows[0]), int(cols[-1]) + 1, int(rows[-1]) + 1)
 
 
+def _magnifier_provenance(request: _MagnifierRequest, mode: str,
+                          note: str = "") -> dict:
+    """JSON-safe detector settings from a completed request, never the panel.
+
+    ``mode`` is the algorithm that actually ran; ``request.mode`` and
+    ``note`` preserve a model fallback. Common model controls retain their
+    historical keys; ``method_parameters`` holds the applicable CPU or
+    organelle settings. Display percentile normalization is separate from
+    the model's ``normalize`` option. A whole-image object pick records the
+    full detection box as well as its smaller paste box at the call site.
+    Paste-time overlap and minimum area are added by the commit handler.
+    """
+    percentiles = request.detection_percentiles
+    height, width = request.shape
+    detail = {
+        "mode": mode, "requested_mode": request.mode, "fallback_note": str(note),
+        "scope": request.scope,
+        "detection_box": ([0, 0, int(width), int(height)] if request.scope == "image"
+                          else [int(v) for v in request.box]),
+        "sensitivity": float(request.sensitivity), "bright": bool(request.bright),
+        "min_area": int(request.min_area), "exclude_border": bool(request.exclude_border),
+        "invert": bool(request.invert), "model": str(request.model_name),
+        "flow_threshold": float(request.flow_threshold),
+        "cellprob_threshold": float(request.cellprob_threshold),
+        "diameter": int(request.diameter), "normalize": bool(request.normalize),
+        "otsu_correction": float(request.otsu_correction),
+        "detect_on_normalized": percentiles is not None,
+        "normalization_percentiles": (None if percentiles is None else
+                                       [float(v) for v in percentiles]),
+        "method_parameters": (organelle_modes.provenance(mode, request.method_params)
+                              or cpu_modes.provenance(mode, request.cpu_params)),
+    }
+    if mode == "otsu" or mode in cpu_modes.THRESHOLD_LABELS:
+        multi = mode == cpu_modes.MULTIOTSU
+        count = max(3, int(request.otsu_classes)) if multi else 2
+        detail.update(
+            otsu_smoothing=float(request.otsu_smoothing),
+            otsu_fill_holes=bool(request.otsu_fill_holes),
+            otsu_split=bool(request.otsu_split), otsu_classes=count,
+            otsu_foreground_class=(count - 1 if request.otsu_foreground_class is None
+                                   else int(request.otsu_foreground_class)) if multi else 1,
+            otsu_local=False)
+        if mode in engine.LOCAL_THRESHOLDS:
+            detail["otsu_window"] = int(request.otsu_window)
+    elif mode == cpu_modes.PROPAGATE:
+        detail["otsu_fill_holes"] = bool(request.otsu_fill_holes)
+    detail.update(detect_chain.provenance(
+        request.chain or detect_chain.NO_CHAIN, percentile_stretch=percentiles is not None))
+    if mode == cpu_modes.SECONDARY:
+        detail['primary_source'] = request.primary_provenance
+        detail['preserve_ids'] = True
+        detail['otsu_fill_holes'] = bool(request.otsu_fill_holes)
+    return detail
+
+
 def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     """One object of a whole-image result, as a result of its own.
 
@@ -3039,6 +3666,23 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     request = result.request._replace(box=(x0, y0, x1, y1))
     return result._replace(request=request, labels=labels, overlay=None,
                            count=1, ghost=None, extents=None)
+
+
+def _detect_cellpose_snapshot(request, models):
+    """Prepare and segment a captured field without reading any Qt object."""
+    image = request['image']
+    if request['invert']:
+        image = engine.invert_normalized(image)
+    if request['percentiles'] is not None:
+        image = engine.normalize_for_detection(image, *request['percentiles'])
+    image = detect_chain.prepare(image, request['chain'])
+    with _CELLPOSE_LOCK:
+        name = request['model']
+        if name not in models:
+            models[name] = load_cellpose_model(name)
+        labels, cellprob, flow = cellpose_detect(image, models[name], **request['parameters'])
+    labels = detect_chain.finish(labels, request['chain'], intensity=image)
+    return labels, cellprob, flow
 
 
 class _NewestRequestWorker:
@@ -3248,6 +3892,7 @@ class _LiveMagnifier(QObject):
     #: A press-and-drag's objects as ``(outcome, final)``: shown
     #: while the button is down, committed once when ``final``.
     drag_ready = Signal(object)
+    locked_changed = Signal(bool)
 
     def __init__(self, canvas, parent=None, *, load_model=None, context=None):
         """Build a magnifier that is off and holds no thread."""
@@ -3257,6 +3902,8 @@ class _LiveMagnifier(QObject):
         self._emit_safely = emit_safely
         self.canvas = canvas
         self.enabled = False
+        self.locked = False
+        self._lock_key_down = False
         self.mode = "otsu"
         self.size = _MAGNIFIER_SIZE
         self.zoom = _MAGNIFIER_ZOOM
@@ -3336,6 +3983,43 @@ class _LiveMagnifier(QObject):
         self._delivered.connect(self._on_delivered, Qt.QueuedConnection)
         self._init_stroke()
 
+    def eventFilter(self, watched, event):
+        """Track the held L in Ctrl+L+right-click without stealing edit keys."""
+        from PySide6.QtCore import QEvent
+
+        kind = event.type()
+        if kind in (QEvent.ApplicationDeactivate, QEvent.WindowDeactivate):
+            self._lock_key_down = False
+        elif kind == QEvent.KeyRelease and event.key() in (Qt.Key_L, Qt.Key_Control):
+            if not event.isAutoRepeat():
+                self._lock_key_down = False
+        elif (kind == QEvent.KeyPress and event.key() == Qt.Key_L
+              and event.modifiers() & Qt.ControlModifier
+              and self.enabled and self.canvas.isVisible()
+              and isinstance(watched, QWidget)
+              and watched.window() == self.canvas.window()):
+            self._lock_key_down = True
+            return True
+        return super().eventFilter(watched, event)
+
+    def set_locked(self, locked: bool) -> None:
+        """Pin or release the current image region, lens position, size and zoom.
+
+        Locking needs an enabled lens over the image. Detector settings can
+        still refresh this region. Disabling the lens or opening another
+        field releases it. This transient viewing state is never saved.
+        """
+        from ..i18n import tr
+
+        locked = bool(locked and self.enabled and self._cursor is not None)
+        if locked == self.locked:
+            return
+        self.locked = locked
+        self.locked_changed.emit(locked)
+        self.status.emit(tr("Magnifier locked: Ctrl+L+right-click to unlock.")
+                         if locked else tr("Magnifier unlocked."))
+        self.canvas.update()
+
 
     def set_enabled(self, on: bool) -> None:
         """Turn the box on or off; objects already committed are untouched.
@@ -3346,9 +4030,13 @@ class _LiveMagnifier(QObject):
         """
         self.enabled = bool(on)
         if self.enabled:
+            QApplication.instance().installEventFilter(self)
             self._image_halted = None
             self.refresh()
         else:
+            QApplication.instance().removeEventFilter(self)
+            self.set_locked(False)
+            self._lock_key_down = False
             self._cursor = None
             self._anchor = None
         self.canvas.update()
@@ -3427,6 +4115,8 @@ class _LiveMagnifier(QObject):
 
     def set_size(self, size: int) -> None:
         """Set the region's side in image pixels, within its range."""
+        if self.locked:
+            return
         low, high = self.size_range()
         self.size = max(low, min(high, int(size)))
         self.refresh()
@@ -3456,6 +4146,8 @@ class _LiveMagnifier(QObject):
 
     def set_zoom(self, zoom: float) -> None:
         """Set the magnification, within its range. The model is not asked."""
+        if self.locked:
+            return
         low, high = _MAGNIFIER_ZOOM_RANGE
         self.zoom = max(low, min(high, float(zoom)))
         self.canvas.update()
@@ -3489,6 +4181,10 @@ class _LiveMagnifier(QObject):
         The canvas calls this with the new field already in place, which is
         what lets the size's range follow the field that has just opened.
         """
+        self.set_locked(False)
+        self._lock_key_down = False
+        self._cursor = None
+        self._anchor = None
         self._field += 1
         self._shown = None
         self._shown_image = None
@@ -3507,6 +4203,7 @@ class _LiveMagnifier(QObject):
         The kept whole-image objects go with them: the screen is closing,
         and a label image per field is the largest thing this object holds.
         """
+        QApplication.instance().removeEventFilter(self)
         if self._image_ticket is not None:
             self._image_ticket.cancel()
         region = self._worker.close()
@@ -3538,6 +4235,8 @@ class _LiveMagnifier(QObject):
 
     def hover(self, pos) -> None:
         """Follow the mouse to widget point ``pos``; None puts the box away."""
+        if self.locked:
+            return
         point = (None if pos is None
                  else self.canvas._canvas_to_image(pos.x(), pos.y()))
         if point is None:
@@ -3584,7 +4283,12 @@ class _LiveMagnifier(QObject):
                    "normalize": True, "otsu_correction": 1.0,
                    "otsu_smoothing": OTSU_SMOOTHING,
                    "otsu_fill_holes": True, "otsu_split": True,
-                   "invert": False}
+                   "invert": False,
+                   "chain": detect_chain.NO_CHAIN,
+                   "method_params": organelle_modes.DEFAULT_PARAMS,
+                   "cpu_params": cpu_modes.DEFAULT_PARAMS,
+                   "otsu_window": OTSU_LOCAL_WINDOW,
+                   "otsu_classes": 2, "otsu_foreground_class": None}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
@@ -3601,7 +4305,18 @@ class _LiveMagnifier(QObject):
                 round(float(context["otsu_smoothing"]), 4),
                 bool(context["otsu_fill_holes"]),
                 bool(context["otsu_split"]),
-                bool(context["invert"]))
+                bool(context["invert"]),
+                context["chain"],
+                context["method_params"],
+                context["cpu_params"],
+                int(context["otsu_window"]),
+                max(3, int(context["otsu_classes"])) if mode == cpu_modes.MULTIOTSU
+                else int(context["otsu_classes"]),
+                (None if context["otsu_foreground_class"] is None else
+                 int(context["otsu_foreground_class"])),
+                ((float(self.canvas.norm_lo), float(self.canvas.norm_hi))
+                 if self.canvas.detect_on_normalized else None),
+                context.get('primary_token', ()) if mode == cpu_modes.SECONDARY else ())
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -3679,12 +4394,51 @@ class _LiveMagnifier(QObject):
         return out
 
     def detector_field(self) -> np.ndarray:
-        """The field the box magnifies: inverted, or the canvas's own."""
+        """The field the box magnifies: enhanced, inverted, or the canvas's own.
+
+        With "Show the enhanced image" on it is the canvas's own enhanced
+        picture (:meth:`_MaskCanvas.enhanced_picture`), so the box and the
+        canvas under it show one image and a curator comparing them is
+        comparing the same chain. The box's DETECTION still enhances the
+        box's own region, on the worker; the difference between the two is
+        the difference between a CLAHE tile grid laid over a field and one
+        laid over a box, and it is why the Compare window shows the box's
+        own region.
+        """
+        if self.canvas.enhance_display:
+            return self.canvas.enhanced_picture()
         if self.canvas.detect_on_normalized:
-            return self.canvas.detection_source()
+            return self.canvas.detection_base()
         if not self.inverting():
             return self.canvas.image
         return self.inverted_field()
+
+    def refresh_view(self) -> None:
+        """Repaint the box because the PICTURE under it changed.
+
+        Not :meth:`refresh`, which asks the model again: switching the
+        enhanced view on and off changes what is drawn and not what was
+        detected, and the objects on screen are still the objects the
+        settings ask for.
+        """
+        self.canvas.update()
+
+    def compare_box(self) -> tuple:
+        """The region a raw-versus-enhanced comparison is to show.
+
+        THE BOX UNDER THE MOUSE when there is one, because that is the
+        region the chain really ran on for the detection that is on screen;
+        the whole field otherwise, which is the region the detect buttons
+        run it on.
+
+        :returns: ``(x0, y0, x1, y1)`` in image pixels.
+        """
+        image = self.canvas.image
+        height, width = (int(v) for v in image.shape[:2])
+        if self.enabled and self._cursor is not None:
+            return engine._magnifier_box(image.shape, self._cursor[0],
+                                         self._cursor[1], self.size)
+        return (0, 0, width, height)
 
     def region_for(self, box, *, invert: bool) -> np.ndarray:
         """A copy of ``box`` of the open field, inverted if Invert is on.
@@ -3692,6 +4446,15 @@ class _LiveMagnifier(QObject):
         The one place the box's pixels are taken, so what the model is given
         and what the box paints cannot disagree about whether they were
         inverted.
+
+        THE ENHANCEMENT CHAIN IS NOT APPLIED HERE. This runs on the GUI
+        thread, once per mouse move, and a non-local means or a wide
+        background radius over a region is not something to do between two
+        frames; :func:`_segment_region` applies it on the worker, to this
+        crop, which is also what makes every step live on the box. The
+        percentile stretch is the exception and is already in
+        :meth:`_MaskCanvas.detection_base`, because its levels are the
+        whole field's.
 
         The inverted case is a slice of :meth:`inverted_field`, which uses
         :func:`mask_engine.invert_for_detection` and NOT
@@ -3705,7 +4468,7 @@ class _LiveMagnifier(QObject):
         """
         x0, y0, x1, y1 = box
         if self.canvas.detect_on_normalized:
-            source = self.canvas.detection_source()
+            source = self.canvas.detection_base()
         else:
             source = self.inverted_field() if invert else self.canvas.image
         return np.array(source[y0:y1, x0:x1], copy=True)
@@ -3735,7 +4498,12 @@ class _LiveMagnifier(QObject):
         token = 0
         if ghost and rule != "replace":
             token = self.mask_generation()
-            occupied = np.asarray(canvas.mask)[y0:y1, x0:x1] > 0
+            occupied = (np.array(canvas.mask[y0:y1, x0:x1], copy=True)
+                        if values['mode'] == cpu_modes.SECONDARY else
+                        np.asarray(canvas.mask)[y0:y1, x0:x1] > 0)
+        primary = self._primary_request_values(box, values)
+        if primary is None:
+            return None
         return _MagnifierRequest(
             key=(self._field, box) + settings + (exclude,),
             crop=self.region_for(box, invert=values["invert"]),
@@ -3746,8 +4514,21 @@ class _LiveMagnifier(QObject):
             overlap=rule if ghost else "replace",
             occupied=occupied,
             mask_token=token,
+            **primary,
             **values,
         )
+
+    def _primary_request_values(self, box, settings):
+        """Snapshot this field's primary crop and provenance for secondary mode."""
+        if settings['mode'] != cpu_modes.SECONDARY:
+            return {}
+        context = self._context() if self._context is not None else {}
+        source = context.get('primary_source')
+        if source is None or source.identity != settings['primary_token']:
+            return None
+        return {'primary_labels': source.crop(box),
+                'primary_provenance': dict(source.provenance(),
+                                           selection=context.get('primary_selection', source.path))}
 
     @staticmethod
     def _stamp(request: _MagnifierRequest) -> tuple:
@@ -3971,6 +4752,12 @@ class _LiveMagnifier(QObject):
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
         values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
+        primary = self._primary_request_values((0, 0, width, height), values)
+        if primary is None:
+            from ..i18n import tr
+            self.status.emit(tr('Load a primary mask before growing secondary objects.'))
+            self._image_halted = key
+            return
         if self._image_ticket is not None:
             self._image_ticket.cancel()
         self._image_ticket = _RunTicket()
@@ -3986,7 +4773,7 @@ class _LiveMagnifier(QObject):
                                   invert=values["invert"]),
             box=(0, 0, width, height), shape=(height, width),
             colour=self._accent(), exclude_border=False, scope="image",
-            ticket=self._image_ticket, **values))
+            ticket=self._image_ticket, **primary, **values))
         self._set_busy(True)
 
     @staticmethod
@@ -4195,6 +4982,8 @@ class _LiveMagnifier(QObject):
         if (not self.enabled or self._cursor is None or canvas.image is None
                 or canvas.mask is None):
             return False
+        if self.mode == cpu_modes.SECONDARY:
+            return True
         whole = self.scope == "image"
         found = self._image_result
         if whole and (found is None
@@ -4203,13 +4992,15 @@ class _LiveMagnifier(QObject):
         stroke = _DragStroke(
             canvas.image.shape, self._cursor,
             step=0 if whole else _frame_step(self.size),
-            keep_untouched=not whole and self.save_mode != "touching")
+            keep_untouched=not whole and self.save_mode != "touching",
+            provenance={"save": self.save_mode})
         self._stroke = stroke
         self._stroke_from = (QPointF(self._anchor), self._field)
         self._stroke_moved = False
         if whole:
             stroke.expect("image")
-            stroke.deliver("image", found.labels, found.request.box)
+            stroke.deliver("image", found.labels, found.request.box,
+                           provenance=_magnifier_provenance(found.request, found.mode, found.note))
         else:
             self._stroke_frame(self._cursor)
         return True
@@ -4275,7 +5066,8 @@ class _LiveMagnifier(QObject):
         self._stroke.expect(request.key)
         shown = self._shown
         if shown is not None and shown.request.key == request.key:
-            self._stroke.deliver(request.key, shown.labels, request.box)
+            self._stroke.deliver(request.key, shown.labels, request.box,
+                                 provenance=_magnifier_provenance(shown.request, shown.mode, shown.note))
         else:
             self._worker.submit(request, pin=True)
 
@@ -4287,7 +5079,8 @@ class _LiveMagnifier(QObject):
             return
         if error is not None:
             stroke.drop(request.key)
-        elif stroke.deliver(request.key, result.labels, request.box):
+        elif stroke.deliver(request.key, result.labels, request.box,
+                            provenance=_magnifier_provenance(result.request, result.mode, result.note)):
             self._stroke_dirty()
         self._stroke_finish()
 
@@ -4382,6 +5175,10 @@ class _LiveMagnifier(QObject):
             return
         if error is not None:
             self._waiting.discard(request.key)
+            if request.key == self._requested_key:
+                self._shown = None
+                self._shown_image = None
+                self.canvas.update()
             LOG.warning("magnifier could not segment %s: %s",
                         request.box, error)
             self.status.emit(tr(
@@ -4572,10 +5369,12 @@ class _LiveMagnifier(QObject):
         painter.setPen(pen)
         painter.setBrush(Qt.NoBrush)
         painter.drawRect(lens)
-        if updating:
+        if updating or self.locked:
             from ..i18n import tr
 
-            caption = _updating_caption(self.running_name())
+            caption = _updating_caption(self.running_name()) if updating else ""
+            if self.locked:
+                caption = tr("Locked") + (" · " + caption if caption else "")
             metrics = painter.fontMetrics()
             badge = QRectF(lens.left() + 4, lens.top() + 4,
                            metrics.horizontalAdvance(caption) + 10,
@@ -4760,9 +5559,12 @@ class _LiveMagnifier(QObject):
             occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
             if occupied.any():
                 single = _single_object(result, label).labels
+                exact_ids = result.mode == cpu_modes.SECONDARY
+                if exact_ids:
+                    occupied &= np.asarray(mask)[y0:y1, x0:x1] != single
                 kept = engine._surviving_region_objects(
                     single, occupied, overlap=rule,
-                    min_area=int(result.request.min_area))
+                    min_area=int(result.request.min_area), preserve_ids=exact_ids)
                 gone = (single > 0) & (kept == 0)
                 lost = gone if gone.any() else None
         self._image_promised = (result, key, lost)
@@ -4833,6 +5635,59 @@ class _FlowPane(QLabel):
         self._rescale()
 
 
+class _ThresholdHistogramRequest(NamedTuple):
+    """A whole-field histogram snapshot, independent of later panel edits.
+
+    ``image`` is a private copy of the loaded pixels; ``invert`` and optional
+    ``normalization`` (low/high percentiles) precede ``chain``. ``settings``
+    copies the effective Otsu-category settings, including smoothing and
+    correction. ``mode`` names the selected threshold and ``bright`` its
+    polarity. ``ticket`` cancels between preparation and threshold stages;
+    an active NumPy/scikit-image call finishes before cancellation is read.
+    """
+
+    image: np.ndarray
+    mode: str
+    settings: dict
+    bright: bool
+    invert: bool
+    normalization: Optional[tuple]
+    chain: Any
+    ticket: Any
+
+
+def _threshold_histogram(request: _ThresholdHistogramRequest) -> tuple:
+    """Compute detector-input counts and global levels on a worker thread.
+
+    Uses the canvas's inversion, normalization and enhancement order, then
+    the threshold engine's smoothing and level calculation. Local methods
+    return no global marker: their per-pixel thresholds cannot be represented
+    by one vertical line. Their histogram is the smoothed input before local
+    thresholding (and before Local Otsu's internal 8-bit rank-filter scaling).
+
+    :returns: ``(counts, edges, levels, local)``. Algorithm errors propagate;
+        the preview must never silently replace the selected method by Otsu.
+    """
+    request.ticket.check()
+    image = request.image
+    if request.invert:
+        image = engine.invert_normalized(image)
+    if request.normalization is not None:
+        image = engine.normalize_for_detection(image, *request.normalization)
+    image = detect_chain.prepare(image, request.chain, cancel=request.ticket.cancelled)
+    request.ticket.check()
+    settings = request.settings
+    values = engine._otsu_values(image, settings["smoothing"])
+    counts, edges = engine._otsu_histogram(values, bins=OTSU_HISTOGRAM_BINS)
+    local = settings["local"] or request.mode in engine.LOCAL_THRESHOLDS
+    levels = [] if local else engine._otsu_levels(
+        values, bright=request.bright, correction=settings["correction"],
+        classes=settings["classes"],
+        algorithm=cpu_modes.engine_algorithm(request.mode))
+    request.ticket.check()
+    return counts, edges, levels, local
+
+
 class _OtsuHistogramPlot(QWidget):
     """The field's intensity histogram with the chosen level drawn on it.
 
@@ -4865,39 +5720,41 @@ class _OtsuHistogramPlot(QWidget):
 
         The same mapping the bars are drawn with, so a test can ask the
         picture where it put the marker instead of trusting that it did.
+        Its range includes corrected levels outside the histogram's bin
+        edges, keeping those markers distinct from the maximum intensity.
 
         :param level: an intensity.
         :returns: the x coordinate, clamped to the plot's own width.
         """
-        low = float(self.edges[0])
-        high = float(self.edges[-1])
-        width = max(1, self.width())
+        low = min(float(self.edges[0]), *self.levels) if self.levels else float(self.edges[0])
+        high = max(float(self.edges[-1]), *self.levels) if self.levels else float(self.edges[-1])
+        width = max(1, self.width() - 1)
         if high <= low:
             return 0.0
         fraction = (float(level) - low) / (high - low)
         return max(0.0, min(1.0, fraction)) * width
 
     def paintEvent(self, event):
-        """Draw the bars, then a line at every level, then the axis ends."""
+        """Draw bars and threshold lines on the same intensity axis."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, False)
         palette = active_palette()
         painter.fillRect(self.rect(), QColor(palette["bg"]))
         height = max(1, self.height())
-        width = max(1, self.width())
         tallest = float(self.counts.max()) if self.counts.size else 0.0
         if tallest > 0.0:
             bar_colour = QColor(palette.get("fg", "#c8c8c8"))
             bar_colour.setAlpha(160)
             painter.setPen(Qt.NoPen)
             painter.setBrush(QBrush(bar_colour))
-            step = width / float(self.counts.size)
             for index, value in enumerate(self.counts):
                 tall = int(round(height * float(value) / tallest))
                 if tall <= 0:
                     continue
-                painter.drawRect(QRect(int(index * step), height - tall,
-                                       max(1, int(step)), tall))
+                left = int(self.level_x(self.edges[index]))
+                right = int(self.level_x(self.edges[index + 1]))
+                painter.drawRect(QRect(left, height - tall,
+                                       max(1, right - left), tall))
         pen = QPen(QColor(palette["accent"]))
         pen.setWidth(2)
         painter.setPen(pen)
@@ -4905,6 +5762,200 @@ class _OtsuHistogramPlot(QWidget):
             x = int(round(self.level_x(level)))
             painter.drawLine(x, 0, x, height)
         painter.end()
+
+
+class _LevelsPlot(_OtsuHistogramPlot):
+    """Drag the nearest black/white marker along the intensity histogram."""
+
+    cutoff_changed = Signal(int, float)
+
+    def mousePressEvent(self, event):
+        """Choose the nearest cutoff; right and middle clicks do nothing."""
+        if event.button() != Qt.LeftButton or len(self.levels) != 2:
+            return
+        self._drag_cutoff = min(range(2), key=lambda i:
+                                abs(self.level_x(self.levels[i]) - event.position().x()))
+        self._move_cutoff(event.position().x())
+
+    def mouseMoveEvent(self, event):
+        """Move a held cutoff without recomputing the histogram."""
+        if event.buttons() & Qt.LeftButton and hasattr(self, '_drag_cutoff'):
+            self._move_cutoff(event.position().x())
+
+    def mouseReleaseEvent(self, event):
+        """Finish a cutoff drag at the released position."""
+        if event.button() == Qt.LeftButton and hasattr(self, '_drag_cutoff'):
+            self._move_cutoff(event.position().x())
+            del self._drag_cutoff
+
+    def _move_cutoff(self, x):
+        """Convert widget x into an intensity on the histogram's axis."""
+        fraction = max(0.0, min(1.0, x / max(1, self.width() - 1)))
+        value = float(self.edges[0] + fraction * (self.edges[-1] - self.edges[0]))
+        self.cutoff_changed.emit(self._drag_cutoff, value)
+
+
+def _levels_histogram(image):
+    """Sort finite field intensities and count bins off the GUI thread.
+
+    The sorted values provide exact percentile positions for dragged levels;
+    no downsampling or histogram-bin approximation changes the chosen cut.
+    """
+    values = np.sort(image[np.isfinite(image)], axis=None)
+    if not values.size:
+        from ..i18n import tr
+
+        raise ValueError(tr('The image has no finite intensities.'))
+    counts, edges = np.histogram(values, bins=256)
+    return counts, edges, values
+
+
+class _LevelsDialog(QDialog):
+    """Edit black/white percentile cutoffs by histogram or intensity value.
+
+    The histogram describes the full displayed source before enhancement,
+    including inversion when enabled. It is computed on a worker. Changes
+    emit percentiles used by the existing display/detection normalization;
+    source pixels and masks are never edited. Closing releases the sorted
+    field; a late worker result cannot reopen the dialog.
+    """
+
+    levels_changed = Signal(float, float)
+    _delivered = Signal(object)
+
+    def __init__(self, image, percentiles, parent=None):
+        super().__init__(parent)
+        from ..i18n import tr
+
+        self.setWindowTitle(tr('Levels'))
+        self.closed = False
+        self.ready = False
+        self.values = None
+        self.percentiles = tuple(percentiles)
+        layout = QVBoxLayout(self)
+        self.caption = QLabel(tr('Calculating image histogram…'))
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+        self.plot = _LevelsPlot(np.zeros(2), np.arange(3), [], self)
+        self.plot.setMinimumHeight(100)
+        self.plot.setEnabled(False)
+        layout.addWidget(self.plot, 1)
+        form = QFormLayout()
+        self.black, self.white = QDoubleSpinBox(), QDoubleSpinBox()
+        for index, control in enumerate((self.black, self.white)):
+            control.setDecimals(6)
+            control.setEnabled(False)
+            control.valueChanged.connect(lambda value, i=index: self._choose(i, value))
+        form.addRow(tr('Black cutoff'), self.black)
+        form.addRow(tr('White cutoff'), self.white)
+        layout.addLayout(form)
+        self.plot.cutoff_changed.connect(self._choose)
+        self.detect = Toggle(tr('Detect on the normalized image'))
+        layout.addWidget(self.detect)
+        note = QLabel(tr('Drag a marker or enter an intensity. Values below the black '
+                         'cutoff become black; values above the white cutoff become white. '
+                         'The range between them is stretched. Enable detection here to '
+                         'use these levels before any applied enhancement. Original image '
+                         'values and existing masks are preserved.'))
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        self.reset = buttons.addButton(tr('Reset levels'), QDialogButtonBox.ResetRole)
+        self.reset.setEnabled(False)
+        self.reset.clicked.connect(lambda: self._publish(0.0, 100.0))
+        buttons.rejected.connect(self.close)
+        layout.addWidget(buttons)
+        self._delivered.connect(self._take, Qt.QueuedConnection)
+        self._worker = _NewestRequestWorker(_levels_histogram, self._deliver,
+                                             name='spacr-levels-histogram')
+        self._worker.submit(image)
+        self.resize(560, 520)
+
+    def _deliver(self, request, result, error):
+        """Carry computation back to Qt, tolerating destruction while busy."""
+        try:
+            self._delivered.emit((result, error))
+        except RuntimeError:
+            pass
+
+    def _take(self, payload):
+        """Install a completed histogram only while this editor is open."""
+        from ..i18n import tr
+
+        if self.closed:
+            return
+        result, error = payload
+        if error is not None:
+            self.caption.setText(tr('Could not calculate levels: {error}', error=str(error)))
+            return
+        counts, edges, self.values = result
+        self.ready = True
+        self.plot.counts, self.plot.edges = counts, edges
+        varying = self.values[0] < self.values[-1]
+        for control in (self.black, self.white):
+            blocked = control.blockSignals(True)
+            control.setRange(float(self.values[0]), float(self.values[-1]))
+            control.blockSignals(blocked)
+            control.setEnabled(bool(varying))
+        self.plot.setEnabled(bool(varying))
+        self.reset.setEnabled(True)
+        self.set_percentiles(*self.percentiles)
+        if not varying:
+            self.caption.setText(tr('This image has one intensity; there is no range to stretch.'))
+
+    def set_percentiles(self, low, high):
+        """Follow changes from the screen without emitting another edit."""
+        from ..i18n import tr
+
+        self.percentiles = (float(low), float(high))
+        if self.values is None:
+            return
+        positions = np.asarray(self.percentiles) * (len(self.values) - 1) / 100.0
+        left = np.floor(positions).astype(int)
+        right = np.ceil(positions).astype(int)
+        levels = (self.values[left].astype(float) * (1 - positions + left)
+                  + self.values[right].astype(float) * (positions - left))
+        self.plot.levels = list(levels)
+        self.plot.update()
+        for control, value in zip((self.black, self.white), levels):
+            blocked = control.blockSignals(True)
+            control.setValue(float(value))
+            control.blockSignals(blocked)
+        self.caption.setText(tr('Full-field intensity histogram · black {low:.4g}, white {high:.4g}',
+                                low=float(levels[0]), high=float(levels[1])))
+
+    def _choose(self, index, value):
+        """Map an absolute intensity to its interpolated percentile rank."""
+        if self.values is None or self.values[-1] <= self.values[0]:
+            return
+        values = self.values
+        upper = int(np.searchsorted(values, value, side='left'))
+        if upper == 0:
+            percentile = 0.0
+        elif upper >= values.size:
+            percentile = 100.0
+        else:
+            a, b = float(values[upper - 1]), float(values[upper])
+            fraction = (float(value) - a) / (b - a) if b > a else 0.0
+            percentile = (upper - 1 + fraction) * 100.0 / (values.size - 1)
+        low, high = self.percentiles
+        if index == 0:
+            low = min(percentile, high - 0.000001)
+        else:
+            high = max(percentile, low + 0.000001)
+        self._publish(max(0.0, low), min(100.0, high))
+
+    def _publish(self, low, high):
+        """Apply an ordered pair of percentiles to the screen and markers."""
+        self.set_percentiles(low, high)
+        self.levels_changed.emit(float(low), float(high))
+
+    def closeEvent(self, event):
+        """Discard pending work and release the field held for this histogram."""
+        self.closed = True
+        self.values = None
+        self._worker.close(timeout=0)
+        super().closeEvent(event)
 
 
 class _OtsuHistogramDialog(QDialog):
@@ -4919,34 +5970,295 @@ class _OtsuHistogramDialog(QDialog):
     :param edges: histogram bin edges.
     :param levels: the intensities the field is cut at.
     :param description: how the cut was taken, for the caption.
-    :param local: whether the local threshold is on, which means the levels
-        drawn are the whole-field ones and the real cut varies per window.
+    :param local: local thresholds have no single marker to draw.
     :param parent: parent widget.
+    :param method: selected threshold key, named in the window title.
+    :param pending: show indeterminate progress until the snapshot arrives.
     """
 
     def __init__(self, counts, edges, levels, description: str,
-                 local: bool = False, parent=None):
+                 local: bool = False, parent=None, *, method="otsu",
+                 pending: bool = False):
         """Build the plot, the caption above it and the Close button."""
         super().__init__(parent)
-        self.setWindowTitle("Otsu histogram")
+        from ..i18n import tr
+
+        self.setWindowTitle(tr("{method} histogram", method=_magnifier_mode_label(method)))
+        self.description = description
+        self.request = None
+        self.ready = not pending
+        self.closed = False
+        self.error = None
         layout = QVBoxLayout(self)
         layout.setSpacing(SPACING["sm"])
-        marked = ", ".join(f"{level:.4g}" for level in levels) or "none"
-        self.caption = QLabel(
-            f"Level: {marked}  ({description}). "
-            + ("The local threshold is on, so this is the whole-field level "
-               "for reference and the cut actually varies window by window."
-               if local else
-               "This is the level the detect button cuts at.")
-        )
+        self.caption = QLabel()
+        self.caption.setTextFormat(Qt.PlainText)
         self.caption.setWordWrap(True)
         layout.addWidget(self.caption)
+        self.progress = QProgressBar()
+        self.progress.setRange(0, 0)
+        self.progress.setVisible(pending)
+        layout.addWidget(self.progress)
         self.plot = _OtsuHistogramPlot(counts, edges, levels, self)
         layout.addWidget(self.plot, 1)
+        self.plot.setVisible(not pending)
+        if pending:
+            self.caption.setText(tr("Calculating threshold histogram…"))
+        else:
+            self.show_result((counts, edges, levels, local))
+        note = QLabel(tr("Snapshot of the full field and settings when opened. "
+                         "Open the histogram again after changing the image or settings."))
+        note.setWordWrap(True)
+        layout.addWidget(note)
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
         self.resize(520, 340)
+
+    def show_result(self, result, error=None) -> None:
+        """Display a completed snapshot or its error, without a fallback marker."""
+        from ..i18n import tr
+
+        self.ready = True
+        self.error = error
+        self.progress.hide()
+        if error is not None:
+            self.plot.hide()
+            self.caption.setText(tr("Threshold histogram failed: {error}", error=str(error)))
+            self._fit_height()
+            return
+        counts, edges, levels, local = result
+        self.plot.counts = np.asarray(counts, dtype=np.float64)
+        self.plot.edges = np.asarray(edges, dtype=np.float64)
+        self.plot.levels = [float(level) for level in levels]
+        self.plot.show()
+        self.plot.update()
+        if local:
+            text = tr("Local threshold varies by pixel ({description}); no single "
+                      "level is drawn. The histogram shows the smoothed detector "
+                      "input before local thresholding.", description=self.description)
+        else:
+            text = tr("Level: {levels} ({description}). These are the thresholds "
+                      "the detect button uses on the smoothed detector input.",
+                      levels=", ".join(f"{level:.4g}" for level in levels),
+                      description=self.description)
+        self.caption.setText(text)
+        self._fit_height()
+
+    def _fit_height(self) -> None:
+        """Reserve the wrapped captions' height so they cannot overlap the plot."""
+        layout = self.layout()
+        if layout is not None:
+            layout.invalidate()
+            needed = layout.totalHeightForWidth(self.width())
+            if needed > 0 and self.minimumHeight() != needed:
+                self.setMinimumHeight(needed)
+
+    def resizeEvent(self, event):
+        """Recompute the text's height as the histogram window is widened."""
+        super().resizeEvent(event)
+        self._fit_height()
+
+    def closeEvent(self, event):
+        """Retire this snapshot; a running library call may finish in the background."""
+        self.closed = True
+        if self.request is not None:
+            self.request.ticket.cancel()
+        super().closeEvent(event)
+
+
+def _parsed_sigmas(text: str) -> tuple:
+    """The filament widths a text box holds, as numbers the engine can read.
+
+    A LIST OF SCALES IS A TEXT BOX and not a row of spin boxes, because how
+    many scales the ridge filter is given is part of the answer: one width
+    for a uniform bundle, four to cover fine tubules and thick ones at
+    once. So the box is parsed rather than validated -- anything that is
+    not a positive number is dropped, and a box that holds nothing usable
+    falls back to the engine's own default rather than raising on the
+    worker thread, where the only way to show the error would be an empty
+    magnifier box.
+
+    :param text: what the user typed, numbers separated by commas or spaces.
+    :returns: the scales, in the order typed, never empty.
+    """
+    out = []
+    for piece in str(text or "").replace(",", " ").split():
+        try:
+            value = float(piece)
+        except ValueError:
+            continue
+        if value > 0:
+            out.append(value)
+    return tuple(out) or organelle_modes.DEFAULT_PARAMS.ridge_sigmas
+
+
+def _grey_pixmap(image: np.ndarray, lower_pct: float,
+                 upper_pct: float) -> QPixmap:
+    """``image`` stretched between two percentiles, as a grey pixmap.
+
+    One conversion for both halves of the Compare window, so the raw
+    picture and the enhanced one are drawn by the same arithmetic and a
+    difference between them is a difference the chain made.
+
+    :param image: any 2-D array; float and integer fields alike.
+    :param lower_pct: the percentile drawn black.
+    :param upper_pct: the percentile drawn white.
+    """
+    data = np.asarray(image, dtype=np.float64)
+    if not data.size:
+        return QPixmap()
+    low = float(np.percentile(data, lower_pct))
+    high = float(np.percentile(data, upper_pct))
+    if high <= low:
+        high = low + 1.0
+    grey = np.ascontiguousarray(
+        (np.clip(data, low, high) - low) / (high - low) * 255.0
+    ).astype(np.uint8)
+    height, width = grey.shape[:2]
+    picture = QImage(grey.data, width, height, width,
+                     QImage.Format_Grayscale8).copy()
+    return QPixmap.fromImage(picture)
+
+
+#: Saved-layout key and initial window size for the side-by-side comparison.
+#: The initial size leaves enough room to inspect both images.
+COMPARE_LAYOUT_KEY = "make_masks::compare"
+COMPARE_DEFAULT_SIZE = (1100, 700)
+
+
+class _ComparePreview(QDialog):
+    """The image as loaded beside the image the detector reads.
+
+    ONE CLICK IS THE WHOLE FEATURE. A chain of eight optional steps is a
+    chain a curator cannot judge from the objects alone -- a threshold that
+    found nothing may have been given an image with nothing left in it --
+    and the cheapest way to say which it was is to put the two pictures
+    next to each other under the list of what ran.
+
+    IT IS A WINDOW TO LOOK IN, so it is resizable, it remembers the size it
+    was left at (:data:`COMPARE_LAYOUT_KEY`), the two pictures grow with it
+    rather than sitting at a fixed size, and both can be zoomed into. THE
+    TWO ZOOMS ARE ONE ZOOM (:meth:`spacr.qt.widgets.zoom_view.
+    ZoomableImageView.link_to`): a difference between the pictures is what
+    the window is for, and a difference in where they are pointing is the
+    one difference that is not information.
+
+    Modeless, for :class:`_OtsuHistogramDialog`'s reason: the point is to
+    change a step and look again.
+
+    :param raw: the region as loaded (or inverted, as it is drawn).
+    :param enhanced: the same region after the chain, or None while its
+        worker runs. Cancel closes a pending comparison without blocking.
+    :param steps: the steps that ran, in words.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, raw: np.ndarray, enhanced: Optional[np.ndarray],
+                 steps: str, parent=None):
+        """Build the two linked views, the caption over them and the tools."""
+        from ..i18n import tr
+        from ..widgets.zoom_view import ZoomableImageView
+
+        super().__init__(parent)
+        self.setWindowTitle(tr("Raw and enhanced"))
+        self.setSizeGripEnabled(True)
+        layout = QVBoxLayout(self)
+        layout.setSpacing(SPACING["sm"])
+        self.caption = QLabel(steps)
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+
+        row = QHBoxLayout()
+        self.views: List[ZoomableImageView] = []
+        for title, array in ((tr("As loaded"), raw),
+                             (tr("As the detector reads it"), enhanced)):
+            column = QVBoxLayout()
+            heading = QLabel(title)
+            heading.setObjectName("Muted")
+            column.addWidget(heading)
+            view = ZoomableImageView(self)
+            view.setMinimumSize(200, 200)
+            if array is not None:
+                view.set_pixmap(_grey_pixmap(array, 1.0, 99.9))
+            view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.views.append(view)
+            column.addWidget(view, 1)
+            row.addLayout(column, 1)
+        layout.addLayout(row, 1)
+        self.views[0].link_to(self.views[1])
+
+        tools = QHBoxLayout()
+        self.hint = QLabel(tr(
+            "Scroll to zoom, drag to pan. Both pictures move together."))
+        self.hint.setObjectName("Muted")
+        self.hint.setWordWrap(True)
+        tools.addWidget(self.hint, 1)
+        for caption, action in ((tr("Zoom out"), lambda: self.zoom(1 / 1.4)),
+                                (tr("Zoom in"), lambda: self.zoom(1.4)),
+                                (tr("Fit"), self.fit)):
+            button = QPushButton(caption)
+            button.clicked.connect(action)
+            tools.addWidget(button)
+        layout.addLayout(tools)
+
+        self._buttons = QDialogButtonBox(
+            QDialogButtonBox.Cancel if enhanced is None else QDialogButtonBox.Close)
+        self._buttons.rejected.connect(self.close)
+        layout.addWidget(self._buttons)
+        self.resize(*_remembered_compare_size())
+
+    def _show_result(self, enhanced, caption):
+        """Adopt a finished comparison, or explain why it was discarded."""
+        if enhanced is not None:
+            self.views[1].set_pixmap(_grey_pixmap(enhanced, 1.0, 99.9))
+            self.fit()
+        self.caption.setText(caption)
+        self._buttons.setStandardButtons(QDialogButtonBox.Close)
+
+    def zoom(self, factor: float) -> None:
+        """Zoom both pictures by ``factor``; the link does the second one."""
+        if self.views:
+            self.views[0].zoom_by(factor)
+
+    def fit(self) -> None:
+        """Put both pictures back to fitting their pane."""
+        if self.views:
+            self.views[0].fit()
+
+    def closeEvent(self, event):                            # noqa: N802
+        """Remember the size the window was left at, then close.
+
+        On the way out rather than on every resize: a drag is a hundred
+        resize events and this writes to the preference store.
+        """
+        _remember_compare_size(self.width(), self.height())
+        super().closeEvent(event)
+
+
+def _remembered_compare_size() -> tuple:
+    """``(width, height)`` the Compare window was last left at."""
+    try:
+        from ..preferences import get_section_layout
+
+        sizes = get_section_layout(COMPARE_LAYOUT_KEY).get("sizes") or ()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the Compare window size", exc_info=True)
+        sizes = ()
+    if len(sizes) == 2 and all(int(value) > 200 for value in sizes):
+        return (int(sizes[0]), int(sizes[1]))
+    return COMPARE_DEFAULT_SIZE
+
+
+def _remember_compare_size(width: int, height: int) -> None:
+    """Keep the Compare window's size for the next time it is opened."""
+    try:
+        from ..preferences import set_section_layout
+
+        set_section_layout(COMPARE_LAYOUT_KEY,
+                           sizes=(int(width), int(height)))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not keep the Compare window size", exc_info=True)
 
 
 def fold_description(key: str) -> tuple:
@@ -5320,6 +6632,10 @@ class MakeMasksScreen(QWidget):
     :param parent: parent widget.
     """
 
+    _histogram_delivered = Signal(object)
+    _detection_delivered = Signal(object)
+    _comparison_delivered = Signal(object)
+
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
 
@@ -5360,6 +6676,13 @@ class MakeMasksScreen(QWidget):
         self._load_worker: Optional[_MaskLoadWorker] = None
         self._pending_load = None
         self._loading = False
+        self._detection_worker = None
+        self._detection_request = None
+        self._detection_delivered.connect(self._take_detection)
+        self._comparison_worker = None
+        self._comparison_request = None
+        self._comparison_serial = 0
+        self._comparison_delivered.connect(self._take_comparison)
         #: Folded module key -> the module's own screen, built the first time
         #: its button is pressed and kept afterwards so a second press finds
         #: the paths, models and results the first one left.
@@ -5384,8 +6707,8 @@ class MakeMasksScreen(QWidget):
             install_dropzone(self, MakeMasksDropHandler(), self)
         except Exception:
             pass
-        from .settings_model import retarget_field_tooltips
-        retarget_field_tooltips(self)
+        from ..widgets.make_masks_help import install_make_masks_help
+        install_make_masks_help(self)
         self._take_any_terminal_queue()
 
     def _take_any_terminal_queue(self) -> bool:
@@ -5544,7 +6867,8 @@ class MakeMasksScreen(QWidget):
         self._tool_row = self._build_tool_row()
         outer.addWidget(self._tool_row)
 
-        self._invert_warning = QLabel(INVERT_WARNING_TEXT)
+        from ..i18n import tr
+        self._invert_warning = QLabel(tr(INVERT_WARNING_TEXT))
         self._invert_warning.setObjectName(INVERT_WARNING_NAME)
         self._invert_warning.setWordWrap(True)
         self._invert_warning.hide()
@@ -5566,10 +6890,10 @@ class MakeMasksScreen(QWidget):
         )
         self._body_stack.addWidget(self._empty_state)
 
-        self._body_splitter = QSplitter(Qt.Horizontal)
-        self._body_splitter.setChildrenCollapsible(False)
-        self._body_splitter.setHandleWidth(SETTINGS_GAP)
-        self._body_splitter.setStyleSheet(thin_hover_line_sheet())
+        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+        self._body_splitter = CollapsibleSplitter(
+            Qt.Horizontal, persist_key="make_masks::body")
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
@@ -5588,6 +6912,9 @@ class MakeMasksScreen(QWidget):
         #: the button twice reuses one window rather than stacking them and
         #: so the screen can take it down with itself.
         self._otsu_histogram_dialog: Optional[QDialog] = None
+        self._levels_dialog = None
+        self._histogram_worker = None
+        self._histogram_delivered.connect(self._take_histogram)
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._canvas.status.connect(
@@ -5613,11 +6940,12 @@ class MakeMasksScreen(QWidget):
             changed.connect(self._on_magnifier_context_changed)
         self._min_area.valueChanged.connect(self._on_min_area_changed)
         self._on_min_area_changed(self._min_area.value())
-        self._body_splitter.addWidget(self._settings_scroll)
-        self._body_splitter.addWidget(self._build_view_pane())
-        self._body_splitter.setStretchFactor(0, 1)
-        self._body_splitter.setStretchFactor(1, 3)
-        self._body_splitter.setSizes([SETTINGS_WIDTH, 900])
+        self._body_splitter.add_pane(
+            self._settings_scroll, "Settings", mode=EDGE, stretch=1,
+            extent=SETTINGS_WIDTH, fold_key="make_masks/Settings",
+            hint="or drag to make the settings wider or narrower")
+        self._body_splitter.add_pane(self._build_view_pane(), "Masks",
+                                     stretch=3, extent=900)
         self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
@@ -6017,6 +7345,15 @@ class MakeMasksScreen(QWidget):
         if self._otsu_histogram_dialog is not None:
             self._otsu_histogram_dialog.close()
             self._otsu_histogram_dialog = None
+        self._close_levels()
+        if self._histogram_worker is not None:
+            self._histogram_worker.close(timeout=0)
+            self._histogram_worker = None
+        if self._detection_worker is not None:
+            self._detection_worker.close(timeout=0)
+            self._detection_worker = None
+            self._detection_request = None
+            self._btn_cellpose.setEnabled(True)
 
     def _build_tool_row(self) -> QWidget:
         """The one row that holds every tool, along the top of the screen.
@@ -6051,7 +7388,9 @@ class MakeMasksScreen(QWidget):
 
         self._mode_buttons: dict[str, QPushButton] = {}
         for mode, label, icon_key in tool_row_entries():
-            btn = QPushButton(label)
+            from ..i18n import tr
+
+            btn = QPushButton(tr(label))
             btn.setIcon(iconset.icon(icon_key))
             btn.setCheckable(True)
             btn.setMinimumHeight(32)
@@ -6067,6 +7406,9 @@ class MakeMasksScreen(QWidget):
         self._btn_zoom = self._mode_buttons[MODE_ZOOM]
         self._btn_recrop = self._mode_buttons[MODE_RECROP]
         self._btn_recrop.setToolTip(RECROP_TOOLTIP)
+        self._mode_buttons[MODE_RULER].setToolTip(tr(
+            "Drag a line to measure its length in image pixels. "
+            "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
 
         row.addWidget(Divider(Qt.Vertical))
         self._btn_reset_zoom = QPushButton("Reset zoom")
@@ -6317,6 +7659,7 @@ class MakeMasksScreen(QWidget):
 
         :returns: the assembled panel.
         """
+        from ..i18n import tr
         wrap = QWidget()
         col = QVBoxLayout(wrap)
         col.setContentsMargins(0, 0, 0, 0)
@@ -6586,6 +7929,11 @@ class MakeMasksScreen(QWidget):
         self._norm_hi.valueChanged.connect(self._on_normalize_changed)
         norm_form.addRow("Lower %", self._norm_lo)
         norm_form.addRow("Upper %", self._norm_hi)
+        self._btn_levels = QPushButton(tr("Levels…"))
+        self._btn_levels.setToolTip(tr(
+            "Set black and white cutoffs by dragging on the image histogram."))
+        self._btn_levels.clicked.connect(self._on_levels)
+        norm_form.addRow(self._btn_levels)
         self._detect_normalized = Toggle("Detect on the normalized image")
         self._detect_normalized.setChecked(False)
         self._detect_normalized.setToolTip(
@@ -6612,21 +7960,15 @@ class MakeMasksScreen(QWidget):
         norm_card.body_layout.addLayout(norm_form)
 
         self._invert_display = Toggle("Invert image")
-        self._invert_display.setToolTip(
-            "Show the picture as a negative and detect on that same "
-            "negative: the field is normalized to 0..1 and each pixel "
-            "becomes 1 minus itself, so its darkest pixel is its brightest. "
-            "That is what lets Otsu and the Live magnifier, which look for "
-            "bright objects, take DARK ones — a dark object on a pale "
-            "brightfield reads the way a fluorescent one does, to the eye "
-            "and to the detector alike. THE MASKS ARE MADE FROM THE "
-            "INVERTED IMAGE while this is on, and a warning stays above the "
-            "image saying so. The hover readout, the Filter category and "
-            "the mask you save go on reading the image's real values, so "
-            "nothing you measure changes. This is not 'Swap object and "
-            "background' in Object operations, which flips a finished MASK "
-            "and does nothing to the picture."
-        )
+        self._invert_display.setToolTip(tr(
+            "Invert the picture and the pixels used for detection, so dark "
+            "objects become bright. The field is normalized to 0..1, then "
+            "each pixel becomes 1 minus itself. Hover pixel intensity follows "
+            "the inversion; object mean intensity and Filter thresholds use "
+            "the original loaded values. The loaded image data and existing "
+            "mask are unchanged. To swap foreground and background in a "
+            "finished mask, use 'Swap object and background' in Object operations."
+        ))
         self._invert_display.toggled.connect(self._on_invert_display)
         self._invert_display.toggled.connect(self._on_invert_toggled)
         norm_card.body_layout.addWidget(self._invert_display)
@@ -6770,11 +8112,14 @@ class MakeMasksScreen(QWidget):
         self._btn_otsu = QPushButton("Otsu detect")
         self._btn_otsu.setCursor(Qt.PointingHandCursor)
         self._btn_otsu.setToolTip(
-            "Threshold the image at Otsu's level and label what is left, "
-            "honouring the minimum area above. Everything about the "
-            "threshold — the correction, the smoothing, which side is the "
-            "object, filling holes, splitting a pair that touches and "
-            "dropping what the frame cut — is the Otsu category.")
+            "Run the CPU method chosen under Detection method on the whole "
+            "image and label what it finds, honouring the minimum area "
+            "above. Everything the method reads is that category: the "
+            "level's algorithm, the correction, the smoothing, which side "
+            "is the object, filling holes, splitting a pair that touches "
+            "and dropping what the frame cut. With Cellpose or a backend "
+            "chosen this button falls back to Otsu, because those have "
+            "the Object detection button of their own.")
         self._btn_otsu.clicked.connect(self._on_detect_otsu)
         detect_row.addWidget(self._btn_otsu)
         self._combine_mode = QComboBox()
@@ -6788,7 +8133,9 @@ class MakeMasksScreen(QWidget):
         detect_row.addWidget(self._combine_mode, 1)
         detect_wrap = QWidget(); detect_wrap.setLayout(detect_row)
         ops_col.addWidget(detect_wrap)
-        self._btn_clear = QPushButton("Clear")
+        from ..i18n import tr
+
+        self._btn_clear = QPushButton(tr("Clear all objects"))
         self._btn_clear.setObjectName("DangerButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.setToolTip(
@@ -6800,8 +8147,10 @@ class MakeMasksScreen(QWidget):
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
-        col.addWidget(self._build_otsu_card())
-        col.addWidget(self._build_cellpose_card())
+        self._methods_card = self._build_detection_card()
+        col.addWidget(self._methods_card)
+        self._sync_method_controls()
+        col.addWidget(self._build_enhance_card())
         col.addWidget(self._build_magnifier_card())
 
         col.addStretch(1)
@@ -6911,11 +8260,20 @@ class MakeMasksScreen(QWidget):
         return True
 
     def _set_mode(self, mode: str):
-        """Switch the canvas between draw, erase and wand.
+        """Select an editing, navigation or measurement tool.
 
         :param mode: the mode's name.
         """
+        from ..i18n import tr
+
         self._canvas.mode = mode
+        self._canvas.ruler.set_active(mode == MODE_RULER)
+        if mode == MODE_RULER:
+            self._btn_magnifier.setChecked(False)
+        row = getattr(self, '_shortcut_rows', {}).get('Right button')
+        if row is not None:
+            row[1].setText(tr('Clear the ruler line') if mode == MODE_RULER
+                           else tr('Sweep away the objects it passes'))
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 
@@ -6927,17 +8285,51 @@ class MakeMasksScreen(QWidget):
         self._canvas.brush_radius = int(v)
         self._brush_size_label.setText(f"{v} px")
 
+    def _close_levels(self):
+        """Close the levels editor before its field or inversion changes."""
+        dialog = self._levels_dialog
+        if dialog is not None:
+            dialog.close()
+            dialog.deleteLater()
+            self._levels_dialog = None
+
+    def _on_levels(self):
+        """Open an interactive histogram for the current normalization levels."""
+        image = self._canvas.displayed_source()
+        if image is None:
+            return
+        if self._levels_dialog is not None and not self._levels_dialog.closed:
+            self._levels_dialog.raise_()
+            self._levels_dialog.activateWindow()
+            return
+        self._close_levels()
+        dialog = _LevelsDialog(image, (self._norm_lo.value(), self._norm_hi.value()), self)
+        self._levels_dialog = dialog
+        dialog.detect.setChecked(self._detect_normalized.isChecked())
+        dialog.detect.toggled.connect(self._detect_normalized.setChecked)
+        dialog.levels_changed.connect(self._set_levels)
+        dialog.show()
+
+    def _set_levels(self, low, high):
+        """Apply both histogram percentiles together, refreshing only once."""
+        for control, value in ((self._norm_lo, low), (self._norm_hi, high)):
+            blocked = control.blockSignals(True)
+            control.setValue(value)
+            control.blockSignals(blocked)
+        self._on_normalize_changed(0)
+
     def _on_normalize_changed(self, _v: float):
         """Re-stretch the displayed intensity range.
 
-        DISPLAY ONLY. The mask is drawn against what the user can see, but the
-        pixels underneath are untouched -- a normalisation that changed the
-        data would make every mask depend on the contrast it was drawn at.
+        The loaded pixels and existing masks are untouched. Detection also
+        uses the stretch when Detect on the normalized image is enabled.
 
         :param _v: the changed value; both ends are re-read from the widgets.
         """
         self._canvas.norm_lo = float(self._norm_lo.value())
         self._canvas.norm_hi = float(self._norm_hi.value())
+        if self._levels_dialog is not None and not self._levels_dialog.closed:
+            self._levels_dialog.set_percentiles(self._canvas.norm_lo, self._canvas.norm_hi)
         self._canvas.refresh()
         if self._canvas.detect_on_normalized:
             self._on_magnifier_context_changed()
@@ -6948,6 +8340,10 @@ class MakeMasksScreen(QWidget):
         :param on: whether detection reads the normalized image.
         """
         self._canvas.detect_on_normalized = bool(on)
+        if self._levels_dialog is not None and not self._levels_dialog.closed:
+            blocked = self._levels_dialog.detect.blockSignals(True)
+            self._levels_dialog.detect.setChecked(bool(on))
+            self._levels_dialog.detect.blockSignals(blocked)
         self._canvas.refresh()
         self._on_magnifier_context_changed()
         self._status_label.setText(
@@ -6984,6 +8380,7 @@ class MakeMasksScreen(QWidget):
 
         :param on: the switch's new state.
         """
+        self._close_levels()
         self._canvas.invert_display = bool(on)
         self._canvas.refresh()
         if self._canvas.image is None:
@@ -7194,14 +8591,119 @@ class MakeMasksScreen(QWidget):
 
         :param kind: what happened, as the curation ledger names it.
         """
+        self._refresh_secondary_report()
         if int(n_changed) <= 0:
             return None
         if kind != "filter":
             self._set_filter_log([])
         if self._log is None:
             return None
+        if getattr(self._canvas, 'preserve_ids', False):
+            detail.update(self._secondary_detail())
         return self._log.append(kind, target, n_changed=int(n_changed),
                                  **detail)
+
+    def _require_primary_source(self):
+        """Require a validated primary snapshot belonging to this queue field."""
+        from ..i18n import tr
+
+        source = self._primary_selector.snapshot
+        if source is None:
+            raise ValueError(tr('Load a valid primary mask before growing secondary objects.'))
+        filename = self._image_files[self._current_index]
+        image_path = os.path.realpath(os.path.join(self._folder, filename))
+        if source.image_path != image_path or source.labels.shape != self._canvas.mask.shape:
+            raise ValueError(tr('The primary mask belongs to a different field. Reload it for this image.'))
+        source.validate_destination(engine.mask_save_path(
+            self._folder, filename, **self._layout_kwargs()))
+        return source
+
+    def _on_primary_source_changed(self):
+        """Invalidate asynchronous detections as soon as their primary changes."""
+        self._refresh_secondary_report()
+        if hasattr(self, '_magnifier'):
+            self._magnifier.refresh()
+
+    def _require_secondary_merge(self, source):
+        """Refuse numeric ID collisions with an unrelated nonempty target mask.
+
+        :param source: the validated primary-mask snapshot for this detection.
+        :raises ValueError: when the existing output belongs to another source
+            or was not created with primary IDs preserved.
+        """
+        from ..i18n import tr
+
+        if self._canvas.mask is None or not self._canvas.mask.any():
+            return
+        record = getattr(self, '_paired_source', None) or {}
+        expected = source.provenance()
+        if not getattr(self._canvas, 'preserve_ids', False) or expected != {
+                key: record.get(key) for key in expected}:
+            raise ValueError(tr('The existing mask is not paired with this primary source. Use whole-image Replace or Clear all objects before accepting secondary objects.'))
+
+    def _refresh_secondary_report(self):
+        """Show explicit missing, orphaned and incompletely enclosing IDs."""
+        from ..i18n import tr
+
+        label = getattr(self, '_secondary_relations', None)
+        if label is None:
+            return
+        source = self._primary_selector.snapshot
+        mask = self._canvas.mask
+        if source is None or mask is None or source.labels.shape != mask.shape:
+            label.setText(tr('Load a primary mask to inspect object relationships.'))
+            return
+        report = engine.primary_secondary_report(source.labels, mask)
+        names = (('matched_ids', tr('Matched')), ('missing_secondary_ids', tr('Missing secondary')),
+                 ('orphan_secondary_ids', tr('No primary')), ('incomplete_primary_ids', tr('Primary not enclosed')),
+                 ('unexpanded_primary_ids', tr('Not expanded')))
+        label.setText('\n'.join(tr('{name}: {count} ({ids})', name=name,
+                                    count=len(getattr(report, key)),
+                                    ids=', '.join(map(str, getattr(report, key)[:12])) +
+                                    ('…' if len(getattr(report, key)) > 12 else ''))
+                                for key, name in names))
+
+    def _secondary_detail(self):
+        """Source association and exact identity diagnostics for the current edit."""
+        record = getattr(self, '_paired_source', None)
+        if not getattr(self._canvas, 'preserve_ids', False) or record is None:
+            return {}
+        detail = {'preserve_ids': True, 'primary_source': record}
+        source = self._primary_selector.snapshot
+        if source is not None and source.provenance() == {key: record.get(key) for key in source.provenance()}:
+            report = engine.primary_secondary_report(source.labels, self._canvas.mask)
+            detail['primary_secondary'] = {key: list(value) for key, value in report._asdict().items()}
+        return detail
+
+    def _retain_secondary_ids(self, record):
+        """Associate an accepted detection with its immutable primary identity."""
+        self._paired_source = dict(record)
+        self._canvas.preserve_ids = True
+        self._canvas._lookup = None
+        self._canvas._lookup_dirty = True
+        self._refresh_secondary_report()
+        if self._log is not None:
+            previous = next((edit.detail.get('primary_source') for edit in reversed(self._log.edits)
+                             if edit.detail.get('preserve_ids')), None)
+            if previous != self._paired_source:
+                self._log.append('secondary_source', None, **self._secondary_detail())
+
+    def _validate_secondary_save(self):
+        """Keep every recorded primary file separate from the editable output."""
+        from ..secondary_masks import _same_file
+        from ..i18n import tr
+
+        destination = engine.mask_save_path(self._folder, self._image_files[self._current_index],
+                                            **self._layout_kwargs())
+        records = [getattr(self, '_paired_source', None)]
+        if self._log is not None:
+            records.extend(edit.detail.get('primary_source') for edit in self._log.edits)
+        source = self._primary_selector.snapshot
+        if source is not None:
+            source.validate_destination(destination)
+        for record in records:
+            if record and record.get('path') and _same_file(record['path'], destination):
+                raise ValueError(tr('Primary and secondary masks must be saved to different files.'))
 
     @staticmethod
     def _diff(before, after) -> int:
@@ -7305,7 +8807,8 @@ class MakeMasksScreen(QWidget):
             return 0
         bounds = self._filter_bounds()
         out, removals = engine.filter_report(
-            self._canvas.mask, self._canvas.image, **bounds)
+            self._canvas.mask, self._canvas.image,
+            preserve_ids=getattr(self._canvas, 'preserve_ids', False), **bounds)
         if not removals:
             if not on_load:
                 self._status_label.setText(
@@ -7331,45 +8834,112 @@ class MakeMasksScreen(QWidget):
         """Apply the object filter to the mask on screen."""
         self.apply_object_filter(on_load=False)
 
-    def _on_detect_otsu(self):
-        """Threshold the image and fold the result in per replace/merge.
+    def _cpu_detect(self, image, method: str, otsu: dict) -> tuple:
+        """Run the CPU method ``method`` on ``image``.
 
-        With Invert on it thresholds the INVERTED field
+        The one place the detect button's method is dispatched, so the
+        button and the magnifier's box cannot end up running different
+        things under one name. A model mode (Cellpose, a backend) falls
+        back to Otsu, because those have the Object detection button.
+
+        Otsu's saved local toggle and class/band choices cannot override
+        another named threshold. Multi-Otsu alone reads the class and band;
+        every other named threshold forces a two-class, non-Local-Otsu run.
+
+        :returns: ``(labels, centres)``; ``centres`` is the number of
+            maxima for the propagation and None for everything else.
+        """
+        if method in organelle_modes.MODE_LABELS:
+            return (organelle_modes.segment(
+                image, method, self._method_params(),
+                min_area=self._detect_min_area()), None)
+        if method == cpu_modes.PROPAGATE:
+            found = cpu_modes.propagate(
+                image, self._cpu_params(), min_area=self._detect_min_area(),
+                fill_holes=bool(otsu["fill_holes"]))
+            return (found.labels, found.seeds)
+        if method == cpu_modes.SECONDARY:
+            found = cpu_modes.secondary(image, self._require_primary_source().labels,
+                                         self._cpu_params(), min_area=self._detect_min_area(),
+                                         fill_holes=bool(otsu['fill_holes']))
+            return found.labels, None
+        algorithm = cpu_modes.engine_algorithm(
+            method if method in cpu_modes.THRESHOLD_LABELS else "otsu")
+        settings = dict(otsu)
+        if method == cpu_modes.MULTIOTSU:
+            settings["classes"] = max(3, int(settings["classes"]))
+            settings["local"] = False
+        elif method in cpu_modes.THRESHOLD_LABELS:
+            settings.update(classes=2, foreground_class=1, local=False)
+        return (engine._otsu_instances(
+            image, bright=self._otsu_bright.isChecked(),
+            min_area=int(self._min_area.value()), algorithm=algorithm,
+            local_k=float(self._otsu_local_k.value()), **settings), None)
+
+    def _on_detect_otsu(self):
+        """Detect on the whole image and fold the result in per replace/merge.
+
+        IT RUNS WHATEVER THE DETECTION METHOD CATEGORY IS SET TO, not Otsu
+        alone: after item 473 that category holds ten threshold
+        algorithms, the propagation and the organelle methods, and a
+        button that went on running Otsu while the box under the mouse ran
+        Li would be two answers to one question. Only a model mode falls
+        back, and only because it has a button of its own.
+
+        With Invert on it detects on the INVERTED field
         (:meth:`_detector_image`), which is what lets it take dark objects:
         Bright and Invert together are the dark side of the dark side, and
         the ledger records which way up the image was.
         """
+        from ..i18n import tr
+
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
         otsu = self._otsu_settings()
         correction = otsu["correction"]
+        method = canonical_magnifier_mode(
+            getattr(self._magnifier, "mode", None))
+        if method == cpu_modes.SECONDARY:
+            otsu['fill_holes'] = self._secondary_fill_holes.isChecked()
         try:
-            detected = engine._otsu_instances(
-                self._detector_image(),
-                bright=self._otsu_bright.isChecked(),
-                min_area=int(self._min_area.value()),
-                **otsu,
-            )
+            detected, seeds = self._cpu_detect(self._detector_image(),
+                                               method, otsu)
         except Exception as exc:
-            self._warn("Otsu detect failed", str(exc))
+            self._warn("Detect failed", str(exc))
             return
-        found = int(detected.max())
-        if not found:
-            self._status_label.setText(
-                "Otsu found no objects — the mask is unchanged. Lower the "
-                "minimum area, or try the other side."
-            )
+        if method not in (cpu_modes.PROPAGATE, cpu_modes.SECONDARY):
+            detected = detect_chain.finish(detected, self._detect_chain(),
+                                           intensity=self._detector_image())
+        found = _object_count(detected)
+        centres = ("" if seeds is None
+                   else tr(" from {n} centre(s)", n=seeds))
+        if not found and method != cpu_modes.SECONDARY:
+            self._status_label.setText(tr(
+                "{method}{centres} found no objects — the mask is "
+                "unchanged. Lower the minimum area, or try the other side.",
+                method=_magnifier_mode_label(method), centres=centres))
             return
         try:
-            out = engine.combine_masks(self._canvas.mask, detected, mode)
+            if method == cpu_modes.SECONDARY:
+                source = self._require_primary_source()
+                if mode != 'replace':
+                    self._require_secondary_merge(source)
+                out = (engine.canonical_labels(detected, preserve_ids=True) if mode == 'replace'
+                       else engine._paste_region_objects(self._canvas.mask, detected, (0, 0),
+                                                         overlap='clip', preserve_ids=True)[0])
+            else:
+                out = engine.combine_masks(self._canvas.mask, detected, mode)
         except Exception as exc:
-            self._warn("Otsu detect failed", str(exc))
+            self._warn("Detect failed", str(exc))
             return
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
-        self._record("detect", mode, changed, method="otsu", n_objects=found,
+        if method == cpu_modes.SECONDARY:
+            self._retain_secondary_ids(dict(source.provenance(), selection=self._primary_selector.path.text()))
+        self._record("detect", mode, changed, method=method,
+                      n_objects=found,
                       invert=bool(self._cp_invert.isChecked()),
                       bright=bool(self._otsu_bright.isChecked()),
                       min_area=int(self._min_area.value()),
@@ -7381,15 +8951,24 @@ class MakeMasksScreen(QWidget):
                       otsu_classes=otsu["classes"],
                       otsu_foreground_class=otsu["foreground_class"],
                       otsu_local=otsu["local"],
-                      otsu_window=otsu["window"])
+                      otsu_window=otsu["window"],
+                      method_parameters=(
+                          organelle_modes.provenance(
+                              method, self._method_params())
+                          or cpu_modes.provenance(method, self._cpu_params())),
+                      **self._chain_provenance())
         self._history.push(out)
         self._refresh_history_buttons()
-        inverted = (" of the INVERTED image"
+        inverted = (tr(" of the INVERTED image")
                     if self._cp_invert.isChecked() else "")
-        self._status_label.setText(
-            f"Otsu ({self._otsu_description()}){inverted} found {found} "
-            f"object(s) — {mode}d into the mask"
-        )
+        described = (self._otsu_description()
+                     if method in ("otsu",) + cpu_modes.threshold_modes()
+                     else _magnifier_mode_label(method))
+        self._status_label.setText(tr(
+            "{method} ({how}){inverted}{centres} found {n} object(s) — "
+            "{combine}d into the mask",
+            method=_magnifier_mode_label(method), how=described,
+            inverted=inverted, centres=centres, n=found, combine=mode))
 
     def _otsu_description(self) -> str:
         """How the threshold was taken, for a status line and the preview.
@@ -7399,50 +8978,71 @@ class MakeMasksScreen(QWidget):
         and a line that went on saying one of those two would be describing
         a run that had not happened.
         """
-        if self._otsu_local.isChecked():
+        settings = self._otsu_settings()
+        mode = canonical_magnifier_mode(self._magnifier.mode)
+        if settings["local"] or mode in ("sauvola", "niblack"):
             side = "bright" if self._otsu_bright.isChecked() else "dark"
-            return f"local {int(self._otsu_window.value())} px, {side}"
-        classes = int(self._otsu_classes.value())
+            return f"local {settings['window']} px, {side}"
+        classes = settings["classes"]
         if classes > 2:
             return (f"{classes} classes, class "
-                    f"{int(self._otsu_foreground.value())}")
+                    f"{settings['foreground_class']}")
         return "bright" if self._otsu_bright.isChecked() else "dark"
 
     def _on_show_otsu_histogram(self) -> None:
-        """Open this field's histogram with the level it is cut at marked.
+        """Snapshot a threshold preview and compute it off the GUI thread.
 
-        The preview's marked level matches the threshold actually used only
-        if the two come from one place, so the marker is
-        :func:`spacr.qt.mask_engine._otsu_levels` -- the same call the detect
-        button's threshold is made from, with the same correction, the same
-        smoothing and the same class count.
+        The historical method name is retained for callers. All named CPU
+        thresholds use their own levels on the full detector input, including
+        inversion, normalization, enhancement and smoothing. Local methods
+        show counts without a misleading global marker. Reopening replaces
+        the previous snapshot; only the newest result may update its dialog.
         """
+        from ..i18n import tr
+
+        mode = canonical_magnifier_mode(self._magnifier.mode)
+        if mode != "otsu" and mode not in cpu_modes.THRESHOLD_LABELS:
+            return
         image = self._canvas.image
         if image is None:
             self._status_label.setText(
-                "Open a field first — a histogram needs an image.")
-            return
-        otsu = self._otsu_settings()
-        try:
-            counts, edges = engine._otsu_histogram(
-                image, smoothing=otsu["smoothing"],
-                bins=OTSU_HISTOGRAM_BINS)
-            levels = engine._otsu_levels(
-                image, bright=bool(self._otsu_bright.isChecked()),
-                correction=otsu["correction"], smoothing=otsu["smoothing"],
-                classes=otsu["classes"])
-        except Exception as exc:
-            self._warn("Otsu histogram failed", str(exc))
+                tr("Open a field first — a histogram needs an image."))
             return
         previous = self._otsu_histogram_dialog
         if previous is not None:
             previous.close()
             previous.deleteLater()
         dialog = _OtsuHistogramDialog(
-            counts, edges, levels, self._otsu_description(),
-            local=otsu["local"], parent=self)
+            np.zeros(2), np.arange(3), [], self._otsu_description(),
+            parent=self, method=mode, pending=True)
+        request = _ThresholdHistogramRequest(
+            np.array(image, copy=True), mode, self._otsu_settings(),
+            bool(self._otsu_bright.isChecked()), bool(self._canvas.invert_display),
+            (float(self._canvas.norm_lo), float(self._canvas.norm_hi))
+            if self._canvas.detect_on_normalized else None,
+            self._detect_chain(), _RunTicket())
+        dialog.request = request
         self._otsu_histogram_dialog = dialog
         dialog.show()
+        if self._histogram_worker is None:
+            self._histogram_worker = _NewestRequestWorker(
+                _threshold_histogram, self._histogram_done, name="spacr-threshold-histogram")
+        self._histogram_worker.submit(request)
+
+    def _histogram_done(self, request, result, error) -> None:
+        """Deliver a worker result to Qt; the screen may already be destroyed."""
+        try:
+            self._histogram_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_histogram(self, payload) -> None:
+        """Accept only the currently open histogram's snapshot on the GUI thread."""
+        request, result, error = payload
+        dialog = self._otsu_histogram_dialog
+        if dialog is None or dialog.closed or dialog.request is not request:
+            return
+        dialog.show_result(result, error)
 
 
     def _build_view_tabs(self) -> QTabWidget:
@@ -7482,17 +9082,21 @@ class MakeMasksScreen(QWidget):
         THE LIST IS NOT SETTINGS, so the Settings toggle does not take it
         away: a shortcut list that disappears the moment the screen is
         cleared for work is a list you can only read when you do not need
-        it. It is given a fixed width instead, so the image keeps every
-        pixel the window grows by.
+        it. It hides independently as an EDGE pane of its own splitter. Its handle
+        folds it to the right edge and drags it wider, and the image takes
+        the room it leaves.
         """
-        pane = QWidget()
+        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+        pane = CollapsibleSplitter(Qt.Horizontal,
+                                   persist_key="make_masks::views")
         pane.setObjectName("MakeMasksViewPane")
-        row = QHBoxLayout(pane)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["md"])
-        row.addWidget(self._view_tabs, 1)
         self._shortcut_panel = self._build_shortcut_panel()
-        row.addWidget(self._shortcut_panel)
+        pane.add_pane(self._view_tabs, "Views", stretch=1, extent=900)
+        pane.add_pane(self._shortcut_panel, "Shortcuts", mode=EDGE, stretch=0,
+                      extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
+                      fold_key="make_masks/Shortcuts",
+                      hint="or drag to make the shortcut list wider")
         #: The splitter's right-hand child: the views and the shortcut list.
         self._view_pane = pane
         return pane
@@ -7515,12 +9119,21 @@ class MakeMasksScreen(QWidget):
         drawing its keys in near-black on the dark canvas -- invisible, and
         visible as such only in a rendered grab.
         """
+        from ..i18n import tr
+
         panel = Card("Shortcuts")
         panel.setObjectName("Card")
-        panel.setFixedWidth(SHORTCUTS_WIDTH)
-        panel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-        body = panel.body_layout
+        panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        content = QWidget()
+        body = QVBoxLayout(content)
+        body.setContentsMargins(0, 0, 0, 0)
         body.setSpacing(SPACING["xs"])
+        self._shortcut_scroll = QScrollArea(panel)
+        self._shortcut_scroll.setWidgetResizable(True)
+        self._shortcut_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._shortcut_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._shortcut_scroll.setWidget(content)
+        panel.body_layout.addWidget(self._shortcut_scroll, 1)
         #: ``keys -> (key label, what it does label)``, so a test can ask the
         #: built panel what it is telling the user rather than re-reading the
         #: table it was built from.
@@ -7528,15 +9141,17 @@ class MakeMasksScreen(QWidget):
         for index, (keys, does) in enumerate(SHORTCUT_HINTS):
             if index:
                 body.addSpacing(SPACING["xs"])
-            key_label = QLabel(keys, panel)
+            key_label = QLabel(tr(keys), panel)
             key_label.setObjectName("CardSubtitle")
             key_label.setWordWrap(True)
             font = key_label.font()
             font.setBold(True)
             key_label.setFont(font)
-            does_label = QLabel(does, panel)
+            does_label = QLabel(tr(does), panel)
             does_label.setObjectName("Muted")
             does_label.setWordWrap(True)
+            key_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+            does_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
             body.addWidget(key_label)
             body.addWidget(does_label)
             self._shortcut_rows[keys] = (key_label, does_label)
@@ -7555,7 +9170,7 @@ class MakeMasksScreen(QWidget):
         self._flow_pane.clear_view()
         self._view_tabs.setCurrentIndex(0)
 
-    def _build_cellpose_card(self) -> Section:
+    def _build_cellpose_card(self) -> _MethodGroup:
         """The Object detection settings, and the detect button they drive.
 
         Called Object detection rather than "Cellpose-SAM", because what
@@ -7579,11 +9194,7 @@ class MakeMasksScreen(QWidget):
         #: session runs it once per field.
         self._cp_loaded: dict = {}
 
-        card = self._settings_category(
-            "Object detection",
-            "Segments the open field with a model. Both thresholds start "
-            "at Cellpose's own defaults.",
-        )
+        card = _MethodGroup()
         form = QFormLayout()
 
         self._cp_model = QComboBox()
@@ -7687,8 +9298,8 @@ class MakeMasksScreen(QWidget):
         drives = QLabel(
             "The Live magnifier reads these settings too: Cellpose mode uses "
             "the model, both thresholds, the diameter and the normalization, "
-            "and DINOCell the cell probability. The Otsu mode reads the Otsu "
-            "category instead.")
+            "and DINOCell the cell probability. Choosing another method "
+            "above shows that method's settings here instead.")
         drives.setObjectName("CardSubtitle")
         drives.setWordWrap(True)
         card.body_layout.addWidget(drives)
@@ -7705,7 +9316,7 @@ class MakeMasksScreen(QWidget):
         self.add_toolbar_action(self._btn_cellpose)
         return card
 
-    def _build_otsu_card(self) -> Section:
+    def _build_otsu_card(self) -> _MethodGroup:
         """The Otsu settings, driving both the button and the magnifier.
 
         The threshold correction once sat at the bottom of the Cellpose-SAM
@@ -7746,11 +9357,7 @@ class MakeMasksScreen(QWidget):
         9,216. So the box tells a curator what the button is about to do; it
         does not promise the same array.
         """
-        card = self._settings_category(
-            "Otsu",
-            "Thresholds at Otsu's level. Drives Otsu detect and the Live "
-            "magnifier's Otsu mode.",
-        )
+        card = _MethodGroup()
         form = QFormLayout()
 
         self._otsu_correction = QDoubleSpinBox()
@@ -7759,11 +9366,13 @@ class MakeMasksScreen(QWidget):
         self._otsu_correction.setSingleStep(0.05)
         self._otsu_correction.setValue(1.0)
         self._otsu_correction.setToolTip(
-            "A threshold correction factor: Otsu's level is multiplied by it "
-            "before it is used. Above 1 is stricter, so objects shrink and "
-            "faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's "
-            "own level. Otsu detect uses it, and so does the Live magnifier's "
-            "Otsu mode wherever a region holds two clear populations.")
+            "Threshold factor (default 1; range 0.1 to 5), applied before "
+            "foreground selection. For positive global thresholds and local "
+            "Otsu, increasing it keeps fewer bright or dark pixels. Sauvola "
+            "and Niblack multiply their direct local levels: at positive "
+            "levels, increasing it keeps fewer bright but more dark pixels; "
+            "negative levels reverse that direction. Multi-Otsu shifts class "
+            "boundaries, so a selected middle band can gain and lose pixels.")
         form.addRow("Threshold correction", self._otsu_correction)
 
         self._otsu_smoothing = QDoubleSpinBox()
@@ -7828,7 +9437,11 @@ class MakeMasksScreen(QWidget):
             "where a field holds more than two populations — background, a "
             "dim halo and bright nuclei — and the cut moves off the one "
             "compromise level between all three onto the boundary you "
-            "actually want, chosen below. Otsu detect only.")
+            "actually want, chosen below. Multi-Otsu uses this count in both "
+            "magnifier scopes and whole-image detection. Each scope estimates "
+            "thresholds from its own pixels; a small region may contain too "
+            "few distinct intensities for the requested class count. In plain "
+            "Otsu mode, this count still applies only to whole-image detect.")
         more.addRow("Classes", self._otsu_classes)
 
         self._otsu_foreground = QSpinBox()
@@ -7856,6 +9469,22 @@ class MakeMasksScreen(QWidget):
             "hollow; too large and it is the whole-field threshold again. "
             "Even numbers are rounded up, so the square has a centre.")
         more.addRow("Local window", self._otsu_window)
+
+        self._otsu_local_k = QDoubleSpinBox()
+        self._otsu_local_k.setDecimals(3)
+        self._otsu_local_k.setRange(-2.0, 2.0)
+        self._otsu_local_k.setSingleStep(0.05)
+        self._otsu_local_k.setValue(0.2)
+        self._otsu_local_k.setToolTip(
+            "Dimensionless local contrast weight (default 0.2; range -2 to 2). "
+            "Niblack uses T=m-k*s: increasing k lowers the threshold and keeps "
+            "more bright pixels, fewer dark pixels. Sauvola uses "
+            "T=m*(1+k*(s/R-1)), where m is the local mean and s its standard "
+            "deviation. Here R=1 because the detector receives floats without "
+            "range rescaling; its response to k depends on m and s/R. "
+            "Check the preview after changing intensity scale.")
+        self._otsu_local_k_label = QLabel("Local k")
+        more.addRow(self._otsu_local_k_label, self._otsu_local_k)
         card.body_layout.addLayout(more)
 
         self._otsu_local = Toggle("Local threshold (uneven illumination)")
@@ -7870,6 +9499,12 @@ class MakeMasksScreen(QWidget):
             "detect only.")
         self._otsu_local.toggled.connect(self._sync_otsu_controls)
         self._otsu_classes.valueChanged.connect(self._sync_otsu_controls)
+        self._otsu_classes.valueChanged.connect(self._on_magnifier_context_changed)
+        self._otsu_foreground.valueChanged.connect(self._on_magnifier_context_changed)
+        self._otsu_local_k.valueChanged.connect(
+            self._on_magnifier_context_changed)
+        self._otsu_window.valueChanged.connect(
+            self._on_magnifier_context_changed)
         card.body_layout.addWidget(self._otsu_local)
 
         min_area_note = QLabel(
@@ -7882,17 +9517,1052 @@ class MakeMasksScreen(QWidget):
         self._btn_otsu_hist = QPushButton("Show histogram and level")
         self._btn_otsu_hist.setCursor(Qt.PointingHandCursor)
         self._btn_otsu_hist.setToolTip(
-            "Draw this field's intensity histogram with the level the "
-            "settings above cut it at marked on it. It is the same level "
-            "the button uses, read from the same function, so a valley the "
-            "marker is sitting to one side of is the correction to change.")
+            "Preview the full-field detector input after inversion, normalization, "
+            "enhancement and smoothing, with the selected method's thresholds. "
+            "Local methods have no single threshold marker. Computation runs in "
+            "the background; close the window to discard it. Open again to "
+            "refresh after changing settings.")
         self._btn_otsu_hist.clicked.connect(self._on_show_otsu_histogram)
         card.body_layout.addWidget(self._btn_otsu_hist)
         self._sync_otsu_controls()
         return card
 
+    def _build_methods_card(self) -> _MethodGroup:
+        """The parameters of organelle detection's methods, one mode at a time.
+
+        Six of the Mode box's rows are organelle detection's own methods
+        (:mod:`spacr.qt.organelle_modes`), and each reads different numbers:
+        a block size and an offset, a pair of sigmas, a list of filament
+        widths, two hysteresis levels, a checkpoint. Putting all nineteen on
+        the panel at once would put eighteen controls that are being ignored
+        in front of a curator who cannot tell which is which -- the argument
+        :meth:`_sync_otsu_controls` already makes about three of them.
+
+        SO THE CARD SHOWS ONE MODE'S PARAMETERS AND HIDES THE REST, from
+        :data:`spacr.qt.organelle_modes.PARAMETERS_FOR`, which is also what
+        the ledger records (:func:`spacr.qt.organelle_modes.provenance`). One
+        list, read by the form, by the recorder and by the engine's own
+        settings dict, so the three cannot disagree about what a method
+        read.
+
+        The sentence at the top is
+        :func:`spacr.organelle_types.method_guidance`, built from
+        :data:`spacr.organelle_types.LEGAL_METHODS` -- the shapes spaCR
+        already records the method as a legal detector for.
+        """
+        card = _MethodGroup()
+        form = self._method_form = QFormLayout()
+        #: ``field of MethodParams -> its control``. One control per
+        #: parameter and not one per mode-and-parameter, so the block size
+        #: the Adaptive mode was tuned at is the block size the Ridge
+        #: mode's adaptive threshold then uses.
+        self._method_widgets: dict = {}
+
+        def row(field: str, caption: str, widget, tip: str) -> None:
+            """Add one parameter row and remember it under its field name."""
+            widget.setToolTip(tip)
+            self._method_widgets[field] = widget
+            if caption:
+                form.addRow(caption, widget)
+            else:
+                form.addRow(widget)
+
+        block = QSpinBox()
+        block.setRange(3, 999)
+        block.setSingleStep(2)
+        block.setValue(51)
+        block.setSuffix(" px")
+        row("adaptive_block", "Block size", block,
+            "The square the local threshold is measured in, centred on each "
+            "pixel; the engine forces it odd. A few times the object "
+            "diameter is the starting point: too small and the middle of a "
+            "large object becomes its own background, too large and it is a "
+            "whole-field threshold again.")
+
+        offset = QDoubleSpinBox()
+        offset.setDecimals(2)
+        offset.setRange(-1000.0, 1000.0)
+        offset.setSingleStep(1.0)
+        offset.setValue(5.0)
+        row("adaptive_offset", "Offset", offset,
+            "Subtracted from the Gaussian-weighted local mean (default 5). "
+            "Increasing the offset lowers the threshold and keeps more "
+            "foreground pixels before cleanup; a negative offset is stricter. "
+            "Units follow the processed image: smoothed intensity for Adaptive "
+            "threshold, ridge response for Ridge filter with an adaptive "
+            "threshold. A raw-intensity offset can overwhelm a 0-to-1 response.")
+
+        morph = QSpinBox()
+        morph.setRange(0, 50)
+        morph.setValue(3)
+        morph.setSuffix(" px")
+        row("morph_radius", "Cleanup radius", morph,
+            "The disk the detection is closed and opened with after it is "
+            "thresholded. Raise it to smooth ragged outlines, lower it to "
+            "keep fine detail. The Adaptive mode also pre-smooths with half "
+            "of it; the network methods close with half of it.")
+
+        holes = QSpinBox()
+        holes.setRange(0, 1_000_000)
+        holes.setValue(64)
+        holes.setSuffix(" px²")
+        row("fill_holes", "Fill holes up to", holes,
+            "Holes inside an object smaller than this are filled, so an "
+            "object dimmer in the middle than at its rim does not come back "
+            "as a ring. 0 leaves every hole where it is.")
+
+        watershed = Toggle("Split touching spots")
+        watershed.setChecked(True)
+        row("watershed_spots", "", watershed,
+            "Grow a watershed from each blob centre instead of stamping a "
+            "disk whose radius comes from that blob's own scale. Turn it "
+            "off when single spots are being fragmented.")
+
+        log_min = QDoubleSpinBox()
+        log_min.setDecimals(2)
+        log_min.setRange(0.1, 100.0)
+        log_min.setValue(1.0)
+        row("log_min_sigma", "Min sigma", log_min,
+            "The smallest scale searched, in pixels; a blob's radius is "
+            "about sigma times the square root of two, so 1 finds roughly "
+            "1.4 px puncta. Raise it to ignore single-pixel noise.")
+
+        log_max = QDoubleSpinBox()
+        log_max.setDecimals(2)
+        log_max.setRange(0.1, 200.0)
+        log_max.setValue(10.0)
+        row("log_max_sigma", "Max sigma", log_max,
+            "The largest scale searched, in pixels. Raise it to catch large "
+            "puncta; the filter runs once per scale, so it costs time.")
+
+        log_num = QSpinBox()
+        log_num.setRange(1, 50)
+        log_num.setValue(10)
+        row("log_num_sigma", "Scales", log_num,
+            "How many scales are evaluated between the two sigmas. More "
+            "resolves a wider spread of spot sizes and costs one filter "
+            "pass each; 3 to 5 is enough when the spots are all one size.")
+
+        log_thresh = QDoubleSpinBox()
+        log_thresh.setDecimals(4)
+        log_thresh.setRange(0.0001, 1.0)
+        log_thresh.setSingleStep(0.005)
+        log_thresh.setValue(0.01)
+        row("log_threshold", "Blob threshold", log_thresh,
+            "The blob response a spot has to reach to be kept. Lower it to "
+            "find fainter spots and more noise. DoG reads this one too: it "
+            "has no threshold of its own.")
+
+        dog_low = QDoubleSpinBox()
+        dog_low.setDecimals(2)
+        dog_low.setRange(0.1, 100.0)
+        dog_low.setValue(1.0)
+        row("dog_sigma_low", "Low sigma", dog_low,
+            "The smaller of the two Gaussians, in pixels: the finest "
+            "detail kept. Raise it to suppress noise.")
+
+        dog_high = QDoubleSpinBox()
+        dog_high.setDecimals(2)
+        dog_high.setRange(0.1, 200.0)
+        dog_high.setValue(3.0)
+        row("dog_sigma_high", "High sigma", dog_high,
+            "The larger of the two Gaussians, in pixels. Scales step up "
+            "from the low sigma by a factor of 1.6 until this bound, so a "
+            "wider gap covers more spot sizes and costs more passes.")
+
+        ridge_filter = QComboBox()
+        for name in ("frangi", "sato", "meijering"):
+            ridge_filter.addItem(name, name)
+        row("ridge_filter", "Ridge filter", ridge_filter,
+            "Which vesselness filter measures how tube-like each pixel's "
+            "neighbourhood is. Frangi is the usual choice; Sato responds "
+            "more to bright tubes, Meijering to thin neurite-like ones.")
+
+        ridge_sigmas = QLineEdit("1, 2, 3")
+        row("ridge_sigmas", "Filament widths", ridge_sigmas,
+            "The scales the filter looks for, in pixels, separated by "
+            "commas; each should be about the half-width of a filament. Add "
+            "a larger value for thick bundles and keep the small ones for "
+            "fine tubules. Runtime grows with the list.")
+
+        ridge_threshold = QComboBox()
+        ridge_threshold.addItem("Otsu", "otsu")
+        ridge_threshold.addItem("Adaptive", "adaptive")
+        row("ridge_threshold", "Cut the response at", ridge_threshold,
+            "How the filter's response becomes a foreground. Otsu takes one "
+            "level for the whole region; Adaptive uses the block size and "
+            "offset above and keeps faint filaments in dim corners, at the "
+            "cost of background elsewhere.")
+
+        skeleton = Toggle("Reduce to a one-pixel skeleton")
+        row("skeletonize", "", skeleton,
+            "Label the centre line of the network instead of the filled "
+            "filaments, so a measured area tracks network LENGTH rather "
+            "than filament thickness. Leave it off to measure filament "
+            "mass.")
+
+        hyst_low = QDoubleSpinBox()
+        hyst_low.setDecimals(3)
+        hyst_low.setRange(0.0, 1_000_000.0)
+        hyst_low.setValue(0.2)
+        row("hysteresis_low", "Weak level", hyst_low,
+            "Pixels above this are kept only where they connect to a seed "
+            "above the strong level. Under 1.0 it is read as a fraction and "
+            "becomes that percentile of the region (0.2 is the 20th); 1.0 "
+            "and above is an absolute intensity.")
+
+        hyst_high = QDoubleSpinBox()
+        hyst_high.setDecimals(3)
+        hyst_high.setRange(0.0, 1_000_000.0)
+        hyst_high.setValue(0.6)
+        row("hysteresis_high", "Strong level", hyst_high,
+            "Only pieces holding a pixel above this survive at all, and "
+            "they then grow outward down to the weak level. Read as a "
+            "percentile below 1.0, as an absolute intensity above it.")
+
+        unet_path = QWidget()
+        unet_row = QHBoxLayout(unet_path)
+        unet_row.setContentsMargins(0, 0, 0, 0)
+        self._unet_path_edit = QLineEdit()
+        self._unet_path_edit.setPlaceholderText("model.pt")
+        unet_browse = QPushButton("Browse…")
+        unet_browse.setCursor(Qt.PointingHandCursor)
+        unet_browse.clicked.connect(self._on_pick_unet_model)
+        unet_row.addWidget(self._unet_path_edit, 1)
+        unet_row.addWidget(unet_browse)
+        row("unet_model_path", "U-Net checkpoint", unet_path,
+            "A .pt or .pth file holding a model that takes one channel and "
+            "returns one channel of logits. HEAVY: the file is loaded and "
+            "the network is run, which on a CPU is seconds per box and "
+            "minutes per field.")
+
+        unet_threshold = QDoubleSpinBox()
+        unet_threshold.setDecimals(3)
+        unet_threshold.setRange(0.0, 1.0)
+        unet_threshold.setSingleStep(0.05)
+        unet_threshold.setValue(0.5)
+        row("unet_threshold", "Probability cut-off", unet_threshold,
+            "Where the network's output is cut. Lower it to recover faint "
+            "branches along with false positives; raise it to keep only "
+            "confident pixels, which tends to break weak connections.")
+
+        card.body_layout.addLayout(form)
+        for widget in self._method_widgets.values():
+            for signal in ("valueChanged", "currentIndexChanged",
+                           "textChanged", "toggled"):
+                changed = getattr(widget, signal, None)
+                if changed is not None:
+                    changed.connect(self._on_magnifier_context_changed)
+        self._sync_method_controls()
+        return card
+
+    def _build_detection_card(self) -> Section:
+        """Build the shared detection-mode selector and its method controls.
+
+        The mode drives the detect buttons, whole-image runs and Live
+        magnifier. The magnifier's size, zoom, scope, overlap rule and
+        sensitivity remain in its own category.
+
+        Inside, four :class:`_MethodGroup` s, of which one is shown:
+        the threshold family's settings (Otsu's own, and every algorithm in
+        :mod:`spacr.qt.cpu_modes` reads them), Cellpose's, the organelle
+        methods' and the propagation's. :meth:`_sync_method_controls` is
+        what shows one and hides three.
+        """
+        card = self._settings_category(
+            "Detection method",
+            "What finds the objects, and the settings that method reads. "
+            "Drives the detect buttons and the Live magnifier alike.",
+        )
+        form = QFormLayout()
+        self._mag_mode = QComboBox()
+        self._mag_mode.setSizeAdjustPolicy(
+            QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self._mag_mode.setMinimumContentsLength(14)
+        self._mag_mode.addItem("Otsu", "otsu")
+        from ..i18n import tr
+
+        for source in (cpu_modes.MODE_LABELS, organelle_modes.MODE_LABELS):
+            for mode, label in source.items():
+                self._mag_mode.addItem(tr(label), mode)
+                self._mag_mode.setItemData(
+                    self._mag_mode.count() - 1, self._mode_guidance(mode),
+                    Qt.ToolTipRole)
+        if _cellpose_installed():
+            self._mag_mode.addItem("Cellpose", "cellpose")
+        self._mag_uninstalled = set()
+        for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
+            self._mag_mode.addItem(label, mode)
+        self._resync_magnifier_modes()
+        self._mag_mode.setToolTip(
+            "Which algorithm finds the objects, for the detect buttons and "
+            "for the Live magnifier alike. Otsu and the threshold "
+            "algorithms under it cut the field at one level and need "
+            "nothing installed; Maxima + propagate grows an object out of "
+            "each bright centre, which is how two touching objects come "
+            "apart; the organelle methods are the ones organelle detection "
+            "runs, through the same code; Cellpose and the backends are "
+            "models. Choosing a row changes which settings this category "
+            "shows, and the row's own tooltip says what it suits.")
+        self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
+        self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
+        form.addRow("Method", self._mag_mode)
+        card.body_layout.addLayout(form)
+
+        self._method_note = QLabel()
+        self._method_note.setWordWrap(True)
+        card.body_layout.addWidget(self._method_note)
+
+        self._method_groups = {
+            "threshold": self._build_otsu_card(),
+            "organelle": self._build_methods_card(),
+            "propagate": self._build_propagate_card(),
+            "secondary": self._build_propagate_card(secondary=True),
+            "cellpose": self._build_cellpose_card(),
+        }
+        for group in self._method_groups.values():
+            card.body_layout.addWidget(group)
+        return card
+
+    def _mode_guidance(self, mode: str) -> str:
+        """What the mode ``mode`` suits, from whichever module owns it.
+
+        A backend is named after Cellpose's sentence: they are all models
+        that know what a cell looks like, and what distinguishes them from
+        each other is the training set rather than the kind of object.
+        """
+        if mode in organelle_modes.MODE_LABELS:
+            return organelle_modes.guidance(mode)
+        if mode in _MAGNIFIER_BACKENDS:
+            return cpu_modes.guidance("cellpose")
+        return cpu_modes.guidance(mode)
+
+    @staticmethod
+    def _mode_family(mode: str) -> str:
+        """Which :attr:`_method_groups` family ``mode`` belongs to."""
+        if mode in organelle_modes.MODE_LABELS:
+            return "organelle"
+        if mode == cpu_modes.PROPAGATE:
+            return "propagate"
+        if mode == cpu_modes.SECONDARY:
+            return "secondary"
+        if mode == "cellpose" or mode in _MAGNIFIER_BACKENDS:
+            return "cellpose"
+        return "threshold"
+
+    def _build_propagate_card(self, *, secondary=False) -> _MethodGroup:
+        """The settings of Maxima + propagate, an intensity watershed.
+
+        Four steps with a setting each, in the order they run: blur, find
+        the maxima, grow, stop. The engine is
+        :func:`spacr.qt.mask_engine.maxima_propagate_instances`, whose
+        docstring describes the four stop rules, parameter units and
+        defaults, and the difference between seed and surviving-label counts.
+        ``secondary=True`` selects existing primary masks instead of finding
+        centres, with independent settings and a default global threshold.
+        """
+        from ..i18n import tr
+
+        card = _MethodGroup()
+        form = QFormLayout()
+        widgets = {}
+        if secondary:
+            from ..widgets.primary_mask_selector import PrimaryMaskSelector
+            self._secondary_widgets = widgets
+            self._primary_selector = PrimaryMaskSelector(card)
+            self._primary_selector.changed.connect(self._on_primary_source_changed)
+            card.body_layout.addWidget(self._primary_selector)
+            self._secondary_relations = QLabel(tr('Primary/secondary relationships will appear after detection.'))
+            self._secondary_relations.setWordWrap(True)
+            card.body_layout.addWidget(self._secondary_relations)
+        else:
+            self._propagate_form = form
+            self._propagate_widgets = widgets
+
+        def row(field: str, caption: str, widget, tip: str) -> None:
+            """Add one parameter row and remember it under its field name."""
+            widget.setToolTip(tip)
+            widgets[field] = widget
+            if caption:
+                form.addRow(caption, widget)
+            else:
+                form.addRow(widget)
+
+        if secondary:
+            growth = QComboBox()
+            growth.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            growth.setMinimumContentsLength(14)
+            growth.addItem(tr('Intensity watershed'), 'intensity')
+            growth.addItem(tr('Distance watershed'), 'distance')
+            row('secondary_growth', tr('Growth'), growth,
+                tr('Intensity follows bright structures. Distance spreads from primary pixels. Common thresholds constrain the paths; fraction-of-peak trims after growth. Neither is CellProfiler Propagation.'))
+
+        sigma = QDoubleSpinBox()
+        sigma.setDecimals(2)
+        sigma.setRange(0.0, 50.0)
+        sigma.setSingleStep(0.5)
+        sigma.setValue(2.0)
+        sigma.setSuffix(" px")
+        row("propagate_sigma", "Blur first", sigma,
+            "Gaussian blur applied before the centres are found, in "
+            "pixels. It is what makes ONE object have ONE centre: a raw "
+            "object has a dozen maxima in its own noise. About a third of "
+            "the object radius is a starting point. This is NOT the Image "
+            "enhancement card's denoise, which has already run by now; "
+            "leave that one off unless the field is genuinely noisy, or "
+            "the two blurs compound.")
+
+        distance = QSpinBox()
+        distance.setRange(1, 500)
+        distance.setValue(10)
+        distance.setSuffix(" px")
+        row("propagate_min_distance", "Min centre spacing", distance,
+            "No two centres closer together than this, so one object "
+            "cannot become two. About one object radius. Raise it when "
+            "objects are being split, lower it when two touching objects "
+            "come back as one.")
+
+        level = QDoubleSpinBox()
+        level.setDecimals(2)
+        level.setRange(0.0, 1_000_000.0)
+        level.setValue(90.0)
+        row("propagate_seed_level", "Centre level", level,
+            "How bright a maximum has to be to count as a centre. Read as "
+            "a percentile of the blurred image by default, so one setting "
+            "suits any exposure: 90 means the top tenth of the pixels. "
+            "This and the distance together decide HOW MANY objects there "
+            "will be, and the status line says how many centres were "
+            "found.")
+
+        percentile = Toggle("Centre level is a percentile")
+        percentile.setChecked(True)
+        row("propagate_seed_percentile", "", percentile,
+            "On: the number above is a percentile of this image. Off: it "
+            "is an absolute intensity, which is what to use when the "
+            "same setting must mean the same thing across fields of "
+            "different exposure.")
+
+        border = Toggle("Drop centres near the edge")
+        row("propagate_exclude_border", "", border,
+            "Leave out maxima within one minimum distance of the frame. "
+            "An object the edge cuts has its centre in the wrong place, "
+            "so what grows from it is the wrong shape.")
+
+        stop = QComboBox()
+        stop.addItem("Fraction of this centre's own peak", "seed_fraction")
+        stop.addItem("Absolute intensity", "absolute")
+        stop.addItem("Percentile of the image", "percentile")
+        stop.addItem("A threshold algorithm's level", "threshold")
+        row("propagate_stop", "Grow until", stop,
+            tr("Fraction of peak: trim each watershed basin at the chosen "
+               "fraction of its seed intensity. This is an intensity ratio, "
+               "not a percentile; background offsets affect the result. "
+               "The other three rules restrict the watershed with one "
+               "threshold for the processed field or region. Hole filling "
+               "and minimum-area filtering run afterward."))
+        stop.currentIndexChanged.connect(self._sync_propagate_controls)
+
+        stop_value = QDoubleSpinBox()
+        stop_value.setDecimals(3)
+        stop_value.setRange(0.0, 1_000_000.0)
+        stop_value.setValue(0.4)
+        row("propagate_stop_value", "Stop at", stop_value,
+            "The number the rule above reads: a fraction from 0 to 1 for "
+            "the per-centre rule, an intensity for the absolute one, a "
+            "percentile from 0 to 100 for the third. Not read when a "
+            "threshold algorithm provides the level.")
+
+        algorithm = QComboBox()
+        for name in engine.GLOBAL_THRESHOLDS:
+            algorithm.addItem(_threshold_label(name), name)
+        row("propagate_stop_algorithm", "Stop threshold", algorithm,
+            "Which global threshold provides the floor, when the rule "
+            "above is a threshold algorithm's level. The same algorithms "
+            "the Method box offers on their own.")
+
+        card.body_layout.addLayout(form)
+        if secondary:
+            self._secondary_fill_holes = Toggle(tr('Fill holes inside secondary objects'))
+            self._secondary_fill_holes.setToolTip(tr(
+                'Fill enclosed background holes within each secondary object after growth '
+                'and before minimum-area filtering. Pixels belonging to another object are preserved.'))
+            self._secondary_fill_holes.setChecked(True)
+            self._secondary_fill_holes.toggled.connect(self._on_magnifier_context_changed)
+            card.body_layout.addWidget(self._secondary_fill_holes)
+            for field, widget in widgets.items():
+                form.setRowVisible(widget, field in cpu_modes.PARAMETERS_FOR[cpu_modes.SECONDARY])
+            stop.setCurrentIndex(stop.findData('threshold'))
+            stop.setItemText(stop.findData('seed_fraction'), tr("Fraction of the primary object's peak"))
+            sigma.setToolTip(tr('Gaussian smoothing before growth, in pixels. Primary labels are kept unchanged; no centres are detected.'))
+        for widget in widgets.values():
+            for signal in ("valueChanged", "currentIndexChanged", "toggled"):
+                changed = getattr(widget, signal, None)
+                if changed is not None:
+                    changed.connect(self._on_magnifier_context_changed)
+        self._sync_propagate_controls()
+        return card
+
+    def _sync_propagate_controls(self, *_args) -> None:
+        """Leave enabled only the propagation boxes that answer anything."""
+        for attribute in ('_propagate_widgets', '_secondary_widgets'):
+            widgets = getattr(self, attribute, None)
+            if widgets:
+                rule = str(widgets["propagate_stop"].currentData())
+                widgets["propagate_stop_value"].setEnabled(rule != "threshold")
+                widgets["propagate_stop_algorithm"].setEnabled(rule == "threshold")
+
+    def _cpu_params(self) -> "cpu_modes.CpuParams":
+        """The CPU modes' settings, as the engine's parameters."""
+        secondary = getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.SECONDARY
+        widgets = getattr(self, "_secondary_widgets" if secondary else "_propagate_widgets", None)
+        if not widgets:
+            return cpu_modes.DEFAULT_PARAMS
+        return cpu_modes.CpuParams(
+            local_k=float(self._otsu_local_k.value()),
+            propagate_sigma=float(widgets["propagate_sigma"].value()),
+            propagate_min_distance=int(
+                widgets["propagate_min_distance"].value()),
+            propagate_seed_level=float(widgets["propagate_seed_level"].value()),
+            propagate_seed_percentile=bool(
+                widgets["propagate_seed_percentile"].isChecked()),
+            propagate_exclude_border=bool(
+                widgets["propagate_exclude_border"].isChecked()),
+            propagate_stop=str(widgets["propagate_stop"].currentData()),
+            propagate_stop_value=float(
+                widgets["propagate_stop_value"].value()),
+            propagate_stop_algorithm=str(
+                widgets["propagate_stop_algorithm"].currentData()),
+            secondary_growth=(str(widgets['secondary_growth'].currentData())
+                              if 'secondary_growth' in widgets else 'intensity'),
+        )
+
+    def _on_pick_unet_model(self) -> None:
+        """Choose the U-Net checkpoint the U-Net mode is to load."""
+        from ..i18n import tr
+
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Choose a U-Net checkpoint"), "",
+            tr("Torch checkpoints (*.pt *.pth)"))
+        if path:
+            self._unet_path_edit.setText(path)
+
+    def _sync_method_controls(self, *_args) -> None:
+        """Show the chosen mode's parameters and hide every other method's.
+
+        A control that is being read and a control that is being ignored
+        look identical; the modes each read four to seven of nineteen, so
+        the card would otherwise be mostly controls that do nothing.
+
+        THE CARD ITSELF STAYS, empty but for a sentence, under Otsu,
+        Cellpose and the backends, which read none of these parameters. A
+        category that comes and goes is a category whose folded state, and
+        whose place on the panel, a user cannot learn -- and the note is
+        where they are told which category their mode reads instead.
+        """
+        from ..i18n import tr
+
+        mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+        family = self._mode_family(mode)
+        for name, group in getattr(self, "_method_groups", {}).items():
+            group.setVisible(name == family)
+        shown = organelle_modes.PARAMETERS_FOR.get(mode, ())
+        for field, widget in self._method_widgets.items():
+            self._method_form.setRowVisible(widget, field in shown)
+        self._sync_otsu_controls()
+        note = tr(self._mode_guidance(mode)) if self._mode_guidance(mode) \
+            else ""
+        heavy = organelle_modes.HEAVY_MODES.get(mode)
+        if heavy:
+            note = f"{note} {tr('Heavy: this mode {what}.', what=tr(heavy))}"
+        self._method_note.setText(note)
+        for name in ('_enh_morphology', '_enh_morphology_radius', '_enh_split'):
+            widget = getattr(self, name, None)
+            if widget is not None:
+                widget.setEnabled(mode != cpu_modes.SECONDARY)
+        self._sync_detect_button(mode)
+
+    def _sync_detect_button(self, mode: str) -> None:
+        """Name the whole-image CPU detect button after the chosen method.
+
+        The button runs the method, so it says the method. A model mode
+        leaves it reading "Otsu detect", because that is what it falls back
+        to and a button that claimed to run Cellpose while running Otsu
+        would be the disagreement this fold was meant to end.
+        """
+        from ..i18n import tr
+
+        button = getattr(self, "_btn_otsu", None)
+        if button is None:
+            return
+        named = ("otsu" if self._mode_family(mode) == "cellpose" else mode)
+        button.setText(tr("{method} detect",
+                          method=_magnifier_mode_label(named)))
+
+    def _method_params(self) -> "organelle_modes.MethodParams":
+        """The Detection methods card as the engine's parameters.
+
+        Read on the GUI thread whenever a request is built, like every
+        other setting a model reads, so the box under the mouse and the
+        whole-image run cannot be answering under different numbers.
+        """
+        widgets = getattr(self, "_method_widgets", None)
+        if not widgets:
+            return organelle_modes.DEFAULT_PARAMS
+        return organelle_modes.MethodParams(
+            adaptive_block=int(widgets["adaptive_block"].value()),
+            adaptive_offset=float(widgets["adaptive_offset"].value()),
+            morph_radius=int(widgets["morph_radius"].value()),
+            fill_holes=int(widgets["fill_holes"].value()),
+            watershed_spots=bool(widgets["watershed_spots"].isChecked()),
+            log_min_sigma=float(widgets["log_min_sigma"].value()),
+            log_max_sigma=float(widgets["log_max_sigma"].value()),
+            log_num_sigma=int(widgets["log_num_sigma"].value()),
+            log_threshold=float(widgets["log_threshold"].value()),
+            dog_sigma_low=float(widgets["dog_sigma_low"].value()),
+            dog_sigma_high=float(widgets["dog_sigma_high"].value()),
+            ridge_filter=str(widgets["ridge_filter"].currentData()),
+            ridge_sigmas=_parsed_sigmas(widgets["ridge_sigmas"].text()),
+            ridge_threshold=str(widgets["ridge_threshold"].currentData()),
+            skeletonize=bool(widgets["skeletonize"].isChecked()),
+            hysteresis_low=float(widgets["hysteresis_low"].value()),
+            hysteresis_high=float(widgets["hysteresis_high"].value()),
+            unet_model_path=str(self._unet_path_edit.text()).strip(),
+            unet_threshold=float(widgets["unet_threshold"].value()),
+        )
+
+    def _build_enhance_card(self) -> Section:
+        """The pre- and post-detection chain, for every mode alike.
+
+        :mod:`spacr.qt.detect_chain` is what each row means and
+        :data:`spacr.qt.detect_chain.CHAIN_ORDER` is the order they run in,
+        which is fixed and is printed at the top of the card rather than
+        left to be inferred from the order the rows happen to sit in.
+
+        THE FIRST STAGE IS NOT HERE. The percentile stretch is the Display
+        category's "Detect on the normalized image", because its two levels
+        are percentiles of the WHOLE FIELD and the magnifier's box is not
+        the field. The note says where it is rather than putting a second
+        switch for it on this card.
+
+        Apply enables the configured chain for image display and detection;
+        Compare previews it independently. This configures Make Masks only.
+        The Mask module uses its own preprocessing settings. Training and
+        inference on enhanced images require matching preprocessing there.
+        """
+        from ..i18n import tr
+        from ..widgets.psf_controls import _PSFControls
+
+        card = self._settings_category(
+            "Image enhancement",
+            "Optional steps applied to what the detector reads, in one "
+            "fixed order. The image on disk is never changed.",
+        )
+        order = QLabel(tr(
+            "Order: percentile stretch (Display) → background → PSF → denoise → "
+            "contrast → sharpen → detect → morphology → split."))
+        order.setWordWrap(True)
+        order.setObjectName("Muted")
+        card.body_layout.addWidget(order)
+
+        form = QFormLayout()
+        self._enh_background = QComboBox()
+        self._enh_background.addItem("None", "none")
+        self._enh_background.addItem("Rolling ball", "rolling_ball")
+        self._enh_background.addItem("Top-hat", "tophat")
+        self._enh_background.setToolTip(
+            "Subtract the slowly varying background before anything else. "
+            "Rolling ball fits a surface of the radius below and takes it "
+            "away, which is what flattens uneven illumination; Top-hat "
+            "keeps only what is brighter than its surroundings within that "
+            "radius and is much faster. Set the radius comfortably LARGER "
+            "than the largest object: a radius under the object size eats "
+            "the objects with the background. The background is ESTIMATED "
+            "on a smaller copy, at the scale below, because a background is "
+            "by definition what varies slowly across the field and so is "
+            "the one thing that survives being looked at smaller.")
+        form.addRow("Background", self._enh_background)
+
+        self._enh_background_radius = QSpinBox()
+        self._enh_background_radius.setRange(1, 2000)
+        self._enh_background_radius.setValue(50)
+        self._enh_background_radius.setSuffix(" px")
+        self._enh_background_radius.setToolTip(
+            "The ball's or the top-hat disk's radius, in pixels. Larger "
+            "than the largest object and smaller than the scale the "
+            "illumination itself varies on.")
+        form.addRow("Background radius", self._enh_background_radius)
+
+        self._enh_background_scale = QDoubleSpinBox()
+        self._enh_background_scale.setDecimals(2)
+        self._enh_background_scale.setRange(0.10, 1.00)
+        self._enh_background_scale.setSingleStep(0.05)
+        self._enh_background_scale.setValue(0.50)
+        self._enh_background_scale.setToolTip(
+            "What fraction of full size the background is measured at. The "
+            "surface is then scaled back up and subtracted from the "
+            "full-size image, so only the ESTIMATE is smaller. On one "
+            "1,994 px field a rolling ball at radius 50 takes 14.5 s at "
+            "1.00 and about 1 s at 0.50. 1.00 is scikit-image's own answer "
+            "exactly, for when you want it and will wait; lower it further "
+            "on a very large field, and raise it if the surface is missing "
+            "illumination that changes over a short distance.")
+        form.addRow("Background scale", self._enh_background_scale)
+
+        self._psf_controls = _PSFControls()
+        form.addRow(self._psf_controls)
+
+        self._enh_denoise = QComboBox()
+        self._enh_denoise.addItem("None", "none")
+        self._enh_denoise.addItem("Gaussian", "gaussian")
+        self._enh_denoise.addItem("Median", "median")
+        self._enh_denoise.addItem("Bilateral", "bilateral")
+        self._enh_denoise.addItem("Non-local means", "nlm")
+        self._enh_denoise.setToolTip(
+            "Smooth the noise before the contrast step amplifies it. "
+            "Gaussian is a blur and softens edges with the noise; Median "
+            "removes speckle and keeps edges; Bilateral and Non-local means "
+            "keep edges better still and are much slower. HEAVY: non-local "
+            "means is minutes on a whole 2,000 px field, and seconds on a "
+            "magnifier box.")
+        form.addRow("Denoise", self._enh_denoise)
+
+        self._enh_denoise_strength = QDoubleSpinBox()
+        self._enh_denoise_strength.setDecimals(2)
+        self._enh_denoise_strength.setRange(0.1, 50.0)
+        self._enh_denoise_strength.setValue(1.0)
+        self._enh_denoise_strength.setToolTip(
+            "How much smoothing: the Gaussian's sigma in pixels, the "
+            "median's and the bilateral's disk radius, or the non-local "
+            "means' cut-off in multiples of the noise it measures.")
+        form.addRow("Denoise strength", self._enh_denoise_strength)
+
+        self._enh_gamma = QDoubleSpinBox()
+        self._enh_gamma.setDecimals(2)
+        self._enh_gamma.setRange(0.05, 5.0)
+        self._enh_gamma.setSingleStep(0.05)
+        self._enh_gamma.setValue(1.0)
+        self._enh_gamma.setToolTip(
+            "The exponent the intensities are raised to on 0..1. Below 1 "
+            "lifts the dim end, so faint objects rise out of the "
+            "background; above 1 pushes it down and leaves only the bright "
+            "ones. 1.00 is off.")
+        form.addRow("Gamma", self._enh_gamma)
+        card.body_layout.addLayout(form)
+
+        self._enh_clahe = Toggle("CLAHE (local histogram equalisation)")
+        self._enh_clahe.setToolTip(
+            "Equalise the histogram inside each tile rather than over the "
+            "whole field, with a limit on how much any one level may be "
+            "stretched. It is what brings out objects in a dim corner "
+            "without blowing out the bright middle. It also amplifies "
+            "noise in empty tiles, which is what the clip limit is for.")
+        card.body_layout.addWidget(self._enh_clahe)
+
+        clahe_form = QFormLayout()
+        self._enh_clahe_tile = QSpinBox()
+        self._enh_clahe_tile.setRange(8, 1024)
+        self._enh_clahe_tile.setValue(64)
+        self._enh_clahe_tile.setSuffix(" px")
+        self._enh_clahe_tile.setToolTip(
+            "The side of one tile, in pixels. Comfortably larger than one "
+            "object and smaller than the scale the illumination varies on; "
+            "a tile the size of one object equalises the object against "
+            "itself.")
+        clahe_form.addRow("CLAHE tile", self._enh_clahe_tile)
+
+        self._enh_clahe_clip = QDoubleSpinBox()
+        self._enh_clahe_clip.setDecimals(3)
+        self._enh_clahe_clip.setRange(0.001, 1.0)
+        self._enh_clahe_clip.setSingleStep(0.005)
+        self._enh_clahe_clip.setValue(0.01)
+        self._enh_clahe_clip.setToolTip(
+            "How much contrast a tile may be given, 0 to 1. Higher is more "
+            "contrast and more amplified noise in tiles that hold only "
+            "background.")
+        clahe_form.addRow("CLAHE clip limit", self._enh_clahe_clip)
+        card.body_layout.addLayout(clahe_form)
+
+        self._enh_equalize = Toggle("Histogram equalisation (whole image)")
+        self._enh_equalize.setToolTip(
+            "Flatten the histogram of the whole region at once, so every "
+            "brightness band ends up with the same number of pixels. It is "
+            "the strongest of the contrast steps and the least respectful "
+            "of the data: a field that is mostly background has its "
+            "background stretched across half the range.")
+        card.body_layout.addWidget(self._enh_equalize)
+
+        self._enh_sharpen = Toggle("Unsharp mask")
+        self._enh_sharpen.setToolTip(
+            "Add back a high-pass copy of the image, which makes edges "
+            "steeper and helps a threshold land on the boundary rather "
+            "than in the halo. Too much amount puts a bright rim around "
+            "every object and a dark moat outside it.")
+        card.body_layout.addWidget(self._enh_sharpen)
+
+        sharpen_form = QFormLayout()
+        self._enh_sharpen_radius = QDoubleSpinBox()
+        self._enh_sharpen_radius.setDecimals(2)
+        self._enh_sharpen_radius.setRange(0.1, 50.0)
+        self._enh_sharpen_radius.setValue(1.0)
+        self._enh_sharpen_radius.setSuffix(" px")
+        self._enh_sharpen_radius.setToolTip(
+            "The blur the mask is built from, in pixels: about the scale "
+            "of the edges to sharpen.")
+        sharpen_form.addRow("Sharpen radius", self._enh_sharpen_radius)
+
+        self._enh_sharpen_amount = QDoubleSpinBox()
+        self._enh_sharpen_amount.setDecimals(2)
+        self._enh_sharpen_amount.setRange(0.0, 10.0)
+        self._enh_sharpen_amount.setValue(1.0)
+        self._enh_sharpen_amount.setToolTip(
+            "How much of the mask is added back. 1 is a normal sharpen; "
+            "above 2 the halos start to become objects of their own.")
+        sharpen_form.addRow("Sharpen amount", self._enh_sharpen_amount)
+        card.body_layout.addLayout(sharpen_form)
+
+        after_form = QFormLayout()
+        self._enh_morphology = QComboBox()
+        self._enh_morphology.addItem("None", "none")
+        self._enh_morphology.addItem("Opening (separate)", "open")
+        self._enh_morphology.addItem("Closing (join)", "close")
+        self._enh_morphology.addItem("Opening then closing", "open_close")
+        self._enh_morphology.setToolTip(
+            "Applied to what the detector found, not to the image. Opening "
+            "erases what is thinner than the radius, which breaks two "
+            "objects joined by a bridge; Closing fills what is thinner, "
+            "which joins one object broken into pieces.")
+        after_form.addRow("Morphology", self._enh_morphology)
+
+        self._enh_morphology_radius = QSpinBox()
+        self._enh_morphology_radius.setRange(1, 50)
+        self._enh_morphology_radius.setValue(1)
+        self._enh_morphology_radius.setSuffix(" px")
+        self._enh_morphology_radius.setToolTip(
+            "The disk the opening or closing uses, in pixels. It is a "
+            "length: a bridge narrower than twice this is broken, a gap "
+            "narrower than twice this is filled.")
+        after_form.addRow("Morphology radius", self._enh_morphology_radius)
+        card.body_layout.addLayout(after_form)
+
+        self._enh_split = Toggle("Split objects that touch")
+        self._enh_split.setToolTip(
+            "Cut an object with two centres in two, at the ridge between "
+            "them, on the distance to the background. It is the Otsu "
+            "category's own split offered to every other method. The Otsu "
+            "mode is not affected by this box and keeps using its own: "
+            "applying both would join what Otsu had just separated and cut "
+            "it again.")
+        card.body_layout.addWidget(self._enh_split)
+
+        from ..i18n import tr
+
+        self._enh_heavy = QLabel()
+        self._enh_heavy.setWordWrap(True)
+        card.body_layout.addWidget(self._enh_heavy)
+        actions = QHBoxLayout()
+
+        self._btn_compare = QPushButton("Compare raw and enhanced")
+        self._btn_compare.setCursor(Qt.PointingHandCursor)
+        self._btn_compare.setToolTip(tr(
+            "Preview the configured enhancements beside the unenhanced image, "
+            "for the magnifier's box when it has one and for the whole "
+            "field otherwise, so every step of the chain can be judged by "
+            "looking at what it did. Processing runs in the background. "
+            "Cancel closes the comparison; a running filter finishes without "
+            "displaying its result. Whole-field normalization is applied "
+            "before cropping, as it is for detection."))
+        self._btn_compare.clicked.connect(self._on_compare_enhanced)
+        actions.addWidget(self._btn_compare)
+        self._btn_apply = QPushButton(tr("Apply"))
+        self._btn_apply.setCheckable(True)
+        self._btn_apply.setCursor(Qt.PointingHandCursor)
+        self._btn_apply.setToolTip(tr(
+            "Apply these enhancements to the displayed image and subsequent "
+            "detections. Blue means active. Click again to use unenhanced "
+            "input while keeping these settings and existing masks. "
+            "Measurements retain the original image values."))
+        self._btn_apply.setStyleSheet(
+            "QPushButton:checked { background-color: #2563eb; color: #ffffff; "
+            "border: 1px solid #60a5fa; }")
+        self._enh_show = self._btn_apply
+        self._btn_apply.toggled.connect(self._on_show_enhanced)
+        actions.addWidget(self._btn_apply)
+        card.body_layout.addLayout(actions)
+
+        for widget in (self._enh_background, self._enh_denoise,
+                       self._enh_morphology):
+            widget.currentIndexChanged.connect(self._on_chain_changed)
+        for widget in (self._enh_background_radius,
+                       self._enh_background_scale, self._enh_gamma,
+                       self._enh_denoise_strength, self._enh_clahe_tile,
+                       self._enh_clahe_clip, self._enh_sharpen_radius,
+                       self._enh_sharpen_amount,
+                       self._enh_morphology_radius):
+            widget.valueChanged.connect(self._on_chain_changed)
+        for widget in (self._enh_clahe, self._enh_equalize,
+                       self._enh_sharpen, self._enh_split):
+            widget.toggled.connect(self._on_chain_changed)
+        self._psf_controls.changed.connect(self._on_chain_changed)
+        self._on_chain_changed()
+        return card
+
+    def _detect_chain(self) -> "detect_chain.Chain":
+        """The applied enhancement chain, or no changes while Apply is off."""
+        button = getattr(self, "_btn_apply", None)
+        if button is None or not button.isChecked():
+            return detect_chain.NO_CHAIN
+        chain = self._enhancement_chain()
+        if getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.SECONDARY:
+            chain = chain._replace(morphology='none', split=False)
+        return chain
+
+    def _enhancement_chain(self) -> "detect_chain.Chain":
+        """Configured enhancement settings, available to Compare before applying."""
+        if not hasattr(self, "_enh_background"):
+            return detect_chain.NO_CHAIN
+        return detect_chain.Chain(
+            background=str(self._enh_background.currentData()),
+            background_radius=int(self._enh_background_radius.value()),
+            background_scale=float(self._enh_background_scale.value()),
+            denoise=str(self._enh_denoise.currentData()),
+            denoise_strength=float(self._enh_denoise_strength.value()),
+            gamma=float(self._enh_gamma.value()),
+            clahe=bool(self._enh_clahe.isChecked()),
+            clahe_tile=int(self._enh_clahe_tile.value()),
+            clahe_clip=float(self._enh_clahe_clip.value()),
+            equalize=bool(self._enh_equalize.isChecked()),
+            sharpen=bool(self._enh_sharpen.isChecked()),
+            sharpen_radius=float(self._enh_sharpen_radius.value()),
+            sharpen_amount=float(self._enh_sharpen_amount.value()),
+            morphology=str(self._enh_morphology.currentData()),
+            morphology_radius=int(self._enh_morphology_radius.value()),
+            split=bool(self._enh_split.isChecked()),
+            **self._psf_controls._chain_fields(),
+        )
+
+    def _chain_provenance(self) -> dict:
+        """The chain as a mask's ledger entry records it.
+
+        The percentile stretch is read from the Display category, because
+        it is the chain's first stage and lives there; see
+        :meth:`_build_enhance_card`.
+        """
+        return detect_chain.provenance(
+            self._detect_chain(),
+            percentile_stretch=bool(self._canvas.detect_on_normalized))
+
+    def _on_chain_changed(self, *_args) -> None:
+        """A chain step changed: warn about the slow ones and re-detect."""
+        from ..i18n import tr
+
+        chain = self._detect_chain()
+        heavy = detect_chain.heavy_steps(self._enhancement_chain())
+        self._enh_heavy.setText(
+            tr("Heavy: {steps}. A whole-image run shows progress and can be "
+               "cancelled.", steps=", ".join(tr(step) for step in heavy))
+            if heavy else "")
+        self._canvas.enhance_chain = chain
+        self._canvas._enhance_cancel.set()
+        self._canvas._enhance_asked = None
+        self._canvas.refresh()
+        self._on_magnifier_context_changed()
+
+    def _on_show_enhanced(self, on: bool) -> None:
+        """Apply or bypass enhancements for display and subsequent detections."""
+        from ..i18n import tr
+
+        self._canvas.enhance_display = bool(on)
+        if on:
+            self._canvas._enhance_failure = None
+        self._on_chain_changed()
+        self._magnifier.refresh_view()
+        self._status_label.setText(
+            tr("Showing the enhanced image the detector reads.") if on else
+            tr("Showing the image as loaded."))
+
+    def _on_compare_enhanced(self) -> None:
+        """Open the raw image beside the enhanced one, and say what ran.
+
+        The magnifier's box when there is one, because that is the region a
+        curator is judging and the region every step ran on live; the whole
+        field otherwise. A worker prepares a captured snapshot; closing the
+        dialog discards it, and changed fields/settings reject late results.
+        """
+        from ..i18n import tr
+
+        image = self._canvas.image
+        if image is None:
+            return
+        chain = self._enhancement_chain()
+        box = self._magnifier.compare_box()
+        self._cancel_comparison()
+        old_dialog = getattr(self, '_compare_dialog', None)
+        if old_dialog is not None:
+            old_dialog.close()
+        self._comparison_serial += 1
+        request = _CompareRequest(
+            key=(self._comparison_serial, self._comparison_context()),
+            image=np.array(self._canvas.displayed_source(), copy=True),
+            box=tuple(box), chain=chain,
+            normalized=bool(self._canvas.detect_on_normalized),
+            percentiles=(float(self._canvas.norm_lo), float(self._canvas.norm_hi)),
+            cancelled=threading.Event())
+        self._comparison_request = request
+        self._compare_dialog = _ComparePreview(
+            request.image[box[1]:box[3], box[0]:box[2]], None,
+            tr("Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background."), self)
+        self._compare_dialog.finished.connect(self._cancel_comparison)
+        self._compare_dialog.show()
+        if self._comparison_worker is None:
+            self._comparison_worker = _NewestRequestWorker(
+                _compare_picture_for, self._comparison_done, name='spacr-compare')
+        self._comparison_worker.submit(request)
+
+    def _comparison_context(self):
+        """Settings and field identity whose comparison remains meaningful."""
+        canvas = self._canvas
+        return (self._load_token, id(canvas.image), bool(canvas.invert_display),
+                bool(canvas.detect_on_normalized), float(canvas.norm_lo),
+                float(canvas.norm_hi), self._enhancement_chain())
+
+    def _cancel_comparison(self, *_args):
+        """Discard a comparison without waiting for an active native filter."""
+        request, self._comparison_request = self._comparison_request, None
+        if request is not None:
+            request.cancelled.set()
+        if self._comparison_worker is not None:
+            self._comparison_worker.drop_waiting()
+
+    def _comparison_done(self, request, result, error):
+        """Marshal a worker completion back to the owning Qt screen."""
+        try:
+            self._comparison_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_comparison(self, payload):
+        """Only show results from the still-open, unchanged comparison."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._comparison_request or request.cancelled.is_set():
+            return
+        self._comparison_request = None
+        if request.key[1] != self._comparison_context():
+            self._compare_dialog._show_result(None, tr(
+                "The image or enhancement settings changed. Choose Compare again."))
+            return
+        if error is not None:
+            self._compare_dialog._show_result(None, tr(
+                "Image enhancement failed: {error}", error=str(error)))
+            return
+        steps = " → ".join(tr(name) for name in detect_chain.step_names(
+            request.chain, percentile_stretch=request.normalized))
+        self._compare_dialog._show_result(
+            result, steps or tr("No enhancement step is switched on."))
+
     def _sync_otsu_controls(self, *_args) -> None:
-        """Leave enabled only the Otsu boxes that are answering anything.
+        """Leave enabled only the threshold boxes that answer anything.
 
         A control that is being read and a control that is being ignored
         look identical, and a curator cannot tell which is which. So:
@@ -7902,15 +10572,26 @@ class MakeMasksScreen(QWidget):
         and a split into several bands have no joint meaning, and the engine
         refuses the pair rather than quietly dropping one.
         """
+        mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+        multi = mode == cpu_modes.MULTIOTSU
+        plain = mode == "otsu"
+        window_family = mode in ("sauvola", "niblack")
+        if multi and int(self._otsu_classes.value()) < 3:
+            self._otsu_classes.setValue(3)
+        self._otsu_local_k.setEnabled(window_family)
+        self._otsu_local.setEnabled(plain)
+        self._otsu_local_k_label.setVisible(window_family)
+        self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
-        local = bool(self._otsu_local.isChecked())
-        self._otsu_classes.setEnabled(not local)
-        self._otsu_foreground.setEnabled(not local and classes > 2)
+        local = bool(self._otsu_local.isChecked()) and plain
+        bands = (plain or multi) and not local
+        self._otsu_classes.setEnabled(bands)
+        self._otsu_foreground.setEnabled(bands and classes > 2)
         self._otsu_foreground.setRange(0, max(1, classes - 1))
         if classes > 2 and self._otsu_foreground.value() > classes - 1:
             self._otsu_foreground.setValue(classes - 1)
-        self._otsu_window.setEnabled(local)
-        self._otsu_bright.setEnabled(local or classes == 2)
+        self._otsu_window.setEnabled(local or window_family)
+        self._otsu_bright.setEnabled(not bands or classes == 2)
 
     def _otsu_settings(self) -> dict:
         """What the Otsu category says, as :func:`_otsu_instances` keywords.
@@ -7918,26 +10599,27 @@ class MakeMasksScreen(QWidget):
         One reader for the button and the magnifier, so a setting added to
         the category reaches both by being read here once.
 
-        THE CLASS COUNT, FOREGROUND CLASS AND LOCAL WINDOW ARE THE BUTTON'S
-        ONLY, and the tooltips say so, on the precedent "Drop objects the
-        image border cuts" already set.
-        Multi-level Otsu and a local window are judgements about a WHOLE
-        FIELD: the histogram of a 64 px box rarely holds three populations,
-        and a window the size of the box is the box's own threshold, so
-        offering either to the magnifier would be offering a control that
-        does nothing there.
-        :func:`spacr.qt.mask_engine._classical_region_labels`, which is the
-        magnifier's own routine, is untouched by them.
+        Multi-Otsu reads the class count and foreground band in both
+        magnifier scopes through :meth:`_magnifier_context`. Its local
+        Otsu toggle is disabled and ignored because one threshold per
+        window cannot be combined with multiple intensity bands. Plain
+        Otsu's magnifier keeps its existing region-specific algorithm;
+        that mode's class count and Local Otsu toggle remain button-only.
+        Every other threshold ignores these saved Otsu settings and uses
+        two classes with its named algorithm. Disabled controls retain
+        their values for a later return to Otsu or Multi-Otsu.
         """
-        local = bool(self._otsu_local.isChecked())
+        mode = canonical_magnifier_mode(self._magnifier.mode)
+        local = bool(self._otsu_local.isChecked()) and mode == "otsu"
+        bands = mode in ("otsu", cpu_modes.MULTIOTSU) and not local
         return {
             "correction": float(self._otsu_correction.value()),
             "smoothing": float(self._otsu_smoothing.value()),
             "fill_holes": bool(self._otsu_fill_holes.isChecked()),
             "split_touching": bool(self._otsu_split.isChecked()),
             "exclude_border": bool(self._otsu_exclude_border.isChecked()),
-            "classes": 2 if local else int(self._otsu_classes.value()),
-            "foreground_class": int(self._otsu_foreground.value()),
+            "classes": int(self._otsu_classes.value()) if bands else 2,
+            "foreground_class": int(self._otsu_foreground.value()) if bands else 1,
             "local": local,
             "window": int(self._otsu_window.value()),
         }
@@ -8181,15 +10863,18 @@ class MakeMasksScreen(QWidget):
         see: it says whether the network found nothing, or found plenty
         and the threshold threw it away.
 
-        The run blocks this screen while it is going. Cellpose on a GPU
-        answers in about a second on one field, and moving it to a thread
-        would mean a second worker on a screen that already drains one on
-        close; the button is disabled and the cursor says wait instead.
+        This programmatic method is synchronous and returns the object
+        count. The toolbar uses a background worker instead, taking a
+        snapshot and discarding results after field changes or mask edits.
+        If toolbar detection is already running, this method returns zero
+        without starting a second run.
 
         With Invert on the model is given the INVERTED field
         (:meth:`_detector_image`), and the status
         line and the ledger entry both say so.
         """
+        if self._detection_request is not None:
+            return 0
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(
                 "Open a folder before running Object detection.")
@@ -8223,9 +10908,21 @@ class MakeMasksScreen(QWidget):
                 app.restoreOverrideCursor()
             self._btn_cellpose.setEnabled(True)
 
+        labels = detect_chain.finish(labels, self._detect_chain(),
+                                     intensity=self._detector_image())
+        details = dict(model=model_name, invert=bool(self._cp_invert.isChecked()),
+                       cellprob_threshold=float(self._cp_cellprob.value()),
+                       flow_threshold=float(self._cp_flow.value()),
+                       diameter=int(self._cp_diameter.value()),
+                       min_size=self._detect_min_area(), **self._chain_provenance())
+        return self._apply_detection((labels, cellprob, flow),
+                                     self._combine_mode.currentData(), details)
+
+    def _apply_detection(self, result, mode, details) -> int:
+        """Commit one accepted result and its captured provenance on Qt's thread."""
+        labels, cellprob, flow = result
         self._show_intermediates(cellprob, flow)
         self._sync_model_choices()
-
         found = int(labels.max()) if labels.size else 0
         if not found:
             self._status_label.setText(
@@ -8234,7 +10931,6 @@ class MakeMasksScreen(QWidget):
                 "Cell probability tab shows what it had to work with.")
             return 0
 
-        mode = self._combine_mode.currentData()
         try:
             out = engine.combine_masks(self._canvas.mask, labels, mode)
         except Exception as exc:
@@ -8244,16 +10940,12 @@ class MakeMasksScreen(QWidget):
         self._canvas.mask = out
         self._canvas.refresh()
         self._record("detect", mode, changed, method="cellpose",
-                      model=model_name, n_objects=found,
-                      invert=bool(self._cp_invert.isChecked()),
-                      cellprob_threshold=float(self._cp_cellprob.value()),
-                      flow_threshold=float(self._cp_flow.value()),
-                      diameter=int(self._cp_diameter.value()),
-                      min_size=self._detect_min_area())
+                      n_objects=found, **details)
         self._history.push(out)
         self._refresh_history_buttons()
         inverted = (" from the INVERTED image"
-                    if self._cp_invert.isChecked() else "")
+                    if details['invert'] else "")
+        model_name = details['model']
         self._status_label.setText(
             f"Object detection ({model_name}){inverted} found {found} "
             f"object(s) — {mode}d into the mask. See the Cell probability "
@@ -8262,8 +10954,72 @@ class MakeMasksScreen(QWidget):
         return found
 
     def _on_detect_cellpose(self):
-        """Toolbar handler for the Object detection button."""
-        self.run_cellpose()
+        """Capture the field/settings and start detection without blocking Qt."""
+        from ..i18n import tr
+
+        if self._detection_request is not None:
+            return
+        if self._canvas.image is None or self._canvas.mask is None:
+            self._status_label.setText(tr("Open a folder before running Object detection."))
+            return
+        parameters = dict(diameter=int(self._cp_diameter.value()),
+                          normalize=bool(self._cp_normalize.isChecked()),
+                          flow_threshold=float(self._cp_flow.value()),
+                          cellprob_threshold=float(self._cp_cellprob.value()),
+                          min_size=self._detect_min_area())
+        model = self._cp_model.currentData() or 'cpsam'
+        request = dict(image=np.array(self._canvas.image, copy=True),
+                       image_reference=self._canvas.image, token=self._load_token,
+                       mask=np.array(self._canvas.mask, copy=True), model=model,
+                       parameters=parameters, chain=self._detect_chain(),
+                       invert=bool(self._cp_invert.isChecked()),
+                       percentiles=(float(self._canvas.norm_lo), float(self._canvas.norm_hi))
+                       if self._canvas.detect_on_normalized else None,
+                       mode=self._combine_mode.currentData(),
+                       details=dict(model=model, invert=bool(self._cp_invert.isChecked()),
+                                    **{key: value for key, value in parameters.items() if key != 'normalize'},
+                                    **self._chain_provenance()))
+        self._detection_request = request
+        self._btn_cellpose.setEnabled(False)
+        self._status_label.setText(tr("Object detection ({model}) running…", model=model))
+        if self._detection_worker is None:
+            self._detection_worker = _NewestRequestWorker(
+                partial(_detect_cellpose_snapshot, models=self._cp_loaded),
+                self._detection_done, name='spacr-object-detection')
+        self._detection_worker.submit(request)
+
+    def _detection_done(self, request, result, error) -> None:
+        """Send completion to Qt while tolerating a screen already destroyed."""
+        try:
+            self._detection_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_detection(self, payload) -> None:
+        """Reject stale field/mask results before changing any editor state."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._detection_request:
+            return
+        self._detection_request = None
+        self._btn_cellpose.setEnabled(True)
+        if (request['token'] != self._load_token
+                or request['image_reference'] is not self._canvas.image
+                or not np.array_equal(request['image'], self._canvas.image, equal_nan=True)
+                or not np.array_equal(request['mask'], self._canvas.mask)):
+            self._status_label.setText(tr(
+                "Detection result discarded because the field or mask changed. Run detection again to use the current field."))
+            return
+        if error is not None:
+            self._status_label.setText(tr("Object detection failed"))
+            self._warn(tr("Object detection failed"), str(error))
+            return
+        try:
+            self._apply_detection(result, request['mode'], request['details'])
+        except Exception as exc:
+            LOG.exception("Object detection result could not be applied")
+            self._warn(tr("Object detection failed"), str(exc))
 
     def _build_magnifier_card(self) -> Section:
         """The live magnifier's settings, and the toggle that turns it on.
@@ -8273,13 +11029,15 @@ class MakeMasksScreen(QWidget):
         request named -- mode, size, zoom, sensitivity -- and the overlap rule
         go here, with what is segmented (the region under the mouse or the
         whole image once), whether objects cut by the box are offered, and
-        the progress and Cancel of a whole-image run. Cellpose mode reads its
-        model, thresholds, diameter and normalization from the Object
-        detection category, and Otsu mode reads Min area from Object
-        operations and everything else from the Otsu category, so
-        each of those judgements is still made in one box. No
-        value here persists between sessions, like every other setting on this
-        panel; only which categories are folded does.
+        the progress and Cancel of a whole-image run.
+
+        THE METHOD IS NOT HERE ANY MORE. It moved to the Detection method
+        category with item 473, because it is not the box's: the same
+        choice drives the detect buttons and the whole-image run, and the
+        category whose settings it changes is the one that should hold it.
+        Min area is still Object operations', for the same reason it
+        always was. No value here persists between sessions, like every
+        other setting on this panel; only which categories are folded does.
         """
         magnifier = self._magnifier
         card = self._settings_category(
@@ -8289,48 +11047,6 @@ class MakeMasksScreen(QWidget):
             "objects to the mask.",
         )
         form = QFormLayout()
-
-        def installed(package: str) -> bool:
-            """Whether ``package`` can be imported here, without importing it.
-
-            Asks :func:`importlib.util.find_spec`, so a heavy package such
-            as Cellpose is located but not loaded. A spec lookup that raises
-            counts as not installed.
-
-            :param package: the top-level import name.
-            :returns: True when the package is importable.
-            """
-            try:
-                return find_spec(package) is not None
-            except (ImportError, ValueError):
-                return False
-
-        self._mag_mode = QComboBox()
-        self._mag_mode.addItem("Otsu", "otsu")
-        if installed("cellpose"):
-            self._mag_mode.addItem("Cellpose", "cellpose")
-        self._mag_uninstalled = set()
-        for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
-            self._mag_mode.addItem(label, mode)
-        self._resync_magnifier_modes()
-        self._mag_mode.setToolTip(
-            "Which model segments the region in the box. Otsu thresholds "
-            "the region at Otsu's level and splits touching objects with a "
-            "watershed; it needs nothing installed, follows the Min area box "
-            "under Object operations and the "
-            "threshold correction and the rest of the Otsu category, and "
-            "runs whenever a "
-            "model cannot be loaded. Cellpose uses the model, both thresholds, "
-            "the diameter and the normalization set under Object detection, "
-            "and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, "
-            "nuclei), DINOCell and SAMCell are always listed and greyed "
-            "until installed, and choosing one offers to install it into an "
-            "environment of its own; Cellpose 3 reads both thresholds and "
-            "the diameter set under Object detection, DINOCell reads the "
-            "cell probability, and SAMCell uses its own thresholds.")
-        self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
-        self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
-        form.addRow("Mode", self._mag_mode)
 
         #: Kept empty: the install sentence used to live on the panel, and
         #: now the greyed Mode row offers the install itself.
@@ -8394,6 +11110,18 @@ class MakeMasksScreen(QWidget):
         self._mag_zoom.valueChanged.connect(magnifier.set_zoom)
         magnifier.zoom_changed.connect(self._mag_zoom.setValue)
         form.addRow("Zoom", self._mag_zoom)
+
+        from ..i18n import tr
+
+        self._mag_lock_hint = QLabel(tr(
+            "Hold Ctrl+L and right-click to lock the region and zoom. "
+            "Repeat to unlock."))
+        self._mag_lock_hint.setWordWrap(True)
+        form.addRow(self._mag_lock_hint)
+        magnifier.locked_changed.connect(
+            lambda locked: self._mag_size.setEnabled(not locked))
+        magnifier.locked_changed.connect(
+            lambda locked: self._mag_zoom.setEnabled(not locked))
 
         self._mag_sensitivity = QDoubleSpinBox()
         self._mag_sensitivity.setDecimals(2)
@@ -8496,7 +11224,12 @@ class MakeMasksScreen(QWidget):
         moment a request is built: the detect buttons read the same boxes, so
         there is one set of settings on the panel and not one per tool.
         """
+        selector = getattr(self, '_primary_selector', None)
+        source = selector.snapshot if selector is not None else None
         return {
+            'primary_source': source,
+            'primary_token': source.identity if source is not None else (),
+            'primary_selection': selector.path.text() if selector is not None else '',
             "model_name": self._cp_model.currentData() or "cpsam",
             "diameter": int(self._cp_diameter.value()),
             "flow_threshold": float(self._cp_flow.value()),
@@ -8504,18 +11237,31 @@ class MakeMasksScreen(QWidget):
             "normalize": bool(self._cp_normalize.isChecked()),
             "otsu_correction": float(self._otsu_correction.value()),
             "otsu_smoothing": float(self._otsu_smoothing.value()),
-            "otsu_fill_holes": bool(self._otsu_fill_holes.isChecked()),
+            "otsu_fill_holes": bool(self._secondary_fill_holes.isChecked()
+                                     if self._mag_mode.currentData() == cpu_modes.SECONDARY
+                                     else self._otsu_fill_holes.isChecked()),
             "otsu_split": bool(self._otsu_split.isChecked()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
             "invert": bool(self._cp_invert.isChecked()),
+            "chain": self._detect_chain(),
+            "method_params": self._method_params(),
+            "cpu_params": self._cpu_params(),
+            "otsu_window": int(self._otsu_window.value()),
+            "otsu_classes": int(self._otsu_classes.value()),
+            "otsu_foreground_class": int(self._otsu_foreground.value()),
         }
 
     def _on_magnifier_mode(self, mode) -> None:
-        """Choose the magnifier's model; Sensitivity is the Otsu mode's."""
+        """Choose the magnifier's model; Sensitivity is the Otsu mode's.
+
+        The Detection methods card follows the mode, so the parameters on
+        screen are the ones the mode just chosen reads and no others.
+        """
         name = canonical_magnifier_mode(mode)
         self._mag_sensitivity.setEnabled(name == "otsu")
         self._magnifier.set_mode(name)
+        self._sync_method_controls()
 
     def _on_mode_row_changed(self, _index: int) -> None:
         """The Mode box's row changed: hand the mode on, if it can run.
@@ -8736,13 +11482,19 @@ class MakeMasksScreen(QWidget):
         would leave the Otsu threshold correction
         pointing at intensities the field does not contain. The measurement
         is in the first function's docstring.
+
+        IT IS ONE CALL because the canvas already assembles exactly this
+        array for the Image enhancement card: the inversion is
+        :meth:`_MaskCanvas.displayed_source`, the percentile stretch is
+        :meth:`_MaskCanvas.detection_base`, and the chain is
+        :meth:`_MaskCanvas.detection_source`. This method used to repeat
+        the first two, which is how a detect button and the magnifier could
+        have ended up reading different arrays the day one of them changed.
         """
         image = self._canvas.image
-        if image is not None and self._canvas.detect_on_normalized:
-            return self._canvas.detection_source()
-        if image is None or not self._cp_invert.isChecked():
-            return image
-        return engine.invert_normalized(image)
+        if image is None:
+            return None
+        return self._canvas.detection_source()
 
     def _on_min_area_changed(self, value) -> None:
         """Hand Min area to the canvas, for Ctrl + left click's seed spacing.
@@ -8769,6 +11521,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if on and self._canvas.ruler.active:
+            self._set_mode(MODE_NONE)
         if on and self._magnifier.scope == "image":
             self._status_label.setText(tr(
                 "Magnifier on: a click adds the object under it and a "
@@ -8799,6 +11553,11 @@ class MakeMasksScreen(QWidget):
         A whole-image click arrives as that one object, cut to its bounding
         box, and is recorded with ``scope="image"``.
 
+        Detector settings, CPU/organelle parameters and enhancement come
+        from the completed request, even if the panel has since changed.
+        ``min_area`` records detection's filter; ``paste_min_area`` records
+        the current filter applied while pasting through the overlap rule.
+
         :returns: the ids added; empty when nothing was.
         """
         from ..i18n import tr
@@ -8807,11 +11566,21 @@ class MakeMasksScreen(QWidget):
         request = result.request
         if mask is None or tuple(mask.shape[:2]) != tuple(request.shape):
             return []
+        exact_ids = result.mode == cpu_modes.SECONDARY
+        if exact_ids:
+            try:
+                source = self._require_primary_source()
+                if source.identity != request.primary_token:
+                    raise ValueError(tr('The primary mask changed. Wait for a new preview before accepting objects.'))
+                self._require_secondary_merge(source)
+            except ValueError as exc:
+                self._status_label.setText(str(exc))
+                return []
         overlap = self._mag_overlap.currentData() or "clip"
         try:
             out, added = engine._paste_region_objects(
                 mask, result.labels, request.box[:2], overlap=overlap,
-                min_area=self._detect_min_area())
+                min_area=self._detect_min_area(), preserve_ids=exact_ids)
         except ValueError as exc:
             self._status_label.setText(tr(
                 "Magnifier could not add objects: {error}", error=exc))
@@ -8829,16 +11598,15 @@ class MakeMasksScreen(QWidget):
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
+        if exact_ids:
+            self._retain_secondary_ids(request.primary_provenance)
         self._record("magnifier", list(added), changed,
-                      mode=result.mode, overlap=overlap,
+                      overlap=overlap, paste_min_area=self._detect_min_area(),
                       box=[int(v) for v in request.box],
-                      sensitivity=float(request.sensitivity),
-                      model=str(request.model_name),
-                      flow_threshold=float(request.flow_threshold),
-                      cellprob_threshold=float(request.cellprob_threshold),
-                      diameter=int(request.diameter),
-                      otsu_correction=float(request.otsu_correction),
-                      n_objects=len(added), scope=request.scope)
+                      n_objects=len(added),
+                      **({"source_labels": [int(v) for v in np.unique(result.labels) if v > 0]}
+                         if request.scope == "image" else {}),
+                      **_magnifier_provenance(request, result.mode, result.note))
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(tr(
@@ -8891,6 +11659,10 @@ class MakeMasksScreen(QWidget):
 
         :param payload: ``(outcome, final)`` from
             :attr:`_LiveMagnifier.drag_ready`.
+            Outcome provenance supplies the cursor path, saved selection
+            rule and each accepted frame's detector request in delivery order.
+            A mixed-method stroke is marked ``mode="mixed"``; its per-frame
+            records retain the actual methods, settings and fallback notes.
         :returns: the ids the final paste added; empty for a preview.
         """
         from ..i18n import tr
@@ -8919,13 +11691,20 @@ class MakeMasksScreen(QWidget):
             return []
         height, width = found.labels.shape[:2]
         x0, y0 = found.origin
+        provenance = found.provenance or {}
+        frames = provenance.get("frame_requests", [])
+        def common(field, default):
+            """Return a shared frame value, or the explicit mixed/unknown value."""
+            values = [frame.get(field, default) for frame in frames]
+            return values[0] if values and all(value == values[0] for value in values) else default
         self._record("magnifier", list(added), self._pixels_changed(out),
-                     mode=self._magnifier.mode, overlap=overlap,
+                     mode=common("mode", "mixed" if frames else "unknown"), overlap=overlap,
+                     paste_min_area=self._detect_min_area(),
                      box=[x0, y0, x0 + width, y0 + height],
-                     sensitivity=float(self._magnifier.sensitivity),
-                     n_objects=len(added), scope=self._magnifier.scope,
-                     drag=True, save=self._magnifier.save_mode,
-                     frames=found.frames, merged=found.merged)
+                     sensitivity=common("sensitivity", None),
+                     n_objects=len(added), scope=common("scope", "mixed" if frames else "unknown"),
+                     drag=True, frames=found.frames, merged=found.merged,
+                     **provenance)
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(tr(
@@ -9006,6 +11785,7 @@ class MakeMasksScreen(QWidget):
         """Show the current field and whatever mask it already has."""
         if not self._image_files:
             return
+        self._primary_selector.clear_field()
         self._load_token += 1
         token = self._load_token
         filename = self._image_files[self._current_index]
@@ -9099,6 +11879,12 @@ class MakeMasksScreen(QWidget):
         if download is not None:
             download.cancel()
         self._magnifier.close()
+        self._primary_selector.shutdown()
+        self._psf_controls._shutdown()
+        self._canvas.close_enhancer()
+        self._cancel_comparison()
+        if self._comparison_worker is not None:
+            self._comparison_worker.close(timeout=0)
         self.close_folded()
         self._pending_load = None
         worker, self._load_worker = self._load_worker, None
@@ -9123,6 +11909,9 @@ class MakeMasksScreen(QWidget):
 
     def _handle_load_failure(self, error: Exception) -> None:
         """Clear stale canvas state and visibly report an image-load error."""
+        self._primary_selector.clear_field()
+        self._canvas.preserve_ids = False
+        self._paired_source = None
         self._canvas.image = None
         self._canvas.mask = None
         self._canvas.reset_zoom(silent=True)
@@ -9149,7 +11938,10 @@ class MakeMasksScreen(QWidget):
         """
         if token != self._load_token:
             return
+        self._canvas.preserve_ids = False
+        self._paired_source = None
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
+        self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
         self._recrop_children = []
         self._reset_flow_panes()
@@ -9158,6 +11950,17 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._log = self._open_ledger(filename)
+        record = next((edit.detail.get('primary_source') for edit in reversed(self._log.edits)
+                       if edit.detail.get('preserve_ids')), None)
+        if record:
+            self._canvas.preserve_ids = True
+            self._canvas._lookup = None
+            self._canvas._lookup_dirty = True
+            self._paired_source = record
+        self._primary_selector.bind_field(os.path.join(self._folder, filename), mask.shape,
+                                          engine.mask_save_path(self._folder, filename, **self._layout_kwargs()))
+        if record:
+            self._primary_selector.restore_source(record)
         self._status_label.setText(
             f"{filename}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
@@ -9204,6 +12007,11 @@ class MakeMasksScreen(QWidget):
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
+        if getattr(self._canvas, 'preserve_ids', False):
+            from ..i18n import tr
+
+            self._status_label.setText(tr('Recrop requires a matching crop of both primary and secondary masks. Save this paired field before creating a separate crop.'))
+            return None
         if not self._image_files or self._canvas.mask is None \
                 or self._canvas.image is None:
             self._status_label.setText("Recrop: no field open to cut.")
@@ -9259,7 +12067,8 @@ class MakeMasksScreen(QWidget):
         if self._canvas.mask is not None:
             try:
                 engine.save_mask(self._folder, filename, self._canvas.mask,
-                                  log=self._log, **self._layout_kwargs())
+                                  log=self._log, preserve_ids=getattr(self._canvas, 'preserve_ids', False),
+                                  **self._layout_kwargs())
             except Exception as exc:
                 LOG.warning("Could not save %s before retiring it: %s",
                             filename, exc)
@@ -9314,11 +12123,13 @@ class MakeMasksScreen(QWidget):
         if not self._image_files or self._canvas.mask is None:
             return
         try:
+            self._validate_secondary_save()
             path = engine.save_mask(
                 self._folder,
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
+                preserve_ids=getattr(self._canvas, 'preserve_ids', False),
                 **self._layout_kwargs(),
             )
         except Exception as e:
@@ -9352,10 +12163,16 @@ class MakeMasksScreen(QWidget):
 
     def _on_fill_holes(self):
         """Fill enclosed holes in every object."""
-        self._apply_op(engine.fill_holes, "fill_holes")
+        self._apply_op(lambda mask: engine.fill_holes(
+            mask, preserve_ids=getattr(self._canvas, 'preserve_ids', False)), 'fill_holes')
 
     def _on_relabel(self):
         """Renumber the objects so the labels are consecutive."""
+        if getattr(self._canvas, 'preserve_ids', False):
+            from ..i18n import tr
+
+            self._status_label.setText(tr('Paired secondary objects retain primary IDs; consecutive relabeling would break that association.'))
+            return
         self._apply_op(engine.relabel_objects, "relabel")
 
     def _on_invert(self):
@@ -9381,6 +12198,11 @@ class MakeMasksScreen(QWidget):
     def _on_remove_small(self):
         """Delete objects below the minimum area."""
         area = int(self._min_area.value())
+        if getattr(self._canvas, 'preserve_ids', False):
+            self._apply_op(lambda mask: engine.filter_report(
+                mask, self._canvas.image, min_area=area, preserve_ids=True)[0],
+                'remove_small', min_area=area)
+            return
         self._apply_op(lambda m: engine.remove_small_objects(m, area),
                         "remove_small", min_area=area)
 
@@ -9497,5 +12319,6 @@ class MakeMasksScreen(QWidget):
                    self._btn_discard, self._btn_keep,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
                    self._btn_dilate, self._btn_shrink, self._btn_clear,
+                   self._btn_levels,
                    *self._mode_buttons.values()):
             b.setEnabled(editable)

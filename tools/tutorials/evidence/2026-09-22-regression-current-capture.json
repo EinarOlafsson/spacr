@@ -1,0 +1,173 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "13_regression",
+  "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2",
+  "capture": "captures/regression_current_20260922_v2",
+  "provenance": {
+    "commit": "8936a1c946c17986edd9709b52fa01896e09f2b4",
+    "version": "1.5.0.9",
+    "module": "regression",
+    "download_requested": true,
+    "dataset_cache": "/tmp/spacr-regression/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "process_exit_code": 0,
+  "source_and_paths_unmodified": true,
+  "neutral_account": {
+    "uid": 65534,
+    "name": "tutorial",
+    "home": "/tmp/spacr-regression/profile",
+    "host_account_unchanged": true,
+    "application_monkeypatched": false,
+    "wrapper_sha256": "dbb1de7cfc91a14978381d8a3732e8ebfefbc74b67115572708e48ee8176fb3a"
+  },
+  "acceptance": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 5,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "result_rows": {
+    "grna": 434,
+    "gene": 325
+  },
+  "results_sha256": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+  "numeric_checks": [
+    "All759 empirical p-values equal (exceedances+1)/200",
+    "BH adjustment independently recomputed within each reported family",
+    "All effect coefficients finite"
+  ],
+  "settings_tour_sha256": "28eb37853e92b20c478c03735a364084c48f4d9c522a2e82bc615c00918c216e",
+  "results_tour": {
+    "settings_unchanged": true,
+    "tabs": [
+      {
+        "title": "Runs",
+        "selected_index": 0
+      },
+      {
+        "title": "Results",
+        "selected_index": 1
+      },
+      {
+        "title": "Measurements",
+        "selected_index": 2
+      },
+      {
+        "title": "Cells",
+        "selected_index": 3
+      }
+    ],
+    "detail_tabs": [
+      {
+        "surface": "p-values",
+        "displayed_label": "p-values (guides)"
+      },
+      {
+        "surface": "Q-Q",
+        "displayed_label": "Q-Q (guides)"
+      },
+      {
+        "surface": "Coefficients",
+        "displayed_label": "Coefficients (guides)"
+      }
+    ],
+    "new_analysis_requested": false,
+    "measurement_database_attached": false
+  },
+  "frames_sha256": "46cbdaeb8e6560c694e340d55f629d70d9a144b2e0e3827db1581e622f84e074",
+  "visually_inspected": [
+    "23_batch_finished",
+    "25_result_results"
+  ],
+  "limitations": [
+    "Nonfatal exchangeability-report TypeError remains in the private DEBUG log; no validation of permutation assumptions is claimed.",
+    "No attached measurement database or cell montage."
+  ],
+  "published": false,
+  "videos": [
+    {
+      "file": "13_regression_silent.mp4",
+      "sha256": "dbab448b46c27fa25d173ca8e636565d8db87445c9e10474641f2d6f9e622b37",
+      "duration": 396.6,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "b58bff61ac28387c8212c232c361f3f36df8cad6d8a3400248b7e1d536f09831",
+      "duration": 396.7,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "a86f012dc52bdbd98df8c09bf422f6aa8284bf045e811c4c3d07380c4654f236",
+    "freshness_timing_activity": "passed",
+    "decoded_true_peak_dbfs": -1.9
+  },
+  "status": "native_capture_saved_outputs_and_english_review_master_verified_not_published",
+  "remaining": [
+    "Full voice/language/caption acceptance",
+    "Audible narration acceptance",
+    "Complete-set publication"
+  ],
+  "browser": {
+    "checks": {
+      "lesson": "13_regression",
+      "scope": "en/af_heart playback and scene links only",
+      "uploaded": false,
+      "translation_or_listening_review": false,
+      "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "navigation_contains_staged_lesson": true,
+      "example_files": [],
+      "loaded_audio_sha256": "a86f012dc52bdbd98df8c09bf422f6aa8284bf045e811c4c3d07380c4654f236",
+      "scene_count": 21,
+      "seek_playback_clocks": {
+        "audio": 84.141353,
+        "video": 83.91731,
+        "expectedVideo": 84.14029222980042,
+        "audioDuration": 396.7,
+        "videoDuration": 396.6,
+        "mediaError": null
+      },
+      "chapter_and_transcript_links": [
+        "06_api",
+        "08_measure",
+        "48_hit_list",
+        "49_methods_results",
+        "53_prediction_profiler",
+        "71_investigate_hit",
+        "72_volcano_explorer",
+        "73_parameter_sweep",
+        "75_regression_diagnostics"
+      ],
+      "passed": true
+    },
+    "checks_sha256": "02629b678d085c4cf8ac1114a8d23d3bd6fb94e1695f85f05f7d4e56f06de005",
+    "screenshots": {
+      "desktop": {
+        "sha256": "e90a551c5701c4207a425450d79820d8ae8ba0df32e120547471fdb4a137935f",
+        "inspected": true
+      },
+      "mobile": {
+        "sha256": "87e40da1c611c40da40b9b016c9efd593853b20acf79b16ef9eb4e505feff084",
+        "inspected": true
+      }
+    },
+    "scope": "Current en/af_heart playback, seek clocks, lesson navigation and screenshots; not full voice/caption or listening acceptance",
+    "verifier_sha256": "2decc97fd950a1a900d2cbbd36452633a73d644fac93c63585ff02d8797d3ceb",
+    "layout_check": "Inspected desktop at page top and mobile after the closed navigation sidebar finished sliding offscreen."
+  },
+  "scene_count": 21
+}

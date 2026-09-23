@@ -319,13 +319,6 @@
     },
     {
       "table": "ui",
-      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "translation": "使用模型分割当前打开的视野。两个阈值的初始值均采用 Cellpose 自身的默认值。",
-      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
-    },
-    {
-      "table": "ui",
       "key": "Sending the approved report to GitHub…",
       "source": "Sending the approved report to GitHub…",
       "translation": "正在将已批准的报告发送到 GitHub…",
@@ -351,6 +344,19 @@
       "source": "Share this model?",
       "translation": "分享此模型？",
       "source_sha256": "0f728cdb462b2168403b56e8738acd19f3dbc0a5dd1beb9aa72f1e2604e83d9a"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "translation": "使用模型分割当前打开的视野。两个阈值的初始值均采用 Cellpose 自身的默认值。",
+        "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
+      }
     }
   ]
 }

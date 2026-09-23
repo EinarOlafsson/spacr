@@ -961,7 +961,7 @@ def test_the_runner_failing_outright_is_reported_not_swallowed(qtbot,
     view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
     view.set_coefficient(GENE_KEY)
 
-    def explode(_request):
+    def explode(_request, **kwargs):
         raise RuntimeError("the worker died")
 
     monkeypatch.setattr(module, "load", explode)
@@ -1709,3 +1709,92 @@ def test_every_mirrored_setting_is_a_widget_the_mirror_can_read(
     assert isinstance(widget, (QComboBox, QSpinBox, QDoubleSpinBox, QLineEdit)), (
         f"{key} mirrors a {type(widget).__name__}, which neither _write_back "
         f"nor _read_back handles; it would save silently and restore nothing")
+
+
+def test_load_reports_real_stages_and_stops_before_the_next_database(tmp_path, monkeypatch):
+    from threading import Event
+    from spacr import cell_montage
+
+    _root, database, results = _screen(tmp_path, with_png=True)
+    request = MontageRequest(name='GRA14', effect=.2, results_path=results,
+                             databases=(database, database))
+    cancelled = Event()
+    stages, reads = [], []
+    original = cell_montage.load_montage_objects
+
+    def read(*args, **kwargs):
+        reads.append(args[0])
+        return original(*args, **kwargs)
+
+    def report(message):
+        stages.append(message)
+        if 'database 2 of 2' in message:
+            cancelled.set()
+
+    monkeypatch.setattr(cell_montage, 'load_montage_objects', read)
+    result = load(request, progress=report, cancelled=cancelled.is_set)
+    assert not result.ok and 'cancelled' in result.error
+    assert reads == [database]
+    assert any('Resolving crop paths' in stage for stage in stages)
+    assert not any('Reading crops' in stage for stage in stages)
+    stages.clear()
+    result = load(request, progress=stages.append)
+    assert result.ok
+    assert any('Selecting cells' in stage for stage in stages)
+    assert any('Reading crops for montage' in stage for stage in stages)
+    assert stages[-1] == 'Preparing the montage for display…'
+
+
+@pytest.mark.parametrize('late_error', [False, True])
+def test_cancel_is_responsive_and_discards_late_progress_and_results(
+        qtbot, tmp_path, monkeypatch, late_error):
+    from threading import Event
+    from PySide6.QtCore import QThread
+    from spacr.qt.widgets import cell_montage_view as module
+
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view._jobs._threaded = True
+    view.set_coefficient(GENE_KEY)
+    view.show()
+    entered, release = Event(), Event()
+    reports, completions, failures = [], [], []
+    original_status = view._set_status
+
+    def status(message):
+        reports.append((message, QThread.currentThread() == view.thread()))
+        original_status(message)
+
+    def blocked(request, *, progress, cancelled):
+        progress('Reading database 1 of 4')
+        entered.set()
+        assert release.wait(5)
+        assert cancelled()
+        progress('obsolete progress')
+        if late_error:
+            raise RuntimeError('obsolete failure')
+        return MontageLoad(request=request, error='obsolete result')
+
+    monkeypatch.setattr(view, '_set_status', status)
+    monkeypatch.setattr(module, 'load', blocked)
+    view.montage_ready.connect(completions.append)
+    view.montage_failed.connect(failures.append)
+    try:
+        assert view.build()
+        qtbot.waitUntil(lambda: entered.is_set() and
+                        view.status_text() == 'Reading database 1 of 4', timeout=5000)
+        assert view._cancel.isVisible() and view._cancel.isEnabled()
+        view._queue = [GUIDE_KEY]
+        view._cancel.click()
+        assert view._pending is None and not view._queue
+        assert 'cancelled' in view.status_text()
+        assert view._show.isEnabled()
+        release.set()
+        qtbot.waitUntil(lambda: view._jobs.active_jobs() == 0, timeout=5000)
+        assert not view.plans() and not completions and not failures
+        assert 'cancelled' in view.status_text()
+        assert not any('obsolete' in text for text, _thread in reports)
+        assert all(on_gui for _text, on_gui in reports)
+        assert not view.cancel_loading()
+    finally:
+        release.set()
+        view.shutdown()

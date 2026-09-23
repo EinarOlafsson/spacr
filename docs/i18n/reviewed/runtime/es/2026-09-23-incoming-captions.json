@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-assisted linguistic and implementation-context review of the test-time augmentation heading and pathway-connection fallback. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Test-time augmentation",
+      "source": "Test-time augmentation",
+      "source_sha256": "80ca70fbdb3bd16c2431ef449da30ab812973bc74df97d473df074ec22a71af9",
+      "translation": "Aumento de datos durante la inferencia"
+    },
+    {
+      "table": "ui",
+      "key": "Follow the pathway instructions for this connection.",
+      "source": "Follow the pathway instructions for this connection.",
+      "source_sha256": "ebc6c5d59a4e0fd79309f3e8c92efdf92f22467dc03565f1d1c498ee212b6ba1",
+      "translation": "Siga las instrucciones del flujo de trabajo para esta conexión."
+    }
+  ]
+}

@@ -427,7 +427,7 @@ def _write_bundle(path: str, payload: Dict) -> None:
     os.replace(temporary, path)
 
 
-def save_seg_bundle(path: str, mask: np.ndarray) -> str:
+def save_seg_bundle(path: str, mask: np.ndarray, *, preserve_ids: bool = False) -> str:
     """Write edited labels back into the bundle they came from.
 
     Every key the bundle already had is kept -- ``img``, ``flows``,
@@ -442,11 +442,13 @@ def save_seg_bundle(path: str, mask: np.ndarray) -> str:
 
     :param path: the ``_seg.npy`` bundle.
     :param mask: the edited labels.
+    :param preserve_ids: keep every supplied label exactly, including a lone
+        ID or disconnected pieces with the same ID. Labels must fit uint16.
     :returns: ``path``.
     :raises ValueError: when ``path`` is not a bundle.
     """
     payload = read_seg_bundle(path)
-    labels = canonical_labels(mask)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
     payload["masks"] = labels
     outlines = payload.get("outlines")
     if outlines is not None and np.shape(outlines) == labels.shape:
@@ -603,7 +605,7 @@ def record_curation(folder: str, image_path: str, mask_path: str,
     return destination
 
 
-def canonical_labels(mask: np.ndarray) -> np.ndarray:
+def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
     """Return ``mask`` as uint16 labels, keeping every id it already had.
 
     The old behaviour here was ``label(mask > 0)``, which renumbers the
@@ -630,11 +632,21 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
     enough to run while the mouse moves: on a 2048 x 2048 field of 400
     objects it went from about 3.5 s to tens of milliseconds.
 
-    :param mask: a label image; any integer or boolean dtype.
+    :param mask: a label image; any integer or boolean dtype in default mode.
+    :param preserve_ids: disable binary interpretation and component splitting.
+        Use for primary/secondary relationships: a lone cell 900 remains 900,
+        and separated pieces with the same primary ID remain one label.
+        Requires a nonempty 2-D nonnegative integer array, not a boolean mask.
     :returns: the labels as ``uint16``.
-    :raises ValueError: when an id does not fit in ``uint16``.
+    :raises ValueError: when an id does not fit in ``uint16``, or exact-ID
+        mode receives invalid labels. Oversized IDs are never truncated.
     """
     m = np.asarray(mask)
+    if preserve_ids:
+        m = _primary_label_image(m, "Mask")
+        if int(m.max()) > np.iinfo(np.uint16).max:
+            raise ValueError("Exact mask IDs must fit in uint16; labels were not renumbered.")
+        return m.astype(np.uint16, copy=True)
     boxes = None
     top = int(m.max()) if m.size and np.issubdtype(m.dtype, np.integer) \
         else None
@@ -645,9 +657,16 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
     else:
         values = list(np.unique(m[m > 0]))
     if len(values) <= 1:
-        labeled, _ = _ndimage().label(m > 0, structure=_EIGHT)
+        labeled, count = _ndimage().label(m > 0, structure=_EIGHT)
+        if count > np.iinfo(np.uint16).max:
+            raise ValueError(
+                f"mask needs {count} object labels, past what a uint16 mask can hold.")
         return labeled.astype(np.uint16)
 
+    largest = int(max(values))
+    if largest > np.iinfo(np.uint16).max:
+        raise ValueError(
+            f"mask carries label {largest}, past what a uint16 mask can hold.")
     whole = tuple(slice(None) for _axis in range(m.ndim))
     out = None
     used = {int(v) for v in values}
@@ -680,7 +699,7 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
 
 def save_mask(folder: str, filename: str, mask: np.ndarray,
               log: Optional[CurationLog] = None,
-              masks_dir: Optional[str] = None) -> str:
+              masks_dir: Optional[str] = None, *, preserve_ids: bool = False) -> str:
     """Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.
 
     Object ids are preserved -- see :func:`canonical_labels` for what that
@@ -706,14 +725,18 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
         painted nothing has not curated anything, and a ledger that exists
         for every mask ever opened answers no question.
     :param masks_dir: where the masks are, when not in ``<folder>/masks``.
+    :param preserve_ids: retain exact primary/secondary IDs without interpreting
+        single-valued masks as binary or splitting disconnected pieces. The
+        explicit mode validates nonnegative 2-D integer labels and refuses
+        IDs above 65535 before writing; it never silently renumbers them.
     :returns: the path written.
     """
     save_path = mask_save_path(folder, filename, masks_dir)
     if is_seg_bundle(filename):
-        save_seg_bundle(save_path, mask)
+        save_seg_bundle(save_path, mask, preserve_ids=preserve_ids)
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        write_tiff(save_path, canonical_labels(mask))
+        write_tiff(save_path, canonical_labels(mask, preserve_ids=preserve_ids))
     if log is not None and len(log):
         if not log.artifact:
             log.artifact = save_path
@@ -1199,8 +1222,15 @@ def divide_object(mask: np.ndarray, p0, p1,
         return mask.copy(), []
     return _fit_label_width(out, mask), splits
 
-def fill_holes(mask: np.ndarray) -> np.ndarray:
-    """Fill holes inside True regions; returns a relabeled mask."""
+def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
+    """Fill enclosed background pixels, optionally retaining primary identities.
+
+    :param mask: label image to fill.
+    :param preserve_ids: fill per object without merging or renumbering labels.
+        Requires exact uint16-compatible IDs; default retains binary relabeling.
+    """
+    if preserve_ids:
+        return _fill_label_holes(canonical_labels(mask, preserve_ids=True))
     binary = mask > 0
     filled = _ndimage().binary_fill_holes(binary)
     labeled, _ = _ndimage().label(filled)
@@ -1502,7 +1532,8 @@ class FilterRemoval(NamedTuple):
 
 def filter_report(mask: np.ndarray, image: np.ndarray, *,
                   min_area: int = 0, max_area: int = 0,
-                  min_intensity: float = 0.0, max_intensity: float = 0.0
+                  min_intensity: float = 0.0, max_intensity: float = 0.0,
+                  preserve_ids: bool = False
                   ) -> Tuple[np.ndarray, List[FilterRemoval]]:
     """Filter as :func:`filter_objects` does, measuring what it removed.
 
@@ -1514,6 +1545,8 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
 
     :returns: ``(mask, removals)``, the removals sorted by id. Nothing to do
         returns the original array untouched and an empty list.
+    :param preserve_ids: measure all pixels bearing an ID as one object,
+        including lone or disconnected primary/secondary labels.
     """
     bounds = (int(min_area or 0), int(max_area or 0),
               float(min_intensity or 0.0), float(max_intensity or 0.0))
@@ -1526,7 +1559,7 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
     grey = np.asarray(image, dtype=np.float32)
     if grey.ndim == 3:
         grey = grey.mean(axis=2)
-    labels = canonical_labels(mask)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
     removals: List[FilterRemoval] = []
     for region in regionprops(labels.astype(np.int32), intensity_image=grey):
         area = int(region.area)
@@ -1553,7 +1586,8 @@ def filter_report(mask: np.ndarray, image: np.ndarray, *,
 def filter_objects(mask: np.ndarray, image: np.ndarray, *,
                    min_area: int = 0, max_area: int = 0,
                    min_intensity: float = 0.0,
-                   max_intensity: float = 0.0) -> Tuple[np.ndarray, List[int]]:
+                   max_intensity: float = 0.0,
+                   preserve_ids: bool = False) -> Tuple[np.ndarray, List[int]]:
     """Drop objects outside the size/intensity bounds. Each bound is off at 0.
 
     Area is the object's pixel count; intensity is its MEAN value on the
@@ -1574,10 +1608,14 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
 
     :func:`filter_report` is this function keeping what it measured; a
     caller that has to tell the user WHY an object went wants that one.
+
+    :param preserve_ids: retain primary/secondary identities when measuring
+        and removing labels; disconnected pieces sharing an ID count together.
     """
     out, removals = filter_report(
         mask, image, min_area=min_area, max_area=max_area,
-        min_intensity=min_intensity, max_intensity=max_intensity)
+        min_intensity=min_intensity, max_intensity=max_intensity,
+        preserve_ids=preserve_ids)
     return out, [removal.label for removal in removals]
 
 
@@ -1619,13 +1657,16 @@ class ObjectLookup:
     :param image: the raw image under it, with the mask's height and width.
     """
 
-    def __init__(self, mask: np.ndarray, image: np.ndarray):
+    def __init__(self, mask: np.ndarray, image: np.ndarray, *,
+                 preserve_ids: bool = False):
         """Number the objects and index their bounding boxes.
 
         :param mask: the label image.
         :param image: the raw image under it.
+        :param preserve_ids: index exact IDs without binary interpretation
+            or splitting disconnected pieces; agrees with exact-ID filtering.
         """
-        self.labels = canonical_labels(mask)
+        self.labels = canonical_labels(mask, preserve_ids=preserve_ids)
         grey = np.asarray(image, dtype=np.float32)
         if grey.ndim == 3:
             grey = grey.mean(axis=2)
@@ -1736,9 +1777,101 @@ def _otsu_values(image: np.ndarray, smoothing: float = 0.0) -> np.ndarray:
     return values
 
 
+#: The GLOBAL threshold algorithms this module can cut a field at, as
+#: ``name -> the scikit-image function that finds the level``. Each takes
+#: one image and returns one intensity, so all of them reach the detection
+#: through the very same code: the correction, the smoothing, the
+#: bright/dark side, fill holes, the split, the border rule and the minimum
+#: area are found once, in :func:`_otsu_instances`, and an algorithm is the
+#: one line that differs. ADDING ONE IS A ROW HERE.
+#:
+#: ``otsu`` is first and is the default everywhere, so a field thresholded
+#: by a screen that knows nothing of this dictionary is thresholded exactly
+#: as it always was.
+GLOBAL_THRESHOLDS: Dict[str, str] = {
+    "otsu": "threshold_otsu",
+    "li": "threshold_li",
+    "yen": "threshold_yen",
+    "triangle": "threshold_triangle",
+    "isodata": "threshold_isodata",
+    "mean": "threshold_mean",
+    "minimum": "threshold_minimum",
+}
+
+#: The LOCAL threshold algorithms, which return one level PER PIXEL rather
+#: than one for the field, as ``name -> the scikit-image function``. They
+#: read a window size, and Sauvola and Niblack read ``k`` as well.
+#:
+#: WHAT IS DELIBERATELY NOT HERE. Local MEAN and local GAUSSIAN
+#: (``skimage.filters.threshold_local``) are not listed, because Make Masks
+#: already offers them: they are what the Adaptive threshold mode runs,
+#: through the organelle engine's own ``adaptive`` branch, with the same
+#: block size and offset. Local OTSU is not listed either: it is the Otsu
+#: category's "Local threshold (uneven illumination)" switch and is
+#: :func:`_local_otsu_binary`. Listing either again would be two controls
+#: for one operation.
+LOCAL_THRESHOLDS: Dict[str, str] = {
+    "sauvola": "threshold_sauvola",
+    "niblack": "threshold_niblack",
+}
+
+
+def threshold_algorithms() -> Tuple[str, ...]:
+    """Every threshold algorithm name, global then local."""
+    return tuple(GLOBAL_THRESHOLDS) + tuple(LOCAL_THRESHOLDS)
+
+
+def _global_level(values: np.ndarray, algorithm: str) -> float:
+    """The one intensity ``algorithm`` cuts ``values`` at.
+
+    :param values: the smoothed float image, from :func:`_otsu_values`.
+    :param algorithm: a key of :data:`GLOBAL_THRESHOLDS`.
+    :raises ValueError: for an algorithm this module does not know, rather
+        than quietly thresholding by Otsu under another name.
+    """
+    from skimage import filters
+
+    name = GLOBAL_THRESHOLDS.get(str(algorithm))
+    if name is None:
+        raise ValueError(
+            f"{algorithm!r} is not a global threshold algorithm; "
+            f"the ones there are: {sorted(GLOBAL_THRESHOLDS)}.")
+    return float(getattr(filters, name)(values))
+
+
+def _local_level_map(values: np.ndarray, algorithm: str, *, window: int,
+                     k: float) -> np.ndarray:
+    """A per-pixel threshold for ``values`` from a local algorithm.
+
+    Niblack uses ``T = m - k*s`` and Sauvola uses
+    ``T = m*(1 + k*(s/R - 1))``, with local mean m and deviation s.
+    Values from :func:`_otsu_values` are float32 without range rescaling;
+    scikit-image therefore defaults Sauvola's R to 1, not to the observed
+    intensity range. Sauvola can consequently behave differently when the
+    same image is multiplied by an intensity scale factor.
+
+    :param values: the smoothed float image.
+    :param algorithm: a key of :data:`LOCAL_THRESHOLDS`.
+    :param window: the odd window size, in pixels.
+    :param k: the algorithm's ``k``.
+    :raises ValueError: for an algorithm this module does not know.
+    """
+    from skimage import filters
+
+    name = LOCAL_THRESHOLDS.get(str(algorithm))
+    if name is None:
+        raise ValueError(
+            f"{algorithm!r} is not a local threshold algorithm; "
+            f"the ones there are: {sorted(LOCAL_THRESHOLDS)}.")
+    return np.asarray(
+        getattr(filters, name)(values, window_size=_odd_window(window),
+                               k=float(k)),
+        dtype=np.float32)
+
+
 def _otsu_levels(image: np.ndarray, *, bright: bool = True,
                  correction: float = 1.0, smoothing: float = 0.0,
-                 classes: int = 2) -> List[float]:
+                 classes: int = 2, algorithm: str = "otsu") -> List[float]:
     """The intensity or intensities the field is actually cut at.
 
     The histogram preview shows the chosen level, and the only way a
@@ -1761,10 +1894,13 @@ def _otsu_levels(image: np.ndarray, *, bright: bool = True,
     :param classes: 2 for Otsu's own two-class split, 3 or more for
         multi-level Otsu (:func:`skimage.filters.threshold_multiotsu`),
         which returns ``classes - 1`` rising levels.
+    :param algorithm: which of :data:`GLOBAL_THRESHOLDS` finds the level.
+        Read only for two classes; multi-level Otsu is its own algorithm
+        and is asked for by a class count above two.
     :raises ValueError: on an empty image, a correction that is not greater
-        than 0, or fewer than two classes.
+        than 0, fewer than two classes, or an unknown algorithm.
     """
-    from skimage.filters import threshold_multiotsu, threshold_otsu
+    from skimage.filters import threshold_multiotsu
 
     factor = _otsu_correction_factor(correction)
     count = int(classes)
@@ -1773,7 +1909,7 @@ def _otsu_levels(image: np.ndarray, *, bright: bool = True,
             f"Otsu needs at least two classes; got {classes!r}.")
     values = _otsu_values(image, smoothing)
     if count == 2:
-        level = float(threshold_otsu(values))
+        level = _global_level(values, algorithm)
         if bright:
             return [level * factor]
         top = float(values.max())
@@ -1897,14 +2033,27 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
                     classes: int = 2,
                     foreground_class: Optional[int] = None,
                     local: bool = False,
-                    window: int = 51) -> np.ndarray:
+                    window: int = 51,
+                    algorithm: str = "otsu",
+                    local_k: float = 0.2) -> np.ndarray:
     """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
+
+    OR ANOTHER ALGORITHM'S LEVEL. ``algorithm`` names one of
+    :data:`GLOBAL_THRESHOLDS` or :data:`LOCAL_THRESHOLDS`, and it changes
+    exactly one thing: where the number the field is cut at comes from.
+    The smoothing, the correction, the bright-or-dark side, filling holes,
+    the watershed split, the border rule and the minimum area are the same
+    code for every one of them, which is the whole reason the algorithms
+    are a dictionary and not ten functions.
 
     The "threshold correction", which is CellProfiler's threshold
     correction factor: the level Otsu finds is multiplied before it is used.
-    Above 1 is stricter and below 1 takes in dimmer pixels, on either side --
-    for dark objects the level is measured on the inverted image, the way a
-    dark-object threshold is, so a correction reads the same way for both.
+    For positive global thresholds and local Otsu, above 1 is stricter on
+    either side: dark-object correction uses the distance below the image
+    maximum (255 after rescaling for local Otsu).
+    Sauvola and Niblack instead multiply their direct local level maps;
+    for positive thresholds, raising the factor keeps fewer bright pixels
+    but more dark pixels. Negative thresholds reverse those directions.
 
     A correction of exactly 1 with every switch below off IS
     :func:`otsu_instances`, looked up by name at call time, so the
@@ -1948,7 +2097,18 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
         what recovers objects in a corner the illumination has fallen away
         from. Two classes only.
     :param window: the local window, in pixels; rounded up to an odd number
-        so it has a centre pixel. Read only when ``local`` is on.
+        so it has a centre pixel. Read when ``local`` is on and by the
+        algorithms in :data:`LOCAL_THRESHOLDS`.
+    :param algorithm: which algorithm finds the level -- one of
+        :data:`GLOBAL_THRESHOLDS` or :data:`LOCAL_THRESHOLDS`. ``otsu``,
+        the default, is what this function did before there were others.
+    :param local_k: dimensionless local contrast weight, default 0.2.
+        Niblack uses ``T = m - k*s``; Sauvola uses
+        ``T = m*(1 + k*(s/R - 1))``, with local mean m, standard deviation
+        s and scikit-image's float-input default R=1. Increasing k lowers
+        Niblack's threshold; Sauvola's direction depends on m and s/R.
+        Bright foreground is strictly above the corrected level and dark
+        foreground strictly below it. No automatic intensity rescaling.
     :raises ValueError: on an empty image, a correction that is not greater
         than 0, fewer than two classes, a foreground class outside them, a
         window under 3 px, or ``local`` asked for together with more than
@@ -1970,18 +2130,28 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
             "A local threshold finds one level per window, so it cannot "
             "also split the field into more than two classes. Turn one of "
             "the two off.")
+    if str(algorithm or "otsu") in LOCAL_THRESHOLDS and count > 2:
+        raise ValueError(
+            f"{algorithm} finds one level per window, so it cannot also "
+            f"split the field into {count} classes. Use Multi-Otsu, or "
+            f"put the class count back to 2.")
+    name = str(algorithm or "otsu")
     plain = (factor == 1.0 and sigma == 0.0 and not fill_holes
              and not split_touching and not exclude_border
-             and count == 2 and not local)
+             and count == 2 and not local and name == "otsu")
     if plain:
         return otsu_instances(image, bright=bright, min_area=min_area)
     values = _otsu_values(image, sigma)
-    if local:
+    if name in LOCAL_THRESHOLDS:
+        levels = _local_level_map(values, name, window=window, k=local_k)
+        binary = (values > levels * factor if bright
+                  else values < levels * factor)
+    elif local:
         binary = _local_otsu_binary(values, window=window, bright=bright,
                                     correction=factor)
     elif count == 2:
         level = _otsu_levels(values, bright=bright, correction=factor,
-                             smoothing=0.0, classes=2)[0]
+                             smoothing=0.0, classes=2, algorithm=name)[0]
         binary = values > level if bright else values < level
     else:
         levels = _otsu_levels(values, bright=bright, correction=factor,
@@ -2214,13 +2384,446 @@ def _drop_border_objects(labels: np.ndarray) -> np.ndarray:
     return lookup[lab]
 
 
+#: How a propagation decides where to stop growing, as
+#: ``name -> what the number beside it means``. See
+#: :func:`maxima_propagate_instances`.
+PROPAGATE_STOPS: Dict[str, str] = {
+    "seed_fraction": "a fraction of THIS seed's own peak value",
+    "absolute": "an absolute intensity",
+    "percentile": "a percentile of the whole image",
+    "threshold": "a global threshold algorithm's level",
+}
+
+
+class PropagateResult(NamedTuple):
+    """What one maxima-and-propagate run found.
+
+    :param labels: the objects, one label per seed that survived.
+    :param seeds: how many local maxima were found. THE NUMBER THE USER
+        TUNES AGAINST: too many and the minimum distance or the seed level
+        is too low, too few and an object has no centre to grow from, and
+        neither is visible from the objects alone.
+    :param level: the intensity the growth stopped at, for the stop rules
+        that have ONE -- absolute, percentile and a global threshold. None
+        for ``seed_fraction``, which has a different level per object and
+        so has no single number to report.
+    """
+
+    labels: np.ndarray
+    seeds: int
+    level: Optional[float]
+
+
+class PrimarySecondaryReport(NamedTuple):
+    """Label relationships between a primary mask and a secondary mask.
+
+    All fields contain sorted tuples of Python integer IDs; 0 is excluded.
+    ``matched_ids`` occur in both masks. ``missing_secondary_ids`` occur
+    only in the primary mask, and ``orphan_secondary_ids`` only in the
+    secondary mask. ``incomplete_primary_ids`` are matched IDs whose
+    secondary does not contain every pixel of its primary. Matched IDs
+    without any secondary pixels outside their own primary are listed in
+    ``unexpanded_primary_ids``; these can indicate a threshold that stopped
+    growth immediately. A match alone does not prove correct cell boundaries.
+
+    :ivar primary_ids: nonzero IDs present in the primary mask.
+    :ivar secondary_ids: nonzero IDs present in the secondary mask.
+    :ivar matched_ids: IDs present in both masks.
+    :ivar missing_secondary_ids: primary IDs absent from the secondary mask.
+    :ivar orphan_secondary_ids: secondary IDs absent from the primary mask.
+    :ivar incomplete_primary_ids: matched IDs whose secondary omits primary pixels.
+    :ivar unexpanded_primary_ids: matched IDs with no growth beyond their primary.
+    """
+
+    primary_ids: Tuple[int, ...]
+    secondary_ids: Tuple[int, ...]
+    matched_ids: Tuple[int, ...]
+    missing_secondary_ids: Tuple[int, ...]
+    orphan_secondary_ids: Tuple[int, ...]
+    incomplete_primary_ids: Tuple[int, ...]
+    unexpanded_primary_ids: Tuple[int, ...]
+
+
+class SecondaryResult(NamedTuple):
+    """Secondary labels, their primary relationships and the common stop level.
+
+    ``labels`` has the primary mask's dtype, shape and retained object IDs.
+    ``relationships`` includes primaries removed by minimum-area filtering.
+    ``level`` is None for the per-primary peak-ratio rule or an empty primary
+    mask; otherwise it is the common threshold in processed intensity units.
+
+    :ivar labels: secondary label array retaining primary IDs and dtype.
+    :ivar relationships: primary/secondary identity report after filtering.
+    :ivar level: shared stop threshold, or None when no common threshold applies.
+    """
+
+    labels: np.ndarray
+    relationships: PrimarySecondaryReport
+    level: Optional[float]
+
+
+def _primary_label_image(labels: np.ndarray, name: str) -> np.ndarray:
+    """Validate a nonempty 2-D, nonnegative integer label image without casting."""
+    values = np.asarray(labels)
+    if values.ndim != 2 or not values.size:
+        raise ValueError(f"{name} must be a nonempty 2-D label image.")
+    if values.dtype.kind not in "iu" or np.any(values < 0):
+        raise ValueError(f"{name} must contain nonnegative integer labels.")
+    return values
+
+
+def primary_secondary_report(primary: np.ndarray,
+                             secondary: np.ndarray) -> PrimarySecondaryReport:
+    """Report shared, missing, orphaned and incompletely enclosed object IDs.
+
+    :param primary: nonempty 2-D nonnegative integer primary labels.
+    :param secondary: secondary labels of the same shape. Sparse and uint64
+        IDs are compared exactly, including values above signed int64.
+    :returns: :class:`PrimarySecondaryReport`; no array is modified. An ID
+        match means the IDs agree, not that spatial overlap was used to
+        infer or repair a parent assignment.
+    :raises ValueError: mismatched shapes or invalid label arrays.
+    """
+    first = _primary_label_image(primary, "Primary mask")
+    second = _primary_label_image(secondary, "Secondary mask")
+    if first.shape != second.shape:
+        raise ValueError("Primary and secondary masks must have the same shape.")
+    primary_ids = {int(value) for value in np.unique(first) if value}
+    secondary_ids = {int(value) for value in np.unique(second) if value}
+    matched = primary_ids & secondary_ids
+    at_primary = first > 0
+    primary_values = first[at_primary].astype(np.uint64)
+    secondary_values = second[at_primary].astype(np.uint64)
+    incomplete = {int(value) for value in np.unique(
+        primary_values[primary_values != secondary_values])} & matched
+    at_secondary = second > 0
+    secondary_values = second[at_secondary].astype(np.uint64)
+    primary_values = first[at_secondary].astype(np.uint64)
+    expanded = {int(value) for value in np.unique(
+        secondary_values[primary_values != secondary_values])}
+    return PrimarySecondaryReport(
+        tuple(sorted(primary_ids)), tuple(sorted(secondary_ids)),
+        tuple(sorted(matched)), tuple(sorted(primary_ids - secondary_ids)),
+        tuple(sorted(secondary_ids - primary_ids)), tuple(sorted(incomplete)),
+        tuple(sorted(matched - expanded)))
+
+
+def secondary_object_instances(
+        image: np.ndarray, primary: np.ndarray, *, sigma: float = 2.0,
+        stop: str = "threshold", stop_value: float = 0.4,
+        stop_algorithm: str = "otsu", min_area: int = 0,
+        fill_holes: bool = True, growth: str = "intensity") -> SecondaryResult:
+    """Grow secondary objects from labelled primaries with a seeded watershed.
+
+    Every positive primary label is a marker, including all its pixels.
+    Intensity growth follows the negative, optionally Gaussian-smoothed image.
+    Distance growth floods a flat surface from the primary pixels. Common
+    stop thresholds constrain four-connected paths around excluded pixels;
+    seed_fraction trims after growth. This is not unrestricted Euclidean
+    nearest-primary assignment.
+    Neither mode is CellProfiler's distance/intensity Propagation algorithm.
+
+    The four rules in :data:`PROPAGATE_STOPS` use processed intensities.
+    ``absolute``, ``percentile`` and ``threshold`` restrict growth with a
+    common foreground mask. ``seed_fraction`` trims each watershed basin
+    at a fraction of the brightest processed pixel inside its primary.
+    That ratio is not a quantile and depends on background offset. With a
+    dark nucleus in a cytoplasmic channel, use a common threshold instead
+    of a nucleus-relative peak ratio.
+
+    Primary pixels are always included before minimum-area filtering, even
+    below the threshold. Hole filling can also restore below-threshold
+    pixels. Filtering can remove a whole secondary together with its seed;
+    the missing ID is reported. Remaining labels retain their primary IDs
+    exactly, without splitting or renumbering disconnected components.
+    Sparse IDs use compact internal markers, never arrays sized by max ID.
+
+    :param image: finite nonempty 2-D intensities, converted to float32.
+        The caller supplies normalization, background correction or inversion.
+    :param primary: same-shape nonnegative integer primary labels; 0 means
+        background. The returned labels retain this dtype and these IDs.
+    :param sigma: finite nonnegative Gaussian sigma in pixels; 0 disables
+        smoothing. Smoothing affects growth and threshold estimation.
+    :param stop: one of :data:`PROPAGATE_STOPS`, default ``"threshold"``.
+    :param stop_value: intensity for ``absolute``, percentile in [0,100] for
+        ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored
+        by ``threshold``. Fractions require nonnegative processed intensities.
+    :param stop_algorithm: global threshold algorithm, default ``"otsu"``;
+        read only for ``threshold``. The full supplied image determines it.
+    :param min_area: minimum secondary area after hole filling; 0 disables
+        filtering. The whole primary footprint counts toward the area.
+    :param fill_holes: fill enclosed background pixels per label before
+        filtering. Does not overwrite another primary's labelled pixels.
+    :param growth: ``intensity`` (default) uses negative image intensity;
+        ``distance`` floods a flat surface. Common stop rules constrain paths;
+        the primary-relative fraction trims after growth.
+        Both retain the same stop rules and exact primary IDs. Distance can
+        help when bright structures attract an intensity basin across cells.
+    :returns: :class:`SecondaryResult`, including ID relationship diagnostics.
+        Empty primary masks yield an empty result and no common stop level.
+    :raises ValueError: invalid images, labels, shape, sigma, stop rule,
+        rule-specific stop value or negative minimum area.
+    """
+    markers = _primary_label_image(primary, "Primary mask")
+    if growth not in ('intensity', 'distance'):
+        raise ValueError("Secondary growth must be intensity or distance.")
+    values = np.asarray(image, dtype=np.float32)
+    if values.shape != markers.shape or not np.isfinite(values).all():
+        raise ValueError("Image must be finite and match the primary mask's shape.")
+    sigma = float(sigma)
+    if not np.isfinite(sigma) or sigma < 0:
+        raise ValueError("Gaussian sigma must be finite and nonnegative.")
+    if str(stop) not in PROPAGATE_STOPS:
+        raise ValueError(f"Unknown propagation stop rule: {stop!r}.")
+    minimum = float(min_area)
+    if not np.isfinite(minimum) or minimum < 0:
+        raise ValueError("Minimum area must be finite and nonnegative.")
+    if stop != "threshold":
+        value = float(stop_value)
+        if not np.isfinite(value):
+            raise ValueError("Stop value must be finite.")
+        if stop == "percentile" and not 0 <= value <= 100:
+            raise ValueError("Stop percentile must be between 0 and 100.")
+        if stop == "seed_fraction" and (not 0 <= value <= 1 or values.min() < 0):
+            raise ValueError("Seed fraction needs a value in [0,1] and nonnegative intensities.")
+    ids = np.unique(markers)
+    ids = ids[ids > 0]
+    dense = np.zeros(markers.shape, dtype=np.int32)
+    foreground = markers > 0
+    dense[foreground] = np.searchsorted(ids, markers[foreground]) + 1
+    blurred = _ndimage().gaussian_filter(values, sigma) if sigma > 0 else values
+    grown = _grow_markers(
+        blurred, dense, stop=stop, stop_value=stop_value,
+        stop_algorithm=stop_algorithm, min_area=int(minimum),
+        fill_holes=fill_holes, keep_markers=True, relabel=False, growth=growth)
+    lookup = np.concatenate((np.zeros(1, dtype=markers.dtype), ids))
+    labels = lookup[grown.labels]
+    return SecondaryResult(labels, primary_secondary_report(markers, labels),
+                           grown.level)
+
+
+def maxima_propagate_instances(
+        image: np.ndarray, *, sigma: float = 2.0, min_distance: int = 10,
+        seed_level: float = 90.0, seed_level_is_percentile: bool = True,
+        exclude_border: bool = False, stop: str = "seed_fraction",
+        stop_value: float = 0.4, stop_algorithm: str = "otsu",
+        min_area: int = 0, fill_holes: bool = True) -> PropagateResult:
+    """Segment bright objects with local maxima and an intensity watershed.
+
+    Convert the field to float32, optionally blur it, and find centres with
+    :func:`skimage.feature.peak_local_max`. Use those centres as markers for
+    :func:`skimage.segmentation.watershed` on the negative blurred image.
+    Distinct centres can split touching objects; noise can create extra
+    centres, while smoothing or large centre spacing can remove real ones.
+    No existing primary-object mask is accepted. This implementation has
+    no CellProfiler propagation cost or distance/intensity weighting.
+
+    The four stop rules operate on the blurred values:
+
+    * ``seed_fraction`` first partitions the entire image by watershed,
+      then retains pixels at or above ``stop_value`` times their basin's
+      seed intensity. This is an intensity ratio, not a quantile. Adding a
+      background offset changes the relative cut; equal measurements of
+      bright and dim objects are not guaranteed. Trimming can leave
+      disconnected pieces with the same label.
+    * ``absolute`` restricts the watershed to pixels at or above
+      ``stop_value``, in the input's intensity units.
+    * ``percentile`` uses that percentile of all blurred input pixels as
+      the common threshold. Changing the crop can change this level.
+    * ``threshold`` obtains the common level from ``stop_algorithm`` and
+      ignores ``stop_value``.
+
+    Fill holes per label if requested, then discard labels smaller than
+    ``min_area`` and renumber survivors. Hole filling can restore pixels
+    below the selected intensity cut. The seed count is recorded before
+    these operations and can exceed the number of surviving objects.
+
+    Input preparation is the caller's responsibility: this function does
+    not normalize intensities, subtract background, or invert dark objects.
+    Use finite 2-D values; NaNs and infinities are not sanitized. Make Masks
+    supplies the processed field or crop after its selected enhancements.
+    Absolute levels and peak ratios therefore depend on that preparation.
+
+    :param image: nonempty 2-D intensity array, converted to float32 without
+        range rescaling. Output coordinates and shape match this array.
+    :param sigma: Gaussian standard deviation in pixels; default 2.0.
+        Positive values smooth both seed finding and growth; zero disables
+        blur. Increasing it can suppress noise peaks or merge real peaks.
+        Make Masks offers 0 to 50; the direct API also skips negative values.
+    :param min_distance: centre separation in pixels; default 10. Passed
+        to peak finding as ``max(1, int(min_distance))``, using its default
+        Chebyshev distance. Increasing it suppresses nearby candidate seeds;
+        reducing it can split an object into several detections. Make Masks
+        offers 1 to 500.
+    :param seed_level: default 90.0. Candidate maxima must exceed this
+        intensity, or the intensity at this percentile when
+        ``seed_level_is_percentile`` is true. Percentiles must be between
+        0 and 100. Increasing the floor excludes dimmer candidate centres;
+        it does not directly set the final object boundary.
+    :param seed_level_is_percentile: default true. Compute the seed floor
+        from all blurred input pixels; false uses an absolute intensity.
+        A crop and a whole field can yield different percentile floors.
+    :param exclude_border: default false. If true, exclude candidate centres
+        within the effective ``min_distance`` of the input edge. This does
+        not remove every object whose grown boundary touches the edge.
+    :param stop: default ``"seed_fraction"``; one of
+        :data:`PROPAGATE_STOPS`, with the behavior described above.
+    :param stop_value: default 0.4. For ``seed_fraction``, use a ratio from
+        0 to 1 with nonnegative intensities; increasing it removes dimmer
+        basin pixels before hole filling. For ``absolute``, use an intensity;
+        for ``percentile``, use 0 to 100. Higher common thresholds shrink
+        the eligible mask. Ignored for ``threshold``. The API does not clip
+        ratios or absolute values; the GUI number box alone does not enforce
+        rule-specific limits.
+    :param stop_algorithm: default ``"otsu"``; a key of
+        :data:`GLOBAL_THRESHOLDS`, read only for ``stop="threshold"``.
+        The threshold is estimated from the blurred field or crop.
+    :param min_area: default 0, disabling size removal. Labels with fewer
+        than ``int(min_area)`` pixels after hole filling are discarded.
+        Increasing it removes small labels without merging touching ones.
+    :param fill_holes: default true. Fill enclosed background pixels per
+        label before size filtering. False preserves those holes.
+    :returns: :class:`PropagateResult` containing an int32 label array
+        (0 is background, surviving labels are 1 through N), the original
+        seed count, and the common stop level. The level is None for
+        ``seed_fraction`` or when no seeds were found. A constant image or
+        an overly high seed floor can return all-zero labels and zero seeds;
+        an empty stop mask or size filtering can remove every seeded object.
+    :raises ValueError: for an unknown stop rule, an empty or non-2-D image,
+        an out-of-range percentile when evaluated, or an unknown global
+        threshold algorithm when that rule is evaluated.
+
+    For example, ``maxima_propagate_instances(image, sigma=2,
+    min_distance=10, seed_level=90, stop="seed_fraction", stop_value=0.4,
+    min_area=20)`` retains each basin above 40 percent of its seed intensity
+    before filling holes and removing labels smaller than 20 pixels.
+    """
+    from skimage.feature import peak_local_max
+
+    if str(stop) not in PROPAGATE_STOPS:
+        raise ValueError(
+            f"{stop!r} is not a propagation stop rule; the ones there are: "
+            f"{sorted(PROPAGATE_STOPS)}.")
+    values = np.asarray(image, dtype=np.float32)
+    if values.ndim != 2 or not values.size:
+        raise ValueError("Propagation needs a 2-D image; this one is empty.")
+    empty = np.zeros(values.shape, dtype=np.int32)
+    blurred = (_ndimage().gaussian_filter(values, float(sigma))
+               if float(sigma) > 0.0 else values)
+
+    floor = (float(np.percentile(blurred, float(seed_level)))
+             if seed_level_is_percentile else float(seed_level))
+    coordinates = peak_local_max(
+        blurred, min_distance=max(1, int(min_distance)), threshold_abs=floor,
+        exclude_border=max(1, int(min_distance)) if exclude_border else False)
+    if not len(coordinates):
+        return PropagateResult(empty, 0, None)
+
+    markers = np.zeros(values.shape, dtype=np.int32)
+    markers[tuple(coordinates.T)] = np.arange(1, len(coordinates) + 1)
+
+    return _grow_markers(
+        blurred, markers, stop=stop, stop_value=stop_value,
+        stop_algorithm=stop_algorithm, min_area=min_area, fill_holes=fill_holes)
+
+
+def _grow_markers(blurred, markers, *, stop, stop_value, stop_algorithm,
+                  min_area, fill_holes, keep_markers=False,
+                  relabel=True, growth="intensity") -> PropagateResult:
+    """Grow compact markers with shared stop, fill and size-filter semantics."""
+    from skimage.segmentation import watershed
+
+    seeds = int(markers.max())
+    empty = np.zeros(markers.shape, dtype=np.int32)
+    if not seeds:
+        return PropagateResult(empty, 0, None)
+
+    level: Optional[float] = None
+    surface = np.zeros_like(blurred) if growth == 'distance' else -blurred
+    if stop == "seed_fraction":
+        grown = watershed(surface, markers)
+        peaks = np.zeros(seeds + 1, dtype=np.float32)
+        peaks[1:] = _ndimage().maximum(blurred, markers, np.arange(1, seeds + 1))
+        keep = blurred >= peaks[grown] * float(stop_value)
+        labels = np.where(keep, grown, 0).astype(np.int32)
+    else:
+        if stop == "absolute":
+            level = float(stop_value)
+        elif stop == "percentile":
+            level = float(np.percentile(blurred, float(stop_value)))
+        else:
+            level = _global_level(blurred, stop_algorithm)
+        mask = blurred >= level
+        if keep_markers:
+            mask |= markers > 0
+        if not mask.any():
+            return PropagateResult(empty, seeds, level)
+        labels = np.asarray(watershed(surface, markers, mask=mask),
+                            dtype=np.int32)
+
+    if keep_markers:
+        labels[markers > 0] = markers[markers > 0]
+    if fill_holes:
+        labels = _fill_label_holes(labels)
+    return PropagateResult(_drop_small_labels(labels, min_area, relabel=relabel),
+                           seeds, level)
+
+
+def _fill_label_holes(labels: np.ndarray) -> np.ndarray:
+    """Close the holes inside each object, without joining two of them.
+
+    ``binary_fill_holes`` over the whole foreground would fill the gap
+    BETWEEN two objects that happen to ring a piece of background, so the
+    holes are filled per label and written back only where nothing else has
+    a claim.
+    """
+    ndimage = _ndimage()
+    out = np.asarray(labels, dtype=np.int32).copy()
+    background = out == 0
+    for value in np.unique(out):
+        if value == 0:
+            continue
+        filled = ndimage.binary_fill_holes(out == value)
+        out[filled & background] = value
+    return out
+
+
+def _drop_small_labels(labels: np.ndarray, min_area: int, *,
+                       relabel: bool = True) -> np.ndarray:
+    """Remove objects under ``min_area`` and renumber the rest from 1.
+
+    Set ``relabel=False`` to retain marker IDs after dropping small labels.
+    Inputs use compact integer labels; sparse external IDs must be mapped
+    before calling this helper. Renumbering by remapping and NOT by
+    re-labelling the foreground: two
+    objects that touch are two objects, and connected-components would make
+    them one again.
+    """
+    out = np.asarray(labels, dtype=np.int32)
+    counts = np.bincount(out.ravel())
+    if int(min_area) > 0:
+        small = counts < int(min_area)
+        small[0] = True
+        out = np.where(small[out], 0, out)
+    if not relabel:
+        return out
+    present = np.unique(out)
+    present = present[present > 0]
+    remap = np.zeros(int(out.max()) + 1, dtype=np.int32)
+    remap[present] = np.arange(1, len(present) + 1, dtype=np.int32)
+    return remap[out]
+
+
 def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
                              bright: bool = True,
                              min_area: int = 0,
                              correction: float = 1.0,
                              smoothing: float = _CLASSICAL_SMOOTHING,
                              fill_holes: bool = True,
-                             split_touching: bool = True) -> np.ndarray:
+                             split_touching: bool = True,
+                             algorithm: str = "otsu",
+                             window: int = 51,
+                             local_k: float = 0.2) -> np.ndarray:
     """Threshold one magnifier region and split the objects that touch.
 
     The Otsu magnifier mode -- formerly named ``classical`` --
@@ -2260,11 +2863,17 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
     :param split_touching: cut each blob at the ridge between two centres
         (:func:`_split_touching_objects`). Off labels each blob whole, so a
         pair of touching cells arrives as one object.
+    :param algorithm: which of :data:`GLOBAL_THRESHOLDS` or
+        :data:`LOCAL_THRESHOLDS` finds the level. ``otsu`` is the default
+        and is what this did before there were others. A LOCAL ALGORITHM
+        SKIPS THE TWO-POPULATION TEST below, because that test is a
+        judgement about a whole region's histogram and a local algorithm
+        does not take one.
+    :param window: the window a local algorithm measures in, in pixels.
+    :param local_k: Sauvola's and Niblack's ``k``.
     :returns: int32 labels 1..N shaped like ``region``; all zero for a
         region with nothing above its noise.
     """
-    from skimage.filters import threshold_otsu
-
     ndimage = _ndimage()
     values = np.asarray(region, dtype=np.float32)
     empty = np.zeros(values.shape, dtype=np.int32)
@@ -2279,7 +2888,15 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
     if hi <= lo:
         return empty
     stretched = np.clip((smooth - lo) / (hi - lo), 0.0, 1.0)
-    level = float(threshold_otsu(stretched))
+    name = str(algorithm or "otsu")
+    if name in LOCAL_THRESHOLDS:
+        levels = _local_level_map(stretched, name, window=window, k=local_k)
+        foreground = stretched > levels * float(correction)
+        return _finish_region_binary(foreground, ndimage, empty,
+                                     fill_holes=fill_holes,
+                                     split_touching=split_touching,
+                                     min_area=min_area)
+    level = _global_level(stretched, name)
     upper = stretched > level
     share = float(upper.mean())
     total = float(stretched.var())
@@ -2299,6 +2916,22 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
         sigmas = max(1.0, _CLASSICAL_NOISE_SIGMAS - 0.5 * float(sensitivity))
         foreground = smooth > centre + sigmas * spread
 
+    return _finish_region_binary(foreground, ndimage, empty,
+                                 fill_holes=fill_holes,
+                                 split_touching=split_touching,
+                                 min_area=min_area)
+
+
+def _finish_region_binary(foreground, ndimage, empty, *, fill_holes: bool,
+                          split_touching: bool, min_area: int) -> np.ndarray:
+    """Open, fill and label a magnifier region's foreground.
+
+    The tail of :func:`_classical_region_labels`, in a function of its own
+    because a local algorithm reaches it without passing through the
+    two-population test in the middle of that one. Splitting it out is what
+    keeps there being ONE description of what happens to a region's
+    foreground after it has been decided.
+    """
     binary = ndimage.binary_opening(foreground, structure=_EIGHT)
     if fill_holes:
         binary = ndimage.binary_fill_holes(binary)
@@ -2311,7 +2944,8 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
 
 def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
                           overlap: str = "clip",
-                          min_area: int = 0) -> Tuple[np.ndarray, List[int]]:
+                          min_area: int = 0,
+                          preserve_ids: bool = False) -> Tuple[np.ndarray, List[int]]:
     """Add a region's objects to ``mask`` as new objects.
 
     What a live-magnifier click commits. The labels arrive in the region's
@@ -2331,6 +2965,9 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
         piece, because one id must name one object.
     :param min_area: an object left smaller than this once the rule has been
         applied is not added.
+    :param preserve_ids: paste the supplied IDs, not newly allocated IDs.
+        Same-ID pixels do not conflict under Clip or Skip. Disconnected
+        pieces retain their shared identity. Exact-ID masks must fit uint16.
     :returns: ``(mask, new_ids)``. New ids start one past the mask's top id
         (:func:`next_label`) and follow the incoming labels' order, so they
         cannot collide with any id the mask holds. Nothing added returns a
@@ -2342,6 +2979,9 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
             f"overlap must be one of {_MAGNIFIER_OVERLAP_RULES}, "
             f"not {overlap!r}")
     incoming = np.asarray(labels)
+    if preserve_ids:
+        incoming = canonical_labels(incoming, preserve_ids=True)
+        mask = canonical_labels(mask, preserve_ids=True)
     height, width = mask.shape[:2]
     ox, oy = int(origin[0]), int(origin[1])
     x0, y0 = max(0, ox), max(0, oy)
@@ -2353,13 +2993,19 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
     if not incoming.any():
         return mask.copy(), []
     occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
+    if preserve_ids:
+        occupied &= np.asarray(mask)[y0:y1, x0:x1] != incoming
     kept = _surviving_region_objects(incoming, occupied, overlap=overlap,
-                                    min_area=min_area)
+                                    min_area=min_area, preserve_ids=preserve_ids)
     values = [int(v) for v in np.unique(kept) if int(v) > 0]
     if not values:
         return mask.copy(), []
     out = mask.astype(np.int64, copy=True)
     window = out[y0:y1, x0:x1]
+    if preserve_ids:
+        body = kept > 0
+        window[body] = kept[body]
+        return _fit_label_width(out, mask), values
     new_id = next_label(mask)
     added: List[int] = []
     renumber = np.zeros(int(kept.max()) + 1, dtype=np.int64)
@@ -2412,7 +3058,8 @@ def _largest_piece_of_each(labels: np.ndarray) -> np.ndarray:
 
 def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
                              overlap: str = "clip",
-                             min_area: int = 0) -> np.ndarray:
+                             min_area: int = 0,
+                             preserve_ids: bool = False) -> np.ndarray:
     """What is left of a region's objects once the Overlap rule has run.
 
     The live magnifier's Overlap rule and Min area in one place, so the box
@@ -2437,6 +3084,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
         keeps everything.
     :param min_area: an object left smaller than this by the rule does not
         survive. 0 and 1 both mean "at least one pixel".
+    :param preserve_ids: retain disconnected pieces sharing an ID; ``occupied``
+        must exclude existing same-ID pixels. Validate labels as uint16 IDs.
     :returns: a copy of ``labels`` with everything the rule takes away set
         to 0. The surviving objects keep the ids they came in with.
     :raises ValueError: for an unknown ``overlap`` rule.
@@ -2446,6 +3095,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
             f"overlap must be one of {_MAGNIFIER_OVERLAP_RULES}, "
             f"not {overlap!r}")
     incoming = np.asarray(labels)
+    if preserve_ids:
+        incoming = canonical_labels(incoming, preserve_ids=True)
     taken = np.asarray(occupied, dtype=bool)
     kept = np.where(incoming > 0, incoming, 0).astype(np.int64)
     if overlap == "skip":
@@ -2455,7 +3106,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
             kept[np.isin(kept, touching)] = 0
     elif overlap == "clip":
         kept[taken] = 0
-        kept = _largest_piece_of_each(kept)
+        if not preserve_ids:
+            kept = _largest_piece_of_each(kept)
     floor = max(1, int(min_area))
     if floor > 1 and kept.any():
         areas = np.bincount(kept.ravel())

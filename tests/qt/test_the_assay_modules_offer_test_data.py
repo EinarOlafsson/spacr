@@ -33,6 +33,9 @@ SHIPPED = {
     "invasion": {"src": DATASET_PLACEHOLDER, "outside_channel": "3",
                  "total_channel": "2", "stain_baseline_wells": "['c1']",
                  "pathogen_types": "['vehicle', 'inhibitor']"},
+    "host_pathogen": {"src": DATASET_PLACEHOLDER, "hp_marker_channels": "[1]",
+                      "hp_marker_thresholds": "{}", "hp_parasite_table": "",
+                      "hp_count_column": "", "hp_reference_table": "cytoplasm"},
 }
 
 
@@ -41,6 +44,12 @@ def _unpack_a_published_copy(folder: Path, key: str, *, src=None) -> Path:
     (folder / "measurements").mkdir(parents=True, exist_ok=True)
     sqlite3.connect(str(folder / "measurements" / "measurements.db")).close()
     (folder / "settings").mkdir(exist_ok=True)
+    if key == 'host_pathogen':
+        for name in example_set(key).markers:
+            path = folder / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if not path.exists():
+                path.write_text('{}')
     with (folder / "settings" / f"{key}_settings.csv").open(
             "w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
@@ -127,7 +136,8 @@ def test_a_download_fills_src_and_the_shipped_settings(
     settings = screen._settings_model.collect()
     expected_types = (["vehicle", "inhibitor"] if key == "invasion"
                       else ["nc", "pc"])
-    assert settings["pathogen_types"] == expected_types
+    if key != 'host_pathogen':
+        assert settings["pathogen_types"] == expected_types
     if key == "replication":
         assert settings["vacuole_key"] == "spatial"
         assert float(settings["min_parasite_area"]) == 400
@@ -135,6 +145,11 @@ def test_a_download_fills_src_and_the_shipped_settings(
         assert settings["outside_channel"] == 3
         assert settings["total_channel"] == 2
         assert settings["stain_baseline_wells"] == ["c1"]
+    elif key == 'host_pathogen':
+        assert settings['hp_marker_channels'] == [1]
+        assert settings['hp_marker_thresholds'] == {}
+        assert settings['hp_parasite_table'] in ('', None)
+        assert settings['hp_reference_table'] == 'cytoplasm'
     else:
         assert settings["channel_of_interest"] == 1
         assert settings["cell_types"] == ["THP1"]

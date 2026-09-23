@@ -1,6 +1,6 @@
-|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
+|Platforms| |Python| |Qt| |Tests| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
-.. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
+.. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
    :alt: Skjöl
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
@@ -142,15 +142,15 @@ Skjáborðsforrit
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Sækja spaCR 1.5.0.9 fyrir Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Windows-Online-Setup.exe
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: Sækja spaCR 1.5.0.9 fyrir macOS 11+ (Intel og Apple Silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-macOS-Universal-Online.pkg
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Sækja spaCR 1.5.0.9 fyrir 64-bita Linux
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/SpaCR-1.5.0.9-Linux-x86_64-Online.run
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Eldri spaCR-uppsetningarforrit
@@ -322,7 +322,7 @@ Prófanir
 
 Quantitative readouts for biological assays.
 
-| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+| |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -414,25 +414,20 @@ Quantitative readouts for biological assays.
    :alt: Opna API-skjölin fyrir Graph Builder
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
    :width: 16.0%
-   :alt: Opna API-skjölin fyrir Plaque Assay
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :alt: Opna API-skjölin fyrir Toxoplasma
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
-.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
    :width: 16.0%
-   :alt: Opna API-skjölin fyrir Recruitment
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :alt: Opna API-skjölin fyrir Plasmodium spp.
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
-.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
    :width: 16.0%
-   :alt: Opna API-skjölin fyrir Invasion Assay
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
-   :align: middle
-.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.0%
-   :alt: Opna API-skjölin fyrir Replication Assay
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :alt: Opna API-skjölin fyrir Candida spp.
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
    :align: middle
 
 .. spacr-workflow-end

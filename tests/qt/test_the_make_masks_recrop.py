@@ -50,6 +50,7 @@ from spacr.curation import CurationLog, is_curated
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens.make_masks import (
     MODE_RECROP,
+    MODE_RULER,
     RECROP_TOOLTIP,
     TOOL_MODES,
     MakeMasksScreen,
@@ -406,18 +407,24 @@ def test_restoring_a_field_that_was_never_retired_does_nothing(folder):
 # The tool in the row
 # ===========================================================================
 
-def test_recrop_is_one_of_the_tools_in_the_one_row(qtbot, qt_theme_applied):
+def test_recrop_is_one_of_the_tools_in_the_one_row(qtbot, qt_theme_applied, folder):
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
+    assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: screen._canvas.image is not None)
     assert (MODE_RECROP, "Recrop", "recrop") in TOOL_MODES
     assert MODE_RECROP in dict((m, l) for m, l, _i in tool_row_entries())
     button = screen._mode_buttons[MODE_RECROP]
     assert screen._tool_row_layout.indexOf(button) >= 0
-    # Last in the row: it is the only tool that does not edit the mask.
     modes = [m for m, _l, _i in tool_row_entries()]
-    assert modes[-1] == MODE_RECROP
-    # And it says what it does, because pressing it and looking does not.
+    assert modes[-2:] == [MODE_RECROP, MODE_RULER]
     assert button.toolTip() == RECROP_TOOLTIP
+    button.click()
+    assert screen._canvas.mode == MODE_RECROP
+    ruler = screen._mode_buttons[MODE_RULER]
+    assert screen._tool_row_layout.indexOf(ruler) > screen._tool_row_layout.indexOf(button)
+    ruler.click()
+    assert screen._canvas.mode == MODE_RULER
 
 
 def test_the_recrop_shortcut_does_not_collide(qtbot, qt_theme_applied):

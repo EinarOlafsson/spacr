@@ -49,6 +49,7 @@ from ... import report as rep
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.measurements_example import install_test_data_button
 
 __all__ = ["ReportScreen", "FORMATS", "FIGURE_CAP_RANGE"]
@@ -142,7 +143,12 @@ class ReportScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Lay out the source row, the section list, the output row and the actions."""
+        """Lay out the source row, the section list, the output row and the actions.
+
+        The section list folds by its heading (item 471); folded, the
+        heading sits at the bottom of the room the list had, directly above
+        the output row.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -186,11 +192,13 @@ class ReportScreen(QWidget):
         self._verdict.setWordWrap(True)
         outer.addWidget(self._verdict)
 
-        outer.addWidget(QLabel("Sections found in this folder:", self))
         self._sections = QListWidget(self)
         self._sections.setAlternatingRowColors(True)
         self._sections.setSelectionMode(QListWidget.NoSelection)
-        outer.addWidget(self._sections, 1)
+        self._sections_section = FoldSection(
+            self._sections, "Sections found in this folder:",
+            persist_key="report/Sections")
+        outer.addWidget(self._sections_section, 1)
 
         opts = QHBoxLayout()
         opts.setSpacing(SPACING["sm"])

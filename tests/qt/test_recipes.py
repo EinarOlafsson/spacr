@@ -170,7 +170,7 @@ def test_a_recipe_for_another_module_is_refused(mask_screen, qtbot):
 def test_an_arbitrary_json_file_is_not_a_recipe(tmp_path):
     path = tmp_path / "package.json"
     path.write_text('{"name": "something", "version": "1.0.0"}')
-    with pytest.raises(ValueError, match="not a spaCR settings recipe"):
+    with pytest.raises(ValueError, match="not a spaCR settings template"):
         load_recipe(str(path))
 
 
@@ -226,7 +226,7 @@ def test_an_empty_folder_tells_the_user_what_to_do(mask_screen, qtbot):
     dialog = RecipeDialog(mask_screen)
     qtbot.addWidget(dialog)
     assert dialog.selected() is None
-    assert "No recipes yet" in dialog.detail_text()
+    assert "No templates yet" in dialog.detail_text()
     assert not dialog._btn_apply.isEnabled()
 
 

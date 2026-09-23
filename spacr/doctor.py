@@ -1211,16 +1211,17 @@ def check_torch(ctx: Context) -> Result:
 def check_gpu(ctx: Context) -> Result:
     """CUDA is not merely reported as present but is actually usable.
 
-    :param ctx: only ``ctx.probe_gpu`` is read, and only on the path where
-        CUDA already reports at least one device. Left ``True`` (the default,
-        cleared by ``--no-gpu-probe``) the check allocates an 8x8 tensor on
-        ``cuda``, multiplies it and synchronises, which is what catches the
-        driver/runtime mismatch that ``torch.cuda.is_available()`` cheerfully
-        reports as fine. Set it ``False`` on a card that is full or shared:
-        the row then repeats what torch claims, says the probe was skipped,
-        and can therefore pass on a GPU that would fail at the first
-        allocation.
+    :param ctx: ``probe_gpu=True`` permits explicit CUDA initialization and
+        an 8x8 tensor allocation/multiplication probe. False reports metadata
+        without initialization, device-name or dtype-allocation probes; it
+        cannot prove that a reported device would accept a tensor. Explicitly
+        hidden CUDA devices are reported as skipped, while other backends
+        remain eligible. A forced CPU selection is also reported as skipped.
     """
+    from .accelerator import Accelerator
+
+    found = Accelerator(kind="cpu", device="cpu", label="CPU")
+
     def _result(status, message, *, fix="", details=()):
         """Append shared task evidence without changing the GPU diagnosis."""
         # Take one shared capability snapshot for every diagnostic path,
@@ -1231,7 +1232,7 @@ def check_gpu(ctx: Context) -> Result:
 
             capability_details = tuple(
                 f"{task}: {'GPU' if accelerated else 'CPU'} — {detail}"
-                for task, accelerated, detail in capabilities()
+                for task, accelerated, detail in capabilities(found=found)
             )
         except Exception:                                    # noqa: BLE001
             capability_details = ()
@@ -1239,6 +1240,11 @@ def check_gpu(ctx: Context) -> Result:
             "gpu", status, message, fix=fix,
             details=tuple(details) + capability_details,
         )
+
+    forced = os.environ.get("SPACR_DEVICE", "").strip().lower()
+    if forced in ("cpu", "none", "0", "off"):
+        return _result(SKIP, f"GPU diagnostics skipped: SPACR_DEVICE={forced} selects CPU execution.",
+                       fix="Keep this setting for CPU execution; remove SPACR_DEVICE to check GPU acceleration.")
 
     try:
         torch = _import_torch()
@@ -1248,13 +1254,15 @@ def check_gpu(ctx: Context) -> Result:
             "torch does not import, so CUDA cannot be checked.",
             fix="Fix the `torch` row above first.",
         )
-    driver = _nvidia_driver()
     built = getattr(getattr(torch, "version", None), "cuda", None)
+    hip = getattr(getattr(torch, "version", None), "hip", None)
+    visibility_keys = ('CUDA_VISIBLE_DEVICES',) + (('HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES') if hip else ())
+    hidden = [key for key in visibility_keys if key in os.environ and os.environ[key].strip() in ('', '-1')]
 
     try:
         from .accelerator import inspect_torch
 
-        found = inspect_torch(torch)
+        found = inspect_torch(torch, device_names=ctx.probe_gpu, include_cuda=not hidden)
         if found.is_gpu and not found.is_cuda:
             details = [f"device: {found.device}"]
             if not found.float64:
@@ -1263,7 +1271,7 @@ def check_gpu(ctx: Context) -> Result:
                     "needing double precision runs on the CPU")
             return _result(PASS, f"{found.label} — spaCR will use it.",
                            details=tuple(details))
-        if found.detected and not found.usable and not driver:
+        if found.detected and not found.usable and not _nvidia_driver():
             return _result(WARN,
                            f"{found.label} was detected but spaCR cannot "
                            f"use it.",
@@ -1271,6 +1279,12 @@ def check_gpu(ctx: Context) -> Result:
     except Exception:                                        # noqa: BLE001
         pass
 
+    if hidden:
+        settings = ', '.join(f'{key}={os.environ[key]!r}' for key in hidden)
+        return _result(SKIP, f"CUDA/ROCm devices are deliberately hidden by {settings}; no GPU probe was run.",
+                       fix="Keep this restriction for CPU execution. Remove the visibility restriction before diagnosing those GPUs.")
+
+    driver = _nvidia_driver()
     if not built:
         if driver:
             return _result(
@@ -1293,11 +1307,13 @@ def check_gpu(ctx: Context) -> Result:
         )
 
     if not torch.cuda.is_available():
-        reason = ""
-        try:
-            torch.cuda.init()
-        except Exception as exc:
-            reason = f"{type(exc).__name__}: {exc}"
+        reason = "CUDA initialization skipped (--no-gpu-probe)."
+        if ctx.probe_gpu:
+            reason = ""
+            try:
+                torch.cuda.init()
+            except Exception as exc:
+                reason = f"{type(exc).__name__}: {exc}"
         if driver is None:
             return _result(
                 FAIL,
@@ -1313,7 +1329,7 @@ def check_gpu(ctx: Context) -> Result:
             FAIL,
             f"Driver {driver} is loaded and torch was built against CUDA "
             f"{built}, but torch.cuda.is_available() is False — a driver / "
-            "runtime mismatch.",
+            "runtime mismatch or a device-visibility restriction may be responsible.",
             fix=(
                 "Install the torch build that matches your driver, e.g.:\n"
                 "python -m pip install --force-reinstall torch torchvision "
@@ -1323,10 +1339,12 @@ def check_gpu(ctx: Context) -> Result:
         )
 
     count = torch.cuda.device_count()
-    try:
-        names = ", ".join(torch.cuda.get_device_name(i) for i in range(count))
-    except Exception as exc:
-        names = f"unnamed ({type(exc).__name__})"
+    names = "device names not queried (--no-gpu-probe)"
+    if ctx.probe_gpu:
+        try:
+            names = ", ".join(torch.cuda.get_device_name(i) for i in range(count))
+        except Exception as exc:
+            names = f"unnamed ({type(exc).__name__})"
 
     if ctx.probe_gpu:
         try:
@@ -2049,7 +2067,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--no-gpu-probe",
         action="store_true",
-        help="do not allocate a tensor on the GPU (report what torch says instead)",
+        help="report availability; skip explicit CUDA initialization and device-name/tensor-allocation probes",
     )
     parser.add_argument(
         "--strict", action="store_true", help="treat warnings as failures"

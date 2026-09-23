@@ -1,0 +1,1500 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-assisted source/target review of the shared module map; the same reviewed phrases generate the module-reference and image-pathway tutorials. No native-speaker sign-off.",
+  "phrase_bank": "tools/tutorials/lessons/workflow_phrases/sv.json",
+  "phrase_bank_sha256": "56cd2a9459f99cb885cbb06604924f8dfac08cfb8531e66d50228a9ed889c1b7",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.",
+      "source": "A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.",
+      "source_sha256": "d15a1f463dbd341e4426d502b19a34f5319d8bd5928b5344098edc6dcc06dfb0",
+      "translation": "En vald annoteringskolumn i measurements/measurements.db, tabellen png_list; etiketterna hör till objektidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Acquire and measure the experiment first, preserving dose/condition identities.",
+      "source": "Acquire and measure the experiment first, preserving dose/condition identities.",
+      "source_sha256": "0f323891c020796daca4869bf6e5ac0698a80e6005ed1a0577fe7c124622897c",
+      "translation": "Samla först in och mät experimentet, med bevarade identiteter för doser och betingelser."
+    },
+    {
+      "table": "ui",
+      "key": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+      "source": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+      "source_sha256": "80c34a382ee7c88b39fd8785dbe0561813d318b5ebcf49c587119249fb1f4bc7",
+      "translation": "Aggregera den valda mätningen per brunn och inspektera plattmönster och kontroller."
+    },
+    {
+      "table": "ui",
+      "key": "Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.",
+      "source": "Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.",
+      "source_sha256": "eed85941623ad9242e81659667fcfcf7e6fb97f5fc561b34fdad55df20ad92fc",
+      "translation": "Målplats för Align & Stitch: den sammansatta bilden och de koordinat- och layoutuppgifter för bildrutor som behövs för att tolka den."
+    },
+    {
+      "table": "ui",
+      "key": "Aligned mosaic and coordinates",
+      "source": "Aligned mosaic and coordinates",
+      "source_sha256": "0d29787d6b1264601aa4efb723c9171f134f221a3cc918ff8c71680e07d15958",
+      "translation": "Registrerad mosaik och koordinater"
+    },
+    {
+      "table": "ui",
+      "key": "Also provide the matching crops and channel preprocessing.",
+      "source": "Also provide the matching crops and channel preprocessing.",
+      "source_sha256": "5d14f534937d88a8a816046b5b06ec106abb7f34c8957aecb6f28e07eb986510",
+      "translation": "Tillhandahåll också motsvarande utsnitt och kanalförbehandling."
+    },
+    {
+      "table": "ui",
+      "key": "An exported .h5ad file containing measured features and object metadata.",
+      "source": "An exported .h5ad file containing measured features and object metadata.",
+      "source_sha256": "eb1617e946b752baaf07a5fa75c860776425f0660848a412d57eb7d5439c8097",
+      "translation": "En exporterad .h5ad-fil med uppmätta egenskaper och objektmetadata."
+    },
+    {
+      "table": "ui",
+      "key": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+      "source": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+      "source_sha256": "c838f473fa96e1a4d0dfd289edffec8b35a72f2681cada7ed544fd0f102f20d6",
+      "translation": "Analysera plackbilder eller befintliga masker med den konfigurerade plackmodellen. Denna väg behöver inte gå genom Measure; använd det särskilda plackexemplet."
+    },
+    {
+      "table": "ui",
+      "key": "Apply compatible gates, then review candidate labels.",
+      "source": "Apply compatible gates, then review candidate labels.",
+      "source_sha256": "313dcd7499b29d9ab4f1e85a9a12a0700c2235ad0e42e8c45faaf93c6fc939ca",
+      "translation": "Tillämpa kompatibla urvalsgrindar och granska sedan kandidatetiketter."
+    },
+    {
+      "table": "ui",
+      "key": "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps.",
+      "source": "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps.",
+      "source_sha256": "616ed7d84583d1cb7edea0e7c6e356a336ea0312b3b0b4fbe0f20674a50cefaf",
+      "translation": "Tillämpa motsvarande bildklassificerare och förbehandling för att inspektera kartor över saliens eller modellrespons."
+    },
+    {
+      "table": "ui",
+      "key": "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them.",
+      "source": "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them.",
+      "source_sha256": "687dd2e9735ffb85adf10d1c7821cef3f201afb6d64a495b0dfc1d9be9ce0809",
+      "translation": "Tillämpa den valda segmenteringsmodellen på den öppna bildmappen genom Make Masks; inspektera sparade etiketter innan de mäts."
+    },
+    {
+      "table": "ui",
+      "key": "Area-derived size-proxy results",
+      "source": "Area-derived size-proxy results",
+      "source_sha256": "a468ba4a9766242ed6a5bcb0193f2daeba05179cb38a81a3abc941f3a2ad1d82",
+      "translation": "Resultat för ett areabaserat storleksmått"
+    },
+    {
+      "table": "ui",
+      "key": "Assay-specific result tables and figures in the configured destination, preserving well and condition identities.",
+      "source": "Assay-specific result tables and figures in the configured destination, preserving well and condition identities.",
+      "source_sha256": "965e5013440f3ad50e24620facf0624e2bd30ec2b73cf95cb4515ac9d1720ed9",
+      "translation": "Analysspecifika resultattabeller och figurer på den konfigurerade målplatsen, med bevarade brunns- och betingelseidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+      "source": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+      "source_sha256": "67c18edf78c03e939326aefe323cec616df1aa343f338419df84ced18677623c",
+      "translation": "Tilldela motsvarande bilder och befintliga masker med heltalsetiketter och skapa och mät sedan ett spaCR-projekt utan att köra segmenteringen igen."
+    },
+    {
+      "table": "ui",
+      "key": "Browse selected tables and export rows; table inspection does not rerun image analysis.",
+      "source": "Browse selected tables and export rows; table inspection does not rerun image analysis.",
+      "source_sha256": "ae9c5095f336105e9fbd9f5fbffb6e0bb0b6d8c74654859bb1ec9948b395204c",
+      "translation": "Bläddra i valda tabeller och exportera rader; tabellinspektion kör inte om bildanalysen."
+    },
+    {
+      "table": "ui",
+      "key": "Bundled organism reference",
+      "source": "Bundled organism reference",
+      "source_sha256": "6940b46228c61534e7131106a42e7a7c143ecf4206038f5ed3d31b18552b2fb0",
+      "translation": "Medföljande organismreferens"
+    },
+    {
+      "table": "ui",
+      "key": "Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
+      "source": "Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
+      "source_sha256": "8c3b2bc30d04bcc6d3c08a62c5d761ad0cbe2ae7075f1a84d4b7d1b61d630439",
+      "translation": "Ta med bildrutornas koordinater och de ursprungliga sekvenseringscyklerna till OPS; en utplattad mosaik räcker inte ensam."
+    },
+    {
+      "table": "ui",
+      "key": "Check mapping and coverage before guide filtering.",
+      "source": "Check mapping and coverage before guide filtering.",
+      "source_sha256": "8f0003ef9a4bff7fd9ec78f06910d83d5cd54dba893fb6d715164d8fb80a7e0f",
+      "translation": "Kontrollera mappning och täckning innan guider filtreras."
+    },
+    {
+      "table": "ui",
+      "key": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "source": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "source_sha256": "dfd0615694b07d1b38c715a9faf27f675d184a1abb8ecaaf55907a64653b2f4f",
+      "translation": "Välj Computer Vision för utsnitt eller objektbilder som hämtas vid behov, eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De två familjerna använder olika indata."
+    },
+    {
+      "table": "ui",
+      "key": "Choose explicit variables, groups and filters.",
+      "source": "Choose explicit variables, groups and filters.",
+      "source_sha256": "3f346a1d8a8fc510ad9eefe78481e54db311742cb68caa3d0eaa38ea53505af2",
+      "translation": "Välj uttryckligen variabler, grupper och filter."
+    },
+    {
+      "table": "ui",
+      "key": "Choose feature columns and inspect representative crops.",
+      "source": "Choose feature columns and inspect representative crops.",
+      "source_sha256": "22bcabd0b57471c6762a75c4ddf999a1619320d8e32a20ec6bd4f94d3e8fa2f1",
+      "translation": "Välj egenskapskolumner och inspektera representativa utsnitt."
+    },
+    {
+      "table": "ui",
+      "key": "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.",
+      "source": "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.",
+      "source_sha256": "f6c34d8205ce135fb2481706b5cc4beeb9cb39d5bcb7de202c6aa50274bd12a4",
+      "translation": "Välj grupperingsvariabler och mätkolumner och inspektera sedan pivottabeller och stickprovsstorlekar per grupp."
+    },
+    {
+      "table": "ui",
+      "key": "Choose independent annotation columns for the same objects.",
+      "source": "Choose independent annotation columns for the same objects.",
+      "source_sha256": "cd79b318e185370c7e0f596616c08b46b9b6ada79e3dddb0e40ef52e399f4a28",
+      "translation": "Välj oberoende annoteringskolumner för samma objekt."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the image or tabular family to match your input.",
+      "source": "Choose the image or tabular family to match your input.",
+      "source_sha256": "ceb54e5452ef1c9acadfccb5dd22ce2b6781d2eb432446886ad5e7cdf57e35a5",
+      "translation": "Välj bildfamiljen eller den tabulära familjen efter dina indata."
+    },
+    {
+      "table": "ui",
+      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "Välj variabler, grupper och diagraminställningar från den inlästa tabellen och exportera sedan figuren med dess analyskontext."
+    },
+    {
+      "table": "ui",
+      "key": "Classifier evaluation bundle",
+      "source": "Classifier evaluation bundle",
+      "source_sha256": "89adad7599d0938534d8d4406f3b4cfa8c6bc70d9664d88c81e4bbfe818fd3a5",
+      "translation": "Utvärderingspaket för klassificerare"
+    },
+    {
+      "table": "ui",
+      "key": "Combine measured objects with matching tracks.",
+      "source": "Combine measured objects with matching tracks.",
+      "source_sha256": "9814ec4bb65f1bbc792c24c8ddf12b71822c9e49252bdb0a60d77bed63851c5d",
+      "translation": "Kombinera uppmätta objekt med motsvarande spår."
+    },
+    {
+      "table": "ui",
+      "key": "Compare compatible saved result sets and their settings.",
+      "source": "Compare compatible saved result sets and their settings.",
+      "source_sha256": "bfceea3a2459b0f73caaca76beadd1d4b3b1aa069ae336974fa5170d55b99e5a",
+      "translation": "Jämför kompatibla sparade resultatuppsättningar och deras inställningar."
+    },
+    {
+      "table": "ui",
+      "key": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+      "source": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+      "source_sha256": "694456ee4f476e0a484dee77cb01c2482717f65c64115b614d7b1ae8bb4a9981",
+      "translation": "Jämför kompatibla sparade inställningar, antal och träfflistor utan att behandla ändrade indata som en kontrollerad modelljämförelse."
+    },
+    {
+      "table": "ui",
+      "key": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+      "source": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+      "source_sha256": "f5c09dfef9795ff76303326bed04aae85be1983d26dff5474bbc8eb8d73cc2f6",
+      "translation": "Jämför angivna kontroller mellan plattor och inspektera drift; definitionen av en kontroll kommer från experimentet."
+    },
+    {
+      "table": "ui",
+      "key": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+      "source": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+      "source_sha256": "5696e4b8e59ff2424fa5e83649b69a765bbc3cc0f5f5881bef5744475888bbf8",
+      "translation": "Jämför grupper i flera små diagram med uttryckligen gemensamma eller oberoende axlar."
+    },
+    {
+      "table": "ui",
+      "key": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+      "source": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+      "source_sha256": "9bd4e6188a58340c22515e30d1c9cc8744fe271fa4fdefcfaa0b9cb0a5cba84e",
+      "translation": "Jämför oberoende annoteringskolumner och inspektera objekt med avvikande annoteringar; överensstämmelse är skild från klassificeringsnoggrannhet."
+    },
+    {
+      "table": "ui",
+      "key": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "source": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "source_sha256": "240313d6c6c0cd9baf7ffde5b0e1fd23807099980c7dbdd70f54cc8d30847617",
+      "translation": "Jämför modellmasker på identiska bildfält. Utan oberoende referensetiketter mäter överensstämmelse inte segmenteringsnoggrannhet."
+    },
+    {
+      "table": "ui",
+      "key": "Compare saved training histories, metrics and settings from compatible model runs.",
+      "source": "Compare saved training histories, metrics and settings from compatible model runs.",
+      "source_sha256": "648125cd6c6c041fb5612df6dae629b30dfa25720e1c143668b9cf0256eb886f",
+      "translation": "Jämför sparade träningshistoriker, mätetal och inställningar från kompatibla modellkörningar."
+    },
+    {
+      "table": "ui",
+      "key": "Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy.",
+      "source": "Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy.",
+      "source_sha256": "43464fdacefc288e0354f2982955822f2e7a4bc7b9dd2b0200a9e1d71f7fb5aa",
+      "translation": "Jämförelsetabeller och figurer från kompatibla sparade körningar eller masker; överensstämmelse är inte noggrannhet mot en oberoende referens."
+    },
+    {
+      "table": "ui",
+      "key": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+      "source": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+      "source_sha256": "ff8703beb2e105461ec44b322f82f73a76842e4ba4e9ac58cb0ddedc483801b2",
+      "translation": "Konvertera mikroskopformat som stöds till en konfigurerad TIFF-layout med bevarade källmappningar. Konvertering skapar inga objektmätningar."
+    },
+    {
+      "table": "ui",
+      "key": "Correct labels and track assignments while retaining a record of the edits.",
+      "source": "Correct labels and track assignments while retaining a record of the edits.",
+      "source_sha256": "e1b49e03ad6cc63788f37b0d1269f1eacec5b175d89cfe80bd4e7393bf95d2d0",
+      "translation": "Korrigera etiketter och spårtilldelningar och behåll en historik över ändringarna."
+    },
+    {
+      "table": "ui",
+      "key": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
+      "translation": "Räkna parasiter med uttryckliga vakuolidentiteter och jämför fördelningar mellan betingelser; enbart värdcellens identitet definierar inte en vakuol."
+    },
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "Granska bild- och maskpar för segmenteringsträning, eller använd FEATURES för att tilldela bilder och masker och starta mätning. Att spara en mask tränar inte en klassificerare."
+    },
+    {
+      "table": "ui",
+      "key": "Curated training fields",
+      "source": "Curated training fields",
+      "source_sha256": "4a9e103549efe90cfb11969a371b9d5d7008407b163f92f8bb95245a6d7c683f",
+      "translation": "Granskade träningsfält"
+    },
+    {
+      "table": "ui",
+      "key": "Define the class comparison and inspect filtering.",
+      "source": "Define the class comparison and inspect filtering.",
+      "source_sha256": "7fa9a001232f6d1ea07ecc963e11b123f8518f46eb02030948f841e51e9e0f00",
+      "translation": "Definiera klassjämförelsen och inspektera filtreringen."
+    },
+    {
+      "table": "ui",
+      "key": "Direct Cellpose TIFF masks",
+      "source": "Direct Cellpose TIFF masks",
+      "source_sha256": "0a9d2574b41101da424810b89ad53c2956fbc0bb9c9a1e7abfca9618b40d171c",
+      "translation": "Direkta Cellpose-masker i TIFF-format"
+    },
+    {
+      "table": "ui",
+      "key": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+      "source": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+      "source_sha256": "47e35d8dced8ab5228a2151d8312488e2a27982d5ea2c0878ea0f14b2b82c956",
+      "translation": "Skriv utkast till metod- och resultattext från registrerade inställningar och resultat; granska varje påstående före publicering."
+    },
+    {
+      "table": "ui",
+      "key": "Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.",
+      "source": "Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.",
+      "source_sha256": "58cd7ba9f7a8e3c6f1636d22351c3b4700ff9ab75536f79422228dd04c1d0ccd",
+      "translation": "Varje src-projektrot/measurements/measurements.db; tables innehåller som standard cell, nucleus, pathogen och cytoplasm, med png_list tillagd för sammanfogning. Inställningen compartment väljer areakolumn; som standard summeras pathogen_area per värdcell."
+    },
+    {
+      "table": "ui",
+      "key": "Enable the nested time-series route before generating linked labels.",
+      "source": "Enable the nested time-series route before generating linked labels.",
+      "source_sha256": "4a59d8325e489697c01c88d856ccace60f6b442bcda13f547714b0b04d186f6e",
+      "translation": "Aktivera den inbäddade tidsserievägen innan länkade etiketter skapas."
+    },
+    {
+      "table": "ui",
+      "key": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.",
+      "source": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.",
+      "source_sha256": "35b235cb5077c11915611d198ac94633ce4cad1fb31dfa642db6be0fd3dfa99d",
+      "translation": "Koda objektbilder med en vald modell och kanalpolicy. Behåll objektidentiteter och kodarens ursprung när egenskaperna lämnas till efterföljande utforskning."
+    },
+    {
+      "table": "ui",
+      "key": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "source": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "source_sha256": "6da28684ab563ec60c570b753fbec2796a13824106ce6d342f7453ac340c41a2",
+      "translation": "Ange betingelser, kontroller, replikat och plattbegränsningar och exportera sedan experimentlayouten före bildinsamlingen."
+    },
+    {
+      "table": "ui",
+      "key": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+      "source": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+      "source_sha256": "55fe876cb0804a390ac56a7666124f4b040f4c05a6e930938cc92b938103e7d6",
+      "translation": "Uppskatta och tillämpa flatfältskorrigering i konfigurerade steg. Håll korrigerade visningsvärden åtskilda från råmätningar och dokumentera den tillämpade policyn."
+    },
+    {
+      "table": "ui",
+      "key": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+      "source": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+      "source_sha256": "d320e6611dd6b5e4eeb0b569def06ac3abc7d9a6cbc45a75b9caf38ec2d56fec",
+      "translation": "Uppskatta provtagningsbehov från valda effektstorlekar och variation; pilotmätningar är valfria belägg för antagandena."
+    },
+    {
+      "table": "ui",
+      "key": "Experimental layout",
+      "source": "Experimental layout",
+      "source_sha256": "4495360c84bf3a9c0f96204f44cdbee2e5fb8a374344333599e517506e67165d",
+      "translation": "Experimentlayout"
+    },
+    {
+      "table": "ui",
+      "key": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+      "source": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+      "source_sha256": "5fa7a4af9b51b166edee374f83f221ab3e7a1814c09945f1f66cbae7083a16bf",
+      "translation": "Exportera en AnnData-fil i .h5ad-format med objektmetadata och uppmätta egenskaper för efterföljande encellsanalys."
+    },
+    {
+      "table": "ui",
+      "key": "Export compatible feature and metadata columns.",
+      "source": "Export compatible feature and metadata columns.",
+      "source_sha256": "b5a153c5432fbc4af6601d85ac9b74b093e55033080d0788b4829f5716776ab9",
+      "translation": "Exportera kompatibla egenskaps- och metadatakolumner."
+    },
+    {
+      "table": "ui",
+      "key": "Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
+      "source": "Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
+      "source_sha256": "3adcf7fe9dc8b715851177b45d1ef712e8a3b1a91fe7c5742b883b69db5e2df7",
+      "translation": "Exporterade HTML/PDF-dokument eller metod- och resultatdokument som bygger på registrerade analysresultat."
+    },
+    {
+      "table": "ui",
+      "key": "Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.",
+      "source": "Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.",
+      "source_sha256": "8d84303fc9ff554db33bd92aa40b0d4ba48d7cb09c515fcc9c594d759222dad0",
+      "translation": "Exporterad karta över plattor, betingelser, kontroller och replikat. Håll dess platt- och brunnsidentifierare konsekventa med insamlade data."
+    },
+    {
+      "table": "ui",
+      "key": "External measurements",
+      "source": "External measurements",
+      "source_sha256": "1e57812b00ec460a0105424f1334a436bf16986e8b351aa8b9f0c6300d12f395",
+      "translation": "Externa mätningar"
+    },
+    {
+      "table": "ui",
+      "key": "Feature definitions",
+      "source": "Feature definitions",
+      "source_sha256": "d882e6676fe04b762b74cfec4b00485c159d65b3b4b527f5c32bc7051fdbec5a",
+      "translation": "Egenskapsdefinitioner"
+    },
+    {
+      "table": "ui",
+      "key": "Figures and table exports",
+      "source": "Figures and table exports",
+      "source_sha256": "a5e3bd64da49f1608a160930815379f373e78f14ed22d25de921441545cafce6",
+      "translation": "Figurer och tabellexporter"
+    },
+    {
+      "table": "ui",
+      "key": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+      "source": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+      "source_sha256": "2118bd261715a7ba1349929e075dcb76d1f0dbcd2b2e6a42615454b4558520ea",
+      "translation": "Filtrera och rangordna sparade träffar efter effekter, FDR och överensstämmelse mellan guider."
+    },
+    {
+      "table": "ui",
+      "key": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
+      "source": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
+      "source_sha256": "d17d8fb71e7b0be7bf66776d0a32400b03bca80145816a8d884fff1b4a4084e1",
+      "translation": "Anpassa en ersättningsmodell baserad på uppmätta egenskaper till befintliga poäng från datorseende, med bevarade identitetskopplingar. En sådan modellförklaring visar inte kausalitet."
+    },
+    {
+      "table": "ui",
+      "key": "Fitted feature classifier",
+      "source": "Fitted feature classifier",
+      "source_sha256": "ae5c6b88bbe91c81fc42917c699fdefdafa71d514b4f74ea3f90de7dc9f7a412",
+      "translation": "Anpassad egenskapsklassificerare"
+    },
+    {
+      "table": "ui",
+      "key": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "source": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "source_sha256": "c6990de9aec7ce45253154d30b40db01c6be3a46df913a675d953dc274e1d8df",
+      "translation": "Markering av kompartment och navigering till tillgängliga analyser endast i GUI; inga mätningar eller filer skapas."
+    },
+    {
+      "table": "ui",
+      "key": "Guide counts per well",
+      "source": "Guide counts per well",
+      "source_sha256": "f7b958b00e50fede5a94fa94fe1a6e3c20b7a83f68109a5fb1d9ccd5e52611b5",
+      "translation": "Guideantal per brunn"
+    },
+    {
+      "table": "ui",
+      "key": "Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run.",
+      "source": "Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run.",
+      "source_sha256": "50777d615176b80fcc0735b3aae29a30eb723e80744831d7b1efc17977f90f8c",
+      "translation": "Prediktioner och etiketter från oberoende utvärdering, metadata om datauppdelning samt kalibrerings- och läckagemått för en sparad klassificerarkörning."
+    },
+    {
+      "table": "ui",
+      "key": "Host-cell-aggregated compartment areas",
+      "source": "Host-cell-aggregated compartment areas",
+      "source_sha256": "5a487c40b30f9a7400430db1151f472c33fae1596532d7ede4a3157a0fcd8799",
+      "translation": "Kompartmentareor aggregerade per värdcell"
+    },
+    {
+      "table": "ui",
+      "key": "Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.",
+      "source": "Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.",
+      "source_sha256": "211fe97e842fc48332c5363c42a044748dc4d3d14928cef145b0a7d91f8d899c",
+      "translation": "Koordinattabeller från Image UMAP/PCA, valda kluster och figurer för inlästa mätdata."
+    },
+    {
+      "table": "ui",
+      "key": "Image attribution maps",
+      "source": "Image attribution maps",
+      "source_sha256": "820b5ba1904f8e20f1fae62121254a218e940f5758de1cecaaf4f32439792549",
+      "translation": "Bildattributionskartor"
+    },
+    {
+      "table": "ui",
+      "key": "Image embeddings",
+      "source": "Image embeddings",
+      "source_sha256": "8968dba6df8303b1bcebd0b699a1258a25142f967d26120ad181c9931faacdf3",
+      "translation": "Bildrepresentationer"
+    },
+    {
+      "table": "ui",
+      "key": "Images and label masks",
+      "source": "Images and label masks",
+      "source_sha256": "ebb7b02d7ccf14f31eeeb38f3ae7e8867e9bb7c7e058279cc2a4723d21b6f7d6",
+      "translation": "Bilder och etikettmasker"
+    },
+    {
+      "table": "ui",
+      "key": "Imported tables require explicit column and object-identity mappings.",
+      "source": "Imported tables require explicit column and object-identity mappings.",
+      "source_sha256": "71aea881bbcc62966b4e24cc7699a30f68cef9cf39007ff98d83b722cfdc1242",
+      "translation": "Importerade tabeller kräver uttryckliga mappningar av kolumner och objektidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect actual tables before exporting.",
+      "source": "Inspect actual tables before exporting.",
+      "source_sha256": "9f7168593c7e6c0adf66726c8de006dd1e92b22386138be9c85898ff0376cb6e",
+      "translation": "Inspektera de faktiska tabellerna före export."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect aligned image, label and point/ROI layers for the selected field.",
+      "source": "Inspect aligned image, label and point/ROI layers for the selected field.",
+      "source_sha256": "3093d844ab489bc1671e9f7e96b42f9159a5693512a489bd026fc3ec528a1e93",
+      "translation": "Inspektera registrerade bild-, etikett- och punkt/ROI-lager för det valda bildfältet."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+      "source": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+      "source_sha256": "afe94717349638a4f56c60cbedebb413850da21777d1e0b3f53f5aa4ec8c709b",
+      "translation": "Inspektera prediktioner från oberoende utvärdering, kalibrering samt belägg för datauppdelning och läckage för motsvarande klassificerare."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects.",
+      "source": "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects.",
+      "source_sha256": "8bf5fa9f5425217931d7fa714ff2fac5d06e04ee132f60330d8f40fcb1b813ce",
+      "translation": "Inspektera hur en anpassad modell svarar när en indataegenskap ändras; prediktioner visar inte kausala effekter."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+      "source": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+      "source_sha256": "eb6b47369f6d0f2d1e0d32c998fbf80f295fa8e111177eabd41d295bb28cdc80",
+      "translation": "Inspektera mappningsdjup, täckning, kollisioner och positionseffekter innan guideantal filtreras."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+      "source": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+      "source_sha256": "e693bf805fa2a43e1785953123c5516b7b48144ee0e89744bbc32a78edd0d9b6",
+      "translation": "Inspektera modellernas ursprung och hämta eller installera kompatibla kontrollpunkter eller beräkningsmotorer. En listad motor är inte i sig en kontrollpunktsfil."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect principal components and feature loadings for the selected measured objects.",
+      "source": "Inspect principal components and feature loadings for the selected measured objects.",
+      "source_sha256": "2489bd7523d955bc91300db41ab120bde64a0938f9f0d8b7bab32fc3bd94eace",
+      "translation": "Inspektera huvudkomponenter och egenskapsladdningar för de valda uppmätta objekten."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable.",
+      "source": "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable.",
+      "source_sha256": "f10dacc01fe54e82409cb9ad39fbfd81e2b1554e16275bbda1272c30ce4a6aa3",
+      "translation": "Inspektera projektfiler och diskutrymme. Borttagning av härledda produkter ogiltigförklarar senare användning av dessa filer; originalbilderna måste gå att återställa."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect ranked hits and guide agreement.",
+      "source": "Inspect ranked hits and guide agreement.",
+      "source_sha256": "4a3764a775c3feb7134130a3e1bbf5b1433664ac9fca66a6808eb7b74d2acc9a",
+      "translation": "Inspektera rangordnade träffar och överensstämmelse mellan guider."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference.",
+      "source": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference.",
+      "source_sha256": "654721a34b66ca794c84748e3d38fb286b79e854f98f9a954e37097f2087b4cd",
+      "translation": "Inspektera registrerade relationer där celler, kärnor, patogener och organeller innehåller varandra; detta är objektinneslutning, inte härledning av släktlinjer i tidsserier."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect saved effects and adjusted significance.",
+      "source": "Inspect saved effects and adjusted significance.",
+      "source_sha256": "5c93baa88ff14b133e94ac4cff181688e099f74dfd313c6656e63e56cab93711",
+      "translation": "Inspektera sparade effekter och justerad signifikans."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+      "source": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+      "source_sha256": "f76ede70324bf6b59ba96bbcebc8a1c9a6befe6f2e6bf2d0d2c698a4af9f7dc3",
+      "translation": "Inspektera sparad körningsstatus, inställningar, utdata och loggar; en slutförd körning visar inte biologisk giltighet."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+      "source": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+      "source_sha256": "9cd1301eb44caabf898e98fb379cd9f8985b7f545fa1f8ca965d70bcbc12d4c9",
+      "translation": "Inspektera lagrade kontroller av segmentering, enheter, läckage och platteffekter. Öppna dess inbäddade visare för en detaljerad granskning."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+      "source": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+      "source_sha256": "b8c66e9971ea673831a25b24cb99ec59b943fe00047d0d4837de3c23f5526f9d",
+      "translation": "Inspektera diagnostikpanelerna som sparats av den valda regressionskörningen; skilj saknad diagnostik från kontrollerade antaganden."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "source": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "source_sha256": "3cbf9dbe362cbcf1a7a87afa72fd928327a45b20c76376f0c868b81a328e11a5",
+      "translation": "Inspektera bildrutornas geometri, överlappning och kanalmappning och spara sedan mosaiken med koordinatuppgifter. OPS behöver även de ursprungliga cykel- och platsidentiteterna."
+    },
+    {
+      "table": "ui",
+      "key": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+      "source": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+      "source_sha256": "85200bfcb32c2776ee13219bc3335669351ce175abb6d4d41b3694476c89d66c",
+      "translation": "Inspektera spårhastighet och infektionsrelaterade mätningar med ett uttryckligt bildintervall och en pixelkalibrering."
+    },
+    {
+      "table": "ui",
+      "key": "Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.",
+      "source": "Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.",
+      "source_sha256": "469fd48b96e0591fe63f4d154b076c3e362f30332752c4dcf5e3cca06b9064d5",
+      "translation": "Installerade organismbeskrivningar och celldiagram från SwissBioPics; inga projektdata behövs."
+    },
+    {
+      "table": "ui",
+      "key": "Join compatible phenotype and object data for the chosen hit.",
+      "source": "Join compatible phenotype and object data for the chosen hit.",
+      "source_sha256": "466c619c86e3c239704201a67118a42e95cee2ff69b1ad9b5190a1145f27e4a6",
+      "translation": "Sammanfoga kompatibla fenotyp- och objektdata för den valda träffen."
+    },
+    {
+      "table": "ui",
+      "key": "Join the measured response to explicit doses and controls.",
+      "source": "Join the measured response to explicit doses and controls.",
+      "source_sha256": "9ff398804fdf613057ad8d22390c3dd6946e5b85b6cdc5462a3f3d26544950f7",
+      "translation": "Koppla den uppmätta responsen till uttryckliga doser och kontroller."
+    },
+    {
+      "table": "ui",
+      "key": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "source": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "source_sha256": "2cf55dddd04e6bd139cd78bae20f8eec30284db12edc978374d0b7550d2e9288",
+      "translation": "Sammanfoga eller aggregera avkodade objekt uttryckligen till fenotyp- och guideindata före Regression; detta är ingen direkt överföring av CSV."
+    },
+    {
+      "table": "ui",
+      "key": "Keep labelled training and evaluation groups separate.",
+      "source": "Keep labelled training and evaluation groups separate.",
+      "source_sha256": "610a65cab0a0cfca2b75a8d04f0e636d16235e102a3d1c5274ecea4e03ee68e0",
+      "translation": "Håll märkta tränings- och utvärderingsgrupper åtskilda."
+    },
+    {
+      "table": "ui",
+      "key": "Keep the newly measured project and crop index together.",
+      "source": "Keep the newly measured project and crop index together.",
+      "source_sha256": "e538adf6094a34c8897dcc2636cf51f7a3eb23dfdd1d7f52cf6f08e8c209dbe7",
+      "translation": "Håll ihop det nymätta projektet och utsnittsindexet."
+    },
+    {
+      "table": "ui",
+      "key": "Label masks",
+      "source": "Label masks",
+      "source_sha256": "5d66fbdb415e821f5d70c41a484fba9e55da24b457bdabccfa087dd721d17af4",
+      "translation": "Etikettmasker"
+    },
+    {
+      "table": "ui",
+      "key": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+      "source": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+      "source_sha256": "744bfa8bdd0ada1b412b86797c66d08943409b06b61b6d3ba802230c92942961",
+      "translation": "Märk representativa objekt i png_list före övervakad träning. Använd separata annoteringar för olika frågor och håll tränings- och utvärderingsgrupper oberoende."
+    },
+    {
+      "table": "ui",
+      "key": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+      "source": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+      "source_sha256": "01b84c8634b8ebbfbf456e257050b0c5b27254d651f251bd76ad5f7a118ee367",
+      "translation": "Koppla en regressionsträff till kandidatobjekt och kvantitativa belägg på brunnsnivå. Detta validerar inte träffen oberoende."
+    },
+    {
+      "table": "ui",
+      "key": "Linked time-series objects",
+      "source": "Linked time-series objects",
+      "source_sha256": "d760b33a036232638376d31469211cc5d0ec7087afa3736c170570d737140ec0",
+      "translation": "Länkade tidsserieobjekt"
+    },
+    {
+      "table": "ui",
+      "key": "Locate projects and inspect their stage, last run, disk use and stale outputs.",
+      "source": "Locate projects and inspect their stage, last run, disk use and stale outputs.",
+      "source_sha256": "72b2138959b12b714abf0e0030f0b5701a39fa4738280a491f9add07e6a66095",
+      "translation": "Hitta projekt och inspektera deras stadium, senaste körning, diskutrymme och inaktuella utdata."
+    },
+    {
+      "table": "ui",
+      "key": "Look up feature definitions and units before choosing measurement columns.",
+      "source": "Look up feature definitions and units before choosing measurement columns.",
+      "source_sha256": "478c14113b0d8f447c0a0455ad7ded1ff9d2697cad0d61355c5b89893d015193",
+      "translation": "Slå upp egenskapsdefinitioner och enheter innan du väljer mätkolumner."
+    },
+    {
+      "table": "ui",
+      "key": "Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.",
+      "source": "Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.",
+      "source_sha256": "3418591d4d0ff5ecc2735f22380f261d5719ff86f4cce31095360bfc4b06fea4",
+      "translation": "Körningsmapp för Map Barcodes: unique_combinations.csv och annotated_reads.h5. Brunnsidentiteten kräver motsvarande streckkodsreferenser."
+    },
+    {
+      "table": "ui",
+      "key": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "source": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "source_sha256": "54820bf3f12a9ed291255be48a9135ae659c6febc492cd9a5ff326b0175dc659",
+      "translation": "Matcha platt- och brunnsidentifierare mellan fenotypdata och guideantal, välj respons och kontroller och inspektera diagnostik innan träffar tolkas. Direkt uppmätta responser stöds också."
+    },
+    {
+      "table": "ui",
+      "key": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "source": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "source_sha256": "31136664c0081bf6af83614363227ee715ee89961ee9943b2eaa39cf13347700",
+      "translation": "Measure läser bilder och etikettplan tillsammans. Aktivera lagring av utsnitt om du behöver PNG-filer; håll databasen och källprojektet tillsammans för utsnitt som hämtas vid behov."
+    },
+    {
+      "table": "ui",
+      "key": "Measured objects",
+      "source": "Measured objects",
+      "source_sha256": "47bed203a03dc19c327879fc135a90976acbd8a9445faab1492cd008bc2f6f50",
+      "translation": "Uppmätta objekt"
+    },
+    {
+      "table": "ui",
+      "key": "Microscope images",
+      "source": "Microscope images",
+      "source_sha256": "2ab0c48936cc24b96141ed13cb8d77cc02f1294dfb74620cfd3b21892ba60c4f",
+      "translation": "Mikroskopbilder"
+    },
+    {
+      "table": "ui",
+      "key": "OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.",
+      "source": "OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.",
+      "source_sha256": "de4dc4ec3f6034c63a881c623f865dc4020f7b2a27d17f5fd1dc7163856eeab9",
+      "translation": "measurements.db på OPS målplats: tabeller för geometri per brunn, fenotypregistrering, cellkärnor och streckkoder; valfria läsningar per cykel."
+    },
+    {
+      "table": "ui",
+      "key": "Object classification scores",
+      "source": "Object classification scores",
+      "source_sha256": "113eac994c0aaea308adfccdf945411f535406d38b73f2a734d9709233f39764",
+      "translation": "Poäng för objektklassificering"
+    },
+    {
+      "table": "ui",
+      "key": "Object crops",
+      "source": "Object crops",
+      "source_sha256": "8f444fe8cfbf8625f329b773419175b13c6a4208057fc8d086af4d479c1c6efd",
+      "translation": "Objektbeskärningar"
+    },
+    {
+      "table": "ui",
+      "key": "Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent.",
+      "source": "Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent.",
+      "source_sha256": "285dfcb60567d8ab9611db90834fa6f90fde4de8086a7711e1bf64abed8795ff",
+      "translation": "Objektindexerade kodaregenskaper, med kanalpolicy och kodarens ursprung. Kodnings-API:t returnerar egenskaper; lagringen beror på anroparen."
+    },
+    {
+      "table": "ui",
+      "key": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+      "source": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+      "source_sha256": "e9b4f0e3bcc3cf2791f210cc78121e60d4e4f63441441f4f8bb4f62480c8c386",
+      "translation": "Öppna Cellpose Workbench i Make Masks och träna med verifierade bild- och maskpar. Utvärdera på separata bildfält innan kontrollpunkten väljs i Mask."
+    },
+    {
+      "table": "ui",
+      "key": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "source": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "source_sha256": "9e186427eeeae53324a86200df796448a0fa3468ef460e7b8f1c42edb2d1865c",
+      "translation": "Öppna Timelapse i Mask för att segmentera och länka objekt över ordnade bildrutor; inspektera länkarna före efterföljande motilitetsanalys."
+    },
+    {
+      "table": "ui",
+      "key": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
+      "source": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
+      "source_sha256": "fa875ab85dfa1b048df6ebb3342d0ca7162864be60ca6eca78028a50debcea9c",
+      "translation": "Öppna ett sparat regressionsresultat och inspektera effektstorlekar, justerad signifikans och enskilda träffposter."
+    },
+    {
+      "table": "ui",
+      "key": "Open the diagnostics actually written by this run.",
+      "source": "Open the diagnostics actually written by this run.",
+      "source_sha256": "2447417b10859c54b1edc1f2c510f7a654f628856a8b3dbcc472ce9529d5ce76",
+      "translation": "Öppna den diagnostik som körningen faktiskt har skrivit."
+    },
+    {
+      "table": "ui",
+      "key": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "cd8eee037d1e7fed958031b6299335dd1ca2e1221f50b40832d82823c29ede0b",
+      "translation": "Öppna organismguiden från Home för att läsa om planerade arbetsflöden för svampavbildning och inspektera det generiska diagrammet över knoppande jäst. Alla åtta analysrutor är märkta Coming soon; ingen startar en analys eller skapar ett resultat."
+    },
+    {
+      "table": "ui",
+      "key": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
+      "translation": "Öppna organismguiden från Home för att läsa om planerade arbetsflöden för malariaavbildning och inspektera det gemensamma apicomplexdiagrammet. Alla åtta analysrutor är märkta Coming soon; ingen startar en analys eller skapar ett resultat."
+    },
+    {
+      "table": "ui",
+      "key": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
+      "source": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
+      "source_sha256": "7fd1ca38483ff7f42e51bed6c20ac2428ad7369c113eeb92b5fd0e031230e0d2",
+      "translation": "Öppna organismguiden från Home, inspektera kompartmentdiagrammet och välj sedan Plaque Assay, Recruitment, Invasion Assay eller Replication Assay. De fyra rutorna märkta Coming soon beskriver förslag och kan inte köras. Guiden analyserar inte själv ett projekt och skapar ingen mättabell."
+    },
+    {
+      "table": "ui",
+      "key": "Optical barcode assignments",
+      "source": "Optical barcode assignments",
+      "source_sha256": "3e14114439033aded7cf84ed3d8252090b7155adc8441b35a0ebacd3f23e8f45",
+      "translation": "Optiska streckkodstilldelningar"
+    },
+    {
+      "table": "ui",
+      "key": "Organism guide and assay selection",
+      "source": "Organism guide and assay selection",
+      "source_sha256": "593a064f126fd11d4c60c2a72497c936daca4fa3d0008ec87a8c2b4a3d992197",
+      "translation": "Organismguide och analysval"
+    },
+    {
+      "table": "ui",
+      "key": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+      "source": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+      "source_sha256": "8ef18b465ab0917966596ed137974077f7c52493a02cdcb45b9a46ec5e46f3e3",
+      "translation": "Samla registrerade resultat, inställningar och kvalitetskontroll (QC) i en delbar rapport utan att köra om analysen i det tysta."
+    },
+    {
+      "table": "ui",
+      "key": "Pair guide counts with phenotype scores using consistent plate/well keys.",
+      "source": "Pair guide counts with phenotype scores using consistent plate/well keys.",
+      "source_sha256": "20664e0c8d9066c2f2d0d45276ac352e32bc87a15be06e2a2e892b3f7678da65",
+      "translation": "Para ihop guideantal med fenotyppoäng med konsekventa platt- och brunnsnycklar."
+    },
+    {
+      "table": "ui",
+      "key": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
+      "source": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
+      "source_sha256": "d4259004a55ccf450d716693b1f7dac26e2f2061fb978865903367698bbe0be3",
+      "translation": "Ange den tränade kontrollpunkten som custom_model med motsvarande bildkanaler och förbehandling."
+    },
+    {
+      "table": "ui",
+      "key": "Plot selected measurement columns with object-crop inspection.",
+      "source": "Plot selected measurement columns with object-crop inspection.",
+      "source_sha256": "8f37a50e559b84de232a8d35656d11e93e3f61ab39888765d6f42b7f1a5ac298",
+      "translation": "Rita upp valda mätkolumner med inspektion av objektutsnitt."
+    },
+    {
+      "table": "ui",
+      "key": "Pooled-screen simulation assumptions",
+      "source": "Pooled-screen simulation assumptions",
+      "source_sha256": "00d2e615348ea4e3cb8f0ea57248680a3e1c4cd2f2d608921130f914c67300b9",
+      "translation": "Antaganden för simulering av poolad screening"
+    },
+    {
+      "table": "ui",
+      "key": "Project run records, settings, output paths, artifact provenance, status and logs.",
+      "source": "Project run records, settings, output paths, artifact provenance, status and logs.",
+      "source_sha256": "a04ac68f0d4b5ee392e4d35b944fa7161c727104c9c53a691055179934457f61",
+      "translation": "Projektets körningsposter, inställningar, utdatasökvägar, produkternas ursprung, status och loggar."
+    },
+    {
+      "table": "ui",
+      "key": "Projection and clusters",
+      "source": "Projection and clusters",
+      "source_sha256": "2b4b3aaffaacd0783be3517827545a48abb1046a47bef3c25c0a4beaf5059b4f",
+      "translation": "Projektion och kluster"
+    },
+    {
+      "table": "ui",
+      "key": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "source": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "source_sha256": "5aec914042c999cb6eb678d21744ef5523a518727e87339b764dc7fbe5960762",
+      "translation": "Tillhandahåll sparade etikettfiler i TIFF-format och deras originalbilder till External Masks, tilldela objektroller och skapa det sammanslagna projektet före Measure."
+    },
+    {
+      "table": "ui",
+      "key": "Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.",
+      "source": "Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.",
+      "source_sha256": "7886c297bee9f5c55819fd0904042879e9a800e192c5670e2676ce91fac2d62a",
+      "translation": "Python-ordbok med inställningar: itererbara värden för att undersöka screeningstorlek, beläggning, klassificerarens noggrannhet och sekvenseringsantaganden samt replicates, src, name, variable, plot och max_workers. generate_parameters expanderar deras kartesiska produkt; börja med en liten parameterstudie och en uttrycklig gräns för arbetsprocesser."
+    },
+    {
+      "table": "ui",
+      "key": "Quality-control results",
+      "source": "Quality-control results",
+      "source_sha256": "339a0f1b5ee2197817649446001853d9407629b01fdf97e527f79be154a02a49",
+      "translation": "Kvalitetskontrollresultat"
+    },
+    {
+      "table": "ui",
+      "key": "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking.",
+      "source": "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking.",
+      "source_sha256": "6d6e5e416c309f86247b2c8615055657920d5f905a77aab84a943e4e8ed3fc27",
+      "translation": "Rangordna uppmätta egenskaper för en vald klassjämförelse; granska filtrering och klassdefinitioner innan rangordningen tolkas."
+    },
+    {
+      "table": "ui",
+      "key": "Re-measure only when needed; External Masks can already perform measurement.",
+      "source": "Re-measure only when needed; External Masks can already perform measurement.",
+      "source_sha256": "609cfb8952ac5d5c9785f409f81cbee8ae53f7ba2caec695e861b63e548b70e9",
+      "translation": "Mät om endast vid behov; External Masks kan redan utföra mätning."
+    },
+    {
+      "table": "ui",
+      "key": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "source": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "source_sha256": "688de4937a6708239783748ae71f0eb724d5b74111f890d0e2788ecf6800f837",
+      "translation": "Läs uppmätta kompartmentareor, annotera betingelser och gruppera area ** 1.5 i log2-storleksfördubblingar. Standardinställningen aggregerar patogenarea per värdcell, inte per vakuol: flera vakuoler i samma cell kombineras. Detta är ett areabaserat storleksmått, inte uppmätt volym eller ett parasitantal. Använd Replication Assay med uttryckliga vakuolidentiteter för antal parasiter per vakuol. Konfigurera kompartment, areafilter, kalibrering, betingelser och gruppering före API-anropet; lagring är valfri."
+    },
+    {
+      "table": "ui",
+      "key": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts.",
+      "source": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts.",
+      "source_sha256": "7f64cda8e5ed01d72bfe4b9cb167c5ec9e11ea757761f0446275c0e6bb28d2c7",
+      "translation": "Läs registrerade produktberoenden och status för inaktuella eller saknade produkter. Grafen beskriver ursprung och återskapar inte saknade produkter."
+    },
+    {
+      "table": "ui",
+      "key": "Regression results and hits",
+      "source": "Regression results and hits",
+      "source_sha256": "bb72859b86ebddcecf52ce1d12c741c2bad08b9fa585ab2459d4d2ff9bfed158",
+      "translation": "Regressionsresultat och träffar"
+    },
+    {
+      "table": "ui",
+      "key": "Require explicit parasite-to-vacuole identities.",
+      "source": "Require explicit parasite-to-vacuole identities.",
+      "source_sha256": "cd46ef6645b6037759f807bcfcde8657d63ff3ab247d0e4967759b1fa6783e84",
+      "translation": "Kräv uttryckliga kopplingar mellan parasit- och vakuolidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Require the intended compartment intensities and identities.",
+      "source": "Require the intended compartment intensities and identities.",
+      "source_sha256": "c4679d0263754b570fc8c5472c32e7185876dcb096fc4be186cf28860ee7e2e5",
+      "translation": "Kräv avsedda kompartmentintensiteter och identiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Require two-colour stain measurements and appropriate baseline controls.",
+      "source": "Require two-colour stain measurements and appropriate baseline controls.",
+      "source_sha256": "2dbfb2abec909e52724c2e17330ced9df59b3618a82aa7ab5a7034eecc05881b",
+      "translation": "Kräv mätningar av tvåfärgsfärgning och lämpliga baslinjekontroller."
+    },
+    {
+      "table": "ui",
+      "key": "Retain encoder and channel-policy provenance.",
+      "source": "Retain encoder and channel-policy provenance.",
+      "source_sha256": "8b0b0f9935ced0554f6dccb35fad06786eea0175c353cccb7319d6c202ae0986",
+      "translation": "Bevara uppgifter om kodarens och kanalpolicyns ursprung."
+    },
+    {
+      "table": "ui",
+      "key": "Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.",
+      "source": "Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.",
+      "source_sha256": "93295eb258fa9ffe5027738a1bde2bd68b50768d18ce4955cc17a595a61f1d17",
+      "translation": "Returnerade DataFrames data och chi_squared; save=True skriver även data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv och en figur under den första projektroten/results/analyze_endodyogeny/."
+    },
+    {
+      "table": "ui",
+      "key": "Review available checks and missing evidence.",
+      "source": "Review available checks and missing evidence.",
+      "source_sha256": "f7a99271ed3715003c48d350f37209623b8854e83b4151ed08180909f716355c",
+      "translation": "Granska tillgängliga kontroller och saknade belägg."
+    },
+    {
+      "table": "ui",
+      "key": "Review exported prose and every traced result.",
+      "source": "Review exported prose and every traced result.",
+      "source_sha256": "61abde1bb83664efef7b3b1b76178bfa133ad7b1aa601885ca4fa35c128d7d15",
+      "translation": "Granska exporterad text och varje resultat den hänvisar till."
+    },
+    {
+      "table": "ui",
+      "key": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+      "source": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+      "source_sha256": "27f2d313aee8120e7c482b34e457ce69de7254faa9552021e1856b62f9d41aad",
+      "translation": "Granska bildfältsidentiteter, bildkanaler och valfria externa masker innan ett separat projekt skrivs. Import av enbart bilder kräver fortfarande segmentering före mätning."
+    },
+    {
+      "table": "ui",
+      "key": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+      "source": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+      "source_sha256": "aa2b056edaf7cf50e1cbe293910c25e45f59a1a89b0f8a723aa6ab83a637cd8d",
+      "translation": "Granska robusta avvikelsepoäng för objekt och brunnar samt vald uteslutningsregel innan filtrerade data används i analys."
+    },
+    {
+      "table": "ui",
+      "key": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project.",
+      "source": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project.",
+      "source_sha256": "c4bd82a1c8aa3b0a8d63c064ca0f9a82f5605673c75f90d98a00c71c0ed19646",
+      "translation": "Kör en standardmodell eller egen Cellpose-modell på TIFF-bildfält via Python-API:t. Trots sitt historiska namn identify_masks_finetune utför funktionen inferens, inte träning. Granska normalisering, kanaler, storleksändring och modellparametrar; masker skrivs bara när save är aktiverat. Importera kompatibla bild- och maskpar genom External Masks före Measure, eller granska paren före träning. Anropet skapar inget sammanslaget projekt färdigt för Measure."
+    },
+    {
+      "table": "ui",
+      "key": "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed.",
+      "source": "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed.",
+      "source_sha256": "84b781cc8fb2cd4df0c08e9fee3b4983b75605c6a6722f7253a783d838848c23",
+      "translation": "Kör uttryckligen valda regressionsinställningar och jämför deras diagnostik. Håll indata och utvärderingsfrågan oförändrade."
+    },
+    {
+      "table": "ui",
+      "key": "Run history and artifacts",
+      "source": "Run history and artifacts",
+      "source_sha256": "62e734428c549a00f5b32a06510ed0f76e77568a87bb7f97f58bce6a26716ff4",
+      "translation": "Körningshistorik och produkter"
+    },
+    {
+      "table": "ui",
+      "key": "Run queue",
+      "source": "Run queue",
+      "source_sha256": "073afaf0ff8ea43730125542215e47279b3d6d407506a2af7c62629ac9ff78c2",
+      "translation": "Körningskö"
+    },
+    {
+      "table": "ui",
+      "key": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+      "source": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+      "source_sha256": "dcca464e6947ecaf6148f3655f0fb920bd208d2493de370bbde26f6f9137f025",
+      "translation": "Kör det valda arbetsflödet över flera plattor. Utdata är de som varje köad modul skapar; behåll varje platta och dess inställningar separat."
+    },
+    {
+      "table": "ui",
+      "key": "Run/model comparison",
+      "source": "Run/model comparison",
+      "source_sha256": "9f3402b266d47a5b95982d90e782d5a9ef612426b235ed30548db1542f1dd73b",
+      "translation": "Körnings- och modelljämförelse"
+    },
+    {
+      "table": "ui",
+      "key": "Save or stream crops with stable object identities.",
+      "source": "Save or stream crops with stable object identities.",
+      "source_sha256": "9d2aa7c76cc7845e15485b8ae6535fcdaf16a0f105e55bc2bc0ef6c27cb1fd6b",
+      "translation": "Spara eller hämta utsnitt vid behov med stabila objektidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration.",
+      "source": "Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration.",
+      "source_sha256": "dbb4e52b9ecc8172367656d188eaf6139295f106803d3be9c58d17313937b53a",
+      "translation": "Sparad Cellpose-kompatibel kontrollpunkt eller en kompatibel installerad beräkningsmotor vald med sin egen konfiguration."
+    },
+    {
+      "table": "ui",
+      "key": "Saved classifier checkpoint, model settings and matching channel/preprocessing configuration.",
+      "source": "Saved classifier checkpoint, model settings and matching channel/preprocessing configuration.",
+      "source_sha256": "662164a39d3f173304280c2ce24cb3e4d3823dac61e7447e44a9de1a018b6e25",
+      "translation": "Sparad kontrollpunkt för klassificeraren, modellinställningar och motsvarande kanal- och förbehandlingskonfiguration."
+    },
+    {
+      "table": "ui",
+      "key": "Saved model-response/saliency images for the matching classifier and input preprocessing.",
+      "source": "Saved model-response/saliency images for the matching classifier and input preprocessing.",
+      "source_sha256": "892315e07670f5468be340f149e65735943c12e0e621b9985fc1a966eff118a2",
+      "translation": "Sparade modellrespons- eller saliensbilder för motsvarande klassificerare och förbehandling av indata."
+    },
+    {
+      "table": "ui",
+      "key": "Saved module/plate/settings job definitions and dependency order.",
+      "source": "Saved module/plate/settings job definitions and dependency order.",
+      "source_sha256": "a895c2a8bf7504b9565e7f1b4558b652aabde3076ed3ee4f13387d13ca2e0e40",
+      "translation": "Sparade jobbdefinitioner för modul, platta och inställningar samt beroendeordning."
+    },
+    {
+      "table": "ui",
+      "key": "Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.",
+      "source": "Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.",
+      "source_sha256": "ee03d7abfb310a809d87dc74641d955da2273f9429c1fbd9bf86b97b8e0f7d63",
+      "translation": "Sparade planeringstabeller eller figurer baserade på uttryckligen valda effektstorlekar, variation och provtagningsantaganden."
+    },
+    {
+      "table": "ui",
+      "key": "Saved score CSVs and, when merged, measurements/measurements.db, table png_list.",
+      "source": "Saved score CSVs and, when merged, measurements/measurements.db, table png_list.",
+      "source_sha256": "c6d92932393861ee5acf119bd5b4799ee37b82e034439028e1b78d83b2e21ca9",
+      "translation": "Sparade CSV-filer med poäng och, när de sammanfogas, measurements/measurements.db, tabellen png_list."
+    },
+    {
+      "table": "ui",
+      "key": "Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions.",
+      "source": "Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions.",
+      "source_sha256": "62b20b663e7a23796bd7f77862f393881c84b8c60002083a635b10e485bb68f9",
+      "translation": "Sparade definitioner av tröskel- eller polygonbaserade urvalsgrindar eller en vald objektmängd; tillämpa grinden på samma egenskapsdefinitioner."
+    },
+    {
+      "table": "ui",
+      "key": "Screen design and power estimates",
+      "source": "Screen design and power estimates",
+      "source_sha256": "18e39157b758ed37e31203b0d149f92903ea6add1e7b9b5bed24d1439706585e",
+      "translation": "Screeningdesign och styrkeberäkningar"
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation checkpoint",
+      "source": "Segmentation checkpoint",
+      "source_sha256": "21642c4db7e679be21044305075672f0b337ac24510999ee61600daa4d1ed2c3",
+      "translation": "Segmenteringskontrollpunkt"
+    },
+    {
+      "table": "ui",
+      "key": "Select CV predictions and the matching measured objects.",
+      "source": "Select CV predictions and the matching measured objects.",
+      "source_sha256": "6ee8a7cca7e74c41a5c49c929c4e82ac81a65cf4f1b2a0a20641da6824f3fa58",
+      "translation": "Välj CV-prediktioner och motsvarande uppmätta objekt."
+    },
+    {
+      "table": "ui",
+      "key": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "source": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "source_sha256": "c279a49ea9a53c428e8a4db0e4740f6bdfd25ea34fccbf92f32e0ec3603582d5",
+      "translation": "Välj kanaler och modeller, inspektera en förhandsvisning och kör sedan Mask. Measure använder de sammanslagna arrayerna; databasen med antal är ännu ingen egenskapstabell."
+    },
+    {
+      "table": "ui",
+      "key": "Select the intended CV or ML score column and preserve plate/well identity.",
+      "source": "Select the intended CV or ML score column and preserve plate/well identity.",
+      "source_sha256": "3169a21d98fc6556bb837be858fc357341cbab46a02077c6b03629995f97f236",
+      "translation": "Välj avsedd poängkolumn för CV eller ML och bevara platt- och brunnsidentitet."
+    },
+    {
+      "table": "ui",
+      "key": "Select the saved compatible checkpoint in Mask.",
+      "source": "Select the saved compatible checkpoint in Mask.",
+      "source_sha256": "e728ebc34eecea176cd1c0292a03c313fea3f405905ac93b531880cb8c41397e",
+      "translation": "Välj den sparade kompatibla kontrollpunkten i Mask."
+    },
+    {
+      "table": "ui",
+      "key": "Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures.",
+      "source": "Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures.",
+      "source_sha256": "49c83a20b0aa1ccbb981fece12420a351e03c61184bdb16c229f0bcfd7a98f2a",
+      "translation": "Resultatmapp för vald körning: CSV-filer med koefficienter och resultat, träfftabeller, inställningar och diagnostiska figurer."
+    },
+    {
+      "table": "ui",
+      "key": "Send the matching image/labels to napari and import the revised labels back with field identity preserved.",
+      "source": "Send the matching image/labels to napari and import the revised labels back with field identity preserved.",
+      "source_sha256": "154189afc6a259171833ab0877a3a87c5ad013d526397f7fe7612973732ab9e4",
+      "translation": "Skicka motsvarande bild och etiketter till napari och importera tillbaka de reviderade etiketterna med bevarad bildfältsidentitet."
+    },
+    {
+      "table": "ui",
+      "key": "Separate image and integer-mask files with matching field identities; preserve original images and labels.",
+      "source": "Separate image and integer-mask files with matching field identities; preserve original images and labels.",
+      "source_sha256": "8c1c362fe4c1aa54902b533e68bf6f519e6d521a9311dc14227766a57bb90688",
+      "translation": "Separata bildfiler och heltalsmasker med motsvarande bildfältsidentiteter; bevara originalbilder och etiketter."
+    },
+    {
+      "table": "ui",
+      "key": "Sequencing reads",
+      "source": "Sequencing reads",
+      "source_sha256": "076754f411bf41c1236b2db473218aae7895d2bcc2df5ae3c85f01bc0b21f7cd",
+      "translation": "Sekvenseringsläsningar"
+    },
+    {
+      "table": "ui",
+      "key": "Shareable reports",
+      "source": "Shareable reports",
+      "source_sha256": "ab0b63322d9b5d4f5c73fe820914e87533533363c5c6833f1917feee704f72fe",
+      "translation": "Delbara rapporter"
+    },
+    {
+      "table": "ui",
+      "key": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
+      "source": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
+      "source_sha256": "0386f78d235909cfa5ae06c876ef6f91690c42f21c189eca9f20144eecc1f80a",
+      "translation": "Enkeländade eller parade FASTQ-filer med motsvarande referenstabeller för streckkoder."
+    },
+    {
+      "table": "ui",
+      "key": "Source image folder; original files, supported vendor files or imported TIFFs.",
+      "source": "Source image folder; original files, supported vendor files or imported TIFFs.",
+      "source_sha256": "fa481657a34770a41f4a4b81f3d58d7649d44128d4728030f6044cfa67d6af1b",
+      "translation": "Källbildmapp; originalfiler, leverantörsfiler som stöds eller importerade TIFF-filer."
+    },
+    {
+      "table": "ui",
+      "key": "Stored project checks and QC reports; a missing check is not a passing result.",
+      "source": "Stored project checks and QC reports; a missing check is not a passing result.",
+      "source_sha256": "2e80ccd973941d555efb5b932b3ced7e60da7471cc7214ba07494baf3d85d387",
+      "translation": "Lagrade projektkontroller och kvalitetskontrollrapporter (QC); en saknad kontroll är inte ett godkänt resultat."
+    },
+    {
+      "table": "ui",
+      "key": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+      "source": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+      "source_sha256": "a78f47685fc5865fe2dd1cb58581c2020d1d47e2e0f0830db6d4e432da7fd164",
+      "translation": "Skicka en konfigurerad körning till en fjärrmiljö och inspektera status och loggar. Hämta de faktiska modulprodukterna före efterföljande analys."
+    },
+    {
+      "table": "ui",
+      "key": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+      "source": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+      "source_sha256": "655820b760232c1ea9c727bfc79fac9ce5687fd0e80096da483d5571bc17e23e",
+      "translation": "Tillhandahåll dos- och responskolumner, kontroller och enheter före kurvanpassning; denna väg kräver ingen sekvensering."
+    },
+    {
+      "table": "ui",
+      "key": "Supply frame interval and pixel calibration.",
+      "source": "Supply frame interval and pixel calibration.",
+      "source_sha256": "2293a08135e16e72e954972084b7744919a1c5f3335d781da515db0eb733c9b3",
+      "translation": "Ange bildintervall och pixelkalibrering."
+    },
+    {
+      "table": "ui",
+      "key": "Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "source": "Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "source_sha256": "2f6896eed25bb6e8254da9ee7a0920c6144c929afe3bc2d6180bf73f3721ef92",
+      "translation": "Tillhandahåll kodarens egenskapstabell med motsvarande objekt-ID:n; anta inte att varje GUI-väg sparar den automatiskt."
+    },
+    {
+      "table": "ui",
+      "key": "Supply the matching coordinate/feature columns when defining a selection.",
+      "source": "Supply the matching coordinate/feature columns when defining a selection.",
+      "source_sha256": "6de47ffaa553bf88af78940b9c462f484adff0610d0a9c86304e69879511cd22",
+      "translation": "Tillhandahåll motsvarande koordinat- eller egenskapskolumner när ett urval definieras."
+    },
+    {
+      "table": "ui",
+      "key": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "source": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "source_sha256": "438a93721fc9965017beb890f83eb7b3112b5ede58858135be4357f6f73d6d6f",
+      "translation": "Tillhandahåll de uppmätta projektens rötter och nödvändiga objekt- och png_list-tabeller. Kontrollera aggregering per värdcell och areaenheter innan storleksintervall tolkas; Masks antalsdatabas räcker inte ensam."
+    },
+    {
+      "table": "ui",
+      "key": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "source": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "source_sha256": "b4b500f9af732b5efc49612c1feb0f0fc51b2f9695acd6bd259d06701940f2c6",
+      "translation": "Tillhandahåll referenserna som kodar experimentet. Inspektera mappade antal och kvalitetskontroll (QC) av streckkoder innan guideantal per brunn paras ihop med fenotyppoäng."
+    },
+    {
+      "table": "ui",
+      "key": "Synthetic screen simulation summaries",
+      "source": "Synthetic screen simulation summaries",
+      "source_sha256": "e2f0aeca8e3826947bf207465854e15a660284fbd27584872caec7fbbcef4c3d",
+      "translation": "Sammanfattningar av syntetiska screeningsimuleringar"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF fields for direct Cellpose inference",
+      "source": "TIFF fields for direct Cellpose inference",
+      "source_sha256": "5d2dcbbd028a2ee607b29f8af0ea8f329e53610bd3034e647127d8eed3443850",
+      "translation": "TIFF-bildfält för direkt Cellpose-inferens"
+    },
+    {
+      "table": "ui",
+      "key": "The fitted tabular classifier and its recorded feature list, training settings and validation results.",
+      "source": "The fitted tabular classifier and its recorded feature list, training settings and validation results.",
+      "source_sha256": "a197512a268caafe8fc317d2098c3393bb748a9509a7d547cd3ef5d68c5bfb1c",
+      "translation": "Den anpassade tabulära klassificeraren och dess registrerade egenskapslista, träningsinställningar och valideringsresultat."
+    },
+    {
+      "table": "ui",
+      "key": "The installed feature dictionary; definitions describe existing measurements and do not compute them.",
+      "source": "The installed feature dictionary; definitions describe existing measurements and do not compute them.",
+      "source_sha256": "bce8377488dfae31f017c8b9417cc2479a48287b1d9aadc6af8e4d3c4f63b91c",
+      "translation": "Den installerade egenskapsordboken; definitionerna beskriver befintliga mätningar och beräknar dem inte."
+    },
+    {
+      "table": "ui",
+      "key": "The output location chosen by the tool; exports describe the selected data and filters.",
+      "source": "The output location chosen by the tool; exports describe the selected data and filters.",
+      "source_sha256": "3985f989fd85cde2b0a359d542fdca8b7f5a38bb3683a39339d8888e7ea1eb1e",
+      "translation": "Utdataplatsen som verktyget väljer; exporterna beskriver valda data och filter."
+    },
+    {
+      "table": "ui",
+      "key": "Third-party measurement CSV/database tables and their image, mask and object-identity mappings.",
+      "source": "Third-party measurement CSV/database tables and their image, mask and object-identity mappings.",
+      "source_sha256": "ed6a75b4a1c0e58a894154b4c26f9f413e82dc148a261997e69fbf32599d21a9",
+      "translation": "CSV- eller databastabeller med mätningar från tredje part och deras mappningar för bilder, masker och objektidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.",
+      "source": "Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.",
+      "source_sha256": "d6981d9420937bef89ab5478f331a69354baaeeadfe6c65615a221a7d9d350b2",
+      "translation": ".tif-filer med gemener direkt i src; befintliga filer med samma namn i src/masks hoppas över. Ange konfigurerade kanaler och ett kompatibelt standardvärde för model_name eller en kontrollpunkt i custom_model."
+    },
+    {
+      "table": "ui",
+      "key": "Tracked labels and frame/object associations from the time-series project, with frame interval and units.",
+      "source": "Tracked labels and frame/object associations from the time-series project, with frame interval and units.",
+      "source_sha256": "37bd92b56d8713b33c122df7d0dbf826ae1a418b2433f9c6348aeff300710032",
+      "translation": "Spårade etiketter och kopplingar mellan bildrutor och objekt från tidsserieprojektet, med bildintervall och enheter."
+    },
+    {
+      "table": "ui",
+      "key": "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores.",
+      "source": "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores.",
+      "source_sha256": "1473eae34799bd98c10c5efffa9efe29b06b5d7b7e6a56e12024b0cc166eab8e",
+      "translation": "Träna en egenskapsbaserad klassificerare från uppmätta objekt och etiketter. Inspektera uteslutningar på grund av saknade egenskaper och oberoende utvärderingsresultat per grupp innan poäng används."
+    },
+    {
+      "table": "ui",
+      "key": "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint.",
+      "source": "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint.",
+      "source_sha256": "157870287274791f6edcd76f6239ee8da9024726d7faea807be50694c3fb0371",
+      "translation": "Träna en bildklassificerare från märkta objektutsnitt, arkiv eller utsnitt som kan hämtas vid behov. Matcha kanaler och förbehandling när kontrollpunkten används."
+    },
+    {
+      "table": "ui",
+      "key": "Trained image classifier",
+      "source": "Trained image classifier",
+      "source_sha256": "a28ac6fb17ccacf0e126e23d93a39ea353319947ac2215e8726699ca182ce8e2",
+      "translation": "Tränad bildklassificerare"
+    },
+    {
+      "table": "ui",
+      "key": "Training annotations",
+      "source": "Training annotations",
+      "source_sha256": "af9479c34be49807c4cdc654eb60fd95b71bacd4a4f9c611d246ceb3fa55cf9b",
+      "translation": "Träningsannoteringar"
+    },
+    {
+      "table": "ui",
+      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "Använd FEATURES för att para ihop bilder och masker och skriva ett uppmätt projekt; fristående masker är inte sammanslagna arrayer."
+    },
+    {
+      "table": "ui",
+      "key": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
+      "translation": "Använd kompartmentens intensitetsmätningar och motsvarande värd- och patogenidentiteter för att beräkna rekryteringskvoter."
+    },
+    {
+      "table": "ui",
+      "key": "Use imported image planes and identities; image-only imports still need segmentation.",
+      "source": "Use imported image planes and identities; image-only imports still need segmentation.",
+      "source_sha256": "758477637b64fbd09f3708ee401272535f117650e825088aed95df4925e637d7",
+      "translation": "Använd importerade bildplan och identiteter; import av enbart bilder kräver fortfarande segmentering."
+    },
+    {
+      "table": "ui",
+      "key": "Use independently checked image/mask pairs.",
+      "source": "Use independently checked image/mask pairs.",
+      "source_sha256": "2f8e1a168f30c74b5a6d8e4e992160c37bd92d719504c229c168a957b48d4964",
+      "translation": "Använd oberoende kontrollerade bild- och maskpar."
+    },
+    {
+      "table": "ui",
+      "key": "Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "source": "Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "source_sha256": "d187ff0654b7898c787f957f79ee85752f15f2ce9890325944b3e2c5cc363f92",
+      "translation": "Använd plackmasker med motsvarande källbilder; cellmasker är inte automatiskt placketiketter."
+    },
+    {
+      "table": "ui",
+      "key": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV.",
+      "source": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV.",
+      "source_sha256": "0eb5f6bb9207a04f8b001a466fe3cb70551ca61d6ebfb4702f12e4f11bda482e",
+      "translation": "Använd bilder från sekvenseringscykler och fenotypregistrering för att avkoda streckkoder per cellkärna. Aggregera eller sammanfoga avkodade identiteter till kompatibla fenotypindata före Regression; OPS-databasen ersätter inte direkt en CSV med FASTQ-antal."
+    },
+    {
+      "table": "ui",
+      "key": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid.",
+      "source": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid.",
+      "source_sha256": "4546ed51870a60e41bcc003e0306fea487f7a6bdd322366eacfdcf11e3dcaf16",
+      "translation": "Använd Python-API:t för parameterstudier för att utforska angivna antaganden om screeningdesign. Det expanderar kombinationer, kör simuleringar i en processpool och skriver syntetisk sammanfattande statistik; det returnerar None. Ange ett litet uttryckligt max_workers-värde och ett begränsat parameterrutnät före körningen. Utdata ersätter inte mätningar eller streckkodsantal för experimentell Regression. Använd resultaten som planeringsunderlag med dokumenterade antaganden. Granska de syntetiska sammanfattningarna när du väljer planeringsantaganden; överför antagandena manuellt till Power / Design eller Experiment Design. Inget av verktygen importerar denna simuleringsdatabas eller exporterar rutnätet med simuleringsinställningar."
+    },
+    {
+      "table": "ui",
+      "key": "Use the actual measured feature definitions and units.",
+      "source": "Use the actual measured feature definitions and units.",
+      "source_sha256": "24b57dd68ed527779c36fabc6773c67269591681de7ba0d1a43361e1f0c55ff7",
+      "translation": "Använd de faktiska uppmätta egenskapernas definitioner och enheter."
+    },
+    {
+      "table": "ui",
+      "key": "Use the converted layout and preserve source identity mappings.",
+      "source": "Use the converted layout and preserve source identity mappings.",
+      "source_sha256": "83abb6351062dd3f2d76d8cafc9881379225d38c3c5dee6621b86b6d79c56cd5",
+      "translation": "Använd den konverterade layouten och bevara källidentitetsmappningarna."
+    },
+    {
+      "table": "ui",
+      "key": "Use the experimental layout to define sampling assumptions, then revise the design.",
+      "source": "Use the experimental layout to define sampling assumptions, then revise the design.",
+      "source_sha256": "a99aba00513138a13d7bd5c7dfce282948ea89fdaa83da640031eea3b60d1faa",
+      "translation": "Använd experimentlayouten för att definiera provtagningsantaganden och revidera sedan designen."
+    },
+    {
+      "table": "ui",
+      "key": "Use the matching held-out predictions and split metadata.",
+      "source": "Use the matching held-out predictions and split metadata.",
+      "source_sha256": "f54d26c6f55e27fc9e4bfa8aa68751237c19bcfb4789430b0c398fdfa26da239",
+      "translation": "Använd motsvarande prediktioner från oberoende utvärdering och metadata om datauppdelningen."
+    },
+    {
+      "table": "ui",
+      "key": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source_sha256": "240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815",
+      "translation": "Använd nödvändiga mätningar av differentiell tvåfärgsfärgning och baslinjekontroller för färgningen för att skilja vidhäftning från invasion."
+    },
+    {
+      "table": "ui",
+      "key": "Use the same project and the correct image/mask channel indices.",
+      "source": "Use the same project and the correct image/mask channel indices.",
+      "source_sha256": "a13443df7b3ac941065d58a50ac84111df75ac2f088812325d7a5611061621b2",
+      "translation": "Använd samma projekt och rätt kanalindex för bild och mask."
+    },
+    {
+      "table": "ui",
+      "key": "Use the time-series project with stable frame/object identities.",
+      "source": "Use the time-series project with stable frame/object identities.",
+      "source_sha256": "7f51c91c57e8c6bcfbc6eb8b314770891a24fd6027910ff8fae48c728b8ef191",
+      "translation": "Använd tidsserieprojektet med stabila bildrute- och objektidentiteter."
+    },
+    {
+      "table": "ui",
+      "key": "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log.",
+      "source": "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log.",
+      "source_sha256": "0300e5287d7ced093423753607dfa50fb9c3fc6effc5c503aa208e3f62b180b8",
+      "translation": "Validera och kör moduljobb i beroendeordning. Varje jobb skriver sin egen moduls utdata och logg."
+    },
+    {
+      "table": "ui",
+      "key": "When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.",
+      "source": "When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.",
+      "source_sha256": "ee0bd77b1f809745ceee1d1f39be5c9817cf6bd81f217c5d1a2a057e01f15bb4",
+      "translation": "När save=True innehåller src/masks/<image-name>.tif heltalsetiketter. Anropet returnerar None och skapar inga sammanslagna arrayer eller measurements.db."
+    },
+    {
+      "table": "ui",
+      "key": "data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks.",
+      "source": "data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks.",
+      "source_sha256": "bd53efc1885c16bab0fcdfbad7b76154c439ce7dc30dbe9773432a3039dcb59b",
+      "translation": "data/**/*_png när save_png är aktiverat; png_list indexerar sparade utsnitt. Arbetsflöden som stöds kan i stället hämta utsnitt vid behov från sammanslagna arrayer och masker."
+    },
+    {
+      "table": "ui",
+      "key": "masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.",
+      "source": "masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.",
+      "source_sha256": "5bd7480a631cb9830f42aa8f650373d1750b0475863c9bada0b58c26ae52ba17",
+      "translation": "masks/ när den behålls, eller uttryckligen sparade bild- och maskpar. Mellanliggande masker kan tas bort vid rensning."
+    },
+    {
+      "table": "ui",
+      "key": "measurements/measurements.db; Mask counts alone are not per-object feature measurements.",
+      "source": "measurements/measurements.db; Mask counts alone are not per-object feature measurements.",
+      "source_sha256": "ff6f35a646686f728ba4a6db279103047a3eccaadc76ba9bf8f12be03772832d",
+      "translation": "measurements/measurements.db; enbart Masks antal är inte egenskapsmätningar per objekt."
+    },
+    {
+      "table": "ui",
+      "key": "measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.",
+      "source": "measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.",
+      "source_sha256": "5c642be9ad3e3f8cbc8fbac46351f33eecc6313cdb7527491571ec72e0eee4e5",
+      "translation": "measurements/measurements.db; objekttabellerna beror på aktiverade masker för cell, nucleus, pathogen och organelle."
+    },
+    {
+      "table": "ui",
+      "key": "merged/*.npy in the project; channels and integer label planes share each field array.",
+      "source": "merged/*.npy in the project; channels and integer label planes share each field array.",
+      "source_sha256": "dd31724bc9249a234a1d470a40044ced540a2f1a45f87f971fa0130c34fd22e8",
+      "translation": "merged/*.npy i projektet; kanaler och heltalsetikettplan delar varje bildfälts array."
+    },
+    {
+      "table": "ui",
+      "key": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
+      "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
+      "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
+      "translation": "src/<YYMMDD>/<name>/simulations.db; parameterstudien lägger till sammanfattningsrader i simulations och skriver valfritt diagram. Detta är syntetiska prestandauppskattningar, inte uppmätta experimentella träffar."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+        "translation": "Definiera tröskel- eller polygonbaserade urvalsgrindar på faktiska egenskaps- eller koordinatkolumner och tillämpa sedan den sparade grinden på kompatibla objekt."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+        "translation": "Importera externa mätningar med uttryckliga objekt- och kolumnmappningar, eller välj Import Images, Format Converter eller External Masks. Importerade mätningar är inte en ny Measure-körning."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+        "translation": "Projicera uppmätta egenskaper eller tillhandahållna kodaregenskaper och inspektera representativa utsnitt. Ett kluster är en kandidatgruppering, inte en validerad fenotyp."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    }
+  ]
+}

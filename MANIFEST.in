@@ -1,5 +1,6 @@
 recursive-include spacr/resources/models/cp *
 recursive-include spacr/resources/icons *
+recursive-include spacr/resources/images organism_*.svg organism_sources.json
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/data *.csv
 # The bundled GitHub release notes Home's News panel draws. Built by
@@ -15,6 +16,7 @@ include spacr/resources/layout_policy.json
 # strip. Built by tools/build_tutorial_index.py from the docs
 # build's lesson catalog.
 include spacr/resources/tutorial_index.json
+include spacr/resources/module_workflows.json
 # Experiment Design's ready-made plate layouts (460): four small JSON
 # files, read by spacr.qt.widgets.plate_layout.plate_templates.
 recursive-include spacr/resources/plate_templates *.json

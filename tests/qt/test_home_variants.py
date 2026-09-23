@@ -133,6 +133,14 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # All earlier clipping and elision disappeared after the module folds and
     # the QSS/layout work; retaining those old entries would hide a real win.
     2: {"overflow": 1},
+    # Variant 01 joined on 2026-09-22, when Home's side column gained the
+    # "Start a sample project…" button (GitHub #130: "I can't figure out what
+    # do"). It is 25 px tall, and this variant's flat generated column was
+    # already within that of 900. THE SHIPPED HOME IS NOT AFFECTED: measured
+    # through a real MainWindow at 1440x900 the same day, HomePage's layout
+    # minimum is 814x699, because the real screen scrolls its categories
+    # where these generators draw them flat.
+    1: {"overflow": 1},
 }
 
 KNOWN_LAYOUT_DEFECT_PROFILES = (KNOWN_LAYOUT_DEFECTS,)
@@ -301,6 +309,19 @@ def test_every_categorisation_covers_every_app(gen_common):
     invented[0][1].append("no_such_app")
     with pytest.raises(AssertionError, match="unknown keys"):
         gen_common.check_coverage(invented)
+
+
+@pytest.mark.parametrize("table,title", [
+    ("CATS_BROAD3", "Run"),
+    ("CATS_STAGE5", "Measure"),
+    ("CATS_NARROW8", "Assays"),
+    ("CATS_QUESTIONS", "I have objects. What are they like?"),
+    ("CATS_INTENT4", "Measure objects"),
+])
+def test_organism_launchers_are_grouped_with_assays(gen_common, table, title):
+    """Organism doors must not silently grow a fallback reporting group."""
+    categories = dict(getattr(gen_common, table))
+    assert {"toxoplasma", "plasmodium", "candida"} <= set(categories[title])
 
 
 def test_orderings_are_permutations_of_the_real_registry(gen_common):
@@ -711,6 +732,16 @@ def test_dense_row_carries_name_blurb_badge_and_shortcut(gen, ctx):
     assert "412" in shown
     assert "Ctrl+1" in shown
     assert gen.common.blurb_of("mask") in row.toolTip()
+
+
+@pytest.mark.parametrize("height", [26, 30])
+def test_dense_row_preserves_its_height_after_polish(gen, ctx, height):
+    """Theme geometry must not reduce a labelled row to a text-free sliver."""
+    row = gen.parts.DenseRow(ctx, "measure", width=520, height=height)
+    row.setStyleSheet("QPushButton { min-height: 0px; }")
+    row.ensurePolished()
+    assert row.sizeHint().height() == height
+    assert row.minimumSizeHint().height() == height
 
 
 def test_dense_row_without_blurb_room_drops_the_blurb(gen, ctx):

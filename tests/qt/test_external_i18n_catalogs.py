@@ -10,6 +10,8 @@ from importlib import import_module
 from pathlib import Path
 from string import Formatter
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 API_EXACT_TEXT_ALLOWLIST = {
@@ -110,6 +112,7 @@ def test_standalone_technical_identity_values_remain_exact_in_every_language():
     """Short configuration tokens may never be semanticized as prose."""
 
     expected_examples = {
+        "Candida spp.", "Plasmodium spp.",
         "cividis", "coolwarm", "inferno", "magma", "plasma", "turbo",
         "viridis", "otsu", "cellpose", "pymc", "numpyro", "umap", "tsne",
         "btrack", "trackastra", "trackpy", "ultrack", "slurm", "ssh",
@@ -188,7 +191,7 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
         sys.path.remove(tools_dir)
 
     english = import_module("spacr.qt.i18n_catalogs.en")
-    from spacr.qt.i18n import _ROWS, VALID_LANGUAGE_CODES
+    from spacr.qt.i18n import _ROWS, TERM_CATALOGS, VALID_LANGUAGE_CODES, tr
 
     for language in LANGUAGES:
         catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
@@ -210,6 +213,10 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
             if source in reviewed:
                 located.add(source)
                 assert values[language_index] == reviewed[source][language]
+        for source, value in TERM_CATALOGS[language].items():
+            if source in reviewed and source not in located:
+                located.add(source)
+                assert value == tr(source, language) == reviewed[source][language]
         assert located == set(reviewed), (
             f"{language}: reviewed UI rows missing from regenerated tables: "
             f"{sorted(set(reviewed) - located)}"
@@ -281,7 +288,7 @@ def test_dynamic_text_templates_enter_the_runtime_source_inventory():
         source.startswith("{available:.0f} GiB available")
         for source in sources
     )
-    assert "Settings recipes…" in sources
+    assert "Settings templates…" in sources
     assert "Feature Dictionary…" in sources
 
 
@@ -320,6 +327,158 @@ def test_settings_model_explainers_enter_the_runtime_source_inventory():
     assert settings_model.INFORMATION_LIMIT_NOTE in sources
 
 
+def test_form_labels_and_detector_help_enter_the_runtime_source_inventory():
+    """Form-layout labels and registry-fed method help are visible captions."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    from spacr.qt import cpu_modes, organelle_modes
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
+    assert "Method" in known
+    for modes in (cpu_modes, organelle_modes):
+        assert set(modes.MODE_LABELS.values()) <= known
+        assert {modes.guidance(mode) for mode in modes.MODE_LABELS} <= known
+    assert set(cpu_modes.GUIDANCE.values()) <= known
+    for call, expected in (
+        ('form.addRow("Visible field label", widget)', ["Visible field label"]),
+        ('form.insertRow(2, "Inserted field label", widget)', ["Inserted field label"]),
+        ('form.addRow(labelText="Named field label", field=widget)', ["Named field label"]),
+        ('form.insertRow(row=2, labelText="Named insertion", field=widget)', ["Named insertion"]),
+        ('form.addRow(widget)', []),
+        ('form.insertRow(2, widget)', []),
+    ):
+        node = ast.parse(call).body[0].value
+        captured = [value for argument in builder._candidate_arguments(
+            node, builder._call_name(node))
+            for value in builder._literal_strings(argument, {})]
+        assert captured == expected
+
+
+def test_organism_registry_prose_is_inventoried_without_location_ids():
+    """Dynamic organism prose is translatable; URLs, routes and SL IDs are not."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.widgets.organism_diagram import (
+        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
+    )
+
+    discovered = set(builder.extract_static_ui_sources())
+    known = set(builder.canonical_sources()["ui"]) | set(_ROWS) | set(_TERM_ROWS)
+    for organism in ORGANISMS.values():
+        assert {organism["name"], organism["description"],
+                organism["diagram_note"]} <= known
+        assert organism["source"] not in discovered
+        assert organism["diagram"] not in discovered
+        for heading, prose, _routes in organism["sections"]:
+            assert {heading, prose} <= known
+        for _key, title, description, _icon in organism["modules"]:
+            assert {title, description} <= known
+        for label, url in organism["links"]:
+            assert label in known
+            assert url not in discovered
+    for labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
+        assert set(labels) <= known
+        assert not set(labels.values()) & discovered
+    assert {"Cell compartments", "hyperLOPIT compartment", "UniProt compartment",
+            "Clear components", "Hover over the cell to identify a compartment. "
+            "Check several labels to keep them highlighted."} <= known
+
+
+def test_visible_flowchart_node_and_edge_prose_has_catalog_sources(monkeypatch, qapp):
+    """Capture actual rendered descriptions so new dynamic fields cannot hide."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+    from spacr.qt.widgets import workflow_diagram
+
+    observed = set()
+
+    def record(text, **values):
+        if text:
+            observed.add(text)
+        return text.format(**values) if values else text
+
+    monkeypatch.setattr(workflow_diagram, "tr", record)
+    data = workflow_diagram.workflow_map()
+    for key in data["modules"]:
+        workflow_diagram.node_description(data, key)
+    for edge in workflow_diagram.connections(data):
+        workflow_diagram.edge_description(data, edge)
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
+    assert observed <= known, sorted(observed - known)
+    assert {module["guidance"] for module in data["modules"].values()} <= observed
+    map_prose = builder._workflow_ui_sources()
+    assert not {module["api_module"] for module in data["modules"].values()} & map_prose
+    assert not {module["api_entry"] for module in data["modules"].values()
+                if module.get("api_entry")} & map_prose
+
+
+def test_empty_flowchart_caption_translates_without_changing_python_none():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    for language in LANGUAGES:
+        translated = builder._reviewed_translation("None declared", language)
+        assert translated is not None
+        assert builder._syntax_preserved_or_reviewed("None declared", translated, language)
+        assert not builder._syntax_preserved_or_reviewed(
+            "Return None when no artifacts are declared.", translated, language)
+        assert not builder._syntax_preserved_or_reviewed("``None``", translated, language)
+
+
+def test_translated_combo_captions_do_not_extract_storage_keys():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    import ast
+
+    for expression, caption in (
+        ('box.addItem(tr("Intensity watershed"), "intensity")', "Intensity watershed"),
+        ('box.addItem(tr("Distance growth within threshold"), "distance")',
+         "Distance growth within threshold"),
+        ('box.addItem(icon, "Caption", "stored value")', "Caption"),
+        ('box.addItem("Caption", "stored value")', "Caption"),
+    ):
+        tree = ast.parse(expression)
+        observed = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and builder._call_name(node) in {"addItem", "tr"}:
+                for argument in builder._candidate_arguments(node, builder._call_name(node)):
+                    observed.update(builder._literal_strings(argument, {}))
+        assert observed == {caption}
+
+
+def test_secondary_relationship_template_preserves_all_runtime_fields():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    source = "{name}: {count} ({ids})"
+    assert not builder._has_prose_outside_protected_literals(source)
+    for language in LANGUAGES:
+        assert not builder._translation_rejection_reasons(source, source, language, force=True)
+        assert not builder._syntax_preserved(source, "{name}: {count}")
+        assert builder._translation_rejection_reasons(
+            source, "{name}: {count}", language, force=True)
+
+
 def test_every_set_translatable_text_call_has_static_catalog_sources():
     """Dynamic chrome may not hide an English template behind a variable."""
     tools_dir = str(ROOT / "tools")
@@ -329,9 +488,9 @@ def test_every_set_translatable_text_call_has_static_catalog_sources():
     finally:
         sys.path.remove(tools_dir)
 
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    known = set(builder.extract_static_ui_sources()) | set(_ROWS)
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
     unresolved = []
     missing = []
     checked = 0
@@ -877,7 +1036,8 @@ def test_chinese_and_scientific_runtime_terms_are_contextual():
     assert "écran" in fr.UI[resolution].casefold()
 
 
-def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
+@pytest.mark.parametrize("language", ["en", *LANGUAGES])
+def test_api_doc_catalog_is_symbol_keyed_and_source_hashed(language):
     manifest = json.loads((
         ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
     ).read_text(encoding="utf-8"))
@@ -894,7 +1054,7 @@ def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
             for value in record["source_blocks_sha256"]
         )
         assert record["text"].strip()
-    for language in LANGUAGES:
+    for language in (() if language == "en" else (language,)):
         translated = json.loads((
             ROOT / "docs" / "source" / "_static" / "i18n" / "api"
             / f"{language}.json"

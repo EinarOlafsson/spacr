@@ -177,8 +177,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_532_not_asset_generators():
-    """The ratchet follows all 532 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_634_not_asset_generators():
+    """The ratchet follows all 634 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -386,7 +386,38 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     #     plaque_preview, preview_refresh.
     # The pin went stale across a week of product work rather than through
     # anything leaving the package.
-    assert len(shipped) == 604
+    # 604 -> 605 on 2026-09-22, +1/-0 versus e9dcdaae9: the Gate Editor's
+    # spacr/qt/widgets/volume_view.py arrived in f6e92893b. It is installed
+    # Python and must be included in the coverage denominator.
+    assert "spacr/qt/widgets/volume_view.py" in shipped
+    # 605 -> 606 on 2026-09-22: spacr/qt/widgets/collapsible_splitter.py,
+    # the app shell's collapse and drag-to-resize mechanism (item 471).
+    assert "spacr/qt/widgets/collapsible_splitter.py" in shipped
+    # 606 -> 608 on 2026-09-22, +2/-0, item 471 slice A:
+    #   `spacr/qt/gui_scale.py`              the whole-GUI scale, a Qt scale
+    #                                        factor set before the
+    #                                        application starts
+    #   `spacr/qt/widgets/preview_scale.py`  each live preview's own scale
+    #                                        slider
+    assert "spacr/qt/gui_scale.py" in shipped
+    assert "spacr/qt/widgets/preview_scale.py" in shipped
+    added_since_608 = {
+        'spacr/_starplast.py', 'spacr/qt/cpu_modes.py', 'spacr/qt/detect_chain.py',
+        'spacr/qt/organelle_modes.py', 'spacr/qt/organisms.py',
+        'spacr/qt/screens/organism_screen.py', 'spacr/qt/secondary_masks.py',
+        'spacr/qt/starplast.py', 'spacr/qt/widgets/image_ruler.py',
+        'spacr/qt/widgets/organism_diagram.py', 'spacr/qt/widgets/primary_mask_selector.py',
+        'spacr/qt/widgets/sample_project.py', 'spacr/qt/widgets/workflow_diagram.py',
+        'spacr/qt/widgets/zoom_view.py',
+        'spacr/classification_pixels.py', 'spacr/host_pathogen.py',
+        'spacr/host_pathogen_example.py', 'spacr/host_pathogen_preview.py',
+        'spacr/image_quality.py', 'spacr/inference_augmentation.py',
+        'spacr/qt/widgets/cursor_policy.py', 'spacr/qt/widgets/cursor_zoom.py',
+        'spacr/qt/widgets/host_pathogen_preview.py', 'spacr/qt/widgets/make_masks_help.py',
+        'spacr/qt/widgets/pipeline_details.py', 'spacr/timeflows_validation.py',
+    }
+    assert added_since_608 <= shipped
+    assert len(shipped) == 608 + len(added_since_608) == 634
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -699,7 +730,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # spacr/install_cleanup.py (416), the same +2 as `shipped`; the gate's own
     # inventory, verify_module_coverage.discover_shipped_python_files, returns
     # 572. 572 -> 604 on 2026-09-21, the same +32 as `shipped`.
-    assert "--expected-file-count 604" in combine_script
+    # 604 -> 605: the installed Gate Editor volume view (f6e92893b).
+    # 605 -> 606: the collapsible splitter (item 471).
+    # 606 -> 608: the GUI scale and the preview scale (471 slice A).
+    assert "--expected-file-count 634" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

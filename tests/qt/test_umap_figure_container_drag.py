@@ -132,8 +132,21 @@ class TestTheDividerIsARealHandle:
 
     def test_neither_side_can_be_collapsed_out_of_existence(self, explorer):
         """A divider dragged to the edge that then cannot be dragged back is
-        a divider that has eaten the sidebar."""
-        assert not explorer._body_splitter.childrenCollapsible()
+        a divider that has eaten the sidebar.
+
+        Item 471 lets the sidebar collapse to the right, but only as an EDGE
+        pane: its handle stays, carries the arrow, and a click on it brings
+        the sidebar back. The chart itself never collapses.
+        """
+        from spacr.qt.widgets.collapsible_splitter import EDGE
+
+        split = explorer._body_splitter
+        assert not split.isCollapsible(0), "the chart can be dragged away"
+        assert split.pane("Sidebar").mode == EDGE
+        split.set_collapsed("Sidebar", True, by_user=False)
+        assert split.handle(1).edge_pane() is split.pane("Sidebar")
+        split.toggle_pane("Sidebar", by_user=False)
+        assert not split.is_collapsed("Sidebar")
 
     def test_the_handle_says_it_can_be_dragged(self, explorer):
         """The cursor over it, and the hover text, are what say so before the

@@ -95,13 +95,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "annotation_source",
-      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
-      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d",
-      "translation": "Anotación del organismo que se añade a los resultados de regresión. 'toxoplasma' utiliza las tablas incluidas de Toxoplasma gondii, que no necesitan conexión de red y son la opción predeterminada. Cualquier otro nombre de organismo o identificador taxonómico de NCBI —'human', 'Plasmodium falciparum', 'Neospora caninum', '9606'— obtiene las entradas de ese organismo de UniProt; un identificador de acceso individual, como P04637, obtiene esa entrada. El resultado se guarda en caché junto a las salidas, por lo que repetir la ejecución no requiere conexión. Si spaCR no reconoce un nombre, deja los resultados sin anotar e indica los nombres parecidos. Déjelo vacío para no añadir anotaciones. Valor predeterminado: 'toxoplasma'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "auto_file_issues",
       "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
       "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62",
@@ -134,13 +127,6 @@
       "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
       "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df",
       "translation": "Ancho del contorno como fracción del tamaño del objeto, en lugar de un número fijo de píxeles, para mantener el ancho relativo entre distintos valores de crop_size. Los valores mayores mejoran la visibilidad de los bordes en miniaturas pequeñas, pero cubren más píxeles interiores. Valor predeterminado: 0.1."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "metadata_type",
-      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
-      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5",
-      "translation": "Convención de nombres de archivo para interpretar las imágenes originales, elegida de una lista agrupada por fabricante: Yokogawa CV7000/CV8000 ('cellvoyager', la opción predeterminada) y CQ1, PerkinElmer/Revvity Opera Phenix y Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan y EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X y Matrix Screener, y Micro-Manager. 'custom' utiliza custom_regex, y 'auto' primero renombra los archivos de la carpeta con la nomenclatura de Yokogawa (utilizando custom_regex si se proporciona o detección automática en caso contrario) antes de interpretarlos. Las convenciones marcadas como provisionales se reconstruyeron a partir de nombres de archivo reales encontrados en conjuntos de datos públicos, no a partir de la documentación del fabricante. Una convención incorrecta puede asignar mal los identificadores de placa, pocillo, campo o canal y colocar imágenes en carpetas de canales equivocadas; utilice 'Test on my folder' (Probar en mi carpeta) para comprobarlo antes de ejecutar."
     },
     {
       "table": "setting_tooltips",

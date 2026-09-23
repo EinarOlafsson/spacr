@@ -1126,6 +1126,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         behaviour diverging.
     """
 
+    #: Where this preview's section folds and sizes are remembered (item
+    #: 471): the settings groups, the movie and the track quality each fold by their heading and trade height by their
+    #: edge.
+    SECTION_KEY = "timelapse_preview"
+
     preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load a sequence first."
@@ -1338,10 +1343,19 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         trk_form.addRow("Track tail", self._tail)
         trk_form.addRow(self._remove_transient)
 
-        groups = QHBoxLayout()
+        groups_host = QWidget(self)
+        groups = QHBoxLayout(groups_host)
+        groups.setContentsMargins(0, 0, 0, 0)
         groups.addWidget(seg_group, 1)
         groups.addWidget(trk_group, 1)
-        root.addLayout(groups)
+        from .collapsible_splitter import CollapsibleSplitter
+        key = self.SECTION_KEY
+        self._section_split = CollapsibleSplitter(
+            Qt.Vertical, self, persist_key=f"{key}::sections")
+        self._sections = {}
+        self._sections["Preview settings"] = self._section_split.add_section(
+            groups_host, "Preview settings", stretch=0,
+            persist_key=f"{key}/Preview settings")
 
         for w in (self._displacement, self._memory, self._iou):
             w.valueChanged.connect(self._on_tracking_changed)
@@ -1378,8 +1392,13 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._relink_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "timelapse", act)
         root.addLayout(act)
 
+        movie = QWidget(self)
+        movie_col = QVBoxLayout(movie)
+        movie_col.setContentsMargins(0, 0, 0, 0)
         canvas = QHBoxLayout()
         self._src_view = _ZoomView(self)
         self._src_view.setMinimumHeight(160)
@@ -1389,7 +1408,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._out_view.set_peer(self._src_view)
         canvas.addWidget(self._src_view, 1)
         canvas.addWidget(self._out_view, 1)
-        root.addLayout(canvas, 1)
+        movie_col.addLayout(canvas, 1)
 
         scrub = QHBoxLayout()
         scrub.addWidget(QLabel("Frame", self))
@@ -1415,13 +1434,18 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         scrub.addWidget(self._frame_slider, 1)
         scrub.addWidget(self._frame_label)
         scrub.addWidget(self._play_fps)
-        root.addLayout(scrub)
+        movie_col.addLayout(scrub)
+        self._sections["Movie"] = self._section_split.add_section(
+            movie, "Movie", stretch=1, persist_key=f"{key}/Movie")
 
         self._stats_label = QLabel(
             "Load a sequence and run the preview to see track quality.", self)
         self._stats_label.setWordWrap(True)
         self._stats_label.setStyleSheet("font-family: monospace;")
-        root.addWidget(self._stats_label)
+        self._sections["Track quality"] = self._section_split.add_section(
+            self._stats_label, "Track quality", stretch=0,
+            persist_key=f"{key}/Track quality")
+        root.addWidget(self._section_split, 1)
 
 
     def _dropped_path(self, event) -> Optional[str]:

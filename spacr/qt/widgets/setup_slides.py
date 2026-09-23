@@ -1642,7 +1642,7 @@ class SetupSlides(QDialog):
             return f"{provider.label}: its install page is open in your browser."
         if act_run is not None and clicked is act_run:
             if self._sign_in_to_provider(provider, login):
-                return f"Signing in to {provider.label} in a terminal…"
+                return _say("Signing in to {label}…", label=provider.label)
             return f"Run `{login}` to sign in to {provider.label}."
         if clicked is act_copy:
             command = login if installed else (
@@ -1689,15 +1689,15 @@ class SetupSlides(QDialog):
                                              provider, login))
 
     def _sign_in_to_provider(self, provider, login: str) -> bool:
-        """Start ``login`` in a terminal and have the panel watch it.
+        """Start ``login`` and have the panel watch it.
 
         The vendors' sign-ins are conversations -- a code to copy, a browser
-        to confirm in -- so they run in a terminal, and the panel asks the
-        provider's status command every few seconds until it says yes.
+        to confirm in -- so they run in the embedded terminal or the platform
+        fallback. The panel polls the provider's status until it says yes.
 
         :param provider: the provider to sign in to.
         :param login: its sign-in command.
-        :returns: whether a terminal was opened.
+        :returns: whether the sign-in was started.
         """
         panel = self._live_panel("_ai_setup")
         if panel is None:
@@ -1722,6 +1722,7 @@ class SetupSlides(QDialog):
         """
         from ..ai.pty_sign_in import SignInDialog, pty_available
 
+        self._stop_sign_in()
         argv = str(login).split()
         if not argv or not pty_available():
             return bool(self._run_in_a_terminal(login))
@@ -1735,12 +1736,23 @@ class SetupSlides(QDialog):
         dialog.show()
         return True
 
+    def _stop_sign_in(self) -> None:
+        """Close the embedded sign-in before replacing it or leaving setup."""
+        dialog = getattr(self, "_sign_in_dialog", None)
+        self._sign_in_dialog = None
+        if dialog is not None:
+            try:
+                dialog.close()
+            except RuntimeError:
+                LOG.debug("the sign-in window was already destroyed", exc_info=True)
+
     def _stop_the_installs(self) -> None:
         """Stop any installer or sign-in watch the panels are running.
 
         Called on the way out: an installer left running behind a closed
         screen is one nobody can cancel any more.
         """
+        self._stop_sign_in()
         for name in ("_ai_setup", "_gh_setup"):
             panel = self._live_panel(name)
             if panel is None:

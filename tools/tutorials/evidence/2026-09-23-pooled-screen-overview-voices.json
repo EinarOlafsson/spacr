@@ -1,0 +1,742 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "78_spacr_screens",
+  "scope": "All 50 supported narration tracks pass technical audio and actual Chromium playback/hash/seek/chapter-link checks; this is not auditory approval.",
+  "tracks": [
+    {
+      "language": "en",
+      "voice": "af_heart",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_heart.m4a",
+        "sha256": "9f47aa717a6272160a733bd7d3a1ca46872bbca89671b17d8ad232a32918e0dc",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.8
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-sentence-cues/playback-checks.json",
+      "browser_report_sha256": "874c6ed44367620d4b28f8ed41c79bac0726c423e441c458e1e9cb1dacbabe3b",
+      "browser_loaded_audio_sha256": "9f47aa717a6272160a733bd7d3a1ca46872bbca89671b17d8ad232a32918e0dc",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "af_aoede",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_aoede.m4a",
+        "sha256": "0248752676d12797cc5998c4299882f0983e4e0b904707e251cecdc12a5171f4",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.4
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_aoede/playback-checks.json",
+      "browser_report_sha256": "48b12e7370976a11a6be1084373f381a89509463815e1c2d6d146799735b6357",
+      "browser_loaded_audio_sha256": "0248752676d12797cc5998c4299882f0983e4e0b904707e251cecdc12a5171f4",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "af_bella",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_bella.m4a",
+        "sha256": "8772a5378c43b0ed03e89ef6e523925b16b85ea15edbad3b1a2a334619842b44",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_bella/playback-checks.json",
+      "browser_report_sha256": "7131dc12ac4b7486baea068f7813fa3ca26037d568a35323b6a78d383ff3cc66",
+      "browser_loaded_audio_sha256": "8772a5378c43b0ed03e89ef6e523925b16b85ea15edbad3b1a2a334619842b44",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "af_jessica",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_jessica.m4a",
+        "sha256": "989e1e27cf424501535c06c10ccd40ed44c6feef7439058e29e49a9c3a848105",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_jessica/playback-checks.json",
+      "browser_report_sha256": "3db651d41823964af86a0465f25e6d3f402a9d655c8e98a9997150f0c4700724",
+      "browser_loaded_audio_sha256": "989e1e27cf424501535c06c10ccd40ed44c6feef7439058e29e49a9c3a848105",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "af_river",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_river.m4a",
+        "sha256": "95bf1664340e4ab637cd2864e56a3c44974da2da5e8c84d847340e17c1bbd144",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_river/playback-checks.json",
+      "browser_report_sha256": "fbce4c9149f749c58a6edee33b34419d50b2fa8caa260407f934085e17cd9e64",
+      "browser_loaded_audio_sha256": "95bf1664340e4ab637cd2864e56a3c44974da2da5e8c84d847340e17c1bbd144",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "af_sarah",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_sarah.m4a",
+        "sha256": "4e58c17b8b753c282793e12b07538178286fbed480ff9a0ffd3e597ca9aa4c23",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.5
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_sarah/playback-checks.json",
+      "browser_report_sha256": "4a971fac8a509c3bd0f418994c455b8c8dbfb9e7765b27b0242126502f6eb9e2",
+      "browser_loaded_audio_sha256": "4e58c17b8b753c282793e12b07538178286fbed480ff9a0ffd3e597ca9aa4c23",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "af_sky",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/af_sky.m4a",
+        "sha256": "06768153021958cf93c27fccfe249b260e884852ee293266030bc9545e28aca4",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_sky/playback-checks.json",
+      "browser_report_sha256": "16cad2ba191fb4a40d9895944d43a00b543218cc724da1e74e32ea1973a78f71",
+      "browser_loaded_audio_sha256": "06768153021958cf93c27fccfe249b260e884852ee293266030bc9545e28aca4",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_adam",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_adam.m4a",
+        "sha256": "9f72b3f48ba2676d96ad7549efcc80792c496a42735c3bd3a210928ae79ea5ea",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.6
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_adam/playback-checks.json",
+      "browser_report_sha256": "49c815031929284d660214f0ce2ef9306baaad1c82a5fbe49a2bc2a8981cd034",
+      "browser_loaded_audio_sha256": "9f72b3f48ba2676d96ad7549efcc80792c496a42735c3bd3a210928ae79ea5ea",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_echo",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_echo.m4a",
+        "sha256": "8527987d02561f3d66bbeb01e3caeaade1b1aafc689b50bd2cdb7faa67a34221",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_echo/playback-checks.json",
+      "browser_report_sha256": "af5e8fa0326758fb346f3f2d21b5a2abfa4a57f368d82c35ddc78444fabc5ad5",
+      "browser_loaded_audio_sha256": "8527987d02561f3d66bbeb01e3caeaade1b1aafc689b50bd2cdb7faa67a34221",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_eric",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_eric.m4a",
+        "sha256": "f38f40af2086e365ac62c726768b46876b470ad52cc9d12ced6a0e707d26ea3f",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.4
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_eric/playback-checks.json",
+      "browser_report_sha256": "89f861811cef30eb301a49af72a942cc79c7fbbdff8ff9544fa38d8f11fc1137",
+      "browser_loaded_audio_sha256": "f38f40af2086e365ac62c726768b46876b470ad52cc9d12ced6a0e707d26ea3f",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_fenrir",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_fenrir.m4a",
+        "sha256": "7685452c0cc73fd1b05f3c02c8d9715c0c4353d8f3aa6f1009b51c039ea60174",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.0
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_fenrir/playback-checks.json",
+      "browser_report_sha256": "39acacc87bc2a14bfa9b39a02806a1a0689dc4dea0933d9b0cb076822987f751",
+      "browser_loaded_audio_sha256": "7685452c0cc73fd1b05f3c02c8d9715c0c4353d8f3aa6f1009b51c039ea60174",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_liam",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_liam.m4a",
+        "sha256": "bd2a45edec56e2c99fdb817ec88bcb6627c95bc2cd6da99519417f938db583a0",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_liam/playback-checks.json",
+      "browser_report_sha256": "d613185194de698322d00b951ce9e2e27d175bd35cdc1b8b82f6756468262d16",
+      "browser_loaded_audio_sha256": "bd2a45edec56e2c99fdb817ec88bcb6627c95bc2cd6da99519417f938db583a0",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_michael",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_michael.m4a",
+        "sha256": "5934b9119bcdb1efcb7b835c6c5f033806533b36eb0fceefbb66cc45fe3b9483",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.4
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_michael/playback-checks.json",
+      "browser_report_sha256": "4524e648c7322edef1ab22c244e1ad3b824d5f2429895058f9c3dc098df1c754",
+      "browser_loaded_audio_sha256": "5934b9119bcdb1efcb7b835c6c5f033806533b36eb0fceefbb66cc45fe3b9483",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_onyx",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_onyx.m4a",
+        "sha256": "68d944cfe6b1158c9f2537b56d370ade0bb9609a406518e27374059ea8dd095f",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.4
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_onyx/playback-checks.json",
+      "browser_report_sha256": "c71e3eebf45362843136f235cb7abb61df57e784dadd7705319e11e6f070ecd7",
+      "browser_loaded_audio_sha256": "68d944cfe6b1158c9f2537b56d370ade0bb9609a406518e27374059ea8dd095f",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_puck",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_puck.m4a",
+        "sha256": "4614bb15bc1ba8c14749992f795ade7bc0f57692b807881f3dd58c1efcc0228e",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.8
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_puck/playback-checks.json",
+      "browser_report_sha256": "92f5408c60d563783cf3afa0998f982bd9d3534aeaf4ac605b57edb69e937f69",
+      "browser_loaded_audio_sha256": "4614bb15bc1ba8c14749992f795ade7bc0f57692b807881f3dd58c1efcc0228e",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "am_santa",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/am_santa.m4a",
+        "sha256": "38871df8f228d40aee23d9cf109e9246d841e346d17f7e548b24250c2e455b97",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.9
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-am_santa/playback-checks.json",
+      "browser_report_sha256": "485c202e6b0bb9789df8d4ef9fdda8798fa322030529fb8667fed5fb11cc3e6f",
+      "browser_loaded_audio_sha256": "38871df8f228d40aee23d9cf109e9246d841e346d17f7e548b24250c2e455b97",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_alice",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bf_alice.m4a",
+        "sha256": "0bfefc760885f7e61e57f87680b2823ac2905012934b209983bd6a04a1a20c84",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bf_alice/playback-checks.json",
+      "browser_report_sha256": "39e92e69a534c90c44bc3903a2beb8bb2fdb377de19b7f0ce0e46155cff4cfce",
+      "browser_loaded_audio_sha256": "0bfefc760885f7e61e57f87680b2823ac2905012934b209983bd6a04a1a20c84",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_emma",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bf_emma.m4a",
+        "sha256": "9b1814a9804edc85e26d2aa065175f48bc3eb305f7f5c6c65a9f622b534cb6c1",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.9
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bf_emma/playback-checks.json",
+      "browser_report_sha256": "d5a40da36d10558f9850bee71989bc8b84bbf6968ffa8dff17832b3126f27f50",
+      "browser_loaded_audio_sha256": "9b1814a9804edc85e26d2aa065175f48bc3eb305f7f5c6c65a9f622b534cb6c1",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_isabella",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bf_isabella.m4a",
+        "sha256": "a82923cdb442031e55f7e7203de098af817e691bd6e9eb1c6bc56f87f50c354a",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.9
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bf_isabella/playback-checks.json",
+      "browser_report_sha256": "2e6b7eca7c2e5e623416e4226a960bcbecde3637fc5417ab7f697bade44d0685",
+      "browser_loaded_audio_sha256": "a82923cdb442031e55f7e7203de098af817e691bd6e9eb1c6bc56f87f50c354a",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bf_lily",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bf_lily.m4a",
+        "sha256": "2fe5c77558077fed437be2d66600a2459a6bbed54f98c53e6f9d57b1a650710b",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bf_lily/playback-checks.json",
+      "browser_report_sha256": "c032966576f17cc4d4353044c014535253a63e7e9b2ffc9883d5df4ea831a56a",
+      "browser_loaded_audio_sha256": "2fe5c77558077fed437be2d66600a2459a6bbed54f98c53e6f9d57b1a650710b",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_daniel",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bm_daniel.m4a",
+        "sha256": "634329b43e966408759f4d95827231d37217d42a7f6efc160a2cebc79fc117a9",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bm_daniel/playback-checks.json",
+      "browser_report_sha256": "58dd05a239b56343d1ae4828305487613808d81279ddbfdab1d0c7a6239da0b2",
+      "browser_loaded_audio_sha256": "634329b43e966408759f4d95827231d37217d42a7f6efc160a2cebc79fc117a9",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_fable",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bm_fable.m4a",
+        "sha256": "d4140f0955f26671cf9d5b19b41f9d0b1ea2fa452ea2e5b1f4d1ae27b5b5ecbb",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.9
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bm_fable/playback-checks.json",
+      "browser_report_sha256": "5a85a8f87255746e8c0214462535593e032faf35c5d18b831970fdd41725de37",
+      "browser_loaded_audio_sha256": "d4140f0955f26671cf9d5b19b41f9d0b1ea2fa452ea2e5b1f4d1ae27b5b5ecbb",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_george",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bm_george.m4a",
+        "sha256": "07f4251ea0a90d97c4425f54fa3d9664230f7d83e0cc9940799f4f90647092ab",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.4
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bm_george/playback-checks.json",
+      "browser_report_sha256": "5c2d511fd85333c410f63d6a889e52c03ddb579dfc81c457d3b5bcec22a58196",
+      "browser_loaded_audio_sha256": "07f4251ea0a90d97c4425f54fa3d9664230f7d83e0cc9940799f4f90647092ab",
+      "browser_passed": true
+    },
+    {
+      "language": "en",
+      "voice": "bm_lewis",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/en/bm_lewis.m4a",
+        "sha256": "053a0fb2bf49a5fe4bfcec5f505c6ea0db7a05b40f735edf1e5233b3d42e6ad3",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.7
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-bm_lewis/playback-checks.json",
+      "browser_report_sha256": "9121b0732ae283d018ec6e9c0ff1b97c13dbf8294e8a639ff4edc505e9833ffd",
+      "browser_loaded_audio_sha256": "053a0fb2bf49a5fe4bfcec5f505c6ea0db7a05b40f735edf1e5233b3d42e6ad3",
+      "browser_passed": true
+    },
+    {
+      "language": "es",
+      "voice": "ef_dora",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/es/ef_dora.m4a",
+        "sha256": "afdb5c9b2c3f6d1b735209271b38c973a2c63ad66bd1521bf90a09f8ff5cfdd1",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/es-ef_dora/playback-checks.json",
+      "browser_report_sha256": "623c7724f0fe9d701fa6e37a9aad56c28952d5c653db5e8e62f74707a87f9350",
+      "browser_loaded_audio_sha256": "afdb5c9b2c3f6d1b735209271b38c973a2c63ad66bd1521bf90a09f8ff5cfdd1",
+      "browser_passed": true
+    },
+    {
+      "language": "es",
+      "voice": "em_alex",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/es/em_alex.m4a",
+        "sha256": "8eb3ed2da67ddad103033546f74a1b877af8674ab55a26785bb3891da433a805",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/es-em_alex/playback-checks.json",
+      "browser_report_sha256": "1e04904df9968d6c5d76548377db9d75c634fc34f93c7dc7c213519cfa50e7ff",
+      "browser_loaded_audio_sha256": "8eb3ed2da67ddad103033546f74a1b877af8674ab55a26785bb3891da433a805",
+      "browser_passed": true
+    },
+    {
+      "language": "es",
+      "voice": "em_santa",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/es/em_santa.m4a",
+        "sha256": "372c63af3e0849c5fcbdc7da0c681cc7d9a5466f20af9f2ab161d44895f83c50",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.9
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/es-em_santa/playback-checks.json",
+      "browser_report_sha256": "a2723bde002c65e793a5f02e5f2d8ff86584b312e024f02be575b07f8d79df75",
+      "browser_loaded_audio_sha256": "372c63af3e0849c5fcbdc7da0c681cc7d9a5466f20af9f2ab161d44895f83c50",
+      "browser_passed": true
+    },
+    {
+      "language": "fr",
+      "voice": "ff_siwis",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/fr/ff_siwis.m4a",
+        "sha256": "a4ee496a899e81130042bbbcf5826000708b2669ab81880ec20a45299f9368e8",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/fr-ff_siwis/playback-checks.json",
+      "browser_report_sha256": "8b199859d40dc3e9e78fbe9e0dbfe3a3ebdcc41f0b81f3c4ddcc7099a1047876",
+      "browser_loaded_audio_sha256": "a4ee496a899e81130042bbbcf5826000708b2669ab81880ec20a45299f9368e8",
+      "browser_passed": true
+    },
+    {
+      "language": "hi",
+      "voice": "hf_alpha",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/hi/hf_alpha.m4a",
+        "sha256": "3480509c68e03976c5db9da382cf94db6b604a9ac338c98b7bc531335841a0ec",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/hi-hf_alpha/playback-checks.json",
+      "browser_report_sha256": "d3cd4fb4cef6f59dd35c439dc5e340fd1ad1acba5930c6770bdd57190a9c87c5",
+      "browser_loaded_audio_sha256": "3480509c68e03976c5db9da382cf94db6b604a9ac338c98b7bc531335841a0ec",
+      "browser_passed": true
+    },
+    {
+      "language": "hi",
+      "voice": "hf_beta",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/hi/hf_beta.m4a",
+        "sha256": "3b28737032d0962d0ac8975dadd7ca14a0c5d912334fb0d39c3b5c36e78bcf77",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/hi-hf_beta/playback-checks.json",
+      "browser_report_sha256": "d08a3d7123e9cf0b070b89358306b7d033362adddee1a0039782f26c0c025927",
+      "browser_loaded_audio_sha256": "3b28737032d0962d0ac8975dadd7ca14a0c5d912334fb0d39c3b5c36e78bcf77",
+      "browser_passed": true
+    },
+    {
+      "language": "hi",
+      "voice": "hm_omega",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/hi/hm_omega.m4a",
+        "sha256": "23df81e85190548b971f8230ed05d235f1cef7e5f306885e36e1c42e2bac1e35",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/hi-hm_omega/playback-checks.json",
+      "browser_report_sha256": "39da88eb0c0c7ca98adbcaca664a4959cd232cdc20ff72a67d37217831c8e90d",
+      "browser_loaded_audio_sha256": "23df81e85190548b971f8230ed05d235f1cef7e5f306885e36e1c42e2bac1e35",
+      "browser_passed": true
+    },
+    {
+      "language": "hi",
+      "voice": "hm_psi",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/hi/hm_psi.m4a",
+        "sha256": "9e06661484b573e1907b53c4e165a2e76a78e89780258ade95ca3138dde54308",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.9
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/hi-hm_psi/playback-checks.json",
+      "browser_report_sha256": "75a87b9636c35e5eba6463d7906de7605f478aaf677ef144310916a038ca7b4d",
+      "browser_loaded_audio_sha256": "9e06661484b573e1907b53c4e165a2e76a78e89780258ade95ca3138dde54308",
+      "browser_passed": true
+    },
+    {
+      "language": "it",
+      "voice": "if_sara",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/it/if_sara.m4a",
+        "sha256": "96732092f2c2d34396a68f9e57dc435c97e66c3ad93829dc4f8c506b41e88034",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/it-if_sara/playback-checks.json",
+      "browser_report_sha256": "cf08f5ef35aea9b8776018be621f4e021e167034cb1da5157a3e57b4bc3196a6",
+      "browser_loaded_audio_sha256": "96732092f2c2d34396a68f9e57dc435c97e66c3ad93829dc4f8c506b41e88034",
+      "browser_passed": true
+    },
+    {
+      "language": "it",
+      "voice": "im_nicola",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/it/im_nicola.m4a",
+        "sha256": "e8d5cc7c5597c1ce32846272f9742db5e248baf2583d298768748161f8e4ee1c",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/it-im_nicola/playback-checks.json",
+      "browser_report_sha256": "cc0b03921126b0b484fde54540dd21fd7e1dbe30cbf9445aef7671ace7a73749",
+      "browser_loaded_audio_sha256": "e8d5cc7c5597c1ce32846272f9742db5e248baf2583d298768748161f8e4ee1c",
+      "browser_passed": true
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/pt-BR/pf_dora.m4a",
+        "sha256": "bca3fe570b4f20fb565cc88ce8333254d6716450a0e78283849a9b587265738e",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.0
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/pt-BR-pf_dora/playback-checks.json",
+      "browser_report_sha256": "740e440392a14ed0ec889d3d9f053a432a28ec95296b5d6777bdd08bb3285179",
+      "browser_loaded_audio_sha256": "bca3fe570b4f20fb565cc88ce8333254d6716450a0e78283849a9b587265738e",
+      "browser_passed": true
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/pt-BR/pm_alex.m4a",
+        "sha256": "063c1a8e43276b11923b7fd2ca3a182b809735707ab84c8c8415fd79cf712909",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.8
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/pt-BR-pm_alex/playback-checks.json",
+      "browser_report_sha256": "b5e0d41e721d6725b0efd7e90e855c0a67f6d219bd686d2eaa37a018a5b4571c",
+      "browser_loaded_audio_sha256": "063c1a8e43276b11923b7fd2ca3a182b809735707ab84c8c8415fd79cf712909",
+      "browser_passed": true
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/pt-BR/pm_santa.m4a",
+        "sha256": "a36cc289178939c1b0941fa254a30b72a92a74761980ad01c0d70ef3d38b55f4",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/pt-BR-pm_santa/playback-checks.json",
+      "browser_report_sha256": "2c0588f7d9b63a26f42645e50fad6cf1c4c43b27e17211025661f9294e1edf81",
+      "browser_loaded_audio_sha256": "a36cc289178939c1b0941fa254a30b72a92a74761980ad01c0d70ef3d38b55f4",
+      "browser_passed": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_alpha",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/ja/jf_alpha.m4a",
+        "sha256": "0b41fcab5cc094f41b44c171b037d6b5d2ee37418f0f3f98128cc2e558d5a581",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/ja-jf_alpha/playback-checks.json",
+      "browser_report_sha256": "79d7d4fb98d6dca0448e628466724ed9546f2b5eeac200aa1fb64fbd6824662f",
+      "browser_loaded_audio_sha256": "0b41fcab5cc094f41b44c171b037d6b5d2ee37418f0f3f98128cc2e558d5a581",
+      "browser_passed": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/ja/jf_gongitsune.m4a",
+        "sha256": "76b2f1c57c7c7f219dc41c6d6dbb7054b9f085abede1741be61bf8717cff4f43",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -4.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/ja-jf_gongitsune/playback-checks.json",
+      "browser_report_sha256": "a1653ac040a8182dd0af96375e87d995d61860e47088ef8e6e201bafcadb6335",
+      "browser_loaded_audio_sha256": "76b2f1c57c7c7f219dc41c6d6dbb7054b9f085abede1741be61bf8717cff4f43",
+      "browser_passed": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/ja/jf_nezumi.m4a",
+        "sha256": "2d82d5cb959a4dd6c7976748244d5e1fe5703dcde49f4dc2d221d508897f3180",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/ja-jf_nezumi/playback-checks.json",
+      "browser_report_sha256": "ebe8ed885270b1d9766f44a5028ff8a9da51cb89e06bc1469e0c9d511642a16b",
+      "browser_loaded_audio_sha256": "2d82d5cb959a4dd6c7976748244d5e1fe5703dcde49f4dc2d221d508897f3180",
+      "browser_passed": true
+    },
+    {
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/ja/jf_tebukuro.m4a",
+        "sha256": "ff586868f47d11bbbf3224c5a5ba713dca48653ad3039ff5d376461c7461b054",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.5
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/ja-jf_tebukuro/playback-checks.json",
+      "browser_report_sha256": "075fdd8172d0a0f0b5774c27289d28b7da927bada845c2776833b94f6a4e8d34",
+      "browser_loaded_audio_sha256": "ff586868f47d11bbbf3224c5a5ba713dca48653ad3039ff5d376461c7461b054",
+      "browser_passed": true
+    },
+    {
+      "language": "ja",
+      "voice": "jm_kumo",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/ja/jm_kumo.m4a",
+        "sha256": "62dd795503d336cd368f4f58bcb6542f44bb515aa3080cc6bc698304d20f8fb1",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.4
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/ja-jm_kumo/playback-checks.json",
+      "browser_report_sha256": "ee3da4dba12c57ad1cdd1510673b3baa69d53a841456917cdce9ac47e2f4fb28",
+      "browser_loaded_audio_sha256": "62dd795503d336cd368f4f58bcb6542f44bb515aa3080cc6bc698304d20f8fb1",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zf_xiaobei.m4a",
+        "sha256": "1d9e3ad054bea65c4268ca281e2472d860e81ea95d475e601d4a80fb286482d6",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zf_xiaobei/playback-checks.json",
+      "browser_report_sha256": "baf304197e619f88a821eef1f807630e6046aed54d1cfdc159de243e5d101223",
+      "browser_loaded_audio_sha256": "1d9e3ad054bea65c4268ca281e2472d860e81ea95d475e601d4a80fb286482d6",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zf_xiaoni.m4a",
+        "sha256": "ea643f51ce4b36905ea1ae7ef1dfecbd49f0d65ec4bc43b6a48f9e4e9dd1ff20",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zf_xiaoni/playback-checks.json",
+      "browser_report_sha256": "783450e664e86597f3051a2404edc684ac80b76d83d759f88c724eb67cc40558",
+      "browser_loaded_audio_sha256": "ea643f51ce4b36905ea1ae7ef1dfecbd49f0d65ec4bc43b6a48f9e4e9dd1ff20",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zf_xiaoxiao.m4a",
+        "sha256": "f6b491e6562b8c9f783f1386d515524e4604c2b9be6ee2d7058b9c8573e4a366",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zf_xiaoxiao/playback-checks.json",
+      "browser_report_sha256": "17c1d5faf9b617e5b080d2cbd3ad637a39b0de013d6a75ec51f45444cc4f1d80",
+      "browser_loaded_audio_sha256": "f6b491e6562b8c9f783f1386d515524e4604c2b9be6ee2d7058b9c8573e4a366",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zf_xiaoyi.m4a",
+        "sha256": "0dd6a79ebb67ee239fe53607c7875bd02bd036e1679957b6c0a28c952c121add",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.7
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zf_xiaoyi/playback-checks.json",
+      "browser_report_sha256": "6b547f54c4afeb73827e8d9d10275eb87986e8aa33d143ea46badfa66da7fef7",
+      "browser_loaded_audio_sha256": "0dd6a79ebb67ee239fe53607c7875bd02bd036e1679957b6c0a28c952c121add",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zm_yunjian.m4a",
+        "sha256": "af7c85016fd5d659867c7293b6df08b7f0233d6b6b56f4ce8d8f5490915907d0",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.2
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zm_yunjian/playback-checks.json",
+      "browser_report_sha256": "3c1cd0c7d013e13943d8a8afd245bfc713db646e3bb9ee08288ef6cea0e66824",
+      "browser_loaded_audio_sha256": "af7c85016fd5d659867c7293b6df08b7f0233d6b6b56f4ce8d8f5490915907d0",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zm_yunxi.m4a",
+        "sha256": "a02190b094fcfc55e05fb018565191dd636e4f9bf9be3f8f46f7ee37982649db",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.7
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zm_yunxi/playback-checks.json",
+      "browser_report_sha256": "db90224abc1886b144eab79b37f273b74866a369d2ac1ba4928286c40cd6f6fc",
+      "browser_loaded_audio_sha256": "a02190b094fcfc55e05fb018565191dd636e4f9bf9be3f8f46f7ee37982649db",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zm_yunxia.m4a",
+        "sha256": "0af42633b4f1d37fabbbf05f05d726c3c7c30a1d0941075fe5780d72b2988420",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -2.1
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zm_yunxia/playback-checks.json",
+      "browser_report_sha256": "f9a23459e578a53e2f7abb718b10565b19e7d61299563c5bdecd65850cb672c8",
+      "browser_loaded_audio_sha256": "0af42633b4f1d37fabbbf05f05d726c3c7c30a1d0941075fe5780d72b2988420",
+      "browser_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "audio": {
+        "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/audio/zh-CN/zm_yunyang.m4a",
+        "sha256": "5f7b2fd852906a67ff15aa94efed7f1120aa55a54d6cdaa05c61dc8811a43212",
+        "full_decode_freshness_timing_activity_peak": "passed",
+        "decoded_true_peak_dbfs": -1.3
+      },
+      "browser_report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/zh-CN-zm_yunyang/playback-checks.json",
+      "browser_report_sha256": "86b22e7bf97f530b7eaea560724a0c9e91941e10aa7ece9e214c11a766db4c31",
+      "browser_loaded_audio_sha256": "5f7b2fd852906a67ff15aa94efed7f1120aa55a54d6cdaa05c61dc8811a43212",
+      "browser_passed": true
+    }
+  ],
+  "technical_tracks_passed": 50,
+  "spoken_languages": 8,
+  "caption_languages_passed": 13,
+  "caption_receipt": {
+    "path": "tools/tutorials/evidence/2026-09-23-pooled-screen-overview-captions.json",
+    "sha256": "841750cd1810173655848a041f4eca5b6cd58eadb36267ed17ae7c0997c470fd"
+  },
+  "translation_receipt": {
+    "path": "tools/tutorials/evidence/2026-09-23-pooled-screen-overview-translations.json",
+    "sha256": "3a4431436a518849efd2c1cbd173a3b792221bb91a20c6e1915db19e53ed6ac5"
+  },
+  "native_english_sentence_midpoints": {
+    "passed": 52,
+    "report": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/78_spacr_screens/en-af_heart-sentence-cues/playback-checks.json",
+    "sha256": "874c6ed44367620d4b28f8ed41c79bac0726c423e441c458e1e9cb1dacbabe3b"
+  },
+  "video": {
+    "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/78_spacr_screens/video/78_spacr_screens_silent.mp4",
+    "sha256": "c12efd8dfbda4e72b71e4c0b9e0d583ab5eef9c5a489c9c8da3f0e0e57ddeca4",
+    "codec_name": "h264",
+    "width": 3840,
+    "height": 2160,
+    "r_frame_rate": "30/1",
+    "duration": "256.066667",
+    "nb_frames": "7682"
+  },
+  "player_sha256": "3f0e6384184a162c1ac5b8a52d813107247b36c60f2931b366bf82b3b367b55e",
+  "human_listening_signoff": false,
+  "native_speaker_signoff": false,
+  "published": false,
+  "remaining": [
+    "Audible pronunciation/listening acceptance",
+    "Final complete-set publication with the other current lessons"
+  ]
+}

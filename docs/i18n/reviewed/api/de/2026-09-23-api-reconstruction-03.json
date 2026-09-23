@@ -1,0 +1,879 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "see :class:`_SoundRenderer`.",
+      "label": "spacr.qt.sound.SoundEngine#5",
+      "source": "see :class:`_SoundRenderer`.",
+      "source_sha256": "a764557580a0be86c7ab494cd23ddd535aaa82eeafbb2d54c8ea9f4353ff7f4e",
+      "translation": "siehe :class:`_SoundRenderer`."
+    },
+    {
+      "context": "the ``.resonance.npz`` path.",
+      "label": "spacr.qt.resonance.analysis_path_for#5",
+      "source": "the ``.resonance.npz`` path.",
+      "source_sha256": "7d339d0f342fc97f40742664ef633fb2a23cd0db3f2c08012546ac9122ad5866",
+      "translation": "der Pfad zur Datei ``.resonance.npz``."
+    },
+    {
+      "context": "the centroids and diameters.",
+      "label": "spacr.timeflows_model.object_centroids#2",
+      "source": "the centroids and diameters.",
+      "source_sha256": "e8e2bb0ee0d290153a1e53066ad7b58cf1dba64eab524120d11068ba058f7f15",
+      "translation": "die Schwerpunkte und Durchmesser."
+    },
+    {
+      "context": "the folder of figure images.",
+      "label": "spacr.plaque_papers.measure_figure_folder#2",
+      "source": "the folder of figure images.",
+      "source_sha256": "73c49ec198a12059fa75928250e19e97c9a8faf811431b56e9f156c7acd40bcd",
+      "translation": "der Ordner mit Abbildungsbildern."
+    },
+    {
+      "context": "the name it was added under.",
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.pane#1",
+      "source": "the name it was added under.",
+      "source_sha256": "7f2772b9bcba991ebb6c6c98a07209fea683cccbb226f2b83f40e833693cf903",
+      "translation": "der Name, unter dem das Element hinzugefügt wurde."
+    },
+    {
+      "context": "the object the event is for.",
+      "label": "spacr.qt.sound.InputSoundFilter.eventFilter#2",
+      "source": "the object the event is for.",
+      "source_sha256": "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+      "translation": "das Objekt, für das das Ereignis bestimmt ist."
+    },
+    {
+      "context": "the preview panel to reload.",
+      "label": "spacr.qt.widgets.preview_refresh.reload_from_src#2",
+      "source": "the preview panel to reload.",
+      "source_sha256": "8041484818a75e2aabb456a8280424ec1cdb55f96cba9903482dd07bb494f5e7",
+      "translation": "der neu zu ladende Vorschaubereich."
+    },
+    {
+      "context": "the splitter's direct child.",
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#2",
+      "source": "the splitter's direct child.",
+      "source_sha256": "96ed29961d2c422c5ca586fe2eead4cecb2771af8c0ab467b42c51991676b67f",
+      "translation": "das direkte untergeordnete Widget des Splitters."
+    },
+    {
+      "context": "the view to tie this one to.",
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to#2",
+      "source": "the view to tie this one to.",
+      "source_sha256": "fdbfbaef1f351f608e8394b7772659d60591d6735936c93961567fa0fa7f0200",
+      "translation": "die Ansicht, mit der diese Ansicht gekoppelt werden soll."
+    },
+    {
+      "context": "the widget the event is for.",
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#1",
+      "source": "the widget the event is for.",
+      "source_sha256": "d3eaec174ec06f21766591bc16fd47a8493b212d471aed44c3fd457f78145665",
+      "translation": "das Widget, für das das Ereignis bestimmt ist."
+    },
+    {
+      "context": "the widget the event is for.",
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#2",
+      "source": "the widget the event is for.",
+      "source_sha256": "d3eaec174ec06f21766591bc16fd47a8493b212d471aed44c3fd457f78145665",
+      "translation": "das Widget, für das das Ereignis bestimmt ist."
+    },
+    {
+      "context": "whether the control took it.",
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#5",
+      "source": "whether the control took it.",
+      "source_sha256": "096c9d78c04a9204869f8450b06d7925f7a8c3f7e4ad93b0c256b1e8c7bf1335",
+      "translation": "ob das Bedienelement den Wert übernommen hat."
+    },
+    {
+      "context": "whether the sign-in started.",
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#3",
+      "source": "whether the sign-in started.",
+      "source_sha256": "7ac3a00cb0d55d71a2fb59f4e757e4d7fdb311a86ca17dede0724a757e1620d3",
+      "translation": "ob die Anmeldung gestartet wurde."
+    },
+    {
+      "context": "How a tracking is represented",
+      "label": "spacr.timeflows_baseline#10",
+      "source": "HOW A TRACKING IS REPRESENTED",
+      "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
+      "translation": "DARSTELLUNG EINER OBJEKTVERFOLGUNG"
+    },
+    {
+      "context": "Persist the chosen sound set.",
+      "label": "spacr.qt.preferences.set_sound_theme#0",
+      "source": "Persist the chosen sound set.",
+      "source_sha256": "e04560b6f485b72bf3f561048254e85c66018387450e5297e7a0efecd9a0eaf8",
+      "translation": "Die gewählte Klangsammlung dauerhaft speichern."
+    },
+    {
+      "context": "The box beside the Help menu.",
+      "label": "spacr.qt.help_search.HelpSearchField#0",
+      "source": "The box beside the Help menu.",
+      "source_sha256": "93d7b0016d29e7641cfcc82bcc6a219307ab073b58dec170f958c906c6ddbff2",
+      "translation": "Das Eingabefeld neben dem Hilfemenü."
+    },
+    {
+      "context": "The pattern in the regex box.",
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.regex#0",
+      "source": "The pattern in the regex box.",
+      "source_sha256": "0899c41600d2bcd3319fde4f6385d02d1ebd5512c4f15a031da51a7e00de308f",
+      "translation": "Das Muster im Eingabefeld für reguläre Ausdrücke."
+    },
+    {
+      "context": "True when Python can find it.",
+      "label": "spacr.qt.model_install.is_importable#2",
+      "source": "True when Python can find it.",
+      "source_sha256": "aff86f1b31a31678d6e0955f719b3861c2e909fa1c36a7aef02c01669566b257",
+      "translation": "True, wenn Python es finden kann."
+    },
+    {
+      "context": "True when a pass was started.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.find_plaques_in_all_wells#2",
+      "source": "True when a pass was started.",
+      "source_sha256": "c00c37ebb65595d8c09a54e56bc9b2b10d7cb1e5e753539c484f14b0fe30482d",
+      "translation": "True, wenn ein Durchlauf gestartet wurde."
+    },
+    {
+      "context": "True when a pass was started.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.preview_selected_well#2",
+      "source": "True when a pass was started.",
+      "source_sha256": "c00c37ebb65595d8c09a54e56bc9b2b10d7cb1e5e753539c484f14b0fe30482d",
+      "translation": "True, wenn ein Durchlauf gestartet wurde."
+    },
+    {
+      "context": "True when a pass was started.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.run_preview#4",
+      "source": "True when a pass was started.",
+      "source_sha256": "c00c37ebb65595d8c09a54e56bc9b2b10d7cb1e5e753539c484f14b0fe30482d",
+      "translation": "True, wenn ein Durchlauf gestartet wurde."
+    },
+    {
+      "context": "``'Dataset'`` or ``'Plate'``.",
+      "label": "spacr.omero.ContainerListing#1",
+      "source": "``'Dataset'`` or ``'Plate'``.",
+      "source_sha256": "d0864b90f84aacce4a32e066f29323798d43f8bf4ec63ae647bef862de9c950a",
+      "translation": "``'Dataset'`` oder ``'Plate'``."
+    },
+    {
+      "context": "``'Dataset'`` or ``'Plate'``.",
+      "label": "spacr.omero.ImportResult#1",
+      "source": "``'Dataset'`` or ``'Plate'``.",
+      "source_sha256": "d0864b90f84aacce4a32e066f29323798d43f8bf4ec63ae647bef862de9c950a",
+      "translation": "``'Dataset'`` oder ``'Plate'``."
+    },
+    {
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "translation": "``'dbscan'`` oder ``'kmeans'``."
+    },
+    {
+      "context": "``'imagenet'`` or ``'none'``.",
+      "label": "spacr.utils.ResNet.initialize_base#4",
+      "source": "``'imagenet'`` or ``'none'``.",
+      "source_sha256": "96f001c0da20357e41ea89d5767ceb0cebd011f10fee5ccfb7e63b904bf5d433",
+      "translation": "``'imagenet'`` oder ``'none'``."
+    },
+    {
+      "context": "``'local'`` or ``'bundled'``.",
+      "label": "spacr.model_zoo.entry_from_file#4",
+      "source": "``'local'`` or ``'bundled'``.",
+      "source_sha256": "818372e82f4d5f3467d4ecbe209f9a46ef06d344a3e08aff0648856f7b9ffaaa",
+      "translation": "``'local'`` oder ``'bundled'``."
+    },
+    {
+      "context": "``'number'`` or ``'choice'``.",
+      "label": "spacr.settings_advisor.Question#3",
+      "source": "``'number'`` or ``'choice'``.",
+      "source_sha256": "63ace43dd0edfb8419121333420cda2d2416efb7b688f16d94de917131b09336",
+      "translation": "``'number'`` oder ``'choice'``."
+    },
+    {
+      "context": "``'outlines'`` or ``'fill'``.",
+      "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#2",
+      "source": "``'outlines'`` or ``'fill'``.",
+      "source_sha256": "efef82930c414feac61703532795397bd852f69df00dca5c36bd948d11395934",
+      "translation": "``'outlines'`` oder ``'fill'``."
+    },
+    {
+      "context": "``'plaque'`` or ``'figure'``.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueModeSwitch.button#1",
+      "source": "``'plaque'`` or ``'figure'``.",
+      "source_sha256": "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d",
+      "translation": "``'plaque'`` oder ``'figure'``."
+    },
+    {
+      "context": "``'plaque'`` or ``'figure'``.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueModeSwitch.set_mode#1",
+      "source": "``'plaque'`` or ``'figure'``.",
+      "source_sha256": "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d",
+      "translation": "``'plaque'`` oder ``'figure'``."
+    },
+    {
+      "context": "``'plaque'`` or ``'figure'``.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_mode#1",
+      "source": "``'plaque'`` or ``'figure'``.",
+      "source_sha256": "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d",
+      "translation": "``'plaque'`` oder ``'figure'``."
+    },
+    {
+      "context": "``'plaque'`` or ``'figure'``.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog.show_mode#1",
+      "source": "``'plaque'`` or ``'figure'``.",
+      "source_sha256": "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d",
+      "translation": "``'plaque'`` oder ``'figure'``."
+    },
+    {
+      "context": "``'plaque'`` or ``'figure'``.",
+      "label": "spacr.qt.widgets.plaque_preview.normalise_mode#2",
+      "source": "``'plaque'`` or ``'figure'``.",
+      "source_sha256": "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d",
+      "translation": "``'plaque'`` oder ``'figure'``."
+    },
+    {
+      "context": "a :func:`figure_pass` result.",
+      "label": "spacr.qt.widgets.plaque_preview.annotate_figure#1",
+      "source": "a :func:`figure_pass` result.",
+      "source_sha256": "07ce7006b1e8ab9d9a963d94debea9a7d0286be61f772babb91baa5729124311",
+      "translation": "ein Ergebnis von :func:`figure_pass`."
+    },
+    {
+      "context": "every path in the repository.",
+      "label": "spacr.qt.make_masks_datasets.choose_sample#4",
+      "source": "every path in the repository.",
+      "source_sha256": "b9e7f5343d6bda029c5085ed41f7b56be5e2b752ee62a5a866527a8e908b8333",
+      "translation": "alle Pfade im Repository."
+    },
+    {
+      "context": "label image; 0 is background.",
+      "label": "spacr.qt.mask_engine.dilate_objects#3",
+      "source": "label image; 0 is background.",
+      "source_sha256": "3215e3d55b295231f1b3ef5baec290be8395ea09e8aa888aa20ec6dbc27bf447",
+      "translation": "Labelbild; 0 bezeichnet den Hintergrund."
+    },
+    {
+      "context": "label image; 0 is background.",
+      "label": "spacr.qt.mask_engine.shrink_objects#5",
+      "source": "label image; 0 is background.",
+      "source_sha256": "3215e3d55b295231f1b3ef5baec290be8395ea09e8aa888aa20ec6dbc27bf447",
+      "translation": "Labelbild; 0 bezeichnet den Hintergrund."
+    },
+    {
+      "context": "multiplier; must be positive.",
+      "label": "spacr.qt.widgets.gate_spec.ViewGate.scaled#1",
+      "source": "multiplier; must be positive.",
+      "source_sha256": "5e85f1e271701b47ca6c79e99a232fd2e88cd917be57d097008bf0c49164a02c",
+      "translation": "Multiplikator; muss positiv sein."
+    },
+    {
+      "context": "raw text from the search box.",
+      "label": "spacr.qt.help_index.search#2",
+      "source": "raw text from the search box.",
+      "source_sha256": "658d9bdce2f5278a8a8874121982ff0a3fe3f9b6e61bc45ff9f51448cf0668af",
+      "translation": "unverarbeiteter Text aus dem Suchfeld."
+    },
+    {
+      "context": "row clicked, in image pixels.",
+      "label": "spacr.qt.mask_engine.split_object_at#8",
+      "source": "row clicked, in image pixels.",
+      "source_sha256": "cdd0aa0ee2029b4d36f5b51f2d29f50a0d6201f99e9027ccad2e00925e5e3d4d",
+      "translation": "angeklickte Zeile in Bildpixeln."
+    },
+    {
+      "context": "set it to stop the installer.",
+      "label": "spacr.qt.ai.cli_install.run_install#4",
+      "source": "set it to stop the installer.",
+      "source_sha256": "6e223a04b9bbf15760fd3ae0f214fead04add8e65bcc885762b6224d7b168a74",
+      "translation": "setzen, um das Installationsprogramm anzuhalten."
+    },
+    {
+      "context": "the chain the detection used.",
+      "label": "spacr.qt.detect_chain.provenance#2",
+      "source": "the chain the detection used.",
+      "source_sha256": "ccf9214a9eaa26aca8efe938977335b8f73328c781afbbef8c905ca8d06fec76",
+      "translation": "die bei der Erkennung verwendete Verarbeitungskette."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.curation_csv_path#1",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.curation_folder#2",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.curation_verdict#1",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.mask_save_path#2",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.masks_folder#1",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.read_curation#2",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.record_curation#3",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the folder the editor opened.",
+      "label": "spacr.qt.mask_engine.recrop_child_name#2",
+      "source": "the folder the editor opened.",
+      "source_sha256": "327917322587d44422378bcb45d50ec21bfaadf3280810cc1f721a044db7d0b6",
+      "translation": "der vom Editor geöffnete Ordner."
+    },
+    {
+      "context": "the label images, ``(H, W)``.",
+      "label": "spacr.timeflows_model.augment_pair#3",
+      "source": "the label images, ``(H, W)``.",
+      "source_sha256": "36364bbed9e94fec9690c7cfb1f841607a4581e274512f370303b041f9a8a60e",
+      "translation": "die Labelbilder, ``(H, W)``."
+    },
+    {
+      "context": "the line naming what changed.",
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#3",
+      "source": "the line naming what changed.",
+      "source_sha256": "31a03e4ea92bcae4096a9b9d4a342d00f213571508e3c06fb4d3407e7add5398",
+      "translation": "die Zeile, die die Änderung benennt."
+    },
+    {
+      "context": "the page widget, or ``None``.",
+      "label": "spacr.qt.preferences_navigation.page_named#3",
+      "source": "the page widget, or ``None``.",
+      "source_sha256": "ca90656a0b26cc27f4ea16ff60d3741b5f58c4877b65175c6cef44614b1f6c75",
+      "translation": "das Seitenwidget oder ``None``."
+    },
+    {
+      "context": "the preview panel it reloads.",
+      "label": "spacr.qt.widgets.preview_refresh.install_refresh_button#3",
+      "source": "the preview panel it reloads.",
+      "source_sha256": "817a730e3700e0494ebfd1ff556630fbc8b71a97cccf1c21054d5836ff2ce7db",
+      "translation": "der Vorschaubereich, den die Schaltfläche neu lädt."
+    },
+    {
+      "context": "what ``model.eval`` returned.",
+      "label": "spacr.plaque.plaque_flow_outputs#2",
+      "source": "what ``model.eval`` returned.",
+      "source_sha256": "05e76fd90d82aa3e6e48ed7d8edb8327972f7fcf6113ca223115f34271c77fa5",
+      "translation": "der Rückgabewert von ``model.eval``."
+    },
+    {
+      "context": "where the sample is expected.",
+      "label": "spacr.qt.ops_stitch_demo.is_present#1",
+      "source": "where the sample is expected.",
+      "source_sha256": "1c00837be3764cbc2541be0dddeffea549f435d1c1a530997b5a4f547e206c82",
+      "translation": "der erwartete Speicherort des Beispieldatensatzes."
+    },
+    {
+      "context": "A repository-safe folder name.",
+      "label": "spacr.qt.widgets.model_share.slugify#0",
+      "source": "A repository-safe folder name.",
+      "source_sha256": "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2",
+      "translation": "Ein für das Repository geeigneter Ordnername."
+    },
+    {
+      "context": "How the plaques are drawn now.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.overlay_style#0",
+      "source": "How the plaques are drawn now.",
+      "source_sha256": "90264f0b345b09afd70eb2c1b5c2524c2999951fd4f12c013c4e1eedc0920a06",
+      "translation": "Wie die Plaques derzeit dargestellt werden."
+    },
+    {
+      "context": "LUFS, or ``-inf`` for silence.",
+      "label": "spacr.qt.sound_synth.loudness_lufs#5",
+      "source": "LUFS, or ``-inf`` for silence.",
+      "source_sha256": "b9c3cbda4a91f491b544db7e90decc0ff275d2061ba187e47d50e00feb357f05",
+      "translation": "LUFS oder ``-inf`` bei Stille."
+    },
+    {
+      "context": "Leave no background execution unit behind.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.shutdown#0",
+      "source": "Leave no worker thread behind.",
+      "source_sha256": "976f47217b7dae1bd69b703f3fba264362af96323227081ee6510badbfb2c8fc",
+      "translation": "Alle Arbeitsthreads beenden."
+    },
+    {
+      "context": "Show what a fresh install has.",
+      "label": "spacr.qt.sound_preferences.SoundPage.reset#0",
+      "source": "Show what a fresh install has.",
+      "source_sha256": "f5192fdf2087c0036fd381ed927819a3f235405440e5c5617a18c42fbfcd7a2f",
+      "translation": "Die Einstellungen einer frischen Installation anzeigen."
+    },
+    {
+      "context": "Type ``text`` and press Enter.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.send#0",
+      "source": "Type ``text`` and press Enter.",
+      "source_sha256": "584bf2ccdedf0f028a012550b94aa0de758908641fbbd2eafe481cc6f251382e",
+      "translation": "``text`` eingeben und die Eingabetaste drücken."
+    },
+    {
+      "context": "Whether the section is folded.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.shut#0",
+      "source": "Whether the section is folded.",
+      "source_sha256": "b66379c2b92a609d60d4d50859e27d17a07e6826edec5c4cef68a72a961167cb",
+      "translation": "Ob der Abschnitt eingeklappt ist."
+    },
+    {
+      "context": "a label image, 0 = background.",
+      "label": "spacr.qt.widgets.plaque_preview.object_palette#2",
+      "source": "a label image, 0 = background.",
+      "source_sha256": "5bb8fa43cfe2f84df35ba977334e095d944650f3101af7cb12db84ad887fbeb7",
+      "translation": "ein Labelbild, 0 = Hintergrund."
+    },
+    {
+      "context": "a label image, 0 = background.",
+      "label": "spacr.qt.widgets.plaque_preview.outline_labels#2",
+      "source": "a label image, 0 = background.",
+      "source_sha256": "5bb8fa43cfe2f84df35ba977334e095d944650f3101af7cb12db84ad887fbeb7",
+      "translation": "ein Labelbild, 0 = Hintergrund."
+    },
+    {
+      "context": "a label image, 0 = background.",
+      "label": "spacr.qt.widgets.plaque_preview.plaque_rows#2",
+      "source": "a label image, 0 = background.",
+      "source_sha256": "5bb8fa43cfe2f84df35ba977334e095d944650f3101af7cb12db84ad887fbeb7",
+      "translation": "ein Labelbild, 0 = Hintergrund."
+    },
+    {
+      "context": "a label image, 0 = background.",
+      "label": "spacr.qt.widgets.plaque_preview.render_overlay#2",
+      "source": "a label image, 0 = background.",
+      "source_sha256": "5bb8fa43cfe2f84df35ba977334e095d944650f3101af7cb12db84ad887fbeb7",
+      "translation": "ein Labelbild, 0 = Hintergrund."
+    },
+    {
+      "context": "an ``organelle_method`` value.",
+      "label": "spacr.organelle_types.method_guidance#1",
+      "source": "an ``organelle_method`` value.",
+      "source_sha256": "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+      "translation": "ein Wert für ``organelle_method``."
+    },
+    {
+      "context": "an ``organelle_method`` value.",
+      "label": "spacr.organelle_types.morphologies_for_method#2",
+      "source": "an ``organelle_method`` value.",
+      "source_sha256": "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+      "translation": "ein Wert für ``organelle_method``."
+    },
+    {
+      "context": "directory for the page images.",
+      "label": "spacr.plaque_papers.figures_from_pdf#4",
+      "source": "directory for the page images.",
+      "source_sha256": "4c3d48acb3f196d6aed476313fed34784631755a5088f189122f3b8a12d12296",
+      "translation": "Verzeichnis für die Seitenbilder."
+    },
+    {
+      "context": "global histogram equalisation.",
+      "label": "spacr.qt.detect_chain.Chain#12",
+      "source": "global histogram equalisation.",
+      "source_sha256": "c5738fe3372ef82a89c39be495725ef65ae569368653cff35573ba09cb2e0103",
+      "translation": "globaler Histogrammausgleich."
+    },
+    {
+      "context": "how many Newton steps to take.",
+      "label": "spacr.qt.resonance.settle#8",
+      "source": "how many Newton steps to take.",
+      "source_sha256": "bec453f453c76bff2b2dbea81bf4e6ff44611b3de8cf6f3f8dcdcf8a0a7bc656",
+      "translation": "Anzahl der auszuführenden Newton-Schritte."
+    },
+    {
+      "context": "module key present in the map.",
+      "label": "spacr.qt.widgets.workflow_diagram.node_description#2",
+      "source": "module key present in the map.",
+      "source_sha256": "02aaa48bc9b72429db62b42bbf00258bcb25a2fa0f035aa2d4169971fce3c076",
+      "translation": "ein im Ablaufplan vorhandener Modulschlüssel."
+    },
+    {
+      "context": "parent widget; ownership only.",
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView#1",
+      "source": "parent widget; ownership only.",
+      "source_sha256": "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+      "translation": "übergeordnetes Widget; legt nur die Objektzugehörigkeit fest."
+    },
+    {
+      "context": "replaces the detector (tests).",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.run_preview#1",
+      "source": "replaces the detector (tests).",
+      "source_sha256": "aeedc90f0ec1f7cc4621908f3c203a90ba91f7e7604eb6b8ce14cc0aceb028ed",
+      "translation": "ersetzt den Detektor für Tests."
+    },
+    {
+      "context": "skip the checksum requirement.",
+      "label": "spacr.qt.model_install.CheckpointDownload#10",
+      "source": "skip the checksum requirement.",
+      "source_sha256": "600c27a471f6fe1fb89d6fbba21da618b2ba4f94ffb0f1a9066fa8808c0e8d87",
+      "translation": "die Anforderung einer Prüfsumme überspringen."
+    },
+    {
+      "context": "the camera azimuth in degrees.",
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#2",
+      "source": "the camera azimuth in degrees.",
+      "source_sha256": "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+      "translation": "der Azimutwinkel der Kamera in Grad."
+    },
+    {
+      "context": "the camera azimuth in degrees.",
+      "label": "spacr.qt.widgets.volume_view.trackball#3",
+      "source": "the camera azimuth in degrees.",
+      "source_sha256": "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+      "translation": "der Azimutwinkel der Kamera in Grad."
+    },
+    {
+      "context": "the camera azimuth in degrees.",
+      "label": "spacr.qt.widgets.volume_view.view_axes#3",
+      "source": "the camera azimuth in degrees.",
+      "source_sha256": "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+      "translation": "der Azimutwinkel der Kamera in Grad."
+    },
+    {
+      "context": "the exception Cellpose raised.",
+      "label": "spacr.submodules.explain_cellpose3#1",
+      "source": "the exception Cellpose raised.",
+      "source_sha256": "3c9d865f9dc45b7149be58619e293798d57edd70f7f0b4da1d40d20eacb72d4c",
+      "translation": "die von Cellpose ausgelöste Ausnahme."
+    },
+    {
+      "context": "the figure, ``H x W x 3`` RGB.",
+      "label": "spacr.plaque_papers.find_plaque_regions#2",
+      "source": "the figure, ``H x W x 3`` RGB.",
+      "source_sha256": "4e26569dcd578a06c5d7a202c3bcf5186b8b0e5afc83b7e5eb1d423b95eb250d",
+      "translation": "die Abbildung als RGB-Bild mit ``H x W x 3``."
+    },
+    {
+      "context": "the folder (not created here).",
+      "label": "spacr.qt.sound_synth.theme_cache_dir#4",
+      "source": "the folder (not created here).",
+      "source_sha256": "a1a54e24ebf8353d9906e224cc464d274dbddd58c2875aea0758a619e636cb5b",
+      "translation": "der Ordner, der hier nicht erstellt wird."
+    },
+    {
+      "context": "the inference sizes to ask at.",
+      "label": "spacr.plaque_papers.find_plaque_regions#4",
+      "source": "the inference sizes to ask at.",
+      "source_sha256": "8031b2b99cdc710bda18d412a381008a9fd7874e2454f99ecdd4bdbc63f584b3",
+      "translation": "die für die Inferenz anzufordernden Bildgrößen."
+    },
+    {
+      "context": "the net's (B, 3, H, W) output.",
+      "label": "spacr.timeflows_model.timeflows_loss#2",
+      "source": "the net's (B, 3, H, W) output.",
+      "source_sha256": "b664827e3dcb3df5d9aa78d196e3ca88c005087657f821525fbd201b01d62e0c",
+      "translation": "die Ausgabe des Netzes mit der Form (B, 3, H, W)."
+    },
+    {
+      "context": "the new :class:`OverlayStyle`.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_overlay_style#2",
+      "source": "the new :class:`OverlayStyle`.",
+      "source_sha256": "95bbf611f48046bb2978cde43090cf3bd6bdb09a9877c114427cdefc3f185598",
+      "translation": "der neue :class:`OverlayStyle`."
+    },
+    {
+      "context": "the splitter holding the pane.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.is_pinned#1",
+      "source": "the splitter holding the pane.",
+      "source_sha256": "3be2d5a493e84d39bdd78db0701b421168e98558afd7e10e8fb94114c4c15cef",
+      "translation": "der Splitter, der den Bereich enthält."
+    },
+    {
+      "context": "the splitter holding the pane.",
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.target#1",
+      "source": "the splitter holding the pane.",
+      "source_sha256": "3be2d5a493e84d39bdd78db0701b421168e98558afd7e10e8fb94114c4c15cef",
+      "translation": "der Splitter, der den Bereich enthält."
+    },
+    {
+      "context": "the zoo's record of the model.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.download_zoo_model#2",
+      "source": "the zoo's record of the model.",
+      "source_sha256": "4e93359eba3b7e3958901d059d4609799915284c6973372d1267de10635d1ae6",
+      "translation": "der Model-Zoo-Eintrag für das Modell."
+    },
+    {
+      "context": "when ``path`` is not a bundle.",
+      "label": "spacr.qt.mask_engine.save_seg_bundle#8",
+      "source": "when ``path`` is not a bundle.",
+      "source_sha256": "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf",
+      "translation": "wenn ``path`` kein Datenpaket bezeichnet."
+    },
+    {
+      "context": "where the sample was unpacked.",
+      "label": "spacr.qt.ops_stitch_demo.listed_files#1",
+      "source": "where the sample was unpacked.",
+      "source_sha256": "76950bd53e45edaec5cfac48bbf3047362936a9331225334501c21eb73ca45a3",
+      "translation": "der Ort, an dem der Beispieldatensatz entpackt wurde."
+    },
+    {
+      "context": "The backdrop ``name`` asks for.",
+      "label": "spacr.qt.night_themes.ambient_for#0",
+      "source": "The backdrop ``name`` asks for.",
+      "source_sha256": "1b89c135b53ba823e866f55d52277c7a7ffa2695ae6ccbd8b62a6192bca2afaa",
+      "translation": "Der durch ``name`` angeforderte Hintergrund."
+    },
+    {
+      "context": "The sets a given module offers.",
+      "label": "spacr.qt.make_masks_datasets.datasets_for#0",
+      "source": "The sets a given module offers.",
+      "source_sha256": "8d7f3a8b5e99b5be684e54392577e8b32b2830d5f835c841052fbd2db531990e",
+      "translation": "Die von einem bestimmten Modul angebotenen Datensätze."
+    },
+    {
+      "context": "``'database'`` or ``'folder'``.",
+      "label": "spacr.qt.widgets.database_set.database_for_source#2",
+      "source": "``'database'`` or ``'folder'``.",
+      "source_sha256": "ca2c006bca4504f14dcf247eee27683d75fd1216ed2c20ceb33cd0f694b631ef",
+      "translation": "``'database'`` oder ``'folder'``."
+    },
+    {
+      "context": "``(x, y)``, new arrays in 0..1.",
+      "label": "spacr.qt.resonance.settle#10",
+      "source": "``(x, y)``, new arrays in 0..1.",
+      "source_sha256": "5941e8b3c813b5e008a1826464fcb10d7624e791dfd9d442387c34c0fee69d27",
+      "translation": "``(x, y)``, neue Arrays im Bereich 0..1."
+    },
+    {
+      "context": "``False`` keeps without asking.",
+      "label": "spacr.qt.gui_scale.change_scales#5",
+      "source": "``False`` keeps without asking.",
+      "source_sha256": "493188a8d5bc3a48f6870c3fec474bbc03d39a489dd8de1ee2b0d2320ee313f8",
+      "translation": "``False`` übernimmt die Änderung ohne Rückfrage."
+    },
+    {
+      "context": "a trained :func:`TimeflowsNet`.",
+      "label": "spacr.timeflows_model.predict_pair#1",
+      "source": "a trained :func:`TimeflowsNet`.",
+      "source_sha256": "8dd341dcfd289ce93d316caa950b4f905da6d7c677185b2a44921bbbb5571018",
+      "translation": "ein trainiertes :func:`TimeflowsNet`."
+    },
+    {
+      "context": "a zoo key or a checkpoint path.",
+      "label": "spacr.qt.widgets.plaque_preview.resolve_detector#2",
+      "source": "a zoo key or a checkpoint path.",
+      "source_sha256": "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
+      "translation": "ein Model-Zoo-Schlüssel oder ein Pfad zu einem Modellcheckpoint."
+    },
+    {
+      "context": "every entry, in provider order.",
+      "label": "spacr.qt.help_index.build_index#3",
+      "source": "every entry, in provider order.",
+      "source_sha256": "8b3a1fbb744fa3663147a125b239b1faa96efb0748fe7e0ee923d5b2bf1efc53",
+      "translation": "alle Einträge in der Reihenfolge der Anbieter."
+    },
+    {
+      "context": "frame ``t``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#2",
+      "retired": true,
+      "retired_reason": "2026-09-23: gated temporal assignment and prediction validation changed the source or block position; original review retained, with current evidence in 2026-09-23-timeflows-matching.json.",
+      "source": "frame ``t``'s objects, any ids.",
+      "source_sha256": "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+      "translation": "die Objekte in Bild ``t`` mit beliebigen IDs."
+    },
+    {
+      "context": "group by microscope field of view as well as well.",
+      "label": "spacr.infection.write_infection_report#5",
+      "source": "group by field as well as well.",
+      "source_sha256": "255d9687c23ea79ddac38ee0661fe832e57b3db77cfad36aedb1f9d40ba820a1",
+      "translation": "zusätzlich zu Wells auch nach Bildfeldern gruppieren."
+    },
+    {
+      "context": "how many controls took a value.",
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.apply_settings_dict#3",
+      "source": "how many controls took a value.",
+      "source_sha256": "1e09ec8f99b9bb70b8974b1a677f92c7df68f75afd1f009f7df74940d53b8f2a",
+      "translation": "Anzahl der Bedienelemente, die einen Wert übernommen haben."
+    },
+    {
+      "context": "its output lines, oldest first.",
+      "label": "spacr.qt.ai.cli_install.quote_tail#1",
+      "source": "its output lines, oldest first.",
+      "source_sha256": "02182ce104015df3ef982e7b3bba68c787c03d2666210c1cfc1971e2f556d6c3",
+      "translation": "die Ausgabezeilen, älteste zuerst."
+    },
+    {
+      "context": "length of the audio in seconds.",
+      "label": "spacr.qt.resonance.Resonance#2",
+      "source": "length of the audio in seconds.",
+      "source_sha256": "5d2ca58bb10a1b4c1bd69b0714e8ae57182b86bb518373f774cb93ca66174315",
+      "translation": "Länge des Audios in Sekunden."
+    },
+    {
+      "context": "length of the piece in seconds.",
+      "label": "spacr.qt.resonance.NowPlaying#4",
+      "source": "length of the piece in seconds.",
+      "source_sha256": "299bfdd660b340899b9be165a97310ab3aeb584d25f79f0cd09852809a6cafdd",
+      "translation": "Länge des Stücks in Sekunden."
+    },
+    {
+      "context": "one of :data:`DENOISE_METHODS`.",
+      "label": "spacr.qt.detect_chain.Chain#6",
+      "source": "one of :data:`DENOISE_METHODS`.",
+      "source_sha256": "f26b92f3e9427ee9ccba7c58729790e7ab4655f599711cca69749f3d0d42ab51",
+      "translation": "ein Eintrag aus :data:`DENOISE_METHODS`."
+    },
+    {
+      "context": "see :func:`load_the_test_data`.",
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#4",
+      "source": "see :func:`load_the_test_data`.",
+      "source_sha256": "ec34573fd93bd06bf042ecc20f678aee5444aa7fcff3dcb08bc1b6ef265e836c",
+      "translation": "siehe :func:`load_the_test_data`."
+    },
+    {
+      "context": "stems from :func:`sound_names`.",
+      "label": "spacr.qt.sound_synth.ensure_rendered#3",
+      "source": "stems from :func:`sound_names`.",
+      "source_sha256": "e3de65694cac076f002f856a9a8248c54a653b89a9a05da50e737ec83a0b79a8",
+      "translation": "Dateinamenstämme aus :func:`sound_names`."
+    },
+    {
+      "context": "steps with the backbone frozen.",
+      "label": "spacr.timeflows_model.train_timeflows#4",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
+      "source": "steps with the backbone frozen.",
+      "source_sha256": "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+      "translation": "Trainingsschritte mit eingefrorenem Basisnetz."
+    },
+    {
+      "context": "the line for the row's tooltip.",
+      "label": "spacr.qt.help_index.rendered_description#4",
+      "source": "the line for the row's tooltip.",
+      "source_sha256": "fb186b7260f92cda0327a2fca29a46356b0dba4d8cbcfce902b9217c6beec4eb",
+      "translation": "die Zeile für den Tooltip des Eintrags."
+    },
+    {
+      "context": "the main window results act on.",
+      "label": "spacr.qt.help_search.HelpSearchField#2",
+      "source": "the main window results act on.",
+      "source_sha256": "ef60e771395cf21d48e7f7fde3d27179ffe2a483aa090471466168ce57810eb6",
+      "translation": "das Hauptfenster, auf das die Suchergebnisse wirken."
+    },
+    {
+      "context": "the new ``(elev, azim, roll)``.",
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#6",
+      "source": "the new ``(elev, azim, roll)``.",
+      "source_sha256": "a151df9ea3c2af8018455d737e6fb11dce72f2e53e3a8e3d1b1e80900844b30e",
+      "translation": "die neuen Werte ``(elev, azim, roll)``."
+    },
+    {
+      "context": "the new ``(elev, azim, roll)``.",
+      "label": "spacr.qt.widgets.volume_view.trackball#7",
+      "source": "the new ``(elev, azim, roll)``.",
+      "source_sha256": "a151df9ea3c2af8018455d737e6fb11dce72f2e53e3a8e3d1b1e80900844b30e",
+      "translation": "die neuen Werte ``(elev, azim, roll)``."
+    },
+    {
+      "context": "the same annotations, reviewed.",
+      "label": "spacr.plaque_papers.console_review#4",
+      "source": "the same annotations, reviewed.",
+      "source_sha256": "bf11f72bb939e1e8a0e09a40ccba62f1812407d8653a062dde4bb457cc4ff6c5",
+      "translation": "dieselben Annotationen nach der Überprüfung."
+    },
+    {
+      "context": "the selected detector mode key.",
+      "label": "spacr.qt.cpu_modes.provenance#1",
+      "source": "the selected detector mode key.",
+      "source_sha256": "e2b3a7f8afb3e4262d2e0d5118a961c46cc4f4f37721d172f7486f8547c5a527",
+      "translation": "der Schlüssel des ausgewählten Detektormodus."
+    },
+    {
+      "context": "the state it actually ended in.",
+      "label": "spacr.qt.widgets.model_zoo_picker.SourceStrip.set_on#3",
+      "source": "the state it actually ended in.",
+      "source_sha256": "c07b3fd119c91c5d1109e8b695e6d1f21eee0f2dcdfb7d91754f87259af679bb",
+      "translation": "der tatsächlich erreichte Zustand."
+    },
+    {
+      "context": "the tool's own sign-in command.",
+      "label": "spacr.qt.ai.pty_sign_in.SignInDialog#2",
+      "source": "the tool's own sign-in command.",
+      "source_sha256": "d853e160b7d5596ee0ff117aeedf5a433866d3d13a2343bae70efde30f4cc95f",
+      "translation": "der eigene Anmeldebefehl des Werkzeugs."
+    },
+    {
+      "context": "the windowed frames and labels.",
+      "label": "spacr.timeflows_model.random_window#6",
+      "source": "the windowed frames and labels.",
+      "source_sha256": "8433008aa46c0c3d2fc6ab1d62383fa34d3f6fc79b2301550e83d4b0db5472eb",
+      "translation": "die ausgeschnittenen Bildbereiche und Labels."
+    },
+    {
+      "context": "what an unreadable value means.",
+      "label": "spacr.qt.widgets.plaque_preview.overlay_colour#2",
+      "source": "what an unreadable value means.",
+      "source_sha256": "f64eabb35fae96feb0d56b6057e8f2de4b5b32faf7efc2fd698c5c3bc618a514",
+      "translation": "die Bedeutung eines nicht lesbaren Werts."
+    },
+    {
+      "context": "whether the column is open now.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.reveal_settings#2",
+      "source": "whether the column is open now.",
+      "source_sha256": "30d2cc61c7eed7f8f9ff908ea7a97386f88d989f18bc34f78282a6fa0369b8cd",
+      "translation": "ob die Spalte jetzt geöffnet ist."
+    },
+    {
+      "context": "DoG's smallest scale, in pixels.",
+      "label": "spacr.qt.organelle_modes.MethodParams#11",
+      "source": "DoG's smallest scale, in pixels.",
+      "source_sha256": "55c4238fb67e719212ae2a2621173850c28338e1274b7922dc24f523d9a444f9",
+      "translation": "kleinste DoG-Skala in Pixeln."
+    },
+    {
+      "context": "One figure image and its legend.",
+      "label": "spacr.plaque_papers.Figure#0",
+      "source": "One figure image and its legend.",
+      "source_sha256": "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
+      "translation": "Ein Abbildungsbild mit seiner Legende."
+    },
+    {
+      "context": "One paper, however it was named.",
+      "label": "spacr.plaque_papers.Paper#0",
+      "source": "One paper, however it was named.",
+      "source_sha256": "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
+      "translation": "Eine Publikation, unabhängig von ihrer Benennung."
+    },
+    {
+      "context": "Persist the master sound switch.",
+      "label": "spacr.qt.preferences.set_sound_enabled#0",
+      "source": "Persist the master sound switch.",
+      "source_sha256": "995d3f0ebcfdea50a65d928f93852bd04f83006ce7edb56c51b5999f685315a0",
+      "translation": "Den Hauptschalter für die Tonausgabe dauerhaft speichern."
+    },
+    {
+      "context": "Stop the workers with the panel.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.closeEvent#0",
+      "source": "Stop the workers with the panel.",
+      "source_sha256": "abd2b5e0dc283c43eaf069870a6a4fbfb0d724842b7bcca1d740612d92c9e5b5",
+      "translation": "Beim Schließen des Bereichs die Hintergrundaufgaben beenden."
+    }
+  ],
+  "review_kind": "AI-assisted source/target and owning API-context review of 100 short passages. Corrected image/label, centroid, inference, plaque, publication, filename-stem and training-network terminology. No native-speaker sign-off.",
+  "schema": 1
+}

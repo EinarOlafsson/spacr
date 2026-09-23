@@ -30,8 +30,8 @@ def mask_screen(qtbot):
     return screen
 
 
-def test_the_switch_sits_beside_live_and_the_dimension_switches(mask_screen):
-    """Same widget class, same row, next to the ones it was asked beside."""
+def test_the_switch_sits_beside_dimensions_while_live_stays_on_the_preview(mask_screen):
+    """OPS stays beside Time after the September22 move of Live onto its preview."""
     from spacr.qt.widgets import AiToggleLabel
     from spacr.qt.screens.mask import OPS_TOGGLE_TEXT
 
@@ -43,10 +43,9 @@ def test_the_switch_sits_beside_live_and_the_dimension_switches(mask_screen):
 
     row = [label._full_text
            for label in mask_screen.findChildren(AiToggleLabel)]
-    assert {"3D", "Live", OPS_TOGGLE_TEXT} <= set(row), row
-    # Beside them, not merely present: the switches are found in the order
-    # they were added to the row.
-    assert row.index(OPS_TOGGLE_TEXT) == row.index("Live") + 1, row
+    assert {"3D", "Time", "Live", OPS_TOGGLE_TEXT} <= set(row), row
+    assert row.index(OPS_TOGGLE_TEXT) == row.index("Time") + 1, row
+    assert mask_screen._preview_switch.parentWidget() is not switch.parentWidget()
 
 
 def test_only_mask_generation_grows_one(qtbot):

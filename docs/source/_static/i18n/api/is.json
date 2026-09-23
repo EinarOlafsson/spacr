@@ -58,6 +58,130 @@
         "61659d518158cd45fd362395495703aabf93d09715e297a1bce00179c5213537"
       ]
     },
+    "spacr._starplast": {
+      "source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ],
+      "source_sha256": "eced2ad5a7cee86848df1f1111914f766d0e7c5832f4b6c4db75313c8b9f9273",
+      "text": "Setja upp og ræsa sjálfstæða skjáborðsforritið Starplast.\n\nStarplast notar PyQt6 og er aldrei flutt inn í PySide6-ferli spaCR. Umhverfi þess er undir ``~/.spacr/apps`` (eða ``SPACR_APPS_DIR``). Uppsetningin endurnýtir leit að túlki, einangrað skipanaumhverfi og stöðvanlega keyrslu undirferla úr uppsetningarforritum hlutgreiningar, án þess að skrá greini.",
+      "translation_source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ]
+    },
+    "spacr._starplast.REPOSITORY": {
+      "source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ],
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "text": "Sjálfgefin uppspretta þegar hvorki vinnueintak í systurmöppu né sérstaklega tilgreind uppspretta er tiltæk.",
+      "translation_source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ]
+    },
+    "spacr._starplast.apps_root": {
+      "source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ],
+      "source_sha256": "76bf447eb5b3bb88c0493d01426284b464fef6f7d6c79c4d6c88d03abe40e72f",
+      "text": "Skila möppu fyrir ytri forrit án þess að búa hana til.\n\n:param root: sérstaklega tilgreind mappa, annars ``SPACR_APPS_DIR`` eða ``~/.spacr/apps``.\n:returns: algild rótarslóð forrita.",
+      "translation_source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ]
+    },
+    "spacr._starplast.default_source": {
+      "source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ],
+      "source_sha256": "e06e469a99925b64bfe439a2cbdef785316d3338e04c81ff070d45e4536f3833",
+      "text": "Nota helst sérstaklega tilgreinda uppsprettu eða Starplast-vinnueintak í systurmöppu, síðan GitHub.\n\n:returns: ``SPACR_STARPLAST_SOURCE``, staðbundið Git-vinnueintak eða slóð kóðasafns.",
+      "translation_source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ]
+    },
+    "spacr._starplast.install_starplast": {
+      "source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ],
+      "source_sha256": "5400178b2dee7e05ffed2233f94a0bbcd0d34e0fac7a925070631d6c134c7085",
+      "text": "Búa til einangrað umhverfi, setja upp Starplast og athuga meðfylgjandi gögn.\n\nStaðbundinn Git-kóði er settur í safnskrá úr vistuðu HEAD í tímabundinni geymslu; pip skrifar aldrei smíðaskrár í upprunalega vinnueintakið. Ef uppsetning mistekst er aðeins umhverfið sem var búið til hér fjarlægt og ``starplast-install.log`` varðveitt.\n\n:param source: staðbundið Git-vinnueintak eða slóð kóðasafns fyrir pip; annars default_source.\n:param root: mappa fyrir ytri forrit.\n:param progress: endurkallsfall ``(step, steps, text)``; kallað utan GUI-þráðarins.\n:param cancel: threading.Event; stöðvar skipanir og afkomendaferli þeirra.\n:param runner: valfrjáls staðgengill fyrir keyrslu undirferla í afmörkuðum prófunum.\n:param preflight: valfrjáls staðgengill fyrir forathugun túlks í afmörkuðum prófunum.\n:returns: slóð umhverfis sem lokið hefur verið við að setja upp.\n:raises RuntimeError: uppsetning mistókst, var hætt við eða mappan er ekki í eigu forritsins.\n:raises ValueError: valin uppspretta er hvorki hentugt staðbundið Git-vinnueintak né leyfileg slóð opinbera kóðasafnsins.",
+      "translation_source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "10c0ccfb82f3bf7cf4b34ccefe5498be92e365d26298919d02445b613cb84f49",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ]
+    },
+    "spacr._starplast.is_installed": {
+      "source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ],
+      "source_sha256": "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
+      "text": "Hvort umhverfi í eigu forritsins hafi staðist innflutningsprófanir og athugun á meðfylgjandi gögnum.\n\n:param root: mappa fyrir ytri forrit.\n:returns: satt aðeins ef lokafærsla og túlkur umhverfisins eru til staðar.",
+      "translation_source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ]
+    },
+    "spacr._starplast.launch_starplast": {
+      "source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ],
+      "source_sha256": "bbbcf044ee71764ed6ff3473b7040a473bcf075baf653efcc79c846210b4c3b9",
+      "text": "Ræsa Starplast sem sérstakt ferli og skrá úttak við hlið umhverfis þess.\n\n:param root: mappa fyrir ytri forrit.\n:param popen: valfrjáls staðgengill fyrir subprocess.Popen í afmörkuðum prófunum.\n:returns: undirferli sem UI fylgist með til að greina ræsingarvillur.\n:raises RuntimeError: ekkert fulluppsett umhverfi er til.",
+      "translation_source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ]
+    },
+    "spacr._starplast.process_environment": {
+      "source_blocks_sha256": [
+        "d7bd8cb8f372ad37e63619756cef63b92eeda9bb6b16d3568c578c4110f7b940",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ],
+      "source_sha256": "f48fdf84b6ce238f46b381208925776df203b0784165ac2573ef278e0b7a0dee",
+      "text": "Einangra leit að Python, pip og Qt-viðbótum frá spaCR-ferlinu sem er í gangi.\n\n:param env: sýndarumhverfi Starplast.\n:returns: umhverfisbreytur undirferlis sem varðveita skjáborðsbirtingu og notandastillingar.",
+      "translation_source_blocks_sha256": [
+        "b3242dc58c9441ed202916b831a70b7863ba0630a08aa81b666f18e4ee584250",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ]
+    },
     "spacr._version": {
       "source_blocks_sha256": [
         "5f19a0a5b02289864de1c76c59530587b17fd7f915361ef26bcc78ff097f7141",
@@ -41548,7 +41672,7 @@
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
       "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "Þjálfa hefðbundinn ML-flokkara (XGBoost / logistic / RF) á eiginleikum einstakra hluta og reikna stig fyrir hverja sýnisstöðu örplötu í skimuninni.\n\nLes ``measurements.db`` sem :func:`spacr.measure.measure_crop` býr til, sameinar eiginleikatöflur frumna, kjarna, sýkla og umfrymis, notar sýnisstöður örplatna merktar ``positive_control`` / ``negative_control`` (eða skýringardálk) sem þjálfunarmerki, felur :func:`ml_analysis` að passa líkanið og skrifar spár fyrir hvern hlut, umraðana- og eiginleikamikilvægistöflur ásamt hitakorti rannsóknarörplötu í ``results/`` við hlið upprunagagnagrunnsins.\n\n:param settings: Lykla-/gildavörpun stillinga, stöðluð með :func:`spacr.settings.set_default_analyze_screen`. Færslur skipulagðra gagna:\n\n    - ``src`` (strengur eða listi) — mappa eða möppur sem innihalda ``measurements/measurements.db``.\n    - ``channel_of_interest`` — rás talin frá núlli fyrir recruitment-hlutfallseiginleikann; hún stjórnar einnig töfluvali.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — auðkenni sýnisstaða örplatna (t.d. ``'c2'`` / ``'c1'``) sem eru notuð sem þjálfunarmerki.\n    - ``annotation_column`` — nota skýringardálk á PNG-stigi í stað stýringa.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — eiginleiki sem er teiknaður á hitakort plötunnar.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tveggja staka listinn ``[output, plate_heatmap]``, þar sem ``output`` er tíu staka niðurstöðulisti :func:`ml_analysis` og ``plate_heatmap`` er ``matplotlib``-mynd hitakorts plötunnar. CSV-skrár og myndir eru skrifaðar í ``results/`` sem hliðarverkun; slóðum þeirra er ekki skilað.\n:raises ValueError: ef ``annotation_column`` er stillt en ``png_list``-töfluna vantar ``prcfo`` / þann dálk, hlutaauðkenni hennar tengjast ekki mælingunum eða færri en tveir flokkar koma fyrir í henni, eða ef ``heatmap_feature`` er ekki meðal eiginleikanna sem líkanið var þjálfað á.\n\nDæmi:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSjá einnig: :func:`ml_analysis` — undirliggjandi aðferð til að passa og meta. :func:`perform_regression` — aðhvarf blandaðra áhrifa á ML-stig fyrir hverja sýnisstöðu örplötu.",
+      "text": "Þjálfa hefðbundinn ML-flokkara (XGBoost / logistic / RF) á eiginleikum einstakra hluta og reikna stig fyrir hverja sýnisstöðu örplötu í skimuninni.\n\nLes ``measurements.db`` sem :func:`spacr.measure.measure_crop` býr til, sameinar eiginleikatöflur frumna, kjarna, sýkla og umfrymis, notar sýnisstöður örplatna merktar ``positive_control`` / ``negative_control`` (eða skýringardálk) sem þjálfunarmerki, felur :func:`ml_analysis` að passa líkanið og skrifar spár fyrir hvern hlut, umraðana- og eiginleikamikilvægistöflur ásamt hitakorti rannsóknarörplötu í ``results/`` við hlið upprunagagnagrunnsins.\n\n:param settings: Lykla-/gildavörpun stillinga, stöðluð með :func:`spacr.settings.set_default_analyze_screen`. Færslur skipulagðra gagna:\n\n    - ``src`` (strengur eða listi) — mappa eða möppur sem innihalda ``measurements/measurements.db``.\n    - ``channel_of_interest`` — rás talin frá núlli fyrir recruitment-hlutfallseiginleikann; hún stjórnar einnig töfluvali.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — auðkenni sýnisstaða örplatna (t.d. ``'c2'`` / ``'c1'``) sem eru notuð sem þjálfunarmerki.\n    - ``annotation_column`` — nota skýringardálk á PNG-stigi í stað stýringa.\n    - ``location_column`` — ``'columnID'`` eða ``'rowID'``.\n    - ``heatmap_feature`` — eiginleiki sem er teiknaður á hitakort plötunnar.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tveggja staka listinn ``[output, plate_heatmap]``, þar sem ``output`` er tíu staka niðurstöðulisti :func:`ml_analysis` og ``plate_heatmap`` er ``matplotlib``-mynd hitakorts plötunnar. CSV-skrár og myndir eru skrifaðar í ``results/`` sem hliðarverkun; slóðum þeirra er ekki skilað.\n:raises ValueError: ef ``annotation_column`` er stillt en ``png_list``-töfluna vantar ``prcfo`` / þann dálk, hlutaauðkenni hennar tengjast ekki mælingunum eða færri en tveir flokkar koma fyrir í henni, eða ef ``heatmap_feature`` er ekki meðal eiginleikanna sem líkanið var þjálfað á.\n\nDæmi:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSjá einnig: :func:`ml_analysis` — undirliggjandi aðferð til að passa og meta. :func:`perform_regression` — aðhvarf blandaðra áhrifa á ML-stig fyrir hverja sýnisstöðu örplötu.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -45700,6 +45824,16 @@
         "bf88156b86d98b776bac448350915cceab2805a8cd57b5627f50a1f49073c11d"
       ]
     },
+    "spacr.object._cellpose_z_segment_fn._segment": {
+      "source_blocks_sha256": [
+        "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12"
+      ],
+      "source_sha256": "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12",
+      "text": "Skilar merkjum úr Cellpose-kalli fyrir 3-D gögn, lista af myndplönum eða eitt myndplan.",
+      "translation_source_blocks_sha256": [
+        "3352ce416d49aa833f9c28dd8c21bdf4793dd6022379f5f931b7269d2c535f60"
+      ]
+    },
     "spacr.object.display": {
       "source_blocks_sha256": [
         "44ad2f40babdb517f86f263b1d0d2bc2c78807d715c4b6dd1a88cde4900b9da7"
@@ -45800,6 +45934,26 @@
         "d0f3340abaf6946224b67872a905818aaf4ca2f1e49b7ffd6d58426c6b767b45",
         "a2c4408f704ee4b390e685cedb28e86c17c3f5f654eee0731bcc4b87c583f950",
         "c43e00e51f647b00d283f99462d98e814d2a53d3f7bf18f7cc2ee7a1990b1a55"
+      ]
+    },
+    "spacr.object.merge_split_filter_masks._progress": {
+      "source_blocks_sha256": [
+        "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b"
+      ],
+      "source_sha256": "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b",
+      "text": "Skráir tímann fyrir hvert sjónsvið (FOV) og birtir sameiginlegu framvindulínuna.",
+      "translation_source_blocks_sha256": [
+        "8bab9a562f5c7de68d87baff88e564b76d7d73ea6d1886a28c524f725578a5b9"
+      ]
+    },
+    "spacr.object.merge_split_filter_masks._run_one": {
+      "source_blocks_sha256": [
+        "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c"
+      ],
+      "source_sha256": "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c",
+      "text": "Keyrir stillta síunarrunu á maska eins sjónsviðs (FOV).",
+      "translation_source_blocks_sha256": [
+        "5db807fbd6959c95de1b857c1f407ff6d8d0b384f2e000d34eec709d616d29ae"
       ]
     },
     "spacr.object_distances": {
@@ -58866,6 +59020,18 @@
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
       ]
     },
+    "spacr.qt.ai.pty_sign_in.PtySession.stop": {
+      "source_blocks_sha256": [
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
+      ],
+      "source_sha256": "0f99e7bc45c78eb8337f8310a79843758172f23d1f7b73a8e05baea88466dfaa",
+      "text": "Bíða eftir að skipunin ljúki og sækja lokastöðu hennar, stöðva ferlahópinn og loka skjáherminum.\n\nRæsiforrit geta skilið eftir undirferli sem heldur skjáherminum opnum eftir að þau sjálf ljúka. Hópurinn tilheyrir þessari lotu, svo afturköllun stöðvar einnig þau undirferli. Endurtekin hreinsun getur ekki lokað skráarlýsi sem hefur verið endurnýttur.",
+      "translation_source_blocks_sha256": [
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
+      ]
+    },
     "spacr.qt.ai.settings": {
       "source_blocks_sha256": [
         "29e1b6ed1606dd00f3e589667761ec3f05aec331fc5a1100a5148d4fbe5cce78",
@@ -62662,6 +62828,50 @@
       "text": "Skilja valinn ræð á ramma í spinn.",
       "translation_source_blocks_sha256": [
         "450d041bbbd8c4ac967155068554c11a4dfd8a5327490c8b4fe8e0d32bf41526"
+      ]
+    },
+    "spacr.qt.detect_chain": {
+      "source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+        "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+        "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
+      ],
+      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
+      "text": "Valfrjáls myndbæting fyrir greiningu og hreinsun hlutamerkinga á eftir.\n\nÍ Make Masks virkjar Nota stillta keðju fyrir greiningu og birtingu; Bera saman forskoðar hana án þess að virkja hana. Unnið er með afrit: skrár á diski og upprunaleg gildi sem birtast undir músarbendli haldast óbreytt.\n\n:data:`CHAIN_ORDER` ákvarðar röðina::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nValfrjáls teygja eftir hundraðshlutamörkum tilheyrir Make Masks, utan :class:`Chain`. Mörkin eru reiknuð úr öllu myndsviðinu áður en svæði stækkunarglersins er skorið út, svo færsla kassans endurskilgreinir þau ekki.\n\nFrádráttur bakgrunns kemur á undan suðminnkun. Suðminnkun kemur á undan birtuskilum til að forðast mögnun suðs; birtuskil koma á undan skerpingu til að forðast að teygja geislabauga hennar. Formfræðilegar aðgerðir koma á undan skiptingu því þær breyta því hvaða mynddílar tengjast. :func:`prepare` keyrir bakgrunnsleiðréttingu, suðminnkun, birtuskil og skerpingu; :func:`finish` keyrir formfræðilegar aðgerðir og skiptingu á eftir valinni greiningaraðferð.\n\nÓvirk skref skila inntakinu óbreyttu. :func:`heavy_steps` finnur virk skref sem réttlæta viðvörun um vinnslutíma; meðaltöl utan nærsvæðis geta tekið mínútur á 2.000 px myndsviði. Keyrslur á heilli mynd halda framvindubirtingu og Hætta við. Val á bakgrunnsaðferð virkjar ekki suðminnkun.\n\nMask-vinnslukeðjan hefur sérstaka forvinnslu. :func:`spacr.object._preprocess_batch` beitir rúllandi kúlu og síðan CLAHE á runur frumulíffæra með ``organelle_rolling_ball`` og ``organelle_clahe``. Mask-stillingarnar ``remove_background``, ``background`` og ``signal_to_noise`` beita hins vegar neðri styrkleikamörkum fyrir hverja rás. Þessi Make Masks-keðja stillir hvoruga þessara leiða.\n\nMyndbæting breytir hlutunum sem lagðir eru til yfirferðar. Líkön sem eru þjálfuð á bættum myndum þurfa samsvarandi forvinnslu við ályktun; þessi eining stillir hvorki þjálfunar- né ályktunarferlið.",
+      "translation_source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "b5b6f7f372749ddaf4e1bcb6be17517f0371ecd8866fb0607290761191241e9f",
+        "a8959f71850fca57fe251a14717b90ba4c6b3ac3ff53565652377925f9324e73",
+        "54c9b22855c5c41e6563d4a28b5371038e8d069b478796aa3911da40e2e57707"
+      ]
+    },
+    "spacr.qt.detect_chain.background_surface": {
+      "source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
+      ],
+      "source_sha256": "18f3c26fde78b43287b0feb206e108c9a311554005e65cb31c4280061cd8f885",
+      "text": "Bakgrunnurinn sem breytist hægt undir ``image``, í stærð ``image``.\n\nMeta bakgrunninn á smækkuðu afriti samkvæmt :attr:`Chain.background_scale` og breyta síðan stærð yfirborðsins að lögun inntaksins. Radíusinn minnkar með myndinni til að halda hlutfallslegri útbreiðslu sinni. Þetta nálgar lýsingu sem breytist hægt um leið og mynddílum fækkar og grenndin minnkar.\n\nVið kvarða 1.0 er ``rolling_ball`` eða ``white_tophat`` kallað með fullri upplausn og nákvæmri niðurstöðu skilað. Minni myndir nota einnig fulla upplausn ef smækkun færi niður fyrir :data:`MIN_BACKGROUND_SIDE`. Mat í fullri upplausn getur verið hægt: á 1.994 px uint16-myndsviði breyttu í float32 tók rúllandi kúla á CPU 0.3 s við radíus 5, 0.9 s við 10, 4.1 s við 25 og 14.5 s við 50. Með sjálfgefnum radíus 50 og kvarða 0.5 tók sama svið um eina sekúndu. Tíminn fer eftir vélbúnaði og mynd; kalla ætti þetta utan þráðar notendaviðmótsins (GUI).\n\n:param image: Myndsviðið eða svæðið, sem fleytitölur.\n:param chain: Keðjan, með bakgrunnsaðferð, radíus og kvarða.\n:returns: Bakgrunnurinn, með sömu lögun og ``image``; núll þegar keðjan dregur engan bakgrunn frá.",
+      "translation_source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "5aa40f6c7124c591d1ec09c21194feaa7e81d26a71691e044376c48d5acd885f",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
       ]
     },
     "spacr.qt.dialogs": {
@@ -69638,6 +69848,30 @@
         "0dfbab99bd95d60ff7a672078b6f898b08f3a22726280fa058d372a73d481f87"
       ]
     },
+    "spacr.qt.organisms": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "Inngangur um lífverur með heimildum og tillögur að myndgreiningareiningum.\n\nPróflyklarnir eru auðkenni fyrir fyrirliggjandi greiningarferli. Tillaga hefur enga leið í viðmótinu og því geta lífverusíðurnar ekki óvart keyrt greiningu sem hefur ekki verið útfærð. Uppruni mynda, leyfi og prófsummur fylgja í organism_sources.json.",
+      "translation_source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "a8526113789fa2f43d38f7f6cd91ccb0c4456c6eef7fc1134bd60c86908dabad"
+      ]
+    },
+    "spacr.qt.organisms.ORGANISMS": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693"
+      ],
+      "source_sha256": "6f757c3332b2308287f372c85b9f108da2547e4c625606a9057694ac66ecbfa7",
+      "text": "Leiðbeiningar um lífverur með lyklunum ``toxoplasma``, ``plasmodium`` og ``candida``.\n\nHver færsla gefur upp birtingarheiti, lýsingu, slóð líffræðilegrar heimildar, skráarheiti meðfylgjandi skýringarmyndar og athugasemd um myndina. ``sections`` inniheldur þrenndir með fyrirsögn, texta og tengdum greiningarlyklum; ``links`` inniheldur pör af birtingartexta og slóð. ``modules`` inniheldur túplur með leiðarlykli, titli, lýsingu og táknmyndarlykli. Leið með ``None`` táknar fyrirhugaða greiningu sem ekki er hægt að hefja með reitnum. ``starplast`` ræsir ytra forrit frá Toxoplasma-síðunni; það er hvorki lykill í greiningaskrá spaCR né hlutgreiningarbakendi. Birtingartexti er þýddur við notkun; leiðarlyklar, slóðir og auðlindanöfn haldast óbreytt.",
+      "translation_source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "11bf38e1f5333b42512f0140a0a12df3ff35aaf2f242f640564295ab78a07ca7"
+      ]
+    },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
         "9002c454672a4e0768085406ccef866b571a12f0dc09958f02638bd98643a2f7",
@@ -72500,6 +72734,22 @@
       "text": "Hugsaðu á persónulegum kopi og hættu það niður með aðferðinni.",
       "translation_source_blocks_sha256": [
         "b0610695ce3d521debc78edce188bbba9de1fbe531bb45a9fe341ddc70fc8414"
+      ]
+    },
+    "spacr.qt.preferences.sound_is_offered": {
+      "source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
+      ],
+      "source_sha256": "c06ca102736b683ae5ea877b7237022540f30afb9d24c134728c236853d60ec8",
+      "text": "Hvort þetta ferli bjóði yfirleitt upp á hljóð: aðeins í spaceout-ham.\n\nVenjulegt spaCR hefur slökkt á hljóði og felur stillingaflipa þess. Spaceout er staðbundið við ferlið (:func:`spacr.qt.theme.enable_spaceout`, aðeins kallað af ``spaceout``-ræsiforritinu), svo staðan er lesin jafnóðum og aldrei vistuð.\n\nFlytur ekki inn :mod:`spacr.qt.theme`: ferli sem hefur ekki flutt það inn getur ekki hafa virkjað spaceout, og þessi fyrirspurn kemur á keyrsluleiðum sem verða að vera án QtGui.\n\n:returns: ``True`` í spaceout-ham, ``False`` í venjulegu spaCR.",
+      "translation_source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
       ]
     },
     "spacr.qt.preferences.spacr_mode_for_level": {
@@ -80594,6 +80844,22 @@
         "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
       ]
     },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel": {
+      "source_blocks_sha256": [
+        "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
+        "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
+      ],
+      "source_sha256": "0651e4ed8fbfd09e47956db18d0910244475ec988c5b0f460016f4b3d85bac8d",
+      "text": "Jafna síðu Síu / Leitar við línuritið og gates-töfluna.\n\nStillingarnar fyrir ofan línuritið deila einni röð. Fliparnir á hægri spjaldinu eru í sömu hæð og röðin og ílátin undir báðum byrja í sömu hæð. Röðin er eigin verkfæraröð línuritsins; töfluval og X / Y / Z-val hafa verið færð þangað, svo fliparnir eru þegar í sömu hæð. Munurinn er hvar hvort ílát byrjar undir sinni röð. Flipasíðan er færð niður um þennan mun, sem er mældur í hvert sinn, svo hún fylgir aukinni hæð raðarinnar, til dæmis frá stjórntækjum þrívíddarplansins undir henni.\n\nFöst hæð flipastiku færir ekki síðuna undir henni: QTabWidget staðsetur síðuna eftir stærðartillögu stikunnar. Því er hliðrun síðunnar sjálfrar stillt.\n\n:returns: Hliðrunin sem er beitt á síðuna, í mynddílum.",
+      "translation_source_blocks_sha256": [
+        "c6d7cd5791676de33f2f87202508cf59982f07f0897e6ab9c6cfbd43c39f6724",
+        "b030c1fb13895cc8187c0ed86d79d91a7dd73600c0a0d4f9136b9e2a5c7d6844",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
+      ]
+    },
     "spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates": {
       "source_blocks_sha256": [
         "b42df08a92ec9012ef457c1cb141dedbbc169d84c647ce598c7004caff39666f",
@@ -83274,26 +83540,38 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+        "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+        "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+        "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "Samskipti og meðhöndla af segmentaðarmaska.\n\nMake Masks er skráður undir **Tools** á heimilisvöru og er höndalega hálfa af sviði: það korrigerar masks mönnun er rangt, einn mikroskópum sviði á sama tíma, og másthead hennar opnar Cellpose vinnufluðum sem framleiða þá. :class:`MakeMasksScreen` loðar myndir og merktir masks frá ``<folder>/masks`` og lagrar breyttum merkjum eins og ``uint16`` TIFF faðir.\n\nNín verkfæri, í :data:`TOOL_MODES` orði, vegna þess að þetta orðstæð er það sem lesendur þurfa áður en þeir opna notkun:\n\n**Brush** og **Erase** mála og ekki mála á aktivum merki í einu. **Erase object** fjarlægir heill merki í einum klukkustundum. **Wand +** og **Wand −** veita svæðið frá klukkustundinni og bæta það á merki eða taka það út; þolandi er í samræmi við hjartaþrýsingu myndarinnar í staðsetningu, sjá :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** fylgir frjáls útgáfa sem loka og fylgir eins og EIN efni - tólinn er ekki brús, vegna þess að brússtempur skreymir á leiðinni, þannig að spyrja rímur með því merkir ríminn og yfirgefur miðjunni bakgrunni. **Divide** snúa línu á gegnum samsettu hlut og gerir það tvö, haldið upprunalegu skilaboð á stærri hluti og gefa smámari nýjum, með hverjum öðrum hlutum ekki berjast; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` er skammt. **Zoom** rektangle snúa sýn og breytist engin merki alls.\n\n**Recrop** er sá níundi og er sá eini sem breytir HVAÐA svið er á skjánum fremur en því sem á það er málað. Sviðsett úrklippa sem geymir margar frumur er ekki eitt þjálfunardæmi, og að ritstýra henni sem einu kennir neti að tveir hlutir séu ein mynd -- svo kassi utan um hlut skrifar það svæði bæði myndarinnar og grímunnar sem sitt eigið svið (:func:`spacr.qt.mask_engine.write_recrop`), sett í röð beint á eftir núverandi sviði, og fjölhluta frumritið er lagt til hliðar í ``recropped_originals/`` fremur en ritstýrt (:func:`spacr.qt.mask_engine.retire_recropped_original`). Kassa sem er styttri en :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` á hlið, eða endurtekur skurð sem þegar var gerður umfram :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, er hafnað; hlutum sem kassinn sker í gegnum er sleppt, því hlutur þar sem jaðarinn er þar sem músinni var sleppt er ekki sá hlutur; og merkin sem lifa af eru endurtölusett frá einum.\n\nHver mikroskóp er með :class:`spacr.curation.CurationLog`, sem er upphafnað frá hvaða viðbótandi síður. :func:`spacr.qt.mask_engine.save_mask` skrifar merki og ledger saman, sem gerir :func:`spacr.curation.is_curated` hægt að skilja höndlega korrigerðar maskar frá vinnuflutningi. Eitt gestur framleiðir einn ledger innfang og einn undo skref.\n\n:meth:`MakeMasksScreen.run_cellpose` gildir við lausn Cellpose-SAM mönnun vinnufluðs á opnum mikroskópum sviði og sýnir maska, cell-sannsynlighet kartan og sviði mikroskop sviði sviði. Miðarlegur útgangar styðja :data:`CELLPROB_THRESHOLD` ef uppgötvun er saknað eða ófullkominn.\n\nRéttur aðgerðir eru safnað frá :func:`tool_row_entries` og :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` veitir ekki aðgerða aðgerðar í sömu tólbera. -- uppfylla og endurtekið, snúið, stærðfiltra og Otsu uppgötvun, með undo og redo yfir öllu þeirra -- Með brúnni, wand og sýnilegum stjórnunum, og hægt er að fela til þess að endurheimta breidd sitt til kanvas.\n\nAðalgreiningar tól eru opnar frá masthead í :data:`FOLD_ORDER` til :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask allt mappinn** gildir Cellpose fyrir hvert mynd í valda mappinu, en **Save mask** á heillum síðu hringir :meth:`spacr.curation.MaskCuration.save_mask`. Folded modules halda besta widgets þeirra innan :class:`FoldedModulePanel`.\n\nTime-series tracking er sameiginlegt með Mask Generation sem Timelapse setningar flokki; sjá :mod:`spacr.qt.screens.mask`. Motility Assay er í staðinn hluti af Measure vegna þess að það eyðir núverandi maskar og skrifa mættum skálum í stað þess að framleiða maskar.",
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "Samskipti og meðhöndla af segmentaðarmaska.\n\nMake Masks er skráður undir **Tools** á heimilisvöru og er höndalega hálfa af sviði: það korrigerar masks mönnun er rangt, einn mikroskópum sviði á sama tíma, og másthead hennar opnar Cellpose vinnufluðum sem framleiða þá. :class:`MakeMasksScreen` loðar myndir og merktir masks frá ``<folder>/masks`` og lagrar breyttum merkjum eins og ``uint16`` TIFF faðir.\n\nVERKFÆRIN TÍU, í röðinni í :data:`TOOL_MODES`, því lesandinn þarf þennan orðaforða áður en skjárinn er opnaður:\n\n**Brush** og **Erase** mála og ekki mála á aktivum merki í einu. **Erase object** fjarlægir heill merki í einum klukkustundum. **Wand +** og **Wand −** veita svæðið frá klukkustundinni og bæta það á merki eða taka það út; þolandi er í samræmi við hjartaþrýsingu myndarinnar í staðsetningu, sjá :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** fylgir frjáls útgáfa sem loka og fylgir eins og EIN efni - tólinn er ekki brús, vegna þess að brússtempur skreymir á leiðinni, þannig að spyrja rímur með því merkir ríminn og yfirgefur miðjunni bakgrunni. **Divide** snúa línu á gegnum samsettu hlut og gerir það tvö, haldið upprunalegu skilaboð á stærri hluti og gefa smámari nýjum, með hverjum öðrum hlutum ekki berjast; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` er skammt. **Zoom** rektangle snúa sýn og breytist engin merki alls.\n\n**Recrop** er sá níundi og er sá eini sem breytir HVAÐA svið er á skjánum fremur en því sem á það er málað. Sviðsett úrklippa sem geymir margar frumur er ekki eitt þjálfunardæmi, og að ritstýra henni sem einu kennir neti að tveir hlutir séu ein mynd -- svo kassi utan um hlut skrifar það svæði bæði myndarinnar og grímunnar sem sitt eigið svið (:func:`spacr.qt.mask_engine.write_recrop`), sett í röð beint á eftir núverandi sviði, og fjölhluta frumritið er lagt til hliðar í ``recropped_originals/`` fremur en ritstýrt (:func:`spacr.qt.mask_engine.retire_recropped_original`). Kassa sem er styttri en :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` á hlið, eða endurtekur skurð sem þegar var gerður umfram :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, er hafnað; hlutum sem kassinn sker í gegnum er sleppt, því hlutur þar sem jaðarinn er þar sem músinni var sleppt er ekki sá hlutur; og merkin sem lifa af eru endurtölusett frá einum.\n\n**Reglustika** er tíunda verkfærið. Dragðu milli myndpunkta til að lesa lengd án þess að breyta merkingum. Aðdráttur og hliðrun varðveita mælinguna; hægrismellur með Reglustiku valda hreinsar hana. Sama reglustika er tiltæk á báðum myndflötum lifandi forskoðunar.\n\nHver mikroskóp er með :class:`spacr.curation.CurationLog`, sem er upphafnað frá hvaða viðbótandi síður. :func:`spacr.qt.mask_engine.save_mask` skrifar merki og ledger saman, sem gerir :func:`spacr.curation.is_curated` hægt að skilja höndlega korrigerðar maskar frá vinnuflutningi. Eitt gestur framleiðir einn ledger innfang og einn undo skref.\n\n:meth:`MakeMasksScreen.run_cellpose` gildir við lausn Cellpose-SAM mönnun vinnufluðs á opnum mikroskópum sviði og sýnir maska, cell-sannsynlighet kartan og sviði mikroskop sviði sviði. Miðarlegur útgangar styðja :data:`CELLPROB_THRESHOLD` ef uppgötvun er saknað eða ófullkominn.\n\nRitilshamarnir eru settir saman úr :func:`tool_row_entries` og :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` bætir aðgerðum sem eru ekki hamir við sömu verkfærastiku. Stillingaspjaldið geymir aðgerðir sem eru ekki músarhreyfingar —fyllingu og endurmerkingu hluta, skipti á hlut og bakgrunni, stærðarsíun og Otsu-greiningu, allt með afturköllun og endurtekningu— ásamt stýringum fyrir pensil, sprota og birtingu. Hægt er að fela það til að skila breidd þess til myndflatarins.\n\nViðsnúningur myndar og skipti á hlut og bakgrunni eru aðskildar aðgerðir. Sú fyrri breytir myndinni sem greinirinn sér; sú síðari breytir merkingum.\n\n**Snúa mynd við**, í flokknum Birting, er sameiginlegi viðsnúningurinn. Hann teiknar myndsviðið sem neikvæða mynd og gefur greinunum sömu neikvæðu mynd: báðir greiningarhnapparnir og lifandi stækkunarglerið hluta :meth:`MakeMasksScreen._detector_image`, svo þröskuldur fyrir bjarta hluti finnur dökka. Borði fyrir ofan myndina sýnir þetta meðan virknin er á. Styrkleiki myndpunkts í horninu fylgir viðsnúnu myndinni. Meðalstyrkleiki hluta og hlutasían lesa áfram hlaðna myndpunkta. Við vistun eru merkingagrímur skrifaðar án þess að breyta upprunalegu myndinni.\n\nÁÐUR VORU TVEIR ROFAR SEM GÁTU STANGAST Á. \"Invert image\" (Snúa mynd við), sem hafði aðeins áhrif á birtingu, teiknaði neikvæða mynd án þess að breyta greiningu; \"Invert for detection\" (Snúa við fyrir greiningu) sneri við því sem greinarnir lásu án þess að teikna neitt. Hægt var að hafa annan á án hins og stöðulína þess fyrri gat stangast á við borða þess síðari. Nú er einn rofi því tilgangurinn er einn: að snúa við myndsviði með dökkum hlutum svo Otsu og stækkunarglerið geti greint þá. ``_cp_invert`` er nú sami viðmótshlutur og ``_invert_display`` undir gamla heitinu og því geta þau ekki lengur verið ósamstillt.\n\n**Skipta á hlut og bakgrunni**, undir Aðgerðir á hlutum, er gamla \"Invert mask\" (Snúa grímu við) undir lýsandi heiti: það snýr við MERKINGAMYNDINNI og á venjulegu myndsviði verður þá einn hlutur sem þekur allan rammann. Þetta er ekki viðsnúningur myndar og er vísvitandi ekki kallað það.\n\nÚTREIKNINGURINN. :func:`~spacr.qt.mask_engine.invert_normalized` kvarðar myndsviðið á 0..1 miðað við eigið gildisbil og reiknar ``1 - v``. Kvörðunin skiptir máli: Otsu-leiðréttingin er MARGFALDARI á algildum þröskuldi, þannig að kvörðun fyrst gerir það að verkum að sama leiðréttingargildi hefur sömu merkingu á næstu mynd. :func:`~spacr.qt.mask_engine.invert_intensity` (fylling gagnagerðar) og :func:`~spacr.qt.mask_engine.invert_for_detection` (speglun um gildisbil myndsviðsins) voru áður notuð á þessum skjá og eru varðveitt fyrir aðra kallendur. :func:`~spacr.qt.mask_engine.invert_mask` snýr við merkingum.\n\nAðalgreiningar tól eru opnar frá masthead í :data:`FOLD_ORDER` til :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask allt mappinn** gildir Cellpose fyrir hvert mynd í valda mappinu, en **Save mask** á heillum síðu hringir :meth:`spacr.curation.MaskCuration.save_mask`. Folded modules halda besta widgets þeirra innan :class:`FoldedModulePanel`.\n\nTime-series tracking er sameiginlegt með Mask Generation sem Timelapse setningar flokki; sjá :mod:`spacr.qt.screens.mask`. Motility Assay er í staðinn hluti af Measure vegna þess að það eyðir núverandi maskar og skrifa mættum skálum í stað þess að framleiða maskar.",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
-        "2fe8b75b72216fa1b7e47c4f62c7d8480c7d784edc4f9c5f02ced343b2b654d8",
+        "969cad596cc2cfef69edf6c4a0188b89650abd06464521d7463bfae34c983b84",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "3c9dca0358ac160f8d9789401e7e3d1b5a5e9b383d918bc1c88a9ff2a78c33ec",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "2b2215c8913b5448f80671cf78cc88af8e72e471164592c44f481cf8a16c4b34",
         "6bb4e99446e63282835ea5163108ec3f9519bdb3a4c884be7c24397428ed5b97",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "edc4f65be8e4b90ae9569581aade15923cf2ecbc10af22089b664a96e457f0af",
+        "0973abc64b13e9497185a2741b196c15c36b4fa4df0db34384386a4c74ab872e",
+        "9bf0b71b754b29971e492e7286673bde96579193d8492e5a1308a7d65de6f498",
+        "aae3a5f4d4c761acce16583f8b69bd8eff5d9a8a7f97198e435fc7ac66ce42ed",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ]
@@ -86050,6 +86328,52 @@
         "db54dba312eb79784a111a5088547be2af50c7d67af49bfe64b70d2e9ccf6485",
         "47a5bdcb1bae198fb83deacbfeb142cbfad9d187c58185b07c1a05d1295d9525",
         "c045a10f5c08e471aa42625d636a222453a22a313db96cde8fb704023d4f88e9"
+      ]
+    },
+    "spacr.qt.screens.organism_screen": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "Leiðbeiningar um lífverur með heimildum, gagnvirkar frumumyndir og leiðir að prófum.\n\nUpplýsinga- og einingasvæðin skruna óháð hvort öðru og deila láréttri skiptingu. Fyrirliggjandi próf halda skráningarlyklum sínum; ekki er hægt að keyra tillögur.",
+      "translation_source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "a344a9ce5604e2bcdbb408548388f6e79ad54c24382d26c5b48c5eaba6618da8"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen": {
+      "source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ],
+      "source_sha256": "727476824306a130836c8a825163ad1e2e05e6e53958285b4d760ad71f8a97d4",
+      "text": "Sýna lífveru og fyrirliggjandi eða fyrirhugaðar myndgreiningareiningar hennar.\n\n:param app_key: ``toxoplasma``, ``plasmodium`` eða ``candida``.\n:param host: valfrjáls aðalgluggi sem tekur við beiðnum um að opna einingar.\n:param parent: Qt-viðmótshluturinn sem á þennan hlut.\nByggja innganginn og reitafylkið fyrir Home með óháðu skruni.",
+      "translation_source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
+      ],
+      "source_sha256": "6bca4c89af480f2e5bf25139b8871c487330a36d170e934559093ec92886ef53",
+      "text": "Endurraða þegar sýnilegt svæði breytir stærð, þar á meðal við breytingar á lóðréttri skrunstiku.\n\n:param watched: Qt-hluturinn sem tók við atvikinu.\n:param event: Qt-atvik sem er skoðað áður en því er vísað til síu grunnklasans.\n:returns: niðurstaða atvikasíu grunnklasans.",
+      "translation_source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
       ]
     },
     "spacr.qt.screens.outliers": {
@@ -91826,27 +92150,35 @@
       "source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-        "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
+        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
         "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
+        "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
+        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "69dd903a0901e2f7be6385182c0d0f03a27af9fe7e358476c4b9dd4521ce0e33",
-      "text": "Lyklaborðsmiðaðir flýtilyklar fyrir spaCR Qt GUI.\n\nSkráir víðværar :class:`QShortcut`-bindingar á aðalglugganum svo hægt sé að nota allt forritið án músar:\n\n    Ctrl+H        Fara heim\n    Ctrl+1..9     Skipta yfir í N-ta forritið í hliðarstikunni\n    Ctrl+K        Opna skipanaspjaldið\n    F1  / ?       Sýna yfirlit flýtilykla\n    Ctrl+P        Opna kjörstillingar\n    Ctrl+/        Opna AI-stjórnborðið\n    Ctrl+End      Fara í nýjustu línu stjórnborðsins F11           Víxla heilskjá forritsins Esc           Loka öllum opnum svargluggum / sprettigluggum\n\n:func:`install` er kallað einu sinni úr ``MainWindow.__init__``. Hver binding er skráð í :data:`SHORTCUTS` svo yfirlitsgluggi flýtilykla haldist samstilltur við það sem raunverulega er tengt.",
+      "source_sha256": "2c0016cbca6016b11b4609e193345a383022b9aecdfe783ff2cdea1217fb1641",
+      "text": "Lyklaborðsmiðaðir flýtilyklar fyrir spaCR Qt GUI.\n\nSkráir víðværar :class:`QShortcut`-bindingar á aðalglugganum svo hægt sé að nota allt forritið án músar:\n\n    Ctrl+0        Fara á upphafssíðu (Cmd+H felur forritið í macOS)\n    Ctrl+1..9     Skipta yfir í N-ta forritið í hliðarstikunni\n    Ctrl+K        Opna skipanaspjaldið\n    Ctrl+Shift+H  Leita í spaCR í reitnum við hlið hjálparvalmyndarinnar\n    F1  / ?       Sýna yfirlit flýtilykla\n    Ctrl+P        Opna kjörstillingar\n    Ctrl+Alt+0    Endurstilla stærðarhlutföll viðmóts (GUI), leturs og forskoðana á 100 %\n    Ctrl+/        Opna AI-stjórnborðið\n    Ctrl+End      Fara í nýjustu línu stjórnborðsins\n    F11           Kveikja eða slökkva á heilskjá\n    Esc           Loka opnum svargluggum eða sprettigluggum\n\n:func:`install` er kallað einu sinni úr ``MainWindow.__init__``. Hver binding er skráð í :data:`SHORTCUTS` svo yfirlitsgluggi flýtilykla haldist samstilltur við það sem raunverulega er tengt.",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-        "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
+        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
         "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "d65a0add9677b70d6bd84a21fb592d982bfa33f878074d8b872aa36a41bf050e",
+        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
+        "63c7624f5ce53bc4193451cf13af672420ca216ccda339640281608f02cbfb1e",
+        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ]
     },
@@ -92582,6 +92914,84 @@
         "9793459ab08ed94b2c5dccd9a5467fcbb905a543bdee595f54e40a64632005e4",
         "84f5e7326f0f91ae6ff7ef0e35ff5424197865d8b8ae7e1a1d3cfa716f44a6da",
         "83b5dc563aedee7b5385b34a22e7d734bd50c7d4deb7a7a7c1a4e75f343db1d4"
+      ]
+    },
+    "spacr.qt.starplast": {
+      "source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ],
+      "source_sha256": "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6",
+      "text": "Setja Starplast upp sérstaklega og ræsa síðan og vakta skjáborðsferli þess.",
+      "translation_source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "Útskýra alfaforritið og stærð niðurhals áður en það er sett upp í eigin umhverfi.\n\n:param parent: lífverusíðan sem á gluggann.\n:param root: valfrjáls rótarmappa fyrir ytri forrit.\n:param job: valfrjáls staðgengill fyrir uppsetningarforrit í prófunum.\nBúa til samþykkis- og framvindustýringar; ekkert er sett upp við það að opna gluggann.",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "Halda glugganum opnum þar til uppsetningarþráður hans hefur stöðvast.\n\n:param event: lokunaratburður Qt; hunsaður meðan beðið er eftir að hætt sé við.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "Stöðva virka undirferla og fresta lokun þar til bakgrunnsvinnslu er lokið.",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "Hefja uppsetningu eftir að ýtt hefur verið sérstaklega á hnappinn og halda Qt móttækilegu.",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.starplast.open_starplast": {
+      "source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d",
+      "text": "Bjóða uppsetningu einu sinni og ræsa síðan sjálfstæða Starplast-forritið.\n\n:param parent: lífverusíðan sem biður um ræsingu.\n:param root: valfrjáls mappa fyrir ytri forrit.\n:returns: undirferli, eða None ef hætt var við eða ræsing mistókst.",
+      "translation_source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
       ]
     },
     "spacr.qt.startup_benchmark": {
@@ -121288,6 +121698,134 @@
         "930f4ca8abdeda9e0f260b828e9fc2e582d41c29fb886cdd6b6765b012f25bc8"
       ]
     },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "Sameiginleg línuregla sem mælir myndhnit án þess að breyta myndpunktum.",
+      "translation_source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Geymir línu í myndpunktum og teiknar hana með hnitavörpun hýsilsins.\n\n:param parent: myndflötur eða sýn sem á hlutinn; sjálfgefið er None.\n\nHýslar senda vörpun úr hnitum viðmótshlutar í myndhnit til :meth:`handle` og andhverfu vörpunina til :meth:`paint`. Aðdráttur og hliðrun breyta aldrei mældri lengd. Myndpunktaeiningar eru alltaf sýndar. Eðlisfræðilegar einingar krefjast skýrrar, staðfestrar kvörðunar með :meth:`set_spacing`; stækkun myndavélar er aldrei áætluð. Hægrismellur hreinsar línuna meðan verkfærið er virkt. Byrjar án línu og kvörðunar og með teikningu óvirka.",
+      "translation_source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "Fjarlægir línuna án þess að breyta virkjun verkfæris eða kvörðun.\n\n:returns: None; sendir ``changed`` jafnvel þótt engin lína hafi verið til staðar.",
+      "translation_source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "Meðhöndlar músaraðgerðir reglunnar; skilar False fyrir aðgerðir sem færa sýnina.\n\n:param event: músarsmellur, hreyfing eða slepping frá myndfleti hýsilsins.\n:param to_image: QPointF viðmótshlutar -> mynd (x, y), eða None utan myndar.\n:returns: True fyrir meðhöndlaðar regluhreyfingar; False þegar hýsillinn á að meðhöndla atburðinn. Hnit utan myndarinnar færa ekki endapunktana.",
+      "translation_source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "Skilar lengd í myndpunktum og eðlisfræðilegri lengd aðeins ef kvörðun er til staðar.\n\n:returns: texti með lengdum með tveimur aukastöfum; tómur áður en lína er til staðar.",
+      "translation_source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "Skilar lengd línunnar, eða None áður en lína er til staðar.\n\n:param physical: False (sjálfgefið) notar myndpunkta; True notar kvarðað bil fyrir hvorn ás, þar með talin ólík lárétt og lóðrétt gildi.\n:returns: Evklíðsk lengd sem float í myndpunktum eða ``unit``; None ef engin lína er til staðar eða óskað er eftir eðlisfræðilegri lengd án kvörðunar.",
+      "translation_source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "Teiknar endapunkta, línu og mæligildi í hnitum viðmótshlutar.\n\n:param painter: virkur teiknari fyrir myndflöt eða sýniglugga hýsilsins.\n:param to_widget: mynd (x, y) -> QPointF eða QPoint viðmótshlutar, eða None.\n:returns: None; teiknar ekkert ef línuna eða annan hvorn varpaðan endapunkt vantar.",
+      "translation_source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "Virkjar teikningu; óvirkjun varðveitir fullgerða línu.\n\n:param active: hvort dráttur með vinstri músarhnappi án breytingalykla mælir í stað þess að breyta.\n:returns: None; sendir ``changed`` eftir að virkjun hefur verið uppfærð.",
+      "translation_source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "Stillir eðlisfræðilega fjarlægð fyrir hvern myndpunkt eða hreinsar kvörðun.\n\n:param x: jákvæð endanleg fjarlægð fyrir hvern láréttan myndpunkt í ``unit``; sjálfgefið er None, sem hreinsar kvörðun og hunsar ``y``.\n:param y: jákvæð endanleg fjarlægð fyrir hvern lóðréttan myndpunkt í ``unit``; sjálfgefið er None, sem notar ``x`` fyrir báða ása.\n:param unit: heiti eðlisfræðilegrar einingar; sjálfgefið er ``'µm'``. Kallandinn gefur bilið í þessari einingu; aðferðin umreiknar ekki einingar.\n:raises ValueError: ef bilið er ekki jákvætt eða ekki endanlegt.\n:returns: None; sendir ``changed`` eftir að kvörðun hefur verið uppfærð.",
+      "translation_source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ]
+    },
     "spacr.qt.widgets.import_workbench": {
       "source_blocks_sha256": [
         "12afa151cd67c2c9d39247b3585fa8011bd90e73f35e4db9f83fc8a61a0687a3",
@@ -125822,6 +126360,122 @@
         "1e64fc4198624eccb8c0e25af3d1a4bd56cf8a61accd51a601667f847001b2cf"
       ]
     },
+    "spacr.qt.widgets.organism_diagram": {
+      "source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ],
+      "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
+      "text": "SwissBioPics-frumur án nettengingar með veljanlegum UniProt-frumuhólfaheitum.\n\nVörpun Toxoplasma hyperLOPIT yfir í SL fylgir Starplast ``celldiagram.py`` eftir Einar Olafsson (MIT, útgáfa 53703bafdf0604576a05b589400051a6b09e62ea). Myndefnið er eftir Philippe Le Mercier, SIB, CC BY 4.0; heimildaskrár fylgja SVG-skjölunum. Falin lýsigögn og höfundarmerki eru aðeins fjarlægð úr birtingarafritinu; upprunalegt tilfang og sýnileg höfundartilvísun haldast. Enginn innflutningur á PyQt6, netbeiðni eða mæld staðsetningargögn koma við sögu.",
+      "translation_source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
+      "source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ],
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "text": "Sameiginleg frumuhólfaheiti hjá Apicomplexa vörpuð á UniProt SL-auðkenni.",
+      "translation_source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL": {
+      "source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ],
+      "source_sha256": "73c1554655fd3d72d268c318ffceee3bbca24d093546eebbc53d26e0ea9b84ec",
+      "text": "Birtingarheiti Toxoplasma hyperLOPIT vörpuð á UniProt SL-auðkenni.\n\nNokkur heiti deila staðsetningu. Heitið fyrir hvatberahimnu heldur ``SL0171`` sem auðkenni og notar útlínu ``SL0173`` þegar það er teiknað.",
+      "translation_source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
+      "source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
+      ],
+      "source_sha256": "46967dcf6ce7f43739f6c2c7fd0c991c513c0d0b2b96a3009dc654612f2d4e99",
+      "text": "Frumumynd og val á frumuhólfi sem hægt er að stjórna með lyklaborði.\n\n:param app_key: lykill lífveru; aðeins Toxoplasma notar hyperLOPIT-heiti.\n:param path: slóð að meðfylgjandi SVG; ekkert ytra tilfang er sótt.\n:param parent: Qt-viðmótshluturinn sem á þennan hlut.\nBúa til upprétta mynd, skýringarlista með fjölvali og lýsingar á frumuhólfum.",
+      "translation_source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent": {
+      "source_blocks_sha256": [
+        "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+        "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "d4b9370619ba261053b1aaa0a49878ae34be123b9c838e708e1ec60367ffaae2",
+      "text": "Endurreiknar frátekið textarými eftir tiltekna breytingu á leturgerð eða tungumáli.\n\n:param event: Qt-breytingaratburður; breytingar á leturgerð og tungumáli ógilda útlitið.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+        "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components": {
+      "source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ],
+      "source_sha256": "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e",
+      "text": "Hreinsa allt viðvarandi val og tímabundna áherslulitun frumuhólfsins.",
+      "translation_source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter": {
+      "source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ],
+      "source_sha256": "3ef33a4ee51bb98fd7e06b673a3b50ec878400657f0c881765303600fb27f665",
+      "text": "Hætta tímabundinni áherslulitun skýringarlistans þegar bendillinn yfirgefur hann.\n\n:param watched: hlutur sem tekur við atburðinum; aðeins birtingarsvæði skýringarlistans veldur því að áherslulitunin er fjarlægð.\n:param event: Qt-atburður sem er athugaður með tilliti til tilkynningar um að bendillinn yfirgefi svæðið.\n:returns: niðurstaða atburðasíu yfirskipaða viðmótshlutarins.",
+      "translation_source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent": {
+      "source_blocks_sha256": [
+        "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+        "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "ad6126ef71b86972528a1a9ed756cb479e386bdf077090667f770ffd80368142",
+      "text": "Tekur frá pláss fyrir lengsta myndatextann einu sinni fyrir hverja breidd; yfirferð með músinni breytir aldrei rúmfræðinni.\n\n:param event: Qt-atburður vegna stærðarbreytingar sem er áframsendur til yfirgræjunnar.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+        "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
+      "source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ],
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "text": "Almenn frumuhólfaheiti hjá gerfrumum sem fjölga sér með knappskotum vörpuð á UniProt SL-auðkenni.",
+      "translation_source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ]
+    },
     "spacr.qt.widgets.outlier_model": {
       "source_blocks_sha256": [
         "888d80f988246807e6a95b845e5d0512f6d257fd80b3a7bf865bfa8bc5984a5a",
@@ -127520,6 +128174,66 @@
       "text": "Til baka stafræna skilyrði fyrir hvert sett sem er boðið í samræmi.",
       "translation_source_blocks_sha256": [
         "ab62ded73a83d9419c4a9e6086a1aa37dd609f1ce23a3044301db4096d7e4681"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details": {
+      "source_blocks_sha256": [
+        "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3"
+      ],
+      "source_sha256": "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3",
+      "text": "Viðvarandi, veljanlegar skýringar á hverjum þætti í vinnslurás.",
+      "translation_source_blocks_sha256": [
+        "d47b19148b144616bb5c634405b952f982577ee2f61d332500487d0886450a94"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails": {
+      "source_blocks_sha256": [
+        "58d11fd96f30c2b5b2ecc76cd58fcdd02ff6e3ef5f90ce30d033dd8e0d94df88",
+        "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+        "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138"
+      ],
+      "source_sha256": "08ab39ee94726f536f77c91d83a66dc1ec0c5d8a9410b3844185f7c236b8f895",
+      "text": "Sýna skref í háðaröð vinnslurásar sem spjöld fyrir einingar og tengingar.\n\n:param parent: Yfirskipaður svargluggi. Spjöld fylla tiltæka breidd hans og texti brotnar í línur þegar breidd gluggans breytist. Val á þætti í grafinu breytir aðeins jaðri hans; það endurgerir aldrei textann né skrunar spjaldinu.\nBúa til ávalt, hálfgegnsætt svæði með stöðugri skrunstöðu.",
+      "translation_source_blocks_sha256": [
+        "d2ea3f1867724feec80d788782ccf16f39765e93b067c22917403de708ea83e2",
+        "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+        "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element": {
+      "source_blocks_sha256": [
+        "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+        "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4"
+      ],
+      "source_sha256": "4db96d6f09b74335474d0c6951ac5bd4b7c8d8de5f67802c7ddfc90eaddbe248",
+      "text": "Ramma inn viðeigandi einingu eða tengingu án þess að færa textann.\n\n:param identifier: Lykill einingar, eða uppruni og áfangastaður tengdir með →.",
+      "translation_source_blocks_sha256": [
+        "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+        "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline": {
+      "source_blocks_sha256": [
+        "470b2916eea05beeb8e95a23104e9060a6891cfc1e9529aa54ca5575aba381e4",
+        "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+        "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74"
+      ],
+      "source_sha256": "bcb12aece7bf363717f21d4a25d633b183b07e2125357aedb7dba148b6489231",
+      "text": "Búa einu sinni til spjöld fyrir nývalda vinnslurás, í háðaröð.\n\n:param entry: Lýsigögn ferlis, þar á meðal titill og samantekt.\n:param diagram: Samsvarandi WorkflowView með hnútum, staðsetningum og leggjum.",
+      "translation_source_blocks_sha256": [
+        "4b154293af980d3abe73f7c5201851d1c6e685c26028ab3d301d3b7dbc54f954",
+        "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+        "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText": {
+      "source_blocks_sha256": [
+        "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0"
+      ],
+      "source_sha256": "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0",
+      "text": "Skila öllum sýnilegum skýringartexta fyrir aðgengi og skoðun.",
+      "translation_source_blocks_sha256": [
+        "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0"
       ]
     },
     "spacr.qt.widgets.pivot_builder": {
@@ -129293,16 +130007,18 @@
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
       ],
-      "source_sha256": "315663779ea36f4e2dbe26e434024fea0649876f49cfefbc76cf11e3ca1d2a6a",
-      "text": "Að byggja Cellpose myndavél með Live View segmentum.\n\n``model_type=`` er samþykkt-og-IGNORED með Cellpose 4 - það logs \"ei notað í v4.0.1+\" og droppar það, yfirgefið ``pretrained_model`` á þörfinu ``cpsam``. Að fara með val notandinn því segmented með ``cpsam`` hvað sem þeir taka, þar á meðal athygli sem þeir hafa bara þjálfað í spaCR eigin Train Cellpose móddur. :func:`spacr.utils._resolve_cellpose_pretrained` er það sem vinnufluð notar: það karts föður-SAM nafna á ``cpsam`` og segir svo einu sinni, og endurheimtir leið óbreytt þegar nafnið er smá-tunned athyglis.\n\nCellpose og torch eru veitt inn í samtalinu, þannig að að innleiðing fyrirmyndarmódula er kallt - eins og prófseturinn gerir - þurfa engin CUDA-gætur stack.\n\n:param model_name: nafnið á myndavélinu eða stefnu sem notandinn hefur valið.\n:param gpu: Vinsamlegast er að velja tæki: ``None`` spyr torch.\n:returns: a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "27ebb95286c0721ad43537e6547a9f9b5bb360291b8a87c954b54df973bc2fcb",
+      "text": "Býr til Cellpose-líkanið sem lifandi sýn notar til að skipta myndum í svæði.\n\nCellpose 4 tekur við ``model_type=`` en hunsar gildið: það skráir \"not used in v4.0.1+\" og sleppir gildinu, þannig að ``pretrained_model`` heldur sjálfgefna gildinu ``cpsam``. Þegar val notandans var sent í þessari breytu fór svæðaskipting því fram með ``cpsam`` óháð valinu, jafnvel þótt valinn væri vistunarpunktur sem hafði rétt áður verið þjálfaður í eigin Train Cellpose-einingu spaCR. Verkflæðið notar :func:`spacr.utils._resolve_cellpose_pretrained`: fallið tengir eldri líkananöfn frá því fyrir SAM við ``cpsam`` og tilkynnir það einu sinni; þegar nafnið vísar á fínstilltan vistunarpunkt skilar það slóðinni óbreyttri.\n\nCellpose og torch eru flutt inn innan kallsins. Því þarf ekki hugbúnaðarumhverfi með CUDA-stuðningi til að flytja forskoðunareiningu inn í fyrsta sinn, eins og prófasafnið gerir.\n\nForskoðun á CPU stillir ``use_bfloat16=False``, bæði þegar ``gpu=False`` er valið sérstaklega og þegar skipt er yfir á CPU vegna þess að greining á hraðli mistókst. Ef Cellpose 4 hafnar Cellpose 3-vistunarpunkti er sérstök samhæfnitilkynning fyrir forskoðun kölluð fram og upphaflega undantekningin varðveitt sem orsök hennar.\n\n:param model_name: líkananafnið eða slóð vistunarpunktsins sem notandinn valdi.\n:param gpu: þvingar fram val á tæki; ``None`` leitar til torch.\n:returns: a ``cellpose.models.CellposeModel``.",
       "translation_source_blocks_sha256": [
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "472b8b4e45187f2ec5eecd988cda5497a89dd95441e0f61a25bc680395810979",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
@@ -131660,6 +132376,54 @@
       "translation_source_blocks_sha256": [
         "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a"
+      ]
+    },
+    "spacr.qt.widgets.sample_project": {
+      "source_blocks_sha256": [
+        "b38450bf202eaf7daedc959d3ae8e3b2a3ead2d523d2d2f059450425fadacdee",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ],
+      "source_sha256": "cbd5722eacde19541f2c7f24f275a54d529ce7067b62777f50dccca5c7b62f15",
+      "text": "Skoðaðu flæðirit vinnslukeðja og ræstu dæmi frá upphafsskjánum ef þú vilt.\n\nGlugginn opnar fyrstu eininguna á valinni leið með dæmigögnum og stillingum. Leiðsagnarhnappur á stöðustikunni heldur leiðinni aðgengilegri eftir að dæmið opnast.\n\nLeiðirnar koma úr ``spacr/resources/module_workflows.json``, sem kennsluefni, leiðsagnir og API-síður deila. Þrjár varaleiðir eru tiltækar ef meðfylgjandi kort vantar.",
+      "translation_source_blocks_sha256": [
+        "88ec6a5ebfb58ea504c92f060e285f104f2542083038ba990abeb7f3017db3c8",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.pathway_graph": {
+      "source_blocks_sha256": [
+        "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+        "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+        "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+        "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+        "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068"
+      ],
+      "source_sha256": "f918be074f571f19b89b2966a77125358dc855eea7f118ca823292ffa70eaa0a",
+      "text": "Bæta ytri inntökum við birtingarafrit án þess að breyta keyranlegum skrefum.\n\n:param entry: Lýsigögn ferlis með valfrjálsum færslum fyrir ytri inntök.\n:param data: Sameiginlegt kort yfir einingar og gagnahluti, sem er látið óbreytt.\n:param steps: Háðir keyranlegra eininga, sem eru látnar óbreyttar.\n:returns: Birtingarkort, hnútaskráarlyklar og háðir, þar á meðal inntakshnútar.",
+      "translation_source_blocks_sha256": [
+        "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+        "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+        "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+        "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+        "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.start_example": {
+      "source_blocks_sha256": [
+        "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+        "bb63595b656f6a664a114f703ed8fc68a1102f33ce4c778649017d2789424dba",
+        "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
+      ],
+      "source_sha256": "e7b246c5356bafda18063dba2b8d19eef7373a970298416e3cf1195ca0c60a6a",
+      "text": "Hlaða dæmigögnum einingarinnar sem ``screen`` sýnir.\n\nHver eining veit þegar hvernig hún sækir sitt eigið dæmi: Annotate spyr hvaða helming þurfi og OPS hefur sitt sýnidæmi með raðgreiningarumferðum. Því er kallað á fyrirliggjandi aðgerð einingarinnar í stað annars niðurhalsforrits.\n\n:param screen: einingarskjárinn sem var rétt í þessu opnaður.\n:returns: það sem var ræst: ``\"chooser\"``, ``\"test data\"`` eða ``\"\"``.",
+      "translation_source_blocks_sha256": [
+        "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+        "a5db3d2bbae4dbed032b3ab10e09841befb48c7442d967607e66fc345186faf7",
+        "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
       ]
     },
     "spacr.qt.widgets.save_figure_dialog": {
@@ -137128,6 +137892,34 @@
       "translation_source_blocks_sha256": [
         "a2bc4b2e817feebd003f8169ed4e1d8b947ead3c7916430538a88b920b32f271",
         "1885637af52d9e125f45699295ec8cb58b7daa38745f66506ba0212375b7ce01"
+      ]
+    },
+    "spacr.qt.widgets.workflow_diagram.details_box": {
+      "source_blocks_sha256": [
+        "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a"
+      ],
+      "source_sha256": "c40644f3cb5d93a1878a990e1686cee5fcdba04317ed257fa0687925f808fec2",
+      "text": "Búa til skrunanlegt skýringarsvæði með breytilegri stærð sem skýringarmyndir deila.\n\n:param parent: Yfirskipað viðmótselement; sjálfgefið gildi er None.\n:returns: QTextBrowser með virkum ytri API-tenglum og inngangstexta. Lágmarkshæð þess er sex línur með letri meginmáls; skiljan stillir hæð þess.",
+      "translation_source_blocks_sha256": [
+        "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a"
+      ]
+    },
+    "spacr.qt.widgets.workflow_diagram.diagram_splitter": {
+      "source_blocks_sha256": [
+        "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+        "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+        "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
+      ],
+      "source_sha256": "a5bf230a1906e43101ab2134c62f82b2db22b00d597b7df6a9d0c9dde32f6387",
+      "text": "Búa til lóðrétta skiptingu svæða með þunnu bláu handfangi sem má draga.\n\n:param parent: Yfirskipaður svargluggi eða ílát.\n:returns: QSplitter sem fellur ekki saman; kallarar bæta við skýringarmyndinni og ítarupplýsingum.",
+      "translation_source_blocks_sha256": [
+        "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+        "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+        "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
       ]
     },
     "spacr.read_background": {
@@ -154190,6 +154982,346 @@
         "c9196885e8b0db48db15ee681fa0647c1b5fe15da513adacf9af9301e6b94b77",
         "c91a57c95fc0f830ea2677e94998d14523598f9c3c3210b0f9d700918e1e0c83",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
+      "source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ],
+      "source_sha256": "a4cb7e2b82abe12ef51cac69c08048338e7e0ad275a5256346831ecf79372e5d",
+      "text": "Skráir grunnnetið og býr til úttakshlutann og uppsýnatökueininguna.\n\nGrunnnetið, eða ``net`` þess, er skráð sem ``encoder`` þegar það er eining, svo vægi þess séu þjálfuð og færð með netinu.",
+      "translation_source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.forward": {
+      "source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ],
+      "source_sha256": "24aa50c47bfe401075b622b32babde16d77b9e1b23ce37479e954dae0c2042ea",
+      "text": "Sameinar eiginleika grunnnetsins úr báðum römmum og spáir fyrir um tímakortin.\n\n:param frame_t: rammi ``t``, ``(B, 3, H, W)``.\n:param frame_t1: rammi ``t+1``, með sömu lögun.\n:returns: ``(B, 3, H, W)``: vigurinn ``(dy, dx)`` og logit-gildi fyrir arftaka.",
+      "translation_source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.head_parameters": {
+      "source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ],
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "text": "Stikar nýju laganna: úttakshlutans og uppsýnatökueiningarinnar.",
+      "translation_source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ]
+    },
+    "spacr.timeflows_model.augment_pair.apply": {
+      "source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ],
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "text": "Beitir fjórðungssnúningum og valfrjálsri speglun þessa kalls á ``array``.",
+      "translation_source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs": {
+      "source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ],
+      "source_sha256": "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611",
+      "text": "Þjálfunarpör úr samliggjandi römmum einnar Cell Tracking Challenge-myndraðar.\n\nRammar úr ``<movie>/<seq>/t*.tif``, heilar grímur úr silfurskiptingunni ``<movie>/<seq>_ST/SEG/man_seg*.tif`` endurmerktar með rakningarmerkjum úr ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Ramma er sleppt ef eitthvert þessara þriggja inntaka vantar og par er aðeins myndað úr tveimur samliggjandi rammanúmerum. Skráarheiti sneiðgríma eru hunsuð og tvítekin rammanúmer hafnað. Með ``segmentation='GT'`` eru heilar grímur lesnar úr ``<seq>_GT/SEG``. Upprunahlutur þar sem merki í næsta ramma vantar ótvíræða heila grímu er útilokaður fyrir það par í stað þess að vera merktur sem horfinn.\n\n:param movie: Mappa myndraðarinnar (t.d. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` eða ``'02'``.\n:param max_pairs: Í mesta lagi svo mörg pör, jafnt dreifð um myndröðina og valin áður en nokkur skrá er lesin. Stilltu þessi mörk til að takmarka ramma sem hlaðast úr löngum myndröðum; heildarsöfn geta þurft tugi gígabæta af minni.\n:param segmentation: ``'ST'`` fyrir silfurgrímur (sjálfgefið í þjálfun), eða ``'GT'`` fyrir gefnar heilar viðmiðunargrímur við staðfestingu.\n:returns: Pörin, í tímaröð.\n:raises ValueError: röðin eða mörkin, tvítekin auðkenni ramma eða fylki merkinga eru ógild.",
+      "translation_source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs.indexed": {
+      "source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ],
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "text": "Tengir rammanúmer við slóð skránna ``prefix*.tif`` í ``folder``.",
+      "translation_source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ]
+    },
+    "spacr.timeflows_model.link_by_timeflows": {
+      "source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ],
+      "source_sha256": "4fb3cb63a37bc6d1b66e917c301e28d6dc57f1930b00f794016f42e79233db7f",
+      "text": "Hvaða hlut í ``t+1`` hver hlutur í ``t`` samsvarar samkvæmt líkaninu.\n\nMynddílar hvers hlutar greiða atkvæði með spáðu vigrunum um næstu miðju hans. Meðaltalsspár þeirra eru paraðar sameiginlega við miðjur hluta í ``t+1`` með ungversku aðferðinni. Hlutir undir ``min_successor`` eða án leyfilegrar pörunar haldast ótengdir. Fjarlægðir eru mældar í þvermálum upprunahlutarins, með lágmarksþvermál sem er einn mynddíll.\n\nFjarlægðarmörkunum er beitt áður en pörun fer fram. Leyfilegar fjarlægðir eru kvarðaðar þannig að þær séu í mesta lagi einn; óparaður valkostur hefur kostnað rétt yfir einum. Fjarlægðarmörk sem eru núll leyfa aðeins nákvæma samsvörun miðja, með kostnaðinum núll. Ómöguleg brún getur því ekki tekið sæti gildrar tengingar. Markmiðið lágmarkar fjarlægðir að viðbættum kostnaði við óparaða valkosti; það hámarkar ekki fjölda tenginga.\n\nÞröskuldar verða að vera endanlegir, með ``min_successor`` á bilinu ``[0, 1]`` og ``max_distance`` ekki neikvætt. Ef annar hvor ramminn inniheldur enga hluti er niðurstaðan tóm án þess að spárnar séu skoðaðar. Annars verður lögun spáfylkjanna að samsvara upprunarammanum, vigrar í forgrunni verða að vera endanlegir og eftirmannslíkur í forgrunni verða að vera á bilinu ``[0, 1]``. Bakgrunnsgildi eru hunsuð. Reiknaðar miðjur hluta verða einnig að vera endanlegar.\n\n:param labels_t: Hlutir ramma ``t``, með hvaða auðkennum sem er.\n:param labels_t1: Hlutir ramma ``t+1``, með hvaða auðkennum sem er.\n:param prediction: Úr :func:`predict_pair`.\n:param min_successor: Eftirmannslíkurnar sem hlutur þarf.\n:param max_distance: Mesta tengifjarlægð, í þvermálum hlutarins.\n:returns: ``{id in t: id in t+1}``.\n:raises ValueError: Ógildir þröskuldar, röng lögun spáfylkja, ógild forgrunnsgildi eða ógildar reiknaðar miðjur hluta.",
+      "translation_source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "0b85dff8c2dab34212bbb914f99fbf4ca35518edce022f2ffcad6689b33b8c7b",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
+    "spacr.timeflows_model.main.record_validation": {
+      "source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ],
+      "source_sha256": "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5",
+      "text": "Tæma biðminni hverrar athugunar strax; lok eru aðeins skráð eftir vistun.",
+      "translation_source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ]
+    },
+    "spacr.timeflows_model.predict_pair.starts": {
+      "source_blocks_sha256": [
+        "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"
+      ],
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "text": "Upphafspunktar reita sem þekja ``extent`` með skörun sem nemur fjórðungi reits.",
+      "translation_source_blocks_sha256": [
+        "ef84c5c36db7702b09bc2d52eeb2cb2841578ab22aa142cf408b20f299eee01f"
+      ]
+    },
+    "spacr.timeflows_model.track_masks_from_ctc": {
+      "source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ],
+      "source_sha256": "5ed2059c473f15002794182a63f6e2807cc36acbcebb0675439ca169ca773775",
+      "text": "Heilar hlutagrímur merktar með TRACK-auðkennum sínum.\n\nCell Tracking Challenge birtir rakningarviðmið sem MARKERS: lítið svæði innan hverrar frumu, merkt með rakningarauðkenni hennar í hverjum ramma. Heilar útlínur eru birtar sérstaklega sem silver-grímur í ``ST/SEG``, merktar eftir römmum. Aðeins ótvíræðar einn-á-móti-einum tengingar eru varðveittar: hluturinn inniheldur nákvæmlega eitt merkjaauðkenni og það merki skarast ekki við annan afmarkaðan hlut. Tengingum án merkis, sameinuðum tengingum og skiptum tengingum er sleppt í stað þess að giska.\n\n:param segmentation: tilviksmerkingar eins ramma, með hvaða auðkennum sem er.\n:param markers: TRA-merki sama ramma, merkt með rakningarauðkenni.\n:returns: ``segmentation`` sem int64, endurmerkt með rakningarauðkenni, en 0 annars staðar.\n:raises ValueError: merkingarnar eru ekki samsvarandi 2-D-fylki af heiltölum sem eru ekki neikvæðar, eða merkjaauðkennin rúmast ekki í int64.",
+      "translation_source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows": {
+      "source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
+      ],
+      "source_sha256": "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6",
+      "text": "Þjálfar fyrst tímalega úttakshlutann og síðan allt netið á pörum með rakningarmerkingum.\n\nÞjálfun í tveimur stigum: grunnnetið hefur þegar lært svæðaskiptingu og er því fryst meðan nýi úttakshlutinn lærir. Síðan er allt netið þjálfað með litlum námshraða. Sömu gagnabreytingar eru gerðar á báðum römmum hvers pars áður en markgildi eru reiknuð.\n\nÞjálfunarútskurður heldur aðeins leiðsögn fyrir heilar upprunagrímur og heilar arftakagrímur þegar þær eru til staðar í öllum markrammanum. Arftaki utan reitsins er ekki hvarf. Fjarvera í gefnum merkingum heilla ramma er áfram notuð sem leiðsögn; þetta staðfestir ekki að merkingarnar séu réttar. Ónothæfir útskurðir eru endurvaldir allt að 32 sinnum í hverju skrefi. Útilokunin kemur í veg fyrir röng markgildi við skurðarmörk en fjarlægir einnig sum dæmi um hraða hreyfingu; hún staðfestir ekki nákvæmni yfir allt hreyfisviðið.\n\n:param net: frá :func:`TimeflowsNet`.\n:param pairs: þjálfunarpörin.\n:param head_steps: skref með frystu grunnneti.\n:param full_steps: skref þar sem allir stikar eru þjálfanlegir.\n:param lr_head: námshraði á þjálfunarstigi úttakshlutans.\n:param lr_full: námshraði á fulla þjálfunarstiginu.\n:param weights: úrtaksvægi fyrir hvert par (:func:`pair_sampling_weights`); jafnt þegar None.\n:param seed: upphafsgildi slembigjafans.\n:param device: ``'cpu'`` eða ``'cuda'``.\n:param log: ``fn(line)`` fyrir framvinduskilaboð.\n:param validation_pairs: Valfrjáls frátekin pör heilla ramma. Nákvæm skörun inntaka við þjálfun er hafnað áður en fyrsta uppfærsla bestarans fer fram.\n:param validation_every: Uppfærslur milli athugana á fráteknum gögnum; sjálfgefið er ein þjálfunarlota með ``len(pairs)`` úrtaksuppfærslum. Upphafsathuganir og athuganir við lok þjálfunarstiga eru alltaf teknar með. Verður að vera jákvætt ef það er gefið.\n:param on_validation: Afturkallsfall sem fær hverja lagskipta staðfestingarskýrslu, þar á meðal þjálfunarstig, fjölda uppfærslna og núverandi þjálfunartap. Valfrjáls staðfesting breytir aldrei samningi skilaða taplistans.\n:returns: tapgildið í hverju skrefi.\n:raises ValueError: engin nothæf leiðsögn er eftir þegar 32 útskurðir hafa verið valdir fyrir eitt skref; skoðaðu heilu grímurnar og hreyfinguna miðað við reitinn.",
+      "translation_source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "edcd27fa0e5d61f7c6e2cf5aab0c1ba0f8e9c8f5beb82a1fd7c9b54afc4716fd",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.report_validation": {
+      "source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ],
+      "source_sha256": "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3",
+      "text": "Greina frá einni athugun á fráteknum gögnum og varðveita þjálfunarástandið.",
+      "translation_source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.run": {
+      "source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ],
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "text": "Þjálfar ``params`` í ``steps`` skref, með grunnnetið fryst eða þjálfanlegt.",
+      "translation_source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ]
+    },
+    "spacr.timeflows_validation": {
+      "source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ],
+      "source_sha256": "a80b2b02caacd7445544e2e50d33ce9e8d60d75a4fc48b3997130f2e7f8b9e71",
+      "text": "Sameiginlegir tengingarskorar miðað við gefnar grímur og athuganir á fráteknum gögnum fyrir Timeflows-þjálfun.\n\nÞessar mælingar eru skilyrtar við gefna skiptingu og rakningarmerkingar. Þær mæla hvorki nákvæmni allrar skiptingarkeðjunnar né rakningar heilla kvikmynda.",
+      "translation_source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ]
+    },
+    "spacr.timeflows_validation.check_pair_holdout": {
+      "source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ],
+      "source_sha256": "ace9ea46bc7f3fe5a25f999b242f6a02dbd9fceb859e2115a9967398c8752618",
+      "text": "Hafna staðfestingarrömmum sem eru eins og eitthvert staðlað þjálfunarinntak.\n\nBáðir endapunktar eru teknir með. Fylling og stytting rása og umbreyting í float32 fylgja eigin inntaksaðlögun líkansins. Þetta greinir eins inntök þótt slóðir eða gagnagerðir séu ólíkar, en ekki næstum eins afrit eða ólíka ramma úr sömu líffræðilegu kvikmynd; CLI hafnar sameiginlegum kvikmyndaslóðum sérstaklega. Skila fingraförum staðfestingarinntaka til að skrá uppruna.\n\n:param training_pairs: Pör þar sem inntaksrammarnir eru notaðir í þjálfun.\n:param validation_pairs: Frátekin pör sem eru ekki tóm og hafa báða inntaksendapunkta.\n:returns: Tvö SHA-256-fingraför staðlaðra inntaka fyrir hvert staðfestingarpar.\n:raises ValueError: Staðfesting er tóm eða inntak kemur einnig fyrir í þjálfun.",
+      "translation_source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ]
+    },
+    "spacr.timeflows_validation.score_pair": {
+      "source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e5d18e910494ef6e5fea2f8bfc035aca3701d61548e1c20790737fd6bdb7af48",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ],
+      "source_sha256": "58049ad9083df64e2ba6dd9e5a8c94a52b27a3c39d730caca8edca5dab02cc59",
+      "text": "Meta upprunahluti eftir að sérstaklega óþekktir arftakar hafa verið útilokaðir.\n\nSameiginleg rakningarauðkenni skilgreina réttar tengingar áður en markauðkennum er víxlað af handahófi. Ef markauðkenni vantar er enginn arftaki, nema upprunaauðkennið sé í ``unknown_successors``; merkingar sem vantar greinast ekki sjálfkrafa. IoU-viðmiði er bætt við gefna spáarvalkosti.\n\n:param labels_t: Upprunagrímur með jákvæðum rakningarauðkennum og núlli sem bakgrunni.\n:param labels_t1: Markgrímur með sömu rakningarauðkennum.\n:param predictions: Nefndar spáarorðabækur sem :func:`spacr.timeflows_model.link_by_timeflows` tekur við; ``iou`` er frátekið.\n:param seed: Sáðgildi fyrir slembivíxlun markauðkenna.\n:param unknown_successors: Upprunaauðkenni sem eru sleppt úr öllum skorum.\n:returns: Rétt svör, spár, réttmæti og hreyfi-/þéttleikaflokkar fyrir hvern hlut.",
+      "translation_source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e2e301feea6a1e076c48a2a29ab175df87b3e3bf06212cb3e496ea0a1d5e6724",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ]
+    },
+    "spacr.timeflows_validation.scramble": {
+      "source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ],
+      "source_sha256": "a02cecb481b946016a854203843c45e8f9af602a6a72bd1ac32eff8cd7025818",
+      "text": "Endurmerkja markhluti án þess að breyta lögun þeirra eða staðsetningu.\n\n:param labels: Fylki markmerkinga þar sem núll er frátekið fyrir bakgrunn.\n:param seed: Slembisáðgildi til að umröða auðkennum sem eru ekki núll.\n:returns: Endurmerkta fylkið og vörpun frá upprunalegum auðkennum í víxluð auðkenni.",
+      "translation_source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ]
+    },
+    "spacr.timeflows_validation.summarise": {
+      "source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ],
+      "source_sha256": "15b886b22ab832957c8d0eb59b23c486ef245d976c570f72804195ec077c12e1",
+      "text": "Sameina niðurstöður vegnar eftir hlutum með skýrum nefnurum fyrir gögn sem vantar.\n\n:param rows: Færslur fyrir hvern hlut úr :func:`score_pair`.\n:returns: Samantektir í heild, eftir hreyfingu, þéttleika og sameiginlegum flokkum. Nákvæmni arftaka er ``None`` þegar engir raunverulegir arftakar eru tiltækir; rangar tengingar og fráhvarf frá tengingu eru talin og stærð viðkomandi þýðis varðveitt.",
+      "translation_source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ]
+    },
+    "spacr.timeflows_validation.temporal_assignment_policy": {
+      "source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ],
+      "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
+      "text": "Lýsa sjálfgefna afkóðaranum sem báðir inngangspunktar staðfestingar nota.",
+      "translation_source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ]
+    },
+    "spacr.timeflows_validation.validate_timeflows": {
+      "source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
+      ],
+      "source_sha256": "7761284c52d1cf433407c0b9fe0881b3a2a61fcade93f8da300e39a129b43d13",
+      "text": "Meta frátekin pör og viðmið án þess að breyta þjálfunarástandi.\n\n``pairs`` inniheldur staðlaða ramma og heilar grímur með rakningarmerkingum. Kallið á :func:`check_pair_holdout` fyrir þjálfun til að staðfesta nákvæman aðskilnað inntaka. Niðurstaðan inniheldur raðir fyrir hvern hlut og færslu-/þéttleikaflokka fyrir núverandi líkan, IoU-, núllhreyfingar- og véfréttarviðmið, auk athugunar með afrituðum ramma. Valfrjálsa ``initial_head`` er heildarmynd af head/up-stikum og biðminnum við upphaf þjálfunar. Það heitir ``initial_head`` því upphafshöfuð líkans sem haldið er áfram að þjálfa er ekki endilega óþjálfað.\n\nÞjálfunar-/matsstillingar eininga, núverandi vogir höfuðs og slembiástand CPU og valins CUDA-tækis eru endurheimt þótt mat kasti undantekningu. Engum bestara er breytt. Skorin sem skilað er varða gefnar grímur, ekki árangur skiptingar, ættir eða rakningu heilla kvikmynda.\n\n:param net: Timeflows-net sem er metið í núverandi ástandi.\n:param pairs: Pör heilla ramma sem eru ekki tóm og hafa samsvarandi rakningarauðkenni.\n:param device: Tæki sem er notað við ályktun og varðveislu slembiástands.\n:param seed: Upphafssáðgildi fyrir slembivíxlun markauðkenna, hækkað fyrir hvert par.\n:param initial_head: Valfrjáls heildarmynd af head/up-stikum og biðminnum.\n:returns: Raðir fyrir hvern hlut, lagskiptar samantektir, viðmið með afrituðum ramma og lýsigögn um tímalega úthlutun.\n:raises ValueError: Pör eru tóm eða lyklar eða lögun upphafshöfuðs eru frábrugðin.",
+      "translation_source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
       ]
     },
     "spacr.timelapse": {

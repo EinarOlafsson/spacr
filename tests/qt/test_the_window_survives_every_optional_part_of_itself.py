@@ -81,35 +81,19 @@ def test_a_screen_that_does_maturity_is_asked_to_do_it(win, monkeypatch):
     assert asked == [1]
 
 
-def test_a_language_pass_that_cannot_run_still_rebuilds_the_demo_tips(
+def test_a_language_pass_that_cannot_run_reports_the_problem(
         win, monkeypatch, caplog):
     from spacr.qt import i18n
 
     monkeypatch.setattr(i18n, "retranslate_widget_tree", _explode)
-    rebuilt = []
-    monkeypatch.setattr(win, "_refresh_demo_status_tips",
-                        lambda: rebuilt.append(1))
 
     with caplog.at_level(logging.ERROR, logger=qt_app.LOG.name):
         win.refresh_language()
 
-    assert rebuilt == [1]
     assert any("UI language" in record.getMessage()
                for record in caplog.records)
 
 
-def test_a_demo_action_deleted_during_shutdown_does_not_stop_the_rest(win):
-    from shiboken6 import delete as _delete_cpp_side
-    from PySide6.QtGui import QAction
-
-    live = QAction("live", win)
-    dead = QAction("dead", win)
-    _delete_cpp_side(dead)
-    win._demo_actions = {"gone": dead, "here": live}
-
-    win._refresh_demo_status_tips()
-
-    assert live.statusTip(), "the action after the deleted one was reached"
 
 
 # --------------------------------------------------------------------------

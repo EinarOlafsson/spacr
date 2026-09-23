@@ -20,9 +20,9 @@ import subprocess
 from typing import Callable, Iterable
 
 
-# This is the one rollout switch for both rendering and extraction. Keep it
-# empty until the feature-411 Phase B catalog handoff and a reviewed first slice.
-ENABLED_MODULES: frozenset[str] = frozenset()
+# This is the one rollout switch for both rendering and extraction. Every
+# enabled module has source-bound helper translations in all nine catalogs.
+ENABLED_MODULES: frozenset[str] = frozenset({"spacr.object", "spacr.timeflows_model"})
 
 
 @dataclass(frozen=True)

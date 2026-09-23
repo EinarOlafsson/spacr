@@ -55,7 +55,7 @@ import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFileDialog, QHBoxLayout, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, QSplitter, QTableWidget,
+    QLineEdit, QPlainTextEdit, QPushButton, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -115,6 +115,7 @@ TABLE_COLUMNS = (
     ("lack_of_fit_p", "Lack-of-fit p"),
     ("note", "Note"),
 )
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
@@ -572,19 +573,21 @@ class DoseResponseScreen(QWidget):
         combos.addStretch(1)
         outer.addLayout(combos)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="dose_response::body")
 
         from matplotlib.figure import Figure
         palette = active_palette()
         self._figure = Figure(figsize=(6.5, 4.6))
         self.canvas = _canvas_class()(self._figure)
         self.canvas.setObjectName("DoseResponseCanvas")
-        body.addWidget(self.canvas)
+        body.add_section(self.canvas, "Dose-response curves",
+                         persist_key="dose_response/Dose-response curves",
+                         stretch=3)
 
-        side = QSplitter(Qt.Vertical, self)
-        side.setChildrenCollapsible(False)
-        self.table = QTableWidget(0, len(TABLE_COLUMNS), self)
+        side = CollapsibleSplitter(Qt.Vertical, self,
+                                   persist_key="dose_response::side")
+        self.table = QTableWidget(0, len(TABLE_COLUMNS))
         install_sorting(self.table)
         self.table.setObjectName("DoseResponseTable")
         self.table.setHorizontalHeaderLabels(
@@ -594,21 +597,20 @@ class DoseResponseScreen(QWidget):
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)
         self.table.itemSelectionChanged.connect(self._on_row_selected)
-        side.addWidget(self.table)
+        side.add_section(self.table, "Fit results",
+                         persist_key="dose_response/Fit results")
 
-        self.report = QPlainTextEdit(self)
+        self.report = QPlainTextEdit()
         self.report.setObjectName("DoseResponseReport")
         self.report.setReadOnly(True)
         self.report.setPlaceholderText(
             "Pick a concentration column and a response column, then Fit.")
-        side.addWidget(self.report)
+        side.add_section(self.report, "Report",
+                         persist_key="dose_response/Report")
         mark_surface(self.table, self.report)
-        side.setStretchFactor(0, 1)
-        side.setStretchFactor(1, 1)
 
-        body.addWidget(side)
-        body.setStretchFactor(0, 3)
-        body.setStretchFactor(1, 2)
+        body.add_pane(side, "Results", stretch=2)
+        self._body_splitter = body
         outer.addWidget(body, 1)
         from ..dnd import install_for
         install_for(self, "dose_response")

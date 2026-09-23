@@ -46,7 +46,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFileDialog, QFormLayout,
     QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
-    QPlainTextEdit, QPushButton, QSpinBox, QSplitter, QTableWidget,
+    QPlainTextEdit, QPushButton, QSpinBox, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -108,6 +108,7 @@ RULE_SETS: Tuple[Tuple[str, Tuple[int, ...]], ...] = (
     ("Nelson (all eight) — most sensitive, most false alarms", RULES_ALL),
     ("Limits only (rule 1) — nothing but 3 sigma", RULES_LIMITS_ONLY),
 )
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
@@ -344,14 +345,16 @@ class ControlChartScreen(QWidget):
         head.addWidget(export)
         outer.addLayout(head)
 
-        body = QSplitter(Qt.Horizontal, self)
-        body.setChildrenCollapsible(False)
-        body.addWidget(self._build_controls())
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="control_chart::body")
+        body.add_pane(self._build_controls(), "Controls", stretch=0)
 
-        right = QSplitter(Qt.Vertical, self)
-        right.setChildrenCollapsible(False)
-        self.canvas = ControlChartCanvas(self)
-        right.addWidget(self.canvas)
+        right = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="control_chart::right")
+        self.canvas = ControlChartCanvas()
+        right.add_section(self.canvas, "Control chart",
+                          persist_key="control_chart/Control chart",
+                          stretch=3)
 
         lower = QWidget(self)
         lower.setObjectName(OUTPUT_OBJECT)
@@ -359,15 +362,18 @@ class ControlChartScreen(QWidget):
         lower_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                         SPACING["sm"], SPACING["sm"])
         lower_layout.setSpacing(SPACING["xs"])
-        self.report = QPlainTextEdit(lower)
+        outputs = CollapsibleSplitter(Qt.Vertical, lower,
+                                      persist_key="control_chart::output")
+        self.report = QPlainTextEdit()
         self.report.setObjectName("ControlChartReport")
         self.report.setReadOnly(True)
         self.report.setMinimumHeight(90)
         self.report.setPlainText("Load a table and pick a plate column and a "
                                  "measurement.")
-        lower_layout.addWidget(self.report, 1)
+        outputs.add_section(self.report, "Report",
+                            persist_key="control_chart/Report")
 
-        self.violations = QTableWidget(0, 4, lower)
+        self.violations = QTableWidget(0, 4)
         install_sorting(self.violations)
         self.violations.setObjectName("ControlChartViolations")
         self.violations.setHorizontalHeaderLabels(
@@ -378,14 +384,13 @@ class ControlChartScreen(QWidget):
         self.violations.horizontalHeader().setSectionResizeMode(
             3, QHeaderView.Stretch)
         self.violations.setMinimumHeight(90)
-        lower_layout.addWidget(self.violations, 1)
-        right.addWidget(lower)
-        right.setStretchFactor(0, 3)
-        right.setStretchFactor(1, 2)
+        outputs.add_section(self.violations, "Rule violations",
+                            persist_key="control_chart/Rule violations")
+        lower_layout.addWidget(outputs, 1)
+        right.add_pane(lower, "Output", stretch=2)
 
-        body.addWidget(right)
-        body.setStretchFactor(0, 0)
-        body.setStretchFactor(1, 1)
+        body.add_pane(right, "Chart", stretch=1)
+        self._body_splitter = body
         outer.addWidget(body, 1)
         from ..dnd import install_for
         install_for(self, "control_chart")

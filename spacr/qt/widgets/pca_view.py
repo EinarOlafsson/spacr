@@ -58,7 +58,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QGridLayout, QHBoxLayout, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
-    QSpinBox, QSplitter, QVBoxLayout, QWidget,
+    QSpinBox, QVBoxLayout, QWidget,
 )
 
 from ..job_runner import JobRunner
@@ -557,6 +557,12 @@ class PCAScoresCanvas(GraphCanvas):
 
 
 
+#: The PCA screen's key (item 471): the features | scores split remembers
+#: its dragged widths under ``"pca::panel"`` and each fold under
+#: ``"pca/<section>"``.
+FOLD_KEY = "pca"
+
+
 class PCAPanel(QWidget):
     """Feature picker, options, scree, scores + biplot, and the report.
 
@@ -603,8 +609,11 @@ class PCAPanel(QWidget):
         outer = QHBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
-        splitter = QSplitter(Qt.Horizontal, self)
-        splitter.setChildrenCollapsible(False)
+        from .collapsible_splitter import CollapsibleSplitter, FoldSection
+
+        splitter = CollapsibleSplitter(Qt.Horizontal, self,
+                                       persist_key=f"{FOLD_KEY}::panel")
+        self.splitter = splitter
         outer.addWidget(splitter, 1)
 
         shelf = QWidget(self)
@@ -688,8 +697,13 @@ class PCAPanel(QWidget):
         shelf_layout.addWidget(self._run)
 
         self.scree = ScreePlot(shelf)
-        shelf_layout.addWidget(self.scree)
-        splitter.addWidget(shelf)
+        self.scree_section = FoldSection(
+            self.scree, "Scree plot", shelf,
+            persist_key=f"{FOLD_KEY}/Scree plot")
+        shelf_layout.addWidget(self.scree_section)
+        self.shelf_section = splitter.add_section(
+            shelf, "Features", persist_key=f"{FOLD_KEY}/Features",
+            stretch=0, extent=320)
 
         right = QWidget(self)
         right_layout = QVBoxLayout(right)
@@ -703,10 +717,9 @@ class PCAPanel(QWidget):
         self.report.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.report.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         right_layout.addWidget(self.report)
-        splitter.addWidget(right)
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        splitter.setSizes([320, 900])
+        self.scores_section = splitter.add_section(
+            right, "Scores", persist_key=f"{FOLD_KEY}/Scores", stretch=1,
+            extent=900)
 
         for widget in (self._scaling, self._nan):
             widget.currentIndexChanged.connect(self._on_option_changed)
