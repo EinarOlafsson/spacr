@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "source_bundle_sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469",
+  "bundle": "docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip",
+  "sha256": "a001d89f6fcd42bc9e4d33a8a0e08b92694fe800c9203f32ccf61b9111bdac91",
+  "pairs": 6,
+  "image_shape": [
+    512,
+    512
+  ],
+  "source_image_and_mask_bytes_preserved": true,
+  "current_training_input_reader_passed": true,
+  "model_training_run": false,
+  "private_extracted_inputs": "/tmp/spacr-training-images-w0ovywp7"
+}

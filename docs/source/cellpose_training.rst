@@ -5,6 +5,11 @@ Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved
 model to another image folder. From **Home → Tools → Make Masks**, open
 **Cellpose Workbench** and choose **Train**.
 
+To follow along, download the
+`six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__
+and extract them. Set Source to the extracted ``training`` folder. Review the
+supplied cell masks in Make Masks, then follow the settings and Run steps below.
+
 Prepare images and masks
 ------------------------
 
