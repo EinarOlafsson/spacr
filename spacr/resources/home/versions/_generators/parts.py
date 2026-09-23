@@ -712,7 +712,7 @@ def big_tile_grid(ctx: Ctx, keys: Sequence[str], *, cols: int, width: int,
     return w
 
 
-class DenseRow(QPushButton):
+class DenseRow(FixedButton):
     """A compact one-line app row: small icon, name, blurb, optional badge.
 
     The "dense list" answer to the tile grid — many more apps above the
@@ -727,18 +727,17 @@ class DenseRow(QPushButton):
     :param show_blurb: whether to draw the blurb after the name.
     :param badge: short text for the badge. Empty draws none.
     :param shortcut: the keyboard shortcut to show. Empty draws none.
+    :param height: row height in px, preserved by the size hints.
     """
 
     def __init__(self, ctx: Ctx, key: str, *, width: int,
                  name_width: int = 136, icon_px: int = 20,
                  show_blurb: bool = True, badge: str = "",
-                 shortcut: str = ""):
+                 shortcut: str = "", height: int = 30):
         """Build one compact launcher row with optional blurb, badge, and shortcut."""
-        super().__init__()
+        super().__init__(width, height)
         self.setObjectName("DenseRow")
         self.setCursor(Qt.PointingHandCursor)
-        self.setFixedWidth(width)
-        self.setFixedHeight(30)
         self.setToolTip(f"{name_of(key)} — {blurb_of(key)}")
 
         row = QHBoxLayout(self)
@@ -786,7 +785,8 @@ class DenseRow(QPushButton):
 def dense_list(ctx: Ctx, keys: Sequence[str], *, width: int,
                name_width: int = 136, show_blurb: bool = True,
                badges: Optional[dict] = None,
-               shortcuts: Optional[dict] = None, spacing: int = 1
+               shortcuts: Optional[dict] = None, spacing: int = 1,
+               height: int = 30,
                ) -> QWidget:
     """A vertical stack of :class:`DenseRow`."""
     w = QWidget()
@@ -798,7 +798,8 @@ def dense_list(ctx: Ctx, keys: Sequence[str], *, width: int,
         col.addWidget(DenseRow(ctx, key, width=width, name_width=name_width,
                                show_blurb=show_blurb,
                                badge=(badges or {}).get(key, ""),
-                               shortcut=(shortcuts or {}).get(key, "")))
+                               shortcut=(shortcuts or {}).get(key, ""),
+                               height=height))
     return w
 
 

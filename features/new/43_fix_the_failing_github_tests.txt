@@ -2146,3 +2146,22 @@ its drop scanner running; it now shuts down after the unchanged timed
 assertion, and all5 latency cases pass with no runner report. No CI threshold,
 coverage baseline or rendering tolerance was relaxed. Home review-generator
 clipping, Qt crash cases and broader CI/coverage acceptance remain open.
+
+2026-09-22 — HOME REVIEW LAYOUT REGRESSIONS REPAIRED
+The three organism launchers now have explicit assay-oriented placements in
+all five review categorisations instead of growing fallback Review/Report
+bands. Annotation belongs to the Segment stage. The largest stage still has
+11 entries; no coverage, clipping, overflow, or scrollbar guard was relaxed.
+DenseRow now reports its intended size through FixedButton. Variant 04 uses
+independent category columns so a tall reporting category cannot squeeze the
+small panels. Variant 13 balances whole sections by their row counts, uses
+explicit 26px rows, and retains all names and descriptions on one line.
+All 30 variants were rebuilt in dark/light/space: 90 images pass dimensions
+and nonblank checks at 1440x900. Refreshed VARIANTS.md, contact sheet and audit.
+Changed layouts 04,13,17 are clean in all themes. The earlier overflow entries
+for 01 and 02 remain explicitly recorded; this is not a full-green CI claim.
+96 focused Home-variant tests pass in 13.49s. The sandbox guard reports a
+concurrent external QSettings writer, while confirming this process is
+sandboxed. Private logs are in implementation-20260922/ci-followup/
+home-assets-final.log and home-refresh.log; visual review covered 04/13/17.
+CI dispatch 35807838039 still has other old-revision failures to reconcile.
