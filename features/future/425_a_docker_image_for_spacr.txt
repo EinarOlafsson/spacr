@@ -4,24 +4,17 @@ A DOCKER IMAGE FOR spaCR
 
 Filed as 416 on 2026-09-18; renumbered 2026-09-19 because 416 also names features/new/416_an_update_removes_every_older_spacr_first.txt.
 
-Status:    BUILT, AND PROVEN FOR THE CPU IMAGE. 2026-09-19. Every open
-           question below was answered by the maintainer on 2026-09-19 and
-           every answer is implemented: two Dockerfiles, an entrypoint, a
-           smoke script, one release workflow and an installer-guide section.
-           The CPU image was built on this box and its three checks pass
-           inside it.
-
-           NOT YET PROVEN, and named here so nobody assumes otherwise: the
-           CUDA image has never been built anywhere, and the workflow has
-           never run. Both are closed by the next release, which calls the
-           workflow as a job and builds and smoke-tests each image before it
-           pushes it. That gate withholds an image; it cannot stop a release,
-           because the images are built from the commit the release is about
-           to tag and PyPI is immutable by then. A failed check therefore
-           publishes nothing and turns the release run red, while the GitHub
-           release still carries the installers that did build. See the
-           2026-09-19 notes at the foot for the measurements and for what a
-           reviewer should check.
+Status:    BUILT AND PUBLISHED; real GPU execution remains unproven.
+           Verified 2026-09-23: both images passed the 1.5.0.9 release's
+           build, CPU pipeline smoke and publication jobs on September22.
+           Anonymous registry reads retrieve both versioned manifests and
+           configs, with digests matching that release's push logs. Current
+           nightly source318c17d1e also passes both image builds and their
+           smoke gates in non-publishing run35822253091. The CUDA image is
+           additionally built and CPU-validated locally with memory caps.
+           No GPU work starts before the required20-minute idle interval.
+           Receipt:425_ci_and_public_registry_2026-09-23.json. Historical
+           never-built/unpublished statements below are superseded.
 
            The original filing is kept below unchanged; the OPEN QUESTIONS
            section is now answered rather than open, and each answer is
@@ -450,3 +443,28 @@ https://github.com/EinarOlafsson/spacr/actions/runs/35822253091
 Plan job107056408568 passed. Its actual log confirms variants["cpu","cuda"]
 and push false. Image jobs107056507499(CPU) and107056507490(CUDA) are queued;
 follow those handles instead of starting another run. No CI success claimed.
+
+2026-09-23 — BOTH CI BUILDS PASS; EXISTING RELEASE PUBLICATION VERIFIED
+Run35822253091 completed SUCCESS at exact318c17d1e. CPU job107056507499
+and CUDA job107056507490 both built their image, verified1.5.0.9 plus the
+checkout revision label, checked non-root and arbitrary UID startup, and
+passed all7external_masks -> Measure assertions. Login and Push were
+SKIPPED, as requested. This run did not publish or replace an image.
+
+The preceding notes also missed an EXISTING successful release. Read-only
+inspection of release35688066187 proves the September22 release already
+built, smoke-tested and published both1.5.0.9 images. Its container jobs
+106628135506(CPU) and106628135574(CUDA) passed. Anonymous GHCR manifest AND
+config requests now return200; their manifest digests match the push logs:
+  CPU:  sha256:d46b480658f5dc5f3bc92b2281595da4eed78d0dffc12531917dde638db28139
+  CUDA: sha256:80f47a470526f182626dd25194266f06ec31695efa0598c148cc15d810a67da2
+Both are Linux/amd64, version1.5.0.9, default user spacr. No visibility
+change is needed. The small manifest/config blobs were fetched; this is not
+a new full image pull or a GPU inference result.
+
+The published revision labels contain release caller53b0e63d rather than
+actual installer checkout79d71a9, confirming the label defect fixed by
+318c17d1e. Keep those published version tags intact; future releases carry
+the repaired label. The full evidence is in
+features/data/425_ci_and_public_registry_2026-09-23.json.
+Only real GPU execution from the original WHAT IS LEFT list remains open.

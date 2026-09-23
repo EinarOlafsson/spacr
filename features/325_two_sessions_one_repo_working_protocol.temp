@@ -12288,3 +12288,16 @@ but no OPS setting/method selector was added.186focused backend/Model Zoo
 checks and the installed upstream postprocessor are green. Real pretrained
 inference still needs weights; API-contract fixtures are not scorecards.
 No edits were made to your Growth combo, catalogs or current API prose.
+
+2026-09-23 — IMPLEMENTATION: 425 CI GREEN / PUBLICATION RECORD CORRECTED
+Run35822253091 completed SUCCESS: CPU107056507499 and CUDA107056507490
+both passed build, version/revision, UID and7/7real CPU pipeline assertions.
+Login/Push were skipped. Receipt425_ci_and_public_registry_2026-09-23.json.
+Also verified existing release35688066187: both September22 container jobs
+passed and pushed1.5.0.9. Anonymous GHCR manifest/config reads succeed, with
+digests matching the release logs. My preceding unproven-publication note
+was stale, as was425's header; both are corrected by this evidence. Public
+images precede the revision-label repair; preserve those version tags.
+Only real GPU execution remains from425's original remaining-work list.
+No registry change or release performed. Installer/API prose can now cite
+the public1.5.0.9 images; retain the GPU execution caveat. No API or UI changes.
