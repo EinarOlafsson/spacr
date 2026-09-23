@@ -499,3 +499,42 @@ with float32 on CPU under8GiB/no-swap/two-thread limits. Output directory:
 Receipt426_explicit_evaluation_precision_2026-09-23.json. No score is claimed
 before completion; follow this handle, not the deliberately terminated one.
 No training, checkpoint edit, runtime model or GUI/default tracking change.
+
+2026-09-23 — NINE-PAIR WHOLE-FRAME SYNTHETIC EVALUATION COMPLETE
+The existing CPU float32 run produced9/9 pair records and a complete summary
+in5277.7seconds (87.96minutes). Both summaries reconstruct exactly from all
+per-object rows.42unique source image/SEG/TRA files, checkpoint, metadata,
+evaluator and model-source hashes were rechecked and match. Canonical PID
+3826949 and its systemd scope have ended. Outer exec handle34317 returned143
+when finally polled despite the complete on-disk result and normal scope
+accounting; a clean zero process exit is NOT claimed. No rerun was launched.
+
+Fluo-N2DH-SIM+ is synthetic, not real microscopy. Supplied GT full masks;
+sequence01; gaps1/12/24,three preselected whole690x628pairs each. This measures
+linking, not segmentation or end-to-end movie tracking.348source objects:
+277have a successor,71do not. Summary:
+
+  arm          correct/277  accuracy   false links among71without successor
+  IoU          256          92.42%     35
+  trained      249          89.89%     41
+  zero motion  243          87.73%     40
+  random head    0           0.00%      0 (abstained on all277successors)
+  oracle       277         100.00%      0
+
+Motion below0.5diameter: trained225/240,IoU240/240,zero221/240.
+Motion0.5–1diameter: trained22/28,IoU16/28,zero22/28.
+Motion>=1diameter: trained2/9,IoU0/9,zero0/9,oracle9/9.
+Gap1trained/IoU both116/116;gap12trained80/95vsIoU85/95;
+gap24trained53/66vsIoU55/66. Copied-frame control348/348fortrainedandIoU.
+Repeated cells across pairs are not independent biological replicates.
+Only9hard successors from one synthetic sequence is inadequate evidence of
+robust fast-motion performance. Position/overlap controls remain essential.
+
+Do not promote v1: it underperforms IoU overall and falsely links41/71objects
+without successors. The checkpoint predates corrected independent-pair
+sampling, and no training occurred here. Next: corrected-sampler training,
+real held-out microscopy with sufficient hard motion, successor calibration,
+and segmentation/whole-movie stable-ID/division/gap integration. The 426goal
+remains open. Receipt426_timeflows_v1_stratified_sim_evaluation_2026-09-23.json
+contains full stratified summaries, per-gap/per-pair results, hashes, all
+input paths, exclusions, execution evidence and explicit limits.

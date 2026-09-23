@@ -1,0 +1,2048 @@
+{
+  "feature": 426,
+  "date": "2026-09-23",
+  "assessment": "Do not promote timeflows_v1: worse overall successor accuracy than IoU, weak hard-motion recovery, and many false links when no successor exists.",
+  "completed_summary": {
+    "checkpoint": "/mnt/wd4tb/af3/projects/live_cell/timeflows/timeflows_v1.pt",
+    "checkpoint_sha256": "e9060390f1a5b13a587dbd5bee434ef2a6e41373c52ceecb884c38a833a851fc",
+    "checkpoint_metadata": {
+      "base": "cpsam",
+      "movies": [
+        "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+        "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+        "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+        "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+        "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+        "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa"
+      ],
+      "pairs": 694,
+      "max_pairs_per_sequence": 60,
+      "head_steps": 2000,
+      "full_steps": 2000,
+      "final_loss": 0.050018150359392166
+    },
+    "metadata_sha256": "7567329a3c22cfbddec7fab255504280241c0247b21b0cde502bcc1f57461b47",
+    "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+",
+    "data_kind": "synthetic",
+    "segmentation_source": "GT",
+    "device": "cpu",
+    "seed": 0,
+    "requested_precision": "float32",
+    "selected_pairs": 9,
+    "pairs_per_gap": 3,
+    "gaps_frames": [
+      1,
+      12,
+      24
+    ],
+    "software": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "torch": "2.6.0",
+      "cellpose": "4.2.1.1",
+      "tifffile": "2023.4.12"
+    },
+    "evaluator_sha256": "acf021bd0a76a9d2f8b087ad4db9aed7b085c61d5e69b786c9cc5c76d2cc8f6d",
+    "model_code_sha256": "dbc80a62c236f1160940a9cea4018e94267726d93b455822f162ace93d194aba",
+    "scope": "Linking given supplied full segmentation, not end-to-end segmentation/tracking accuracy.",
+    "holdout_check": "Resolved movie paths and aliases; not a content comparison against all training images.",
+    "controls": "IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.",
+    "precision": {
+      "requested": "float32",
+      "checkpoint_encoder": "torch.bfloat16",
+      "effective_encoder": "torch.float32",
+      "checkpoint_floating_dtypes": [
+        "torch.bfloat16",
+        "torch.float32"
+      ],
+      "effective_floating_dtypes": [
+        "torch.float32"
+      ]
+    },
+    "complete": true,
+    "seconds": 5277.714530366997,
+    "results": {
+      "overall": {
+        "sources": 348,
+        "true_successors": 277,
+        "no_successor": 71,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 256,
+            "successor_accuracy": 0.924187725631769,
+            "false_links_without_successor": 35,
+            "abstentions_with_successor": 20
+          },
+          "oracle": {
+            "correct_successor_links": 277,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 277
+          },
+          "trained": {
+            "correct_successor_links": 249,
+            "successor_accuracy": 0.8989169675090253,
+            "false_links_without_successor": 41,
+            "abstentions_with_successor": 26
+          },
+          "zero_motion": {
+            "correct_successor_links": 243,
+            "successor_accuracy": 0.8772563176895307,
+            "false_links_without_successor": 40,
+            "abstentions_with_successor": 32
+          }
+        }
+      },
+      "motion": {
+        "below_0.5": {
+          "sources": 240,
+          "true_successors": 240,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 240,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 240,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 240
+            },
+            "trained": {
+              "correct_successor_links": 225,
+              "successor_accuracy": 0.9375,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 15
+            },
+            "zero_motion": {
+              "correct_successor_links": 221,
+              "successor_accuracy": 0.9208333333333333,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 19
+            }
+          }
+        },
+        "0.5_to_1": {
+          "sources": 28,
+          "true_successors": 28,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 16,
+              "successor_accuracy": 0.5714285714285714,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 12
+            },
+            "oracle": {
+              "correct_successor_links": 28,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 28
+            },
+            "trained": {
+              "correct_successor_links": 22,
+              "successor_accuracy": 0.7857142857142857,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 6
+            },
+            "zero_motion": {
+              "correct_successor_links": 22,
+              "successor_accuracy": 0.7857142857142857,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 6
+            }
+          }
+        },
+        "at_least_1": {
+          "sources": 9,
+          "true_successors": 9,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 8
+            },
+            "oracle": {
+              "correct_successor_links": 9,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 9
+            },
+            "trained": {
+              "correct_successor_links": 2,
+              "successor_accuracy": 0.2222222222222222,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 5
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 7
+            }
+          }
+        },
+        "no_successor": {
+          "sources": 71,
+          "true_successors": 0,
+          "no_successor": 71,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 35,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 41,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 40,
+              "abstentions_with_successor": 0
+            }
+          }
+        }
+      },
+      "density": {
+        "zero": {
+          "sources": 4,
+          "true_successors": 0,
+          "no_successor": 4,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 1,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "one_to_three": {
+          "sources": 15,
+          "true_successors": 10,
+          "no_successor": 5,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 1,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 10
+            },
+            "trained": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 1,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 1,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_four": {
+          "sources": 329,
+          "true_successors": 267,
+          "no_successor": 62,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 246,
+              "successor_accuracy": 0.9213483146067416,
+              "false_links_without_successor": 34,
+              "abstentions_with_successor": 20
+            },
+            "oracle": {
+              "correct_successor_links": 267,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 267
+            },
+            "trained": {
+              "correct_successor_links": 239,
+              "successor_accuracy": 0.8951310861423221,
+              "false_links_without_successor": 39,
+              "abstentions_with_successor": 26
+            },
+            "zero_motion": {
+              "correct_successor_links": 233,
+              "successor_accuracy": 0.8726591760299626,
+              "false_links_without_successor": 39,
+              "abstentions_with_successor": 32
+            }
+          }
+        }
+      },
+      "motion_by_density": {
+        "below_0.5/zero": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "below_0.5/one_to_three": {
+          "sources": 10,
+          "true_successors": 10,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 10
+            },
+            "trained": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 10,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "below_0.5/at_least_four": {
+          "sources": 230,
+          "true_successors": 230,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 230,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 230,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 230
+            },
+            "trained": {
+              "correct_successor_links": 215,
+              "successor_accuracy": 0.9347826086956522,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 15
+            },
+            "zero_motion": {
+              "correct_successor_links": 211,
+              "successor_accuracy": 0.9173913043478261,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 19
+            }
+          }
+        },
+        "0.5_to_1/zero": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "0.5_to_1/one_to_three": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "0.5_to_1/at_least_four": {
+          "sources": 28,
+          "true_successors": 28,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 16,
+              "successor_accuracy": 0.5714285714285714,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 12
+            },
+            "oracle": {
+              "correct_successor_links": 28,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 28
+            },
+            "trained": {
+              "correct_successor_links": 22,
+              "successor_accuracy": 0.7857142857142857,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 6
+            },
+            "zero_motion": {
+              "correct_successor_links": 22,
+              "successor_accuracy": 0.7857142857142857,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 6
+            }
+          }
+        },
+        "at_least_1/zero": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_1/one_to_three": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "oracle": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_1/at_least_four": {
+          "sources": 9,
+          "true_successors": 9,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 8
+            },
+            "oracle": {
+              "correct_successor_links": 9,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "random_head": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 9
+            },
+            "trained": {
+              "correct_successor_links": 2,
+              "successor_accuracy": 0.2222222222222222,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 5
+            },
+            "zero_motion": {
+              "correct_successor_links": 0,
+              "successor_accuracy": 0.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 7
+            }
+          }
+        }
+      }
+    },
+    "copied_frame_control": {
+      "overall": {
+        "sources": 348,
+        "true_successors": 348,
+        "no_successor": 0,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 348,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "trained": {
+            "correct_successor_links": 348,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          }
+        }
+      },
+      "motion": {
+        "below_0.5": {
+          "sources": 348,
+          "true_successors": 348,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 348,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 348,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "0.5_to_1": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_1": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "no_successor": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        }
+      },
+      "density": {
+        "zero": {
+          "sources": 4,
+          "true_successors": 4,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 4,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 4,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "one_to_three": {
+          "sources": 15,
+          "true_successors": 15,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 15,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 15,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_four": {
+          "sources": 329,
+          "true_successors": 329,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 329,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 329,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        }
+      },
+      "motion_by_density": {
+        "below_0.5/zero": {
+          "sources": 4,
+          "true_successors": 4,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 4,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 4,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "below_0.5/one_to_three": {
+          "sources": 15,
+          "true_successors": 15,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 15,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 15,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "below_0.5/at_least_four": {
+          "sources": 329,
+          "true_successors": 329,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 329,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 329,
+              "successor_accuracy": 1.0,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "0.5_to_1/zero": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "0.5_to_1/one_to_three": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "0.5_to_1/at_least_four": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_1/zero": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_1/one_to_three": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        },
+        "at_least_1/at_least_four": {
+          "sources": 0,
+          "true_successors": 0,
+          "no_successor": 0,
+          "arms": {
+            "iou": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            },
+            "trained": {
+              "correct_successor_links": 0,
+              "successor_accuracy": null,
+              "false_links_without_successor": 0,
+              "abstentions_with_successor": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "per_gap": {
+    "1": {
+      "sources": 117,
+      "true_successors": 116,
+      "no_successor": 1,
+      "arms": {
+        "iou": {
+          "correct_successor_links": 116,
+          "successor_accuracy": 1.0,
+          "false_links_without_successor": 1,
+          "abstentions_with_successor": 0
+        },
+        "oracle": {
+          "correct_successor_links": 116,
+          "successor_accuracy": 1.0,
+          "false_links_without_successor": 0,
+          "abstentions_with_successor": 0
+        },
+        "random_head": {
+          "correct_successor_links": 0,
+          "successor_accuracy": 0.0,
+          "false_links_without_successor": 0,
+          "abstentions_with_successor": 116
+        },
+        "trained": {
+          "correct_successor_links": 116,
+          "successor_accuracy": 1.0,
+          "false_links_without_successor": 1,
+          "abstentions_with_successor": 0
+        },
+        "zero_motion": {
+          "correct_successor_links": 116,
+          "successor_accuracy": 1.0,
+          "false_links_without_successor": 1,
+          "abstentions_with_successor": 0
+        }
+      }
+    },
+    "12": {
+      "sources": 119,
+      "true_successors": 95,
+      "no_successor": 24,
+      "arms": {
+        "iou": {
+          "correct_successor_links": 85,
+          "successor_accuracy": 0.8947368421052632,
+          "false_links_without_successor": 10,
+          "abstentions_with_successor": 10
+        },
+        "oracle": {
+          "correct_successor_links": 95,
+          "successor_accuracy": 1.0,
+          "false_links_without_successor": 0,
+          "abstentions_with_successor": 0
+        },
+        "random_head": {
+          "correct_successor_links": 0,
+          "successor_accuracy": 0.0,
+          "false_links_without_successor": 0,
+          "abstentions_with_successor": 95
+        },
+        "trained": {
+          "correct_successor_links": 80,
+          "successor_accuracy": 0.8421052631578947,
+          "false_links_without_successor": 10,
+          "abstentions_with_successor": 15
+        },
+        "zero_motion": {
+          "correct_successor_links": 76,
+          "successor_accuracy": 0.8,
+          "false_links_without_successor": 9,
+          "abstentions_with_successor": 19
+        }
+      }
+    },
+    "24": {
+      "sources": 112,
+      "true_successors": 66,
+      "no_successor": 46,
+      "arms": {
+        "iou": {
+          "correct_successor_links": 55,
+          "successor_accuracy": 0.8333333333333334,
+          "false_links_without_successor": 24,
+          "abstentions_with_successor": 10
+        },
+        "oracle": {
+          "correct_successor_links": 66,
+          "successor_accuracy": 1.0,
+          "false_links_without_successor": 0,
+          "abstentions_with_successor": 0
+        },
+        "random_head": {
+          "correct_successor_links": 0,
+          "successor_accuracy": 0.0,
+          "false_links_without_successor": 0,
+          "abstentions_with_successor": 66
+        },
+        "trained": {
+          "correct_successor_links": 53,
+          "successor_accuracy": 0.803030303030303,
+          "false_links_without_successor": 30,
+          "abstentions_with_successor": 11
+        },
+        "zero_motion": {
+          "correct_successor_links": 51,
+          "successor_accuracy": 0.7727272727272727,
+          "false_links_without_successor": 30,
+          "abstentions_with_successor": 13
+        }
+      }
+    }
+  },
+  "pairs": [
+    {
+      "sequence": "01",
+      "gap_frames": 1,
+      "frame_numbers": [
+        0,
+        1
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t000.tif",
+            "sha256": "429aa3a7c37709d15aba894d3c4f3ff1fa0ecf88c689432d129c07a76ee4a2a9"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg000.tif",
+            "sha256": "3908624e74d2c8a8fe316baf44f0849eef28c14755351f99b67ba1ce1ccbaa6f"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track000.tif",
+            "sha256": "3908624e74d2c8a8fe316baf44f0849eef28c14755351f99b67ba1ce1ccbaa6f"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t001.tif",
+            "sha256": "12281a55819eae5a02569f94a3a75c1443fa630a438f6fc3ce011a37c92d58c1"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg001.tif",
+            "sha256": "886ed5e31701f404bb65311fba4a86cb799eda0df80565bf335d8d70a3bfa33b"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track001.tif",
+            "sha256": "886ed5e31701f404bb65311fba4a86cb799eda0df80565bf335d8d70a3bfa33b"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 30,
+        "true_successors": 30,
+        "no_successor": 0,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 30,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "oracle": {
+            "correct_successor_links": 30,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 30
+          },
+          "trained": {
+            "correct_successor_links": 30,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "zero_motion": {
+            "correct_successor_links": 30,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 1,
+      "frame_numbers": [
+        32,
+        33
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t032.tif",
+            "sha256": "b3d6d261bc01f10a70ae2553b7599f4013e8d952bbec934256dd427f158822d1"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg032.tif",
+            "sha256": "2b64326a88834cdc457b6e169151767f390962520ed0adc7356667ebb6edafd0"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track032.tif",
+            "sha256": "2b64326a88834cdc457b6e169151767f390962520ed0adc7356667ebb6edafd0"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t033.tif",
+            "sha256": "84f47eb14b4071fe55750e3fd4f20b27e34a9a39517b04f6758ae906769f0a19"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg033.tif",
+            "sha256": "d19983e0cd68b6aad7fb4aa444180922677e463f50923d928601e8e6d1f30aad"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track033.tif",
+            "sha256": "d19983e0cd68b6aad7fb4aa444180922677e463f50923d928601e8e6d1f30aad"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 43,
+        "true_successors": 43,
+        "no_successor": 0,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "oracle": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 43
+          },
+          "trained": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "zero_motion": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 1,
+      "frame_numbers": [
+        63,
+        64
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t063.tif",
+            "sha256": "3835be3a1a792891422cabeb9b528fffe8fbba31a3b2c24e006d937f8ad2a355"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg063.tif",
+            "sha256": "7e51575b81c1a4654a16f2e387d6ce2c12307827150451ad5ad4d4be14ab9981"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track063.tif",
+            "sha256": "7e51575b81c1a4654a16f2e387d6ce2c12307827150451ad5ad4d4be14ab9981"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t064.tif",
+            "sha256": "4379a0c13e8bc2356d7db3be1a932e7332c002dc17cd169300ae9c428b36b3e3"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg064.tif",
+            "sha256": "c6674698d1f005a3232fdf494045b4745a216535bd48fe60d44993cf52238697"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track064.tif",
+            "sha256": "c6674698d1f005a3232fdf494045b4745a216535bd48fe60d44993cf52238697"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 44,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 44,
+        "true_successors": 43,
+        "no_successor": 1,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 1,
+            "abstentions_with_successor": 0
+          },
+          "oracle": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 43
+          },
+          "trained": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 1,
+            "abstentions_with_successor": 0
+          },
+          "zero_motion": {
+            "correct_successor_links": 43,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 1,
+            "abstentions_with_successor": 0
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 12,
+      "frame_numbers": [
+        0,
+        12
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t000.tif",
+            "sha256": "429aa3a7c37709d15aba894d3c4f3ff1fa0ecf88c689432d129c07a76ee4a2a9"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg000.tif",
+            "sha256": "3908624e74d2c8a8fe316baf44f0849eef28c14755351f99b67ba1ce1ccbaa6f"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track000.tif",
+            "sha256": "3908624e74d2c8a8fe316baf44f0849eef28c14755351f99b67ba1ce1ccbaa6f"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t012.tif",
+            "sha256": "b52400c5b66d8338522ba8840f552454403455c4dd19a2aa08712ff2258b9f77"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg012.tif",
+            "sha256": "2a69294fb04388dfe5319ec55da3ff4f23a3933d4cbbc41f9ff56a44b6a0ea1c"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track012.tif",
+            "sha256": "2a69294fb04388dfe5319ec55da3ff4f23a3933d4cbbc41f9ff56a44b6a0ea1c"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 33,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 30,
+        "true_successors": 27,
+        "no_successor": 3,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 27,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 0
+          },
+          "oracle": {
+            "correct_successor_links": 27,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 27
+          },
+          "trained": {
+            "correct_successor_links": 27,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 0
+          },
+          "zero_motion": {
+            "correct_successor_links": 27,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 0
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 12,
+      "frame_numbers": [
+        26,
+        38
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t026.tif",
+            "sha256": "23c78dbf060097a204536fc32a9bc8e4c2cacb4c87f9b56e754e336d76122245"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg026.tif",
+            "sha256": "2296c0eb910d5669f97eed59cf21ba59af8eddab07002c86b8bde2e5d57f2f6a"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track026.tif",
+            "sha256": "2296c0eb910d5669f97eed59cf21ba59af8eddab07002c86b8bde2e5d57f2f6a"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t038.tif",
+            "sha256": "6fc942c4a0b95e5870bbfca77dcfc86d6dce902d1368ff4fc46f1ad317eaa620"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg038.tif",
+            "sha256": "d7d7c4d28cc37701868ba90a82f3a6137b941c3d4ee298be131655cdbf53d616"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track038.tif",
+            "sha256": "d7d7c4d28cc37701868ba90a82f3a6137b941c3d4ee298be131655cdbf53d616"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 43,
+        "true_successors": 34,
+        "no_successor": 9,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 30,
+            "successor_accuracy": 0.8823529411764706,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 4
+          },
+          "oracle": {
+            "correct_successor_links": 34,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 34
+          },
+          "trained": {
+            "correct_successor_links": 26,
+            "successor_accuracy": 0.7647058823529411,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 8
+          },
+          "zero_motion": {
+            "correct_successor_links": 25,
+            "successor_accuracy": 0.7352941176470589,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 9
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 12,
+      "frame_numbers": [
+        52,
+        64
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t052.tif",
+            "sha256": "1f8fec535bbf24f7124883eba0149d6e8b45d0e45057855dc4f8403fb6d2bf1d"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg052.tif",
+            "sha256": "c33eaab6b7dba2bd973793cb0efbcf2eebaa3ace440c39f299bf2ff0e715e604"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track052.tif",
+            "sha256": "c33eaab6b7dba2bd973793cb0efbcf2eebaa3ace440c39f299bf2ff0e715e604"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t064.tif",
+            "sha256": "4379a0c13e8bc2356d7db3be1a932e7332c002dc17cd169300ae9c428b36b3e3"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg064.tif",
+            "sha256": "c6674698d1f005a3232fdf494045b4745a216535bd48fe60d44993cf52238697"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track064.tif",
+            "sha256": "c6674698d1f005a3232fdf494045b4745a216535bd48fe60d44993cf52238697"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 46,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 46,
+        "true_successors": 34,
+        "no_successor": 12,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 28,
+            "successor_accuracy": 0.8235294117647058,
+            "false_links_without_successor": 4,
+            "abstentions_with_successor": 6
+          },
+          "oracle": {
+            "correct_successor_links": 34,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 34
+          },
+          "trained": {
+            "correct_successor_links": 27,
+            "successor_accuracy": 0.7941176470588235,
+            "false_links_without_successor": 4,
+            "abstentions_with_successor": 7
+          },
+          "zero_motion": {
+            "correct_successor_links": 24,
+            "successor_accuracy": 0.7058823529411765,
+            "false_links_without_successor": 3,
+            "abstentions_with_successor": 10
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 24,
+      "frame_numbers": [
+        0,
+        24
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t000.tif",
+            "sha256": "429aa3a7c37709d15aba894d3c4f3ff1fa0ecf88c689432d129c07a76ee4a2a9"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg000.tif",
+            "sha256": "3908624e74d2c8a8fe316baf44f0849eef28c14755351f99b67ba1ce1ccbaa6f"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track000.tif",
+            "sha256": "3908624e74d2c8a8fe316baf44f0849eef28c14755351f99b67ba1ce1ccbaa6f"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t024.tif",
+            "sha256": "f7ac4f97f338e13dd614d7fcca175cea74257c01a2b148015796f5e0f73b7fe2"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg024.tif",
+            "sha256": "b5e1152968dcbd398c45aab9a21d14510a7e9d59d0a45c7f65587660dfcdce9c"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track024.tif",
+            "sha256": "b5e1152968dcbd398c45aab9a21d14510a7e9d59d0a45c7f65587660dfcdce9c"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 30,
+        "true_successors": 16,
+        "no_successor": 14,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 16,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 12,
+            "abstentions_with_successor": 0
+          },
+          "oracle": {
+            "correct_successor_links": 16,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 16
+          },
+          "trained": {
+            "correct_successor_links": 16,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 14,
+            "abstentions_with_successor": 0
+          },
+          "zero_motion": {
+            "correct_successor_links": 16,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 14,
+            "abstentions_with_successor": 0
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 24,
+      "frame_numbers": [
+        20,
+        44
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t020.tif",
+            "sha256": "73dba81cae6013fc17a92cd10a4d8c010fd3bbb16e04267171e2cbd3a59c647d"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg020.tif",
+            "sha256": "3b049625e56708885db016608a33c95976783b64e1cb50470db51825cff39007"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track020.tif",
+            "sha256": "3b049625e56708885db016608a33c95976783b64e1cb50470db51825cff39007"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t044.tif",
+            "sha256": "a23752bd308bd755ca7779317ab1457878fdf2f22748d7f5090036ef5db16cd7"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg044.tif",
+            "sha256": "47d543b6e41f97751a3356a47c436eec9074ccb92446331f436b7800ab7f7fbf"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track044.tif",
+            "sha256": "47d543b6e41f97751a3356a47c436eec9074ccb92446331f436b7800ab7f7fbf"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 40,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 40,
+        "true_successors": 25,
+        "no_successor": 15,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 21,
+            "successor_accuracy": 0.84,
+            "false_links_without_successor": 7,
+            "abstentions_with_successor": 4
+          },
+          "oracle": {
+            "correct_successor_links": 25,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 25
+          },
+          "trained": {
+            "correct_successor_links": 19,
+            "successor_accuracy": 0.76,
+            "false_links_without_successor": 8,
+            "abstentions_with_successor": 6
+          },
+          "zero_motion": {
+            "correct_successor_links": 18,
+            "successor_accuracy": 0.72,
+            "false_links_without_successor": 8,
+            "abstentions_with_successor": 7
+          }
+        }
+      }
+    },
+    {
+      "sequence": "01",
+      "gap_frames": 24,
+      "frame_numbers": [
+        40,
+        64
+      ],
+      "shape": [
+        690,
+        628
+      ],
+      "inputs": [
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t040.tif",
+            "sha256": "62ef4b1b9c4b5596726a2ec41c2288723e3e55d0bd097d8f2f77665ea918a5a8"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg040.tif",
+            "sha256": "3f118cf8bb696b9c09bba54d5bc887c6b881d77afab20c084b65a65a47da13f4"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track040.tif",
+            "sha256": "3f118cf8bb696b9c09bba54d5bc887c6b881d77afab20c084b65a65a47da13f4"
+          }
+        ],
+        [
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01/t064.tif",
+            "sha256": "4379a0c13e8bc2356d7db3be1a932e7332c002dc17cd169300ae9c428b36b3e3"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/SEG/man_seg064.tif",
+            "sha256": "c6674698d1f005a3232fdf494045b4745a216535bd48fe60d44993cf52238697"
+          },
+          {
+            "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+/01_GT/TRA/man_track064.tif",
+            "sha256": "c6674698d1f005a3232fdf494045b4745a216535bd48fe60d44993cf52238697"
+          }
+        ]
+      ],
+      "exclusions": [
+        {
+          "retained_tracks": 42,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ],
+      "overall": {
+        "sources": 42,
+        "true_successors": 25,
+        "no_successor": 17,
+        "arms": {
+          "iou": {
+            "correct_successor_links": 18,
+            "successor_accuracy": 0.72,
+            "false_links_without_successor": 5,
+            "abstentions_with_successor": 6
+          },
+          "oracle": {
+            "correct_successor_links": 25,
+            "successor_accuracy": 1.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 0
+          },
+          "random_head": {
+            "correct_successor_links": 0,
+            "successor_accuracy": 0.0,
+            "false_links_without_successor": 0,
+            "abstentions_with_successor": 25
+          },
+          "trained": {
+            "correct_successor_links": 18,
+            "successor_accuracy": 0.72,
+            "false_links_without_successor": 8,
+            "abstentions_with_successor": 5
+          },
+          "zero_motion": {
+            "correct_successor_links": 17,
+            "successor_accuracy": 0.68,
+            "false_links_without_successor": 8,
+            "abstentions_with_successor": 6
+          }
+        }
+      }
+    }
+  ],
+  "audit": {
+    "unique_input_files_rehashed": 42,
+    "all_input_checkpoint_metadata_and_code_hashes_match": true,
+    "summary_recomputed_from_all_per_object_rows": true,
+    "summary_sha256": "7131ce557e9755455c8a2b67291156a93cdbd47fdd6a0ca03d7f5b5cac18c986",
+    "pairs_jsonl_sha256": "20b27b7fc53ff7cf13bb017d46ee7470b74bfec1a51cdcff059fd0fec8e1a389",
+    "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/sim-v1-evaluation-float32",
+    "execution": "CPU float32;8GiB hard cap/no swap/two BLAS/OpenMP threads; no GPU or downloads",
+    "process_completion": "Canonical PID3826949 and scope ended after9/9 and complete summary at03:51:04EDT; outer exec session34317 later returned143, so no clean zero-exit claim. Systemd journal records normal scope resource accounting, no failure message.",
+    "seconds": 5277.714530366997
+  },
+  "limitations": [
+    "Synthetic rendered cells, one sequence, nine selected pairs, only nine successors with motion >=1diameter",
+    "Linking given supplied full masks; no end-to-end segmentation, lineage, SEG/DET/TRA or whole-movie metrics",
+    "Same cells may recur across selected pairs; do not treat277 observations as independent biological replicates",
+    "Resolved training/holdout movie paths differ; no content-level comparison with every training image",
+    "Checkpoint trained before corrected independent-pair motion weighting; not retrained here",
+    "Float32 arithmetic expands bfloat16 checkpoint values but does not establish precision parity",
+    "Gap strata were selected from annotation-only QC before scoring; sparse hard/crowding strata limit inference",
+    "Random head abstains on all277 successors; this is not evidence of a theoretical chance rate"
+  ],
+  "next_required": [
+    "Retrain with corrected pair motion weighting and held-out selection fixed beforehand",
+    "Evaluate multiple real-microscopy held-out sequences with enough hard-motion successors",
+    "Improve successor disappearance/abstention calibration; current41false links among71without successor",
+    "Finish segmentation pretraining and whole-movie stable-ID/division/gap integration before promotion"
+  ]
+}
