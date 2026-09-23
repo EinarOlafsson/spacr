@@ -81,8 +81,11 @@ def test_whole_field_save_reload_queue_and_readout_keep_primary_identity(screen,
     assert hashlib.sha256(open(primary_path, 'rb').read()).hexdigest() == before
 
 
+@pytest.mark.parametrize('growth', ['intensity', 'distance'])
 @pytest.mark.parametrize('scope', ['region', 'image'])
-def test_both_magnifier_scopes_preserve_ids_and_accept_clicks(screen, scope):
+def test_both_magnifier_scopes_preserve_ids_and_accept_clicks(screen, scope, growth):
+    box = screen._secondary_widgets['secondary_growth']
+    box.setCurrentIndex(box.findData(growth))
     magnifier = screen._magnifier
     if scope == 'image':
         magnifier._start_image(magnifier._image_key_now())
@@ -91,6 +94,7 @@ def test_both_magnifier_scopes_preserve_ids_and_accept_clicks(screen, scope):
         request = magnifier.build_request()
     result = magnifier._run(request)
     assert result.mode == cpu_modes.SECONDARY
+    assert request.cpu_params.secondary_growth == growth
     assert set(np.unique(result.labels)) == {0, 900}
     magnifier.scope = scope
     if scope == 'image':
@@ -103,6 +107,7 @@ def test_both_magnifier_scopes_preserve_ids_and_accept_clicks(screen, scope):
     assert screen._canvas.mask[48, 48] == 900
     assert screen._canvas.preserve_ids
     assert screen._log.edits[-1].detail['primary_source']['primary_class'] == 'nucleus'
+    assert screen._log.edits[-1].detail['method_parameters']['secondary_growth'] == growth
 
 
 def test_changed_primary_rejects_old_result_without_falling_back_to_otsu(screen, qtbot):

@@ -11899,3 +11899,36 @@ dark UI render inspected. Full476 still open for paired-data evaluation, now
 using BBBC007's manual nucleus/cell outlines. Please document new APIs/settings,
 translate source strings and update Make Masks tutorials. Your483 docstring-only
 claim and workflow JSON extraction work are noted; no changes to those files.
+
+2026-09-23 — IMPLEMENTATION: 476 PAIRED-DATA EVALUATION CLAIM
+GUI milestone971ae3783is pushed. Claiming tools/evaluate_secondary_bbbc007.py
+and its focused test/evidence for the remaining quality assessment. Official
+BBBC007 v1 supplies manual nucleus/cell outlines; archives downloaded only to
+the private scratch directory. No GPU or NAS use. Benchmark will report
+outline conversion, ambiguous/border exclusions and fixed settings explicitly,
+without presenting a tuned result or comparing a different metric to the
+dataset's published boundary score.
+
+2026-09-23 — IMPLEMENTATION: 476 IMPLEMENTATION AND QUALITY CHECK COMPLETE
+BBBC007 v1 evaluation covers16manual DNA/actin pairs,1259primary interiors,
+1212unambiguous nucleus/cell pairs. Mean IoU: intensity/Otsu .3978; fraction
+.4 .4128; absolute .1 .3981; percentile60 .3898; primary-only .2778. An
+unrestricted nearest-primary baseline reached .6077, motivating a selectable
+distance growth option. The actual constrained-distance implementation scores
+.5864(mean Dice .7080), retains every primary ID, and cannot jump threshold
+barriers into disconnected unseeded regions. Otsu intensity/distance leave
+399/237primaries unexpanded; diagnostics expose those IDs. It is exploratory
+on one dataset with manual seeds, not held-out or end-to-end accuracy, and
+does not use the dataset's published boundary metric. Full exclusions, hashes,
+fixed settings and per-field results are in data/476_secondary_bbbc007_2026-09-23.json.
+
+FINAL API DELTA: secondary_object_instances adds keyword growth='intensity';
+alternate 'distance' uses a flat four-connected watershed constrained by the
+chosen stop mask. Both preserve IDs and use all four stop rules; neither is
+CellProfiler Propagation. CpuParams.secondary_growth defaults to 'intensity'
+and is included only in secondary-mode provenance. New Growth picker captions:
+Intensity watershed / Distance growth within threshold. Both scopes tested.
+Keep the sparse/disconnected-ID and explicit source-binding documentation from
+the prior handoff.132focused checks and240legacy random-parity comparisons pass.
+Feature476implementation is complete; your API/tutorial/translation delivery
+remains separate. Please refresh bindings against this final API signature.

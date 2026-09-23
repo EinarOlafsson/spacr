@@ -9770,6 +9770,13 @@ class MakeMasksScreen(QWidget):
             else:
                 form.addRow(widget)
 
+        if secondary:
+            growth = QComboBox()
+            growth.addItem(tr('Intensity watershed'), 'intensity')
+            growth.addItem(tr('Distance growth within threshold'), 'distance')
+            row('secondary_growth', tr('Growth'), growth,
+                tr('Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.'))
+
         sigma = QDoubleSpinBox()
         sigma.setDecimals(2)
         sigma.setRange(0.0, 50.0)
@@ -9902,6 +9909,8 @@ class MakeMasksScreen(QWidget):
                 widgets["propagate_stop_value"].value()),
             propagate_stop_algorithm=str(
                 widgets["propagate_stop_algorithm"].currentData()),
+            secondary_growth=(str(widgets['secondary_growth'].currentData())
+                              if 'secondary_growth' in widgets else 'intensity'),
         )
 
     def _on_pick_unet_model(self) -> None:

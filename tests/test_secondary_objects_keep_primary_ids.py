@@ -20,15 +20,16 @@ def _paired_objects(dtype=np.uint16, ids=(7, 900)):
     return image, primary, cells
 
 
+@pytest.mark.parametrize('growth', ['intensity', 'distance'])
 @pytest.mark.parametrize("stop,value", [
     ("seed_fraction", .5), ("absolute", 50),
     ("percentile", 90), ("threshold", 0),
 ])
-def test_every_stop_rule_preserves_the_primary_ids(stop, value):
+def test_every_stop_rule_preserves_the_primary_ids(stop, value, growth):
     image, primary, expected = _paired_objects()
     before_image, before_primary = image.copy(), primary.copy()
     found = engine.secondary_object_instances(
-        image, primary, sigma=0, stop=stop, stop_value=value, fill_holes=False)
+        image, primary, sigma=0, stop=stop, stop_value=value, fill_holes=False, growth=growth)
     np.testing.assert_array_equal(found.labels, expected)
     assert found.labels.dtype == primary.dtype
     assert found.relationships.primary_ids == (7, 900)
@@ -49,6 +50,21 @@ def test_dark_nuclear_pixels_stay_inside_their_secondary():
         image, primary, sigma=0, stop="absolute", stop_value=50, fill_holes=False)
     np.testing.assert_array_equal(found.labels, expected)
     assert found.relationships.incomplete_primary_ids == ()
+
+
+def test_distance_growth_cannot_jump_an_excluded_barrier_to_an_unseeded_island():
+    image = np.ones((15, 25), np.float32)
+    image[:, 12] = 0
+    primary = np.zeros(image.shape, np.uint16)
+    primary[7, 3] = 900
+    result = engine.secondary_object_instances(image, primary, sigma=0,
+                                               growth='distance', stop='absolute',
+                                               stop_value=.5, fill_holes=False)
+    assert np.all(result.labels[:, :12] == 900)
+    assert not result.labels[:, 12:].any()
+    assert result.relationships.matched_ids == (900,)
+    with pytest.raises(ValueError, match='growth'):
+        engine.secondary_object_instances(image, primary, growth='unrecognized')
 
 
 def test_sparse_uint64_ids_never_become_array_sizes_or_float_identifiers():

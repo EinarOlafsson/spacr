@@ -2493,13 +2493,15 @@ def secondary_object_instances(
         image: np.ndarray, primary: np.ndarray, *, sigma: float = 2.0,
         stop: str = "threshold", stop_value: float = 0.4,
         stop_algorithm: str = "otsu", min_area: int = 0,
-        fill_holes: bool = True) -> SecondaryResult:
-    """Grow secondary objects from labelled primaries using intensity watershed.
+        fill_holes: bool = True, growth: str = "intensity") -> SecondaryResult:
+    """Grow secondary objects from labelled primaries with a seeded watershed.
 
     Every positive primary label is a marker, including all its pixels.
-    Growth follows the negative, optionally Gaussian-smoothed intensity.
-    This is an intensity watershed, not CellProfiler's shortest-path
-    Propagation algorithm or a distance/intensity regularization model.
+    Intensity growth follows the negative, optionally Gaussian-smoothed image.
+    Distance growth floods a flat surface from the primary pixels, constrained
+    by the chosen threshold mask. It follows four-connected paths around
+    excluded pixels, not unrestricted Euclidean nearest-primary assignment.
+    Neither mode is CellProfiler's distance/intensity Propagation algorithm.
 
     The four rules in :data:`PROPAGATE_STOPS` use processed intensities.
     ``absolute``, ``percentile`` and ``threshold`` restrict growth with a
@@ -2532,12 +2534,18 @@ def secondary_object_instances(
         filtering. The whole primary footprint counts toward the area.
     :param fill_holes: fill enclosed background pixels per label before
         filtering. Does not overwrite another primary's labelled pixels.
+    :param growth: ``intensity`` (default) uses negative image intensity;
+        ``distance`` floods a flat surface through the permitted foreground.
+        Both retain the same stop rules and exact primary IDs. Distance can
+        help when bright structures attract an intensity basin across cells.
     :returns: :class:`SecondaryResult`, including ID relationship diagnostics.
         Empty primary masks yield an empty result and no common stop level.
     :raises ValueError: invalid images, labels, shape, sigma, stop rule,
         rule-specific stop value or negative minimum area.
     """
     markers = _primary_label_image(primary, "Primary mask")
+    if growth not in ('intensity', 'distance'):
+        raise ValueError("Secondary growth must be intensity or distance.")
     values = np.asarray(image, dtype=np.float32)
     if values.shape != markers.shape or not np.isfinite(values).all():
         raise ValueError("Image must be finite and match the primary mask's shape.")
@@ -2566,7 +2574,7 @@ def secondary_object_instances(
     grown = _grow_markers(
         blurred, dense, stop=stop, stop_value=stop_value,
         stop_algorithm=stop_algorithm, min_area=int(minimum),
-        fill_holes=fill_holes, keep_markers=True, relabel=False)
+        fill_holes=fill_holes, keep_markers=True, relabel=False, growth=growth)
     lookup = np.concatenate((np.zeros(1, dtype=markers.dtype), ids))
     labels = lookup[grown.labels]
     return SecondaryResult(labels, primary_secondary_report(markers, labels),
@@ -2700,7 +2708,7 @@ def maxima_propagate_instances(
 
 def _grow_markers(blurred, markers, *, stop, stop_value, stop_algorithm,
                   min_area, fill_holes, keep_markers=False,
-                  relabel=True) -> PropagateResult:
+                  relabel=True, growth="intensity") -> PropagateResult:
     """Grow compact markers with shared stop, fill and size-filter semantics."""
     from skimage.segmentation import watershed
 
@@ -2710,8 +2718,9 @@ def _grow_markers(blurred, markers, *, stop, stop_value, stop_algorithm,
         return PropagateResult(empty, 0, None)
 
     level: Optional[float] = None
+    surface = np.zeros_like(blurred) if growth == 'distance' else -blurred
     if stop == "seed_fraction":
-        grown = watershed(-blurred, markers)
+        grown = watershed(surface, markers)
         peaks = np.zeros(seeds + 1, dtype=np.float32)
         peaks[1:] = _ndimage().maximum(blurred, markers, np.arange(1, seeds + 1))
         keep = blurred >= peaks[grown] * float(stop_value)
@@ -2728,7 +2737,7 @@ def _grow_markers(blurred, markers, *, stop, stop_value, stop_algorithm,
             mask |= markers > 0
         if not mask.any():
             return PropagateResult(empty, seeds, level)
-        labels = np.asarray(watershed(-blurred, markers, mask=mask),
+        labels = np.asarray(watershed(surface, markers, mask=mask),
                             dtype=np.int32)
 
     if keep_markers:

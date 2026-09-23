@@ -2,9 +2,9 @@
 SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
 ================================================================================
 
-Status:    IN PROGRESS, filed 2026-09-22. Engine, GUI, queue/ledger and
-           exact-ID editing/save integration validated. Paired-data evaluation
-           remains open. NOT BLOCKING.
+Status:    IMPLEMENTATION COMPLETE, validated 2026-09-23. Engine, GUI,
+           queue/ledger, exact-ID editing/save and paired-data evaluation done.
+           API/tutorial/translation handoff remains with the documentation lane.
 Owner:     spacr/qt/mask_engine.py (the propagation), spacr/qt/cpu_modes.py
            and the Make Masks Detection method category.
 Requested: 2026-09-22, by the maintainer, in these words:
@@ -144,3 +144,59 @@ magnifier/drag/scope/lock regressions; final 156-test source/editor/filter/
 readout/threshold batch after adding the visible secondary hole-fill control.
 Dark-theme rendering inspected. All pass. Paired-data evaluation remains;
 BBBC007 supplies public manually outlined nuclei and cells for that check.
+
+PAIRED-DATA EVALUATION AND DISTANCE OPTION, 2026-09-23
+--------------------------------------------------------------------------------
+All four implementation requirements are now fulfilled. Reproducible driver:
+tools/evaluate_secondary_bbbc007.py; evidence including source/archive hashes,
+every field's exclusions and diagnostics:
+features/data/476_secondary_bbbc007_2026-09-23.json.
+
+Reference: BBBC007 v1, https://bbbc.broadinstitute.org/BBBC007, 16 DNA/actin
+image pairs. These are manual nucleus/cell outlines, not automated training
+labels. Enclosed four-connected interiors smaller than16pixels and regions
+connected to the image border are excluded. Nuclear interiors seed detection.
+Each evaluated nucleus must overlap one cell interior by more than half its
+area, with one candidate nucleus per cell. Of1259nuclear interiors,1212have
+unambiguous cell partners;47are unpaired, including four ambiguous cells.
+All1259seed detection. White cell-outline pixels are ignored in scoring.
+RGB intensity images use BT.601 luminance; all images divide by255.
+
+Fixed settings: sigma2, hole fill on, no area filter. Results across1212pairs:
+
+Method                                Mean IoU  Mean Dice  Fraction IoU>=.5
+Intensity + Otsu                      0.3978    0.5414     0.2838
+Intensity + primary peak fraction .4  0.4128    0.5594     0.3102
+Intensity + absolute .1               0.3981    0.5440     0.2640
+Intensity + image percentile60        0.3898    0.5341     0.2682
+Distance growth + Otsu                0.5864    0.7080     0.6559
+Primary interiors only                0.2778    0.4214     0.0429
+Unrestricted nearest-primary + Otsu   0.6077    0.7313     0.6997
+
+The distance baseline exposed intensity basins crossing cell boundaries, so
+secondary_object_instances now also accepts growth='distance'. This floods
+a flat watershed surface from primary pixels through allowed foreground,
+following four-connected paths around excluded pixels. It cannot jump an
+excluded barrier into an unseeded island, unlike unrestricted nearest-primary
+assignment. Intensity remains the default. Both modes support the four stop
+rules and keep exact IDs; neither implements CellProfiler Propagation.
+The Growth selector and CpuParams.secondary_growth record the choice in both
+scopes and the curation ledger. Maxima detection ignores this new setting.
+
+No primary ID was lost or invented. The Otsu intensity/distance runs left
+399/237primaries unexpanded, respectively: a common threshold can isolate
+dim nuclear interiors from nearby signal. Those IDs are explicitly reported.
+The five evaluated engine configurations took at most0.58sper field on this
+host, with a4GiBcap and two BLAS/OMP threads. No GPU was used.
+
+Limits: this is an exploratory comparison on one cell type with manual seeds,
+not an independent validation set, an end-to-end nucleus detector score, or
+the published BBBC007 adjacent-boundary metric. Distance was added after the
+initial comparison; no claim of universal superiority or parameter tuning on
+held-out data is made. Border/ambiguous reference exclusions are recorded.
+The benchmark's first alphabetic field is rendered for inspection, not chosen
+for a favourable result. Raw data remains outside the repository.
+
+132focused engine, GUI, request/provenance, threshold and evaluator checks pass.
+All240seeded-random Maxima + propagate comparisons still match the old engine
+bit-for-bit. API, translation and tutorial details are in the shared handoff.

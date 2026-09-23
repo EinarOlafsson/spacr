@@ -88,7 +88,8 @@ GUIDANCE: Dict[str, str] = {
                "when nuclei are dark in the cell channel. Primary masks are "
                "read-only; missing, orphaned and incomplete relationships are reported. "
                "Click to accept objects; dragging does not merge primary identities. "
-               "Post-detection morphology and splitting are bypassed to retain IDs.",
+               "Post-detection morphology and splitting are bypassed to retain IDs. "
+               "Try distance growth when bright structures pull intensity growth across cells.",
     "otsu": "Suits a field with two clear populations -- objects and "
             "background, with a valley between them in the histogram. It "
             "is the right first try and the wrong one for a field that is "
@@ -178,6 +179,8 @@ class CpuParams(NamedTuple):
         stop rule reads.
     :param propagate_stop_algorithm: which global threshold provides the
         floor under the ``threshold`` stop rule.
+    :param secondary_growth: ``intensity`` or ``distance`` watershed for
+        secondary objects; maxima detection ignores this setting.
     """
 
     local_k: float = 0.2
@@ -189,6 +192,7 @@ class CpuParams(NamedTuple):
     propagate_stop: str = "seed_fraction"
     propagate_stop_value: float = 0.4
     propagate_stop_algorithm: str = "otsu"
+    secondary_growth: str = "intensity"
 
 
 #: The defaults, as a value to compare a request against.
@@ -200,7 +204,7 @@ DEFAULT_PARAMS = CpuParams()
 #: engine is given are one list.
 PARAMETERS_FOR: Dict[str, Tuple[str, ...]] = {
     SECONDARY: ("propagate_sigma", "propagate_stop", "propagate_stop_value",
-                "propagate_stop_algorithm"),
+                "propagate_stop_algorithm", "secondary_growth"),
     "sauvola": ("local_k",),
     "niblack": ("local_k",),
     PROPAGATE: ("propagate_sigma", "propagate_min_distance",
@@ -297,6 +301,7 @@ def secondary(image: np.ndarray, primary: np.ndarray, params: CpuParams, *,
 
     return engine.secondary_object_instances(
         image, primary, sigma=float(params.propagate_sigma),
+        growth=str(params.secondary_growth),
         stop=str(params.propagate_stop), stop_value=float(params.propagate_stop_value),
         stop_algorithm=str(params.propagate_stop_algorithm),
         min_area=int(min_area), fill_holes=bool(fill_holes))
