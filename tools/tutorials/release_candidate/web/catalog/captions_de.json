@@ -7,98 +7,62 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI, GitHub und conda-forge",
+      "title": "Find spaCR on GitHub, PyPI and conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Finde die offiziellen Quellen für Pakete und Installationsprogramme, vergleiche die Version jedes Kanals und wähle das passende Installationstutorial.",
+      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
       "objectives": [
-        "Die offiziellen spaCR-Seiten auf PyPI, GitHub und conda-forge erkennen.",
-        "Release-Dateien, Entwicklungscode und unabhängig aktualisierte Paketkanäle unterscheiden.",
-        "Einen Installationsweg wählen und die tatsächlich installierte Version prüfen."
+        "Find the official download pages.",
+        "Choose the installation route for your computer.",
+        "Open the matching installation tutorial."
       ],
-      "prerequisite": "Diese Übersicht führt keine Installation aus. Die Seiten wurden am 10. September 2026 aufgenommen: PyPI und GitHub bieten 1.5.0.5, conda-forge bietet 1.5.0.4. Kanalversionen und verfügbare Dateien können sich ändern; lies die aktuelle Seite und prüfe die installierte Version. Die Browseraufnahmen verwenden ein anonymes Profil und lassen Seitentext, Statusabzeichen und Release-Verlauf unverändert. Plattformspezifische Installation und Hardwareoptionen behandeln die verlinkten Tutorials.",
+      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Wähle vor der Installation von spaCR die offizielle Bezugsquelle. PyPI und conda-forge liefern Python-Pakete; GitHub liefert Quellcode, Release-Aufzeichnungen und Desktop-Installationsprogramme. Diese Wege hängen zusammen, veröffentlichen aber nicht unbedingt dieselbe Version zur selben Zeit.",
+          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Lies auf PyPI die Versionsüberschrift und den Installationsbefehl. Hier steht spaCR eins Punkt fünf Punkt null Punkt fünf. Prüfe diesen Wert auf der aktuellen Seite, statt die Version aus einem alten Bildschirmfoto, einem Statusabzeichen oder dem Datum eines Tutorials abzuleiten.",
-          "hold_after": 0.7,
-          "focus": [
-            770,
-            237,
-            2300,
-            305
-          ]
+          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Project links verbindet das Paket mit Dokumentation, Homepage, Fehlerverwaltung und Quellcode-Repository. Nutze diese Links zum Wechsel zwischen offiziellen Ressourcen. Eine Paketseite beschreibt genau diese veröffentlichte Version; sie garantiert nicht, dass schon alle Funktionen aus der Entwicklung enthalten sind.",
-          "hold_after": 0.7,
-          "focus": [
-            2510,
-            798,
-            500,
-            399
-          ]
+          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "Auf GitHub zeigt die Branch-Auswahl, welche Quellcode-Linie du liest. Main ist die Release-Linie, nightly enthält laufende Entwicklungsarbeit. Wähle für die übliche Installation ein veröffentlichtes Release; verwende nightly nur, wenn du bewusst neuere Arbeit brauchst und Änderungen akzeptieren kannst.",
-          "hold_after": 0.7,
-          "focus": [
-            704,
-            412,
-            214,
-            64
-          ]
+          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "Öffne ein Release und klappe Assets auf. Wähle das Installationsprogramm für Windows, macOS oder Linux. Wheel und Quelldistribution sind Python-Paketdateien, keine Desktop-Installationsprogramme. Lade die Prüfsummenliste für genau das gewählte Release und die gewählte Datei herunter, statt Hashwerte eines anderen Kanals zu vergleichen.",
+          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
           "hold_after": 0.7,
-          "focus": [
-            738,
-            1103,
-            2364,
-            758
-          ],
           "related_lessons": [
             "04_platform_installers"
           ]
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "Die conda-forge-Seite hat eine eigene Versionsauswahl. Zum Aufnahmezeitpunkt bietet sie eins Punkt fünf Punkt null Punkt vier, PyPI dagegen eins Punkt fünf Punkt null Punkt fünf. Dieser reale Unterschied bleibt in der Demonstration sichtbar; setze nicht voraus, dass ein Kanal schon aktualisiert wurde.",
-          "hold_after": 0.7,
-          "focus": [
-            60,
-            710,
-            2435,
-            635
-          ]
+          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "Der Befehl mit ausdrücklich genanntem Kanal lautet conda install conda-forge, zwei Doppelpunkte, spacr. Führe ihn in der vorgesehenen Umgebung aus. Das Conda-Tutorial erklärt diesen Weg; eine Conda-Umgebung anzulegen und anschließend mit pip zu installieren ist ein anderer Weg, auch wenn beide eine Umgebungsverwaltung nutzen.",
+          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
           "hold_after": 0.7,
-          "focus": [
-            60,
-            710,
-            2435,
-            635
-          ],
           "related_lessons": [
             "02_conda_install"
           ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Wähle das pip-Tutorial für eine virtuelle Python-Umgebung, das Conda-Tutorial für das Kanalpaket oder Platform installers für eine vom Installationsprogramm verwaltete private Laufzeitumgebung. Prüfe anschließend die installierte Version und führe spacr-doctor aus, bevor du mit den Modultutorials beginnst.",
+          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
@@ -106,7 +70,12 @@
             "04_platform_installers"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "02_conda_install",
@@ -331,26 +300,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home und Navigation",
+      "title": "Home screen and navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Finden Sie die sechs Core-Schritte, die aktuellen Home-Kategorien und die zugehörigen Werkzeuge innerhalb ihrer Hauptmodule.",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
       "objectives": [
-        "Den Core-Ablauf von Bildern bis zu Regressionsergebnissen nachvollziehen.",
-        "Data, Tools und Assays finden, ohne integrierte Aktionen mit fehlenden Modulen zu verwechseln.",
-        "Herunterladbare echte Datensätze von erzeugten Demos unterscheiden und passende Spezialtutorials finden."
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Load an example, find help and open a pipeline overview."
       ],
-      "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung. Die Aufnahme verwendet das dunkle Design und vergrößerte Oberflächentexte.",
+      "prerequisite": "Install spaCR and open the desktop application.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home gliedert spaCR in Core, Data, Tools und Assays. Das sind Kategorien für unterschiedliche Arbeitsabläufe. Zugehörige Werkzeuge können auch innerhalb eines Hauptmoduls liegen; die Home-Schaltflächen bilden daher nicht sämtliche Funktionen ab.",
+          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "Core folgt dem Analyseablauf eines Screenings: Mask, Measure, Annotate, Classify, Map Barcodes und Regression. Beginnen Sie bei dem Schritt, der zu Ihren Eingabedaten passt. Wenn bereits passende Messdaten oder Bildausschnitte vorliegen, müssen Sie die Segmentierung nicht wiederholen.",
+          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -370,11 +339,12 @@
           ]
         },
         {
-          "visual": "02_data  (6)",
-          "narration": "Data umfasst Import, Run Compare, Experiment Design, Power and Design, Dose Response und Qualitätskontrolle. Import ist außerdem der Einstieg zu Import Images, Format Converter und External Masks. Öffnen Sie zunächst das Hauptmodul, um diese Abläufe zu finden.",
+          "visual": "02_data  (7)",
+          "narration": "Open Data to bring existing files into a project or work with results. Import accepts images, masks and measurement tables. Use Run Compare to compare runs, Experiment Design to prepare plate layouts, and QC to inspect recorded quality checks. Choose the tile that matches your next task.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
+            "embeddings",
             "run_compare",
             "experiment_design",
             "power",
@@ -384,12 +354,13 @@
           "related_lessons": [
             "36_import",
             "35_converter",
-            "31_external_masks"
+            "31_external_masks",
+            "77_embeddings"
           ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools enthält Make Masks, Align and Stitch, Image UMAP, Gate Editor und Graph Builder. Jedes Modul bündelt zusammengehörige Aktionen. Make Masks bietet beispielsweise Modelltraining und Modellvergleich; Graph Builder enthält Plate Viewer und Small Multiples.",
+          "narration": "Open Tools for image editing and exploration. Make Masks lets you edit masks and open the Cellpose Workbench. Align and Stitch combines overlapping image tiles. Image UMAP, Gate Editor and Graph Builder help you explore measurements and make plots. Open a module to find its related tools in the toolbar.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -407,14 +378,13 @@
           ]
         },
         {
-          "visual": "04_assays  (4)",
-          "narration": "Assays umfasst Plaque Assay, Recruitment, Invasion Assay und Replication Assay. Wählen Sie einen Ablauf passend zum Experiment und den benötigten Eingabedaten. Die Farbe für den Reifegrad eines Moduls ist unabhängig von seiner Kategorie; lesen Sie den Tooltip, bevor Sie sich auf eine experimentelle Funktion verlassen.",
+          "visual": "04_assays  (3)",
+          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
           "hold_after": 0.7,
           "focus_modules": [
-            "analyze_plaques",
-            "recruitment",
-            "invasion",
-            "replication"
+            "toxoplasma",
+            "plasmodium",
+            "candida"
           ],
           "related_lessons": [
             "24_plaque",
@@ -425,14 +395,8 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Classify ist ein einziges Modul. Die Einstellung Classifier family wählt zwischen bildbasierter Computer Vision und maschinellem Lernen anhand gemessener Merkmale. Die bisherigen Computer-Vision- und Machine-Learning-Tutorials erläutern weiterhin diese beiden Wege, nicht separate Home-Schaltflächen.",
+          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
           "hold_after": 0.7,
-          "focus": [
-            345,
-            540,
-            1160,
-            170
-          ],
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
@@ -441,7 +405,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Die Symbole oben in Classify öffnen Classifier Evaluation, Explain CV Model, Activation, Training Runs und Feature Explorer. Halten Sie den Mauszeiger über ein Symbol, um Namen und Beschreibung zu lesen. Nutzen Sie das verlinkte Spezialtutorial, wenn Sie ein trainiertes Modell oder dessen Ergebnisse untersuchen möchten.",
+          "narration": "The toolbar in Classify opens Classifier Evaluation, Explain CV Model, Activation, Training Runs and Feature Explorer. Hover over an icon to see its name, then click it to open the tool. Use these views to inspect a model, compare training runs or explore important features.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -454,7 +418,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "Die Core-Tutorials verwenden die echten Datensätze von Load test data. Der Download trägt die passenden Eingaben und kompatiblen Einstellungen ein. Die unter Help erzeugten Demos sind eine andere Möglichkeit. In Mask blenden die Schalter Time und 3D die Zeitreihen- und volumetrischen Abläufe ein; Live öffnet die Vorschau.",
+          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -462,14 +426,37 @@
           ]
         },
         {
-          "visual": "07_help",
-          "narration": "Über Help gelangen Sie zurück zu geführten Einführungen und Tutorials. Öffnen Sie das Tutorial zum aktuellen Modul neben der Anwendung und folgen Sie seinen Prüfungen von Daten, Einstellungen und Ergebnissen. Die nächste Lektion zeigt, wie dieselben Abläufe über die Python-API und die Kommandozeile zugänglich sind.",
+          "visual": "08_help_search",
+          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_performance",
+          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "00_home",
+          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3341,
+            180,
+            499,
+            96
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "06_api",
@@ -10406,6 +10393,1150 @@
         {
           "visual": "home_summary",
           "narration": "Prüfen Sie vor Regression, ob Bildscores, Sequenzierungszählungen und Versuchsplan übereinstimmende Platten- und Well-Kennungen verwenden. Bewahren Sie Objektkennungen, Annotationsspalte, Klassifikatoreinstellungen und Barcode-Referenzen zusammen mit dem Lauf auf. Nutzen Sie die verknüpften Modullektionen für ein durchgearbeitetes Beispiel jedes Schritts; wählen Sie die Führung für gepoolte Screens, wenn Home Sie durch die Navigation leiten soll.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "79_module_inputs_outputs",
+      "number": 79,
+      "slug": "module_inputs_outputs",
+      "title": "Ein- und Ausgaben der Module",
+      "series": 1,
+      "app_key": null,
+      "section": "Arbeitsabläufe",
+      "description": "Finden Sie die Eingabedaten, gespeicherten Ausgaben, vorgelagerten Erzeuger und nachgelagerten Verbraucher jedes aktuellen Moduls, einschließlich der innerhalb eines Home-Moduls eingebetteten Werkzeuge.",
+      "objectives": [
+        "Wählen Sie ein Startmodul anhand der Daten, die Sie bereits haben.",
+        "Ermitteln Sie, was jedes Modul liest und schreibt.",
+        "Folgen Sie für den nächsten Schritt den verknüpften Modullektionen und API-Verträgen."
+      ],
+      "prerequisite": "Installieren Sie spaCR und öffnen Sie Home. Diese Lektion erklärt Navigation und Datenübergaben; die verknüpften Modullektionen liefern durchgearbeitete Datenbeispiele. Ein- und Ausgaben enthalten bedingte Alternativen, wie beim jeweiligen Modul erläutert.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Wählen Sie ein Modul anhand Ihrer vorhandenen Daten und des benötigten Ergebnisses. Home zeigt die Hauptmodule; verwandte Werkzeuge können sich innerhalb eines übergeordneten Moduls öffnen. Diese kapitelweise Referenz deckt jeden aktuellen Weg ab. Ein- und Ausgaben können von Bedingungen abhängen: Ein Bildklassifikator und ein Merkmalsklassifikator benötigen unterschiedliche Daten, und eine Ansicht speichert nicht automatisch alles, was sie zeigt. Die Hinweise zu jedem Modul erläutern diese Unterschiede. Bewahren Sie die Originaldateien auf und verwenden Sie die aufgezeichneten Objekt-, Platten- und Well-Kennungen, wenn Sie Ergebnisse zwischen Modulen weitergeben.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ]
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Öffnen Sie Mask auf Home. Wählen Sie Kanäle und Modelle, prüfen Sie eine Vorschau und führen Sie dann Mask aus. Measure verarbeitet die zusammengeführten Arrays; die Zähldatenbank ist noch keine Merkmalstabelle. Eingabedaten: Mikroskopbilder; Segmentierungs-Checkpoint. Mikroskopbilder: Quellbildordner; Originaldateien, unterstützte Herstellerdateien oder importierte TIFFs. Segmentierungs-Checkpoint: Gespeicherter Cellpose-kompatibler Checkpoint oder ein kompatibles installiertes Backend, das mit eigener Konfiguration gewählt wird. Ausgabedaten: Bilder und Labelmasken; Labelmasken; Objektzahlen. Bilder und Labelmasken: merged/*.npy im Projekt; Kanäle und ganzzahlige Labelebenen liegen gemeinsam im Array jedes Bildfelds. Labelmasken: masks/, wenn beibehalten, oder ausdrücklich gespeicherte Bild-Masken-Paare. Zwischenmasken können bei der Bereinigung entfernt werden. Objektzahlen: measurements/measurements.db; Mask-Zählungen allein sind keine Merkmalsmessungen pro Objekt. Mask zu Measure: Verwenden Sie dasselbe Projekt und die korrekten Kanalindizes für Bilder und Masken. Cellpose Workbench zu Mask: Wählen Sie den gespeicherten kompatiblen Checkpoint in Mask. Import Images zu Mask: Verwenden Sie importierte Bildebenen und Kennungen; reine Bildimporte benötigen weiterhin eine Segmentierung. Format Converter zu Mask: Verwenden Sie das konvertierte Layout und bewahren Sie die Quellidentitätszuordnungen. Mask zu Timelapse: Aktivieren Sie den untergeordneten Zeitreihenweg, bevor Sie verknüpfte Labels erzeugen. Import zu Mask: Für reine Bildimporte Import Images oder Format Converter verwenden und Mask auf das formatierte Bildprojekt verweisen. Externe Messwerte allein sind keine Segmentierungseingabe.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "17_timelapse",
+            "19_train_cellpose",
+            "35_converter",
+            "36_import",
+            "74_import_images"
+          ]
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Öffnen Sie Measure auf Home. Measure liest Bilder und Labelebenen gemeinsam. Aktivieren Sie das Speichern von Bildausschnitten, wenn Sie PNG-Dateien benötigen; bewahren Sie für gestreamte Ausschnitte die Datenbank und das Quellprojekt zusammen auf. Eingabedaten: Bilder und Labelmasken; Labelmasken. Ausgabedaten: Vermessene Objekte; Objekt-Bildausschnitte. Vermessene Objekte: measurements/measurements.db; die Objekttabellen hängen von den aktivierten Masken für cell, nucleus, pathogen und Organellen ab. Relevante Tabellen hängen vom gewählten Weg ab: cell, nucleus, pathogen, cytoplasm. Relevante Spalten hängen vom gewählten Weg ab: plateID, rowID, columnID, fieldID. Objekt-Bildausschnitte: data/**/*_png, wenn save_png aktiviert ist; png_list indiziert gespeicherte Bildausschnitte. Unterstützte Arbeitsabläufe können Ausschnitte stattdessen aus zusammengeführten Arrays und Masken streamen. Relevante Tabellen hängen vom gewählten Weg ab: png_list. Relevante Spalten hängen vom gewählten Weg ab: png_path, prcfo. Mask zu Measure: Verwenden Sie dasselbe Projekt und die korrekten Kanalindizes für Bilder und Masken. Measure zu Annotate: Speichern oder streamen Sie Bildausschnitte mit stabilen Objektkennungen. Measure zu Classify: Wählen Sie passend zu Ihrer Eingabe die Bild- oder Tabellenmodellfamilie. Make Masks zu Measure: Verwenden Sie FEATURES, um Bilder und Masken zu paaren und ein vermessenes Projekt zu schreiben; eigenständige Masken sind keine zusammengeführten Arrays. External Masks zu Measure: Vermessen Sie nur bei Bedarf erneut; External Masks kann die Messung bereits durchführen. Measure zu Image UMAP: Wählen Sie Merkmalsspalten und prüfen Sie repräsentative Bildausschnitte. Measure zu Embeddings: Bewahren Sie die Herkunft des Encoders und der Kanalrichtlinie auf. Measure zu Gate Editor: Verwenden Sie die tatsächlichen Definitionen und Einheiten der gemessenen Merkmale. Measure zu Graph Builder: Wählen Sie Variablen, Gruppen und Filter ausdrücklich aus. Measure zu QC: Prüfen Sie verfügbare Kontrollen und fehlende Belege. Measure zu Recruitment: Erfordern Sie die vorgesehenen Kompartimentintensitäten und Kennungen. Measure zu Invasion Assay: Erfordern Sie Zweifarben-Färbemessungen und geeignete Basiskontrollen. Measure zu Replication Assay: Erfordern Sie ausdrückliche Zuordnungen von Parasiten zu Vakuolen. Timelapse zu Measure: Verwenden Sie das Zeitreihenprojekt mit stabilen Bild- und Objektkennungen. Measure zu Motility Assay: Kombinieren Sie vermessene Objekte mit den passenden Tracks. Measure zu Feature Explorer: Legen Sie den Klassenvergleich fest und prüfen Sie die Filterung. Measure zu Database Browser: Prüfen Sie die tatsächlichen Tabellen vor dem Export. Measure zu AnnData Export: Exportieren Sie kompatible Merkmals- und Metadatenspalten. Measure zu Dose–Response: Verknüpfen Sie die gemessene Antwort mit ausdrücklich angegebenen Dosen und Kontrollen. Measure zu Endodyogeny size proxy: Geben Sie die Stammverzeichnisse der vermessenen Projekte und die erforderlichen Objekt-/png_list-Tabellen an. Prüfen Sie Aggregation pro Wirtszelle und Flächeneinheiten, bevor Sie Größenklassen interpretieren; die Zähldatenbank von Mask allein reicht nicht aus. Import zu Measure: Passende Bilder und externe Ganzzahlmasken importieren, um zusammengeführte Projektarrays zu erstellen, dann Measure für dieses Projekt öffnen. Diesen Schritt überspringen, wenn kompatible Messwerte bereits importiert oder berechnet wurden. Keine doppelten Messwerte an eine vorhandene importierte Tabelle anhängen. Measure zu Host–Pathogen Analysis: Behalten Sie nicht infizierte Zellen in Measure bei. Geben Sie Masken ganzer Vakuolen, Referenzintensitäten der Wirtszellen und optional explizite Zuordnungen von Parasiten zu Vakuolen an; die Wirtsidentität allein definiert keine Vakuole.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "14_make_masks",
+            "15_image_umap",
+            "17_timelapse",
+            "18_motility",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication",
+            "31_external_masks",
+            "34_database",
+            "36_import",
+            "41_classify",
+            "54_qc_dashboard",
+            "58_graph_builder",
+            "59_anndata_export",
+            "64_gate_editor",
+            "65_feature_explorer",
+            "69_dose_response",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Öffnen Sie Annotate auf Home. Annotieren Sie vor dem überwachten Training repräsentative Objekte in png_list. Verwenden Sie für unterschiedliche Fragen getrennte Annotationen und halten Sie Trainings- und Bewertungsgruppen unabhängig. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Wiederverwendbare Gates. Wiederverwendbare Gates: Gespeicherte Schwellenwert- oder Polygon-Gate-Definitionen oder eine ausgewählte Objektmenge; wenden Sie ein Gate auf dieselben Merkmalsdefinitionen an. Ausgabedaten: Trainingsannotationen. Trainingsannotationen: Eine gewählte Annotationsspalte in measurements/measurements.db, Tabelle png_list; Labels gehören zu Objektidentitäten. Relevante Tabellen hängen vom gewählten Weg ab: png_list. Relevante Spalten hängen vom gewählten Weg ab: prcfo. Measure zu Annotate: Speichern oder streamen Sie Bildausschnitte mit stabilen Objektkennungen. Annotate zu Classify: Halten Sie annotierte Trainings- und Bewertungsgruppen getrennt. External Masks zu Annotate: Bewahren Sie das neu vermessene Projekt und den Bildausschnittindex zusammen auf. Import zu Annotate: Importierte Tabellen erfordern ausdrückliche Spalten- und Objektidentitätszuordnungen. Gate Editor zu Annotate: Wenden Sie kompatible Gates an und prüfen Sie anschließend die vorgeschlagenen Labels. Annotate zu Annotator Agreement: Wählen Sie unabhängige Annotationsspalten für dieselben Objekte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "23_agreement",
+            "31_external_masks",
+            "36_import",
+            "41_classify",
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Öffnen Sie Classify auf Home. Wählen Sie Computer Vision für Bildausschnitte oder gestreamte Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die beiden Modellfamilien benötigen unterschiedliche Eingaben. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Trainingsannotationen. Ausgabedaten: Objektklassifikationsscores; Trainierter Bildklassifikator; Angepasster Merkmalsklassifikator; Paket zur Klassifikatorbewertung. Objektklassifikationsscores: Gespeicherte Score-CSVs und nach dem Zusammenführen measurements/measurements.db, Tabelle png_list. Relevante Tabellen hängen vom gewählten Weg ab: png_list. Relevante Spalten hängen vom gewählten Weg ab: pred, cv_predictions, ml_pred, predictions. Trainierter Bildklassifikator: Gespeicherter Klassifikator-Checkpoint, Modelleinstellungen und passende Kanal- beziehungsweise Vorverarbeitungskonfiguration. Angepasster Merkmalsklassifikator: Der angepasste tabellarische Klassifikator mit seiner aufgezeichneten Merkmalsliste, den Trainingseinstellungen und Validierungsergebnissen. Paket zur Klassifikatorbewertung: Vorhersagen auf zurückgehaltenen Daten, Labels, Metadaten der Datenaufteilung und Kalibrierungs-/Datenleck-Kennzahlen eines gespeicherten Klassifikatorlaufs. Measure zu Classify: Wählen Sie passend zu Ihrer Eingabe die Bild- oder Tabellenmodellfamilie. Annotate zu Classify: Halten Sie annotierte Trainings- und Bewertungsgruppen getrennt. Classify zu Regression: Wählen Sie die gewünschte CV- oder ML-Scorespalte und bewahren Sie die Platten- und Well-Kennungen. Classify zu Classifier Evaluation: Verwenden Sie die passenden Vorhersagen auf zurückgehaltenen Daten und die zugehörigen Metadaten der Datenaufteilung. Classify zu Activation: Stellen Sie auch die passenden Bildausschnitte und die Kanalvorverarbeitung bereit. Classify zu Explain CV Model: Wählen Sie CV-Vorhersagen und die zugehörigen vermessenen Objekte. Gate Editor zu Classify: Geprüfte Gate-Auswahlen in eine Annotationsspalte schreiben, dann dieselbe Spalte und Objektpopulation in Classify auswählen. Validierungsobjekte von Trainingslabels getrennt halten. Image UMAP zu Classify: Geprüfte Lasso-Auswahlen in eine Annotationsspalte der passenden Objektdatenbank schreiben und diese Spalte anschließend in Classify wählen. Bildausschnitte prüfen und Labels validieren; Einbettungscluster sind keine Referenzwahrheit.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "15_image_umap",
+            "16_activation",
+            "39_classifier_evaluation",
+            "41_classify",
+            "64_gate_editor",
+            "70_explain_cv"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Öffnen Sie Map Barcodes auf Home. Geben Sie die Referenzen an, die Ihr Experiment kodieren. Prüfen Sie zugeordnete Zählwerte und die Barcode-Qualitätskontrolle (QC), bevor Sie Guide-Zählungen pro Well mit Phänotypscores verknüpfen. Eingabedaten: Sequenzierungsreads. Sequenzierungsreads: Single-End- oder gepaarte FASTQ-Dateien mit den passenden Barcode-Referenztabellen. Ausgabedaten: Guide-Zählungen pro Well. Guide-Zählungen pro Well: Laufordner von Map Barcodes: unique_combinations.csv und annotated_reads.h5. Die Well-Identität erfordert die zugehörigen Barcode-Referenzen. Relevante Spalten hängen vom gewählten Weg ab: count. Map Barcodes zu Regression: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel. Map Barcodes zu Barcode QC: Prüfen Sie Zuordnung und Abdeckung vor dem Filtern der Guides.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "47_barcode_qc"
+          ]
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Öffnen Sie Regression auf Home. Gleichen Sie Platten- und Well-Kennungen zwischen Phänotyp- und Guide-Zähldaten ab, wählen Sie Zielgröße und Kontrollen und prüfen Sie die Diagnostik, bevor Sie Treffer interpretieren. Direkt gemessene Zielgrößen werden ebenfalls unterstützt. Eingabedaten: Objektklassifikationsscores; Guide-Zählungen pro Well; Optische Barcode-Zuordnungen; Vermessene Objekte. Optische Barcode-Zuordnungen: OPS-Zieldatenbank measurements.db: Geometrie pro Well, Phänotypausrichtung, Zellkerne und Barcode-Tabellen; optional Reads pro Zyklus. Relevante Tabellen hängen vom gewählten Weg ab: ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads. Ausgabedaten: Regressionsergebnisse und Treffer. Regressionsergebnisse und Treffer: Ergebnisordner des gewählten Laufs: Koeffizienten-/Ergebnis-CSVs, Treffertabellen, Einstellungen und diagnostische Abbildungen. Classify zu Regression: Wählen Sie die gewünschte CV- oder ML-Scorespalte und bewahren Sie die Platten- und Well-Kennungen. Map Barcodes zu Regression: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel. OPS zu Regression: Verknüpfen beziehungsweise aggregieren Sie dekodierte Objekte vor Regression ausdrücklich zu Phänotyp- und Guide-Eingaben; dies ist keine direkte CSV-Übergabe. Regression zu Run Compare: Vergleichen Sie kompatible gespeicherte Ergebnissätze und deren Einstellungen. Regression zu Hit List: Prüfen Sie geordnete Treffer und die Guide-Übereinstimmung. Regression zu Volcano Explorer: Prüfen Sie gespeicherte Effekte und korrigierte Signifikanz. Regression zu Diagnostics: Öffnen Sie die tatsächlich von diesem Lauf geschriebenen Diagnostikdaten. Regression zu Methods & Results: Prüfen Sie exportierten Text und jedes rückverfolgbare Ergebnis. Regression zu Investigate Hit: Verknüpfen Sie kompatible Phänotyp- und Objektdaten für den gewählten Treffer.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "48_hit_list",
+            "49_methods_results",
+            "50_run_compare",
+            "72_volcano_explorer",
+            "75_regression_diagnostics",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "module_feature_explorer",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Feature Explorer. Ordnen Sie gemessene Merkmale für einen gewählten Klassenvergleich; prüfen Sie Filterung und Klassendefinitionen, bevor Sie die Rangfolge interpretieren. Eingabedaten: Vermessene Objekte; Trainingsannotationen. Ausgabedaten: Abbildungen und Tabellenexporte. Abbildungen und Tabellenexporte: Der vom Werkzeug gewählte Ausgabeort; Exporte beschreiben die ausgewählten Daten und Filter. Measure zu Feature Explorer: Legen Sie den Klassenvergleich fest und prüfen Sie die Filterung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "module_convert",
+          "narration": "Öffnen Sie Import auf Home und wählen Sie anschließend Format Converter. Konvertieren Sie unterstützte Mikroskopformate in ein konfiguriertes TIFF-Layout und bewahren Sie die Quellzuordnungen. Die Konvertierung erzeugt keine Objektmessungen. Eingabedaten: Mikroskopbilder. Ausgabedaten: Mikroskopbilder. Format Converter zu Mask: Verwenden Sie das konvertierte Layout und bewahren Sie die Quellidentitätszuordnungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "35_converter"
+          ]
+        },
+        {
+          "visual": "module_foreign",
+          "narration": "Öffnen Sie Import auf Home. Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Format Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf. Mit passenden Quellbildern und externen Ganzzahlmasken erstellt Import die zusammengeführten Projektarrays für Measure. Den zu den Dateien passenden Weg wählen und die Objektidentitäten vor der Messung prüfen; importierte Merkmalstabellen können direkt verwendet werden, wenn sie die erforderlichen Messwerte bereits enthalten. Eingabedaten: Mikroskopbilder; Labelmasken; Externe Messungen. Externe Messungen: CSV- oder Datenbanktabellen mit Messungen aus Drittsoftware und deren Zuordnungen zu Bildern, Masken und Objektidentitäten. Ausgabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Bilder und Labelmasken; Labelmasken. Import zu Annotate: Importierte Tabellen erfordern ausdrückliche Spalten- und Objektidentitätszuordnungen. Import zu Measure: Passende Bilder und externe Ganzzahlmasken importieren, um zusammengeführte Projektarrays zu erstellen, dann Measure für dieses Projekt öffnen. Diesen Schritt überspringen, wenn kompatible Messwerte bereits importiert oder berechnet wurden. Keine doppelten Messwerte an eine vorhandene importierte Tabelle anhängen. Import zu Mask: Für reine Bildimporte Import Images oder Format Converter verwenden und Mask auf das formatierte Bildprojekt verweisen. Externe Messwerte allein sind keine Segmentierungseingabe.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "36_import"
+          ]
+        },
+        {
+          "visual": "module_external_masks",
+          "narration": "Öffnen Sie Import auf Home und wählen Sie anschließend External Masks. Ordnen Sie zusammengehörige Bilder und vorhandene ganzzahlige Labelmasken zu und erstellen und vermessen Sie dann ein spaCR-Projekt, ohne die Segmentierung erneut auszuführen. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Bilder und Labelmasken; Vermessene Objekte; Objekt-Bildausschnitte. External Masks zu Measure: Vermessen Sie nur bei Bedarf erneut; External Masks kann die Messung bereits durchführen. External Masks zu Annotate: Bewahren Sie das neu vermessene Projekt und den Bildausschnittindex zusammen auf. Direct Cellpose mask generation zu External Masks: Übergeben Sie gespeicherte Label-TIFFs und ihre Originalbilder an External Masks, ordnen Sie Objektrollen zu und erstellen Sie vor Measure das zusammengeführte Projekt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "module_queue",
+          "narration": "Suchen Sie Plate Queue in der Hilfe oder den Werkzeugmenüs der Anwendung. Führen Sie die gewählte Pipeline über Platten hinweg aus. Die Ausgaben entsprechen denen des jeweiligen eingereihten Moduls; bewahren Sie jede Platte und ihre Einstellungen getrennt auf. Eingabedaten: Laufwarteschlange. Laufwarteschlange: Gespeicherte Auftragsdefinitionen aus Modul, Platte und Einstellungen sowie die Reihenfolge ihrer Abhängigkeiten. Ausgabedaten: Laufhistorie und erzeugte Dateien. Laufhistorie und erzeugte Dateien: Projektlaufaufzeichnungen, Einstellungen, Ausgabepfade, Herkunft erzeugter Dateien, Status und Protokolle.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "30_plate_queue"
+          ]
+        },
+        {
+          "visual": "module_batch",
+          "narration": "Suchen Sie Batch Runner in der Hilfe oder den Werkzeugmenüs der Anwendung. Validieren Sie Modulaufträge und führen Sie sie in der Reihenfolge ihrer Abhängigkeiten aus. Jeder Auftrag schreibt seine eigenen Modulausgaben und sein Protokoll. Eingabedaten: Laufwarteschlange. Ausgabedaten: Laufhistorie und erzeugte Dateien.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "37_batch"
+          ]
+        },
+        {
+          "visual": "module_distributed_jobs",
+          "narration": "Suchen Sie Distributed Jobs in der Hilfe oder den Werkzeugmenüs der Anwendung. Übermitteln Sie einen konfigurierten Lauf an ein entferntes Ausführungsziel und prüfen Sie seinen Status und seine Protokolle. Holen Sie die tatsächlichen Modulausgaben vor der nachfolgenden Analyse ab. Eingabedaten: Laufwarteschlange. Ausgabedaten: Laufhistorie und erzeugte Dateien.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "38_distributed_jobs"
+          ]
+        },
+        {
+          "visual": "module_db_browser",
+          "narration": "Suchen Sie Database Browser in der Hilfe oder den Werkzeugmenüs der Anwendung. Durchsuchen Sie ausgewählte Tabellen und exportieren Sie Zeilen; die Tabellenansicht führt die Bildanalyse nicht erneut aus. Eingabedaten: Vermessene Objekte. Ausgabedaten: Abbildungen und Tabellenexporte. Measure zu Database Browser: Prüfen Sie die tatsächlichen Tabellen vor dem Export.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "34_database"
+          ]
+        },
+        {
+          "visual": "module_run_history",
+          "narration": "Suchen Sie Run History in der Hilfe oder den Werkzeugmenüs der Anwendung. Prüfen Sie gespeicherten Laufstatus, Einstellungen, Ausgaben und Protokolle; ein abgeschlossener Lauf belegt keine biologische Gültigkeit. Eingabedaten: Laufhistorie und erzeugte Dateien. Ausgabedaten: Laufhistorie und erzeugte Dateien.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "40_run_history"
+          ]
+        },
+        {
+          "visual": "module_report",
+          "narration": "Suchen Sie Report in der Hilfe oder den Werkzeugmenüs der Anwendung. Fassen Sie aufgezeichnete Ergebnisse, Einstellungen und Qualitätskontrollen (QC) zu einem teilbaren Bericht zusammen, ohne die Analyse unbemerkt erneut auszuführen. Eingabedaten: Laufhistorie und erzeugte Dateien; Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Ergebnisse der Qualitätskontrolle: Gespeicherte Projektkontrollen und QC-Berichte; eine fehlende Kontrolle ist kein bestandenes Ergebnis. Ausgabedaten: Teilbare Berichte. Teilbare Berichte: Exportierte HTML/PDF-Dokumente oder Methoden- und Ergebnisdokumente aus aufgezeichneten Analyseausgaben.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "29_report"
+          ]
+        },
+        {
+          "visual": "module_data_manager",
+          "narration": "Suchen Sie Data Manager in der Hilfe oder den Werkzeugmenüs der Anwendung. Prüfen Sie Projektdateien und Speicherbelegung. Das Entfernen abgeleiteter Dateien macht deren nachgelagerte Verwendung ungültig; Originalbilder müssen wiederherstellbar bleiben. Eingabedaten: Laufhistorie und erzeugte Dateien. Ausgabedaten: Laufhistorie und erzeugte Dateien.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "44_data_manager"
+          ]
+        },
+        {
+          "visual": "module_pipeline_graph",
+          "narration": "Suchen Sie Pipeline Graph in der Hilfe oder den Werkzeugmenüs der Anwendung. Lesen Sie aufgezeichnete Dateiabhängigkeiten und den Status veralteter oder fehlender Ausgaben. Der Graph beschreibt die Herkunft und erzeugt fehlende Dateien nicht erneut. Eingabedaten: Laufhistorie und erzeugte Dateien. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "52_pipeline_graph"
+          ]
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "Öffnen Sie QC auf Home. Prüfen Sie gespeicherte Kontrollen zu Segmentierung, Einheiten, Datenlecks und Platteneffekten. Öffnen Sie die untergeordneten Ansichten zur genauen Untersuchung. Eingabedaten: Vermessene Objekte; Ergebnisse der Qualitätskontrolle. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Measure zu QC: Prüfen Sie verfügbare Kontrollen und fehlende Belege.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "54_qc_dashboard"
+          ]
+        },
+        {
+          "visual": "module_lineage",
+          "narration": "Öffnen Sie Database Browser über die Hilfesuche und wählen Sie anschließend Lineage. Prüfen Sie aufgezeichnete Enthaltenseinsbeziehungen zwischen Zellen, Zellkernen, Pathogenen und Organellen; dies beschreibt räumliche Zuordnung, keine Abstammungsrekonstruktion aus Zeitreihen. Eingabedaten: Vermessene Objekte. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "56_lineage"
+          ]
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Öffnen Sie Experiment Design auf Home. Geben Sie Bedingungen, Kontrollen, Replikate und Plattenbeschränkungen ein und exportieren Sie anschließend den Versuchsaufbau vor der Datenerfassung. Eingabedaten: Screen-Planung und Power-Schätzungen. Screen-Planung und Power-Schätzungen: Gespeicherte Planungstabellen oder Abbildungen auf Grundlage ausdrücklich gewählter Effektgrößen, Streuungen und Stichprobenannahmen. Ausgabedaten: Versuchsaufbau. Versuchsaufbau: Exportierter Plan für Platten, Bedingungen, Kontrollen und Replikate. Halten Sie seine Platten- und Well-Kennungen mit den erfassten Daten konsistent. Experiment Design zu Power / Design: Legen Sie anhand des Versuchsaufbaus die Annahmen zur Stichprobenziehung fest und überarbeiten Sie anschließend den Plan. Experiment Design zu Dose–Response: Führen Sie zuerst das Experiment und die Messungen durch und bewahren Sie die Dosis- und Bedingungskennungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_layer_viewer",
+          "narration": "Öffnen Sie QC auf Home und wählen Sie anschließend Layer Viewer. Prüfen Sie ausgerichtete Bild-, Label- und Punkt-/ROI-Ebenen für das ausgewählte Bildfeld. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "57_layer_viewer"
+          ]
+        },
+        {
+          "visual": "module_power",
+          "narration": "Öffnen Sie Power / Design auf Home. Schätzen Sie den Stichprobenbedarf anhand gewählter Effektgrößen und Streuungen; Pilotmessungen können die Annahmen optional stützen. Eingabedaten: Screen-Planung und Power-Schätzungen; Vermessene Objekte; Versuchsaufbau. Ausgabedaten: Screen-Planung und Power-Schätzungen. Experiment Design zu Power / Design: Legen Sie anhand des Versuchsaufbaus die Annahmen zur Stichprobenziehung fest und überarbeiten Sie anschließend den Plan.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design"
+          ]
+        },
+        {
+          "visual": "module_run_compare",
+          "narration": "Öffnen Sie Run Compare auf Home. Vergleichen Sie kompatible gespeicherte Einstellungen, Zählwerte und Trefferlisten, ohne veränderte Eingabedaten als kontrollierten Modellvergleich zu behandeln. Eingabedaten: Laufhistorie und erzeugte Dateien; Regressionsergebnisse und Treffer. Ausgabedaten: Lauf- beziehungsweise Modellvergleich. Lauf- beziehungsweise Modellvergleich: Vergleichstabellen und Abbildungen aus kompatiblen gespeicherten Läufen oder Masken; Übereinstimmung ist keine Genauigkeit gegenüber einer verifizierten Referenz. Regression zu Run Compare: Vergleichen Sie kompatible gespeicherte Ergebnissätze und deren Einstellungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "50_run_compare"
+          ]
+        },
+        {
+          "visual": "module_tabulate",
+          "narration": "Öffnen Sie Database Browser über die Hilfesuche und wählen Sie anschließend Tabulate. Wählen Sie Gruppierungsvariablen und Messspalten und prüfen Sie dann Pivot-Tabellen und die Stichprobengrößen der Gruppen. Eingabedaten: Vermessene Objekte. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "61_tabulate"
+          ]
+        },
+        {
+          "visual": "module_dose_response",
+          "narration": "Öffnen Sie Dose–Response auf Home. Geben Sie vor der Kurvenanpassung Dosis- und Antwortspalten, Kontrollen und Einheiten an; dieser Weg benötigt keine Sequenzierung. Eingabedaten: Vermessene Objekte; Versuchsaufbau. Ausgabedaten: Assay-Ergebnisse; Abbildungen und Tabellenexporte. Assay-Ergebnisse: Assay-spezifische Ergebnistabellen und Abbildungen im konfigurierten Zielverzeichnis unter Beibehaltung der Well- und Bedingungskennungen. Experiment Design zu Dose–Response: Führen Sie zuerst das Experiment und die Messungen durch und bewahren Sie die Dosis- und Bedingungskennungen. Measure zu Dose–Response: Verknüpfen Sie die gemessene Antwort mit ausdrücklich angegebenen Dosen und Kontrollen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "67_experiment_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_project_browser",
+          "narration": "Suchen Sie Project Browser in der Hilfe oder den Werkzeugmenüs der Anwendung. Suchen Sie Projekte und prüfen Sie ihren Bearbeitungsstand, letzten Lauf, Speicherverbrauch und veraltete Ausgaben. Eingabedaten: Laufhistorie und erzeugte Dateien. Ausgabedaten: Laufhistorie und erzeugte Dateien.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "45_project_browser"
+          ]
+        },
+        {
+          "visual": "module_outliers",
+          "narration": "Öffnen Sie QC auf Home und wählen Sie anschließend Outliers. Prüfen Sie robuste Ausreißerscores für Objekte und Wells sowie die gewählte Ausschlussregel, bevor Sie gefilterte Daten zur Analyse übergeben. Eingabedaten: Vermessene Objekte. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "66_outliers"
+          ]
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Öffnen Sie Embeddings auf Home. Kodieren Sie Objektbilder mit einem gewählten Modell und einer Kanalrichtlinie. Bewahren Sie Objektkennungen und die Herkunft des Encoders auf, wenn Sie die Merkmale zur weiteren Untersuchung übergeben. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte. Ausgabedaten: Bildeinbettungen. Bildeinbettungen: Nach Objekten indizierte Encodermerkmale mit Kanalrichtlinie und Encoderherkunft. Die Kodierungs-API gibt Merkmale zurück; ihre Speicherung hängt vom aufrufenden Code ab. Measure zu Embeddings: Bewahren Sie die Herkunft des Encoders und der Kanalrichtlinie auf. Embeddings zu Image UMAP: Stellen Sie die Encoder-Merkmalstabelle mit passenden Objekt-IDs bereit; gehen Sie nicht davon aus, dass jeder GUI-Weg sie automatisch speichert.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "module_control_chart",
+          "narration": "Öffnen Sie QC auf Home und wählen Sie anschließend Control Charts. Vergleichen Sie festgelegte Kontrollen über Platten hinweg und prüfen Sie Drift; was als Kontrolle gilt, wird durch das Experiment bestimmt. Eingabedaten: Vermessene Objekte; Versuchsaufbau. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "51_control_charts"
+          ]
+        },
+        {
+          "visual": "module_train_compare",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Training Runs. Vergleichen Sie gespeicherte Trainingsverläufe, Kennzahlen und Einstellungen kompatibler Modellläufe. Eingabedaten: Laufhistorie und erzeugte Dateien. Ausgabedaten: Lauf- beziehungsweise Modellvergleich.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "28_training_runs"
+          ]
+        },
+        {
+          "visual": "module_align",
+          "narration": "Öffnen Sie Align & Stitch auf Home. Prüfen Sie Kachelgeometrie, Überlappung und Kanalzuordnung und speichern Sie dann das Mosaik mit den Koordinatenaufzeichnungen. OPS benötigt außerdem die ursprünglichen Zyklus- und Positionskennungen. Eingabedaten: Mikroskopbilder. Ausgabedaten: Ausgerichtetes Mosaik und Koordinaten. Ausgerichtetes Mosaik und Koordinaten: Ziel von Align & Stitch: das zusammengesetzte Bild und die zu seiner Interpretation benötigten Kachelkoordinaten und Layoutdaten. Align & Stitch zu OPS: Übergeben Sie Kachelkoordinaten und ursprüngliche Sequenzierungszyklen an OPS; ein zusammengeführtes Mosaik allein reicht nicht aus.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "module_make_masks",
+          "narration": "Öffnen Sie Make Masks auf Home. Kuratieren Sie Bild-Masken-Paare für das Segmentierungstraining oder verwenden Sie FEATURES, um Bilder und Masken zuzuordnen und die Messung aufzurufen. Das Speichern einer Maske trainiert keinen Klassifikator. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Kuratierte Trainingsbildfelder; Labelmasken. Kuratierte Trainingsbildfelder: Separate Bild- und ganzzahlige Maskendateien mit übereinstimmenden Bildfeldkennungen; bewahren Sie Originalbilder und Labels auf. Make Masks zu Cellpose Workbench: Verwenden Sie unabhängig geprüfte Bild-Masken-Paare. Make Masks zu Measure: Verwenden Sie FEATURES, um Bilder und Masken zu paaren und ein vermessenes Projekt zu schreiben; eigenständige Masken sind keine zusammengeführten Arrays. Make Masks zu Plaque Assay: Verwenden Sie Plaquemasken mit passenden Quellbildern; Zellmasken sind nicht automatisch Plaquelabels.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "14_make_masks",
+            "19_train_cellpose",
+            "24_plaque"
+          ]
+        },
+        {
+          "visual": "module_plate_view",
+          "narration": "Öffnen Sie Graph Builder auf Home und wählen Sie anschließend Plate Viewer. Aggregieren Sie die gewählte Messgröße pro Well und prüfen Sie Plattenmuster und Kontrollen. Eingabedaten: Vermessene Objekte; Versuchsaufbau. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "module_umap",
+          "narration": "Öffnen Sie Image UMAP auf Home. Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp. Mit den Lasso- und Annotationswerkzeugen geprüfte Auswahlen in eine Annotationsspalte der passenden Messdatenbank schreiben. Eine geometrische Auswahl allein belegt keinen biologischen Phänotyp. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Bildeinbettungen. Ausgabedaten: Projektion und Cluster; Trainingsannotationen. Projektion und Cluster: Image UMAP/PCA-Koordinatentabellen, ausgewählte Cluster und Abbildungen für die geladenen Messdaten. Measure zu Image UMAP: Wählen Sie Merkmalsspalten und prüfen Sie repräsentative Bildausschnitte. Embeddings zu Image UMAP: Stellen Sie die Encoder-Merkmalstabelle mit passenden Objekt-IDs bereit; gehen Sie nicht davon aus, dass jeder GUI-Weg sie automatisch speichert. Image UMAP zu Gate Editor: Stellen Sie beim Definieren einer Auswahl die passenden Koordinaten- und Merkmalsspalten bereit. Image UMAP zu Classify: Geprüfte Lasso-Auswahlen in eine Annotationsspalte der passenden Objektdatenbank schreiben und diese Spalte anschließend in Classify wählen. Bildausschnitte prüfen und Labels validieren; Einbettungscluster sind keine Referenzwahrheit.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "module_profiler",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Prediction Profiler. Prüfen Sie, wie ein angepasstes Modell auf die Änderung eines Eingabemerkmals reagiert; Vorhersagen belegen keine kausalen Effekte. Eingabedaten: Angepasster Merkmalsklassifikator. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "53_prediction_profiler"
+          ]
+        },
+        {
+          "visual": "module_graph_builder",
+          "narration": "Öffnen Sie Graph Builder auf Home. Wählen Sie Variablen, Gruppen und Darstellungseinstellungen aus der geladenen Tabelle und exportieren Sie dann die Abbildung mit ihrem Analysekontext. Eingabedaten: Vermessene Objekte. Ausgabedaten: Abbildungen und Tabellenexporte. Measure zu Graph Builder: Wählen Sie Variablen, Gruppen und Filter ausdrücklich aus.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "module_investigate_hit",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Investigate Hit. Verknüpfen Sie einen Regressionstreffer mit möglichen Objekten und quantitativen Belegen auf Well-Ebene. Dies validiert den Treffer nicht unabhängig. Eingabedaten: Regressionsergebnisse und Treffer; Objektklassifikationsscores; Vermessene Objekte. Ausgabedaten: Abbildungen und Tabellenexporte. Regression zu Investigate Hit: Verknüpfen Sie kompatible Phänotyp- und Objektdaten für den gewählten Treffer.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Öffnen Sie Gate Editor auf Home. Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an. Mit Annotate die angezeigten Gates in eine Annotationsspalte schreiben; die ausgewählten Objekte prüfen und binäre oder Mehrklassenlabels wählen. Eingabedaten: Vermessene Objekte; Projektion und Cluster. Ausgabedaten: Wiederverwendbare Gates; Trainingsannotationen. Image UMAP zu Gate Editor: Stellen Sie beim Definieren einer Auswahl die passenden Koordinaten- und Merkmalsspalten bereit. Gate Editor zu Annotate: Wenden Sie kompatible Gates an und prüfen Sie anschließend die vorgeschlagenen Labels. Measure zu Gate Editor: Verwenden Sie die tatsächlichen Definitionen und Einheiten der gemessenen Merkmale. Gate Editor zu Classify: Geprüfte Gate-Auswahlen in eine Annotationsspalte schreiben, dann dieselbe Spalte und Objektpopulation in Classify auswählen. Validierungsobjekte von Trainingslabels getrennt halten.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_feature_dict",
+          "narration": "Suchen Sie Feature Dictionary in der Hilfe oder den Werkzeugmenüs der Anwendung. Schlagen Sie vor der Wahl von Messspalten die Merkmalsdefinitionen und Einheiten nach. Eingabedaten: Merkmalsdefinitionen. Merkmalsdefinitionen: Das installierte Merkmalsverzeichnis; Definitionen beschreiben vorhandene Messgrößen und berechnen sie nicht. Ausgabedaten: Merkmalsdefinitionen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "62_feature_dictionary"
+          ]
+        },
+        {
+          "visual": "module_trellis",
+          "narration": "Öffnen Sie Graph Builder auf Home und wählen Sie anschließend Small Multiples. Vergleichen Sie Gruppen in einer Reihe kleiner Diagramme mit ausdrücklich gemeinsamen oder unabhängigen Achsen. Eingabedaten: Vermessene Objekte. Ausgabedaten: Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "63_small_multiples"
+          ]
+        },
+        {
+          "visual": "module_analyze_plaques",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Plaque Assay. Analysieren Sie Plaquebilder oder vorhandene Masken mit dem konfigurierten Plaquemodell. Dieser Weg muss nicht über Measure führen; verwenden Sie das eigene Plaque-Beispiel. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Assay-Ergebnisse; Labelmasken. Make Masks zu Plaque Assay: Verwenden Sie Plaquemasken mit passenden Quellbildern; Zellmasken sind nicht automatisch Plaquelabels.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks",
+            "24_plaque"
+          ]
+        },
+        {
+          "visual": "module_recruitment",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Recruitment. Berechnen Sie Rekrutierungsverhältnisse aus Kompartimentintensitäten und übereinstimmenden Wirts-/Pathogenkennungen. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Recruitment: Erfordern Sie die vorgesehenen Kompartimentintensitäten und Kennungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "25_recruitment"
+          ]
+        },
+        {
+          "visual": "module_host_pathogen",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Host–Pathogen Analysis. Messen Sie ganze Vakuolen und Referenzkompartimente der Wirtszellen und behalten Sie nicht infizierte Wirtszellen im Nenner des Infektionsanteils bei. Wählen Sie Markerkanäle und anhand von Kontrollen kalibrierte Schwellenwerte für die Quotienten. Zählen Sie optional einzeln segmentierte Parasiten anhand expliziter Vakuolenzuordnungen oder einer Spalte mit gemessenen Anzahlen. Prüfen Sie Tabellen für Vakuolen, Wirtszellen und Wells, gemeinsame Markerzustände, Replikationsverteilungen und nicht zugeordnete Parasitenverknüpfungen; unbekannte Messwerte bleiben unbekannt. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Host–Pathogen Analysis: Behalten Sie nicht infizierte Zellen in Measure bei. Geben Sie Masken ganzer Vakuolen, Referenzintensitäten der Wirtszellen und optional explizite Zuordnungen von Parasiten zu Vakuolen an; die Wirtsidentität allein definiert keine Vakuole.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_invasion",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Invasion Assay. Verwenden Sie die erforderlichen Zweifarben-Differenzialfärbemessungen und Basis-Färbekontrollen, um Anheftung von Invasion zu unterscheiden. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Invasion Assay: Erfordern Sie Zweifarben-Färbemessungen und geeignete Basiskontrollen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "26_invasion"
+          ]
+        },
+        {
+          "visual": "module_replication",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Replication Assay. Zählen Sie Parasiten anhand ausdrücklicher Vakuolenkennungen und vergleichen Sie die Verteilungen der Bedingungen; die Wirtskennung allein definiert keine Vakuole. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Replication Assay: Erfordern Sie ausdrückliche Zuordnungen von Parasiten zu Vakuolen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "module_train_cellpose",
+          "narration": "Öffnen Sie Make Masks auf Home und wählen Sie anschließend Cellpose Workbench. Öffnen Sie Cellpose Workbench innerhalb von Make Masks und trainieren Sie mit geprüften Bild-Masken-Paaren. Bewerten Sie das Modell auf separaten Bildfeldern, bevor Sie den Checkpoint in Mask wählen. Eingabedaten: Kuratierte Trainingsbildfelder. Ausgabedaten: Segmentierungs-Checkpoint. Make Masks zu Cellpose Workbench: Verwenden Sie unabhängig geprüfte Bild-Masken-Paare. Cellpose Workbench zu Mask: Wählen Sie den gespeicherten kompatiblen Checkpoint in Mask. Cellpose Workbench zu Direct Cellpose mask generation: Übergeben Sie den trainierten Checkpoint als custom_model mit den passenden Bildkanälen und der zugehörigen Vorverarbeitung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "14_make_masks",
+            "19_train_cellpose"
+          ]
+        },
+        {
+          "visual": "module_cellpose_all",
+          "narration": "Öffnen Sie Make Masks auf Home und wählen Sie anschließend Mask the whole folder. Wenden Sie das gewählte Segmentierungsmodell über Make Masks auf den geöffneten Bildordner an; prüfen Sie gespeicherte Labels, bevor Sie sie vermessen. Eingabedaten: Mikroskopbilder; Segmentierungs-Checkpoint. Ausgabedaten: Labelmasken.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "20_cellpose_masks"
+          ]
+        },
+        {
+          "visual": "module_model_compare",
+          "narration": "Öffnen Sie Make Masks auf Home und wählen Sie anschließend Model Compare. Vergleichen Sie Modellmasken auf identischen Bildfeldern. Ohne unabhängige Referenzlabels misst Übereinstimmung keine Segmentierungsgenauigkeit. Eingabedaten: Mikroskopbilder; Labelmasken; Segmentierungs-Checkpoint. Ausgabedaten: Lauf- beziehungsweise Modellvergleich.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "21_model_compare"
+          ]
+        },
+        {
+          "visual": "module_model_zoo",
+          "narration": "Öffnen Sie Make Masks auf Home und wählen Sie anschließend Model Zoo. Prüfen Sie die Modellherkunft und laden beziehungsweise installieren Sie kompatible Checkpoints oder Backends. Ein aufgeführtes Backend ist selbst keine Checkpoint-Datei. Eingabedaten: Segmentierungs-Checkpoint. Ausgabedaten: Segmentierungs-Checkpoint.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "22_model_zoo"
+          ]
+        },
+        {
+          "visual": "module_curate",
+          "narration": "Öffnen Sie Make Masks auf Home und wählen Sie anschließend Curate. Korrigieren Sie Labels und Track-Zuordnungen und bewahren Sie ein Protokoll der Änderungen auf. Eingabedaten: Mikroskopbilder; Labelmasken; Verknüpfte Zeitreihenobjekte. Verknüpfte Zeitreihenobjekte: Verfolgte Labels und Bild-/Objektzuordnungen aus dem Zeitreihenprojekt mit Bildintervall und Einheiten. Ausgabedaten: Labelmasken; Verknüpfte Zeitreihenobjekte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "42_curate"
+          ]
+        },
+        {
+          "visual": "module_napari_bridge",
+          "narration": "Öffnen Sie Make Masks auf Home und wählen Sie anschließend Napari Bridge. Übergeben Sie das passende Bild und die Labels an napari und importieren Sie die überarbeiteten Labels zurück, wobei die Bildfeldkennung erhalten bleibt. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Labelmasken.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "46_napari_bridge"
+          ]
+        },
+        {
+          "visual": "module_import_images",
+          "narration": "Öffnen Sie Import auf Home und wählen Sie anschließend Import Images. Prüfen Sie Bildfeldkennungen, Bildkanäle und optionale externe Masken, bevor Sie ein separates Projekt schreiben. Reine Bildimporte benötigen vor der Messung noch eine Segmentierung. Eingabedaten: Mikroskopbilder. Ausgabedaten: Mikroskopbilder; Bilder und Labelmasken; Labelmasken. Import Images zu Mask: Verwenden Sie importierte Bildebenen und Kennungen; reine Bildimporte benötigen weiterhin eine Segmentierung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "74_import_images"
+          ]
+        },
+        {
+          "visual": "module_barcode_qc",
+          "narration": "Öffnen Sie Map Barcodes auf Home und wählen Sie anschließend Barcode QC. Prüfen Sie Zuordnungstiefe, Abdeckung, Kollisionen und Positionseffekte vor dem Filtern der Guide-Zählungen. Eingabedaten: Guide-Zählungen pro Well. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Map Barcodes zu Barcode QC: Prüfen Sie Zuordnung und Abdeckung vor dem Filtern der Guides.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "47_barcode_qc"
+          ]
+        },
+        {
+          "visual": "module_image_scatter",
+          "narration": "Öffnen Sie Image UMAP auf Home und wählen Sie anschließend Image Scatter. Stellen Sie ausgewählte Messspalten grafisch dar und prüfen Sie dabei Objektausschnitte. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte. Ausgabedaten: Projektion und Cluster; Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "55_image_scatter"
+          ]
+        },
+        {
+          "visual": "module_pca",
+          "narration": "Öffnen Sie Image UMAP auf Home und wählen Sie anschließend PCA. Prüfen Sie Hauptkomponenten und Merkmalsladungen für die ausgewählten vermessenen Objekte. Eingabedaten: Vermessene Objekte. Ausgabedaten: Projektion und Cluster; Abbildungen und Tabellenexporte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "60_pca"
+          ]
+        },
+        {
+          "visual": "module_volcano_explorer",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Volcano Explorer. Öffnen Sie ein gespeichertes Regressionsergebnis und prüfen Sie Effektgrößen, korrigierte Signifikanz und einzelne Treffer. Eingabedaten: Regressionsergebnisse und Treffer. Ausgabedaten: Abbildungen und Tabellenexporte. Regression zu Volcano Explorer: Prüfen Sie gespeicherte Effekte und korrigierte Signifikanz.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "72_volcano_explorer"
+          ]
+        },
+        {
+          "visual": "module_hit_list",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Hit List. Filtern und ordnen Sie gespeicherte Treffer anhand ihrer Effekte, FDR und Guide-Übereinstimmung. Eingabedaten: Regressionsergebnisse und Treffer. Ausgabedaten: Abbildungen und Tabellenexporte. Regression zu Hit List: Prüfen Sie geordnete Treffer und die Guide-Übereinstimmung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ]
+        },
+        {
+          "visual": "module_methods_export",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Methods & Results. Entwerfen Sie Methoden- und Ergebnistext aus aufgezeichneten Einstellungen und Ergebnissen; prüfen Sie jede Aussage vor der Veröffentlichung. Eingabedaten: Laufhistorie und erzeugte Dateien; Regressionsergebnisse und Treffer. Ausgabedaten: Teilbare Berichte. Regression zu Methods & Results: Prüfen Sie exportierten Text und jedes rückverfolgbare Ergebnis.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "49_methods_results"
+          ]
+        },
+        {
+          "visual": "module_regression_diagnostics",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Diagnostics. Prüfen Sie die vom gewählten Regressionslauf gespeicherten Diagnostikansichten; unterscheiden Sie fehlende Diagnostik von erfüllten Annahmen. Eingabedaten: Regressionsergebnisse und Treffer. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Regression zu Diagnostics: Öffnen Sie die tatsächlich von diesem Lauf geschriebenen Diagnostikdaten.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "75_regression_diagnostics"
+          ]
+        },
+        {
+          "visual": "module_illumination",
+          "narration": "Öffnen Sie Measure auf Home und wählen Sie anschließend Illumination. Schätzen Sie die Flachfeldkorrektur und wenden Sie sie an den konfigurierten Stellen an. Unterscheiden Sie korrigierte Anzeigewerte von Rohmessungen und dokumentieren Sie das angewendete Verfahren. Eingabedaten: Mikroskopbilder. Ausgabedaten: Mikroskopbilder.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ]
+        },
+        {
+          "visual": "module_anndata_export",
+          "narration": "Öffnen Sie Measure auf Home und wählen Sie anschließend AnnData Export. Exportieren Sie eine AnnData-.h5ad-Datei mit Objektmetadaten und gemessenen Merkmalen für die nachfolgende Einzelzellanalyse. Eingabedaten: Vermessene Objekte. Ausgabedaten: AnnData-Export. AnnData-Export: Eine exportierte .h5ad-Datei mit gemessenen Merkmalen und Objektmetadaten. Measure zu AnnData Export: Exportieren Sie kompatible Merkmals- und Metadatenspalten.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "59_anndata_export"
+          ]
+        },
+        {
+          "visual": "module_motility",
+          "narration": "Öffnen Sie Measure auf Home und wählen Sie anschließend Motility Assay. Prüfen Sie Track-Geschwindigkeit und infektionsbezogene Messungen mit ausdrücklich angegebenem Bildintervall und Pixelkalibrierung. Eingabedaten: Verknüpfte Zeitreihenobjekte; Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse; Abbildungen und Tabellenexporte. Timelapse zu Motility Assay: Geben Sie Bildintervall und Pixelkalibrierung an. Measure zu Motility Assay: Kombinieren Sie vermessene Objekte mit den passenden Tracks.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "17_timelapse",
+            "18_motility"
+          ]
+        },
+        {
+          "visual": "module_timelapse",
+          "narration": "Öffnen Sie Mask auf Home und wählen Sie anschließend Timelapse. Öffnen Sie Timelapse innerhalb von Mask, um Objekte über geordnete Einzelbilder hinweg zu segmentieren und zu verknüpfen; prüfen Sie die Verknüpfungen vor der nachfolgenden Motilitätsanalyse. Eingabedaten: Mikroskopbilder. Ausgabedaten: Bilder und Labelmasken; Labelmasken; Verknüpfte Zeitreihenobjekte. Mask zu Timelapse: Aktivieren Sie den untergeordneten Zeitreihenweg, bevor Sie verknüpfte Labels erzeugen. Timelapse zu Measure: Verwenden Sie das Zeitreihenprojekt mit stabilen Bild- und Objektkennungen. Timelapse zu Motility Assay: Geben Sie Bildintervall und Pixelkalibrierung an.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "17_timelapse",
+            "18_motility"
+          ]
+        },
+        {
+          "visual": "module_ops",
+          "narration": "Öffnen Sie Mask auf Home und wählen Sie anschließend OPS. Verwenden Sie Bilder der Sequenzierungszyklen und die Ausrichtung der Phänotypbilder, um Barcodes pro Zellkern zu dekodieren. Aggregieren beziehungsweise verknüpfen Sie die dekodierten Kennungen vor Regression mit kompatiblen Phänotyp-Eingaben; die OPS-Datenbank ersetzt keine FASTQ-Zählwert-CSV. Eingabedaten: Mikroskopbilder; Ausgerichtetes Mosaik und Koordinaten. Ausgabedaten: Optische Barcode-Zuordnungen. Align & Stitch zu OPS: Übergeben Sie Kachelkoordinaten und ursprüngliche Sequenzierungszyklen an OPS; ein zusammengeführtes Mosaik allein reicht nicht aus. OPS zu Regression: Verknüpfen beziehungsweise aggregieren Sie dekodierte Objekte vor Regression ausdrücklich zu Phänotyp- und Guide-Eingaben; dies ist keine direkte CSV-Übergabe.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "32_align_stitch",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "module_classifier_evaluation",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Classifier Evaluation. Prüfen Sie Vorhersagen auf zurückgehaltenen Daten, Kalibrierung und Belege zur Datenaufteilung beziehungsweise zu Datenlecks für den passenden Klassifikator. Eingabedaten: Paket zur Klassifikatorbewertung. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Classify zu Classifier Evaluation: Verwenden Sie die passenden Vorhersagen auf zurückgehaltenen Daten und die zugehörigen Metadaten der Datenaufteilung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_explain_cv",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Explain CV Model. Passen Sie ein Ersatzmodell auf gemessenen Merkmalen an vorhandene Computer-Vision-Scores an und bewahren Sie die Identitätsverknüpfungen. Eine Erklärung durch ein Ersatzmodell belegt keine Kausalität. Eingabedaten: Vermessene Objekte; Objektklassifikationsscores. Ausgabedaten: Angepasster Merkmalsklassifikator; Abbildungen und Tabellenexporte. Classify zu Explain CV Model: Wählen Sie CV-Vorhersagen und die zugehörigen vermessenen Objekte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "70_explain_cv"
+          ]
+        },
+        {
+          "visual": "module_activation",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Activation. Wenden Sie den passenden Bildklassifikator und die zugehörige Vorverarbeitung an, um Salienz- beziehungsweise Modellantwortkarten zu untersuchen. Eingabedaten: Trainierter Bildklassifikator; Objekt-Bildausschnitte. Ausgabedaten: Bildattributionskarten. Bildattributionskarten: Gespeicherte Modellantwort- oder Salienzbilder für den passenden Klassifikator und die zugehörige Eingabevorverarbeitung. Classify zu Activation: Stellen Sie auch die passenden Bildausschnitte und die Kanalvorverarbeitung bereit.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "16_activation",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_agreement",
+          "narration": "Öffnen Sie Annotate auf Home und wählen Sie anschließend Annotator Agreement. Vergleichen Sie unabhängige Annotationsspalten und prüfen Sie abweichend annotierte Objekte; Übereinstimmung ist von Klassifikationsgenauigkeit zu unterscheiden. Eingabedaten: Trainingsannotationen; Objekt-Bildausschnitte. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Annotate zu Annotator Agreement: Wählen Sie unabhängige Annotationsspalten für dieselben Objekte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "09_annotate",
+            "23_agreement"
+          ]
+        },
+        {
+          "visual": "module_classify",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Computer Vision. Trainieren Sie einen Bildklassifikator aus annotierten Objektausschnitten, Archiven oder unterstützten gestreamten Ausschnitten. Stimmen Sie Kanäle und Vorverarbeitung beim Anwenden des Checkpoints ab. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Trainingsannotationen. Ausgabedaten: Objektklassifikationsscores; Trainierter Bildklassifikator; Paket zur Klassifikatorbewertung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "10_classify_cv"
+          ]
+        },
+        {
+          "visual": "module_ml_analyze",
+          "narration": "Öffnen Sie Classify auf Home und wählen Sie anschließend Tabular Machine Learning. Trainieren Sie einen merkmalsbasierten Klassifikator aus vermessenen Objekten und Labels. Prüfen Sie Ausschlüsse wegen fehlender Merkmale und die Leistung auf gruppenweise zurückgehaltenen Daten, bevor Sie Scores verwenden. Eingabedaten: Vermessene Objekte; Trainingsannotationen. Ausgabedaten: Objektklassifikationsscores; Angepasster Merkmalsklassifikator; Paket zur Klassifikatorbewertung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "module_parameter_sweep",
+          "narration": "Öffnen Sie Regression auf Home und wählen Sie anschließend Parameter Sweep. Führen Sie ausdrücklich ausgewählte Regressionseinstellungen aus und vergleichen Sie deren Diagnostik. Halten Sie Eingabedaten und Bewertungsfrage unverändert. Eingabedaten: Objektklassifikationsscores; Guide-Zählungen pro Well. Ausgabedaten: Lauf- beziehungsweise Modellvergleich; Regressionsergebnisse und Treffer.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "73_parameter_sweep"
+          ]
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "Öffnen Sie Toxoplasma auf Home. Öffnen Sie die Organismenübersicht auf Home, prüfen Sie das Kompartimentdiagramm und wählen Sie dann Plaque Assay, Recruitment, Invasion Assay oder Replication Assay. Die vier Coming-soon-Kacheln beschreiben Vorschläge und lassen sich nicht ausführen. Die Übersicht selbst analysiert kein Projekt und erzeugt keine Messtabelle. Eingabedaten: Mitgelieferte Organismenreferenz. Mitgelieferte Organismenreferenz: Installierte Organismenbeschreibungen und SwissBioPics-Zelldiagramme; keine Projekteingabe erforderlich. Ausgabedaten: Organismenübersicht und Assay-Auswahl. Organismenübersicht und Assay-Auswahl: Nur in der GUI angezeigte Hervorhebungen von Kompartimenten und Navigation zu verfügbaren Assays; es werden keine Messungen oder Dateien erzeugt.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "module_plasmodium",
+          "narration": "Öffnen Sie Plasmodium spp. auf Home. Öffnen Sie die Organismenübersicht auf Home, um die geplanten Bildgebungsabläufe für Malaria zu lesen und das gemeinsame Apikomplexen-Diagramm anzusehen. Alle acht Assay-Kacheln sind als Coming soon markiert; keine startet eine Analyse oder erzeugt ein Ergebnis. Eingabedaten: Mitgelieferte Organismenreferenz. Ausgabedaten: Organismenübersicht und Assay-Auswahl.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "module_candida",
+          "narration": "Öffnen Sie Candida spp. auf Home. Öffnen Sie die Organismenübersicht auf Home, um die geplanten Bildgebungsabläufe für Pilze zu lesen und das allgemeine Diagramm einer Knospungshefe anzusehen. Alle acht Assay-Kacheln sind als Coming soon markiert; keine startet eine Analyse oder erzeugt ein Ergebnis. Eingabedaten: Mitgelieferte Organismenreferenz. Ausgabedaten: Organismenübersicht und Assay-Auswahl.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "module_endodyogeny",
+          "narration": "Verwenden Sie Endodyogeny size proxy aus Python über spacr.submodules.analyze_endodyogeny. Dieser reine API-Arbeitsablauf hat keine Home-Kachel und keinen Menüeintrag. Lesen Sie gemessene Kompartimentflächen ein, annotieren Sie Bedingungen und ordnen Sie area ** 1.5 in log2-Größenverdopplungen ein. Standardmäßig wird Pathogenfläche pro Wirtszelle und nicht pro Vakuole aggregiert: Mehrere Vakuolen in einer Zelle werden zusammengefasst. Dies ist ein flächenbasierter Größenindikator, kein gemessenes Volumen und keine Parasitenzahl. Verwenden Sie Replication Assay mit ausdrücklicher Vakuolenkennung, um Parasiten pro Vakuole zu zählen. Konfigurieren Sie Kompartiment, Flächenfilter, Kalibrierung, Bedingungen und Gruppierung vor dem API-Aufruf; das Speichern ist optional. Eingabedaten: Pro Wirtszelle aggregierte Kompartimentflächen. Pro Wirtszelle aggregierte Kompartimentflächen: Jedes src-Projektstammverzeichnis/measurements/measurements.db; tables verwendet standardmäßig cell, nucleus, pathogen und cytoplasm, ergänzt um png_list zum Zusammenführen. Die Einstellung compartment wählt die Flächenspalte; standardmäßig wird pathogen_area pro Wirtszelle summiert. Relevante Tabellen hängen vom gewählten Weg ab: cell, nucleus, pathogen, cytoplasm, png_list. Relevante Spalten hängen vom gewählten Weg ab: cell_id, pathogen_area. Ausgabedaten: Ergebnisse des flächenbasierten Größenindikators. Ergebnisse des flächenbasierten Größenindikators: Zurückgegebene DataFrames data und chi_squared; save=True schreibt zusätzlich data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv und eine Abbildung unter dem ersten Projektstammverzeichnis/results/analyze_endodyogeny/. Relevante Spalten hängen vom gewählten Weg ab: pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index. Measure zu Endodyogeny size proxy: Geben Sie die Stammverzeichnisse der vermessenen Projekte und die erforderlichen Objekt-/png_list-Tabellen an. Prüfen Sie Aggregation pro Wirtszelle und Flächeneinheiten, bevor Sie Größenklassen interpretieren; die Zähldatenbank von Mask allein reicht nicht aus.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_cellpose_masks",
+          "narration": "Verwenden Sie Direct Cellpose mask generation aus Python über spacr.spacr_cellpose.identify_masks_finetune. Dieser reine API-Arbeitsablauf hat keine Home-Kachel und keinen Menüeintrag. Führen Sie ein Standard- oder eigenes Cellpose-Modell über die Python-API auf TIFF-Bildfeldern aus. Trotz des historischen Namens identify_masks_finetune führt diese Funktion Inferenz durch, kein Training. Prüfen Sie Normalisierung, Kanäle, Größenanpassung und Modellparameter; Masken werden nur geschrieben, wenn save aktiviert ist. Importieren Sie kompatible Bild-Masken-Paare vor Measure über External Masks oder kuratieren Sie die Paare vor dem Training. Dieser Aufruf erstellt kein zusammengeführtes, für Measure vorbereitetes Projekt. Eingabedaten: TIFF-Bildfelder für direkte Cellpose-Inferenz; Segmentierungs-Checkpoint. TIFF-Bildfelder für direkte Cellpose-Inferenz: .tif-Dateien mit kleingeschriebener Endung direkt in src; vorhandene gleichnamige Dateien in src/masks werden übersprungen. Geben Sie die konfigurierten Kanäle und ein kompatibles Standardmodell model_name oder einen eigenen custom_model-Checkpoint an. Ausgabedaten: Direkte Cellpose-TIFF-Masken. Direkte Cellpose-TIFF-Masken: Bei save=True enthält src/masks/<image-name>.tif ganzzahlige Labels. Der Aufruf gibt None zurück und erzeugt weder zusammengeführte Arrays noch measurements.db. Cellpose Workbench zu Direct Cellpose mask generation: Übergeben Sie den trainierten Checkpoint als custom_model mit den passenden Bildkanälen und der zugehörigen Vorverarbeitung. Direct Cellpose mask generation zu External Masks: Übergeben Sie gespeicherte Label-TIFFs und ihre Originalbilder an External Masks, ordnen Sie Objektrollen zu und erstellen Sie vor Measure das zusammengeführte Projekt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "19_train_cellpose",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "module_simulation",
+          "narration": "Verwenden Sie Pooled-screen simulation sweep aus Python über spacr.sim.run_multiple_simulations. Dieser reine API-Arbeitsablauf hat keine Home-Kachel und keinen Menüeintrag. Nutzen Sie die Python-API für Simulationsreihen, um ausdrücklich angegebene Annahmen zur Screen-Planung zu untersuchen. Sie erweitert die Parameterkombinationen, führt Simulationen in einem Prozesspool aus und schreibt synthetische Zusammenfassungsstatistiken; der Rückgabewert ist None. Setzen Sie vor der Ausführung einen kleinen ausdrücklichen max_workers-Wert und ein begrenztes Parameterraster. Die Ausgabe ersetzt weder Messungen noch Barcode-Zählungen für die experimentelle Regression. Verwenden Sie die Erkenntnisse als Planungsgrundlage und dokumentieren Sie die Annahmen. Prüfen Sie die synthetischen Zusammenfassungen bei der Wahl von Planungsannahmen; übertragen Sie diese Annahmen manuell in Power / Design oder Experiment Design. Keines der beiden Werkzeuge importiert diese Simulationsdatenbank, und keines exportiert das Raster der Simulationseinstellungen. Eingabedaten: Annahmen für die Simulation gepoolter Screens. Annahmen für die Simulation gepoolter Screens: Python-Einstellungswörterbuch: iterierbare Werte des Parameterrasters für Screen-Größe, Belegung, Klassifikatorgenauigkeit und Sequenzierungsannahmen sowie replicates, src, name, variable, plot und max_workers. generate_parameters erweitert ihr kartesisches Produkt; beginnen Sie mit einem kleinen Raster und einer ausdrücklichen Obergrenze für Arbeitsprozesse. Ausgabedaten: Synthetische Zusammenfassungen der Screen-Simulation. Synthetische Zusammenfassungen der Screen-Simulation: src/<YYMMDD>/<name>/simulations.db; die Simulationsreihe hängt Zusammenfassungszeilen an simulations an und schreibt optional Diagramme. Dies sind synthetische Leistungsschätzungen, keine gemessenen experimentellen Treffer. Relevante Tabellen hängen vom gewählten Weg ab: simulations.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Kehren Sie zu dem Kapitel zurück, das zu Ihrem nächsten Datenprodukt passt, statt bereits erledigte Arbeit zu wiederholen. Eine Zähltabelle ist keine Tabelle gemessener Merkmale, eine Projektion kein trainierter Klassifikator und ein Vergleich kein neues Experiment. Die verknüpften API-Seiten enthalten dieselben Datei-, Tabellen- und Spaltenverträge; die Speziallektionen zeigen die einzelnen Bedienelemente.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "80_image_analysis_pathways",
+      "number": 80,
+      "slug": "image_analysis_pathways",
+      "title": "Bildanalysemodule und ihr Zusammenspiel",
+      "series": 1,
+      "app_key": null,
+      "section": "Arbeitsabläufe",
+      "description": "Wählen Sie einen Bildanalyseweg über Segmentierung, Messung, Annotation, Klassifikation, Projektionen, Gates, Bildregistrierung, Qualitätskontrolle und Assays.",
+      "objectives": [
+        "Wählen Sie ein Startmodul anhand der Daten, die Sie bereits haben.",
+        "Ermitteln Sie, was jedes Modul liest und schreibt.",
+        "Folgen Sie für den nächsten Schritt den verknüpften Modullektionen und API-Verträgen."
+      ],
+      "prerequisite": "Installieren Sie spaCR und öffnen Sie Home. Diese Lektion erklärt Navigation und Datenübergaben; die verknüpften Modullektionen liefern durchgearbeitete Datenbeispiele. Ein- und Ausgaben enthalten bedingte Alternativen, wie beim jeweiligen Modul erläutert.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Beginnen Sie auf Home mit der Frage, ob Rohbilder, vorhandene Masken oder vermessene Objekte vorliegen. Mask erzeugt Segmentierungsausgaben; Make Masks kuratiert einzelne Bildfelder; Measure erzeugt aus kompatiblen Bildern und Labels Objektmessungen und optional Bildausschnitte. Danach bestimmt die wissenschaftliche Frage, ob Sie klassifizieren, eine Projektion untersuchen, ein Gate definieren oder einen Assay ausführen. Richten Sie gekachelte Bilder vor der Analyse aus, die ein gemeinsames Koordinatensystem benötigt. Die hier gezeigten Wege sind Alternativen und Verzweigungen; Sie müssen nicht jedes Modul ausführen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ]
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Öffnen Sie Mask auf Home. Wählen Sie Kanäle und Modelle, prüfen Sie eine Vorschau und führen Sie dann Mask aus. Measure verarbeitet die zusammengeführten Arrays; die Zähldatenbank ist noch keine Merkmalstabelle. Eingabedaten: Mikroskopbilder; Segmentierungs-Checkpoint. Ausgabedaten: Bilder und Labelmasken; Labelmasken; Objektzahlen. Mask zu Measure: Verwenden Sie dasselbe Projekt und die korrekten Kanalindizes für Bilder und Masken.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_make_masks",
+          "narration": "Öffnen Sie Make Masks auf Home. Kuratieren Sie Bild-Masken-Paare für das Segmentierungstraining oder verwenden Sie FEATURES, um Bilder und Masken zuzuordnen und die Messung aufzurufen. Das Speichern einer Maske trainiert keinen Klassifikator. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Kuratierte Trainingsbildfelder; Labelmasken. Make Masks zu Measure: Verwenden Sie FEATURES, um Bilder und Masken zu paaren und ein vermessenes Projekt zu schreiben; eigenständige Masken sind keine zusammengeführten Arrays. Make Masks zu Plaque Assay: Verwenden Sie Plaquemasken mit passenden Quellbildern; Zellmasken sind nicht automatisch Plaquelabels.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "14_make_masks",
+            "24_plaque"
+          ]
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Öffnen Sie Measure auf Home. Measure liest Bilder und Labelebenen gemeinsam. Aktivieren Sie das Speichern von Bildausschnitten, wenn Sie PNG-Dateien benötigen; bewahren Sie für gestreamte Ausschnitte die Datenbank und das Quellprojekt zusammen auf. Eingabedaten: Bilder und Labelmasken; Labelmasken. Ausgabedaten: Vermessene Objekte; Objekt-Bildausschnitte. Mask zu Measure: Verwenden Sie dasselbe Projekt und die korrekten Kanalindizes für Bilder und Masken. Measure zu Annotate: Speichern oder streamen Sie Bildausschnitte mit stabilen Objektkennungen. Measure zu Classify: Wählen Sie passend zu Ihrer Eingabe die Bild- oder Tabellenmodellfamilie. Make Masks zu Measure: Verwenden Sie FEATURES, um Bilder und Masken zu paaren und ein vermessenes Projekt zu schreiben; eigenständige Masken sind keine zusammengeführten Arrays. Measure zu Image UMAP: Wählen Sie Merkmalsspalten und prüfen Sie repräsentative Bildausschnitte. Measure zu Embeddings: Bewahren Sie die Herkunft des Encoders und der Kanalrichtlinie auf. Measure zu Gate Editor: Verwenden Sie die tatsächlichen Definitionen und Einheiten der gemessenen Merkmale. Measure zu QC: Prüfen Sie verfügbare Kontrollen und fehlende Belege. Measure zu Recruitment: Erfordern Sie die vorgesehenen Kompartimentintensitäten und Kennungen. Measure zu Invasion Assay: Erfordern Sie Zweifarben-Färbemessungen und geeignete Basiskontrollen. Measure zu Replication Assay: Erfordern Sie ausdrückliche Zuordnungen von Parasiten zu Vakuolen. Measure zu Endodyogeny size proxy: Geben Sie die Stammverzeichnisse der vermessenen Projekte und die erforderlichen Objekt-/png_list-Tabellen an. Prüfen Sie Aggregation pro Wirtszelle und Flächeneinheiten, bevor Sie Größenklassen interpretieren; die Zähldatenbank von Mask allein reicht nicht aus. Measure zu Host–Pathogen Analysis: Behalten Sie nicht infizierte Zellen in Measure bei. Geben Sie Masken ganzer Vakuolen, Referenzintensitäten der Wirtszellen und optional explizite Zuordnungen von Parasiten zu Vakuolen an; die Wirtsidentität allein definiert keine Vakuole.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "14_make_masks",
+            "15_image_umap",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication",
+            "41_classify",
+            "54_qc_dashboard",
+            "64_gate_editor",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Öffnen Sie Annotate auf Home. Annotieren Sie vor dem überwachten Training repräsentative Objekte in png_list. Verwenden Sie für unterschiedliche Fragen getrennte Annotationen und halten Sie Trainings- und Bewertungsgruppen unabhängig. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Wiederverwendbare Gates. Ausgabedaten: Trainingsannotationen. Measure zu Annotate: Speichern oder streamen Sie Bildausschnitte mit stabilen Objektkennungen. Annotate zu Classify: Halten Sie annotierte Trainings- und Bewertungsgruppen getrennt. Gate Editor zu Annotate: Wenden Sie kompatible Gates an und prüfen Sie anschließend die vorgeschlagenen Labels.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Öffnen Sie Classify auf Home. Wählen Sie Computer Vision für Bildausschnitte oder gestreamte Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die beiden Modellfamilien benötigen unterschiedliche Eingaben. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Trainingsannotationen. Ausgabedaten: Objektklassifikationsscores; Trainierter Bildklassifikator; Angepasster Merkmalsklassifikator; Paket zur Klassifikatorbewertung. Measure zu Classify: Wählen Sie passend zu Ihrer Eingabe die Bild- oder Tabellenmodellfamilie. Annotate zu Classify: Halten Sie annotierte Trainings- und Bewertungsgruppen getrennt. Classify zu Regression: Wählen Sie die gewünschte CV- oder ML-Scorespalte und bewahren Sie die Platten- und Well-Kennungen. Gate Editor zu Classify: Geprüfte Gate-Auswahlen in eine Annotationsspalte schreiben, dann dieselbe Spalte und Objektpopulation in Classify auswählen. Validierungsobjekte von Trainingslabels getrennt halten. Image UMAP zu Classify: Geprüfte Lasso-Auswahlen in eine Annotationsspalte der passenden Objektdatenbank schreiben und diese Spalte anschließend in Classify wählen. Bildausschnitte prüfen und Labels validieren; Einbettungscluster sind keine Referenzwahrheit.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_umap",
+          "narration": "Öffnen Sie Image UMAP auf Home. Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp. Mit den Lasso- und Annotationswerkzeugen geprüfte Auswahlen in eine Annotationsspalte der passenden Messdatenbank schreiben. Eine geometrische Auswahl allein belegt keinen biologischen Phänotyp. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte; Bildeinbettungen. Ausgabedaten: Projektion und Cluster; Trainingsannotationen. Measure zu Image UMAP: Wählen Sie Merkmalsspalten und prüfen Sie repräsentative Bildausschnitte. Embeddings zu Image UMAP: Stellen Sie die Encoder-Merkmalstabelle mit passenden Objekt-IDs bereit; gehen Sie nicht davon aus, dass jeder GUI-Weg sie automatisch speichert. Image UMAP zu Gate Editor: Stellen Sie beim Definieren einer Auswahl die passenden Koordinaten- und Merkmalsspalten bereit. Image UMAP zu Classify: Geprüfte Lasso-Auswahlen in eine Annotationsspalte der passenden Objektdatenbank schreiben und diese Spalte anschließend in Classify wählen. Bildausschnitte prüfen und Labels validieren; Einbettungscluster sind keine Referenzwahrheit.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Öffnen Sie Gate Editor auf Home. Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an. Mit Annotate die angezeigten Gates in eine Annotationsspalte schreiben; die ausgewählten Objekte prüfen und binäre oder Mehrklassenlabels wählen. Eingabedaten: Vermessene Objekte; Projektion und Cluster. Ausgabedaten: Wiederverwendbare Gates; Trainingsannotationen. Image UMAP zu Gate Editor: Stellen Sie beim Definieren einer Auswahl die passenden Koordinaten- und Merkmalsspalten bereit. Gate Editor zu Annotate: Wenden Sie kompatible Gates an und prüfen Sie anschließend die vorgeschlagenen Labels. Measure zu Gate Editor: Verwenden Sie die tatsächlichen Definitionen und Einheiten der gemessenen Merkmale. Gate Editor zu Classify: Geprüfte Gate-Auswahlen in eine Annotationsspalte schreiben, dann dieselbe Spalte und Objektpopulation in Classify auswählen. Validierungsobjekte von Trainingslabels getrennt halten.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ]
+        },
+        {
+          "visual": "module_align",
+          "narration": "Öffnen Sie Align & Stitch auf Home. Prüfen Sie Kachelgeometrie, Überlappung und Kanalzuordnung und speichern Sie dann das Mosaik mit den Koordinatenaufzeichnungen. OPS benötigt außerdem die ursprünglichen Zyklus- und Positionskennungen. Eingabedaten: Mikroskopbilder. Ausgabedaten: Ausgerichtetes Mosaik und Koordinaten.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "module_analyze_plaques",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Plaque Assay. Analysieren Sie Plaquebilder oder vorhandene Masken mit dem konfigurierten Plaquemodell. Dieser Weg muss nicht über Measure führen; verwenden Sie das eigene Plaque-Beispiel. Eingabedaten: Mikroskopbilder; Labelmasken. Ausgabedaten: Assay-Ergebnisse; Labelmasken. Make Masks zu Plaque Assay: Verwenden Sie Plaquemasken mit passenden Quellbildern; Zellmasken sind nicht automatisch Plaquelabels.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks",
+            "24_plaque"
+          ]
+        },
+        {
+          "visual": "module_recruitment",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Recruitment. Berechnen Sie Rekrutierungsverhältnisse aus Kompartimentintensitäten und übereinstimmenden Wirts-/Pathogenkennungen. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Recruitment: Erfordern Sie die vorgesehenen Kompartimentintensitäten und Kennungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "25_recruitment"
+          ]
+        },
+        {
+          "visual": "module_host_pathogen",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Host–Pathogen Analysis. Messen Sie ganze Vakuolen und Referenzkompartimente der Wirtszellen und behalten Sie nicht infizierte Wirtszellen im Nenner des Infektionsanteils bei. Wählen Sie Markerkanäle und anhand von Kontrollen kalibrierte Schwellenwerte für die Quotienten. Zählen Sie optional einzeln segmentierte Parasiten anhand expliziter Vakuolenzuordnungen oder einer Spalte mit gemessenen Anzahlen. Prüfen Sie Tabellen für Vakuolen, Wirtszellen und Wells, gemeinsame Markerzustände, Replikationsverteilungen und nicht zugeordnete Parasitenverknüpfungen; unbekannte Messwerte bleiben unbekannt. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Host–Pathogen Analysis: Behalten Sie nicht infizierte Zellen in Measure bei. Geben Sie Masken ganzer Vakuolen, Referenzintensitäten der Wirtszellen und optional explizite Zuordnungen von Parasiten zu Vakuolen an; die Wirtsidentität allein definiert keine Vakuole.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_invasion",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Invasion Assay. Verwenden Sie die erforderlichen Zweifarben-Differenzialfärbemessungen und Basis-Färbekontrollen, um Anheftung von Invasion zu unterscheiden. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Invasion Assay: Erfordern Sie Zweifarben-Färbemessungen und geeignete Basiskontrollen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "26_invasion"
+          ]
+        },
+        {
+          "visual": "module_replication",
+          "narration": "Öffnen Sie Toxoplasma auf Home und wählen Sie anschließend Replication Assay. Zählen Sie Parasiten anhand ausdrücklicher Vakuolenkennungen und vergleichen Sie die Verteilungen der Bedingungen; die Wirtskennung allein definiert keine Vakuole. Eingabedaten: Vermessene Objekte. Ausgabedaten: Assay-Ergebnisse. Measure zu Replication Assay: Erfordern Sie ausdrückliche Zuordnungen von Parasiten zu Vakuolen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "Öffnen Sie QC auf Home. Prüfen Sie gespeicherte Kontrollen zu Segmentierung, Einheiten, Datenlecks und Platteneffekten. Öffnen Sie die untergeordneten Ansichten zur genauen Untersuchung. Eingabedaten: Vermessene Objekte; Ergebnisse der Qualitätskontrolle. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Measure zu QC: Prüfen Sie verfügbare Kontrollen und fehlende Belege.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "54_qc_dashboard"
+          ]
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Öffnen Sie Embeddings auf Home. Kodieren Sie Objektbilder mit einem gewählten Modell und einer Kanalrichtlinie. Bewahren Sie Objektkennungen und die Herkunft des Encoders auf, wenn Sie die Merkmale zur weiteren Untersuchung übergeben. Eingabedaten: Vermessene Objekte; Objekt-Bildausschnitte. Ausgabedaten: Bildeinbettungen. Measure zu Embeddings: Bewahren Sie die Herkunft des Encoders und der Kanalrichtlinie auf. Embeddings zu Image UMAP: Stellen Sie die Encoder-Merkmalstabelle mit passenden Objekt-IDs bereit; gehen Sie nicht davon aus, dass jeder GUI-Weg sie automatisch speichert.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "module_endodyogeny",
+          "narration": "Verwenden Sie Endodyogeny size proxy aus Python über spacr.submodules.analyze_endodyogeny. Dieser reine API-Arbeitsablauf hat keine Home-Kachel und keinen Menüeintrag. Lesen Sie gemessene Kompartimentflächen ein, annotieren Sie Bedingungen und ordnen Sie area ** 1.5 in log2-Größenverdopplungen ein. Standardmäßig wird Pathogenfläche pro Wirtszelle und nicht pro Vakuole aggregiert: Mehrere Vakuolen in einer Zelle werden zusammengefasst. Dies ist ein flächenbasierter Größenindikator, kein gemessenes Volumen und keine Parasitenzahl. Verwenden Sie Replication Assay mit ausdrücklicher Vakuolenkennung, um Parasiten pro Vakuole zu zählen. Konfigurieren Sie Kompartiment, Flächenfilter, Kalibrierung, Bedingungen und Gruppierung vor dem API-Aufruf; das Speichern ist optional. Eingabedaten: Pro Wirtszelle aggregierte Kompartimentflächen. Ausgabedaten: Ergebnisse des flächenbasierten Größenindikators. Measure zu Endodyogeny size proxy: Geben Sie die Stammverzeichnisse der vermessenen Projekte und die erforderlichen Objekt-/png_list-Tabellen an. Prüfen Sie Aggregation pro Wirtszelle und Flächeneinheiten, bevor Sie Größenklassen interpretieren; die Zähldatenbank von Mask allein reicht nicht aus.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_cellpose_masks",
+          "narration": "Verwenden Sie Direct Cellpose mask generation aus Python über spacr.spacr_cellpose.identify_masks_finetune. Dieser reine API-Arbeitsablauf hat keine Home-Kachel und keinen Menüeintrag. Führen Sie ein Standard- oder eigenes Cellpose-Modell über die Python-API auf TIFF-Bildfeldern aus. Trotz des historischen Namens identify_masks_finetune führt diese Funktion Inferenz durch, kein Training. Prüfen Sie Normalisierung, Kanäle, Größenanpassung und Modellparameter; Masken werden nur geschrieben, wenn save aktiviert ist. Importieren Sie kompatible Bild-Masken-Paare vor Measure über External Masks oder kuratieren Sie die Paare vor dem Training. Dieser Aufruf erstellt kein zusammengeführtes, für Measure vorbereitetes Projekt. Eingabedaten: TIFF-Bildfelder für direkte Cellpose-Inferenz; Segmentierungs-Checkpoint. Ausgabedaten: Direkte Cellpose-TIFF-Masken.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Folgen Sie für High-Content-Analysen Mask zu Measure und wählen Sie dann die Methode, die Ihre Frage beantwortet. Kuratieren Sie für das Segmentierungstraining Bild-Masken-Paare in Make Masks vor Train Cellpose und testen Sie das gespeicherte Modell in Mask. Vorhandene kompatible Masken oder Messungen erlauben einen späteren Einstieg. Bewahren Sie Kanalkennungen, Einheiten, Objektschlüssel und die Einstellungen jedes erzeugten Ergebnisses; folgen Sie der speziellen Anleitung für den gewählten Weg.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "81_sequencing_pathways",
+      "number": 81,
+      "slug": "sequencing_pathways",
+      "title": "Sequenzierungsmodule und ihr Zusammenspiel",
+      "series": 1,
+      "app_key": null,
+      "section": "Arbeitsabläufe",
+      "description": "Verbinden Sie Sequenzierungs- und optische Barcode-Verfahren mit Phänotypscores, Regression, Versuchsplanung, Power-Schätzungen, Dosis-Wirkungs-Analysen und Laufvergleichen.",
+      "objectives": [
+        "Das passende Startmodul anhand der bereits vorhandenen Daten wählen.",
+        "Erkennen, welche Daten jedes Modul liest und schreibt.",
+        "Die verknüpften Modullektionen und API-Beschreibungen für den nächsten Schritt nutzen."
+      ],
+      "prerequisite": "Installieren Sie spaCR und öffnen Sie Home. Diese Lektion erklärt die Navigation und die Datenübergaben; die verknüpften Modullektionen enthalten durchgearbeitete Datenbeispiele. Ein- und Ausgaben umfassen bedingte Alternativen, die beim jeweiligen Modul erklärt werden.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Beginnen Sie auf Home mit Ihrer Fragestellung und der Art der Barcode-Daten. Map Barcodes liest Sequenzierungsdateien; optisches gepooltes Screening liest registrierte Bildzyklen über OPS. Beide benötigen eine ausdrückliche Zuordnung der Barcode-Kennungen zum Experiment. Regression verknüpft kompatible Perturbationszählungen und Phänotypscores; sie ersetzt keine Barcode-Dekodierung. Experiment Design und Power gehören bei der Planung eines Screens vor die Datenerfassung, während Dose-Response und Run Compare anschließend geeignete Ergebnisse untersuchen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Öffnen Sie Map Barcodes auf Home. Geben Sie die Referenzen an, die Ihr Experiment kodieren. Prüfen Sie zugeordnete Zählwerte und die Barcode-Qualitätskontrolle, bevor Sie Guide-Zählungen pro Well mit Phänotypscores verknüpfen. Eingabedaten: Sequenzierungsreads. Ausgabedaten: Guide-Zählungen pro Well. Map Barcodes zu Regression: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel. Map Barcodes zu Barcode QC: Prüfen Sie Zuordnung und Abdeckung vor dem Filtern der Guides.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "47_barcode_qc"
+          ]
+        },
+        {
+          "visual": "module_barcode_qc",
+          "narration": "Öffnen Sie Map Barcodes auf Home und wählen Sie anschließend Barcode QC. Prüfen Sie Zuordnungstiefe, Abdeckung, Kollisionen und Positionseffekte, bevor Sie Guide-Zählungen filtern. Eingabedaten: Guide-Zählungen pro Well. Ausgabedaten: Ergebnisse der Qualitätskontrolle; Abbildungen und Tabellenexporte. Map Barcodes zu Barcode QC: Prüfen Sie Zuordnung und Abdeckung vor dem Filtern der Guides.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "47_barcode_qc"
+          ]
+        },
+        {
+          "visual": "module_ops",
+          "narration": "Öffnen Sie Mask auf Home und wählen Sie anschließend OPS. Verwenden Sie Bilder der Sequenzierungszyklen und die Ausrichtung der Phänotypbilder, um Barcodes pro Zellkern zu dekodieren. Aggregieren beziehungsweise verknüpfen Sie die dekodierten Kennungen vor Regression mit kompatiblen Phänotyp-Eingaben; die OPS-Datenbank ersetzt keine FASTQ-Zählwert-CSV. Eingabedaten: Mikroskopbilder; Ausgerichtetes Mosaik und Koordinaten. Ausgabedaten: Optische Barcode-Zuordnungen. OPS zu Regression: Verknüpfen beziehungsweise aggregieren Sie dekodierte Objekte vor Regression ausdrücklich zu Phänotyp- und Guide-Eingaben; dies ist keine direkte CSV-Übergabe.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Öffnen Sie Regression auf Home. Gleichen Sie Platten- und Well-Kennungen zwischen Phänotyp- und Guide-Zähldaten ab, wählen Sie Zielgröße und Kontrollen und prüfen Sie die Diagnostik, bevor Sie Treffer interpretieren. Direkt gemessene Zielgrößen werden ebenfalls unterstützt. Eingabedaten: Objektklassifikationsscores; Guide-Zählungen pro Well; Optische Barcode-Zuordnungen; Gemessene Objekte. Ausgabedaten: Regressionsergebnisse und Treffer. Classify zu Regression: Wählen Sie die gewünschte CV- oder ML-Scorespalte und bewahren Sie die Platten- und Well-Kennungen. Map Barcodes zu Regression: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel. OPS zu Regression: Verknüpfen beziehungsweise aggregieren Sie dekodierte Objekte vor Regression ausdrücklich zu Phänotyp- und Guide-Eingaben; dies ist keine direkte CSV-Übergabe. Regression zu Run Compare: Vergleichen Sie kompatible gespeicherte Ergebnissätze und deren Einstellungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "50_run_compare",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "module_power",
+          "narration": "Öffnen Sie Power / Design auf Home. Schätzen Sie den Stichprobenbedarf anhand gewählter Effektgrößen und Streuungen; Pilotmessungen können die Annahmen optional stützen. Eingabedaten: Screen-Planung und Power-Schätzungen; Gemessene Objekte; Versuchsaufbau. Ausgabedaten: Screen-Planung und Power-Schätzungen. Experiment Design zu Power / Design: Legen Sie anhand des Versuchsaufbaus die Annahmen zur Stichprobenziehung fest und überarbeiten Sie anschließend den Plan.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design"
+          ]
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Öffnen Sie Experiment Design auf Home. Geben Sie Bedingungen, Kontrollen, Replikate und Plattenbeschränkungen ein und exportieren Sie den Versuchsaufbau vor der Datenerfassung. Eingabedaten: Screen-Planung und Power-Schätzungen. Ausgabedaten: Versuchsaufbau. Experiment Design zu Power / Design: Legen Sie anhand des Versuchsaufbaus die Annahmen zur Stichprobenziehung fest und überarbeiten Sie anschließend den Plan. Experiment Design zu Dose–Response: Führen Sie zuerst das Experiment und die Messungen durch und bewahren Sie die Dosis- und Bedingungskennungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_dose_response",
+          "narration": "Öffnen Sie Dose–Response auf Home. Geben Sie vor der Kurvenanpassung Dosis- und Antwortspalten, Kontrollen und Einheiten an; dieser Weg benötigt keine Sequenzierung. Eingabedaten: Gemessene Objekte; Versuchsaufbau. Ausgabedaten: Assay-Ergebnisse; Abbildungen und Tabellenexporte. Experiment Design zu Dose–Response: Führen Sie zuerst das Experiment und die Messungen durch und bewahren Sie die Dosis- und Bedingungskennungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "module_run_compare",
+          "narration": "Öffnen Sie Run Compare auf Home. Vergleichen Sie kompatible gespeicherte Einstellungen, Zählwerte und Trefferlisten, ohne veränderte Eingabedaten als kontrollierten Modellvergleich zu behandeln. Eingabedaten: Laufhistorie und Artefakte; Regressionsergebnisse und Treffer. Ausgabedaten: Lauf- beziehungsweise Modellvergleich. Regression zu Run Compare: Vergleichen Sie kompatible gespeicherte Ergebnissätze und deren Einstellungen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "50_run_compare"
+          ]
+        },
+        {
+          "visual": "module_simulation",
+          "narration": "Verwenden Sie die Simulationsreihen für gepoolte Screens aus Python über spacr.sim.run_multiple_simulations. Dieser reine API-Arbeitsablauf hat keine Home-Kachel und keinen Menüeintrag. Nutzen Sie die Python-API für Simulationsreihen, um ausdrücklich angegebene Annahmen zur Screen-Planung zu untersuchen. Sie erweitert die Parameterkombinationen, führt Simulationen in einem Prozesspool aus und schreibt synthetische Zusammenfassungsstatistiken; der Rückgabewert ist None. Setzen Sie vor der Ausführung einen kleinen ausdrücklichen max_workers-Wert und ein begrenztes Parameterraster. Die Ausgabe ersetzt weder Messungen noch Barcode-Zählungen für die experimentelle Regression. Verwenden Sie die Erkenntnisse als Planungsgrundlage und dokumentieren Sie die Annahmen. Prüfen Sie die synthetischen Zusammenfassungen bei der Wahl von Planungsannahmen; übertragen Sie diese Annahmen manuell in Power / Design oder Experiment Design. Keines der beiden Werkzeuge importiert diese Simulationsdatenbank, und keines exportiert das Raster der Simulationseinstellungen. Eingabedaten: Annahmen für die Simulation gepoolter Screens. Ausgabedaten: Synthetische Zusammenfassungen der Screen-Simulation.",
+          "hold_after": 0.7,
+          "related_lessons": []
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Bewahren Sie Sequenzierungsreferenzen und Plattenlayouts gemeinsam mit den Zählwerten auf und prüfen Sie die Verknüpfung zu bildbasierten Scores, bevor Sie eine Regression interpretieren. Optische Zuordnungen benötigen ihre eigene Objektverknüpfung und Aggregation; sie sind nicht automatisch eine direkt einsetzbare Sequenzierungs-Zähldatei. Behandeln Sie Planungsannahmen, angepasste Effekte und Vergleiche abgeschlossener Läufe als getrennte Ergebnisse. Die verknüpften Lektionen und Home-Führungen zeigen den Weg für jede Art von Experiment.",
           "hold_after": 0.7
         }
       ],

@@ -20,6 +20,7 @@ import json
 from pathlib import Path
 import re
 import threading
+import time
 from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
@@ -206,21 +207,25 @@ def verify(root, *, placeholders_only=False, published=None):
                     assert paired['chapters'] == paired['spoken'], identity
                     page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
                     requested = page.evaluate('chapterData[Math.min(2, chapterData.length - 1)].start')
+                    seek_started = time.monotonic()
                     page.evaluate('(seconds) => seekTo(seconds)', requested)
                     page.wait_for_timeout(1500)
                     page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
+                    # A cold hosted seek can still be fetching an audio range.
+                    # Keep the clock tolerance unchanged while waiting for it.
                     page.wait_for_function('''!videoClockCorrectionPending &&
                         !elements.video.seeking && !elements.audio.seeking &&
                         Math.abs(elements.video.currentTime -
                             videoTimeFromAudio(elements.audio.currentTime)) < .5''',
-                        timeout=1000, polling=50)
+                        timeout=15000 if published else 1000, polling=50)
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
                         video: elements.video.currentTime, expected: videoTimeFromAudio(elements.audio.currentTime),
                         width: elements.video.videoWidth, height: elements.video.videoHeight,
                         error: elements.video.error?.message || elements.audio.error?.message || null})''')
                     assert clocks['error'] is None and clocks['audio'] > 0, (identity, clocks)
                     clocks['requested_audio_time'] = requested
-                    assert requested - .25 <= clocks['audio'] < requested + 2.5, (identity, clocks)
+                    clocks['seek_elapsed_seconds'] = time.monotonic() - seek_started
+                    assert requested - .25 <= clocks['audio'] < requested + clocks['seek_elapsed_seconds'] + .5, (identity, clocks)
                     assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
                     assert (clocks['width'], clocks['height']) == (2560, 1440), (identity, clocks)
                     for _ in range(2):

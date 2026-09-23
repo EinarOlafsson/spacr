@@ -18,8 +18,8 @@ REMAINING_HOLDS = [identity for identity in PLACEHOLDERS
 
 def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
     result = validate(ROOT, require_browser=True)
-    assert result['routes'] == 78
-    assert result['ready'] == 77
+    assert result['routes'] == 81
+    assert result['ready'] == 80
     assert result['coming_soon'] == 1
 
 
@@ -44,7 +44,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     # Model Compare/Zoo are likewise their explicitly recorded subsets.
     # Map now includes real search, mapped counts and its explicit API subset.
     # Investigate Hit still must not be counted as a completed tutorial.
-    assert len(ready) == 77 and len(lessons) == 78
+    assert len(ready) == 80 and len(lessons) == 81
     assert [x['id'] for x in unavailable] == REMAINING_HOLDS
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
@@ -83,7 +83,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 3752
+    assert manifest['narration_tracks'] == 3706
     videos = {Path(r['path']).parts[2] for r in manifest['files']
               if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     assert videos == {x['id'] for x in ready}
@@ -109,4 +109,4 @@ def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
     assert readback['passed'] is True and not readback['download_failures'] and not readback['metadata_failures']
     assert readback['downloaded_sha256_matched'] == readback['files_expected'] == receipt['media_files']
     assert published['passed'] is True and published['media_root'] == receipt['media_root']
-    assert len(published['ready_playback_cases']) == 77
+    assert len(published['ready_playback_cases']) == 80
