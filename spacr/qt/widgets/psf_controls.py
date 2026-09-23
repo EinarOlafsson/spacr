@@ -108,6 +108,14 @@ class _PSFControls(QWidget):
         self.path.textChanged.connect(self._invalidate)
         self.iterations.valueChanged.connect(self.changed)
         self._sync_controls()
+        from ..screens.settings_model import attach_api_tooltip, retarget_field_tooltips
+
+        for name in ('operation', 'source', 'image_y', 'image_x', 'kernel_y',
+                     'kernel_x', 'fwhm_y', 'fwhm_x', 'path', 'reload', 'iterations'):
+            widget = getattr(self, name)
+            attach_api_tooltip(widget, 'make_masks', 'make_masks_psf_' + name,
+                               widget.toolTip(), _descriptions={})
+        retarget_field_tooltips(self)
 
     @staticmethod
     def _length():

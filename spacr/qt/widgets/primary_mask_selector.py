@@ -100,6 +100,13 @@ class PrimaryMaskSelector(QWidget):
         self.path.editingFinished.connect(self._source_changed)
         self.primary_class.currentTextChanged.connect(self.reload)
         self.secondary_class.currentTextChanged.connect(self.reload)
+        from ..screens.settings_model import attach_api_tooltip, retarget_field_tooltips
+
+        for name in ('primary_class', 'secondary_class'):
+            widget = getattr(self, name)
+            attach_api_tooltip(widget, 'make_masks', 'make_masks_' + name,
+                               widget.toolTip(), _descriptions={})
+        retarget_field_tooltips(self)
 
     @staticmethod
     def _class_name(box):

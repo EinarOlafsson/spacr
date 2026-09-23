@@ -46,6 +46,10 @@ def install_make_masks_help(screen):
     for name, widget in vars(screen).items():
         if isinstance(widget, QWidget):
             names.setdefault(id(widget), name)
+        elif isinstance(widget, dict):
+            for key, field in widget.items():
+                if isinstance(field, QWidget):
+                    names.setdefault(id(field), name + '_' + str(key))
     count = 0
     for widget in screen.findChildren(QWidget):
         source = widget.toolTip()

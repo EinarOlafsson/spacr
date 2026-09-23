@@ -32,7 +32,7 @@ SETTING_HELPERS = [
     # 2026-09-19, once the maintainer decided to withdraw the reviewed
     # zh_CN translation that had held it ("Retire both").
     ("get_map_barcodes_default_settings", {"src", "test"}),
-    ("get_train_cellpose_default_settings", {"model_name", "model_type"}),
+    ("get_train_cellpose_default_settings", {"model_name", "base_model", "src", "mask_src"}),
     ("set_generate_dataset_defaults", {"src", "experiment"}),
     ("get_check_cellpose_models_default_settings", {"batch_size", "CP_prob"}),
     ("get_identify_masks_finetune_default_settings", {"src", "model_name"}),

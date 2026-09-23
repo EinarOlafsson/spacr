@@ -1993,8 +1993,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         pick_row.addWidget(self._cycle_label)
         pick_row.addWidget(self._cycle_next_btn)
         pick_row.addWidget(self._mip_toggle)
-        pick_row.addWidget(self._max_images_box)
-        pick_row.addWidget(self._max_sets_box)
+        for caption, field in ((tr('Images'), self._max_images_box),
+                               (tr('Fields'), self._max_sets_box)):
+            group = QWidget(self)
+            group_layout = QHBoxLayout(group)
+            group_layout.setContentsMargins(0, 0, 0, 0)
+            group_layout.setSpacing(4)
+            group_layout.addWidget(QLabel(caption, group))
+            group_layout.addWidget(field)
+            pick_row.addWidget(group)
         pick_row.addWidget(self._pick_btn)
         self._offscreen_controls = QWidget(self)
         self._offscreen_controls.setVisible(False)
