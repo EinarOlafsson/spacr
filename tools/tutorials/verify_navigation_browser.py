@@ -49,8 +49,12 @@ def main():
     expected = [l['id'] for l in catalog['lessons']]
     from build_navigation import build
     navigation = build(catalog)
-    main_count = sum(len(group['lessons']) for group in navigation['sections'][0]['groups'])
-    classify_count = len(next(group for group in navigation['sections'][1]['groups']
+    sections = {section['id']: section for section in navigation['sections']}
+    display_order = navigation['intro']['lessons'] + [identity
+        for section in navigation['sections'] for group in section['groups']
+        for identity in group['lessons']]
+    main_count = sum(len(group['lessons']) for group in sections['main']['groups'])
+    classify_count = len(next(group for group in sections['submodules']['groups']
                               if group['id'] == 'classify_merged')['lessons'])
     for lesson in catalog['lessons']:
         lesson['poster'] = f"{lesson['id']}/poster.jpg"
@@ -101,14 +105,25 @@ def main():
                       wait_until='domcontentloaded')
             page.wait_for_function("document.querySelectorAll('.lesson-link').length === " + str(len(expected)))
             ids = page.locator('.lesson-link').evaluate_all('(nodes) => nodes.map(n => n.dataset.lesson)')
-            assert sorted(ids) == sorted(expected) and len(ids) == len(set(ids))
+            assert ids == display_order and sorted(ids) == sorted(expected)
+            assert len(ids) == len(set(ids))
+            assert ids[:5] == ['01_pypi_github', '03_pip_install', '02_conda_install',
+                               '04_platform_installers', '05_home']
+            assert page.locator('.lesson-number').all_text_contents() == [
+                str(index).zfill(2) for index in range(1, len(ids) + 1)]
             headings = page.locator('.series-toggle strong').all_text_contents()
-            assert headings == ['Main modules', 'Submodules'], headings
+            assert headings == ['Home and pipelines', 'Main modules', 'Submodules'], headings
             assert page.locator('[data-section="main"] .lesson-link').count() == main_count
             assert page.locator('[data-section="submodules"] [data-host="classify_merged"] .lesson-link').count() == classify_count
             assert page.locator('[data-section="main"] [data-lesson="41_classify"]').count() == 1
             assert page.locator('[data-section="submodules"] [data-lesson="28_training_runs"]').count() == 1
-            evidence['checks'].append('All existing lessons appear exactly once in the two sections')
+            evidence['checks'].append('Setup, Home and pipelines precede modules; every lesson appears once')
+            following_home = display_order[display_order.index('05_home') + 1]
+            page.locator('#next-button').click()
+            page.wait_for_function('location.hash === ' + json.dumps('#lesson=' + following_home))
+            page.locator('#previous-button').click()
+            page.wait_for_function("location.hash === '#lesson=05_home'")
+            evidence['checks'].append('Next and Previous follow the visible learning order')
             page.locator('[data-lesson="28_training_runs"]').click()
             page.wait_for_function("location.hash === '#lesson=28_training_runs'")
             assert 'Classify' in page.locator('#lesson-route').inner_text()
@@ -122,11 +137,11 @@ def main():
             if not language.count():
                 language = page.locator('select').filter(has=page.locator('option[value="es"]')).first
             language.select_option('es')
-            page.wait_for_function("document.querySelector('.series-toggle strong').textContent === 'Módulos principales'")
-            assert page.locator('.series-toggle strong').all_text_contents() == ['Módulos principales', 'Submódulos']
+            page.wait_for_function("document.querySelector('.series-toggle strong').textContent === 'Inicio y flujos de trabajo'")
+            assert page.locator('.series-toggle strong').all_text_contents() == ['Inicio y flujos de trabajo', 'Módulos principales', 'Submódulos']
             evidence['checks'].append('Spanish navigation switches with the narration language')
             language.select_option('en')
-            page.wait_for_function("document.querySelector('.series-toggle strong').textContent === 'Main modules'")
+            page.wait_for_function("document.querySelector('.series-toggle strong').textContent === 'Home and pipelines'")
             page.set_viewport_size({'width': 390, 'height': 844})
             page.locator('#menu-button').click()
             page.screenshot(path=str(args.output / 'mobile.png'))

@@ -1,5 +1,33 @@
 # Tutorial refresh — 9 September 2026
 
+## User walkthroughs — maintainer direction, 23 September 2026
+
+Order the library as setup (GitHub/PyPI, pip, Conda, platform installers),
+Home, pipeline overviews, then module walkthroughs and their related tools.
+The sidebar, displayed numbering, Next, Previous and Continue use that order;
+existing lesson URLs and saved progress retain their stable identities.
+
+Every tutorial teaches the user to use the module. Start with the task and
+inputs, open the module from its current location, load its test data when
+available, explain the few settings that affect the task, run the operation,
+and show where to inspect and save its outputs. State the next useful step.
+For overview lessons, show the route and data handoff and link the worked
+module example. Keep exhaustive API details in the linked reference.
+
+Narration and captions do not recount implementation history, our testing,
+recording arrangements, checksums, acceptance receipts or benchmark exercises.
+Explain a limitation only when it changes the user's next action or the
+interpretation of the displayed output, and give the practical action with it.
+Do not repeatedly explain what a module or demonstration is not.
+
+Keep capture provenance and verification in authoring evidence. These checks
+still apply; their results are not the tutorial script. Changing narration
+requires matching captions and audio. Reuse a recorded scene only when its
+visible controls and results match the revised instructions. Show newly
+available test-data routes in new captures rather than describing them over
+unrelated old frames. Translation incompatibilities remain registered English
+fallbacks and do not hold back an otherwise ready English tutorial.
+
 This lane owns tutorials only. Application changes belong to the other sessions.
 The working repository is `/mnt/firecuda2/codex/repo/spacr`, branch `nightly`.
 

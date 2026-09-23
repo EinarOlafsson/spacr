@@ -103,7 +103,13 @@ const elements = {
   themeToggle: $("#theme-toggle"), themeColor: $('meta[name="theme-color"]')
 };
 
-const LESSONS = BASE_CATALOG.lessons;
+const navigationOrder = MODULE_NAVIGATION
+  ? [...(MODULE_NAVIGATION.intro?.lessons || []),
+     ...MODULE_NAVIGATION.sections.flatMap(section => section.groups.flatMap(group => group.lessons))]
+  : [];
+const lessonByIdentity = new Map(BASE_CATALOG.lessons.map(lesson => [lesson.id, lesson]));
+const orderedIdentities = [...new Set([...navigationOrder, ...lessonByIdentity.keys()])];
+const LESSONS = orderedIdentities.map(id => lessonByIdentity.get(id)).filter(Boolean);
 const isPlayable = lesson => Boolean(lesson) && lesson.status !== "coming_soon";
 const AVAILABLE_LESSONS = LESSONS.filter(isPlayable);
 const playerToolbar = elements.player.querySelector('.player-toolbar');
@@ -875,7 +881,7 @@ function makeLessonLink(base) {
   if (base.id === activeLesson?.id) button.classList.add("active");
   if (isPlayable(base) && completed.has(base.id)) button.classList.add("complete");
   button.setAttribute("aria-current", base.id === activeLesson?.id ? "page" : "false");
-  button.innerHTML = `<span class="lesson-number">${String(base.number).padStart(2, "0")}</span><span class="lesson-link-copy"><strong>${escapeHTML(lesson.title)}</strong><small>${escapeHTML(isPlayable(base) ? "4K video" : lesson.availability_title || "Coming soon")}</small></span><span class="lesson-state-dot" aria-hidden="true"></span>`;
+  button.innerHTML = `<span class="lesson-number">${String(LESSONS.indexOf(base) + 1).padStart(2, "0")}</span><span class="lesson-link-copy"><strong>${escapeHTML(lesson.title)}</strong><small>${escapeHTML(isPlayable(base) ? "4K video" : lesson.availability_title || "Coming soon")}</small></span><span class="lesson-state-dot" aria-hidden="true"></span>`;
   button.addEventListener("click", () => selectLesson(base.id));
   return button;
 }
@@ -945,7 +951,7 @@ function updateLessonHeader() {
     || MODULE_NAVIGATION?.labels.en;
   elements.seriesLabel.textContent = navigationSection?.title
     || (navLabels ? navLabels[2] : `Series ${activeLesson.series}`);
-  elements.position.textContent = `Lesson ${activeLesson.number} of ${LESSONS.length}`;
+  elements.position.textContent = `Lesson ${LESSONS.indexOf(activeLesson) + 1} of ${LESSONS.length}`;
   elements.status.textContent = isPlayable(activeLesson) ? "Ready" : lesson.availability_title || "Coming soon";
   elements.status.className = `status-pill ${isPlayable(activeLesson) ? "ready" : "planned"}`;
   elements.title.textContent = lesson.title;

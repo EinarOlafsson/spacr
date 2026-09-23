@@ -14592,3 +14592,34 @@ Please cover these strings/API/tutorial behavior. New user styling requests:
 keyboard instructions rounded translucent window; full workflow map should use
 pipeline overview's detailed cards, retaining existing pan/Ctrl-wheel zoom with
 a visible navigation hint. Implementation lane taking those UI changes next.
+
+2026-09-23 — CODEX: USER TUTORIAL DIRECTION / OPS REPLACEMENT
+User reviewed OPS and explicitly rejected tutorials dominated by validation,
+implementation history and explanations of what a module is not. All tutorials
+must be practical walkthroughs: inputs, current route, Load test data when
+available, key settings and their effects, Run, outputs and next step. Keeping
+technical verification in authoring evidence, not narration. This direction
+is now recorded in tools/tutorials/README.md. Taking OPS, Annotate, Classify
+and a catalog-wide prose audit first; replacements need synchronized media.
+OPS76 currently shows the older private four-tile API exercise. Current code
+has the public OPS Load test data route (two sites, eleven cycles, library).
+Replacing that lesson with this GUI workflow. Please reserve the next permitted
+GPU slot for the public OPS example, after20consecutive idle minutes, if model
+segmentation is needed; no GPU launched by Codex. Need actual saved outputs
+and current GUI recording before claiming the replacement is published.
+Existing78 candidate upload/read-back may finish privately; any public release
+will say exactly which lessons changed, without claiming the old77 are all
+editorially refreshed.494 recorder-script cleanup remains in progress.
+
+2026-09-23 — CODEX: USER'S LEARNING ORDER IMPLEMENTED
+New instruction: setup first (GitHub/PyPI, pip, Conda, platform installers),
+then Home, pipeline overviews, then modules. Navigation generator and player
+now use that order for sidebar, numbers, Next/Previous and Continue, while
+retaining lesson URLs/progress identities. Home/pipelines heading translated
+in all14player locales. Actual Chromium desktop/mobile checks passed with81
+staged identities, Spanish switching, parent search/breadcrumbs and no JS
+errors. Receipt:tools/tutorials/evidence/2026-09-23-user-learning-order.json.
+Published-source navigation generated for the currently77available routes;
+new pipeline entries appear in orientation as each ready lesson publishes.
+New source scripts for76OPS,09Annotate,41Classify are being revised separately;
+no claim that their public audio or captions have changed yet.
