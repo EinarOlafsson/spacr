@@ -14835,3 +14835,62 @@ CPU inference on a public plaque crop passed cancellation then changed-setting
 rerun; receipt in features/data/487_plaque_rerun_cpu_2026-09-23.json.
 Please cover PlaquePreviewPanel.set_preview_busy/preview_running semantics and
 new cancellation wording. Exact reported crash/GPU path not claimed reproduced.
+2026-09-23 — CODEX: CURRENT DOCS / SETUP REWRITES / RUNTIME REQUEST
+Learning order is confirmed live: nightly publication.json now names f819a48e5.
+English API11485 and UI5150 plus Help refreshed for498/500; exact API delta
+411_training_calibration_api_2026-09-23.json. English freshness and reviewed-UI
+lookup tests both pass. Save template replaces retired Save recipe in all9GUI
+languages. Flowchart controls landed42ef249c0, incremental refresh1edcf1d00;
+API refreshb39ee796e and template translations3a42d3280 await the next push.
+
+Setup01–04 and Home05 now teach practical steps, with no recording/test-history
+narration. Current public-source browser capture and actual Home capture done;
+new English01/05 audio and4K masters done, web playback being checked. All81
+sources inventoried;8rewritten,105stale translation reviews registered. New
+cellpose_training.rst teaches498's folders/settings/Run/checkpoint outputs and
+links six real microscopy image/mask pairs, packaged without the obsolete API
+helper. All12TIFFs preserve source bytes and pass the current input reader.
+No new Cellpose model training claimed. Please queue a bounded native498Train
+run after the already queued OPS public example, with the GPU idle rule.
+Inputs:/tmp/spacr-training-images-w0ovywp7/training. New19video still owed.
+
+RUNTIME FINDING: clean public PyPI1.5.0.9 installation completed, pip check and
+imports pass. Doctor fails onlyGPU with CUDA_VISIBLE_DEVICES='' deliberately
+set for this CPU-only session: it reports driver/runtime mismatch and calls
+cuda.init even with --no-gpu-probe. Please distinguish an intentionally hidden
+GPU from a broken driver in doctor.check_gpu. I have not changed runtime or
+unmasked/allocated a GPU. Receipt remains failed, not counted as full success:
+/mnt/firecuda2/codex/workflow-authoring-20260922/setup-current-stage/installation_runs/public-pypi-ewy94ag6.
+Conda current-package install is solving in its own private environment.
+
+78hosted media03fbad4b67cd60d9689b3106bcff4a9103f2eaad passed full authenticated
+readback:7777/7777files,7.396GB,no mismatches. Final package checks caught542
+legacy web files copied from the current Pages tree rather than the verified
+baseline, including old71held media. Builder now preserves only baseline-bound
+production bytes; atomic copies also protect hardlinked prior snapshots.
+63focused checks pass. Clean candidate retains current learning order and
+identical uploaded media; full local playback/mutation checks pass, remote
+playback and final checkpoint are in progress. No second upload/readback needed
+because all hosted file records are identical.09/41replacement candidate is
+being rebuilt against that cleaned baseline.79reference now has a verified web
+rendition and passes actual web playback;80/81 remain ready privately.
+
+2026-09-23 — CODEX:78SOURCE PUBLICATION READY / ENGLISH DOCS BUILD PASSED
+Clean78 candidate is /tmp/spacr-tutorials-sequencing-desktop.wc6Fqc/release-candidate-ordered78-v2c0es3d.
+All77ready lessons pass local and immutable-host playback; all14placeholder
+languages and both mutation checks pass;4final checkpoint/route tests pass.
+The recorded542legacy web files are excluded from the candidate checkpoint.
+Current navigation is authoritative for495's four moved Toxoplasma assays;
+the preserved old recordings remain explicitly queued for updated introductions.
+The complete English documentation/API build now passes with warnings treated
+as errors; Cellpose guide/data and current setup wording are included.
+Nine source lessons are manually rewritten;118stale reviews are registered.
+19Train uses current498controls in its new source; new capture/run still owed.
+
+09/41clean replacement candidate:
+/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-rw8t2jvh.
+Local77lesson playback/mutations passed. Upload/readback is running to new
+candidate-walkthroughs-20260923-rw8t2jvh; no public media replacement yet.
+01GitHub/PyPI and05Home English narration,4K,web copies and browser checks now
+pass privately.02/03/04fresh installer captures,76OPSworked capture,19Train
+worked capture,79–81publication and remaining editorial/translations stay open.
