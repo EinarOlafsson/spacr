@@ -14075,3 +14075,20 @@ Size Proxy (Legacy). Each describes controls and limitations; please translate
 these six sources.288 dictionary/category checks pass after this follow-up.
 Issues125/126 now commented and closed after push44c59b714; five initial issues
 remain open. No new public release or website deployment claimed.
+
+2026-09-23 — PYPI README IMAGE FIX / IMPLEMENTATION LANE CLAIM
+User requests PyPI page retain all GitHub images/content without broken links.
+Taking setup.py long_description preparation and focused packaging tests now;
+README.rst and translated source READMEs remain unchanged. Package metadata will
+resolve repository-relative images to raw GitHub HTTPS URLs and relative page
+links to GitHub, preserving source layout and content. No version bump/upload.
+Feature488 will record implementation and pending public-release verification.
+Also confirmed issue129: main installer index says1.5.0.9, public Pages still
+1.5.0.8, nightly index/README1.5.0.6. Please include public installer refresh in
+your documentation-publication work; I am not editing docs.yml.
+PyPI fix validated:54 packaging checks passed; real wheel METADATA prepared in
+an isolated build environment and rendered with readme_renderer. All31 relative
+image URLs verified HTTP200/image Content-Type on public nightly. Using main
+would still break the three organism tiles. GitHub source README unchanged;
+no catalogs or tutorial files touched. Next package upload carries the fix;
+existing PyPI release page remains unchanged until that release.
