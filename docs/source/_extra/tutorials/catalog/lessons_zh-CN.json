@@ -512,18 +512,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API与当前的无图形界面工作流",
+      "title": "Python API and batch commands",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "查看已安装的批处理入口，区分交互工具与Python函数，并检查真实示例的试运行，而不把它说成已经执行了分析。",
+      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
       "objectives": [
-        "确认当前Python环境中的软件包版本。",
-        "查看当前命令键及其实际调用的函数。",
-        "区分交互式工作流、Python函数与批处理命令。",
-        "在无人值守运行前，阅读试运行的设置、退出状态及其局限。"
+        "Find the installed batch commands and their Python functions.",
+        "Inspect a function signature and its API reference.",
+        "Check saved settings before running an analysis."
       ],
-      "prerequisite": "请先完成一节安装教程。本次预检查使用Regression教程下载的配对数据和保存的设置；请将这台机器的路径替换为自己的路径。本次录制不执行分析，也不生成报告。",
+      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
       "scenes": [
         {
           "visual": "01_version",
@@ -533,14 +532,13 @@
             1900,
             650
           ],
-          "narration": "在安装spaCR的环境中导入软件包，并打印版本号。这个真实终端显示的版本是一点五点零点四。使用这些命令前先确认自己的版本，因为较旧环境提供的函数和设置可能不同。",
+          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7,
-          "speech_text": "在安装斯佩克尔的环境中导入软件包，并打印版本号。这个真实终端显示的版本是一点五点零点四。使用这些命令前先确认自己的版本，因为较旧环境提供的函数和设置可能不同。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_list",
@@ -550,9 +548,8 @@
             2800,
             1900
           ],
-          "narration": "使用list选项运行spacr-run。批处理部分会显示准确的命令键和Python入口，包括mask、measure和classify_merged。Home页面的名称和嵌套按钮并不自动对应批处理命令。请查看已安装版本的列表，不要根据教程标题猜测命令键。",
-          "hold_after": 0.7,
-          "speech_text": "使用list选项运行斯佩克尔-run。批处理部分会显示准确的命令键和Python入口，包括mask、measure和classify_merged。主页页面的名称和嵌套按钮并不自动对应批处理命令。请查看已安装版本的列表，不要根据教程标题猜测命令键。"
+          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_describe",
@@ -562,27 +559,12 @@
             2250,
             900
           ],
-          "narration": "对regression使用describe，可以看到spacr.ml中的perform_regression函数、提供默认值的函数，以及输入要求。这将命令与实际分析函数对应起来。这里使用的配对数据设置来自链接中的Regression实例，而不是虚构的测量文件夹。",
+          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
           "related_lessons": [
-            "13_regression"
+            "13_regression",
+            "15_image_umap"
           ],
-          "hold_after": 0.7,
-          "speech_text": "对regression使用describe，可以看到斯佩克尔.ml中的perform_regression函数、提供默认值的函数，以及输入要求。这将命令与实际分析函数对应起来。这里使用的配对数据设置来自链接中的Regression实例，而不是虚构的测量文件夹。"
-        },
-        {
-          "visual": "04_gui_only",
-          "focus": [
-            200,
-            100,
-            2800,
-            700
-          ],
-          "narration": "Annotate是交互式工作流。实际调用spacr-run annotate会返回退出状态二，并说明没有批处理等价入口。给裁剪图像添加标签时，请使用桌面应用中的Annotate。这种预期的拒绝并不表示安装损坏。",
-          "related_lessons": [
-            "09_annotate"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Annotate是交互式工作流。实际调用斯佩克尔-run annotate会返回退出状态二，并说明没有批处理等价入口。给裁剪图像添加标签时，请使用桌面应用中的Annotate。这种预期的拒绝并不表示安装损坏。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_report_api",
@@ -592,9 +574,8 @@
             2800,
             700
           ],
-          "narration": "有些功能提供Python API，却没有对应的批处理命令键。这里从spacr.report导入build_report，查看其真实函数签名。我们不调用该函数，也不生成报告。请查看函数文档及参数，不要假定存在spacr-run report。",
-          "hold_after": 0.7,
-          "speech_text": "有些功能提供Python API，却没有对应的批处理命令键。这里从斯佩克尔.report导入build_report，查看其真实函数签名。我们不调用该函数，也不生成报告。请查看函数文档及参数，不要假定存在斯佩克尔-run report。"
+          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_dry_run",
@@ -604,24 +585,8 @@
             3440,
             680
           ],
-          "narration": "将保存的设置文件传给regression，并添加dry-run选项。真实命令会解析设置、执行预检查，然后明确说明没有调用perform_regression。请阅读退出状态和消息；本次录制没有启动另一次回归分析，也没有写出其分析结果。",
-          "related_lessons": [
-            "13_regression"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "将保存的设置文件传给regression，并添加dry-run选项。真实命令会解析设置、执行预检查，然后明确说明没有调用perform_regression。请阅读退出状态和消息；本次录制没有启动另一次回归分析，也没有写出其分析结果。"
-        },
-        {
-          "visual": "06_dry_run",
-          "focus": [
-            200,
-            1320,
-            3440,
-            680
-          ],
-          "narration": "预检查无报错，并不能证明完整分析会成功或具有科学有效性。本版本的通用计划提到了测量数据库，但我们的回归实际使用配对表格。请检查模块真正使用的输入，并在依赖无人值守运行前先进行一次规模有限的测试。",
-          "hold_after": 0.7,
-          "speech_text": "预检查无报错，并不能证明完整分析会成功或具有科学有效性。本版本的通用计划提到了测量数据库，但我们的回归实际使用配对表格。请检查模块真正使用的输入，并在依赖无人值守运行前先进行一次规模有限的测试。"
+          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_describe",
@@ -631,15 +596,19 @@
             2250,
             900
           ],
-          "narration": "只有打算真正执行分析时，才移除dry-run。请将准确设置、输入标识、软件包版本和控制台日志与输出一起保存。实际执行示例见链接中的模块教程；编写Python脚本时，请查阅函数当前的API参考文档。",
+          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7,
-          "speech_text": "只有打算真正执行分析时，才移除dry-run。请将准确设置、输入标识、软件包版本和控制台日志与输出一起保存。实际执行示例见链接中的模块教程；编写Python脚本时，请查阅函数当前的API参考文档。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "07_mask",
@@ -1546,111 +1515,171 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks：可撤销编辑、重新裁剪与本地检测",
+      "title": "Make Masks: edit labels and prepare training images",
       "series": 1,
       "app_key": "make_masks",
-      "section": "分割模型",
-      "description": "通过真实操作编辑下载的细胞标签，区分显示与掩膜变化，创建可恢复的训练裁剪图像，并检查真实的Cellpose检测及其中间视图。",
+      "section": "Tools",
+      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
       "objectives": [
-        "打开配对的二维图像和实例掩膜，不修改下载的源数据。",
-        "使用可撤销的对象删除、绘制、分割及面积筛选，并区分这些操作与显示对比度调整。",
-        "保存校订后的掩膜并重新裁剪视野，将原始父图像保存在恢复目录中。",
-        "找到嵌套的分割工具，检查真实的本地Cellpose检测、评分图和流场视图。"
+        "Open images with matching instance masks and inspect objects in the magnifier.",
+        "Measure paired fields and save an object-feature database.",
+        "Correct labels with Undo, drawing, division and size filters.",
+        "Save curated masks and create image-mask crops for training."
       ],
-      "prerequisite": "请先获取Measure提供的真实可下载示例。本次录制从其七平面uint16合并视野中提取两个独立TIFF图像对，不改变像素：平面1为ER强度，平面4为细胞标签。具体准备方法见tools/tutorials/capture_make_masks.py中的prepare_fields。自己的实验应提供二维图像，以及masks子目录中同名主干的实例标签TIFF；不要假定其他数据也使用此平面顺序。",
+      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在Home的Tools分类中打开Make Masks。这是手动掩膜编辑器，与Core中的Mask流程不同。工具栏编辑当前视野；标题栏打开相关的分割工作流，它们现在归属于这个主模块。",
+          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "在主页的Tools分类中打开Make Masks。这是手动掩膜编辑器，与Core中的Mask流程不同。工具栏编辑当前视野；标题栏打开相关的分割工作流，它们现在归属于这个主模块。"
+          ]
         },
         {
           "visual": "02_folder_picker",
-          "narration": "这个示例使用Measure下载数据集中的两个真实视野。我们把强度平面和现有细胞标签提取为独立TIFF副本，保留原始图像堆栈不变。准备过程记录来源平面和哈希值。其他数据集的平面顺序可能不同。",
+          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "这个示例使用Measure下载数据集中的两个真实视野。我们把强度平面和现有细胞标签提取为独立TIFF副本，保留原始图像堆栈不变。准备过程记录来源平面和哈希值。其他数据集的平面顺序可能不同。"
+          ]
         },
         {
           "visual": "03_real_labels",
-          "narration": "打开图像文件夹。配对的实例掩膜位于其masks子目录中，与图像具有相同的文件名主干。第一个视野加载了六十三个带标签对象。缺少配对掩膜时会从空掩膜开始；标签图像使用对象标识，而不只是前景颜色。",
+          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_04_otsu_magnifier_settings",
+          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_05_live_otsu_magnifier",
+          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
           "hold_after": 0.7,
-          "speech_text": "打开图像文件夹。配对的实例掩膜位于其masks子目录中，与图像具有相同的文件名主干。第一个视野加载了六十三个带标签对象。缺少配对掩膜时会从空掩膜开始；标签图像使用对象标识，而不只是前景颜色。"
+          "focus": [
+            1370,
+            280,
+            2200,
+            1775
+          ]
+        },
+        {
+          "visual": "readouts_06_features_real_files",
+          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_08_features_choose_cell_mask",
+          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_09_features_assigned_table",
+          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_12_features_measurements_saved",
+          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
         },
         {
           "visual": "03_real_labels",
-          "narration": "Brush和Erase作用于像素，Erase object则删除整个标签。Wand控件扩展强度相连的区域。Draw、Divide、Zoom和Recrop现在共用这条工具栏。请选择适合当前错误的操作，并在保存前检查结果。",
+          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ],
-          "speech_text": "Brush和Erase作用于像素，Erase object则删除整个标签。Wand控件扩展强度相连的区域。Draw、Divide、Zoom和Recrop现在共用这条工具栏。请选择适合当前错误的操作，并在保存前检查结果。"
+          ]
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "点击Erase object，再点击一个位于视野内部的细胞。真实点击只删除标签十七，将对象数量从六十三变为六十二，不影响其他标签。这是在演示操作，不是在判断该细胞应因生物学原因被排除。",
-          "hold_after": 0.7,
-          "speech_text": "点击Erase object，再点击一个位于视野内部的细胞。真实点击只删除标签十七，将对象数量从六十三变为六十二，不影响其他标签。这是在演示操作，不是在判断该细胞应因生物学原因被排除。"
+          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Undo恢复原始标签的每个像素。Redo重复同一次删除；继续之前再次用Undo恢复。这些是点击产生的真实历史步骤，不是录制脚本把另一张掩膜替换进查看器。",
-          "hold_after": 0.7,
-          "speech_text": "Undo恢复原始标签的每个像素。Redo重复同一次删除；继续之前再次用Undo恢复。这些是点击产生的真实历史步骤，不是录制脚本把另一张掩膜替换进查看器。"
+          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Draw把轮廓闭合并填充为一个对象。这里在背景上画一个小轮廓来演示工具，短暂产生第六十四个标签。它不是生物学标注，因此随后撤销。准备训练标签时，应仔细描绘真实边界。",
-          "hold_after": 0.7,
-          "speech_text": "Draw把轮廓闭合并填充为一个对象。这里在背景上画一个小轮廓来演示工具，短暂产生第六十四个标签。它不是生物学标注，因此随后撤销。准备训练标签时，应仔细描绘真实边界。"
+          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Divide切开现有对象，并为分离出的部分分配新标识。手势应在图像上开始和结束，并穿过整个对象。这次真实切割产生六十四个标签；随后撤销，不把演示性的分割当作真实标准。",
-          "hold_after": 0.7,
-          "speech_text": "Divide切开现有对象，并为分离出的部分分配新标识。手势应在图像上开始和结束，并穿过整个对象。这次真实切割产生六十四个标签；随后撤销，不把演示性的分割当作真实标准。"
+          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Display百分位改变可见性，不改变原始强度或标签几何。提高下百分位会明显改变渲染，而两个数组仍完全相同。恢复设置会恢复显示。对比度是观察辅助，不是修改测量值的方法。",
-          "hold_after": 0.7,
-          "speech_text": "Display百分位改变可见性，不改变原始强度或标签几何。提高下百分位会明显改变渲染，而两个数组仍完全相同。恢复设置会恢复显示。对比度是观察辅助，不是修改测量值的方法。"
+          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "编辑器的对象筛选确实会修改标签。这里采用测得的演示阈值，两万一千零二十二像素，点击Apply filter now后删除三十二个对象。模型没有重新运行。该阈值不是推荐的生物学界限，这项操作也不只是隐藏对象。",
-          "hold_after": 0.7,
-          "speech_text": "编辑器的对象筛选确实会修改标签。这里采用测得的演示阈值，两万一千零二十二像素，点击Apply filter now后删除三十二个对象。模型没有重新运行。该阈值不是推荐的生物学界限，这项操作也不只是隐藏对象。"
+          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "撤销筛选，并把阈值边界恢复为零，以便后续视野不再应用这些限制。Save mask写出恢复后的标签和校订记录。我们验证其前景几何没有变化；请把源图像与正在校订的掩膜分开保存。",
-          "hold_after": 0.7,
-          "speech_text": "撤销筛选，并把阈值边界恢复为零，以便后续视野不再应用这些限制。Save mask写出恢复后的标签和校订记录。我们验证其前景几何没有变化；请把源图像与正在校订的掩膜分开保存。"
+          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "标题栏提供Train Cellpose和Mask the whole folder。训练模型与应用模型是不同任务，此处链接了现有的专门教程。即使工具打开独立窗口，教程Submodules区域仍将它们归类在Make Masks之下。",
+          "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ],
-          "speech_text": "标题栏提供Train 塞尔波斯和Mask the whole folder。训练模型与应用模型是不同任务，此处链接了现有的专门教程。即使工具打开独立窗口，教程Submodules区域仍将它们归类在Make Masks之下。"
+          ]
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "同一标题栏还包含Model Compare、Model Zoo、Curate和Open in napari。保留的教程分别介绍并排比较模型、可用权重、校订，以及与外部编辑器之间的往返操作。这里展示真实入口，不重复或虚构这些工作流。",
+          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1658,65 +1687,61 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ],
-          "speech_text": "同一标题栏还包含Model Compare、Model Zoo、Curate和Open in napari。保留的教程分别介绍并排比较模型、可用权重、校订，以及与外部编辑器之间的往返操作。这里展示真实入口，不重复或虚构这些工作流。"
+          ]
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Recrop改变训练视野，而不只是缩放。围绕完整对象拖出矩形框。这个手势会立即写出新图像和配对掩膜，并保留原始强度像素。被边界切断的标签会被丢弃；请检查输出对象数，而不只是查看框线。",
-          "hold_after": 0.7,
-          "speech_text": "Recrop改变训练视野，而不只是缩放。围绕完整对象拖出矩形框。这个手势会立即写出新图像和配对掩膜，并保留原始强度像素。被边界切断的标签会被丢弃；请检查输出对象数，而不只是查看框线。"
+          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Next打开新的单对象裁剪图像，并把父图像副本移入recropped_originals。恢复目录保留其图像字节。这影响编辑器的文件夹队列，不会重建Annotate的裁剪数据库。这里只归档我们的私有教程副本，从不移动下载的源数据。",
+          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Next打开新的单对象裁剪图像，并把父图像副本移入recropped_originals。恢复目录保留其图像字节。这影响编辑器的文件夹队列，不会重建Annotate的裁剪数据库。这里只归档我们的私有教程副本，从不移动下载的源数据。"
+          ]
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "Cellpose-SAM可以检测当前视野中的对象。小裁剪图像使用cpsam，开启归一化，细胞评分阈值为零，流场阈值为零点四，直径为零以保留模型默认尺寸处理。替换模式很重要：它不同于在现有标签上增加检测对象。",
-          "hold_after": 0.7,
-          "speech_text": "塞尔波斯-SAM可以检测当前视野中的对象。小裁剪图像使用cpsam，开启归一化，细胞评分阈值为零，流场阈值为零点四，直径为零以保留模型默认尺寸处理。替换模式很重要：它不同于在现有标签上增加检测对象。"
+          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "点击Cellpose-SAM detect并查看真实结果。这次在三百三十一乘二百六十七像素的裁剪图像中发现一个对象。新边界与已有掩膜不同；对象数量相同并不能证明任何一条边界正确。",
-          "hold_after": 0.7,
-          "speech_text": "点击塞尔波斯-SAM detect并查看真实结果。这次在三百三十一乘二百六十七像素的裁剪图像中发现一个对象。新边界与已有掩膜不同；对象数量相同并不能证明任何一条边界正确。"
+          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Cell probability显示该次检测的真实评分图，不是生物学解释正确性的校准概率。它可帮助理解模型在哪些位置支持前景。更改检测阈值后需要再次检测；这些视图描述的是生成它们的那次运行。",
-          "hold_after": 0.7,
-          "speech_text": "Cell probability显示该次检测的真实评分图，不是生物学解释正确性的校准概率。它可帮助理解模型在哪些位置支持前景。更改检测阈值后需要再次检测；这些视图描述的是生成它们的那次运行。"
+          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Flows展示模型的方向信息。流场一致性阈值与前景评分阈值含义不同：数值越小越严格，零则关闭这项检查。请同时检查掩膜与中间视图，不要假定数字越大，分割就一定越好。",
-          "hold_after": 0.7,
-          "speech_text": "Flows展示模型的方向信息。流场一致性阈值与前景评分阈值含义不同：数值越小越严格，零则关闭这项检查。请同时检查掩膜与中间视图，不要假定数字越大，分割就一定越好。"
+          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo恢复检测前的裁剪标签，不改变图像。Cellpose使用本地模型权重，而不是聊天服务提供方的回复。应用的设备选择器支持可用加速并可回退到CPU；选项取决于安装环境，因此不要承诺不同后端产生相同结果。",
-          "hold_after": 0.7,
-          "speech_text": "Undo恢复检测前的裁剪标签，不改变图像。塞尔波斯使用本地模型权重，而不是聊天服务提供方的回复。应用的设备选择器支持可用加速并可回退到CPU；选项取决于安装环境，因此不要承诺不同后端产生相同结果。"
+          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "编写脚本时，编辑器的load_image_and_mask、save_mask和write_recrop操作位于spacr.qt.mask_engine。请把图像与掩膜的配对关系以及来源信息和校订过的训练数据一同保存。从已检查的示例转向可复现流程时，可参考链接中的API和训练教程。",
+          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ],
-          "speech_text": "编写脚本时，编辑器的load_image_and_mask、save_mask和write_recrop操作位于斯佩克尔.Q T.mask_engine。请把图像与掩膜的配对关系以及来源信息和校订过的训练数据一同保存。从已检查的示例转向可复现流程时，可参考链接中的API和训练教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "15_image_umap",
@@ -1829,104 +1854,96 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation Maps：真实显著性输出及其局限",
+      "title": "Activation Maps: inspect an image classifier’s saliency maps",
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "结果与质量控制",
-      "description": "在Classify内打开Activation Maps，将可信模型与真实裁剪图匹配，比较两种输出，不把归因当作验证。",
+      "section": "Classify",
+      "description": "Select a trained classifier and matching image crops, compare channel and image saliency, and open the saved maps.",
       "objectives": [
-        "找到当前嵌套工具并保持模型输入约定。",
-        "区分输入预处理、显示对比度和归因方法。",
-        "在Figures为空时检查真实保存文件。",
-        "区分数值核验、模型预测和科学有效性。"
+        "Match the crop archive, model and preprocessing settings.",
+        "Run channel saliency with an image overlay.",
+        "Compare image saliency and locate the saved grids."
       ],
-      "prerequisite": "使用Annotate下载示例中四张未修改的RGB细胞裁剪图，以及此前演示中只训练一轮的可信本地ResNet18检查点。该划分在训练与评估之间共享孔，因此不主张独立准确率。保留格式3/RGB标记和模型卡。尺寸128、批次4、通道[1,2,3]，开启normalize_input/normalize/Plot/Save，关闭shuffle/correlation，CPU单工作进程。saliency_channel开启叠加，saliency_image关闭。核验196608个输入值和262144个保存图分量，允许八位值最多一个级别的舍入误差。身份与原件不变。src警告和空Figures未修复；PNG在真实外部查看器显示。四个未用槽位为空。未声称进行了归因验证、独立准确率测试、AI请求、生物学验证或发布。API: spacr.deep_spacr.generate_activation_maps, spacr.utils.SaliencyMapGenerator.",
+      "prerequisite": "Use a trained image-classification checkpoint and a TAR archive of compatible image crops. Retain the crop-format marker when present and follow the model card’s channel order, image size and normalization. The example uses four RGB crops from Annotate and a ResNet18 model from Classify. Train or obtain a model whose preprocessing is known before starting.",
       "scenes": [
         {
           "visual": "02_activation_fold",
-          "narration": "打开Classify，再选择其中嵌套的Activation Maps。此流程检查已训练模型的预测如何响应图像像素。它不训练分类器，也不证明观测表型的成因。我们将展示两次真实显著性计算、控制台输出，以及明确使用保存文件的查看方式。",
+          "narration": "From Home, open Classify, then Activation Maps. This tool shows where a trained image classifier’s prediction is sensitive to the input pixels. Start with the model and an archive of crops prepared in the same way as its training data.",
           "related_lessons": [
             "09_annotate",
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Classify，再选择其中嵌套的Activation Maps。此流程检查已训练模型的预测如何响应图像像素。它不训练分类器，也不证明观测表型的成因。我们将展示两次真实显著性计算、控制台输出，以及明确使用保存文件的查看方式。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_00_dataset",
-          "narration": "使用实际裁剪图归档，不要只填占位文件夹。这个小归档包含Annotate下载示例中的四张未改动RGB细胞裁剪图及格式标记。保留源文件，在专用项目中操作。方便选取的四张图只展示操作，并非具有代表性的验证样本组。",
-          "hold_after": 0.7,
-          "speech_text": "使用实际裁剪图归档，不要只填占位文件夹。这个小归档包含Annotate下载示例中的四张未改动RGB细胞裁剪图及格式标记。保留源文件，在专用项目中操作。方便选取的四张图只展示操作，并非具有代表性的验证样本组。"
+          "narration": "Select the crop archive in Dataset. This example contains four RGB cell crops from Annotate. Include the crop-format marker when packaging the images, and keep their filenames so you can connect each map to its original object.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_03_image_size",
-          "narration": "选择匹配的可信模型并保留模型卡。这是此前演示中仅训练一轮的ResNet十八检查点。它的划分共享孔，因此我们不声称有独立准确率。令人信服的归因图不能补救验证不足的模型。不要为方便而加载不可信的检查点。",
-          "hold_after": 0.7,
-          "speech_text": "选择匹配的可信模型并保留模型卡。这是此前演示中仅训练一轮的ResNet十八检查点。它的划分共享孔，因此我们不声称有独立准确率。令人信服的归因图不能补救验证不足的模型。不要为方便而加载不可信的检查点。"
+          "narration": "Select the trained model and choose its model type. Here the model is ResNet eighteen. Read its model card and set Image size to one hundred and twenty-eight to match the training input.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_05_channels",
-          "narration": "匹配训练输入约定：尺寸一百二十八，以及声明的RGB通道顺序。这里实际通道选择器使用一、二、三。不要因为另一个工具采用零起始索引就交换通道。比较任何显著性输出之前，我们已将中心裁剪和变换后的输入值与训练加载器独立核对。",
-          "hold_after": 0.7,
-          "speech_text": "匹配训练输入约定：尺寸一百二十八，以及声明的RGB通道顺序。这里实际通道选择器使用一、二、三。不要因为另一个工具采用零起始索引就交换通道。比较任何显著性输出之前，我们已将中心裁剪和变换后的输入值与训练加载器独立核对。"
+          "narration": "Set Channels to the order expected by the model. In this example the selector uses one, two and three for the RGB input. Preserve that order when comparing maps from different images.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_06_normalize_input",
-          "narration": "区分输入归一化和显示归一化。输入必须匹配训练；这里启用了记录的对称预处理。显示归一化改变叠加底图的外观，不改变模型准确率或颜色含义。比较运行时保留这两项设置，不要把更亮的图当作更强的证据。",
-          "hold_after": 0.7,
-          "speech_text": "区分输入归一化和显示归一化。输入必须匹配训练；这里启用了记录的对称预处理。显示归一化改变叠加底图的外观，不改变模型准确率或颜色含义。比较运行时保留这两项设置，不要把更亮的图当作更强的证据。"
+          "narration": "Set Normalize input to match training. The separate display normalization controls how the image appears in the saved overlay. Keep both settings consistent when comparing runs.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_method_and_overlay",
-          "narration": "选择saliency channel并开启Overlay，同时保持Plot和Save开启。这个小演示使用一个工作进程、四张图一批和CPU。屏幕没有实时预览控件，换方法需要再次运行。通道显著性在保存基于导数的图时，分别保留各输入通道。",
-          "hold_after": 0.7,
-          "speech_text": "选择saliency channel并开启Overlay，同时保持Plot和Save开启。这个小演示使用一个工作进程、四张图一批和CPU。屏幕没有实时预览控件，换方法需要再次运行。通道显著性在保存基于导数的图时，分别保留各输入通道。"
+          "narration": "Choose saliency channel and enable Overlay, Plot and Save. This produces separate channel maps over the images. For the four-crop example, use a batch size of four and one worker, then click Run.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_finished_console",
-          "narration": "阅读实际控制台。计算完成，但这个版本错误地提示缺少src，尽管Activation使用Dataset。Figures面板也保持空白。我们独立核验了输入、保存图和数据库身份，并未修复这些GUI缺陷。其他错误仍需调查。",
-          "hold_after": 0.7,
-          "speech_text": "阅读实际控制台。计算完成，但这个版本错误地提示缺少src，尽管Activation使用Dataset。Figures面板也保持空白。我们独立核验了输入、保存图和数据库身份，并未修复这些GUI缺陷。其他错误仍需调查。"
+          "narration": "Follow the console until processing finishes. If the Figures panel is empty, open the output folder and inspect the saved batch grids. Check error messages and the saved results before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_09_saved_batch_0_grid",
-          "narration": "在图像查看器中打开保存的批次网格。这是真实外部查看器，不是插入spaCR的图。四个有内容的槽位对应四张裁剪图，其余四个未使用。角落的零和一是模型预测，不是真实标签。叠加图显示敏感性，不是分割掩膜。",
-          "hold_after": 0.7,
-          "speech_text": "在图像查看器中打开保存的批次网格。这是真实外部查看器，不是插入斯佩克尔的图。四个有内容的槽位对应四张裁剪图，其余四个未使用。角落的零和一是模型预测，不是真实标签。叠加图显示敏感性，不是分割掩膜。"
+          "narration": "Open batch_0_grid.png from the method’s batch_grids folder. Match each occupied slot with its source crop; unused slots may be blank. The corner labels are model predictions. Compare salient regions with the original image and known object boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_method_and_overlay",
-          "narration": "接着选择saliency image，关闭Overlay，用相同输入再次运行。此方法先对各通道的绝对导数求和，再重新缩放保存的灰度图。它不是遮挡法，也不是积分梯度。按方法分开保存输出，避免将第二次运行误认作第一次。",
-          "hold_after": 0.7,
-          "speech_text": "接着选择saliency image，关闭Overlay，用相同输入再次运行。此方法先对各通道的绝对导数求和，再重新缩放保存的灰度图。它不是遮挡法，也不是积分梯度。按方法分开保存输出，避免将第二次运行误认作第一次。"
+          "narration": "To compare a combined map, select saliency image and turn Overlay off. Run the same images again with the same preprocessing. Keep the two methods’ outputs in their respective folders.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_09_saved_batch_0_grid",
-          "narration": "第二张保存网格显示不带底图的显著性图。颜色表示显示的显著性尺度，不是类别概率，也不是生物学重要性的证明。独立检查将每个保存分量与单独计算的梯度比较，最多允许一个八位值级别的舍入误差。这检查实现，不验证解释是否有用。",
-          "hold_after": 0.7,
-          "speech_text": "第二张保存网格显示不带底图的显著性图。颜色表示显示的显著性尺度，不是类别概率，也不是生物学重要性的证明。独立检查将每个保存分量与单独计算的梯度比较，最多允许一个八位值级别的舍入误差。这检查实现，不验证解释是否有用。"
+          "narration": "Open the second saved grid. Image saliency combines the channel sensitivities into one map for each crop. Compare the highlighted regions with the channel maps. The displayed colours indicate the map scale; interpreting them requires checking the model and image context.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_11_correlation",
-          "narration": "本例关闭了图定量。我们没有运行删除、插入、模型随机化或其他归因验证测试；两种看起来不同的方法不能替代这些测试。得出结论前，应使用有代表性的成功与失败案例、合理对照和独立保留的数据。把这个有限演示视为工作流程检查。",
+          "narration": "Leave Correlation off for this first walkthrough. Review examples from different classes, including prediction errors, before interpreting patterns. Use Classifier Evaluation to assess performance on independently held-out data.",
           "related_lessons": [
             "39_classifier_evaluation",
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "本例关闭了图定量。我们没有运行删除、插入、模型随机化或其他归因验证测试；两种看起来不同的方法不能替代这些测试。得出结论前，应使用有代表性的成功与失败案例、合理对照和独立保留的数据。把这个有限演示视为工作流程检查。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_11_back_to_actual_gui",
-          "narration": "将裁剪图身份、原始图像、模型与模型卡、设置、日志、图和数据库一起保存。源文件没有改变，两种方法都保留四个身份。AI辅助是可选的，这里未发送请求。以后获得的建议也应与实际API和证据核对，不要把流畅解释当作验证。",
+          "narration": "Keep the input archive, model and model card, settings, maps and output database together. Return to the original crops to investigate unexpected regions, or compare another method using the same inputs.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "将裁剪图身份、原始图像、模型与模型卡、设置、日志、图和数据库一起保存。源文件没有改变，两种方法都保留四个身份。AI辅助是可选的，这里未发送请求。以后获得的建议也应与实际API和证据核对，不要把流畅解释当作验证。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "17_timelapse",
@@ -2370,112 +2387,100 @@
       "series": 3,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "分割模型",
-      "title": "应用 Cellpose：保存掩膜与实时筛选检查",
-      "description": "通过嵌套的 Workbench，将 CPSAM 应用于三张可下载的真实图像，检查图表和控制台，并区分实时预览与批量推理。",
+      "section": "Tools",
+      "title": "Apply Cellpose: segment a folder and inspect masks",
+      "description": "Choose a segmentation model, process the supplied images and inspect saved masks and live size filters.",
       "objectives": [
-        "在 Make Masks 的 Cellpose Workbench 中找到 Apply。",
-        "使用保留的真实图像副本和记录的标准模型设置。",
-        "检查三个保存掩膜及原图、轮廓和流场图。",
-        "演示可逆筛选及滚轮同步缩放。",
-        "识别预览与批处理的实测差异，不作准确率承诺。"
+        "Select images, model weights and segmentation settings.",
+        "Run Apply and locate the saved mask TIFFs.",
+        "Inspect live results and compare object-size filters."
       ],
       "example_files": [
         "Apply_Cellpose_stock_example.zip"
       ],
-      "prerequisite": "将三图示例解压到新目录，令 src 指向 images。recorded_settings.json 是历史解析设置，不代表已演示可移植的 GUI 导入。真实细胞裁图为512×512、uint16、单通道，不是分割真值。使用标准 CPSAM，而非 Train 教程的模型。设置：channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True；rescale、resample、resize、fill_in、invert、remove_background 均为 False。真实 CUDA 批处理保存9/94/46个对象及三张原生图。独立模型调用复现全部掩膜像素与图表数组。外轮廓不是所有相接实例的边界；流场面板只是可视化的一个通道，不是实测运动。图02的预览为95而非94，符合原图上 Cellpose 的默认处理，而不是批处理的预处理和重采样路径。界面显示2/99不证明等价。最小面积1838使95→47→95，无需重新推理；恢复后的每个像素均已检查，保存TIFF不变。同步缩放会裁切视野，不修复狭窄预览卡片。保留原始数据与之前的暂停记录。无生物学准确性认证、AI请求、发布或应用修改。",
+      "prerequisite": "Extract the linked Apply Cellpose example into a new folder. It contains three single-channel cell images and a settings reference. Select its images folder as Source. This walkthrough uses the stock cpsam model; for a custom model, choose compatible weights and settings for your images.",
       "scenes": [
         {
           "visual": "02_actual_train_and_apply_tabs",
-          "narration": "从 Make Masks 打开嵌套的 Cellpose Workbench，再选择 Apply。Train 和 Apply 是同一工作台中的标签，Apply 不是主页上的独立模块。本课用标准模型处理三张真实图像，不使用链接的 Train 教程中生成的演示检查点。",
+          "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
           ],
-          "hold_after": 0.7,
-          "speech_text": "从 Make Masks 打开嵌套的 塞尔波斯 Workbench，再选择 Apply。Train 和 Apply 是同一工作台中的标签，Apply 不是主页上的独立模块。本课用标准模型处理三张真实图像，不使用链接的 Train 教程中生成的演示检查点。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "将链接的示例解压到新文件夹，把其中的 images 目录设为输入源，并保留原始下载。这是三张单通道细胞图像，每边五百一十二像素。它们是演示输入，不是分割真值。参考记录设置时，请将历史路径换成自己的路径。",
-          "hold_after": 0.7,
-          "speech_text": "将链接的示例解压到新文件夹，把其中的 images 目录设为输入源，并保留原始下载。这是三张单通道细胞图像，每边五百一十二像素。它们是演示输入，不是分割真值。参考记录设置时，请将历史路径换成自己的路径。"
+          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_model_name",
-          "narration": "选择 CPSAM，保持自定义模型为空。本例通道列表为零，归一化采用第二与第九十九百分位，直径为三十，流场阈值零点四，细胞概率阈值为零。这些是有限演示的选项，不是所有实验的推荐设置。",
-          "hold_after": 0.7,
-          "speech_text": "选择 CPSAM，保持自定义模型为空。本例通道列表为零，归一化采用第二与第九十九百分位，直径为三十，流场阈值零点四，细胞概率阈值为零。这些是有限演示的选项，不是所有实验的推荐设置。"
+          "narration": "Select cpsam and leave Custom model empty for this example. Set Channels to zero, normalization percentiles to two and ninety-nine, Diameter to thirty, Flow threshold to zero point four and Cell probability to zero. Adjust these settings after inspecting a few representative fields from your own experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_inference_outcome",
-          "narration": "打开 Save 和 Verbose，将批量大小设为一，然后运行 Apply。此路径不需要独立的 Plot 开关就会生成图。真实控制台显示 RTX 三零九零正在使用 CUDA，并完成三张图像。请核对输入源和保存设置；Finished 本身不是准确率测量。",
-          "hold_after": 0.7,
-          "speech_text": "打开 Save 和 Verbose，将批量大小设为一，然后运行 Apply。此路径不需要独立的 Plot 开关就会生成图。真实控制台显示 RTX 三零九零正在使用 CUDA，并完成三张图像。请核对输入源和保存设置；Finished 本身不是准确率测量。"
+          "narration": "Enable Save and Verbose, choose a batch size of one, and click Run in Apply. Follow the console as each image is processed. Review failures before proceeding to measurement.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "输入目录的 masks 子目录中保存了三个同名掩膜 TIFF，对象数为九、九十四和四十六。真实图表展示原图、红色前景外轮廓和流场可视化。外轮廓并不分隔每个相接实例，流场颜色也不代表物理运动或分割准确率。",
+          "narration": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
           "focus": [
             1000,
             450,
             2780,
             640
           ],
-          "hold_after": 0.7,
-          "speech_text": "输入目录的 masks 子目录中保存了三个同名掩膜 TIFF，对象数为九、九十四和四十六。真实图表展示原图、红色前景外轮廓和流场可视化。外轮廓并不分隔每个相接实例，流场颜色也不代表物理运动或分割准确率。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "打开 Live preview，用真正的图像选择器选取 cell pair 零二。折叠 Console 和 System 可以腾出显示空间。预览有自己的控件：请在 Live settings 中核对通道零和显示的百分位，不要假设 Apply 的全部选项都已复制。",
-          "hold_after": 0.7,
-          "speech_text": "打开 Live preview，用真正的图像选择器选取 cell pair 零二。折叠 Console 和 System 可以腾出显示空间。预览有自己的控件：请在 Live settings 中核对通道零和显示的百分位，不要假设 Apply 的全部选项都已复制。"
+          "narration": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "预览检测到九十五个对象，而同一图像的保存批处理掩膜有九十四个。独立检查复现了两者：预览走的是原始图像上的 Cellpose 默认流程，不是批处理明确设置的预处理与重采样。因此它是探索视图，不保证与保存掩膜完全相同。",
+          "narration": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
           "focus": [
             1000,
             1160,
             2780,
             610
           ],
-          "hold_after": 0.7,
-          "speech_text": "预览检测到九十五个对象，而同一图像的保存批处理掩膜有九十四个。独立检查复现了两者：预览走的是原始图像上的 塞尔波斯 默认流程，不是批处理明确设置的预处理与重采样。因此它是探索视图，不保证与保存掩膜完全相同。"
+          "hold_after": 0.7
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "本版本的预览卡片仍然较窄。滚轮会同时放大两个画布的局部细节，但不会增大卡片，此时无法看到整张图像。这样有助于检查局部轮廓，但局部放大不能替代完整视野审查。",
+          "narration": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
           "focus": [
             1010,
             1280,
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "本版本的预览卡片仍然较窄。滚轮会同时放大两个画布的局部细节，但不会增大卡片，此时无法看到整张图像。这样有助于检查局部轮廓，但局部放大不能替代完整视野审查。"
+          "hold_after": 0.7
         },
         {
           "visual": "22_native_filter_reduces_objects",
-          "narration": "打开 Live settings，将最小细胞面积设为一千八百三十八像素。这是演示阈值，不是生物学最优值。关闭对话框查看结果。实时筛选移除四十八个对象，留下四十七个，无需重新运行 Cellpose，也不改变原始分割结果。",
-          "hold_after": 0.7,
-          "speech_text": "打开 Live settings，将最小细胞面积设为一千八百三十八像素。这是演示阈值，不是生物学最优值。关闭对话框查看结果。实时筛选移除四十八个对象，留下四十七个，无需重新运行 塞尔波斯，也不改变原始分割结果。"
+          "narration": "Open Live settings and increase Minimum cell area to remove small objects from the preview. The cutoff is in pixels; choose it according to your object sizes. Close the dialog to inspect the filtered result.",
+          "hold_after": 0.7
         },
         {
           "visual": "22b_actual_zoomed_filtered_preview",
-          "narration": "这是关闭对话框并重新使用滚轮放大后的筛选预览。原图没有变化，小掩膜对象消失了，计数器显示四十七。这些变化只影响预览，不会重写磁盘上已保存的三个批处理 TIFF。",
+          "narration": "Compare the filtered outlines with the original image. Changing this live filter updates the preview without rewriting masks already saved by Apply. Rerun the batch with the intended settings when you need new saved outputs.",
           "focus": [
             1010,
             1280,
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "这是关闭对话框并重新使用滚轮放大后的筛选预览。原图没有变化，小掩膜对象消失了，计数器显示四十七。这些变化只影响预览，不会重写磁盘上已保存的三个批处理 TIFF。"
+          "hold_after": 0.7
         },
         {
           "visual": "23b_actual_zoomed_restored_preview",
-          "narration": "把最小面积恢复为零，关闭对话框，再次检查。九十五个对象重新出现，恢复后的每个标签像素都与初始结果相同。请将输入、设置和模型标识与掩膜一同保存。本课未使用可选的 spaCR AI 控制台；得出科学结论前仍需独立验证。",
+          "narration": "Return Minimum cell area to zero to restore the unfiltered preview. Keep the input images, model identity, settings and saved masks together. Use Make Masks for corrections or Measure to extract object features from the reviewed masks.",
           "focus": [
             1010,
             1280,
@@ -2486,34 +2491,38 @@
             "07_mask",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "把最小面积恢复为零，关闭对话框，再次检查。九十五个对象重新出现，恢复后的每个标签像素都与初始结果相同。请将输入、设置和模型标识与掩膜一同保存。本课未使用可选的 斯佩克尔 AI 控制台；得出科学结论前仍需独立验证。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Model Compare：当前界面与真实掩膜的一致性",
+      "title": "Model Compare: compare saved segmentation masks",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "分割模型",
-      "description": "打开嵌套的比较界面，加载真实视野，并用可运行的API比较已保存的分割结果。一致性不代表准确性，也不表示GUI推理问题已修复。",
+      "section": "Segmentation models",
+      "description": "Load two masks of the same image, run the downloadable comparison helper and inspect overlap scores and overlays.",
       "objectives": [
-        "在Make Masks内找到Model Compare并加载真实示例视野。",
-        "区分当前Cellpose不兼容问题与可用的掩膜比较API。",
-        "解读对象数量、匹配和重叠，不把任一结果当成正确答案。"
+        "Choose masks of the same field with matching pixel geometry.",
+        "Run the saved-mask comparison example.",
+        "Read the agreement table and inspect boundary differences."
       ],
       "example_files": [
         "Model_Compare_saved_masks_example.zip"
       ],
-      "prerequisite": "使用spaCR 1.5.0.7 nightly和Cellpose 4.2.1.1录制。GUI传入不支持的invert参数，因此这里只加载图像，不执行GUI推理、不注入结果、不修改应用。spacr.model_compare.compare_masks比较Apply Cellpose教程中cell_pair_02.tif的两个真实保存结果：批处理输出与实时预览输出。两者使用相同cpsam权重，但预处理不同，均不是专家标注的真实参考；此处不运行模型。保留视野身份、像素几何、预处理和文件哈希，相同尺寸不足以证明来自同一图像。脚本及其证据记录标识原始文件。输出目录必须是新的。一致性不能证明准确性、模型排名、生物学有效性或对独立图像的泛化性能。",
+      "prerequisite": "Download and extract the linked Model Compare example. It provides one image, two saved masks and a Python helper. Use an environment with spaCR installed and choose a new output folder outside the extracted inputs. The example compares two preprocessing choices with the same cpsam weights; assessing accuracy requires reviewed reference labels.",
       "scenes": [
         {
           "visual": "gui_00_home",
-          "narration": "Model Compare位于Make Masks内部，用于比较相同视野的分割结果。本课先介绍当前界面，再用两个真实保存的输出演示可用的掩膜比较API。",
+          "narration": "From Home, open Make Masks and choose Model Compare. Use this workflow to inspect segmentation differences on the same image. This walkthrough uses the linked saved-mask example and its Python helper.",
           "focus_modules": [
             "make_masks"
           ],
@@ -2521,45 +2530,22 @@
             "14_make_masks",
             "22_model_zoo"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Model Compare位于Make Masks内部，用于比较相同视野的分割结果。本课先介绍当前界面，再用两个真实保存的输出演示可用的掩膜比较API。"
+          "hold_after": 0.7
         },
         {
           "visual": "gui_02_model_parameters",
-          "narration": "界面将Model A和Model B的设置分开。每次比较都应记录确切的权重和预处理。名称不同或对象更多并不能证明结果更好。执行比较之前，参数表和结果表是空的。",
+          "narration": "Keep the model weights and preprocessing settings with each set of masks. When preparing your own comparison, use the same fields and pixel geometry so object overlaps refer to corresponding image locations.",
           "focus": [
             350,
             420,
             3450,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "界面将Model A和Model B的设置分开。每次比较都应记录确切的权重和预处理。名称不同或对象更多并不能证明结果更好。执行比较之前，参数表和结果表是空的。"
-        },
-        {
-          "visual": "gui_03_real_fields_loaded_not_compared",
-          "narration": "输入真实示例文件夹，点击Load。这里成功加载三个原始视野，Compare随之可用。加载图像不等于成功运行模型。我们没有在这个界面生成掩膜，也没有填入比较结果。",
-          "hold_after": 0.7,
-          "speech_text": "输入真实示例文件夹，点击Load。这里成功加载三个原始视野，Compare随之可用。加载图像不等于成功运行模型。我们没有在这个界面生成掩膜，也没有填入比较结果。"
-        },
-        {
-          "visual": "api_01_current_gui_limit",
-          "narration": "已安装的Cellpose版本不接受这个GUI后端仍在传入的invert参数。实际的函数签名检查无需启动推理，就能显示这种不兼容。我们不隐瞒问题。接下来的示例直接对现有标签图像调用compare_masks。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1350
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "已安装的塞尔波斯版本不接受这个GUI后端仍在传入的invert参数。实际的函数签名检查无需启动推理，就能显示这种不兼容。我们不隐瞒问题。接下来的示例直接对现有标签图像调用compare_masks。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_00_inputs",
-          "narration": "两个掩膜来自Apply Cellpose教程中的同一张真实图像。一个是保存的批处理输出，另一个是保存的实时预览输出。它们使用同一个模型、不同的预处理，而不是两组相互竞争的权重。任何一个都不是真实参考答案。",
+          "narration": "Extract the linked example. The inputs are image.tif, batch.tif and preview.npy. Both masks describe the same field; they were produced with the same model and different preprocessing settings. Keep their original filenames for the supplied helper.",
           "focus": [
             200,
             100,
@@ -2569,36 +2555,33 @@
           "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "两个掩膜来自Apply 塞尔波斯教程中的同一张真实图像。一个是保存的批处理输出，另一个是保存的实时预览输出。它们使用同一个模型、不同的预处理，而不是两组相互竞争的权重。任何一个都不是真实参考答案。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_02_actual_comparison",
-          "narration": "API报告A中有九十四个对象，B中有九十五个对象，匹配成功的有九十一对。匹配对的平均重叠约为零点九六，调整兰德指数约为零点九六一。这些数值描述一致性，而非准确性，也不说明谁胜出。",
+          "narration": "Run the supplied helper in your spaCR Python environment. Set source to the example input folder and output to a new results folder. The printed summary lists object counts, matched objects, mean matched overlap and adjusted Rand index. Higher agreement means the masks are more similar; it does not by itself establish which mask is correct.",
           "focus": [
             200,
             100,
             3440,
             900
           ],
-          "hold_after": 0.7,
-          "speech_text": "API报告A中有九十四个对象，B中有九十五个对象，匹配成功的有九十一对。匹配对的平均重叠约为零点九六，调整兰德指数约为零点九六一。这些数值描述一致性，而非准确性，也不说明谁胜出。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_04_actual_comparison_figure",
-          "narration": "检查实际保存的叠加图。右侧面板标出前景归属不同的像素，并不显示所有实例标签分歧。相近的对象数量可能掩盖边界差异、分裂或合并，因此除了汇总数值，还要查看图像。",
+          "narration": "Open comparison.png. Compare the two mask overlays with the image and inspect splits, merges and boundary shifts. The right panel highlights pixels where foreground membership differs. Check touching-object boundaries in the overlays as well.",
           "focus": [
             450,
             480,
             2950,
             1230
           ],
-          "hold_after": 0.7,
-          "speech_text": "检查实际保存的叠加图。右侧面板标出前景归属不同的像素，并不显示所有实例标签分歧。相近的对象数量可能掩盖边界差异、分裂或合并，因此除了汇总数值，还要查看图像。"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_outputs",
-          "narration": "脚本使用原始像素独立复核每对匹配的重叠，并验证相同掩膜对照。将CSV、图、源文件身份及预处理记录一起保存。声称准确性或选择模型之前，应使用经过独立审查的标注，以及预留用于评估的图像。",
+          "narration": "Open comparison.csv for the numerical results and retain it with comparison.png, the inputs and the recorded settings. Use reviewed reference masks and representative fields when comparing segmentation accuracy or choosing a model for your experiment.",
           "focus": [
             200,
             100,
@@ -2609,10 +2592,14 @@
             "23_agreement",
             "19_train_cellpose"
           ],
-          "hold_after": 0.7,
-          "speech_text": "脚本使用原始像素独立复核每对匹配的重叠，并验证相同掩膜对照。将CSV、图、源文件身份及预处理记录一起保存。声称准确性或选择模型之前，应使用经过独立审查的标注，以及预留用于评估的图像。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "22_model_zoo",
@@ -3633,211 +3620,201 @@
       "series": 4,
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
-      "section": "结果与质量控制",
-      "title": "Training Runs：用合成日志练习比较操作",
-      "description": "在 Classify 中打开 Training Runs，使用明确标注为合成数据的进度日志，查看记录的指标、自动生成的设置差异和各折的显示模式，而不训练或评估模型。",
+      "section": "Tools",
+      "title": "Training Runs: compare curves and settings",
+      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
       "objectives": [
-        "发现已有的日志文件夹，区分可用曲线与不完整的测试示例。",
-        "在保留各序列自身 epoch 范围的前提下，比较记录的指标。",
-        "将自动生成的配置差异与执行相关设置分开解读。",
-        "区分记录中的最佳 epoch、最后一个 epoch、折间样本标准差和科学验证。"
+        "Find saved runs and select the ones to compare.",
+        "Overlay training and validation metrics and inspect settings differences.",
+        "Switch between individual folds and their mean and standard deviation."
       ],
-      "prerequisite": "使用现有的 synthetic/training_runs 教程文件夹，其中已明确说明数据为合成数据。baseline、tuned 和 cross_validated 的曲线、各折数值和设置都是为演示界面生成的，并非任何分类器产生的结果。其中不完整的 .pth 文件仅包含占位文本，绝不能作为模型加载。本课演示的是真实的 CSV 解析器和比较控件，而不是训练、检查点评估或生物学性能。在自己的分析中，应将真实的 train.csv 和 validation.csv 日志连同设置及数据集来源信息一起保留。Training Runs 没有单独的示例下载控件。",
+      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "打开 Classify，再打开其中的 Training Runs 工具。本课使用明确标注为合成数据的进度日志：每条曲线、每一折和每项配置都是示例，并非实测的分类器结果。我们只演示比较界面，不训练或评估模型。",
+          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
-          ],
-          "speech_text": "打开 Classify，再打开其中的 Training Runs 工具。本课使用明确标注为合成数据的进度日志：每条曲线、每一折和每项配置都是示例，并非实测的分类器结果。我们只演示比较界面，不训练或评估模型。"
+          ]
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Training Runs 有自己的文件夹选择器、运行列表、Metric 和 Folds 控件，以及 Overlay selected 按钮。它读取已保存的 train.csv 和 validation.csv 表，并恢复设置。父级 Classify 的训练表单属于另一套工作流程；本练习中不要点击它的 Run 按钮。",
+          "narration": "Training Runs provides a folder selector, run list, Metric menu, Folds menu and Overlay selected button. Begin by choosing the parent folder containing the runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
             310,
             3350,
             1650
-          ],
-          "speech_text": "Training Runs 有自己的文件夹选择器、运行列表、Metric 和 Folds 控件，以及 Overlay selected 按钮。它读取已保存的 train.csv 和 validation.csv 表，并恢复设置。父级 Classify 的训练表单属于另一套工作流程；本练习中不要点击它的 Run 按钮。"
+          ]
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "点击 Choose folder…，选择现有的合成数据目录 training_runs，再用 Choose 确认。请选择各示例项目的上一级文件夹，而不是某个 CSV 文件。保持这些原始测试示例不变；无需重新生成、复制某次运行或创建新的检查点。",
+          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
           "hold_after": 0.7,
           "focus": [
             1555,
             790,
             1410,
             965
-          ],
-          "speech_text": "点击 Choose folder…，选择现有的合成数据目录 training_runs，再用 Choose 确认。请选择各示例项目的上一级文件夹，而不是某个 CSV 文件。保持这些原始测试示例不变；无需重新生成、复制某次运行或创建新的检查点。"
+          ]
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan 会发现4个测试示例文件夹：20个 epoch 的 baseline、25个 epoch 的 tuned、一个包含3折且有18个 epoch 的示例，以及一个不完整条目。baseline 和 tuned 是演示名称。路径中的模型名称并不意味着本课训练过这些模型。",
+          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
             530,
             940,
             285
-          ],
-          "speech_text": "Scan 会发现4个测试示例文件夹：20个 epoch 的 baseline、25个 epoch 的 tuned、一个包含3折且有18个 epoch 的示例，以及一个不完整条目。baseline 和 tuned 是演示名称。路径中的模型名称并不意味着本课训练过这些模型。"
+          ]
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "阅读不完整条目的警告。它没有设置、没有 train.csv，也没有 validation.csv，因此不会为曲线或设置比较提供内容。扩展名为 .pth 的文件只是用于演示发现功能的文本；应用程序不会加载或评估这个占位文件。",
+          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
           "hold_after": 0.7,
           "focus": [
             465,
             1845,
             3350,
             175
-          ],
-          "speech_text": "阅读不完整条目的警告。它没有设置、没有 train.csv，也没有 validation.csv，因此不会为曲线或设置比较提供内容。扩展名为 .pth 的文件只是用于演示发现功能的文本；应用程序不会加载或评估这个占位文件。"
+          ]
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "勾选 baseline 和 tuned 示例，再在 Metric 中选择 accuracy。菜单包含这些日志中实际存在的数值列，包括 loss 和 prauc。这些值同样是合成的；熟悉的指标名称不会使生成的数字变成实验测量值。",
+          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
           "hold_after": 0.7,
           "focus": [
             465,
             1680,
             940,
             300
-          ],
-          "speech_text": "勾选 baseline 和 tuned 示例，再在 Metric 中选择 accuracy。菜单包含这些日志中实际存在的数值列，包括 loss 和 prauc。这些值同样是合成的；熟悉的指标名称不会使生成的数字变成实验测量值。"
+          ]
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "点击 Overlay selected。两个选中的示例会显示4个数据序列：train 用虚线表示，validation 用实线表示。各自保留20或25个 epoch 的范围。较短的曲线不会为了与另一条对齐而补齐或截短；请在图例中查看运行及数据划分。",
+          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "点击 Overlay selected。两个选中的示例会显示4个数据序列：train 用虚线表示，validation 用实线表示。各自保留20或25个 epoch 的范围。较短的曲线不会为了与另一条对齐而补齐或截短；请在图例中查看运行及数据划分。"
+          ]
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "设置比较会自动进行。这里11项共有设置中有4项不同：batch_size 从64变为32，epochs 从20变为25，learning_rate 从0.0001变为0.0003，src 则指向不同的合成示例项目。",
+          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ],
-          "speech_text": "设置比较会自动进行。这里11项共有设置中有4项不同：batch_size 从64变为32，epochs 从20变为25，learning_rate 从0.0001变为0.0003，src 则指向不同的合成示例项目。"
+          ]
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "单独的 env 行显示 n_jobs 从30变为8，这是与执行相关的设置。这里有1项环境差异，0项 schema 差异。这些只是示例设置，并非硬件使用情况或训练耗时的证据。该表也不能证明某项设置导致了曲线差异。",
+          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ],
-          "speech_text": "单独的 env 行显示 n_jobs 从30变为8，这是与执行相关的设置。这里有1项环境差异，0项 schema 差异。这些只是示例设置，并非硬件使用情况或训练耗时的证据。该表也不能证明某项设置导致了曲线差异。"
+          ]
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "点击 baseline 的 validation 曲线。详情行报告：最后一个 epoch 的 accuracy 为0.7496，对应 epoch 20；最佳 accuracy 为0.7860，对应 epoch 15。这些是 CSV 中记录的 epoch，而不是单独评估过的检查点。从同一条曲线上挑选最佳点，正是提示结果偏乐观的原因。",
+          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
           "hold_after": 0.7,
           "focus": [
             465,
             2000,
             3350,
             105
-          ],
-          "speech_text": "点击 baseline 的 validation 曲线。详情行报告：最后一个 epoch 的 accuracy 为0.7496，对应 epoch 20；最佳 accuracy 为0.7860，对应 epoch 15。这些是 CSV 中记录的 epoch，而不是单独评估过的检查点。从同一条曲线上挑选最佳点，正是提示结果偏乐观的原因。"
+          ]
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "在 Metric 中选择 loss。仍然保留相同的4个序列和设置，但纵轴现在显示日志中的 loss 值。这些测试示例中 validation 曲线后段的上升是刻意生成的。本操作演示的是切换指标，而不是训练后模型出现了实测的性能下降。",
+          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "在 Metric 中选择 loss。仍然保留相同的4个序列和设置，但纵轴现在显示日志中的 loss 值。这些测试示例中 validation 曲线后段的上升是刻意生成的。本操作演示的是切换指标，而不是训练后模型出现了实测的性能下降。"
+          ]
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "保持选中 tuned，并用18个 epoch、3折的示例替换 baseline。将 Metric 改回 accuracy，点击 Overlay selected，再打开 Folds。实际选项为 per fold、mean ± sd 和 both。它们改变的是显示方式，不会创建新的折。",
+          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
           "hold_after": 0.7,
           "focus": [
             465,
             1730,
             940,
             175
-          ],
-          "speech_text": "保持选中 tuned，并用18个 epoch、3折的示例替换 baseline。将 Metric 改回 accuracy，点击 Overlay selected，再打开 Folds。实际选项为 per fold、mean ± sd 和 both。它们改变的是显示方式，不会创建新的折。"
+          ]
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "选择 mean ± sd。界面显示4个序列：tuned 的两个数据划分，以及3折示例的 train 均值和 validation 均值。每条带表示该 epoch 上3个合成折之间正负1个样本标准差，而不是置信区间，也不是生物学不确定性的估计。",
+          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "选择 mean ± sd。界面显示4个序列：tuned 的两个数据划分，以及3折示例的 train 均值和 validation 均值。每条带表示该 epoch 上3个合成折之间正负1个样本标准差，而不是置信区间，也不是生物学不确定性的估计。"
+          ]
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "选择 both，显示10个序列：tuned 的2个、单独各折的6个，以及2条折均值曲线。均值曲线只是对同一组各折数值的汇总，并非额外的独立运行。全部3个合成折在记录的18个 epoch 中始终参与计算。",
+          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "选择 both，显示10个序列：tuned 的2个、单独各折的6个，以及2条折均值曲线。均值曲线只是对同一组各折数值的汇总，并非额外的独立运行。全部3个合成折在记录的18个 epoch 中始终参与计算。"
+          ]
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "选择 per fold，移除两条均值曲线后剩下8个序列。各折曲线在 epoch 18 结束，而 tuned 示例继续到25。更新后的表报告5项配置差异和1项环境差异；改变所选示例也会改变设置比较。",
+          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             1315
-          ],
-          "speech_text": "选择 per fold，移除两条均值曲线后剩下8个序列。各折曲线在 epoch 18 结束，而 tuned 示例继续到25。更新后的表报告5项配置差异和1项环境差异；改变所选示例也会改变设置比较。"
+          ]
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "在本次录制中，我们将返回的数值行、绘制的曲线、设置差异和样本标准差带与现有 CSV 进行核对。原始文件保持不变。这仅验证了本次软件演示；这些合成示例无法确立预测性能、泛化能力或在科学上可复现的最优模型。",
-          "hold_after": 0.7,
-          "speech_text": "在本次录制中，我们将返回的数值行、绘制的曲线、设置差异和样本标准差带与现有 CSV 进行核对。原始文件保持不变。这仅验证了本次软件演示；这些合成示例无法确立预测性能、泛化能力或在科学上可复现的最优模型。"
+          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "在 Python 中，spacr.train_compare.find_runs 发现文件夹，load_run 读取一次运行的数据。compare_runs 构建比较及设置差异；plot_curves 绘制所选指标。compare_runs 的 folds 参数接受 per_fold、mean 或 both。在自己的结果上使用这些只读工具时，请将真实日志和数据集来源信息保存在一起。",
+          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
-          ],
-          "speech_text": "在 Python 中，斯佩克尔.train_compare.find_runs 发现文件夹，load_run 读取一次运行的数据。compare_runs 构建比较及设置差异；plot_curves 绘制所选指标。compare_runs 的 folds 参数接受 per_fold、mean 或 both。在自己的结果上使用这些只读工具时，请将真实日志和数据集来源信息保存在一起。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_training_runs.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "29_report",

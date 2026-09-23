@@ -462,18 +462,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python-API og aktuelle arbejdsgange uden grafisk brugerflade",
+      "title": "Python API and batch commands",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find de installerede batchkommandoer, skeln mellem interaktive værktøjer og Python-funktioner, og gennemgå en prøvekørsel med et reelt eksempel uden at hævde, at analysen blev udført.",
+      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
       "objectives": [
-        "Bekræft pakkeversionen i det aktive Python-miljø.",
-        "Find de aktuelle kommandonøgler og de funktioner, de faktisk kalder.",
-        "Skeln mellem en interaktiv arbejdsgang, en Python-funktion og en batchkommando.",
-        "Læs prøvekørslens indstillinger, afslutningskode og begrænsninger før uovervåget kørsel."
+        "Find the installed batch commands and their Python functions.",
+        "Inspect a function signature and its API reference.",
+        "Check saved settings before running an analysis."
       ],
-      "prerequisite": "Gennemfør først en installationslektion. Brug de downloadede parrede data og de gemte indstillinger fra Regression-lektionen til den viste forhåndskontrol; erstat denne maskines stier med dine egne. Optagelsen udfører ingen analyse og genererer ingen rapport.",
+      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
       "scenes": [
         {
           "visual": "01_version",
@@ -483,7 +482,7 @@
             1900,
             650
           ],
-          "narration": "Importér pakken og udskriv versionen i det miljø, hvor du installerede spaCR. Denne rigtige terminal viser version et punkt fem punkt nul punkt fire. Kontrollér din egen version, før du følger kommandoerne, da et ældre miljø kan have andre funktioner og indstillinger.",
+          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
@@ -499,7 +498,7 @@
             2800,
             1900
           ],
-          "narration": "Kør spacr-run med indstillingen list. Batchafsnittet viser de præcise kommandonøgler og Python-indgangspunkter, blandt andet mask, measure og classify_merged. Navne på Home-skærmen og indlejrede knapper er ikke automatisk batchkommandoer. Brug den installerede liste frem for at gætte en nøgle ud fra en lektions titel.",
+          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
           "hold_after": 0.7
         },
         {
@@ -510,23 +509,10 @@
             2250,
             900
           ],
-          "narration": "Brug describe med regression for at se funktionen perform_regression i spacr.ml, funktionen der leverer standardværdierne, og kravene til input. Det forbinder kommandoen med den faktiske analysefunktion. De gemte indstillinger for parrede data kommer fra det linkede Regression-eksempel, ikke fra en opdigtet målemappe.",
+          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
           "related_lessons": [
-            "13_regression"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_gui_only",
-          "focus": [
-            200,
-            100,
-            2800,
-            700
-          ],
-          "narration": "Annotate er en interaktiv arbejdsgang. Kaldet spacr-run annotate returnerer faktisk afslutningskode to og forklarer, at der ikke findes en batchudgave. Brug Annotate i skrivebordsprogrammet til at mærke billedudsnit. Denne forventede afvisning viser ikke, at installationen er defekt.",
-          "related_lessons": [
-            "09_annotate"
+            "13_regression",
+            "15_image_umap"
           ],
           "hold_after": 0.7
         },
@@ -538,7 +524,7 @@
             2800,
             700
           ],
-          "narration": "Andre funktioner har en Python-API uden en tilsvarende batchnøgle. Her importerer vi build_report fra spacr.report og undersøger dens faktiske funktionssignatur. Vi kalder den ikke og genererer ingen rapport. Læs funktionens dokumentation og argumenter i stedet for at antage, at spacr-run report findes.",
+          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
           "hold_after": 0.7
         },
         {
@@ -549,21 +535,7 @@
             3440,
             680
           ],
-          "narration": "Giv regression den gemte indstillingsfil, og tilføj dry-run. Den faktiske kommando fastlægger indstillingerne og kører forhåndskontrollerne, hvorefter den udtrykkeligt siger, at perform_regression ikke blev kaldt. Læs afslutningskoden og meddelelserne; optagelsen startede ikke endnu en regression og skrev ikke dens analyseresultater.",
-          "related_lessons": [
-            "13_regression"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "06_dry_run",
-          "focus": [
-            200,
-            1320,
-            3440,
-            680
-          ],
-          "narration": "En forhåndskontrol uden fejl beviser hverken, at hele analysen lykkes, eller at den er videnskabeligt gyldig. Denne versions generiske plan nævner en måledatabase, selv om vores regression bruger parrede tabeller. Undersøg modulets faktiske input, og afprøv en afgrænset kørsel, før du stoler på uovervåget udførelse.",
+          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
           "hold_after": 0.7
         },
         {
@@ -574,14 +546,19 @@
             2250,
             900
           ],
-          "narration": "Fjern kun dry-run, når du vil udføre analysen. Gem de præcise indstillinger, inputidentifikatorer, pakkeversion og konsollog sammen med resultaterne. Følg den linkede modullektion for en demonstreret kørsel, og brug funktionens aktuelle API-reference, når du skriver Python-scripts.",
+          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "07_mask",
@@ -1488,22 +1465,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: redigering med fortrydelse, nye udsnit og lokal detektion",
+      "title": "Make Masks: edit labels and prepare training images",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Rediger virkelige downloadede cellemærker med faktiske musebevægelser, skeln mellem visnings- og maskeændringer, lav et træningsudsnit med mulighed for gendannelse, og undersøg en reel Cellpose-detektion og dens mellemvisninger.",
+      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
       "objectives": [
-        "Åbn par af todimensionale billeder og instansmasker uden at ændre det downloadede kildemateriale.",
-        "Brug fortrydelig objektsletning, tegning, deling og arealfiltrering, og skeln mellem dem og visningskontrast.",
-        "Gem en gennemgået maske, og lav et nyt feltudsnit, mens det oprindelige billede bevares i gendannelsesarkivet.",
-        "Find de indlejrede segmenteringsværktøjer, og undersøg en virkelig lokal Cellpose-detektion, dens scorekort og flowvisning."
+        "Open images with matching instance masks and inspect objects in the magnifier.",
+        "Measure paired fields and save an object-feature database.",
+        "Correct labels with Undo, drawing, division and size filters.",
+        "Save curated masks and create image-mask crops for training."
       ],
-      "prerequisite": "Hent først Measures virkelige eksempeldata. Optagelsen bruger to adskilte TIFF-par udtrukket uden pixelændringer fra eksemplets sammenlagte syvplansfelter i uint16: ER-intensitet i plan 1 og cellemærker i plan 4. Den præcise forberedelse findes i prepare_fields i tools/tutorials/capture_make_masks.py. Til egne forsøg bruges todimensionale billeder med instansmærkede TIFF-filer med samme filstamme i undermappen masks; antag ikke, at alle datasæt har dette eksempels planrækkefølge.",
+      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åbn Make Masks i Home-skærmens Tools-kategori. Det er den manuelle maskeeditor, ikke Core-modulet Masks analyseforløb. Værktøjslinjen redigerer det aktuelle felt; topbjælken åbner beslægtede segmenteringsforløb, der nu ligger under dette overordnede modul.",
+          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1511,7 +1488,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Eksemplet bruger to virkelige felter fra Measures downloadede datasæt. Vi udtrak intensitetsplanet og de eksisterende cellemærker til separate TIFF-kopier og lod de oprindelige stakke være uændrede. Forberedelsen registrerer kildeplaner og hashværdier. Andre datasæt kan have en anden planrækkefølge.",
+          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1519,12 +1496,84 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Åbn billedmappen. De tilhørende instansmasker ligger i undermappen masks under den tilsvarende billedfilstamme. Det første felt indlæser treogtres mærkede objekter. Mangler maskefilen, starter feltet tomt; et mærkebillede bruger objektidentifikatorer, ikke blot en forgrundsfarve.",
+          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
           "hold_after": 0.7
         },
         {
+          "visual": "readouts_04_otsu_magnifier_settings",
+          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_05_live_otsu_magnifier",
+          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "hold_after": 0.7,
+          "focus": [
+            1370,
+            280,
+            2200,
+            1775
+          ]
+        },
+        {
+          "visual": "readouts_06_features_real_files",
+          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_08_features_choose_cell_mask",
+          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_09_features_assigned_table",
+          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_12_features_measurements_saved",
+          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
           "visual": "03_real_labels",
-          "narration": "Brush og Erase arbejder på pixels, mens Erase object fjerner et helt mærket objekt. Wand-kontrollerne udvider sammenhængende intensitetsområder. Draw, Divide, Zoom og Recrop deler nu denne værktøjslinje. Vælg den operation, der passer til fejlen, og undersøg resultatet, før du gemmer.",
+          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1535,42 +1584,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Klik på Erase object og derefter på en celle inde i billedet. Det virkelige klik fjerner præcis mærke sytten og ændrer antallet fra treogtres til toogtres uden at røre andre mærker. Det demonstrerer operationen; det er ikke en biologisk begrundelse for at udelukke cellen.",
+          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Undo gendanner hver oprindelig mærkepixel. Redo gentager den samme sletning; Undo gendanner igen, før vi fortsætter. Dette er virkelige historiktrin fra klikkene, ikke masker, som optagescriptet har udskiftet i visningen.",
+          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Draw lukker og udfylder en omridslinje som ét objekt. Her demonstrerer et lille omrids i baggrunden værktøjet og giver kortvarigt et fireogtresindstyvende mærke. Det er ikke en biologisk annotering, og vi fortryder den. Følg en virkelig grænse omhyggeligt, når du laver træningsmærker.",
+          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Divide skærer gennem et eksisterende objekt og giver den adskilte del en ny identifikator. Start og slut bevægelsen på billedet, og kryds hele objektet. Det virkelige snit giver fireogtres mærker; vi fortryder det i stedet for at behandle en demonstrationsdeling som facit.",
+          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Visningspercentiler ændrer synligheden, ikke rå intensiteter eller mærkernes geometri. En højere nedre percentil ændrer gengivelsen synligt, mens begge arrays forbliver identiske. Gendannelse af værdien gendanner visningen. Kontrast er et visningshjælpemiddel, ikke en måde at ændre målingerne på.",
+          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Editorens objektfilter ændrer derimod mærkerne. Her fjerner demonstrationens målte tærskel på enogtyve tusind og toogtyve pixels toogtredive objekter, når Apply filter now trykkes. Modellen køres ikke igen. Tærsklen er ikke en anbefalet biologisk grænse, og handlingen skjuler ikke blot objekter.",
+          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "Fortryd filteret, og sæt grænserne tilbage til nul, som deaktiverer dem for senere felter. Save mask skriver de gendannede mærker og deres kurateringsregistrering. Vi kontrollerer, at forgrundens geometri er uændret; opbevar kildebilleder adskilt fra de masker, du gennemgår.",
+          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "Topbjælken har Train Cellpose og Mask the whole folder. Træning og anvendelse af en model er forskellige opgaver, med eksisterende speciallektioner tilknyttet her. Make Masks er stadig deres overordnede modul i vejledningernes Submodules-afsnit, selv når et værktøj åbner sit eget vindue.",
+          "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1580,7 +1629,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "Samme topbjælke indeholder Model Compare, Model Zoo, Curate og Open in napari. Brug de bevarede lektioner til sammenligning af modeller, tilgængelige modelvægte, kuratering og turen gennem en ekstern editor. Vi viser deres faktiske placering uden at gentage eller opfinde forløbene.",
+          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1592,12 +1641,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Recrop ændrer træningsfeltet, ikke blot zoom. Træk en boks omkring et helt objekt. Bevægelsen skriver straks et nyt billede og en tilhørende maske med de oprindelige intensitetspixels bevaret. Mærker, som grænsen skærer igennem, fjernes; undersøg objektantallet, ikke kun boksen.",
+          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Next åbner det nye udsnit med ét objekt og flytter den kopierede forælder til recropped_originals. Gendannelsesmappen bevarer billedets bytes. Det påvirker editorens mappekø; det genopbygger ikke Annotates udsnitsdatabase. Her arkiveres kun vores private optagekopi, aldrig det downloadede kildemateriale.",
+          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1605,39 +1654,44 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "Cellpose-SAM kan detektere objekter i det åbne felt. Vores lille udsnit bruger cpsam, normalisering slået til, cell-probability-tærskel nul, flow-tærskel nul komma fire og diameter nul, som bevarer modellens standardstørrelse. Erstatningstilstanden er vigtig: den er anderledes end at føje detektioner til eksisterende mærker.",
+          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Tryk Cellpose-SAM detect, og undersøg det virkelige resultat. Kørslen finder ét objekt i udsnittet på tre hundrede og enogtredive gange to hundrede og syvogtres pixels. Den nye grænse afviger fra den eksisterende maske; ens objektantal beviser ikke, at nogen af grænserne er korrekt.",
+          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Cell probability viser det faktiske scorekort fra detektionen, ikke en kalibreret sandsynlighed for, at den biologiske fortolkning er rigtig. Brug det til at forstå, hvor modellen støtter forgrund. En ændret detektionstærskel kræver en ny detektion; visningerne beskriver den kørsel, der skabte dem.",
+          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Flows viser modellens retningsinformation. Tærsklen for flowkonsistens betyder noget andet end forgrundens scoretærskel: lavere værdier er strengere, mens nul deaktiverer kontrollen. Undersøg masker og mellemvisninger sammen i stedet for at antage, at et større tal altid giver bedre segmentering.",
+          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo gendanner udsnittets mærker fra før detektionen uden at ændre billedet. Cellpose bruger lokale modelvægte, ikke et svar fra en chatudbyder. Programmets enhedsvalg understøtter tilgængelig acceleration og en CPU-reserve; mulighederne afhænger af installationen, så lov ikke identiske resultater mellem beregningsmotorer.",
+          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "I scripts findes editorens load_image_and_mask, save_mask og write_recrop i spacr.qt.mask_engine. Bevar billed-maskepardannelse og proveniens sammen med de gennemgåede træningsdata. Brug den tilknyttede API og træningslektionerne til at gå fra et gennemgået eksempel til et reproducerbart forløb.",
+          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "15_image_umap",
@@ -1750,23 +1804,22 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation Maps: reelle salienskort og deres begrænsninger",
+      "title": "Activation Maps: inspect an image classifier’s saliency maps",
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
       "section": "Classify",
-      "description": "Åbn Activation Maps i Classify, match en betroet model med reelle billedudsnit, og sammenlign to resultater uden at forveksle attribution med validering.",
+      "description": "Select a trained classifier and matching image crops, compare channel and image saliency, and open the saved maps.",
       "objectives": [
-        "Find det indlejrede værktøj, og bevar modellens inputkrav.",
-        "Skeln mellem forbehandling, visningskontrast og attribution.",
-        "Undersøg gemte filer, når Figures er tomt.",
-        "Adskil numerisk kontrol, forudsigelser og videnskabelig gyldighed."
+        "Match the crop archive, model and preprocessing settings.",
+        "Run channel saliency with an image overlay.",
+        "Compare image saliency and locate the saved grids."
       ],
-      "prerequisite": "Fire uændrede RGB-celleudsnit fra Annotates downloadede eksempel og et betroet lokalt ResNet18-checkpoint trænet én epoke. Det tidligere eksempel deler brønde mellem datasplit: INGEN påstand om uafhængig nøjagtighed. Bevar formatmarkør 3/RGB og modelkort. Størrelse 128, batch 4, kanaler [1,2,3], normalize_input/normalize/Plot/Save til, shuffle/correlation fra, én CPU-proces. saliency_channel med overlejring og saliency_image uden. 196608 inputværdier og 262144 kortkomponenter kontrolleret med højst ét 8-bit afrundingsniveau. Identiteter og originaler uændrede. src-advarsel og tomt Figures IKKE rettet; ægte PNG-filer vises eksternt. Fire ubrugte pladser er tomme. Ingen attributionsvalidering, uafhængig nøjagtighed, AI-forespørgsel, biologisk validering eller publicering. API: spacr.deep_spacr.generate_activation_maps og spacr.utils.SaliencyMapGenerator.",
+      "prerequisite": "Use a trained image-classification checkpoint and a TAR archive of compatible image crops. Retain the crop-format marker when present and follow the model card’s channel order, image size and normalization. The example uses four RGB crops from Annotate and a ResNet18 model from Classify. Train or obtain a model whose preprocessing is known before starting.",
       "scenes": [
         {
           "visual": "02_activation_fold",
-          "narration": "Åbn Classify og derefter det indlejrede værktøj Activation Maps. Denne arbejdsgang undersøger, hvordan en trænet models forudsigelse reagerer på billedpixels. Den træner ikke en klassifikator og fastslår ikke årsagen til en observeret fænotype. Vi viser to reelle salienskørsler, konsollen og en udtrykkelig vej til at se gemte filer.",
+          "narration": "From Home, open Classify, then Activation Maps. This tool shows where a trained image classifier’s prediction is sensitive to the input pixels. Start with the model and an archive of crops prepared in the same way as its training data.",
           "related_lessons": [
             "09_annotate",
             "70_explain_cv"
@@ -1775,52 +1828,52 @@
         },
         {
           "visual": "03_00_dataset",
-          "narration": "Brug det faktiske udsnitsarkiv, ikke en eksempelmappe. Vores lille arkiv indeholder fire uændrede RGB-celleudsnit fra Annotates downloadede eksempel samt formatmarkøren. Vi bevarer kilderne og arbejder i et privat projekt. Fire bekvemt valgte billeder illustrerer funktionen; de er ikke en repræsentativ valideringsgruppe.",
+          "narration": "Select the crop archive in Dataset. This example contains four RGB cell crops from Annotate. Include the crop-format marker when packaging the images, and keep their filenames so you can connect each map to its original object.",
           "hold_after": 0.7
         },
         {
           "visual": "03_03_image_size",
-          "narration": "Vælg den tilsvarende betroede model, og bevar modelkortet. Dette er et ResNet18-checkpoint trænet i kun én epoke i den tidligere demonstration. Dets datasplit delte brønde, så vi hævder ingen uafhængig nøjagtighed. Et overbevisende attributionsbillede redder ikke en utilstrækkeligt valideret model. Indlæs ikke et ubekræftet checkpoint af bekvemmelighed.",
+          "narration": "Select the trained model and choose its model type. Here the model is ResNet eighteen. Read its model card and set Image size to one hundred and twenty-eight to match the training input.",
           "hold_after": 0.7
         },
         {
           "visual": "03_05_channels",
-          "narration": "Match træningens inputkrav: størrelse 128 og den deklarerede RGB-kanalrækkefølge. Her bruger den faktiske kanalvælger 1, 2, 3. Byt ikke kanaler, fordi et andet værktøj bruger indeks fra nul. Vi kontrollerede uafhængigt de centrerede udsnit og transformerede inputværdier mod træningens indlæser, før saliens blev sammenlignet.",
+          "narration": "Set Channels to the order expected by the model. In this example the selector uses one, two and three for the RGB input. Preserve that order when comparing maps from different images.",
           "hold_after": 0.7
         },
         {
           "visual": "03_06_normalize_input",
-          "narration": "Skeln mellem inputnormalisering og visningsnormalisering. Input skal matche træningen; her er den registrerede symmetriske forbehandling slået til. Visningsnormalisering ændrer den overlejrede inputvisning, ikke modellens nøjagtighed eller betydningen af en farve. Bevar begge indstillinger ved sammenligning, og forveksl ikke et lysere billede med stærkere evidens.",
+          "narration": "Set Normalize input to match training. The separate display normalization controls how the image appears in the saved overlay. Keep both settings consistent when comparing runs.",
           "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_method_and_overlay",
-          "narration": "Vælg saliency channel med Overlay aktiveret, og behold Plot og Save. Vi bruger én arbejdsproces, fire billeder pr. batch og CPU til denne lille demonstration. Skærmen har ingen livevisning; et metodeskift kræver en ny kørsel. Kanalsaliens holder inputkanalerne adskilt, når de afledningsbaserede kort gemmes.",
+          "narration": "Choose saliency channel and enable Overlay, Plot and Save. This produces separate channel maps over the images. For the four-crop example, use a batch size of four and one worker, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_finished_console",
-          "narration": "Læs den faktiske konsol. Beregningen afsluttes, men denne version klager fejlagtigt over manglende src, selvom Activation bruger Dataset. Figures-panelet forbliver også tomt. Vi kontrollerede uafhængigt input, gemte kort og databaseidentiteter; vi rettede ikke GUI-fejlene. Andre fejl skal stadig undersøges.",
+          "narration": "Follow the console until processing finishes. If the Figures panel is empty, open the output folder and inspect the saved batch grids. Check error messages and the saved results before continuing.",
           "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_09_saved_batch_0_grid",
-          "narration": "Åbn det gemte batchgitter i en billedfremviser. Dette er den rigtige eksterne fremviser, ikke en figur indsat i spaCR. Fire udfyldte pladser svarer til de fire udsnit; de øvrige fire er ubrugte. Hjørnetallene nul og ét er modelforudsigelser, ikke facit. Overlejringen viser følsomhed, ikke en segmenteringsmaske.",
+          "narration": "Open batch_0_grid.png from the method’s batch_grids folder. Match each occupied slot with its source crop; unused slots may be blank. The corner labels are model predictions. Compare salient regions with the original image and known object boundaries.",
           "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_method_and_overlay",
-          "narration": "Vælg nu saliency image, slå Overlay fra, og kør igen på de samme input. Metoden kombinerer absolutte afledte på tværs af kanaler, før det gemte gråtonekort skaleres igen. Det er ikke okklusion eller integrerede gradienter. Hold metodespecifikke resultater adskilt, så anden kørsel ikke forveksles med første.",
+          "narration": "To compare a combined map, select saliency image and turn Overlay off. Run the same images again with the same preprocessing. Keep the two methods’ outputs in their respective folders.",
           "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_09_saved_batch_0_grid",
-          "narration": "Det andet gemte gitter viser kortene uden de underliggende billeder. Farverne viser den viste saliensskala, ikke klassesandsynligheder eller bevis for biologisk betydning. Uafhængige kontroller sammenligner hver gemt komponent med en separat beregnet gradient og tillader højst ét afrundingsniveau i otte bit. Det kontrollerer implementeringen, ikke forklaringens nytte.",
+          "narration": "Open the second saved grid. Image saliency combines the channel sensitivities into one map for each crop. Compare the highlighted regions with the channel maps. The displayed colours indicate the map scale; interpreting them requires checking the model and image context.",
           "hold_after": 0.7
         },
         {
           "visual": "03_11_correlation",
-          "narration": "Kortkvantificering er slået fra. Vi har ikke kørt sletning, indsættelse, modelrandomisering eller andre attributionsvalideringer; to visuelt forskellige metoder erstatter dem ikke. Brug repræsentative fejl og succeser, meningsfulde kontroller og uafhængigt tilbageholdte data, før du konkluderer. Betragt denne begrænsede demonstration som en kontrol af arbejdsgangen.",
+          "narration": "Leave Correlation off for this first walkthrough. Review examples from different classes, including prediction errors, before interpreting patterns. Use Classifier Evaluation to assess performance on independently held-out data.",
           "related_lessons": [
             "39_classifier_evaluation",
             "70_explain_cv"
@@ -1829,13 +1882,18 @@
         },
         {
           "visual": "05_image_saliency_11_back_to_actual_gui",
-          "narration": "Bevar udsnitsidentiteter, originalbilleder, model og kort, indstillinger, logs, salienskort og database samlet. Kilderne forblev uændrede, og begge metoder bevarede alle fire identiteter. AI-hjælp er valgfri; ingen forespørgsel blev sendt her. Kontrollér senere råd mod den faktiske API og evidensen, frem for at tage en flydende forklaring for validering.",
+          "narration": "Keep the input archive, model and model card, settings, maps and output database together. Return to the original crops to investigate unexpected regions, or compare another method using the same inputs.",
           "related_lessons": [
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "17_timelapse",
@@ -2253,23 +2311,21 @@
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
       "section": "Tools",
-      "title": "Anvend Cellpose: gemte masker og livefiltre",
-      "description": "Anvend CPSAM på tre virkelige billeder til download via den indlejrede Workbench, gennemgå figurer og konsol, og skeln mellem forhåndsvisning og batchkørsel.",
+      "title": "Apply Cellpose: segment a folder and inspect masks",
+      "description": "Choose a segmentation model, process the supplied images and inspect saved masks and live size filters.",
       "objectives": [
-        "Find Apply i Make Masks og Cellpose Workbench.",
-        "Brug bevarede billedkopier og standardmodellens registrerede indstillinger.",
-        "Undersøg tre masker samt original-, kontur- og flowfigurer.",
-        "Vis reversible filtre og synkroniseret zoom.",
-        "Genkend den målte forskel mellem forhåndsvisning og batch uden at love nøjagtighed."
+        "Select images, model weights and segmentation settings.",
+        "Run Apply and locate the saved mask TIFFs.",
+        "Inspect live results and compare object-size filters."
       ],
       "example_files": [
         "Apply_Cellpose_stock_example.zip"
       ],
-      "prerequisite": "Pak de tre billeder ud i en ny mappe, og sæt src til images. recorded_settings.json indeholder historiske værdier, ikke en dokumenteret portabel GUI-import. Ægte enkeltkanals cellebilleder: uint16,512×512; ikke segmenteringsfacit. Standard-CPSAM, ikke Train-modellen. channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale,resample,resize,fill_in,invert,remove_background er False. CUDA gemmer 9/94/46 objekter og tre GUI-figurer. Uafhængige kald gengiver alle maskepixels og figurarrays. Ydre konturer adskiller ikke alle berørende instanser; flow er én visualiseringskanal, ikke målt bevægelse. Forhåndsvisning af billede 02 giver 95, ikke 94: Cellposes standardbehandling af råbilledet, ikke batchens forbehandling/resampling. Viste 2/99 beviser ikke ækvivalens. Minimumsareal 1838 giver 95→47→95 uden ny inferens; alle gendannede pixels er kontrolleret, gemte TIFF-filer uændrede. Synkron zoom beskærer udsnittet og reparerer ikke det smalle kort. Tidligere stop og originaldata bevares. Ingen biologisk nøjagtighedsgodkendelse, AI-anmodning, publicering eller appændring.",
+      "prerequisite": "Extract the linked Apply Cellpose example into a new folder. It contains three single-channel cell images and a settings reference. Select its images folder as Source. This walkthrough uses the stock cpsam model; for a custom model, choose compatible weights and settings for your images.",
       "scenes": [
         {
           "visual": "02_actual_train_and_apply_tabs",
-          "narration": "Åbn den indlejrede Cellpose Workbench fra Make Masks, og vælg Apply. Train og Apply deler denne Workbench; Apply er ikke en separat flise på startsiden. Her bruges standardmodellen på tre virkelige billeder, ikke demonstrationsmodellen fra den tilknyttede Train-lektion.",
+          "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
@@ -2278,22 +2334,22 @@
         },
         {
           "visual": "04_setting_src",
-          "narration": "Pak det tilknyttede eksempel ud i en ny mappe. Vælg mappen images som kilde, og bevar den oprindelige download. Det er tre enkeltkanals cellebilleder på 512 pixel på hver led, ikke segmenteringsfacit. Brug de registrerede indstillinger som reference, og erstat den historiske kildesti med din egen.",
+          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
           "hold_after": 0.7
         },
         {
           "visual": "05_setting_model_name",
-          "narration": "Vælg CPSAM, og lad brugerdefineret model være tom. Her bruges kanal 0, normalisering med 2. og 99. percentil, diameter 30, flowtærskel 0,4 og cellesandsynlighed 0. Det er afgrænsede eksempelvalg, ikke anbefalinger til alle forsøg.",
+          "narration": "Select cpsam and leave Custom model empty for this example. Set Channels to zero, normalization percentiles to two and ninety-nine, Diameter to thirty, Flow threshold to zero point four and Cell probability to zero. Adjust these settings after inspecting a few representative fields from your own experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "14_actual_inference_outcome",
-          "narration": "Slå Save og Verbose til, vælg batchstørrelse 1, og kør Apply. Denne vej laver figurer uden en separat Plot-kontakt. Den virkelige konsol angiver en RTX 3090 med CUDA og afslutter alle tre billeder. Kontroller kilde og gemte indstillinger; Finished alene måler ikke nøjagtighed.",
+          "narration": "Enable Save and Verbose, choose a batch size of one, and click Run in Apply. Follow the console as each image is processed. Review failures before proceeding to measurement.",
           "hold_after": 0.7
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Tre maske-TIFF-filer med samme navne gemmes i kildens undermappe masks. Antallene er 9,94 og 46. Figurerne viser input, røde ydre forgrundskonturer og flow. Konturerne adskiller ikke alle berørende instanser; flowfarver er hverken fysisk bevægelse eller segmenteringsnøjagtighed.",
+          "narration": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
           "focus": [
             1000,
             450,
@@ -2304,12 +2360,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Slå Live preview til, og vælg cell_pair_02 med den rigtige billedvælger. Fold Console og System sammen for mere plads. Forhåndsvisningen har egne kontroller: Kontroller kanal 0 og de viste percentiler i Live settings i stedet for at antage, at alle Apply-valg er kopieret.",
+          "narration": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Forhåndsvisningen finder 95 objekter, mens samme billedes gemte batchmaske har 94. Uafhængige kontroller gengiver begge: Forhåndsvisningen følger Cellposes standardværdier på råbilledet, ikke batchens eksplicitte forbehandling og resampling. Den er undersøgende, ikke en garanti for identiske gemte masker.",
+          "narration": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
           "focus": [
             1000,
             1160,
@@ -2320,7 +2376,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Forhåndsvisningskortet er fortsat smalt i denne version. Musehjulet forstørrer en detalje i begge visninger sammen; kortet bliver ikke større, og hele billedet er nu beskåret. Det hjælper med lokale konturer, men erstatter ikke en gennemgang af hele billedfeltet.",
+          "narration": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
           "focus": [
             1010,
             1280,
@@ -2331,12 +2387,12 @@
         },
         {
           "visual": "22_native_filter_reduces_objects",
-          "narration": "Åbn Live settings, og sæt mindste celleareal til 1838 pixel. Det er en demonstrationstærskel, ikke et biologisk optimum. Luk dialogen for at se resultatet. Filteret fjerner 48 objekter og efterlader 47 uden at køre Cellpose igen eller ændre den rå segmentering.",
+          "narration": "Open Live settings and increase Minimum cell area to remove small objects from the preview. The cutoff is in pixels; choose it according to your object sizes. Close the dialog to inspect the filtered result.",
           "hold_after": 0.7
         },
         {
           "visual": "22b_actual_zoomed_filtered_preview",
-          "narration": "Her er den filtrerede forhåndsvisning med lukket dialog og genanvendt hjulzoom. Originalbilledet er uændret, mens små maskeobjekter forsvinder. Tælleren viser 47. Ændringerne gælder forhåndsvisningen og overskriver ikke de tre batch-TIFF-filer, som allerede er gemt.",
+          "narration": "Compare the filtered outlines with the original image. Changing this live filter updates the preview without rewriting masks already saved by Apply. Rerun the batch with the intended settings when you need new saved outputs.",
           "focus": [
             1010,
             1280,
@@ -2347,7 +2403,7 @@
         },
         {
           "visual": "23b_actual_zoomed_restored_preview",
-          "narration": "Sæt minimumsarealet tilbage til 0, luk dialogen, og kontroller igen. 95 objekter vender tilbage, og hver gendannet labelpixel matcher udgangspunktet. Gem input, indstillinger og modelidentitet sammen med maskerne. Den valgfrie spaCR AI-konsol bruges ikke her; uafhængig validering er stadig nødvendig før videnskabelige konklusioner.",
+          "narration": "Return Minimum cell area to zero to restore the unfiltered preview. Keep the input images, model identity, settings and saved masks together. Use Make Masks for corrections or Measure to extract object features from the reviewed masks.",
           "focus": [
             1010,
             1280,
@@ -2360,31 +2416,36 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Model Compare: den aktuelle skærm og overensstemmelse mellem rigtige masker",
+      "title": "Model Compare: compare saved segmentation masks",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Find den indlejrede sammenligning, indlæs rigtige billedfelter, og sammenlign gemte segmenteringer via API’et. Overensstemmelse er ikke nøjagtighed og betyder ikke, at inferens i brugerfladen er repareret.",
+      "description": "Load two masks of the same image, run the downloadable comparison helper and inspect overlap scores and overlays.",
       "objectives": [
-        "Find Model Compare i Make Masks og indlæs eksemplets billedfelter.",
-        "Skeln mellem Cellposes aktuelle inkompatibilitet og det fungerende API til maskesammenligning.",
-        "Fortolk antal, par og overlap uden at kalde et resultat korrekt."
+        "Choose masks of the same field with matching pixel geometry.",
+        "Run the saved-mask comparison example.",
+        "Read the agreement table and inspect boundary differences."
       ],
       "example_files": [
         "Model_Compare_saved_masks_example.zip"
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Brugerfladen sender det ikke-understøttede invert-argument. Vi indlæser kun billeder, kører ikke inferens, indsætter ikke resultater og ændrer ikke appen. spacr.model_compare.compare_masks sammenligner rigtige batch- og forhåndsvisningsresultater fra cell_pair_02.tif i Apply Cellpose: samme cpsam-vægte, forskellig forbehandling. Ingen maske er en ekspertannoteret reference; ingen model køres her. Bevar feltidentitet, pixelgeometri, forbehandling og filhashes. Samme dimensioner beviser ikke samme kildebillede. Script og dokumentation identificerer originalerne. Brug en ny outputmappe. Overensstemmelse dokumenterer hverken nøjagtighed, modelrangering, biologisk gyldighed eller præstation på uafhængige billeder.",
+      "prerequisite": "Download and extract the linked Model Compare example. It provides one image, two saved masks and a Python helper. Use an environment with spaCR installed and choose a new output folder outside the extracted inputs. The example compares two preprocessing choices with the same cpsam weights; assessing accuracy requires reviewed reference labels.",
       "scenes": [
         {
           "visual": "gui_00_home",
-          "narration": "Model Compare ligger inde i Make Masks og sammenligner segmenteringer af de samme billedfelter. Lektionen viser den aktuelle skærm og derefter det fungerende API til maskesammenligning med to ægte gemte resultater.",
+          "narration": "From Home, open Make Masks and choose Model Compare. Use this workflow to inspect segmentation differences on the same image. This walkthrough uses the linked saved-mask example and its Python helper.",
           "focus_modules": [
             "make_masks"
           ],
@@ -2396,7 +2457,7 @@
         },
         {
           "visual": "gui_02_model_parameters",
-          "narration": "Skærmen adskiller indstillinger for Model A og Model B. Registrer de præcise vægte og forbehandlingen. Forskellige navne eller flere objekter beviser ikke et bedre resultat. Parameter- og resultattabellerne er tomme, før en sammenligning køres.",
+          "narration": "Keep the model weights and preprocessing settings with each set of masks. When preparing your own comparison, use the same fields and pixel geometry so object overlaps refer to corresponding image locations.",
           "focus": [
             350,
             420,
@@ -2406,27 +2467,8 @@
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_real_fields_loaded_not_compared",
-          "narration": "Indtast den rigtige eksempelmappe, og tryk Load. Her indlæses tre originale billedfelter, og Compare bliver tilgængelig. Indlæste billeder er ikke det samme som en vellykket modelkørsel. Vi har hverken oprettet masker eller udfyldt sammenligningstabellen på denne skærm.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_01_current_gui_limit",
-          "narration": "Den installerede Cellpose-version afviser invert-argumentet, som denne GUI-backend stadig sender. Den faktiske kontrol af funktionssignaturen viser inkompatibiliteten uden inferens. Vi skjuler den ikke. Næste eksempel bruger compare_masks direkte på eksisterende labelbilleder.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1350
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
           "visual": "api_00_inputs",
-          "narration": "Begge masker stammer fra det samme rigtige billede i Apply Cellpose-lektionen. Den ene er gemt batch-output, den anden gemt live-forhåndsvisning. De bruger samme model med forskellig forbehandling, ikke konkurrerende vægte. Ingen af maskerne er en kendt korrekt reference.",
+          "narration": "Extract the linked example. The inputs are image.tif, batch.tif and preview.npy. Both masks describe the same field; they were produced with the same model and different preprocessing settings. Keep their original filenames for the supplied helper.",
           "focus": [
             200,
             100,
@@ -2440,7 +2482,7 @@
         },
         {
           "visual": "api_02_actual_comparison",
-          "narration": "API’et viser 94 objekter i A og 95 i B med 91 matchede par. Gennemsnitligt overlap blandt parrene er cirka 0,96, og det justerede Rand-indeks cirka 0,961. Det beskriver overensstemmelse, ikke nøjagtighed eller en vinder.",
+          "narration": "Run the supplied helper in your spaCR Python environment. Set source to the example input folder and output to a new results folder. The printed summary lists object counts, matched objects, mean matched overlap and adjusted Rand index. Higher agreement means the masks are more similar; it does not by itself establish which mask is correct.",
           "focus": [
             200,
             100,
@@ -2451,7 +2493,7 @@
         },
         {
           "visual": "api_04_actual_comparison_figure",
-          "narration": "Undersøg de faktisk gemte overlejringer. Højre panel markerer pixels, hvis forgrundsstatus er forskellig. Det viser ikke alle uenigheder mellem instanslabels. Lignende antal kan skjule forskellige grænser, delinger og sammenlægninger. Se derfor også på billederne.",
+          "narration": "Open comparison.png. Compare the two mask overlays with the image and inspect splits, merges and boundary shifts. The right panel highlights pixels where foreground membership differs. Check touching-object boundaries in the overlays as well.",
           "focus": [
             450,
             480,
@@ -2462,7 +2504,7 @@
         },
         {
           "visual": "api_03_outputs",
-          "narration": "Scriptet kontrollerer hvert matchet overlap uafhængigt med originalpixels og afprøver kontrollen med identiske masker. Gem CSV, figur, kildeidentiteter og forbehandling sammen. Brug uafhængigt gennemgåede annotationer og tilbageholdte evalueringsbilleder før påstande om nøjagtighed eller modelvalg.",
+          "narration": "Open comparison.csv for the numerical results and retain it with comparison.png, the inputs and the recorded settings. Use reviewed reference masks and representative fields when comparing segmentation accuracy or choosing a model for your experiment.",
           "focus": [
             200,
             100,
@@ -2475,7 +2517,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "22_model_zoo",
@@ -3419,19 +3466,18 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: øv sammenligning med syntetiske logfiler",
-      "description": "Åbn Training Runs i Classify, og brug udtrykkeligt syntetiske træningslogfiler til at undersøge registrerede metrikker, automatiske forskelle i indstillinger og visning af folds uden at træne eller evaluere en model.",
+      "title": "Training Runs: compare curves and settings",
+      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
       "objectives": [
-        "Find eksisterende logmapper, og skeln mellem brugbare kurver og et ufuldstændigt eksempel.",
-        "Sammenlign registrerede metrikker, mens hver serie beholder sit eget epokeinterval.",
-        "Læs automatiske konfigurationsforskelle adskilt fra indstillinger, der vedrører afviklingen.",
-        "Skeln mellem bedste og sidste registrerede epoke, stikprøvestandardafvigelse på tværs af folds og videnskabelig validering."
+        "Find saved runs and select the ones to compare.",
+        "Overlay training and validation metrics and inspect settings differences.",
+        "Switch between individual folds and their mean and standard deviation."
       ],
-      "prerequisite": "Brug den eksisterende tutorialmappe synthetic/training_runs, som udtrykkeligt er angivet som syntetisk. Dens baseline-, tuned- og cross_validated-kurver, foldværdier og indstillinger blev genereret som eksempler til brugerfladen; ingen klassifikationsmodel har frembragt disse værdier. Dens ufuldstændige .pth-fil indeholder kun pladsholdertekst og må ikke indlæses som en model. Denne lektion demonstrerer den faktiske CSV-læser og sammenligningsfunktionerne, ikke træning, evaluering af checkpoints eller biologisk præstation. Bevar til dine egne analyser ægte train.csv- og validation.csv-logfiler sammen med deres indstillinger og dokumentation af datasættets oprindelse. Training Runs har ingen særskilt funktion til at hente eksempeldata.",
+      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åbn Classify og derefter det underordnede værktøj Training Runs. Denne lektion bruger udtrykkeligt syntetiske træningslogfiler: hver kurve, fold og konfiguration er et eksempel, ikke et målt resultat fra en klassifikationsmodel. Vi demonstrerer sammenligningsfladen uden at træne eller evaluere en model.",
+          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
@@ -3439,7 +3485,7 @@
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Training Runs har sin egen mappevælger, liste over kørsler, kontrollerne Metric og Folds samt knappen Overlay selected. Værktøjet læser gemte train.csv- og validation.csv-tabeller og henter indstillingerne. Træningsformularen i den overordnede Classify-visning er en separat arbejdsgang; tryk ikke på dens Run-knap i denne øvelse.",
+          "narration": "Training Runs provides a folder selector, run list, Metric menu, Folds menu and Overlay selected button. Begin by choosing the parent folder containing the runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3450,7 +3496,7 @@
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Klik på Choose folder…, vælg den eksisterende syntetiske training_runs-mappe, og bekræft med Choose. Vælg mappen over eksempelprojekterne, ikke en enkelt CSV-fil. Lad disse originale eksempeldata være uændrede; du behøver hverken at generere dem igen, kopiere en kørsel eller oprette et nyt checkpoint.",
+          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
           "hold_after": 0.7,
           "focus": [
             1555,
@@ -3461,7 +3507,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan finder fire eksempelmapper: baseline med 20 epoker, tuned med 25 epoker, et eksempel med 18 epoker og tre folds samt en ufuldstændig post. Baseline og tuned er demonstrationsbetegnelser. Modelnavnene i disse stier betyder ikke, at de pågældende modeller er blevet trænet til denne lektion.",
+          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3472,7 +3518,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Læs advarslerne for den ufuldstændige post. Den har ingen indstillinger, ingen train.csv og ingen validation.csv, så den bidrager hverken med en kurve eller til sammenligningen af indstillinger. Filen med endelsen .pth er kun tekst, der bruges til at afprøve søgningen; programmet indlæser eller evaluerer ikke denne pladsholder.",
+          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3483,7 +3529,7 @@
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Markér baseline- og tuned-eksemplerne, og vælg derefter accuracy under Metric. Menuen indeholder numeriske kolonner, der faktisk findes i disse logfiler, herunder loss og prauc. Deres værdier er også syntetiske; et velkendt metriknavn gør ikke et genereret tal til en eksperimentel måling.",
+          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3494,7 +3540,7 @@
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Klik på Overlay selected. Fire serier vises fra de to valgte eksempler: train er stiplet, og validation er fuldt optrukket. Hver serie bevarer sit eget epokeinterval, 20 eller 25. Den kortere kurve bliver hverken forlænget med ekstra værdier eller afkortet for at passe til nabokurven; aflæs kørsel og datasplit i signaturforklaringen.",
+          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3505,7 +3551,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Sammenligningen af indstillinger sker automatisk. Her er fire af 11 fælles indstillinger forskellige: batch_size ændres fra 64 til 32, epochs fra 20 til 25, learning_rate fra 0.0001 til 0.0003, og src angiver forskellige syntetiske projekter.",
+          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3516,7 +3562,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Den særskilte env-række viser, at n_jobs ændres fra 30 til otte, en indstilling for afviklingen. Det er én miljøforskel og nul skemaforskelle. Dette er eksempelindstillinger, ikke dokumentation for hardwareforbrug eller forløbet træningstid. Tabellen fastslår ikke, at en indstilling har forårsaget en forskel mellem kurverne.",
+          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3527,7 +3573,7 @@
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Klik på baseline-eksemplets validation-kurve. Dens detaljelinje viser sidste accuracy på 0.7496 ved epoke 20 og bedste accuracy på 0.7860 ved epoke 15. Det er epoker registreret i CSV-filen, ikke checkpoints, der er evalueret separat. At vælge det bedste punkt på den samme kurve forklarer advarslen om et optimistisk resultat.",
+          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3538,7 +3584,7 @@
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Vælg loss under Metric. De samme fire serier og indstillinger bevares, men den lodrette akse viser nu de loggede loss-værdier. De sene stigninger i validation blev bevidst genereret i disse eksempeldata. Dette demonstrerer skift mellem metrikker, ikke en observeret forringelse af en trænet model.",
+          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3549,7 +3595,7 @@
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Behold tuned-eksemplet valgt, og udskift baseline med eksemplet med 18 epoker og tre folds. Sæt Metric tilbage til accuracy, tryk på Overlay selected, og åbn derefter Folds. De faktiske valgmuligheder er per fold, mean ± sd og both. De ændrer visningen; de opretter ikke nye folds.",
+          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3560,7 +3606,7 @@
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Vælg mean ± sd. Fire serier vises: tuned-eksemplets to datasplit samt gennemsnittene for train og validation i eksemplet med tre folds. Hvert bånd er plus eller minus én stikprøvestandardafvigelse på tværs af tre syntetiske folds ved den pågældende epoke, ikke et konfidensinterval eller et skøn over biologisk usikkerhed.",
+          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3571,7 +3617,7 @@
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Vælg both for at vise ti serier: to fra tuned-eksemplet, seks individuelle foldserier og to foldgennemsnit. Gennemsnitskurverne sammenfatter de samme foldværdier; de er ikke yderligere uafhængige kørsler. Alle tre syntetiske folds bidrager gennem samtlige 18 registrerede epoker.",
+          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3582,7 +3628,7 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Vælg per fold for at fjerne de to gennemsnit, så der er otte serier tilbage. Foldkurverne stopper ved epoke 18, mens tuned-eksemplet fortsætter til 25. Den opdaterede tabel viser fem konfigurationsforskelle og én miljøforskel; når du ændrer de valgte eksempler, ændres sammenligningen af indstillinger også.",
+          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3593,19 +3639,27 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Til denne optagelse kontrollerer vi de returnerede numeriske rækker, de tegnede kurver, indstillingsforskellene og båndene for stikprøvestandardafvigelse mod de eksisterende CSV-filer. Originalfilerne forbliver uændrede. Det verificerer kun denne softwaredemonstration; de syntetiske eksempler kan ikke dokumentere prædiktionsevne, generalisering eller en videnskabeligt reproducerbar vinder.",
+          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "I Python finder spacr.train_compare.find_runs mapper, og load_run læser én kørsel. compare_runs opbygger sammenligningen og indstillingsforskellene; plot_curves tegner en valgt metrik. Argumentet folds til compare_runs accepterer per_fold, mean eller both. Opbevar ægte logfiler sammen med dokumentation af datasættets oprindelse, når du bruger disse skrivebeskyttede værktøjer på dine egne resultater.",
+          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_training_runs.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "29_report",

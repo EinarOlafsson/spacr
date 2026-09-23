@@ -512,18 +512,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "API Python e fluxos atuais sem interface gráfica",
+      "title": "Python API and batch commands",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Descubra os comandos em lote instalados, diferencie ferramentas interativas de funções Python e inspecione a simulação de um exemplo real sem afirmar que uma análise foi executada.",
+      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
       "objectives": [
-        "Confirmar a versão do pacote no ambiente Python ativo.",
-        "Descobrir as chaves atuais dos comandos e as funções que eles realmente chamam.",
-        "Diferenciar um fluxo interativo, uma função Python e um comando em lote.",
-        "Ler as configurações, o código de saída e as limitações de uma simulação antes de executar tarefas sem supervisão."
+        "Find the installed batch commands and their Python functions.",
+        "Inspect a function signature and its API reference.",
+        "Check saved settings before running an analysis."
       ],
-      "prerequisite": "Conclua primeiro uma aula de instalação. Para a verificação demonstrada, use os dados pareados baixados e as configurações salvas da aula Regression; substitua os caminhos desta máquina pelos seus. Nenhuma análise ou relatório é gerado nesta gravação.",
+      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
       "scenes": [
         {
           "visual": "01_version",
@@ -533,14 +532,13 @@
             1900,
             650
           ],
-          "narration": "No ambiente em que você instalou o spaCR, importe o pacote e imprima sua versão. Este terminal real informa a versão um ponto cinco ponto zero ponto quatro. Confira sua própria versão antes de seguir os comandos, pois um ambiente antigo pode oferecer funções e configurações diferentes.",
+          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7,
-          "speech_text": "No ambiente em que você instalou o espáquer, importe o pacote e imprima sua versão. Este terminal real informa a versão um ponto cinco ponto zero ponto quatro. Confira sua própria versão antes de seguir os comandos, pois um ambiente antigo pode oferecer funções e configurações diferentes."
+          "hold_after": 0.7
         },
         {
           "visual": "02_list",
@@ -550,9 +548,8 @@
             2800,
             1900
           ],
-          "narration": "Execute spacr-run com a opção list. A seção de processamento em lote mostra as chaves exatas dos comandos e os pontos de entrada Python, incluindo mask, measure e classify_merged. Os nomes de Home e os botões aninhados não são automaticamente comandos em lote. Consulte a lista instalada em vez de adivinhar uma chave pelo título do tutorial.",
-          "hold_after": 0.7,
-          "speech_text": "Execute espáquer-run com a opção list. A seção de processamento em lote mostra as chaves exatas dos comandos e os pontos de entrada Python, incluindo mask, measure e classify_merged. Os nomes de Home e os botões aninhados não são automaticamente comandos em lote. Consulte a lista instalada em vez de adivinhar uma chave pelo título do tutorial."
+          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_describe",
@@ -562,27 +559,12 @@
             2250,
             900
           ],
-          "narration": "Use describe com regression para ver a função perform_regression em spacr.ml, a função que fornece os valores padrão e os requisitos de entrada. Isso conecta o comando à função real de análise. As configurações salvas de dados pareados vêm do exemplo Regression vinculado, não de uma pasta de medições inventada.",
+          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
           "related_lessons": [
-            "13_regression"
+            "13_regression",
+            "15_image_umap"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Use describe com regression para ver a função perform_regression em espáquer.ml, a função que fornece os valores padrão e os requisitos de entrada. Isso conecta o comando à função real de análise. As configurações salvas de dados pareados vêm do exemplo Regression vinculado, não de uma pasta de medições inventada."
-        },
-        {
-          "visual": "04_gui_only",
-          "focus": [
-            200,
-            100,
-            2800,
-            700
-          ],
-          "narration": "Annotate é um fluxo interativo. Chamar spacr-run annotate realmente retorna o código de saída dois e explica que não existe equivalente em lote. Use Annotate no aplicativo desktop para rotular recortes. Essa recusa esperada não demonstra que a instalação esteja com defeito.",
-          "related_lessons": [
-            "09_annotate"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Annotate é um fluxo interativo. Chamar espáquer-run annotate realmente retorna o código de saída dois e explica que não existe equivalente em lote. Use Annotate no aplicativo desktop para rotular recortes. Essa recusa esperada não demonstra que a instalação esteja com defeito."
+          "hold_after": 0.7
         },
         {
           "visual": "05_report_api",
@@ -592,9 +574,8 @@
             2800,
             700
           ],
-          "narration": "Outros recursos têm uma API Python sem uma chave correspondente para processamento em lote. Aqui importamos build_report de spacr.report e inspecionamos sua assinatura real. Não chamamos a função nem geramos um relatório. Consulte a documentação e os argumentos da função em vez de presumir que spacr-run report existe.",
-          "hold_after": 0.7,
-          "speech_text": "Outros recursos têm uma API Python sem uma chave correspondente para processamento em lote. Aqui importamos build_report de espáquer.report e inspecionamos sua assinatura real. Não chamamos a função nem geramos um relatório. Consulte a documentação e os argumentos da função em vez de presumir que espáquer-run report existe."
+          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_dry_run",
@@ -604,24 +585,8 @@
             3440,
             680
           ],
-          "narration": "Passe para regression o arquivo de configurações salvas e acrescente a opção dry-run. O comando real resolve as configurações e executa suas verificações prévias, depois declara explicitamente que perform_regression não foi chamada. Leia o código de saída e as mensagens: esta gravação não iniciou outra regressão nem gravou seus resultados analíticos.",
-          "related_lessons": [
-            "13_regression"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Passe para regression o arquivo de configurações salvas e acrescente a opção dry-run. O comando real resolve as configurações e executa suas verificações prévias, depois declara explicitamente que perform_regression não foi chamada. Leia o código de saída e as mensagens: esta gravação não iniciou outra regressão nem gravou seus resultados analíticos."
-        },
-        {
-          "visual": "06_dry_run",
-          "focus": [
-            200,
-            1320,
-            3440,
-            680
-          ],
-          "narration": "Uma verificação prévia sem erros não prova que a análise completa terá sucesso nem validade científica. O plano genérico desta versão menciona um banco de medições, embora nossa regressão use tabelas pareadas. Inspecione as entradas reais do módulo e teste uma execução limitada antes de confiar em processamento sem supervisão.",
-          "hold_after": 0.7,
-          "speech_text": "Uma verificação prévia sem erros não prova que a análise completa terá sucesso nem validade científica. O plano genérico desta versão menciona um banco de medições, embora nossa regressão use tabelas pareadas. Inspecione as entradas reais do módulo e teste uma execução limitada antes de confiar em processamento sem supervisão."
+          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_describe",
@@ -631,15 +596,19 @@
             2250,
             900
           ],
-          "narration": "Remova dry-run somente quando quiser executar a análise. Guarde as configurações exatas, os identificadores das entradas, a versão do pacote e o registro da console junto com os resultados. Siga a aula vinculada do módulo para ver uma execução demonstrada e consulte a referência API atual ao escrever scripts Python.",
+          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Remova dry-run somente quando quiser executar a análise. Guarde as configurações exatas, os identificadores das entradas, a versão do pacote e o registro da console junto com os resultados. Siga a aula vinculada do módulo para ver uma execução demonstrada e consulte a referência API atual ao escrever scripts Python."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "07_mask",
@@ -1546,111 +1515,171 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edição reversível, novos recortes e detecção local",
+      "title": "Make Masks: edit labels and prepare training images",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Modelos de segmentação",
-      "description": "Edite rótulos celulares reais baixados com gestos de verdade, diferencie alterações de visualização e de máscara, crie um recorte de treinamento recuperável e inspecione uma detecção real do Cellpose e suas visualizações intermediárias.",
+      "section": "Tools",
+      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
       "objectives": [
-        "Abrir imagens bidimensionais e máscaras de instâncias correspondentes sem modificar a fonte baixada.",
-        "Usar exclusão de objetos, desenho, divisão e filtragem por área de forma reversível, distinguindo essas ações do contraste de visualização.",
-        "Salvar uma máscara revisada e recortar um campo preservando o original na pasta de recuperação.",
-        "Encontrar ferramentas de segmentação aninhadas e inspecionar uma detecção local real do Cellpose, seu mapa de pontuações e seus fluxos."
+        "Open images with matching instance masks and inspect objects in the magnifier.",
+        "Measure paired fields and save an object-feature database.",
+        "Correct labels with Undo, drawing, division and size filters.",
+        "Save curated masks and create image-mask crops for training."
       ],
-      "prerequisite": "Obtenha primeiro o exemplo real disponível para download em Measure. A gravação usa dois pares TIFF isolados, extraídos sem alterar pixels dos campos combinados uint16 de sete planos: intensidade ER no plano 1 e rótulos celulares no plano 4. A preparação exata está em prepare_fields, em tools/tutorials/capture_make_masks.py. Para seu experimento, forneça imagens bidimensionais e TIFFs de rótulos de instâncias com o mesmo nome-base na subpasta masks; não suponha que todo conjunto use essa ordem de planos.",
+      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Abra Make Masks na categoria Tools de Home. É o editor manual de máscaras, diferente do fluxo Mask de Core. A barra de ferramentas edita o campo atual; o cabeçalho abre os fluxos de segmentação relacionados que agora ficam sob este módulo principal.",
+          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "Abra Make Masks na categoria Tools de Home. É o editor manual de máscaras, diferente do fluxo Mask de Core. A barra de ferramentas edita o campo atual; o cabeçalho abre os fluxos de segmentação relacionados que agora ficam sob este módulo principal."
+          ]
         },
         {
           "visual": "02_folder_picker",
-          "narration": "O exemplo usa dois campos reais do conjunto baixado de Measure. Extraímos os planos de intensidade e os rótulos celulares existentes para cópias TIFF separadas, mantendo intactas as pilhas originais. A preparação registra os planos de origem e seus hashes. Outros conjuntos podem usar uma ordem diferente.",
+          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "O exemplo usa dois campos reais do conjunto baixado de Measure. Extraímos os planos de intensidade e os rótulos celulares existentes para cópias TIFF separadas, mantendo intactas as pilhas originais. A preparação registra os planos de origem e seus hashes. Outros conjuntos podem usar uma ordem diferente."
+          ]
         },
         {
           "visual": "03_real_labels",
-          "narration": "Abra a pasta de imagens. As máscaras de instâncias correspondentes ficam na subpasta masks, com o mesmo nome-base da imagem. O primeiro campo carrega sessenta e três objetos rotulados. Sem uma máscara correspondente, começa vazio; uma imagem de rótulos usa identificadores de objetos, não apenas uma cor de primeiro plano.",
+          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_04_otsu_magnifier_settings",
+          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_05_live_otsu_magnifier",
+          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
           "hold_after": 0.7,
-          "speech_text": "Abra a pasta de imagens. As máscaras de instâncias correspondentes ficam na subpasta masks, com o mesmo nome-base da imagem. O primeiro campo carrega sessenta e três objetos rotulados. Sem uma máscara correspondente, começa vazio; uma imagem de rótulos usa identificadores de objetos, não apenas uma cor de primeiro plano."
+          "focus": [
+            1370,
+            280,
+            2200,
+            1775
+          ]
+        },
+        {
+          "visual": "readouts_06_features_real_files",
+          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_08_features_choose_cell_mask",
+          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_09_features_assigned_table",
+          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_12_features_measurements_saved",
+          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
         },
         {
           "visual": "03_real_labels",
-          "narration": "Brush e Erase trabalham em pixels, enquanto Erase object remove um rótulo inteiro. Os controles Wand expandem regiões conectadas de intensidade. Draw, Divide, Zoom e Recrop agora compartilham essa barra. Escolha a operação adequada ao erro e inspecione o resultado antes de salvar.",
+          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ],
-          "speech_text": "Brush e Erase trabalham em pixels, enquanto Erase object remove um rótulo inteiro. Os controles Wand expandem regiões conectadas de intensidade. Draw, Divide, Zoom e Recrop agora compartilham essa barra. Escolha a operação adequada ao erro e inspecione o resultado antes de salvar."
+          ]
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Clique em Erase object e depois em uma célula interna. O clique real remove exatamente o rótulo dezessete, reduzindo a contagem de sessenta e três para sessenta e dois sem tocar nos outros rótulos. É uma demonstração da operação, não uma avaliação de que essa célula deva ser excluída biologicamente.",
-          "hold_after": 0.7,
-          "speech_text": "Clique em Erase object e depois em uma célula interna. O clique real remove exatamente o rótulo dezessete, reduzindo a contagem de sessenta e três para sessenta e dois sem tocar nos outros rótulos. É uma demonstração da operação, não uma avaliação de que essa célula deva ser excluída biologicamente."
+          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Undo restaura todos os pixels dos rótulos originais. Redo repete a mesma exclusão; Undo restaura novamente antes de continuarmos. São etapas reais do histórico produzidas pelos cliques, não máscaras substituídas no visualizador pelo script de gravação.",
-          "hold_after": 0.7,
-          "speech_text": "Undo restaura todos os pixels dos rótulos originais. Redo repete a mesma exclusão; Undo restaura novamente antes de continuarmos. São etapas reais do histórico produzidas pelos cliques, não máscaras substituídas no visualizador pelo script de gravação."
+          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Draw fecha e preenche um contorno como um único objeto. Aqui, um pequeno contorno no fundo demonstra a ferramenta e produz temporariamente um sexagésimo quarto rótulo. Não é uma anotação biológica, e nós a desfazemos. Trace cuidadosamente um limite real ao preparar rótulos de treinamento.",
-          "hold_after": 0.7,
-          "speech_text": "Draw fecha e preenche um contorno como um único objeto. Aqui, um pequeno contorno no fundo demonstra a ferramenta e produz temporariamente um sexagésimo quarto rótulo. Não é uma anotação biológica, e nós a desfazemos. Trace cuidadosamente um limite real ao preparar rótulos de treinamento."
+          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Divide corta um objeto existente e atribui um novo identificador à parte separada. Comece e termine o gesto sobre a imagem e atravesse o objeto inteiro. Esse corte real produz sessenta e quatro rótulos; nós o desfazemos em vez de tratar uma divisão demonstrativa como verdade de referência.",
-          "hold_after": 0.7,
-          "speech_text": "Divide corta um objeto existente e atribui um novo identificador à parte separada. Comece e termine o gesto sobre a imagem e atravesse o objeto inteiro. Esse corte real produz sessenta e quatro rótulos; nós o desfazemos em vez de tratar uma divisão demonstrativa como verdade de referência."
+          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Os percentis de Display mudam a visibilidade, não as intensidades brutas nem a geometria dos rótulos. Aumentar o percentil inferior altera visivelmente essa representação, enquanto as duas matrizes permanecem idênticas. Restaurá-lo recupera a visualização. Contraste ajuda a observar, não a alterar as medições.",
-          "hold_after": 0.7,
-          "speech_text": "Os percentis de Display mudam a visibilidade, não as intensidades brutas nem a geometria dos rótulos. Aumentar o percentil inferior altera visivelmente essa representação, enquanto as duas matrizes permanecem idênticas. Restaurá-lo recupera a visualização. Contraste ajuda a observar, não a alterar as medições."
+          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "O filtro de objetos do editor realmente modifica rótulos. Aqui, o limiar demonstrativo medido de vinte e um mil e vinte e dois pixels remove trinta e dois objetos ao pressionar Apply filter now. O modelo não é executado novamente. Esse não é um limiar biológico recomendado, e a ação não apenas oculta objetos.",
-          "hold_after": 0.7,
-          "speech_text": "O filtro de objetos do editor realmente modifica rótulos. Aqui, o limiar demonstrativo medido de vinte e um mil e vinte e dois pixels remove trinta e dois objetos ao pressionar Apply filter now. O modelo não é executado novamente. Esse não é um limiar biológico recomendado, e a ação não apenas oculta objetos."
+          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "Desfaça o filtro e volte seus limites para zero, desativando-os nos próximos campos. Save mask grava os rótulos restaurados e o registro de revisão. Verificamos que a geometria do primeiro plano permanece igual; mantenha as imagens de origem separadas das máscaras que você revisa.",
-          "hold_after": 0.7,
-          "speech_text": "Desfaça o filtro e volte seus limites para zero, desativando-os nos próximos campos. Save mask grava os rótulos restaurados e o registro de revisão. Verificamos que a geometria do primeiro plano permanece igual; mantenha as imagens de origem separadas das máscaras que você revisa."
+          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "O cabeçalho oferece Train Cellpose e Mask the whole folder. Treinar e aplicar um modelo são tarefas diferentes, com suas aulas especializadas existentes vinculadas aqui. Make Masks continua sendo o módulo principal na seção Submodules do tutorial, mesmo quando uma ferramenta abre sua própria janela.",
+          "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ],
-          "speech_text": "O cabeçalho oferece Train cél pouz e Mask the whole folder. Treinar e aplicar um modelo são tarefas diferentes, com suas aulas especializadas existentes vinculadas aqui. Make Masks continua sendo o módulo principal na seção Submodules do tutorial, mesmo quando uma ferramenta abre sua própria janela."
+          ]
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "O mesmo cabeçalho contém Model Compare, Model Zoo, Curate e Open in napari. Use as aulas preservadas para comparar modelos, consultar pesos disponíveis, revisar máscaras e fazer a ida e volta ao editor externo. Aqui mostramos as posições reais sem repetir nem inventar esses fluxos.",
+          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1658,65 +1687,61 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ],
-          "speech_text": "O mesmo cabeçalho contém Model Compare, Model Zoo, Curate e Open in napari. Use as aulas preservadas para comparar modelos, consultar pesos disponíveis, revisar máscaras e fazer a ida e volta ao editor externo. Aqui mostramos as posições reais sem repetir nem inventar esses fluxos."
+          ]
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Recrop altera o campo de treinamento, não apenas o zoom. Arraste uma caixa ao redor de um objeto completo. O gesto grava imediatamente uma nova imagem e sua máscara, mantendo os pixels de intensidade originais. Rótulos cortados pela borda são descartados; confira a contagem de objetos resultante, não só a caixa.",
-          "hold_after": 0.7,
-          "speech_text": "Recrop altera o campo de treinamento, não apenas o zoom. Arraste uma caixa ao redor de um objeto completo. O gesto grava imediatamente uma nova imagem e sua máscara, mantendo os pixels de intensidade originais. Rótulos cortados pela borda são descartados; confira a contagem de objetos resultante, não só a caixa."
+          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Next abre o novo recorte com um objeto e retira o campo original copiado para recropped_originals. Essa pasta de recuperação conserva os bytes da imagem. Isso afeta a fila de arquivos do editor; não reconstrói o banco de recortes do Annotate. Aqui, somente nossa cópia privada é arquivada, nunca a fonte baixada.",
+          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Next abre o novo recorte com um objeto e retira o campo original copiado para recropped_originals. Essa pasta de recuperação conserva os bytes da imagem. Isso afeta a fila de arquivos do editor; não reconstrói o banco de recortes do Annotate. Aqui, somente nossa cópia privada é arquivada, nunca a fonte baixada."
+          ]
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "Cellpose-SAM pode detectar objetos no campo aberto. Nosso pequeno recorte usa cpsam, normalização ativada, limiar de pontuação celular zero, limiar de fluxo zero vírgula quatro e diâmetro zero, que mantém o dimensionamento padrão do modelo. O modo de substituição importa: ele é diferente de adicionar detecções aos rótulos existentes.",
-          "hold_after": 0.7,
-          "speech_text": "cél pouz-SAM pode detectar objetos no campo aberto. Nosso pequeno recorte usa cpsam, normalização ativada, limiar de pontuação celular zero, limiar de fluxo zero vírgula quatro e diâmetro zero, que mantém o dimensionamento padrão do modelo. O modo de substituição importa: ele é diferente de adicionar detecções aos rótulos existentes."
+          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Pressione Cellpose-SAM detect e inspecione o resultado real. Essa execução encontra um objeto no recorte de trezentos e trinta e um por duzentos e sessenta e sete pixels. O novo contorno difere da máscara existente; contagens iguais não comprovam que um ou outro contorno esteja correto.",
-          "hold_after": 0.7,
-          "speech_text": "Pressione cél pouz-SAM detect e inspecione o resultado real. Essa execução encontra um objeto no recorte de trezentos e trinta e um por duzentos e sessenta e sete pixels. O novo contorno difere da máscara existente; contagens iguais não comprovam que um ou outro contorno esteja correto."
+          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Cell probability mostra o mapa real de pontuações dessa detecção, não uma probabilidade calibrada de que a interpretação biológica esteja correta. Use-o para entender onde o modelo sustenta o primeiro plano. Alterar um limiar exige outra detecção; essas visualizações descrevem a execução que as produziu.",
-          "hold_after": 0.7,
-          "speech_text": "Cell probability mostra o mapa real de pontuações dessa detecção, não uma probabilidade calibrada de que a interpretação biológica esteja correta. Use-o para entender onde o modelo sustenta o primeiro plano. Alterar um limiar exige outra detecção; essas visualizações descrevem a execução que as produziu."
+          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Flows exibe as informações direcionais do modelo. O limiar de consistência dos fluxos tem outro significado em relação ao limiar de pontuação do primeiro plano: valores menores são mais rigorosos, enquanto zero desativa essa verificação. Inspecione máscaras e visualizações intermediárias juntas, sem supor que um número maior sempre melhora a segmentação.",
-          "hold_after": 0.7,
-          "speech_text": "Flows exibe as informações direcionais do modelo. O limiar de consistência dos fluxos tem outro significado em relação ao limiar de pontuação do primeiro plano: valores menores são mais rigorosos, enquanto zero desativa essa verificação. Inspecione máscaras e visualizações intermediárias juntas, sem supor que um número maior sempre melhora a segmentação."
+          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restaura os rótulos anteriores à detecção sem alterar a imagem do recorte. Cellpose usa pesos locais, não uma resposta de um provedor de chat. O seletor de dispositivos do aplicativo oferece a aceleração disponível e uma alternativa CPU; as opções dependem da instalação, portanto não prometa resultados idênticos entre mecanismos.",
-          "hold_after": 0.7,
-          "speech_text": "Undo restaura os rótulos anteriores à detecção sem alterar a imagem do recorte. cél pouz usa pesos locais, não uma resposta de um provedor de chat. O seletor de dispositivos do aplicativo oferece a aceleração disponível e uma alternativa CPU; as opções dependem da instalação, portanto não prometa resultados idênticos entre mecanismos."
+          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Para scripts, as operações load_image_and_mask, save_mask e write_recrop do editor estão em spacr.qt.mask_engine. Preserve o pareamento imagem-máscara e a procedência junto com os dados de treinamento revisados. Use as aulas vinculadas de API e treinamento ao passar de um exemplo revisado para um fluxo reproduzível.",
+          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ],
-          "speech_text": "Para scripts, as operações load_image_and_mask, save_mask e write_recrop do editor estão em espáquer.quê tê.mask_engine. Preserve o pareamento imagem-máscara e a procedência junto com os dados de treinamento revisados. Use as aulas vinculadas de API e treinamento ao passar de um exemplo revisado para um fluxo reproduzível."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "15_image_umap",
@@ -1829,104 +1854,96 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation Maps: saliência real e seus limites",
+      "title": "Activation Maps: inspect an image classifier’s saliency maps",
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Resultados e controle de qualidade",
-      "description": "Abra Activation Maps dentro de Classify, combine um modelo confiável com recortes reais e compare duas saídas sem confundir atribuição com validação.",
+      "section": "Classify",
+      "description": "Select a trained classifier and matching image crops, compare channel and image saliency, and open the saved maps.",
       "objectives": [
-        "Encontrar a ferramenta integrada e preservar o contrato de entrada do modelo.",
-        "Distinguir pré-processamento, contraste visual e atribuição.",
-        "Examinar arquivos salvos quando Figures está vazio.",
-        "Separar verificação numérica, previsões e validade científica."
+        "Match the crop archive, model and preprocessing settings.",
+        "Run channel saliency with an image overlay.",
+        "Compare image saliency and locate the saved grids."
       ],
-      "prerequisite": "Quatro recortes RGB originais do exemplo baixado em Annotate e um checkpoint ResNet18 local confiável de uma época. O exemplo anterior compartilha poços entre partições: NÃO demonstra acurácia independente. Preservar marcador de formato 3/RGB e cartão do modelo. Tamanho 128, lote 4, canais [1,2,3], normalize_input/normalize/Plot/Save ativados, shuffle/correlation desativados, um processo CPU. saliency_channel com sobreposição e saliency_image sem. Verificados 196608 valores de entrada e 262144 componentes de mapas, tolerância máxima de um nível de oito bits. Identidades e originais intactos. Aviso src e Figures vazio NÃO corrigidos; PNGs reais no visualizador externo. Quatro posições não usadas ficam vazias. Sem validação de atribuição, acurácia independente, solicitação AI, validação biológica ou publicação. API: spacr.deep_spacr.generate_activation_maps e spacr.utils.SaliencyMapGenerator.",
+      "prerequisite": "Use a trained image-classification checkpoint and a TAR archive of compatible image crops. Retain the crop-format marker when present and follow the model card’s channel order, image size and normalization. The example uses four RGB crops from Annotate and a ResNet18 model from Classify. Train or obtain a model whose preprocessing is known before starting.",
       "scenes": [
         {
           "visual": "02_activation_fold",
-          "narration": "Abra Classify e depois a ferramenta aninhada Activation Maps. Esse fluxo examina como a previsão de um modelo treinado responde aos pixels. Não treina um classificador nem determina o que causou um fenótipo observado. Mostraremos duas execuções reais de saliência, sua console e uma forma explícita de visualizar arquivos salvos.",
+          "narration": "From Home, open Classify, then Activation Maps. This tool shows where a trained image classifier’s prediction is sensitive to the input pixels. Start with the model and an archive of crops prepared in the same way as its training data.",
           "related_lessons": [
             "09_annotate",
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Classify e depois a ferramenta aninhada Activation Maps. Esse fluxo examina como a previsão de um modelo treinado responde aos pixels. Não treina um classificador nem determina o que causou um fenótipo observado. Mostraremos duas execuções reais de saliência, sua console e uma forma explícita de visualizar arquivos salvos."
+          "hold_after": 0.7
         },
         {
           "visual": "03_00_dataset",
-          "narration": "Use o arquivo real de recortes, não uma pasta de exemplo. Nosso arquivo pequeno contém quatro recortes celulares RGB inalterados do exemplo baixado de Annotate e seu marcador de formato. Preservamos as fontes e trabalhamos em um projeto privado. Quatro imagens convenientes ilustram a operação; não são uma coorte representativa de validação.",
-          "hold_after": 0.7,
-          "speech_text": "Use o arquivo real de recortes, não uma pasta de exemplo. Nosso arquivo pequeno contém quatro recortes celulares RGB inalterados do exemplo baixado de Annotate e seu marcador de formato. Preservamos as fontes e trabalhamos em um projeto privado. Quatro imagens convenientes ilustram a operação; não são uma coorte representativa de validação."
+          "narration": "Select the crop archive in Dataset. This example contains four RGB cell crops from Annotate. Include the crop-format marker when packaging the images, and keep their filenames so you can connect each map to its original object.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_03_image_size",
-          "narration": "Escolha o modelo confiável correspondente e mantenha seu cartão. É um checkpoint ResNet dezoito treinado por uma única época na demonstração anterior. A divisão compartilhava poços, então não afirmamos acurácia independente. Uma imagem de atribuição convincente não resgata um modelo mal validado. Não carregue checkpoint não confiável por conveniência.",
-          "hold_after": 0.7,
-          "speech_text": "Escolha o modelo confiável correspondente e mantenha seu cartão. É um checkpoint ResNet dezoito treinado por uma única época na demonstração anterior. A divisão compartilhava poços, então não afirmamos acurácia independente. Uma imagem de atribuição convincente não resgata um modelo mal validado. Não carregue checkpoint não confiável por conveniência."
+          "narration": "Select the trained model and choose its model type. Here the model is ResNet eighteen. Read its model card and set Image size to one hundred and twenty-eight to match the training input.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_05_channels",
-          "narration": "Respeite o contrato de entrada do treinamento: tamanho cento e vinte e oito e ordem RGB declarada. Aqui o seletor real usa um, dois, três. Não troque canais porque outra ferramenta usa índices a partir de zero. Verificamos independentemente os valores recortados no centro e transformados contra o carregador de treinamento antes de comparar saliência.",
-          "hold_after": 0.7,
-          "speech_text": "Respeite o contrato de entrada do treinamento: tamanho cento e vinte e oito e ordem RGB declarada. Aqui o seletor real usa um, dois, três. Não troque canais porque outra ferramenta usa índices a partir de zero. Verificamos independentemente os valores recortados no centro e transformados contra o carregador de treinamento antes de comparar saliência."
+          "narration": "Set Channels to the order expected by the model. In this example the selector uses one, two and three for the RGB input. Preserve that order when comparing maps from different images.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_06_normalize_input",
-          "narration": "Diferencie normalização de entrada e de visualização. A entrada precisa corresponder ao treinamento; aqui ela está ativada com o pré-processamento simétrico registrado. A normalização visual muda a aparência da imagem sobreposta, não a acurácia do modelo ou o significado de uma cor. Preserve ambas as configurações nas comparações; uma imagem mais brilhante não é evidência mais forte.",
-          "hold_after": 0.7,
-          "speech_text": "Diferencie normalização de entrada e de visualização. A entrada precisa corresponder ao treinamento; aqui ela está ativada com o pré-processamento simétrico registrado. A normalização visual muda a aparência da imagem sobreposta, não a acurácia do modelo ou o significado de uma cor. Preserve ambas as configurações nas comparações; uma imagem mais brilhante não é evidência mais forte."
+          "narration": "Set Normalize input to match training. The separate display normalization controls how the image appears in the saved overlay. Keep both settings consistent when comparing runs.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_method_and_overlay",
-          "narration": "Escolha saliency channel com Overlay ativado e mantenha Plot e Save. Usamos um processo, um lote de quatro e CPU nesta pequena demonstração. A tela não tem prévia ao vivo: mudar o método exige outra execução. A saliência por canal mantém separados os canais de entrada ao salvar mapas baseados em derivadas.",
-          "hold_after": 0.7,
-          "speech_text": "Escolha saliency channel com Overlay ativado e mantenha Plot e Save. Usamos um processo, um lote de quatro e CPU nesta pequena demonstração. A tela não tem prévia ao vivo: mudar o método exige outra execução. A saliência por canal mantém separados os canais de entrada ao salvar mapas baseados em derivadas."
+          "narration": "Choose saliency channel and enable Overlay, Plot and Save. This produces separate channel maps over the images. For the four-crop example, use a batch size of four and one worker, then click Run.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_finished_console",
-          "narration": "Leia a console real. O cálculo termina, mas essa versão reclama incorretamente da ausência de src, embora Activation use Dataset. O painel Figures também permanece vazio. Verificamos independentemente entrada, mapas salvos e identidades na base; não corrigimos esses defeitos da interface. Outros erros ainda precisam ser investigados.",
-          "hold_after": 0.7,
-          "speech_text": "Leia a console real. O cálculo termina, mas essa versão reclama incorretamente da ausência de src, embora Activation use Dataset. O painel Figures também permanece vazio. Verificamos independentemente entrada, mapas salvos e identidades na base; não corrigimos esses defeitos da interface. Outros erros ainda precisam ser investigados."
+          "narration": "Follow the console until processing finishes. If the Figures panel is empty, open the output folder and inspect the saved batch grids. Check error messages and the saved results before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_09_saved_batch_0_grid",
-          "narration": "Abra a grade salva em um visualizador de imagens. É o visualizador externo real, não uma figura inserida no spaCR. Quatro posições ocupadas correspondem aos nossos quatro recortes; as outras quatro não são usadas. Os rótulos zero e um são previsões, não verdade de referência. A sobreposição visualiza sensibilidade; não é uma máscara de segmentação.",
-          "hold_after": 0.7,
-          "speech_text": "Abra a grade salva em um visualizador de imagens. É o visualizador externo real, não uma figura inserida no espáquer. Quatro posições ocupadas correspondem aos nossos quatro recortes; as outras quatro não são usadas. Os rótulos zero e um são previsões, não verdade de referência. A sobreposição visualiza sensibilidade; não é uma máscara de segmentação."
+          "narration": "Open batch_0_grid.png from the method’s batch_grids folder. Match each occupied slot with its source crop; unused slots may be blank. The corner labels are model predictions. Compare salient regions with the original image and known object boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_method_and_overlay",
-          "narration": "Agora escolha saliency image, desative Overlay e execute novamente nas mesmas entradas. Esse método combina as derivadas absolutas entre canais antes de reescalar o mapa cinza salvo. Não é oclusão nem gradientes integrados. Separe as saídas por método para não confundir a segunda execução com a primeira.",
-          "hold_after": 0.7,
-          "speech_text": "Agora escolha saliency image, desative Overlay e execute novamente nas mesmas entradas. Esse método combina as derivadas absolutas entre canais antes de reescalar o mapa cinza salvo. Não é oclusão nem gradientes integrados. Separe as saídas por método para não confundir a segunda execução com a primeira."
+          "narration": "To compare a combined map, select saliency image and turn Overlay off. Run the same images again with the same preprocessing. Keep the two methods’ outputs in their respective folders.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_09_saved_batch_0_grid",
-          "narration": "A segunda grade mostra os mapas sem as imagens subjacentes. As cores representam a escala de saliência exibida, não probabilidades de classe nem importância biológica comprovada. Checagens independentes comparam cada componente salvo com um gradiente calculado separadamente, aceitando no máximo um nível de arredondamento de oito bits. Verificam a implementação, não a utilidade da explicação.",
-          "hold_after": 0.7,
-          "speech_text": "A segunda grade mostra os mapas sem as imagens subjacentes. As cores representam a escala de saliência exibida, não probabilidades de classe nem importância biológica comprovada. Checagens independentes comparam cada componente salvo com um gradiente calculado separadamente, aceitando no máximo um nível de arredondamento de oito bits. Verificam a implementação, não a utilidade da explicação."
+          "narration": "Open the second saved grid. Image saliency combines the channel sensitivities into one map for each crop. Compare the highlighted regions with the channel maps. The displayed colours indicate the map scale; interpreting them requires checking the model and image context.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_11_correlation",
-          "narration": "A quantificação de mapas está desativada. Não executamos remoção, inserção, aleatorização do modelo nem outros testes de validação da atribuição; dois métodos visualmente diferentes não os substituem. Antes de concluir, use falhas e acertos representativos, controles pertinentes e dados reservados independentemente. Esta demonstração limitada verifica o funcionamento do fluxo.",
+          "narration": "Leave Correlation off for this first walkthrough. Review examples from different classes, including prediction errors, before interpreting patterns. Use Classifier Evaluation to assess performance on independently held-out data.",
           "related_lessons": [
             "39_classifier_evaluation",
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "A quantificação de mapas está desativada. Não executamos remoção, inserção, aleatorização do modelo nem outros testes de validação da atribuição; dois métodos visualmente diferentes não os substituem. Antes de concluir, use falhas e acertos representativos, controles pertinentes e dados reservados independentemente. Esta demonstração limitada verifica o funcionamento do fluxo."
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_11_back_to_actual_gui",
-          "narration": "Mantenha juntos identidades dos recortes, imagens originais, modelo e cartão, configurações, registros, mapas e base. As fontes ficaram intactas e ambos os métodos preservaram as quatro identidades. A assistência AI é opcional; nenhuma solicitação foi enviada aqui. Confira conselhos posteriores com a API real e as evidências, sem tratar uma explicação fluente como validação.",
+          "narration": "Keep the input archive, model and model card, settings, maps and output database together. Return to the original crops to investigate unexpected regions, or compare another method using the same inputs.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Mantenha juntos identidades dos recortes, imagens originais, modelo e cartão, configurações, registros, mapas e base. As fontes ficaram intactas e ambos os métodos preservaram as quatro identidades. A assistência AI é opcional; nenhuma solicitação foi enviada aqui. Confira conselhos posteriores com a API real e as evidências, sem tratar uma explicação fluente como validação."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "17_timelapse",
@@ -2370,112 +2387,100 @@
       "series": 3,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentação",
-      "title": "Aplicar Cellpose: máscaras salvas e filtros ao vivo",
-      "description": "Aplique CPSAM a três imagens reais para download no Workbench aninhado, confira figuras e console e teste filtros sem confundir prévia com processamento em lote.",
+      "section": "Tools",
+      "title": "Apply Cellpose: segment a folder and inspect masks",
+      "description": "Choose a segmentation model, process the supplied images and inspect saved masks and live size filters.",
       "objectives": [
-        "Localizar Apply em Make Masks e Cellpose Workbench.",
-        "Usar cópias preservadas e configurações registradas do modelo padrão.",
-        "Examinar três máscaras e suas figuras de imagem, contornos e fluxo.",
-        "Demonstrar filtros reversíveis e zoom sincronizado.",
-        "Reconhecer a diferença medida entre prévia e lote sem alegar acurácia."
+        "Select images, model weights and segmentation settings.",
+        "Run Apply and locate the saved mask TIFFs.",
+        "Inspect live results and compare object-size filters."
       ],
       "example_files": [
         "Apply_Cellpose_stock_example.zip"
       ],
-      "prerequisite": "Extraia as três imagens em uma pasta nova e aponte src para images. recorded_settings.json contém valores históricos, não comprova importação portátil pela interface. São recortes celulares reais uint16 de 512 pixels de lado, não referência de segmentação. Usa-se CPSAM padrão, não o modelo de Train. Configurações: channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert e remove_background são False. O lote CUDA salva 9/94/46 objetos e três figuras nativas. Chamadas independentes reproduzem todos os pixels das máscaras e matrizes das figuras. Contornos externos não separam cada instância em contato; o fluxo é um canal de visualização, não movimento medido. A prévia da imagem 02 gera 95, não 94: segue os padrões Cellpose para a imagem bruta, não o pré-processamento e reamostragem do lote. Exibir 2/99 não prova equivalência. Área mínima 1838 dá 95→47→95 sem nova inferência; cada pixel restaurado é verificado e os TIFFs permanecem intactos. O zoom sincroniza as vistas, mas recorta a imagem e não corrige o painel estreito. Dados e bloqueios anteriores preservados. Sem certificação biológica, solicitação à IA, publicação ou mudança no aplicativo.",
+      "prerequisite": "Extract the linked Apply Cellpose example into a new folder. It contains three single-channel cell images and a settings reference. Select its images folder as Source. This walkthrough uses the stock cpsam model; for a custom model, choose compatible weights and settings for your images.",
       "scenes": [
         {
           "visual": "02_actual_train_and_apply_tabs",
-          "narration": "Em Make Masks, abra o Cellpose Workbench aninhado e escolha Apply. Train e Apply compartilham esse painel; Apply não é um bloco separado na tela inicial. Esta aula usa o modelo padrão em três imagens reais, não o checkpoint de demonstração da aula Train vinculada.",
+          "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Em Make Masks, abra o cél pouz Workbench aninhado e escolha Apply. Train e Apply compartilham esse painel; Apply não é um bloco separado na tela inicial. Esta aula usa o modelo padrão em três imagens reais, não o checkpoint de demonstração da aula Train vinculada."
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extraia o exemplo vinculado em uma pasta nova. Defina o diretório images como origem, preservando o download original. São três imagens celulares de um canal, cada uma com quinhentos e doze pixels de lado. São exemplos, não referência de segmentação. Consulte as configurações registradas e substitua o caminho histórico pelo seu.",
-          "hold_after": 0.7,
-          "speech_text": "Extraia o exemplo vinculado em uma pasta nova. Defina o diretório images como origem, preservando o download original. São três imagens celulares de um canal, cada uma com quinhentos e doze pixels de lado. São exemplos, não referência de segmentação. Consulte as configurações registradas e substitua o caminho histórico pelo seu."
+          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_model_name",
-          "narration": "Selecione CPSAM e deixe o modelo personalizado vazio. Nessas imagens, o canal é zero, a normalização usa os percentis dois e noventa e nove, o diâmetro é trinta, o limiar de fluxo é zero vírgula quatro e a probabilidade celular é zero. São escolhas demonstrativas, não recomendações universais.",
-          "hold_after": 0.7,
-          "speech_text": "Selecione CPSAM e deixe o modelo personalizado vazio. Nessas imagens, o canal é zero, a normalização usa os percentis dois e noventa e nove, o diâmetro é trinta, o limiar de fluxo é zero vírgula quatro e a probabilidade celular é zero. São escolhas demonstrativas, não recomendações universais."
+          "narration": "Select cpsam and leave Custom model empty for this example. Set Channels to zero, normalization percentiles to two and ninety-nine, Diameter to thirty, Flow threshold to zero point four and Cell probability to zero. Adjust these settings after inspecting a few representative fields from your own experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_inference_outcome",
-          "narration": "Ative Save e Verbose, use uma imagem por lote e execute Apply. Essa rota cria figuras sem um botão Plot separado. O console identifica uma RTX trinta noventa usando CUDA e termina as três imagens. Confira a origem e as configurações salvas: Finished sozinho não mede acurácia.",
-          "hold_after": 0.7,
-          "speech_text": "Ative Save e Verbose, use uma imagem por lote e execute Apply. Essa rota cria figuras sem um botão Plot separado. O console identifica uma RTX trinta noventa usando CUDA e termina as três imagens. Confira a origem e as configurações salvas: Finished sozinho não mede acurácia."
+          "narration": "Enable Save and Verbose, choose a batch size of one, and click Run in Apply. Follow the console as each image is processed. Review failures before proceeding to measurement.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Três TIFFs de máscara com os mesmos nomes são salvos na subpasta masks da origem. As contagens são nove, noventa e quatro e quarenta e seis. As figuras reais mostram entrada, contornos externos vermelhos e fluxo. Os contornos não separam todas as instâncias adjacentes; as cores não medem movimento físico nem acurácia.",
+          "narration": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
           "focus": [
             1000,
             450,
             2780,
             640
           ],
-          "hold_after": 0.7,
-          "speech_text": "Três TIFFs de máscara com os mesmos nomes são salvos na subpasta masks da origem. As contagens são nove, noventa e quatro e quarenta e seis. As figuras reais mostram entrada, contornos externos vermelhos e fluxo. Os contornos não separam todas as instâncias adjacentes; as cores não medem movimento físico nem acurácia."
+          "hold_after": 0.7
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Ative Live preview e escolha cell pair zero dois com o seletor real. Recolha Console e System para liberar espaço. A prévia tem controles próprios: confira o canal zero e os percentis exibidos em Live settings, sem presumir que todas as opções de Apply foram copiadas.",
-          "hold_after": 0.7,
-          "speech_text": "Ative Live preview e escolha cell pair zero dois com o seletor real. Recolha Console e System para liberar espaço. A prévia tem controles próprios: confira o canal zero e os percentis exibidos em Live settings, sem presumir que todas as opções de Apply foram copiadas."
+          "narration": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "A prévia encontra noventa e cinco objetos, enquanto a máscara salva da mesma imagem contém noventa e quatro. Verificações independentes reproduzem ambos: a prévia usa os padrões Cellpose para a imagem bruta, não o pré-processamento e a reamostragem explícitos do lote. É uma visão exploratória, não garantia de máscaras idênticas.",
+          "narration": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
           "focus": [
             1000,
             1160,
             2780,
             610
           ],
-          "hold_after": 0.7,
-          "speech_text": "A prévia encontra noventa e cinco objetos, enquanto a máscara salva da mesma imagem contém noventa e quatro. Verificações independentes reproduzem ambos: a prévia usa os padrões cél pouz para a imagem bruta, não o pré-processamento e a reamostragem explícitos do lote. É uma visão exploratória, não garantia de máscaras idênticas."
+          "hold_after": 0.7
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "O painel de prévia continua estreito nesta versão. A roda do mouse amplia um detalhe nas duas vistas juntas; não aumenta o painel, e a imagem completa fica recortada. Isso ajuda a examinar contornos locais, mas não substitui a revisão de todo o campo.",
+          "narration": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
           "focus": [
             1010,
             1280,
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "O painel de prévia continua estreito nesta versão. A roda do mouse amplia um detalhe nas duas vistas juntas; não aumenta o painel, e a imagem completa fica recortada. Isso ajuda a examinar contornos locais, mas não substitui a revisão de todo o campo."
+          "hold_after": 0.7
         },
         {
           "visual": "22_native_filter_reduces_objects",
-          "narration": "Abra Live settings e ajuste a área celular mínima para mil oitocentos e trinta e oito pixels. É um limiar demonstrativo, não um ótimo biológico. Feche o diálogo para ver o resultado. O filtro remove quarenta e oito objetos, deixando quarenta e sete, sem executar Cellpose novamente nem alterar a segmentação bruta.",
-          "hold_after": 0.7,
-          "speech_text": "Abra Live settings e ajuste a área celular mínima para mil oitocentos e trinta e oito pixels. É um limiar demonstrativo, não um ótimo biológico. Feche o diálogo para ver o resultado. O filtro remove quarenta e oito objetos, deixando quarenta e sete, sem executar cél pouz novamente nem alterar a segmentação bruta."
+          "narration": "Open Live settings and increase Minimum cell area to remove small objects from the preview. The cutoff is in pixels; choose it according to your object sizes. Close the dialog to inspect the filtered result.",
+          "hold_after": 0.7
         },
         {
           "visual": "22b_actual_zoomed_filtered_preview",
-          "narration": "Aqui está a prévia filtrada, com o diálogo fechado e o zoom reaplicado. A imagem original permanece igual enquanto os objetos pequenos da máscara desaparecem. O contador mostra quarenta e sete. Essas mudanças afetam a prévia, não regravam os três TIFFs já salvos.",
+          "narration": "Compare the filtered outlines with the original image. Changing this live filter updates the preview without rewriting masks already saved by Apply. Rerun the batch with the intended settings when you need new saved outputs.",
           "focus": [
             1010,
             1280,
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Aqui está a prévia filtrada, com o diálogo fechado e o zoom reaplicado. A imagem original permanece igual enquanto os objetos pequenos da máscara desaparecem. O contador mostra quarenta e sete. Essas mudanças afetam a prévia, não regravam os três TIFFs já salvos."
+          "hold_after": 0.7
         },
         {
           "visual": "23b_actual_zoomed_restored_preview",
-          "narration": "Volte a área mínima para zero, feche o diálogo e examine novamente. Retornam noventa e cinco objetos, e cada pixel de rótulo coincide com o resultado inicial. Guarde entradas, configurações e identidade do modelo junto às máscaras. O console opcional spaCR AI não é usado aqui; a validação independente continua necessária antes de conclusões científicas.",
+          "narration": "Return Minimum cell area to zero to restore the unfiltered preview. Keep the input images, model identity, settings and saved masks together. Use Make Masks for corrections or Measure to extract object features from the reviewed masks.",
           "focus": [
             1010,
             1280,
@@ -2486,34 +2491,38 @@
             "07_mask",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Volte a área mínima para zero, feche o diálogo e examine novamente. Retornam noventa e cinco objetos, e cada pixel de rótulo coincide com o resultado inicial. Guarde entradas, configurações e identidade do modelo junto às máscaras. O console opcional espáquer AI não é usado aqui; a validação independente continua necessária antes de conclusões científicas."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Model Compare: tela atual e concordância entre máscaras reais",
+      "title": "Model Compare: compare saved segmentation masks",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentação",
-      "description": "Abra a comparação dentro de Make Masks, carregue campos reais e compare segmentações salvas pela API. Concordância não demonstra acurácia nem significa que a inferência da interface foi corrigida.",
+      "section": "Segmentation models",
+      "description": "Load two masks of the same image, run the downloadable comparison helper and inspect overlap scores and overlays.",
       "objectives": [
-        "Encontrar Model Compare e carregar os campos de exemplo.",
-        "Distinguir a incompatibilidade atual do Cellpose da API funcional de comparação de máscaras.",
-        "Interpretar contagens, correspondências e sobreposições sem declarar um resultado correto."
+        "Choose masks of the same field with matching pixel geometry.",
+        "Run the saved-mask comparison example.",
+        "Read the agreement table and inspect boundary differences."
       ],
       "example_files": [
         "Model_Compare_saved_masks_example.zip"
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly e Cellpose 4.2.1.1. A interface passa invert, não aceito; carregamos imagens sem executar inferência, inserir resultados ou alterar o aplicativo. spacr.model_compare.compare_masks compara duas saídas reais de cell_pair_02.tif do tutorial Apply Cellpose: processamento em lote e prévia, com os mesmos pesos cpsam e pré-processamentos diferentes. Nenhuma máscara é referência anotada por especialistas; nenhum modelo é executado aqui. Preserve identidade do campo, geometria, pré-processamento e hashes dos arquivos: dimensões iguais não comprovam a mesma origem. O script e as evidências registradas identificam os originais. Use uma nova pasta de saída. A concordância não estabelece acurácia, classificação de modelos, validade biológica ou desempenho em imagens independentes.",
+      "prerequisite": "Download and extract the linked Model Compare example. It provides one image, two saved masks and a Python helper. Use an environment with spaCR installed and choose a new output folder outside the extracted inputs. The example compares two preprocessing choices with the same cpsam weights; assessing accuracy requires reviewed reference labels.",
       "scenes": [
         {
           "visual": "gui_00_home",
-          "narration": "Model Compare fica dentro de Make Masks e compara segmentações dos mesmos campos. Esta aula mostra a tela atual e depois demonstra a API funcional de comparação de máscaras com duas saídas realmente salvas.",
+          "narration": "From Home, open Make Masks and choose Model Compare. Use this workflow to inspect segmentation differences on the same image. This walkthrough uses the linked saved-mask example and its Python helper.",
           "focus_modules": [
             "make_masks"
           ],
@@ -2521,45 +2530,22 @@
             "14_make_masks",
             "22_model_zoo"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Model Compare fica dentro de Make Masks e compara segmentações dos mesmos campos. Esta aula mostra a tela atual e depois demonstra a API funcional de comparação de máscaras com duas saídas realmente salvas."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_02_model_parameters",
-          "narration": "A tela separa as configurações de Model A e Model B. Registre os pesos exatos e o pré-processamento de cada comparação. Nomes diferentes ou mais objetos não demonstram um resultado melhor. As tabelas de parâmetros e resultados ficam vazias antes de executar uma comparação.",
+          "narration": "Keep the model weights and preprocessing settings with each set of masks. When preparing your own comparison, use the same fields and pixel geometry so object overlaps refer to corresponding image locations.",
           "focus": [
             350,
             420,
             3450,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "A tela separa as configurações de Model A e Model B. Registre os pesos exatos e o pré-processamento de cada comparação. Nomes diferentes ou mais objetos não demonstram um resultado melhor. As tabelas de parâmetros e resultados ficam vazias antes de executar uma comparação."
-        },
-        {
-          "visual": "gui_03_real_fields_loaded_not_compared",
-          "narration": "Informe a pasta real do exemplo e pressione Load. Aqui, três campos originais carregam corretamente e Compare fica disponível. Carregar imagens não equivale a executar os modelos com sucesso. Não criamos máscaras nem preenchemos a tabela de comparação nesta tela.",
-          "hold_after": 0.7,
-          "speech_text": "Informe a pasta real do exemplo e pressione Load. Aqui, três campos originais carregam corretamente e Compare fica disponível. Carregar imagens não equivale a executar os modelos com sucesso. Não criamos máscaras nem preenchemos a tabela de comparação nesta tela."
-        },
-        {
-          "visual": "api_01_current_gui_limit",
-          "narration": "A versão instalada do Cellpose rejeita o argumento invert que este mecanismo da interface ainda passa. Esta verificação real da assinatura mostra a incompatibilidade sem iniciar inferência. Não a escondemos. O próximo exemplo usa compare_masks diretamente em imagens de rótulos existentes.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1350
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "A versão instalada do cél pouz rejeita o argumento invert que este mecanismo da interface ainda passa. Esta verificação real da assinatura mostra a incompatibilidade sem iniciar inferência. Não a escondemos. O próximo exemplo usa compare_masks diretamente em imagens de rótulos existentes."
+          "hold_after": 0.7
         },
         {
           "visual": "api_00_inputs",
-          "narration": "As duas máscaras pertencem à mesma imagem real do tutorial Apply Cellpose. Uma é a saída salva em lote; a outra, a saída salva da prévia. Usam o mesmo modelo com pré-processamentos diferentes, não dois conjuntos de pesos concorrentes. Nenhuma é uma referência correta conhecida.",
+          "narration": "Extract the linked example. The inputs are image.tif, batch.tif and preview.npy. Both masks describe the same field; they were produced with the same model and different preprocessing settings. Keep their original filenames for the supplied helper.",
           "focus": [
             200,
             100,
@@ -2569,36 +2555,33 @@
           "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "As duas máscaras pertencem à mesma imagem real do tutorial Apply cél pouz. Uma é a saída salva em lote; a outra, a saída salva da prévia. Usam o mesmo modelo com pré-processamentos diferentes, não dois conjuntos de pesos concorrentes. Nenhuma é uma referência correta conhecida."
+          "hold_after": 0.7
         },
         {
           "visual": "api_02_actual_comparison",
-          "narration": "A API informa noventa e quatro objetos em A e noventa e cinco em B, com noventa e um pares correspondentes. A sobreposição média dos pares é cerca de zero vírgula noventa e seis. O índice de Rand ajustado é cerca de zero vírgula nove seis um. Esses números descrevem concordância, não acurácia nem um vencedor.",
+          "narration": "Run the supplied helper in your spaCR Python environment. Set source to the example input folder and output to a new results folder. The printed summary lists object counts, matched objects, mean matched overlap and adjusted Rand index. Higher agreement means the masks are more similar; it does not by itself establish which mask is correct.",
           "focus": [
             200,
             100,
             3440,
             900
           ],
-          "hold_after": 0.7,
-          "speech_text": "A API informa noventa e quatro objetos em A e noventa e cinco em B, com noventa e um pares correspondentes. A sobreposição média dos pares é cerca de zero vírgula noventa e seis. O índice de Rand ajustado é cerca de zero vírgula nove seis um. Esses números descrevem concordância, não acurácia nem um vencedor."
+          "hold_after": 0.7
         },
         {
           "visual": "api_04_actual_comparison_figure",
-          "narration": "Examine as sobreposições realmente salvas. O painel direito marca os pixels cuja classificação como primeiro plano difere. Não mostra toda divergência entre rótulos de instâncias. Contagens semelhantes podem esconder limites diferentes, divisões ou fusões; examine também as imagens.",
+          "narration": "Open comparison.png. Compare the two mask overlays with the image and inspect splits, merges and boundary shifts. The right panel highlights pixels where foreground membership differs. Check touching-object boundaries in the overlays as well.",
           "focus": [
             450,
             480,
             2950,
             1230
           ],
-          "hold_after": 0.7,
-          "speech_text": "Examine as sobreposições realmente salvas. O painel direito marca os pixels cuja classificação como primeiro plano difere. Não mostra toda divergência entre rótulos de instâncias. Contagens semelhantes podem esconder limites diferentes, divisões ou fusões; examine também as imagens."
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_outputs",
-          "narration": "O script verifica independentemente cada sobreposição usando os pixels originais e confere o controle com máscaras idênticas. Guarde juntos CSV, figura, identidade dos originais e pré-processamento. Use anotações independentes revisadas e imagens reservadas para avaliação antes de afirmar acurácia ou selecionar um modelo.",
+          "narration": "Open comparison.csv for the numerical results and retain it with comparison.png, the inputs and the recorded settings. Use reviewed reference masks and representative fields when comparing segmentation accuracy or choosing a model for your experiment.",
           "focus": [
             200,
             100,
@@ -2609,10 +2592,14 @@
             "23_agreement",
             "19_train_cellpose"
           ],
-          "hold_after": 0.7,
-          "speech_text": "O script verifica independentemente cada sobreposição usando os pixels originais e confere o controle com máscaras idênticas. Guarde juntos CSV, figura, identidade dos originais e pré-processamento. Use anotações independentes revisadas e imagens reservadas para avaliação antes de afirmar acurácia ou selecionar um modelo."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "22_model_zoo",
@@ -3633,211 +3620,201 @@
       "series": 4,
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
-      "section": "Resultados e controle de qualidade",
-      "title": "Training Runs: praticar os controles de comparação com registros sintéticos",
-      "description": "Abra Training Runs dentro de Classify e use registros de progresso explicitamente sintéticos para examinar métricas registradas, diferenças automáticas entre configurações e modos de exibição das partições de validação cruzada, sem treinar nem avaliar um modelo.",
+      "section": "Tools",
+      "title": "Training Runs: compare curves and settings",
+      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
       "objectives": [
-        "Descobrir pastas de registros existentes e distinguir curvas utilizáveis de um exemplo incompleto.",
-        "Comparar métricas registradas preservando o intervalo de épocas de cada série.",
-        "Ler as diferenças automáticas de configuração separadamente dos parâmetros relacionados à execução.",
-        "Distinguir as melhores e as últimas épocas registradas, o desvio-padrão amostral entre partições e a validação científica."
+        "Find saved runs and select the ones to compare.",
+        "Overlay training and validation metrics and inspect settings differences.",
+        "Switch between individual folds and their mean and standard deviation."
       ],
-      "prerequisite": "Use a pasta existente do tutorial synthetic/training_runs, cuja natureza sintética é explicitamente declarada. Suas curvas baseline, tuned e cross_validated, os valores das partições e as configurações foram gerados como exemplos da interface; nenhum classificador produziu esses valores. Seu arquivo .pth incompleto contém apenas texto de preenchimento e não deve ser carregado como modelo. Esta lição demonstra o analisador real de CSV e os controles de comparação, não treinamento, avaliação de checkpoints ou desempenho biológico. Para sua própria análise, mantenha registros autênticos train.csv e validation.csv junto com suas configurações e a proveniência do conjunto de dados. Training Runs não tem um controle separado para baixar exemplos.",
+      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Abra Classify e, em seguida, sua ferramenta integrada Training Runs. Esta lição usa registros de progresso explicitamente sintéticos: cada curva, partição e configuração é um exemplo, não um resultado medido de um classificador. Demonstramos a interface de comparação sem treinar nem avaliar um modelo.",
+          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
-          ],
-          "speech_text": "Abra Classify e, em seguida, sua ferramenta integrada Training Runs. Esta lição usa registros de progresso explicitamente sintéticos: cada curva, partição e configuração é um exemplo, não um resultado medido de um classificador. Demonstramos a interface de comparação sem treinar nem avaliar um modelo."
+          ]
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Training Runs tem seu próprio seletor de pastas, lista de execuções, controles Metric e Folds e botão Overlay selected. Ele lê as tabelas salvas train.csv e validation.csv e recupera as configurações. O formulário de treinamento da tela principal Classify pertence a outro fluxo de trabalho; não pressione seu botão Run neste exercício.",
+          "narration": "Training Runs provides a folder selector, run list, Metric menu, Folds menu and Overlay selected button. Begin by choosing the parent folder containing the runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
             310,
             3350,
             1650
-          ],
-          "speech_text": "Training Runs tem seu próprio seletor de pastas, lista de execuções, controles Metric e Folds e botão Overlay selected. Ele lê as tabelas salvas train.csv e validation.csv e recupera as configurações. O formulário de treinamento da tela principal Classify pertence a outro fluxo de trabalho; não pressione seu botão Run neste exercício."
+          ]
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Clique em Choose folder…, selecione o diretório sintético training_runs existente e confirme com Choose. Selecione a pasta que contém os projetos de exemplo, não um CSV individual. Mantenha esses arquivos de exemplo originais sem alterações; não é necessário gerá-los novamente, copiar uma execução nem criar um novo checkpoint.",
+          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
           "hold_after": 0.7,
           "focus": [
             1555,
             790,
             1410,
             965
-          ],
-          "speech_text": "Clique em Choose folder…, selecione o diretório sintético training_runs existente e confirme com Choose. Selecione a pasta que contém os projetos de exemplo, não um CSV individual. Mantenha esses arquivos de exemplo originais sem alterações; não é necessário gerá-los novamente, copiar uma execução nem criar um novo checkpoint."
+          ]
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan descobre quatro pastas de exemplo: baseline, de vinte épocas; tuned, de vinte e cinco épocas; um exemplo de dezoito épocas com três partições de validação cruzada; e uma entrada incompleta. Baseline e tuned são rótulos de demonstração. Os nomes de modelos nesses caminhos não significam que esses modelos foram treinados para esta lição.",
+          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
             530,
             940,
             285
-          ],
-          "speech_text": "Scan descobre quatro pastas de exemplo: baseline, de vinte épocas; tuned, de vinte e cinco épocas; um exemplo de dezoito épocas com três partições de validação cruzada; e uma entrada incompleta. Baseline e tuned são rótulos de demonstração. Os nomes de modelos nesses caminhos não significam que esses modelos foram treinados para esta lição."
+          ]
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Leia os avisos da entrada incompleta. Ela não tem configurações, train.csv nem validation.csv, portanto não contribui com nenhuma curva nem comparação de configurações. Seu arquivo terminado em ponto pê tê agá é apenas texto usado para exercitar a descoberta; o aplicativo não carrega nem avalia esse arquivo de preenchimento.",
+          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
           "hold_after": 0.7,
           "focus": [
             465,
             1845,
             3350,
             175
-          ],
-          "speech_text": "Leia os avisos da entrada incompleta. Ela não tem configurações, train.csv nem validation.csv, portanto não contribui com nenhuma curva nem comparação de configurações. Seu arquivo terminado em ponto pê tê agá é apenas texto usado para exercitar a descoberta; o aplicativo não carrega nem avalia esse arquivo de preenchimento."
+          ]
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Marque os exemplos baseline e tuned e escolha accuracy em Metric. O menu contém as colunas numéricas realmente presentes nesses registros, incluindo loss e prauc. Seus valores também são sintéticos; um nome de métrica conhecido não transforma um número gerado em uma medição experimental.",
+          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
           "hold_after": 0.7,
           "focus": [
             465,
             1680,
             940,
             300
-          ],
-          "speech_text": "Marque os exemplos baseline e tuned e escolha accuracy em Metric. O menu contém as colunas numéricas realmente presentes nesses registros, incluindo loss e prauc. Seus valores também são sintéticos; um nome de métrica conhecido não transforma um número gerado em uma medição experimental."
+          ]
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Clique em Overlay selected. Aparecem quatro séries dos dois exemplos selecionados: train é tracejada e validation é contínua. Cada uma mantém seu próprio intervalo de épocas, vinte ou vinte e cinco. A curva mais curta não é preenchida com valores adicionais nem truncada para corresponder à vizinha; leia a execução e a divisão dos dados na legenda.",
+          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "Clique em Overlay selected. Aparecem quatro séries dos dois exemplos selecionados: train é tracejada e validation é contínua. Cada uma mantém seu próprio intervalo de épocas, vinte ou vinte e cinco. A curva mais curta não é preenchida com valores adicionais nem truncada para corresponder à vizinha; leia a execução e a divisão dos dados na legenda."
+          ]
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "A comparação das configurações é automática. Aqui, quatro das onze configurações compartilhadas diferem: batch_size passa de sessenta e quatro para trinta e dois, epochs de vinte para vinte e cinco, learning_rate de zero vírgula zero zero zero um para zero vírgula zero zero zero três, e src identifica projetos sintéticos diferentes.",
+          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ],
-          "speech_text": "A comparação das configurações é automática. Aqui, quatro das onze configurações compartilhadas diferem: batch_size passa de sessenta e quatro para trinta e dois, epochs de vinte para vinte e cinco, learning_rate de zero vírgula zero zero zero um para zero vírgula zero zero zero três, e src identifica projetos sintéticos diferentes."
+          ]
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "A linha env, separada, mostra n_jobs mudando de trinta para oito, um parâmetro relacionado à execução. Há uma diferença de ambiente e nenhuma diferença de esquema. São configurações de exemplo, não evidências do hardware usado ou do tempo de treinamento decorrido. A tabela não estabelece que alguma configuração causou uma diferença entre curvas.",
+          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ],
-          "speech_text": "A linha env, separada, mostra n_jobs mudando de trinta para oito, um parâmetro relacionado à execução. Há uma diferença de ambiente e nenhuma diferença de esquema. São configurações de exemplo, não evidências do hardware usado ou do tempo de treinamento decorrido. A tabela não estabelece que alguma configuração causou uma diferença entre curvas."
+          ]
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Clique na curva de validação de baseline. Sua linha de detalhes informa a última accuracy, zero vírgula sete quatro nove seis na época vinte, e a melhor accuracy, zero vírgula sete oito seis zero na época quinze. São épocas registradas no CSV, não checkpoints avaliados separadamente. Selecionar o melhor ponto na mesma curva explica o aviso de otimismo.",
+          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
           "hold_after": 0.7,
           "focus": [
             465,
             2000,
             3350,
             105
-          ],
-          "speech_text": "Clique na curva de validação de baseline. Sua linha de detalhes informa a última accuracy, zero vírgula sete quatro nove seis na época vinte, e a melhor accuracy, zero vírgula sete oito seis zero na época quinze. São épocas registradas no CSV, não checkpoints avaliados separadamente. Selecionar o melhor ponto na mesma curva explica o aviso de otimismo."
+          ]
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Escolha loss em Metric. As mesmas quatro séries e configurações permanecem, mas o eixo vertical agora mostra os valores de perda registrados. As elevações tardias da curva de validação foram geradas deliberadamente nesses exemplos. Isso demonstra a troca de métrica, não uma deterioração observada de um modelo treinado.",
+          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "Escolha loss em Metric. As mesmas quatro séries e configurações permanecem, mas o eixo vertical agora mostra os valores de perda registrados. As elevações tardias da curva de validação foram geradas deliberadamente nesses exemplos. Isso demonstra a troca de métrica, não uma deterioração observada de um modelo treinado."
+          ]
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Mantenha tuned selecionado e substitua baseline pelo exemplo de dezoito épocas e três partições. Volte Metric para accuracy, pressione Overlay selected e abra Folds. As opções reais são per fold, mean ± sd e both. Elas mudam a exibição; não criam novas partições.",
+          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
           "hold_after": 0.7,
           "focus": [
             465,
             1730,
             940,
             175
-          ],
-          "speech_text": "Mantenha tuned selecionado e substitua baseline pelo exemplo de dezoito épocas e três partições. Volte Metric para accuracy, pressione Overlay selected e abra Folds. As opções reais são per fold, mean ± sd e both. Elas mudam a exibição; não criam novas partições."
+          ]
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Escolha mean ± sd. São mostradas quatro séries: as duas divisões de dados de tuned e as médias de treinamento e validação do exemplo com três partições. Cada faixa representa mais ou menos um desvio-padrão amostral entre três partições sintéticas naquela época, não um intervalo de confiança nem uma estimativa de incerteza biológica.",
+          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "Escolha mean ± sd. São mostradas quatro séries: as duas divisões de dados de tuned e as médias de treinamento e validação do exemplo com três partições. Cada faixa representa mais ou menos um desvio-padrão amostral entre três partições sintéticas naquela época, não um intervalo de confiança nem uma estimativa de incerteza biológica."
+          ]
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Escolha both para exibir dez séries: duas de tuned, seis séries de partições individuais e duas médias entre partições. As curvas médias resumem os valores dessas mesmas partições; não são execuções independentes adicionais. Todas as três partições sintéticas contribuem ao longo de suas dezoito épocas registradas.",
+          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "Escolha both para exibir dez séries: duas de tuned, seis séries de partições individuais e duas médias entre partições. As curvas médias resumem os valores dessas mesmas partições; não são execuções independentes adicionais. Todas as três partições sintéticas contribuem ao longo de suas dezoito épocas registradas."
+          ]
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Escolha per fold para remover as duas médias, deixando oito séries. As curvas das partições terminam na época dezoito, enquanto tuned continua até vinte e cinco. A tabela atualizada informa cinco diferenças de configuração e uma diferença de ambiente; mudar os exemplos selecionados também muda a comparação das configurações.",
+          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             1315
-          ],
-          "speech_text": "Escolha per fold para remover as duas médias, deixando oito séries. As curvas das partições terminam na época dezoito, enquanto tuned continua até vinte e cinco. A tabela atualizada informa cinco diferenças de configuração e uma diferença de ambiente; mudar os exemplos selecionados também muda a comparação das configurações."
+          ]
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Para esta gravação, verificamos as linhas numéricas retornadas, as curvas traçadas, as diferenças de configuração e as faixas de desvio-padrão amostral em relação aos CSVs existentes. Os arquivos originais permanecem inalterados. Isso verifica apenas esta demonstração do software; esses exemplos sintéticos não podem estabelecer desempenho preditivo, generalização nem um vencedor cientificamente reproduzível.",
-          "hold_after": 0.7,
-          "speech_text": "Para esta gravação, verificamos as linhas numéricas retornadas, as curvas traçadas, as diferenças de configuração e as faixas de desvio-padrão amostral em relação aos CSVs existentes. Os arquivos originais permanecem inalterados. Isso verifica apenas esta demonstração do software; esses exemplos sintéticos não podem estabelecer desempenho preditivo, generalização nem um vencedor cientificamente reproduzível."
+          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Em Python, spacr.train_compare.find_runs descobre pastas e load_run lê uma execução. compare_runs monta a comparação e as diferenças de configuração; plot_curves traça uma métrica escolhida. O argumento folds de compare_runs aceita per_fold, mean ou both. Mantenha os registros autênticos e a proveniência do conjunto de dados juntos ao aplicar essas ferramentas somente de leitura aos seus próprios resultados.",
+          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
-          ],
-          "speech_text": "Em Python, espáquer.train_compare.find_runs descobre pastas e load_run lê uma execução. compare_runs monta a comparação e as diferenças de configuração; plot_curves traça uma métrica escolhida. O argumento folds de compare_runs aceita per_fold, mean ou both. Mantenha os registros autênticos e a proveniência do conjunto de dados juntos ao aplicar essas ferramentas somente de leitura aos seus próprios resultados."
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_training_runs.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "29_report",
