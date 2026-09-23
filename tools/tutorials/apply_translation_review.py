@@ -24,8 +24,44 @@ CAPTION_ONLY = {'da', 'de', 'is', 'ko', 'nb', 'sv'}
 
 
 def promote(review, stage):
+    """Stage one reviewed lesson while preserving every other translation."""
+    promote_many([review], stage)
+
+
+def promote_many(reviews, stage):
+    """Validate one language's complete batch before changing its catalog."""
+    if not reviews or len({review['language'] for review in reviews}) != 1:
+        raise ValueError('Provide a nonempty batch for one language')
+    language = reviews[0]['language']
+    if language not in SPOKEN | CAPTION_ONLY:
+        raise ValueError('Review language is not in the preserved translation matrix')
+    if len({review['lesson'] for review in reviews}) != len(reviews):
+        raise ValueError('Duplicate lesson in translation review batch')
     source = read(stage / 'catalog/lessons_en.json')
-    english = next(item for item in source['lessons'] if item['id'] == review['lesson'])
+    filename = f"{'lessons' if language in SPOKEN else 'captions'}_{language}.json"
+    destination = stage / 'catalog' / filename
+    baseline = REPO / 'docs/source/_extra/tutorials/catalog' / filename
+    target = read(destination if destination.exists() else baseline)
+    existing = {item['id']: item for item in target['lessons']}
+    originals = {item['id']: item for item in source['lessons']}
+    for review in reviews:
+        if review['lesson'] not in originals:
+            raise ValueError('Reviewed lesson is absent from the English catalog')
+        english = originals[review['lesson']]
+        existing[english['id']] = translated_lesson(
+            review, english, existing.get(english['id'], {}))
+    missing = originals.keys() - existing.keys()
+    if missing:
+        raise ValueError('Missing reviewed translations for: ' + ', '.join(sorted(missing)))
+    target['lessons'] = [existing[item['id']] for item in source['lessons']]
+    write(destination, target)
+    for review in reviews:
+        write(stage / 'production' / review['lesson'] / f'review.{language}.json', review)
+        print(f"Staged editorial correction for {language}/{review['lesson']}; not published or listening-reviewed.")
+
+
+def translated_lesson(review, english, previous):
+    """Bind prose to the exact English lesson and retain its scene structure."""
     digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     if digest != review['english_sha256']:
         raise ValueError('English changed after the translation review')
@@ -33,16 +69,9 @@ def promote(review, stage):
             isinstance(text, str) and text.strip() for text in review['scenes']):
         raise ValueError('Review must explicitly provide every scene')
     language = review['language']
-    if language not in SPOKEN | CAPTION_ONLY:
-        raise ValueError('Review language is not in the preserved translation matrix')
-    filename = f"{'lessons' if language in SPOKEN else 'captions'}_{language}.json"
-    destination = stage / 'catalog' / filename
-    baseline = REPO / 'docs/source/_extra/tutorials/catalog' / filename
-    target = read(destination if destination.exists() else baseline)
     translated = copy.deepcopy(english)
     for key in ('title', 'description', 'objectives', 'prerequisite'):
         translated[key] = review[key]
-    previous = next((item for item in target['lessons'] if item['id'] == english['id']), {})
     if 'section' in review:
         translated['section'] = review['section']
     elif previous.get('section'):
@@ -54,17 +83,12 @@ def promote(review, stage):
             assert_pronunciation_safe(narration, scene['speech_text'])
         else:
             scene.pop('speech_text', None)
-    existing = {item['id']: item for item in target['lessons']}
-    existing[english['id']] = translated
-    target['lessons'] = [existing[item['id']] for item in source['lessons']]
-    write(destination, target)
-    write(stage / 'production' / english['id'] / f'review.{language}.json', review)
-    print(f"Staged editorial correction for {language}/{english['id']}; not published or listening-reviewed.")
+    return translated
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('review', type=Path)
+    parser.add_argument('review', type=Path, nargs='+')
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     args = parser.parse_args()
-    promote(read(args.review), args.stage)
+    promote_many([read(path) for path in args.review], args.stage)

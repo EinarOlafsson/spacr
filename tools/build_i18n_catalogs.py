@@ -515,6 +515,10 @@ _PROTECT_PATTERNS = (
         # not a numpydoc declaration, and may be translated normally.
         r"(?<![:\w])(?<!:param )(?<!:type )(?<!:return )"
         r"(?<!:ivar )(?<!:cvar )(?<!:var )"
+        # "settings dictionary: iterable sweep values" is narrative prose,
+        # not a declaration of a parameter called dictionary. Keep a real
+        # standalone "dictionary: iterable" declaration protected below.
+        r"(?<!settings )"
         r"[A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*\s*:\s*(?:"
         # Choice declarations contain quoted literal values. Requiring the
         # quote prevents prose such as ``missing module: {module}`` from being

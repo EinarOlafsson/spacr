@@ -187,11 +187,12 @@ def module_rst(data, key):
     return "".join(parts)
 
 
-def lesson_document(data, key):
+def lesson_document(data, key, *, translate=None):
     """Write narration from the same artifacts and handoffs used by the API."""
+    tr = translate if translate is not None else lambda text: text
     tutorial = data["tutorials"][key]
     number, slug = key.split("_", 1)
-    scenes = [{"visual": "home", "narration": tutorial["introduction"],
+    scenes = [{"visual": "home", "narration": tr(tutorial["introduction"]),
                "hold_after": 0.7, "related_lessons": ["05_home"]}]
     detailed = key == "79_module_inputs_outputs"
     included = set(tutorial["modules"])
@@ -200,31 +201,37 @@ def lesson_document(data, key):
         module = data["modules"][module_key]
         parent = module["parent"]
         if module.get("api_entry"):
-            opening = (f"Use {module['name']} from Python through {module['api_entry']}. "
-                       "This API-only workflow has no Home tile or menu entry.")
+            opening = tr(
+                "Use {name} from Python through {api}. "
+                "This API-only workflow has no Home tile or menu entry."
+            ).format(name=module['name'], api=module['api_entry'])
         elif parent:
             host = data['modules'][parent]
-            route = "from Home" if host['home'] else "through Help search"
-            opening = f"Open {host['name']} {route}, then choose {module['name']}."
+            template = ("Open {host} from Home, then choose {name}." if host['home']
+                        else "Open {host} through Help search, then choose {name}.")
+            opening = tr(template).format(host=host['name'], name=module['name'])
         elif module["home"]:
-            opening = f"Open {module['name']} from Home."
+            opening = tr("Open {name} from Home.").format(name=module['name'])
         else:
-            opening = f"Find {module['name']} in the application's Help or tools menus."
-        parts = [opening, module["guidance"]]
+            opening = tr("Find {name} in the application's Help or tools menus.").format(
+                name=module['name'])
+        parts = [opening, tr(module["guidance"])]
         for field, title in (("inputs", "Input data"), ("outputs", "Output data")):
-            parts.append(title + ": " + "; ".join(
-                data["artifacts"][artifact]["title"] for artifact in module[field]) + ".")
+            parts.append(tr(title) + ": " + "; ".join(
+                tr(data["artifacts"][artifact]["title"]) for artifact in module[field]) + ".")
             if detailed:
                 for artifact in module[field]:
                     if artifact in introduced_artifacts:
                         continue
                     introduced_artifacts.add(artifact)
                     item = data["artifacts"][artifact]
-                    parts.append(item["title"] + ": " + item["location"])
+                    parts.append(tr(item["title"]) + ": " + tr(item["location"]))
                     if item["tables"]:
-                        parts.append("Relevant tables depend on the selected route: " + ", ".join(item["tables"]) + ".")
+                        parts.append(tr("Relevant tables depend on the selected route: {tables}.").format(
+                            tables=", ".join(item["tables"])))
                     if item["columns"]:
-                        parts.append("Relevant columns depend on the selected route: " + ", ".join(item["columns"]) + ".")
+                        parts.append(tr("Relevant columns depend on the selected route: {columns}.").format(
+                            columns=", ".join(item["columns"])))
         links = {module["lesson"]} if module.get("lesson") else set()
         for edge in data["connections"]:
             if module_key not in (edge["from"], edge["to"]):
@@ -235,20 +242,21 @@ def lesson_document(data, key):
                 continue
             producer = data["modules"][edge["from"]]
             consumer = data["modules"][edge["to"]]
-            parts.append(f"{producer['name']} to {consumer['name']}: {edge['handoff']}")
+            parts.append(tr("{producer} to {consumer}: {handoff}").format(
+                producer=producer['name'], consumer=consumer['name'], handoff=tr(edge['handoff'])))
             links.update(row["lesson"] for row in (producer, consumer) if row.get("lesson"))
         scenes.append({"visual": "module_" + module_key,
                        "narration": " ".join(parts), "hold_after": 0.7,
                        "related_lessons": sorted(links)})
-    scenes.append({"visual": "home_summary", "narration": tutorial["conclusion"],
+    scenes.append({"visual": "home_summary", "narration": tr(tutorial["conclusion"]),
                    "hold_after": 0.7})
     return {"id": key, "number": int(number), "slug": slug,
-            "title": tutorial["title"], "series": 1, "app_key": None,
-            "section": "Workflows", "description": tutorial["description"],
-            "objectives": ["Choose a starting module from the data you already have.",
-                           "Identify what each module reads and writes.",
-                           "Follow the linked module lessons and API contracts for the next step."],
-            "prerequisite": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+            "title": tr(tutorial["title"]), "series": 1, "app_key": None,
+            "section": tr("Workflows"), "description": tr(tutorial["description"]),
+            "objectives": [tr("Choose a starting module from the data you already have."),
+                           tr("Identify what each module reads and writes."),
+                           tr("Follow the linked module lessons and API contracts for the next step.")],
+            "prerequisite": tr("Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module."),
             "scenes": scenes}
 
 

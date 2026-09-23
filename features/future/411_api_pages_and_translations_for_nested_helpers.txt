@@ -1781,3 +1781,17 @@ the uint16 save-capacity refusal and existing TIFF/bundle preservation contract.
 The corrected Sphinx -W build passes;47 internal API/workflow links resolve.
 Receipt: data/411_plaque_and_save_guides_2026-09-23.json. No runtime/API source
 prose or signature changed. Translated prose and complete release remain open.
+
+2026-09-23 — CODEX: SHARED GERMAN WORKFLOW PHRASES
+Reviewed238 map/template phrases and reused215 in the GUI.211 new source-bound
+review records cover209 previously missing map translations, retain already
+reviewed entries, and correct Run queue from an imperative to a queue noun.
+German UI freshness rises to4625/5016(92.2percent). Actual tr(), source hashes,
+full German runtime/API review loaders and current English manifests pass.
+The same phrase bank generates lessons79/80; all four German workflow scripts
+are staged together while unrelated lessons remain unchanged. Corrected a
+syntax-check false positive: prose 'settings dictionary: iterable' is not a
+parameter declaration. Six boundary checks plus the existing numpydoc test
+pass; actual dictionary: iterable declarations and identifiers stay protected.
+Receipt: tools/tutorials/evidence/2026-09-23-german-workflow-phrases.json.
+Remaining languages, API backlog and full locale acceptance remain open.

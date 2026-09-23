@@ -389,3 +389,17 @@ Receipt: tools/tutorials/evidence/2026-09-23-sequencing-workflow-translations.js
 These are AI-assisted editorial reviews, not native-speaker or listening
 sign-off. Coherent full-catalog promotion awaits79/80 translations; English
 media is rendering, remaining26 non-English voices and full checks are owed.
+
+2026-09-23 — CODEX: SHARED PHRASE TRANSLATION AND GERMAN WORKFLOW SET
+The map generator now accepts a strict reviewed phrase lookup while leaving
+all four English scripts byte-equivalent as parsed JSON. A238-phrase German
+bank generates79/80 narration and215 GUI map captions from the same text.
+German79/80/81 are promoted together into the coherent stage after78; missing
+siblings, stale sources and mixed-language batches fail before any write.
+49 generator/promotion checks passed; the updated phrase suite adds a tested
+file-format plural rule (11checks) while rejecting TIFF-to-PNG substitutions.
+All four German scripts/116scenes are source-bound and structurally verified.
+Default English Heart tracks for79/80/81 are complete (2758.8s,652.7s,371.2s).
+Their shared4K masters and remaining English voices are running CPU-only.
+Receipt: tools/tutorials/evidence/2026-09-23-german-workflow-phrases.json.
+No media/listening/publication acceptance is claimed from script completion.

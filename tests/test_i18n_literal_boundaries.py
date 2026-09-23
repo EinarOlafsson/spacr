@@ -12,6 +12,20 @@ if str(TOOLS) not in sys.path:
 from build_i18n_catalogs import _contextualize, _syntax_preserved  # noqa: E402
 
 
+def test_settings_dictionary_prose_is_not_a_parameter_declaration():
+    source = "Python settings dictionary: iterable sweep values and max_workers."
+    target = "Python-Einstellungswörterbuch: iterierbare Rasterwerte und max_workers."
+    assert _syntax_preserved(source, target)
+    assert not _syntax_preserved(source, target.replace('max_workers', 'max_processes'))
+
+
+def test_actual_dictionary_parameter_type_stays_literal():
+    source = "dictionary: iterable Values to inspect."
+    assert _syntax_preserved(source, "dictionary: iterable Zu prüfende Werte.")
+    assert not _syntax_preserved(source, "dictionary: list Zu prüfende Werte.")
+    assert not _syntax_preserved(source, "Wörterbuch: iterierbar Zu prüfende Werte.")
+
+
 def test_korean_particle_may_follow_an_exact_quoted_literal():
     source = "Use 'load_images' or 'stream_images'."
     translated = "'load_images'로 읽고 'stream_images'에서 자릅니다."
