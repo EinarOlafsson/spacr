@@ -6977,6 +6977,17 @@ UI = {
     'Point spread function': '点扩散函数',
     'Preparing calibrated PSF…': '正在准备校准后的 PSF…',
     'Set calibration': '设置校准值',
+    'Enter the actual image pixel spacing in micrometers. No calibration is inferred.': '输入图像的实际像素间距，单位为微米。不会推断校准值。',
+    'Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.': '输入实测核的像素间距。它必须与图像一致；不会进行重采样。',
+    'Full width at half maximum in micrometers. The Gaussian is sampled at image spacing and truncated at four sigma.': '半高全宽，单位为微米。高斯函数按图像像素间距采样，并在四个标准差处截断。',
+    'Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.': '加载不超过 64 MiB 的二维 TIFF 或 NPY 核。文件和归一化核的哈希值用于标识已加载的数据。重新加载以读取更改后的文件内容。',
+    'Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.': '重新读取核文件。磁盘上的文件发生更改时，不会自动改变已加载的核。',
+    'Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.': 'Richardson–Lucy 迭代次数。增加迭代次数可能放大噪声。此方法不使用正则化。',
+    'Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.': '顺序：百分位拉伸（显示）→ 背景 → PSF → 去噪 → 对比度 → 锐化 → 检测 → 形态学 → 分割。',
+    'Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.': '计算采用明确采样间距的高斯核，或加载维度为奇数、数值有限且非负的实测二维核。中心像素为原点。加载的核会归一化，使其总和为一。',
+    'Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.': '在背景扣除后应用经校准的点扩散函数。卷积会增加模糊；Richardson–Lucy 反卷积可能放大噪声。高斯函数是一种近似，并非实测的显微镜 PSF。',
+    'Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.': '在归一化之前，将经过校准的实测 PSF 或明确的高斯近似应用于分割通道。卷积会增加模糊；Richardson–Lucy 尝试进行反卷积，可能放大噪声。原始图像和测量强度保持不变。除非同一个核和像素校准适用于所有选定通道，否则请保持关闭。',
+    'Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.': '将完整液泡与其宿主细胞关联，并将标记物强度与明确指定的宿主参考区室进行比较。可选的关联寄生虫计数用于描述复制；缺失计数和无效参考强度仍标记为未知。使用实验对照校准标记物阈值。',
 }
 
 MODULE_SUMMARIES = {
@@ -14077,4 +14088,15 @@ SOURCE_HASHES = {
     ('UI', 'Point spread function'): 'c505d8f69135810fb756b97466171c08cdbd1421c2acf90b5b2992696b409e55',
     ('UI', 'Preparing calibrated PSF…'): '3301dca3456311a30b6c4ceb692ef9d53f2b8a3ea094cb10576be07833e9082d',
     ('UI', 'Set calibration'): 'edcea4c459a6dac503b1d112592fbcd3613988ac981129c8b66e1d16f481b591',
+    ('UI', 'Enter the actual image pixel spacing in micrometers. No calibration is inferred.'): '1badb9bb2d6bcbd8b814bd7196d5c9575956c6f34c687f3f9f8bea4d14fa4d92',
+    ('UI', 'Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.'): '574fd172a1dad29dbc5e32cad321335bdaf0970701e8c93f28f2f0da0992ca87',
+    ('UI', 'Full width at half maximum in micrometers. The Gaussian is sampled at image spacing and truncated at four sigma.'): 'b62c1b1cea08253b070f6e6f90bc1fedc93bd5bff6d6c78f180b758af01c497a',
+    ('UI', 'Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.'): '259ae344e708c9e3fd2b72e19353df48af840a47727f3fb15323cd2df567bd16',
+    ('UI', 'Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.'): '927dbe2f53b7cd6b789961c2eca3873eb4e0f95b662009a2dafb0f3dd567fee2',
+    ('UI', 'Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.'): '106b3569af9fcfdfda314d926413c143f044cc9a0ecafa58afdf84d322657c19',
+    ('UI', 'Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.'): '1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53',
+    ('UI', 'Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.'): 'e2ef517d3e5cc82863b56eb018c1dac8bb5c260f55d9c5fb8ae78d1ee01fd71b',
+    ('UI', 'Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.'): '2f868de51239c86c703286d5f1c1ed1fd08867d8628c512dc21b5347beef9aab',
+    ('UI', 'Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.'): '1d82ed921610db9d2f793be4dc119116d5b5556b78d901afe08c60a879e3edeb',
+    ('UI', 'Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.'): '28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c',
 }

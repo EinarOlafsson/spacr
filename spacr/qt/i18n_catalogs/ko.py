@@ -6648,6 +6648,17 @@ UI = {
     'Point spread function': '점 확산 함수',
     'Preparing calibrated PSF…': '보정된 PSF 준비 중…',
     'Set calibration': '보정값 설정',
+    'Enter the actual image pixel spacing in micrometers. No calibration is inferred.': '이미지의 실제 픽셀 간격을 마이크로미터 단위로 입력하세요. 보정값은 추정하지 않습니다.',
+    'Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.': '측정된 커널의 픽셀 간격을 입력하세요. 이미지와 일치해야 하며 재표본화는 수행하지 않습니다.',
+    'Full width at half maximum in micrometers. The Gaussian is sampled at image spacing and truncated at four sigma.': '반치전폭이며 단위는 마이크로미터입니다. 가우시안은 이미지 픽셀 간격으로 표본화하고 4시그마에서 자릅니다.',
+    'Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.': '최대 64 MiB의 2D TIFF 또는 NPY 커널을 불러옵니다. 파일과 정규화된 커널의 해시로 불러온 데이터를 식별합니다. 변경된 파일 내용을 읽으려면 다시 불러오세요.',
+    'Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.': '커널 파일을 다시 읽습니다. 디스크에서 파일이 변경되어도 이미 불러온 커널이 자동으로 바뀌지는 않습니다.',
+    'Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.': 'Richardson–Lucy 반복 횟수입니다. 반복 횟수가 많아지면 잡음이 증폭될 수 있습니다. 이 방법에는 정규화 제약이 없습니다.',
+    'Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.': '순서: 백분위수 스트레칭(표시) → 배경 → PSF → 잡음 제거 → 대비 → 선명화 → 검출 → 형태학 → 분할.',
+    'Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.': '표본 간격을 명시한 가우시안을 계산하거나 크기가 홀수이고 값이 유한한 비음수인 측정된 2D 커널을 불러옵니다. 중앙 픽셀이 원점입니다. 불러온 커널은 합이 1이 되도록 정규화됩니다.',
+    'Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.': '배경을 뺀 뒤 보정된 점 확산 함수를 적용합니다. 합성곱은 흐림을 더하고 Richardson–Lucy 역합성곱은 잡음을 증폭할 수 있습니다. 가우시안은 근사값이며 측정된 현미경 PSF가 아닙니다.',
+    'Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.': '정규화 전에 분할 채널에 보정된 측정 PSF 또는 명시적인 가우시안 근사값을 적용합니다. 합성곱은 흐림을 더하고 Richardson–Lucy는 역합성곱을 시도하며 잡음을 증폭할 수 있습니다. 원본 이미지와 측정 강도는 그대로 유지됩니다. 같은 커널과 픽셀 보정이 선택한 모든 채널에 맞는 경우에만 켜세요.',
+    'Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.': '전체 액포를 숙주 세포와 연결하고 명시적인 숙주 기준 구획과 표지자 강도를 비교합니다. 선택적으로 연결된 기생충 수는 복제를 나타내며, 누락된 수와 유효하지 않은 기준 강도는 미상으로 남습니다. 실험 대조군을 사용해 표지자 임계값을 보정하세요.',
 }
 
 MODULE_SUMMARIES = {
@@ -13420,4 +13431,15 @@ SOURCE_HASHES = {
     ('UI', 'Point spread function'): 'c505d8f69135810fb756b97466171c08cdbd1421c2acf90b5b2992696b409e55',
     ('UI', 'Preparing calibrated PSF…'): '3301dca3456311a30b6c4ceb692ef9d53f2b8a3ea094cb10576be07833e9082d',
     ('UI', 'Set calibration'): 'edcea4c459a6dac503b1d112592fbcd3613988ac981129c8b66e1d16f481b591',
+    ('UI', 'Enter the actual image pixel spacing in micrometers. No calibration is inferred.'): '1badb9bb2d6bcbd8b814bd7196d5c9575956c6f34c687f3f9f8bea4d14fa4d92',
+    ('UI', 'Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.'): '574fd172a1dad29dbc5e32cad321335bdaf0970701e8c93f28f2f0da0992ca87',
+    ('UI', 'Full width at half maximum in micrometers. The Gaussian is sampled at image spacing and truncated at four sigma.'): 'b62c1b1cea08253b070f6e6f90bc1fedc93bd5bff6d6c78f180b758af01c497a',
+    ('UI', 'Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.'): '259ae344e708c9e3fd2b72e19353df48af840a47727f3fb15323cd2df567bd16',
+    ('UI', 'Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.'): '927dbe2f53b7cd6b789961c2eca3873eb4e0f95b662009a2dafb0f3dd567fee2',
+    ('UI', 'Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.'): '106b3569af9fcfdfda314d926413c143f044cc9a0ecafa58afdf84d322657c19',
+    ('UI', 'Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.'): '1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53',
+    ('UI', 'Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.'): 'e2ef517d3e5cc82863b56eb018c1dac8bb5c260f55d9c5fb8ae78d1ee01fd71b',
+    ('UI', 'Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.'): '2f868de51239c86c703286d5f1c1ed1fd08867d8628c512dc21b5347beef9aab',
+    ('UI', 'Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.'): '1d82ed921610db9d2f793be4dc119116d5b5556b78d901afe08c60a879e3edeb',
+    ('UI', 'Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.'): '28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c',
 }

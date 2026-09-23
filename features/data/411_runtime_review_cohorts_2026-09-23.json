@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1643,
+      "current_total": 1654,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 725,
+      "later_distinct_additions": 736,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -150,6 +150,12 @@
           "sha256": "b1c028fd7fa03965c10a2de8b25f287506c0f49177d66463d009f97dd9f8ceef"
         },
         {
+          "name": "2026-09-23-psf-help.json",
+          "records": 11,
+          "sources": 11,
+          "sha256": "88bcd604980236768385e327cab16f29b74f7df835523f2d799a17ca567159e8"
+        },
+        {
           "name": "2026-09-23-recruitment-channels.json",
           "records": 1,
           "sources": 1,
@@ -198,14 +204,14 @@
           "sha256": "db64546daf8d27be84b00c043a55148dbbdce61a6e7ce735083108354247055b"
         }
       ],
-      "added_sources_sha256": "fa3518225039d74175230f928f675c671601c4dc9022ba91d60ad34d4854b0b7"
+      "added_sources_sha256": "1af3c6a69515b8c55ecbf7e6f771e42c930390ab9dae28532980d8f9744d6e43"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1639,
+      "current_total": 1650,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 725,
+      "later_distinct_additions": 736,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -347,6 +353,12 @@
           "sha256": "88638cb37a0e267623b74c0e368c5a758f2bf03364a7d5ffddf7a152232bc856"
         },
         {
+          "name": "2026-09-23-psf-help.json",
+          "records": 11,
+          "sources": 11,
+          "sha256": "3034a559535f6219c1043a5e0bdee102bff561d3d2aee0439640c6e9d615a226"
+        },
+        {
           "name": "2026-09-23-recruitment-channels.json",
           "records": 1,
           "sources": 1,
@@ -395,7 +407,7 @@
           "sha256": "8be13f999c8c7e96e38fade87927f77e2997ed2cac6cf9c9920749964805757b"
         }
       ],
-      "added_sources_sha256": "fa3518225039d74175230f928f675c671601c4dc9022ba91d60ad34d4854b0b7"
+      "added_sources_sha256": "1af3c6a69515b8c55ecbf7e6f771e42c930390ab9dae28532980d8f9744d6e43"
     }
   }
 }
