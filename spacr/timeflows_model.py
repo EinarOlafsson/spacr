@@ -645,6 +645,13 @@ def link_by_timeflows(labels_t: np.ndarray, labels_t1: np.ndarray,
     or whose best match is further than ``max_distance`` of its own diameter,
     is left unlinked.
 
+    The distance gate is applied before assignment. Leaving an object
+    unmatched costs the distance limit (with an inclusive boundary), so an
+    impossible edge cannot displace a valid link. The objective minimizes
+    distance plus unmatched costs; it does not maximize the number of links.
+    Non-finite or out-of-range foreground predictions raise ``ValueError``;
+    background predictions do not participate.
+
     :param labels_t: frame ``t``'s objects, any ids.
     :param labels_t1: frame ``t+1``'s objects, any ids.
     :param prediction: from :func:`predict_pair`.
@@ -654,19 +661,37 @@ def link_by_timeflows(labels_t: np.ndarray, labels_t1: np.ndarray,
     """
     from scipy.optimize import linear_sum_assignment
 
+    if not np.isfinite(min_successor) or not 0 <= min_successor <= 1:
+        raise ValueError("min_successor must be finite and between 0 and 1")
+    if not np.isfinite(max_distance) or max_distance < 0:
+        raise ValueError("max_distance must be finite and non-negative")
+    labels_t, labels_t1 = np.asarray(labels_t), np.asarray(labels_t1)
     here = object_centroids(labels_t)
     there = object_centroids(labels_t1)
     if not here or not there:
         return {}
+    vector = np.asarray(prediction["vector"])
+    successor = np.asarray(prediction["successor"])
+    if vector.shape != (2,) + labels_t.shape or successor.shape != labels_t.shape:
+        raise ValueError("Timeflows prediction shape must match the source frame")
+    foreground = labels_t != 0
+    probabilities = successor[foreground]
+    if (not np.isfinite(vector[:, foreground]).all()
+            or not np.isfinite(probabilities).all()
+            or np.any((probabilities < 0) | (probabilities > 1))):
+        raise ValueError("Timeflows foreground prediction must be finite with probabilities in [0, 1]")
     yy, xx = np.indices(labels_t.shape, dtype=np.float32)
     sources, points, scales = [], [], []
     for label, (_cy, _cx, diameter) in here.items():
         inside = labels_t == label
-        if float(prediction["successor"][inside].mean()) < min_successor:
+        if float(successor[inside].mean()) < min_successor:
             continue
         scale = max(diameter, 1.0)
-        py = float(np.mean(yy[inside] + prediction["vector"][0][inside] * scale))
-        px = float(np.mean(xx[inside] + prediction["vector"][1][inside] * scale))
+        with np.errstate(over="ignore", invalid="ignore"):
+            py = float(np.mean(yy[inside] + vector[0][inside] * scale))
+            px = float(np.mean(xx[inside] + vector[1][inside] * scale))
+        if not math.isfinite(py) or not math.isfinite(px):
+            raise ValueError("Timeflows prediction produces a non-finite object centre")
         sources.append(label)
         points.append((py, px))
         scales.append(scale)
@@ -674,11 +699,23 @@ def link_by_timeflows(labels_t: np.ndarray, labels_t1: np.ndarray,
         return {}
     targets = list(there)
     centres = np.array([[there[t][0], there[t][1]] for t in targets])
-    cost = np.linalg.norm(np.asarray(points)[:, None, :] - centres[None], axis=2)
+    delta = np.asarray(points)[:, None, :] - centres[None]
+    cost = np.hypot(delta[..., 0], delta[..., 1])
     cost = cost / np.asarray(scales)[:, None]
-    rows, cols = linear_sum_assignment(cost)
-    return {int(sources[r]): int(targets[c]) for r, c in zip(rows, cols)
-            if cost[r, c] <= max_distance}
+    transposed = len(sources) > len(targets)
+    distance = cost.T if transposed else cost
+    nr, nc = distance.shape
+    allowed = np.isfinite(distance) & (distance <= max_distance)
+    assignment = np.full((nr, nc + nr), np.nextafter(1.0, np.inf))
+    assignment[:, :nc] = np.inf
+    if max_distance == 0:
+        assignment[:, :nc][allowed] = 0
+    else:
+        np.divide(distance, max_distance, out=assignment[:, :nc], where=allowed)
+    rows, cols = linear_sum_assignment(assignment)
+    pairs = ((c, r) if transposed else (r, c)
+             for r, c in zip(rows, cols) if c < nc)
+    return {int(sources[r]): int(targets[c]) for r, c in pairs}
 
 
 def scramble_test(labels_t: np.ndarray, labels_t1: np.ndarray,

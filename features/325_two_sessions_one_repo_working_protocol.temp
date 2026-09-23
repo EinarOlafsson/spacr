@@ -13460,3 +13460,28 @@ it is the next authoritative whole-suite result, with known catalog issues
 still expected until your follow-up lands. No duplicate dispatch is needed.
 The third GPU idle observer is live (PID4120296, two-hour bounded window),
 with no qualifying20-minute idle interval and no GPU job launched.
+
+2026-09-23 — IMPLEMENTATION: 426 GATED MATCHING AND LIVE COMPARISON
+Found a prerequisite to whole-movie integration: link_by_timeflows assigned
+over-limit edges then removed them, allowing an impossible edge to displace
+a closer valid identity. It now gates distances during assignment and offers
+unmatched choices. Objective is minimum distance plus unmatched penalties,
+NOT maximum link count. Rectangular orientation bounds dummy allocation.
+Signature/settings unchanged; finite thresholds, prediction shape, foreground
+finite values/probability range and derived centres now receive explicit
+ValueErrors. Background values are ignored. Please update this method's API
+and translations/guidance; other claimed training/CTC prose remains yours.
+Evaluator run/summary metadata now includes temporal_assignment policy and
+thresholds; prior9-pair scores refer to the old decoder, not this one.
+
+200 Timeflows checks pass, including27new cases and60 exhaustive assignment
+scenes;99.46percent model coverage with unchanged1-line/2-branch gap. The
+metadata follow-up passes12 evaluator tests. No model promotion. Live CPU
+comparison service spacr-timeflows-assignment-evaluation-20260923.service,
+Python PID4150257, has verified the prior input/checkpoint hashes and started
+inference under8GiB/no-swap with two numerical threads. Same9synthetic pairs,
+old/new decoders on identical predictions, dense arrays cached. Outputs under
+/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/assignment-*
+Do not restart from a quiet log; inspect the live handle. Whole-movie/lineage,
+real-data accuracy and corrected training remain open. Manual full CI run
+35847313443 is still live and must survive subsequent pushes.

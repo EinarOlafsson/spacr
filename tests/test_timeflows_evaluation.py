@@ -153,6 +153,11 @@ def test_real_cli_writes_only_complete_reports_with_explicit_scope(tmp_path, mon
     assert report['precision']['effective_encoder'] == 'torch.float32'
     assert report['requested_precision'] == 'float32'
     assert json.loads((out / 'run.json').read_text())['precision'] == report['precision']
+    assignment = report['temporal_assignment']
+    assert assignment['policy'] == 'distance_gate_before_assignment_with_unmatched_choices'
+    assert assignment['min_successor'] == 0.5
+    assert assignment['max_distance_diameters'] == 1.0
+    assert json.loads((out / 'run.json').read_text())['temporal_assignment'] == assignment
     assert report['results']['overall']['true_successors'] == 4
     assert report['copied_frame_control']['overall']['arms']['trained']['successor_accuracy'] == 1
     assert len((out / 'pairs.jsonl').read_text().splitlines()) == 2

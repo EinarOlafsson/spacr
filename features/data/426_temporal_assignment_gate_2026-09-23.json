@@ -1,0 +1,106 @@
+{
+  "feature": 426,
+  "date": "2026-09-23",
+  "scope": "Pairwise temporal assignment gate, a prerequisite for whole-movie integration",
+  "defect": {
+    "source_ids": [
+      7,
+      9000000001
+    ],
+    "target_ids": [
+      71,
+      81
+    ],
+    "expected": {
+      "7": 71
+    },
+    "old_result": {
+      "9000000001": 71
+    },
+    "explanation": "Unrestricted assignment chose an out-of-range edge for source 7, then dropped it; the worse valid candidate consumed target 71."
+  },
+  "policy": {
+    "distance_gate": "applied before assignment",
+    "objective": "minimum total distance plus unmatched penalties, not maximum-cardinality linking",
+    "unmatched_cost": "nextafter(1, +infinity) after dividing admissible distances by max_distance; zero-distance matches have cost zero",
+    "distance_boundary": "inclusive; one ULP below the measured boundary is rejected",
+    "one_to_one": true,
+    "rectangular_matrix": "Transpose when sources outnumber targets; dummy augmentation uses the smaller dimension.",
+    "threshold_validation": "finite non-negative max_distance; finite min_successor in [0,1]",
+    "prediction_validation": "Shapes match source frame; foreground vectors finite and probabilities in [0,1]; finite derived object centres. Background values ignored.",
+    "prediction_dtype": "Existing prediction dtypes retained for centroid voting."
+  },
+  "validation": {
+    "initial_regressions": {
+      "failed": 16,
+      "passed": 4,
+      "seconds": 2.36
+    },
+    "new_tests": 27,
+    "exhaustive_matching_scenes": 60,
+    "full_timeflows_cohort": {
+      "passed": 200,
+      "warnings": 1,
+      "seconds": 28.59
+    },
+    "coverage": {
+      "covered_lines": 427,
+      "num_statements": 428,
+      "percent_covered": 99.46236559139786,
+      "percent_covered_display": "99.46",
+      "missing_lines": 1,
+      "excluded_lines": 0,
+      "percent_statements_covered": 99.76635514018692,
+      "percent_statements_covered_display": "99.77",
+      "num_branches": 130,
+      "num_partial_branches": 2,
+      "covered_branches": 128,
+      "missing_branches": 2,
+      "percent_branches_covered": 98.46153846153847,
+      "percent_branches_covered_display": "98.46"
+    },
+    "existing_missing_lines": [
+      918
+    ],
+    "existing_missing_branches": [
+      [
+        405,
+        407
+      ],
+      [
+        917,
+        918
+      ]
+    ],
+    "evaluator_metadata_followup": {
+      "passed": 12,
+      "seconds": 6.12
+    }
+  },
+  "source_sha256": {
+    "spacr/timeflows_model.py": "3a33c7646de3d88d77653d7572653e3a4992de97c64acf97e6221b964928016d",
+    "tools/evaluate_timeflows.py": "58809a9e1ab46e397b619cad58ebac8eca01d4eb3932a8c57ecdc3a87088300e",
+    "tests/test_timeflows_assignment_gate.py": "29f1f4f21ec8affc201ee38612beb966e2f536b38cfa18f050a323ae3743819c",
+    "tests/test_timeflows_evaluation.py": "c62b66f8ee290676fd71561bf964a0c75c6d8e10a5c79ef06d5259dc7710c245"
+  },
+  "private_audit": {
+    "root": "/mnt/firecuda2/Claude/implementation-20260922/timeflows-426",
+    "driver": "run_assignment_comparison.py",
+    "driver_sha256": "8152644705d303597bb173aeab8a92790558807b47a72e3a2d5c59da43d87cff",
+    "old_model_source_sha256": "eaa9207ed56ad699aad008970cfc4f61b3f47eb1fa2b6c98b8df4d96f9206226",
+    "plan": "Repeat the original nine synthetic supplied-mask pairs on CPU, archive dense predictions, score identical predictions with both matchers.",
+    "state": "running; no new accuracy claim",
+    "service": "spacr-timeflows-assignment-evaluation-20260923.service",
+    "python_pid": 4150257,
+    "memory_cap": "8G",
+    "swap_cap": 0,
+    "device": "cpu",
+    "deadline_seconds": 10800,
+    "termination_grace_seconds": 60
+  },
+  "limitations": [
+    "No new trained weights or model promotion.",
+    "Prior nine-pair scores describe the old assignment rule; they are not scores of the changed decoder.",
+    "No real-data, whole-movie, lineage, gap-bridging or end-to-end accuracy claim."
+  ]
+}

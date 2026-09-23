@@ -251,6 +251,12 @@ def main(argv=None):
            'gaps_frames': args.gaps,
            'software': {name: version(name) for name in ('numpy', 'scipy', 'torch', 'cellpose', 'tifffile')},
            'evaluator_sha256': digest(__file__), 'model_code_sha256': digest(tm.__file__),
+           'temporal_assignment': {
+               'policy': 'distance_gate_before_assignment_with_unmatched_choices',
+               'objective': 'minimum_total_distance_plus_unmatched_cost',
+               'min_successor': 0.5, 'max_distance_diameters': 1.0,
+               'unmatched_cost': 'one distance limit, increased by one float64 ULP for an inclusive boundary',
+           },
            'scope': 'Linking given supplied full segmentation, not end-to-end segmentation/tracking accuracy.',
            'holdout_check': 'Resolved movie paths and aliases; not a content comparison against all training images.',
            'controls': 'IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.'}

@@ -624,3 +624,49 @@ evaluation compatibility evidence. Assignment consistency is not independent
 human annotation validation; absent markers still encode absence in the
 supplied labels. Corrected training and the other 426 acceptance work remain
 open. Existing v1 is unchanged and unpromoted.
+
+2026-09-23 — DISTANCE GATE NOW PARTICIPATES IN TEMPORAL ASSIGNMENT
+Before whole-movie integration, a reproducible pairwise defect was found:
+Hungarian assignment included impossible edges, then dropped them afterward.
+In a two-object example, it sent the closest source to a distant, invalid
+target and let the worse candidate consume the valid target. This changes
+identity, not just a reported distance. The new matcher excludes over-limit
+edges before assignment and gives each object an unmatched alternative.
+It minimizes distance plus an unmatched penalty of one distance limit, with
+an inclusive boundary; it does NOT maximize link count. Matrices transpose
+when sources outnumber targets so dummy columns use the smaller dimension.
+
+Public signature unchanged. Invalid/non-finite thresholds now raise, as do
+wrong prediction shapes, non-finite foreground vectors/probabilities,
+probabilities outside [0,1], or unrepresentable derived centres. Background
+predictions remain irrelevant. Centroid voting retains prediction dtypes;
+finite distances use hypot. max_distance=0 accepts exact centres only.
+The evaluator now records the assignment policy and thresholds in run.json
+and summary.json so scores cannot silently mix the two postprocessors.
+
+16 of the initial20 regressions fail before the change. Final coverage is
+200 passing Timeflows tests in28.59s (one existing tifffile warning), including
+27 new tests and60 scenes checked against exhaustive partial matchings across
+five rectangular shapes. All prior tests remain. The final metadata follow-up
+passes12 evaluator tests in6.12s. Model coverage:427/428 statements and
+128/130 branches,99.46percent combined; the existing1-line/2-branch gap is
+unchanged. Receipt426_temporal_assignment_gate_2026-09-23.json contains source
+hashes, matching policy, before/after evidence and limits.
+
+The previous nine-pair v1 scores describe the OLD postprocessor. A fresh CPU
+comparison is now running under8GiB/no-swap, two numerical threads, using the
+same checkpoint and nine synthetic supplied-mask pairs. Both matchers score
+the same predictions, which are archived to avoid repeating inference for
+future decoder audits. Input/checkpoint hashes are verified against the prior
+run. Canonical live handle:
+spacr-timeflows-assignment-evaluation-20260923.service
+Private output: implementation-20260922/timeflows-426/assignment-v1-evaluation;
+comparison: assignment-comparison.jsonl; log: assignment-live.log. The explicit
+job deadline is3hours plus60seconds termination grace. An observation timeout
+is not completion; inspect this service/process before any restart.
+
+No new accuracy score, trained weights or promotion is claimed. Whole-movie
+IDs, lineage, calibrated successor decisions, real held-out performance,
+pretraining and corrected training remain open. Gating corrects an assignment
+error; it does not establish that the model's proposed links are biological
+successors.
