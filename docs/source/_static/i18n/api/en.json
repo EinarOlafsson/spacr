@@ -11496,22 +11496,33 @@
         "016341ee0739b7deeb9a89199eae9cbd1759c7626fc4e4d7f518130523cdc096",
         "9500f4202f4ae01876c4214be4989b1dcb60fb40d7f7a6b53edcd51c6967723c",
         "355f707262ce1e016c2206c30453e56eabe1deaa367c1cc8032315f2dab280d5",
+        "775c0b051a1775448fb9e3e09635c147081985becef48474a8670b5f40525976",
+        "48840cf54604a29945663a40416de86bfff93319be31005147a92975acefe9a0",
+        "a37159c97a5ed96a45d0c9490c20966314673881e31e418c97eab19eb2201c33",
+        "ceff8ded276df254e2ea1623e1c509ea3fd7ac895aef6734bc03dbc4db864d3f",
+        "79a68a7ec2c8dd695564290ed8f1ca7054f2e336b2ba2a74eb9be613b4b8a7cc",
+        "eaa493293da171e4d5c42562144cba01a5e77b9fde026500f4a0e531ca82b3f6",
+        "660f20a57280ec0aea785bce89ded2229ddd96cd102acfe552f6f4a8ba521d29",
+        "f15e5973130e38a7b68e038719c1f96997158cfaee282ff5a0bfa934f27835f9",
+        "b3f3def49762c54da0c8b925d8164b6a9a457fb15025e7beedc40bfce74e480c",
         "624b30bcea15a681375e73882809f1edbec0e2f71d349b209494ac1ec3cb23fa",
-        "45d8aceb5e553f7461aced94c4ff203552ea8559ea61335fa8e131fe70f282d0"
+        "45d8aceb5e553f7461aced94c4ff203552ea8559ea61335fa8e131fe70f282d0",
+        "22ee34aa273be6c60909b069ac8d0fa559adb0fae404ed6fb9cc5289cac1dfb9"
       ],
-      "source_sha256": "efedf1bae225438bf1b936a30efd9b7b9915174790ccc06056df8b0220e991cf",
-      "text": "Apply a trained PyTorch model to images in a directory.\n\nThe function loads a saved model, builds a dataset from the input images,\nruns batched inference, and saves prediction scores to a CSV file.\n\n:param src: Path to the directory containing the input images.\n:type src: str or os.PathLike\n:param model_path: Path to the saved PyTorch model.\n:type model_path: str\n:param image_size: Final square crop size used before inference.\n:type image_size: int\n:param batch_size: Number of images processed per batch.\n:type batch_size: int\n:param normalize: Whether to normalize the image channels using mean 0.5\n    and standard deviation 0.5.\n:type normalize: bool\n:param n_jobs: Number of worker processes used by the DataLoader.\n:type n_jobs: int\n:return: DataFrame with image paths and prediction scores.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame always contains the columns ``path`` and ``pred``.\nA single-logit head is converted with ``torch.sigmoid``, so ``pred`` is the\npositive-class probability; a multi-logit head is converted with\n``torch.softmax``, so ``pred`` is the probability of class 1 for two\nclasses and the winning class's confidence for more. With more than two\nclasses the frame also carries ``predicted_label`` and one\n``prob_class_<i>`` column per class. Results are also written to a CSV file\nderived from ``model_path`` and the current date."
+      "source_sha256": "5b35a21bf308c1734e0ad4d21a33f73253467151f97cda9f111469ea2d86d8ee",
+      "text": "Apply a trained PyTorch model to images in a directory.\n\nThe function loads a saved model, builds a dataset from the input images,\nruns batched inference, and saves prediction scores to a CSV file.\n\n:param src: Path to the directory containing the input images.\n:type src: str or os.PathLike\n:param model_path: Path to the saved PyTorch model.\n:type model_path: str\n:param image_size: Final square crop size used before inference.\n:type image_size: int\n:param batch_size: Number of images processed per batch.\n:type batch_size: int\n:param normalize: Whether to normalize the image channels using mean 0.5\n    and standard deviation 0.5.\n:type normalize: bool\n:param n_jobs: Number of worker processes used by the DataLoader.\n:type n_jobs: int\n:param input_statistics: Normalization convention used when normalize is True.\n:param tta_enabled: Enable multi-view scoring; False preserves ordinary inference.\n:param tta_rotations: Include 90, 180 and 270-degree rotations; default False.\n:param tta_horizontal_flip: Include left/right reflected views; default False.\n:param tta_vertical_flip: Include up/down reflected views; default False.\n:param tta_aggregation: probability_mean or majority_vote; ties prefer mean probability.\n:param tta_min_agreement: Flag agreement below this fraction; default 0.75.\n:param tta_max_std: Flag probability standard deviation above this value; default 0.15.\n:param score_threshold: Positive-class cutoff used for binary TTA view labels.\n:return: DataFrame with image paths and prediction scores.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame always contains the columns ``path`` and ``pred``.\nA single-logit head is converted with ``torch.sigmoid``, so ``pred`` is the\npositive-class probability; a multi-logit head is converted with\n``torch.softmax``, so ``pred`` is the probability of class 1 for two\nclasses and the winning class's confidence for more. With more than two\nclasses the frame also carries ``predicted_label`` and one\n``prob_class_<i>`` column per class. Results are also written to a CSV file\nderived from ``model_path`` and the current date.\n\nWith ``tta_enabled``, both binary and multiclass outputs also retain\n``original_pred``, ``original_predicted_label``, per-class original and\nmean probabilities, ``prediction_std``, ``transform_agreement``,\n``review_flag`` and ``tta_views``. Orientation stability is not calibrated\nconfidence. Training and held-out evaluation are unchanged."
     },
     "spacr.deep_spacr.apply_model_to_tar": {
       "source_blocks_sha256": [
         "72a69040a595d8484f117f0f14ab2c3e32ef2d2cf2f768fed7aa09a21dd32f30",
         "c7be51a930310b264e67f7a084a07969d4396a431c98524ada18d74c75c08325",
-        "3f297d021438b56f8387ba1342260400e9d4d6861db41bf0c1ed7b4207fb77e7",
+        "2529667ce1b32042c9406735297d58f1029aaa9f0911803470a505704865b861",
         "4008a6d735bc60464e391372688f1392251bc47fd551f82b9abaf7c225e88ba5",
-        "a73a490958021ad0f05fecd6daac4c5755ad1597dbeb16ed82cd6b81aa1ec318"
+        "a73a490958021ad0f05fecd6daac4c5755ad1597dbeb16ed82cd6b81aa1ec318",
+        "d3aaa5b86cb03811baf3f138bead06540d029ff55f76127af98e50a6e079cbe2"
       ],
-      "source_sha256": "984b92483e4852d81a1b903f3ec78685fdbfcd6ab0d61658584b5c90a4e0d160",
-      "text": "Apply a trained PyTorch model to images stored in a tar archive.\n\nThe function loads a saved model, reads images from a tar-based dataset,\nperforms batched inference, post-processes prediction scores, and saves the\nresults to a CSV file.\n\n:param settings: Dictionary of inference settings. Expected keys include\n    ``tar_path``, ``model_path``, ``image_size``, ``batch_size``,\n    ``normalize``, ``n_jobs``, ``verbose``, and ``score_threshold``.\n:type settings: dict\n:return: DataFrame with processed prediction results.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame contains at least the columns ``path`` and ``pred``,\nplus the columns added by ``process_vision_results``. A single-logit head is\nconverted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``,\ngiving the probability of class 1 for two classes and the winning class's\nconfidence for more. With more than two classes the frame also carries\n``predicted_label`` and one ``prob_class_<i>`` column per class, and its\n``cv_predictions`` column holds the predicted class index rather than a\nthreshold on ``pred``."
+      "source_sha256": "6f636f6f53b0575b37811e9f736cbfc8b4fbd502b8a27603ab59d5bcadfd7b7d",
+      "text": "Apply a trained PyTorch model to images stored in a tar archive.\n\nThe function loads a saved model, reads images from a tar-based dataset,\nperforms batched inference, post-processes prediction scores, and saves the\nresults to a CSV file.\n\n:param settings: Dictionary of inference settings. Expected keys include\n    ``tar_path``, ``model_path``, ``image_size``, ``batch_size``,\n    ``normalize``, ``n_jobs``, ``verbose``, and ``score_threshold``.\n    Optional ``tta_enabled``, ``tta_rotations``, ``tta_horizontal_flip``,\n    ``tta_vertical_flip``, ``tta_aggregation``, ``tta_min_agreement`` and\n    ``tta_max_std`` use the same meanings and defaults as :func:`apply_model`.\n:type settings: dict\n:return: DataFrame with processed prediction results.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame contains at least the columns ``path`` and ``pred``,\nplus the columns added by ``process_vision_results``. A single-logit head is\nconverted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``,\ngiving the probability of class 1 for two classes and the winning class's\nconfidence for more. With more than two classes the frame also carries\n``predicted_label`` and one ``prob_class_<i>`` column per class, and its\n``cv_predictions`` column holds the predicted class index rather than a\nthreshold on ``pred``.\n\nEnabled test-time augmentation adds original predictions and stability\ndiagnostics for every head type. ``cv_predictions`` follows the selected\naggregation method; with majority voting it can differ from thresholding\nthe mean probability stored in ``pred``."
     },
     "spacr.deep_spacr.attach_per_class_columns": {
       "source_blocks_sha256": [
@@ -20916,6 +20927,34 @@
       ],
       "source_sha256": "f8ebbcc3df95c57cda672b29965956525c37355fa3e2541653b8f8182aa8aa26",
       "text": "Write the infection report beside the database it came from.\n\nA MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate\nalready has it. There is no button and no screen, and nothing has to be\nasked for -- which is the point, because the runs that most need these numbers\nare the ones that would never have thought to ask.\n\nNOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell\ntable, or none of the columns the metrics need, gives an empty report,\nand an empty CSV beside a database is a file that invites somebody to\nwonder what went wrong. The answer is None instead.\n\nWritten to a dot-name in the same folder and renamed over the target,\nso a reader never sees half a file.\n\n:param db_path: a ``measurements.db``.\n:param by_field: group by field as well as well.\n:param destination: where to write it; the default is\n    :data:`REPORT_NAME` beside ``db_path``.\n:returns: the path written, or None when the report is empty."
+    },
+    "spacr.inference_augmentation": {
+      "source_blocks_sha256": [
+        "6763e87ba74c8c06d9e6cc555f54b6eb91ac2b43dd03432c5e4ba64fe0ae02c8"
+      ],
+      "source_sha256": "6763e87ba74c8c06d9e6cc555f54b6eb91ac2b43dd03432c5e4ba64fe0ae02c8",
+      "text": "Optional deterministic multi-view phenotype classification."
+    },
+    "spacr.inference_augmentation.predict_augmented": {
+      "source_blocks_sha256": [
+        "e68a88ee0f0c7bd86f4b8a72eb8825aaeda1667fb0d871c786452f866ac4668b",
+        "35f17063c665275b30d2b84a1b10feefd455a8cd183c4376de7fdf6a1bd89a38",
+        "15e66c52260988c74d062752bd9176fa45d663ed4c6df656b9d4d6b98efb31b9",
+        "17ef291cd3ef464aa5a41dce708bfa5d0ea8ba455cc7293137893bb439d44834",
+        "6a6cbca62abe3a7a79aff34ade8c9b3c4b52ae4e12872fa937f8f2e96fc61bc8",
+        "5c73376fc5e5fca66ac798c732196e34a0d5b3512e7e44cb745a7f9461f0b669"
+      ],
+      "source_sha256": "999861ec59e104aa2d58309e6026f2327595567dee8fe3db493916ce24141113",
+      "text": "Average probabilities or vote across selected image orientations.\n\n:param model: evaluation-mode callable returning binary or multiclass logits.\n:param images: NCHW tensor; input pixels are never modified in place.\n:param settings: tta_* options and optional binary score_threshold.\n:returns: score tensor, selected class tensor and named diagnostic tensors.\n    Binary scores remain positive-class probabilities; multiclass scores\n    refer to the selected class. prediction_std is the population standard\n    deviation of that same class's probability across views. Agreement is\n    the fraction of view labels matching the selected label, not calibrated\n    confidence. Majority ties prefer mean probability, then lowest index.\n:raises ValueError: invalid aggregation, thresholds or model output shape."
+    },
+    "spacr.inference_augmentation.transforms_for": {
+      "source_blocks_sha256": [
+        "8e6298d7d62b266ce3dc585a1d6c1f081679e70eb14c3b8a8019a711134b1a00",
+        "9f6866955cedfee2c978da1df591d0f3b96841b9ce75aedb3467063156eb4091",
+        "b31c33e436dc011da02b48e6f155ecc449570af2e140d5a2252d5eaee28e580c"
+      ],
+      "source_sha256": "42c956da2d37ca5c3274e4964ed583b83d7db7302ac1a4164a58d1a9b5a9972e",
+      "text": "Return distinct right-angle rotations/reflections, with identity first.\n\n:param settings: mapping containing the optional tta_* switches.\n:returns: (quarter-turns, horizontal-reflection) pairs; at most eight.\n    Both flips together also include their composed 180-degree rotation."
     },
     "spacr.install_cleanup": {
       "source_blocks_sha256": [
@@ -47191,11 +47230,11 @@
     },
     "spacr.qt.ortho_view.OrthoView.wheelEvent": {
       "source_blocks_sha256": [
-        "dfe098c43d4882df4a07518cb0745e7153d21b4e574c86df47b0ef1cb08a4c00",
+        "c3228911a92fad5b3848b6516e71e5f684827e141ffaf16c0f2cbe16febb7896",
         "268b3d9c329ef1a8b5c41e2d168f5ff5884530ba79c74724c2d3d83da1c43c24"
       ],
-      "source_sha256": "3f0066dc2bded5efe60c37895012bfeeaf095f9e94c1c0e0bc1f9b2cc2234244",
-      "text": "Step through slices along the axis under the pointer.\n\n:param event: the Qt wheel event."
+      "source_sha256": "db122cd159dd6bb046209fffe71682b9deeb305a8aa2a46b2e0a44957e114fbb",
+      "text": "Zoom all planes around the image position beneath the pointer.\n\n:param event: the Qt wheel event."
     },
     "spacr.qt.ortho_view.OrthoView.zoom_in": {
       "source_blocks_sha256": [
@@ -70239,6 +70278,49 @@
       "source_sha256": "02f1c5f2bb529a8971e0885996e9f544f45b22c0ea0ff74ee999a1c61de90f51",
       "text": "Per-plate Z-factor, one row per plate, in run order.\n\n``Z' = 1 - 3(sd_pos + sd_neg) / |mean_pos - mean_neg|`` — the number a\nscreener actually watches, and the one that says whether a plate could have\ndetected anything at all. Charting it with the same limits and the same\nrules is the same question one level up: a Z' that slides from 0.7 to 0.3\nover a campaign is a screen that stopped working, plate by plate, with no\nsingle plate looking wrong.\n\nBoth controls need at least two wells on a plate for the SD to exist, so a\nplate with a single positive well produces no Z' and is left out rather\nthan given a zero.\n\n:returns: columns ``plate``, ``order``, ``order_index``, ``zprime``,\n    ``separation``, and the per-control means, SDs and n.\n:raises ControlChartError: when the spec does not name both controls."
     },
+    "spacr.qt.widgets.cursor_policy": {
+      "source_blocks_sha256": [
+        "9ff99ed95d9de10f37dee4a632c6a91e9a75d0ae82522041821d6ba3ed35508a"
+      ],
+      "source_sha256": "9ff99ed95d9de10f37dee4a632c6a91e9a75d0ae82522041821d6ba3ed35508a",
+      "text": "Keep one arrow silhouette and use blue to indicate interactive cursors."
+    },
+    "spacr.qt.widgets.cursor_policy.arrow_cursor": {
+      "source_blocks_sha256": [
+        "057257931413122aaa77c22728c3522b7cfe5937524e81b7202291d81eb50692",
+        "7a1a354b0b99d6f007a7258be4e61e31fb28bbbe040581f9c24c45f7a0fb7a12",
+        "a9a1f8fb23e16d3850ea70388c56f3002c3a8f62d407709a9ba8d37369dc306d"
+      ],
+      "source_sha256": "7d45c3d8c1a54e06313e9d6eae85255915d47d048a13022bfc7bda65be6f4a90",
+      "text": "Return the shared arrow, blue for interactive contexts.\n\n:param active: whether the original cursor requested a different shape.\n:returns: an arrow with opaque fill and a white outline in dark themes,\n    or black outline in light themes. Idle and active silhouettes match."
+    },
+    "spacr.qt.widgets.cursor_policy.install_cursor_policy": {
+      "source_blocks_sha256": [
+        "d84e89ecc994e2c6239f6518e5ea335083817a0329767fb175b2479e1ac05afc",
+        "e303f4448e47aab6368f63d140ad4bc112f6c8c0753a8f916aad4d7bf8d26722",
+        "11e686ab0595391447edb32cd5a594828b3b1cb12f998b300b245d3c7b652a1a"
+      ],
+      "source_sha256": "3971213e5fe7be054ef71c520bf555073d263811f9844e38c99035fcf8d9b6df",
+      "text": "Install the application-wide fixed-arrow policy once.\n\n:param application: QApplication; defaults to the current instance.\n:returns: whether a new filter was installed. Widget gestures and native\n    compositor operations remain owned by their existing handlers."
+    },
+    "spacr.qt.widgets.cursor_zoom": {
+      "source_blocks_sha256": [
+        "6c9db86f86bc9a792bde7584a106c1eb6cf84159820854960355d9b38f722612"
+      ],
+      "source_sha256": "6c9db86f86bc9a792bde7584a106c1eb6cf84159820854960355d9b38f722612",
+      "text": "Explicit cursor anchoring for image views, independent of Qt mouse history."
+    },
+    "spacr.qt.widgets.cursor_zoom.zoom_at_pointer": {
+      "source_blocks_sha256": [
+        "063a78271965666fbbcf2665cfd1fb652798449e3211d724e61a5884379df127",
+        "d02c4c35ed10fd417e0f7256a7fc68acefa30eda0bdffc36afe145eef19235ac",
+        "85888e8f587c7fae605e3e486a45d874fef715ce6b06c951ff019ba4df657a39",
+        "f677d10008a54d40e8349c9adc6bcc9eac0045523f3d531e36f23685ccde7f06",
+        "cffca4a1ec2a46b08ae8deec405b02f102de90fbf7f2aac03fd13a1d180d6e00"
+      ],
+      "source_sha256": "fff160bd7a9660824836794d48f81fe96b8ac752ff3a33c9e9a0dbbf3f82095d",
+      "text": "Scale an image while retaining the scene point beneath a viewport point.\n\n:param view: QGraphicsView whose owner suppresses peer updates while zooming.\n:param factor: positive, finite magnification multiplier.\n:param position: viewport coordinates; None uses its center for buttons.\n:returns: whether a zoom was applied. Extra scene margins allow anchoring\n    even when the image is smaller than the viewport. The scene itself\n    remains unchanged so fit-to-image still uses the actual image bounds."
+    },
     "spacr.qt.widgets.data_filter_panel": {
       "source_blocks_sha256": [
         "b7a7a4a3a3615199a59b425f9488aba9e7da47c00717be1ee90229bb8e52baed",
@@ -83588,6 +83670,29 @@
       ],
       "source_sha256": "a58be722ec14bd5b463d1ba335973f259df7b8a9cec2d4cb9e574ab2d0b51404",
       "text": "The strap line's phases, translated, for the home screen to reuse.\n\nThe home screen shows the same sentence beside the same logo, so it takes\nthe words from here rather than repeating them -- one string, one place,\none set of translation rows."
+    },
+    "spacr.qt.widgets.make_masks_help": {
+      "source_blocks_sha256": [
+        "beca03e7a8d00db1ff4536d9e962e781e18f3fbdddefa543672c8b07d43250b2"
+      ],
+      "source_sha256": "beca03e7a8d00db1ff4536d9e962e781e18f3fbdddefa543672c8b07d43250b2",
+      "text": "Bind Make Masks' custom controls to linked help and matching animations."
+    },
+    "spacr.qt.widgets.make_masks_help.ANIMATIONS": {
+      "source_blocks_sha256": [
+        "ad955ef454ea23d271b6bc2543321172fb56048d8ff18f2ccccf0f9d9b6ebc9a"
+      ],
+      "source_sha256": "ad955ef454ea23d271b6bc2543321172fb56048d8ff18f2ccccf0f9d9b6ebc9a",
+      "text": "Exact concept matches; unrelated controls do not borrow an illustration."
+    },
+    "spacr.qt.widgets.make_masks_help.install_make_masks_help": {
+      "source_blocks_sha256": [
+        "a9eb030dba39218f095a7e79ddacb86b8c3a3c86e842919da2e3b9599418f21c",
+        "d559414b94a4f01b4dec5df5674b5cc3cf02efe9b2e3d0b75f7f31525bc62520",
+        "fbc77593135e50914f63a198c19841cd2c0e3387e04c61db767ac8b433262db0"
+      ],
+      "source_sha256": "46c147d07facc247efb573ae78b5d83d9fec9725db9bbe52cdaec7b261b401a9",
+      "text": "Attach persistent API help and available animations to custom controls.\n\n:param screen: constructed MakeMasksScreen, before tooltip retargeting.\n:returns: number of controls receiving linked help. Labels receive the\n    same metadata through the standard settings retargeting function.\n    Existing prose is retained instead of using another module's help."
     },
     "spacr.qt.widgets.measure_input_table": {
       "source_blocks_sha256": [
@@ -100589,6 +100694,15 @@
       ],
       "source_sha256": "b8e5903cb4313acab63cb0290440e88a9ffeeaf41008c4e4c61d9d1eeea67ad7",
       "text": "Return the canonical prefix an object of ``object_type`` is keyed with.\n\n``None`` — the type is not stated — gives :data:`OBJECT_PREFIX`. Anything\nelse is folded to lower case and checked, because the prefix has to be\nseparable from the label that follows it with no separator in between:\n\n* it may not be empty, or every typed key would be an untyped one;\n* it may not contain :data:`KEY_SEPARATOR`, for the reason\n  :func:`_check_plate` gives — the key is separator-joined;\n* it may not contain a **digit**, or the split is ambiguous. Type\n  ``'cell1'`` with label ``7`` and type ``'cell'`` with label ``17`` both\n  write ``'cell17'``, which is the \"two identities, one key\" failure this\n  whole module exists to end.\n\nThe vocabulary is **closed**: :data:`OBJECT_TYPES` and nothing else. An\nopen one would mean every unrecognised token in the object slot became a\ntype, and ``'plate1_r1_c1_f2_x7'`` — which is not an object key — would\nparse as object 7 of type ``'x'``. Widening what counts as a key is how a\nmalformed key becomes a plausible wrong answer instead of an error, and a\nclosed vocabulary is the same choice :data:`KEY_PREFIXES` already makes\nfor rows, columns, fields and timepoints.\n\nA caller holding a table name it is not sure about asks\n:func:`is_object_type` first and leaves the frame untyped otherwise — an\nuntyped key is exactly what spaCR wrote before, so that is a no-change,\nnot a failure.\n\n:param object_type: one of :data:`OBJECT_TYPES`, or ``None``.\n:returns: the prefix, lower case.\n:raises KeyParseError: for a type that cannot be written into a key."
+    },
+    "spacr.schema.object_type_summary": {
+      "source_blocks_sha256": [
+        "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
+        "760e45115cd2aa3ddc62378e0bc0413289019e46c298796d26471281ba17ffb5",
+        "171071046f8826b4bb3a934ac411a3caf70775979028ff5d2196f6b8b35619ff"
+      ],
+      "source_sha256": "9977888606e9ec8948f3e9d2bb98e5db90ddada1080f47d54d61e7e0954a8052",
+      "text": "Describe object types once, collapsing organelle slots into a regex.\n\n:param roles: internal object identifiers, in display order.\n:returns: comma-separated types. Organelle identifiers are represented\n    by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots.\n    This changes presentation only, never stored identifiers or parsing."
     },
     "spacr.schema.parse_field_stem": {
       "source_blocks_sha256": [

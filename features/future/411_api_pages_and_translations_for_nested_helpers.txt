@@ -1893,3 +1893,18 @@ At this pre-follow-up checkpoint, German API freshness is10537/11425(92.2%);
 other locales10464/11425(91.6%). These are source-current entries, not full
 linguistic acceptance. Incoming cursor/linked-help/recruitment/TTA changes
 3ec6c3f85 through e1586eef2 require a subsequent refresh after rebase.
+
+2026-09-23 — CODEX: PIPELINE DESCRIPTIONS AND INCOMING GUIDES
+Published 356 source-bound GUI records in nine languages: 329 pipeline
+passages, nine corrected recruitment channel tooltips and 18 headings/captions.
+All live runtime lookups match their reviewed targets. The superseded Chinese
+channel tooltip is preserved verbatim as retired evidence. English API grows
+11425 to11437 (+12/-0, three changed); Help includes all added entries.
+Recruitment, classification TTA, pointer zoom and linked-help guides pass strict
+Sphinx, rendered local-link and API-anchor checks. Exact callable/visible-member
+deltas are recorded; focused tests pass18,67and2 with earlier failures retained.
+Receipt: data/411_pipeline_descriptions_and_incoming_guides_2026-09-23.json.
+New API translations and TTA settings remain owed. Incoming native-cursor,
+image-quality, system-requirements and replication changes need the next refresh.
+The user now explicitly prioritizes incremental public updates before all
+translations and narration are complete; an English publication route is next.

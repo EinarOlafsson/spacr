@@ -13,6 +13,12 @@ For the inputs and outputs of the surrounding workflow, see
 :doc:`screen API <api/spacr/qt/screens/make_masks/index>` documents the
 implementation and :mod:`spacr.qt.mask_engine` documents the editing routines.
 
+Hover a setting or its label to read the explanation and follow its API help
+link. Controls with a matching animation also offer an animation in that
+popup; each control remembers its own reveal state. Image-enhancement help
+links to the detection-chain documentation. A control without a matching
+animation still keeps its written explanation and API link.
+
 Open a field and save an edit
 -----------------------------
 

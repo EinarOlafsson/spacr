@@ -131,6 +131,7 @@ Contents
    installers
    features
    make_masks
+   recruitment
    plaque_assay
    timeflows_training
    python_api

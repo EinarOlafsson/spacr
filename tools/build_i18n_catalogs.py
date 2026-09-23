@@ -199,6 +199,7 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Labels & Classes",
     "Evaluation & Results",
     "Classifier",
+    "Test-time augmentation",
     # Preferences tabs, resource controls, and colour-vision choices.
     "Modules",
     "Logging",

@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "06a2c8bcb7e2f6755cc1f1ce54b026fcdf477c25",
+  "scope": "Nine-language pipeline descriptions, corrected recruitment channel tooltip, inference heading extraction and translations; recruitment/classification/zoom/linked-help guides; English API manifest and Help index.",
+  "source_inventory": {
+    "base_commit": "49e9c86aa1010b6df68f6cbfa10ee6cfe844022d",
+    "api_before": 11425,
+    "api_after": 11437,
+    "api_added": [
+      "spacr.inference_augmentation",
+      "spacr.inference_augmentation.predict_augmented",
+      "spacr.inference_augmentation.transforms_for",
+      "spacr.qt.widgets.cursor_policy",
+      "spacr.qt.widgets.cursor_policy.arrow_cursor",
+      "spacr.qt.widgets.cursor_policy.install_cursor_policy",
+      "spacr.qt.widgets.cursor_zoom",
+      "spacr.qt.widgets.cursor_zoom.zoom_at_pointer",
+      "spacr.qt.widgets.make_masks_help",
+      "spacr.qt.widgets.make_masks_help.ANIMATIONS",
+      "spacr.qt.widgets.make_masks_help.install_make_masks_help",
+      "spacr.schema.object_type_summary"
+    ],
+    "api_removed": [],
+    "api_changed": [
+      "spacr.deep_spacr.apply_model",
+      "spacr.deep_spacr.apply_model_to_tar",
+      "spacr.qt.ortho_view.OrthoView.wheelEvent"
+    ],
+    "ui_before": 5059,
+    "ui_after": 5060,
+    "ui_added": [
+      "Follow the pathway instructions for this connection."
+    ],
+    "ui_removed": [],
+    "stale_runtime_reviews": [
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json",
+        "record": {
+          "table": "setting_tooltips",
+          "key": "channel_dims",
+          "source_sha256": "622e42aa22dd0b0498017006b8a06ba5b8c32ccbe189c44d8b3b079872a69bbd",
+          "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].",
+          "translation": "仅用于招募分析：合并数组中的图像通道索引。这些索引决定叠加图和招募测量使用的通道，但 _calculate_recruitment 写入不含通道标识符的固定列名。因此，使用不同值的运行可能生成名称相同但包含不同通道测量值的列。默认值为 [0, 1, 2, 3]。"
+        }
+      }
+    ],
+    "ui_added_by_extractor": [
+      "Test-time augmentation"
+    ]
+  },
+  "settings_delta": {
+    "setting_labels": {
+      "added": {
+        "tta_aggregation": "Tta aggregation",
+        "tta_enabled": "Tta enabled",
+        "tta_horizontal_flip": "Tta horizontal flip",
+        "tta_max_std": "Tta max std",
+        "tta_min_agreement": "Tta min agreement",
+        "tta_rotations": "Tta rotations",
+        "tta_vertical_flip": "Tta vertical flip"
+      },
+      "changed": {},
+      "removed": {}
+    },
+    "setting_tooltips": {
+      "added": {
+        "tta_aggregation": "Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.",
+        "tta_enabled": "Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.",
+        "tta_horizontal_flip": "With test-time augmentation enabled, include horizontal reflections of the selected rotations. Default False.",
+        "tta_max_std": "Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.",
+        "tta_min_agreement": "Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.",
+        "tta_rotations": "With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.",
+        "tta_vertical_flip": "With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False."
+      },
+      "changed": {
+        "channel_dims": {
+          "before": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].",
+          "after": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, each auxiliary recruitment ratio records its channel explicitly, so measurements from different channels remain separate. Default [0, 1, 2, 3]."
+        },
+        "number_of_organelles": {
+          "before": "How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, named organelle_*, organelleb_*, organellec_* and so on; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.",
+          "after": "How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0."
+        },
+        "score_threshold": {
+          "before": "Probability cutoff (0-1) applied to the model's positive-class score when deriving the binary cv_predictions column: pred >= threshold becomes 1. The raw probability is always saved alongside it, so this only changes the hard call, not the score. Lower it to catch more positives at the cost of false positives; raise it for precision. Default 0.5.",
+          "after": "Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5."
+        }
+      },
+      "removed": {}
+    },
+    "categories": {
+      "added": {},
+      "changed": {},
+      "removed": {}
+    },
+    "ui": {
+      "added": {
+        "Follow the pathway instructions for this connection.": "Follow the pathway instructions for this connection."
+      },
+      "changed": {},
+      "removed": {}
+    },
+    "module_summaries": {
+      "added": {},
+      "changed": {},
+      "removed": {}
+    }
+  },
+  "ui_sources": 5061,
+  "gui_records": 356,
+  "languages": [
+    {
+      "language": "de",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "sv",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "fr",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "es",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "pt",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "zh_CN",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "hi",
+      "records": {
+        "pipeline-descriptions": 35,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "ko",
+      "records": {
+        "pipeline-descriptions": 42,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    },
+    {
+      "language": "is",
+      "records": {
+        "pipeline-descriptions": 42,
+        "recruitment-channels": 1,
+        "incoming-captions": 2
+      },
+      "live_runtime_values_match": true
+    }
+  ],
+  "ui_caption_freshness": {
+    "de": {
+      "current": 4670,
+      "total": 5061,
+      "percent": 92.3
+    },
+    "sv": {
+      "current": 4670,
+      "total": 5061,
+      "percent": 92.3
+    },
+    "fr": {
+      "current": 4670,
+      "total": 5061,
+      "percent": 92.3
+    },
+    "es": {
+      "current": 4670,
+      "total": 5061,
+      "percent": 92.3
+    },
+    "pt": {
+      "current": 4670,
+      "total": 5061,
+      "percent": 92.3
+    },
+    "zh_CN": {
+      "current": 4689,
+      "total": 5061,
+      "percent": 92.6
+    },
+    "hi": {
+      "current": 4486,
+      "total": 5061,
+      "percent": 88.6
+    },
+    "ko": {
+      "current": 4324,
+      "total": 5061,
+      "percent": 85.4
+    },
+    "is": {
+      "current": 4280,
+      "total": 5061,
+      "percent": 84.6
+    }
+  },
+  "api_freshness": {
+    "de": {
+      "current": 10534,
+      "total": 11437,
+      "missing": 770,
+      "stale": 133,
+      "percent": 92.1
+    },
+    "sv": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "fr": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "es": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "pt": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "zh_CN": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "hi": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "ko": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    },
+    "is": {
+      "current": 10461,
+      "total": 11437,
+      "missing": 825,
+      "stale": 151,
+      "percent": 91.5
+    }
+  },
+  "callable_delta": {
+    "added": [
+      "spacr.inference_augmentation.predict_augmented",
+      "spacr.inference_augmentation.transforms_for",
+      "spacr.qt.widgets.cursor_policy.arrow_cursor",
+      "spacr.qt.widgets.cursor_policy.install_cursor_policy",
+      "spacr.qt.widgets.cursor_zoom.zoom_at_pointer",
+      "spacr.qt.widgets.make_masks_help.install_make_masks_help",
+      "spacr.schema.object_type_summary"
+    ],
+    "before": {
+      "callables": 9453,
+      "categories": {
+        "function": 4200,
+        "dataclass_constructor": 503,
+        "constructor": 437,
+        "method": 4089,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9448,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9460,
+      "variant_counts": {
+        "1": 9446,
+        "2": 7
+      },
+      "parameters": 18761,
+      "required_parameters": 9664,
+      "digest": "1502c4b5a0975f0204e080e9acbccbe5d36dbee568ba619bd0add0ccc552383d"
+    },
+    "after": {
+      "callables": 9460,
+      "categories": {
+        "function": 4207,
+        "dataclass_constructor": 503,
+        "constructor": 437,
+        "method": 4089,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9455,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9467,
+      "variant_counts": {
+        "1": 9453,
+        "2": 7
+      },
+      "parameters": 18780,
+      "required_parameters": 9672,
+      "digest": "01e5011e31bf61857028ce609f4f471d7b54dcfb1d1b3c28372e3b7de82587fd"
+    },
+    "added_rows": {
+      "spacr.inference_augmentation.predict_augmented": "spacr.inference_augmentation.predict_augmented\u0000function\u0000autoapi\u0000images,model,settings\u0000images,model,settings\u0000images,model,settings\u00000\u00001\u00000\u00000",
+      "spacr.inference_augmentation.transforms_for": "spacr.inference_augmentation.transforms_for\u0000function\u0000autoapi\u0000settings\u0000settings\u0000settings\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.cursor_policy.arrow_cursor": "spacr.qt.widgets.cursor_policy.arrow_cursor\u0000function\u0000autoapi\u0000active\u0000\u0000active\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.cursor_policy.install_cursor_policy": "spacr.qt.widgets.cursor_policy.install_cursor_policy\u0000function\u0000autoapi\u0000application\u0000\u0000application\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.cursor_zoom.zoom_at_pointer": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer\u0000function\u0000autoapi\u0000factor,position,view\u0000factor,view\u0000factor,position,view\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.make_masks_help.install_make_masks_help": "spacr.qt.widgets.make_masks_help.install_make_masks_help\u0000function\u0000autoapi\u0000screen\u0000screen\u0000screen\u00000\u00001\u00000\u00000",
+      "spacr.schema.object_type_summary": "spacr.schema.object_type_summary\u0000function\u0000autoapi\u0000roles\u0000roles\u0000roles\u00000\u00001\u00000\u00000"
+    },
+    "changed_rows": [
+      {
+        "symbol": "spacr.deep_spacr.apply_model",
+        "before": "spacr.deep_spacr.apply_model\u0000function\u0000autoapi\u0000batch_size,image_size,input_statistics,model_path,n_jobs,normalize,src\u0000model_path,src\u0000batch_size,image_size,input_statistics,model_path,n_jobs,normalize,src\u00000\u00001\u00000\u00000",
+        "after": "spacr.deep_spacr.apply_model\u0000function\u0000autoapi\u0000batch_size,image_size,input_statistics,model_path,n_jobs,normalize,score_threshold,src,tta_aggregation,tta_enabled,tta_horizontal_flip,tta_max_std,tta_min_agreement,tta_rotations,tta_vertical_flip\u0000model_path,src\u0000batch_size,image_size,input_statistics,model_path,n_jobs,normalize,score_threshold,src,tta_aggregation,tta_enabled,tta_horizontal_flip,tta_max_std,tta_min_agreement,tta_rotations,tta_vertical_flip\u00000\u00001\u00000\u00000"
+      }
+    ]
+  },
+  "visible_member_delta": {
+    "dunders": 214,
+    "assignments": 22,
+    "added": [
+      "spacr.qt.widgets.make_masks_help.ANIMATIONS"
+    ],
+    "before": "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9",
+    "after": "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
+  },
+  "checks": {
+    "sphinx": {
+      "result": "build succeeded.",
+      "sha256": "486bea5e17e629e64a9f022639b36f520b313d926e25f1ffce3baeb78830b818"
+    },
+    "pipeline_and_tooltips": {
+      "result": "18 passed",
+      "sha256": "2b56730c71e8a082ed79f8cea624f36e22fa4707d91e1d96cdbc5d1771bdc352"
+    },
+    "chrome": {
+      "result": "67 passed",
+      "sha256": "cad3cfe46dab37a55a23561a310ae2b12d6f1a427807a33931d32cb11d4097b9"
+    },
+    "inventory_and_boundaries": {
+      "result": "2 passed",
+      "sha256": "f029c5bcf1f3d936807c3ee1950c324c4beb1900670d015608dd4f747b49b18a"
+    },
+    "signature_and_help_before_two_pin_corrections": {
+      "result": "1 failed, 52 passed; the boundary test was corrected and passes in inventory_and_boundaries",
+      "sha256": "f7358186a51cab34b2f88b52d78d0bc4a82874fc0e0cf1eee27fba945d4b38ea"
+    }
+  },
+  "rendered_links": 277,
+  "rendered_api_anchors": [
+    {
+      "symbol": "spacr.inference_augmentation",
+      "page": "api/spacr/inference_augmentation/index.html",
+      "anchor": "module-spacr.inference_augmentation"
+    },
+    {
+      "symbol": "spacr.inference_augmentation.predict_augmented",
+      "page": "api/spacr/inference_augmentation/index.html",
+      "anchor": "spacr.inference_augmentation.predict_augmented"
+    },
+    {
+      "symbol": "spacr.inference_augmentation.transforms_for",
+      "page": "api/spacr/inference_augmentation/index.html",
+      "anchor": "spacr.inference_augmentation.transforms_for"
+    },
+    {
+      "symbol": "spacr.qt.widgets.cursor_policy",
+      "page": "api/spacr/qt/widgets/cursor_policy/index.html",
+      "anchor": "module-spacr.qt.widgets.cursor_policy"
+    },
+    {
+      "symbol": "spacr.qt.widgets.cursor_policy.arrow_cursor",
+      "page": "api/spacr/qt/widgets/cursor_policy/index.html",
+      "anchor": "spacr.qt.widgets.cursor_policy.arrow_cursor"
+    },
+    {
+      "symbol": "spacr.qt.widgets.cursor_policy.install_cursor_policy",
+      "page": "api/spacr/qt/widgets/cursor_policy/index.html",
+      "anchor": "spacr.qt.widgets.cursor_policy.install_cursor_policy"
+    },
+    {
+      "symbol": "spacr.qt.widgets.cursor_zoom",
+      "page": "api/spacr/qt/widgets/cursor_zoom/index.html",
+      "anchor": "module-spacr.qt.widgets.cursor_zoom"
+    },
+    {
+      "symbol": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer",
+      "page": "api/spacr/qt/widgets/cursor_zoom/index.html",
+      "anchor": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer"
+    },
+    {
+      "symbol": "spacr.qt.widgets.make_masks_help",
+      "page": "api/spacr/qt/widgets/make_masks_help/index.html",
+      "anchor": "module-spacr.qt.widgets.make_masks_help"
+    },
+    {
+      "symbol": "spacr.qt.widgets.make_masks_help.ANIMATIONS",
+      "page": "api/spacr/qt/widgets/make_masks_help/index.html",
+      "anchor": "spacr.qt.widgets.make_masks_help.ANIMATIONS"
+    },
+    {
+      "symbol": "spacr.qt.widgets.make_masks_help.install_make_masks_help",
+      "page": "api/spacr/qt/widgets/make_masks_help/index.html",
+      "anchor": "spacr.qt.widgets.make_masks_help.install_make_masks_help"
+    },
+    {
+      "symbol": "spacr.schema.object_type_summary",
+      "page": "api/spacr/schema/index.html",
+      "anchor": "spacr.schema.object_type_summary"
+    },
+    {
+      "symbol": "spacr.deep_spacr.apply_model",
+      "page": "api/spacr/deep_spacr/index.html",
+      "anchor": "spacr.deep_spacr.apply_model"
+    },
+    {
+      "symbol": "spacr.deep_spacr.apply_model_to_tar",
+      "page": "api/spacr/deep_spacr/index.html",
+      "anchor": "spacr.deep_spacr.apply_model_to_tar"
+    },
+    {
+      "symbol": "spacr.qt.ortho_view.OrthoView.wheelEvent",
+      "page": "api/spacr/qt/ortho_view/index.html",
+      "anchor": "spacr.qt.ortho_view.OrthoView.wheelEvent"
+    }
+  ],
+  "preserved_retired_runtime_record": {
+    "path": "docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json",
+    "record": {
+      "table": "setting_tooltips",
+      "key": "channel_dims",
+      "source_sha256": "622e42aa22dd0b0498017006b8a06ba5b8c32ccbe189c44d8b3b079872a69bbd",
+      "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].",
+      "translation": "仅用于招募分析：合并数组中的图像通道索引。这些索引决定叠加图和招募测量使用的通道，但 _calculate_recruitment 写入不含通道标识符的固定列名。因此，使用不同值的运行可能生成名称相同但包含不同通道测量值的列。默认值为 [0, 1, 2, 3]。"
+    }
+  },
+  "english_manifest_current": true,
+  "help_contains_all_added_entries": true,
+  "new_api_locale_translations_complete": false,
+  "full_catalog_acceptance": false,
+  "full_ci_passed": false,
+  "native_speaker_signoff": false,
+  "media_refreshed": false,
+  "published": false,
+  "remaining": [
+    "Nine-language translations for 15 API entries /59 blocks in this source snapshot",
+    "TTA settings labels/tooltips, score_threshold and organelle-count tooltip translations",
+    "Korean/Icelandic workflow phrase banks; private drafts running",
+    "Fresh 79/80 captures, updated narration and media checks",
+    "Rebase incoming native-cursor/image-quality/hardware/replication changes, then inventory their documentation and translation delta",
+    "Broader API/helper documentation and complete-set tutorial acceptance"
+  ]
+}

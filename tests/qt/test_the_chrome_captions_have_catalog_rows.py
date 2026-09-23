@@ -27,6 +27,7 @@ CHROME_CAPTIONS = (
     "Labels & Classes",
     "Evaluation & Results",
     "Classifier",
+    "Test-time augmentation",
     # Preferences: tabs, theme names, resource buttons, row labels, footer.
     "Performance",
     "Modules",
@@ -228,7 +229,7 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     assert len(subtitles) == 1
     assert auxiliary | subtitles <= canonical
 
-    # Fifty-three chrome rows plus the five constants and one subtitle are the
+    # Fifty-four chrome rows plus the five constants and one subtitle are the
     # exact gap this regression covers. It was sixty-six until the mean-
     # intensity filter retired "Intensity Handling (all objects)" and the
     # live-preview rows, which the builder now reads from COMPARTMENT_FIELDS
@@ -236,8 +237,10 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     # ratchet independently pins the resulting canonical count and digest.
     # ae084b7d3 added the distinct mask-operation caption, already translated
     # in all nine catalogs. Removing that exact addition restores 52 rows.
-    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 53
-    assert len(builder._INDIRECT_CHROME_UI_SOURCES - {"Swap object and background"}) == 52
+    # The inference-augmentation category is also assembled dynamically.
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 54
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES - {
+        "Swap object and background", "Test-time augmentation"}) == 52
     assert builder._INDIRECT_CHROME_UI_SOURCES <= set(CHROME_CAPTIONS)
     assert len(auxiliary | subtitles) == 6
 

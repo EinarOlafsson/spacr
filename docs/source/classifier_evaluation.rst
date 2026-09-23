@@ -82,3 +82,76 @@ The Python entry points are
 :func:`spacr.classifier_evaluation.nested_group_folds`,
 :func:`spacr.classifier_evaluation.write_evaluation_bundle`, and
 :func:`spacr.classifier_evaluation.load_evaluation_bundle`.
+
+Orientation stability during inference
+------------------------------------------
+
+In **Classify → Classify CV**, the **Test-time augmentation** settings apply
+selected rotations and reflections when scoring phenotype crops. This is an
+inference option; it does not change training augmentation or the held-out
+evaluation procedure described above. Leave it disabled when orientation is
+biologically meaningful.
+
+Enable ``tta_enabled`` and choose the transformations to evaluate:
+
+* ``tta_rotations`` adds 90, 180 and 270 degree rotations without pixel
+  interpolation.
+* ``tta_horizontal_flip`` adds horizontal reflections of the selected
+  rotations; ``tta_vertical_flip`` adds vertical reflections.
+* The original orientation is always included. Equivalent orientations are
+  evaluated once, giving at most eight views when all options are enabled.
+  Enabling the feature without selecting transformations evaluates only the
+  original view.
+
+``tta_aggregation=probability_mean`` selects a label from the mean class
+probabilities. ``majority_vote`` instead counts the labels of individual
+views; ties prefer the higher mean probability, then the lower class index.
+For binary predictions, ``score_threshold`` labels each view before agreement
+and voting are calculated.
+
+The enabled output retains both the original prediction and the aggregated
+result:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Column
+     - Meaning
+   * - ``pred``, ``prediction_mean``
+     - Mean positive-class probability for binary output, or mean probability
+       of the selected class for multiclass output.
+   * - ``predicted_label``
+     - Class selected by the configured aggregation method. The tar workflow's
+       ``cv_predictions`` uses this label too.
+   * - ``original_pred``, ``original_predicted_label``
+     - Score and label from the original orientation before aggregation.
+   * - ``prediction_std``
+     - Population standard deviation across views of the positive-class
+       probability for binary output, or the selected-class probability for
+       multiclass output.
+   * - ``transform_agreement``
+     - Fraction of view labels matching the selected label.
+   * - ``review_flag``, ``tta_views``
+     - Whether the stability thresholds request review, and the number of
+       distinct views scored.
+   * - ``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``
+     - Mean probability, original probability and population standard
+       deviation for each class index.
+
+With majority voting, retain ``predicted_label`` or ``cv_predictions`` as
+the selected result. Thresholding ``pred`` again can produce a different
+label because ``pred`` still stores a mean probability.
+
+An object is flagged when agreement is below ``tta_min_agreement`` (default
+0.75) or probability standard deviation exceeds ``tta_max_std`` (default
+0.15). Agreement measures stability across orientations, not calibrated
+confidence or accuracy on independent data. Compare results on a separate
+validation set before choosing these options for an experiment.
+
+For directory input, pass the options as keyword arguments to
+:func:`spacr.deep_spacr.apply_model`. For tar input, supply the same keys in
+the settings passed to :func:`spacr.deep_spacr.apply_model_to_tar`.
+:func:`spacr.inference_augmentation.transforms_for` defines the distinct
+views and :func:`spacr.inference_augmentation.predict_augmented` documents
+the aggregation contract. Disabled augmentation preserves ordinary inference.

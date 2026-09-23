@@ -119,13 +119,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "channel_dims",
-      "source_sha256": "622e42aa22dd0b0498017006b8a06ba5b8c32ccbe189c44d8b3b079872a69bbd",
-      "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].",
-      "translation": "仅用于招募分析：合并数组中的图像通道索引。这些索引决定叠加图和招募测量使用的通道，但 _calculate_recruitment 写入不含通道标识符的固定列名。因此，使用不同值的运行可能生成名称相同但包含不同通道测量值的列。默认值为 [0, 1, 2, 3]。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "class_folder_names",
       "source_sha256": "87e1fecfc9c201ba193d606e8be7be04efde3c7be62d33212ee48adfbe91ab1d",
       "source": "Ordered training folder names. Each must exactly match a subfolder under src/train and src/test; its position becomes the integer label, and the list length sets the classifier-head width. Training raises FileNotFoundError with missing and available folders when a name is absent. Generate Training Dataset replaces this list with the folders it wrote. This setting identifies crop locations; 'classes' defines their semantic labels. Default ['nc','pc'].",
@@ -634,6 +627,19 @@
       "source_sha256": "fb468200a0fec1da723f9047c4a658d81cb8090a7eb2185bf5e6cd2427db48bf",
       "source": "spaCR's own three colours — the blue, magenta and green-cyan that mark a module stable, beta or alpha.",
       "translation": "spaCR 自有的三种颜色——蓝色、洋红色和绿青色，分别标示模块处于 stable、beta 或 alpha 状态。"
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "setting_tooltips",
+        "key": "channel_dims",
+        "source_sha256": "622e42aa22dd0b0498017006b8a06ba5b8c32ccbe189c44d8b3b079872a69bbd",
+        "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].",
+        "translation": "仅用于招募分析：合并数组中的图像通道索引。这些索引决定叠加图和招募测量使用的通道，但 _calculate_recruitment 写入不含通道标识符的固定列名。因此，使用不同值的运行可能生成名称相同但包含不同通道测量值的列。默认值为 [0, 1, 2, 3]。"
+      },
+      "reason": "Channel-preserving recruitment outputs replace the old overwrite limitation. The original source-bound review is retained here; the replacement is independently reviewed in 2026-09-23-recruitment-channels.json.",
+      "source_change_commit": "8f9f568ee"
     }
   ]
 }

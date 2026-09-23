@@ -43,6 +43,10 @@ Classify trains PyTorch image models or classical and boosted models from
 measurement tables. Checkpoints record their dataset, split rule, class
 balance and held-out metrics.
 
+Classify CV also offers optional rotations and reflections at inference time.
+See :doc:`classifier_evaluation` for the aggregation methods, original and
+mean probabilities, and orientation-stability flags.
+
 Map Barcodes
 ~~~~~~~~~~~~
 
@@ -73,6 +77,15 @@ Planning, quality control and exploration
   without an export/re-import cycle.
 - **Layer and lineage views** connect images, masks and the cell → nucleus →
   pathogen object hierarchy.
+
+In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel
+zoom keeps the image point beneath the pointer in place. This also works when
+the image is smaller than its viewport; **Fit** or opening a new image resets
+the extra navigation space. Linked comparison views update together after the
+zoom. Orthogonal image views zoom around the pointer without moving the
+crosshair's selected position.
+
+For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`.
 
 Reproducibility and interoperability
 ------------------------------------

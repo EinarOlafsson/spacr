@@ -13976,3 +13976,57 @@ Do not assume #130 is resolved solely because the nightly workflow map exists.
 #131 depends on institutional signing credentials; the ticket was submitted.
 Final scoped verification: 751 tests passed across Host–Pathogen analysis,
 object-table schema, real Qt settings registration and pointer-anchored zoom.
+2026-09-23 — CODEX: INCOMING SETTINGS INVENTORY AND TTA HEADING
+Recruitment channel_dims replacement is reviewed in all nine GUI languages;
+original stale Chinese record retained. Six-language pipeline descriptions
+(210 passages) now pass source/candidate/context checks. New recruitment guide,
+classification orientation-stability/output contract and cursor-zoom/linked-help
+prose are in the working tree; strict build and live translation checks underway.
+The incoming API plan covers15 entries /59 unique blocks. Runtime inventory:
+seven TTA labels, seven TTA tooltips, changed channel_dims, score_threshold and
+number_of_organelles tooltips. The new Test-time augmentation heading was absent
+from canonical UI extraction; I added it to the indirect heading inventory in
+tools/build_i18n_catalogs.py, my lane. There is also no curated category blurb:
+category_tooltip falls back to 'Settings that control test-time augmentation.'
+Please supply the intended concise English category blurb in your settings_model
+lane when convenient; I will translate that source. No runtime implementation
+changes made here.
+
+2026-09-23 — CODEX: CURRENT WORKFLOW CAPTURE EXPOSES DICTIONARY QSS ERROR
+Fresh isolated 79 recording on06a2c8bcb/current runtime, dark/blobs, native4K,
+CPU/offline: FeatureDictionary._panel_qss at feature_dictionary.py:569 calls
+css_color(palette['surface_alt'], .6), but surface_alt is already
+'rgba(22, 23, 25, 0.600)'. theme._channels raises ValueError expecting #rrggbb.
+registered_widget_qss catches it and logs 'Widget QSS FeatureDictionary failed
+to render'; recording continues, so a navigation acceptance receipt alone
+will not certify its appearance. Runtime fix remains your lane. Reproduction:
+W=/mnt/firecuda2/codex/workflow-authoring-20260922,
+log W/workflow-current-module-capture.log; fresh stage
+/mnt/firecuda2/codex/workflow-current-modules.O0r5Kr. No runtime workaround or
+style monkeypatch applied; media remain private and unaccepted visually.
+
+2026-09-23 — CODEX: USER PRIORITIZES INCREMENTAL PUBLIC DOCUMENTATION
+User asks when the current API/docs/tutorials can become user-facing with
+1.5.1.0 and explicitly says not to wait until everything is perfect/complete.
+This supersedes the previous complete-set publication preference: ready English
+material and verified tutorial subsets may ship while translations/voices
+continue. A version bump alone does not promote private tutorial staging, and
+current docs.yml blocks Pages on all-locale runtime/API audit debt. I am preparing
+an explicit English-publication option that retains source freshness, strict
+Sphinx, rendered API-link checks and tutorial media checks. Full translation
+audits remain strict for complete-catalog acceptance. I am taking only this
+docs workflow/tooling lane; I have not bumped a version, pushed main, dispatched
+a deployment or uploaded media. Please coordinate any imminent release against
+this distinction. Incoming native-cursor/QC/system-requirements/replication
+commits are fetched; checkpoint build still finishing before rebase.
+
+2026-09-23 — CODEX: INCOMING GUIDES CHECKPOINT VERIFIED
+356GUI records now match live lookups in nine languages; strict Sphinx passes.
+Recruitment and TTA guides explain current output contracts, with cursor zoom
+and linked-help updates. English API11437(+12/-0;threechanged) and Help refreshed;
+new locale API translations remain owed. Exact callable/visible-member deltas,
+rendered link/anchor checks and focused18+67+2tests are recorded in
+features/data/411_pipeline_descriptions_and_incoming_guides_2026-09-23.json.
+Committing this verified snapshot before rebasing the incoming runtime commits.
+No media or website deployment is claimed. Next priority: explicit English
+publication support, retaining strict English/source/rendered-link checks.

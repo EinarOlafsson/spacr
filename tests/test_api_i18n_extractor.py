@@ -35,7 +35,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9"
+    "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -224,7 +224,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # against 6ae5e1b36: +1 / -0.
     # ViewGate.__post_init__ is the one new documented special method.
     assert len(dunders) == 214
-    assert len(assignments) == 21
+    # The exact Make Masks animation registry is one new documented value.
+    # Removing it reproduces the previous visible-member digest exactly.
+    assert len(assignments) == 22
+    assert "spacr.qt.widgets.make_masks_help.ANIMATIONS" in assignments
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders),
+         *(f"new_constant_attribute\0{key}" for key in assignments
+           if key != "spacr.qt.widgets.make_masks_help.ANIMATIONS")]
+    ) == "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -1193,7 +1201,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # The exact delta is recorded in 411_timeflows_guidance_2026-09-23.json.
     # +9 held-out validation entries: one module, six public functions and
     # two nested reporting helpers. All nine locale catalogs carry them.
-    expected = 11_425
+    # +12 inference/cursor/help/schema entries. The English manifest is
+    # current; strict locale freshness checks still report untranslated keys.
+    expected = 11_437
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1235,7 +1245,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_425
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_437
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

@@ -453,6 +453,14 @@
       "source_sha256": "3efb67ed45d8cd2df420ee50e6e39ad44e5423f2e25b6f25320a03fa529b4aad",
       "text": "Crop every object out of an in-memory merged image+mask array.\n\nThis is the no-database counterpart of :func:`generate_object_dataset`,\nused by the Measure live preview to show what the crops will look like\nbefore a run: it reads the object labels straight from a mask slice of a\nsingle merged ``.npy`` and returns the cropped, normalised images.\n\n:param data: merged array ``(H, W, C)`` — image channels then mask slices.\n:param mask_dim: slice index of the object-class mask to crop by.\n:param channels: image channel indices to assemble (order = RGB order).\n:param min_area: smallest object area (px) to keep; ``0`` = no lower bound.\n:param max_area: largest object area (px) to keep; ``0`` = no upper bound.\n:param mask_background: zero pixels outside the object.\n:param normalize: per-channel percentile-normalise each crop.\n:param percentiles: ``(low, high)`` for normalisation.\n:param buffer: padding (px) around each object's bounding box.\n:param to_rgb: assemble the chosen channels into an HxWx3 uint8 image\n    (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels\n    **in the merged array's own dtype**.\n:param limit: cap the number of objects returned.\n:returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest\n    objects first.\n\n.. note::\n\n   ``to_rgb=True`` is the one place this function leaves the working\n   dtype, because a GUI image is 8-bit. It narrows with\n   :func:`_crop_to_uint8` (a rescale off the dtype range), not with a clip\n   at 255 -- a clip made every pixel of an unnormalised 16-bit object come\n   back as pure white, so the preview showed a white blob and the run it\n   was previewing did not."
     },
+    "3f0066dc2bded5efe60c37895012bfeeaf095f9e94c1c0e0bc1f9b2cc2234244": {
+      "source_blocks_sha256": [
+        "dfe098c43d4882df4a07518cb0745e7153d21b4e574c86df47b0ef1cb08a4c00",
+        "268b3d9c329ef1a8b5c41e2d168f5ff5884530ba79c74724c2d3d83da1c43c24"
+      ],
+      "source_sha256": "3f0066dc2bded5efe60c37895012bfeeaf095f9e94c1c0e0bc1f9b2cc2234244",
+      "text": "Step through slices along the axis under the pointer.\n\n:param event: the Qt wheel event."
+    },
     "3fe7637a337c0c93aaa48a6cd3eeee68a4a05218e3971055f11c1d8b4e025b18": {
       "source_blocks_sha256": [
         "e387dfbb4cbc4de30cd81a7374c8241a97004315bc3b65229ff9cfaec4972ff4",
@@ -1032,6 +1040,17 @@
       ],
       "source_sha256": "97c0012f4de027652435a4e0afc41444bb502287bbd3c44f2e9de9f4cb32c049",
       "text": "Max-project a field's planes, the way the ingest already does.\n\n``io._rename_and_organize_image_files`` reduces every z-stack to\n``np.max`` over its planes, per field and per channel, before anything\nreaches ``stack/``. This is the preview's copy of that, so what the user\nis looking at is what masking will actually run on.\n\nPlanes are folded one at a time rather than stacked: a 60-plane field at\n2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview\nis on the GUI thread.\n\n:param paths: plane paths in acquisition order; one path is returned\n    unchanged, so a flat 2-D field costs nothing.\n:raises FileNotFoundError: if no path can be read."
+    },
+    "984b92483e4852d81a1b903f3ec78685fdbfcd6ab0d61658584b5c90a4e0d160": {
+      "source_blocks_sha256": [
+        "72a69040a595d8484f117f0f14ab2c3e32ef2d2cf2f768fed7aa09a21dd32f30",
+        "c7be51a930310b264e67f7a084a07969d4396a431c98524ada18d74c75c08325",
+        "3f297d021438b56f8387ba1342260400e9d4d6861db41bf0c1ed7b4207fb77e7",
+        "4008a6d735bc60464e391372688f1392251bc47fd551f82b9abaf7c225e88ba5",
+        "a73a490958021ad0f05fecd6daac4c5755ad1597dbeb16ed82cd6b81aa1ec318"
+      ],
+      "source_sha256": "984b92483e4852d81a1b903f3ec78685fdbfcd6ab0d61658584b5c90a4e0d160",
+      "text": "Apply a trained PyTorch model to images stored in a tar archive.\n\nThe function loads a saved model, reads images from a tar-based dataset,\nperforms batched inference, post-processes prediction scores, and saves the\nresults to a CSV file.\n\n:param settings: Dictionary of inference settings. Expected keys include\n    ``tar_path``, ``model_path``, ``image_size``, ``batch_size``,\n    ``normalize``, ``n_jobs``, ``verbose``, and ``score_threshold``.\n:type settings: dict\n:return: DataFrame with processed prediction results.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame contains at least the columns ``path`` and ``pred``,\nplus the columns added by ``process_vision_results``. A single-logit head is\nconverted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``,\ngiving the probability of class 1 for two classes and the winning class's\nconfidence for more. With more than two classes the frame also carries\n``predicted_label`` and one ``prob_class_<i>`` column per class, and its\n``cv_predictions`` column holds the predicted class index rather than a\nthreshold on ``pred``."
     },
     "9d393915f1383bdfe4049d9a552ced48151733ee190ff73c2a311275447d1664": {
       "source_blocks_sha256": [
@@ -1738,6 +1757,22 @@
       ],
       "source_sha256": "ee16bf72f7b2b1cf694495bee8eb219c26f0fa147422c17740599bebdc61d086",
       "text": "``(settings, [note])`` with the retired keys taken out.\n\n:param picture: saved picture-settings mapping to migrate.\n\nCalled wherever a saved picture-settings blob is read. The notes are\nreturned rather than printed, so the caller decides whether this is\nworth a line -- it is worth one the first time and noise every time\nafter."
+    },
+    "efedf1bae225438bf1b936a30efd9b7b9915174790ccc06056df8b0220e991cf": {
+      "source_blocks_sha256": [
+        "e921d55c13a23a877fa57f4c07e731f38f7f05e7ffd427900a2ad24acac40f7f",
+        "5d9af7c994b7d767e5b8505c5ff68b94b502f680df1efe9a32defcae88e786b8",
+        "81a599cd22d0960ef340dde1f3df7fb9ca14dec476f81cb3c30adcfc1c557b13",
+        "93dfa650b9b0f0d1a97d3c79cb60f709ddbd135c67f1dbd8e48f492c4808dce3",
+        "6942efb3e9734630a1ced6aff5cb99e3d8e5a53627184d61c5632ec6af192653",
+        "016341ee0739b7deeb9a89199eae9cbd1759c7626fc4e4d7f518130523cdc096",
+        "9500f4202f4ae01876c4214be4989b1dcb60fb40d7f7a6b53edcd51c6967723c",
+        "355f707262ce1e016c2206c30453e56eabe1deaa367c1cc8032315f2dab280d5",
+        "624b30bcea15a681375e73882809f1edbec0e2f71d349b209494ac1ec3cb23fa",
+        "45d8aceb5e553f7461aced94c4ff203552ea8559ea61335fa8e131fe70f282d0"
+      ],
+      "source_sha256": "efedf1bae225438bf1b936a30efd9b7b9915174790ccc06056df8b0220e991cf",
+      "text": "Apply a trained PyTorch model to images in a directory.\n\nThe function loads a saved model, builds a dataset from the input images,\nruns batched inference, and saves prediction scores to a CSV file.\n\n:param src: Path to the directory containing the input images.\n:type src: str or os.PathLike\n:param model_path: Path to the saved PyTorch model.\n:type model_path: str\n:param image_size: Final square crop size used before inference.\n:type image_size: int\n:param batch_size: Number of images processed per batch.\n:type batch_size: int\n:param normalize: Whether to normalize the image channels using mean 0.5\n    and standard deviation 0.5.\n:type normalize: bool\n:param n_jobs: Number of worker processes used by the DataLoader.\n:type n_jobs: int\n:return: DataFrame with image paths and prediction scores.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame always contains the columns ``path`` and ``pred``.\nA single-logit head is converted with ``torch.sigmoid``, so ``pred`` is the\npositive-class probability; a multi-logit head is converted with\n``torch.softmax``, so ``pred`` is the probability of class 1 for two\nclasses and the winning class's confidence for more. With more than two\nclasses the frame also carries ``predicted_label`` and one\n``prob_class_<i>`` column per class. Results are also written to a CSV file\nderived from ``model_path`` and the current date."
     },
     "f410f3823a652916308dad064748d0360b2cdfb9f96108af0cd3f3c0d441f31a": {
       "source_blocks_sha256": [
