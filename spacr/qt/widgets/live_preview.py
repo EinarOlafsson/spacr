@@ -44,11 +44,14 @@ call is lazy-imported inside the worker thread.
 from __future__ import annotations
 
 import colorsys
+from copy import deepcopy
+import json
 import logging
 import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
+from threading import Event
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -748,6 +751,9 @@ class PreviewRequest:
     object_types:        Tuple[str, ...] = ("cell",)
     preprocess_settings: Dict[str, Any] = field(default_factory=dict)
     postprocess_settings: Dict[str, Any] = field(default_factory=dict)
+    model_note:          str = ""
+    cancel:             Event = field(default_factory=Event, repr=False)
+    provenance:         Dict[str, Any] = field(default_factory=dict)
 
 
 class _PreviewWorker(QThread):
@@ -755,6 +761,7 @@ class _PreviewWorker(QThread):
 
     finished_masks = Signal(object, str, int)
     flows_ready = Signal(object, int)
+    provenance_ready = Signal(object, int)
 
     def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
         """Prepare the worker.
@@ -766,9 +773,9 @@ class _PreviewWorker(QThread):
         :param token: the panel's run token at the moment this worker was
             started. It rides back out on both result signals so the panel
             can recognise -- and drop -- a result produced for an image it
-            has since replaced. Cellpose has no interrupt, so this is what
-            "cancel" means here: the thread runs itself out and its answer
-            lands as a no-op.
+            has since replaced. PSF processing stops cooperatively between
+            convolutions. Native Cellpose inference runs itself out after
+            cancellation and its answer lands as a no-op.
         """
         super().__init__(parent)
         self._request = request
@@ -791,6 +798,12 @@ class _PreviewWorker(QThread):
                 masks, flows = res
             else:
                 masks, flows = res, {}
+            _check_preview_cancel(self._request)
+            if masks:
+                record = deepcopy(self._request.provenance)
+                record.update(model=self._request.model,
+                              model_note=self._request.model_note)
+                self.provenance_ready.emit(record, self.token)
             self.finished_masks.emit(masks, "", self.token)
             self.flows_ready.emit(flows or {}, self.token)
         except Exception as e:
@@ -835,6 +848,13 @@ def _classical_organelle_mask(image_2d: np.ndarray, role: str,
     return np.asarray(mask).astype(np.int32)
 
 
+def _check_preview_cancel(req: PreviewRequest) -> None:
+    """Stop between processing stages without interrupting native inference."""
+    if req.cancel.is_set():
+        from ...cancellation import PipelineCancelled
+        raise PipelineCancelled('Preview cancelled')
+
+
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     """Run one Cellpose pass per requested object type.
 
@@ -845,13 +865,42 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     applied per-object-type after the model returns, using the
     ``postprocess_settings`` dict on the request.
     """
-    model = preview_cellpose_model(req.model)
+    from ...psf_pipeline import prepare_psf
+
+    _check_preview_cancel(req)
+    plan = prepare_psf(req.preprocess_settings)
+    _check_preview_cancel(req)
+    model = None
+    processed = {}
+    req.provenance = {
+        'processing': plan.provenance() if plan else {'operation': 'none'},
+        'stage': 'loaded preview field, before background and model normalization',
+        'normalization': 'field-local Cellpose defaults; classical method specific',
+        'illumination': 'no preview illumination correction',
+        'input_modified': False,
+        'filter_intensity_source': 'original loaded preview field',
+        'input_shape': list(req.image.shape),
+        'input_dtype': str(req.image.dtype),
+        'channels': {},
+        'methods': {},
+        'preprocess_settings': deepcopy(req.preprocess_settings),
+        'diameter': float(req.diameter),
+        'flow_threshold': float(req.flow_threshold),
+        'cellprob_threshold': float(req.cellprob),
+    }
 
     out: Dict[str, np.ndarray] = {}
     flows_out: Dict[str, np.ndarray] = {}
     for obj in req.object_types:
-        ch_idx = req.channels.get(obj, 0)
-        image_2d = _select_channel(req.image, ch_idx)
+        _check_preview_cancel(req)
+        ch_idx = int(req.channels.get(obj, 0))
+        ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
+        req.provenance['channels'][obj] = ch_idx
+        if ch_idx not in processed:
+            plane = _select_channel(req.image, ch_idx)
+            processed[ch_idx] = (plan.apply(plane[..., None], cancel=req.cancel)[..., 0]
+                                 if plan else plane)
+        image_2d = processed[ch_idx].copy()
 
         if req.preprocess_settings.get(f"remove_background_{obj}"):
             bg = float(req.preprocess_settings.get(
@@ -864,11 +913,17 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             f"{obj}_method",
             req.preprocess_settings.get("organelle_method", "cellpose"))
             or "cellpose").strip().lower()
+        req.provenance['methods'][obj] = (
+            method if obj.startswith('organelle') else 'cellpose')
         if obj.startswith("organelle") and method != "cellpose":
             out[obj] = _classical_organelle_mask(
                 image_2d, obj, req.preprocess_settings)
             continue
 
+        _check_preview_cancel(req)
+        if model is None:
+            model = preview_cellpose_model(req.model)
+        _check_preview_cancel(req)
         result = model.eval(
             image_2d,
             diameter=float(req.diameter) or None,
@@ -890,6 +945,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             pass
 
         out[obj] = mask
+    _check_preview_cancel(req)
     return out, flows_out
 
 
@@ -1562,6 +1618,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks: Dict[str, np.ndarray] = {}
         self._raw_masks: Dict[str, np.ndarray] = {}
         self._flows: Dict[str, np.ndarray] = {}
+        self._processing_provenance: Dict[str, Any] = {}
+        self._pending_provenance = None
         self._settings: Dict[str, Any] = {}
         #: The model the masks on screen were actually made with, and the
         #: clause explaining it when that is not the model that was asked
@@ -2175,6 +2233,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         Called from :meth:`closeEvent`, and safe to call directly when a
         screen is torn down without one.
         """
+        self.cancel_preview()
+        worker = self._worker
+        if worker is not None:
+            from ..bridge import drain_thread
+            worker.setParent(None)
+            for signal in (worker.finished_masks, worker.flows_ready,
+                           worker.provenance_ready, worker.finished):
+                signal.disconnect()
+            drain_thread(worker, timeout_ms=0)
+            self._worker = None
         for name in ("_load_jobs", "_model_jobs"):
             runner = getattr(self, name, None)
             if runner is not None:
@@ -2210,6 +2278,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks = {}
         self._raw_masks = {}
         self._flows = {}
+        self._processing_provenance = {}
+        self._pending_provenance = None
+        self._model_that_ran = ""
+        self._model_note = ""
+        self._status.setToolTip("")
         self._path_full = str(path)
         self._show_elided_path()
         self._refresh_source_selectors()
@@ -3282,14 +3355,37 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not self.begin_preview():
             return
         self._release_worker()
+        self._run_token += 1
         req = self._build_request()
         self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
+        worker.provenance_ready.connect(self._on_processing_provenance)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
+
+    def cancel_preview(self) -> bool:
+        """Cancel PSF work cooperatively and discard any native inference result."""
+        worker = getattr(self, '_worker', None)
+        if worker is not None:
+            worker._request.cancel.set()
+        return super().cancel_preview()
+
+    def _on_processing_provenance(self, record, token: int = -1) -> None:
+        """Stage captured settings until the matching masks are accepted."""
+        if self._stale(token):
+            return
+        self._pending_provenance = (token, deepcopy(record))
+
+    def _processing_tooltip(self, record) -> str:
+        """Explain preview scope and expose the captured scientific settings."""
+        note = tr("Preview uses the loaded field and field-local normalization. "
+                  "Full Mask runs can use batch normalization and illumination "
+                  "correction, so their masks may differ. Intensity filters "
+                  "use the original preview pixels.")
+        return note + '\n\n' + json.dumps(record, indent=2, default=str)
 
     def _release_worker(self) -> None:
         """Free the previous worker, whose thread has already finished.
@@ -3316,7 +3412,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         is what keeps them usable after a run whose result was discarded as
         stale, or a worker that died without emitting a result at all.
         """
-        self.set_preview_busy(False)
+        if not self.preview_running():
+            self.set_preview_busy(False)
 
 
 
@@ -4104,6 +4201,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         :returns: the clause, e.g. ``Model: cpsam.``, or
             ``Model: cpsam — <requested>: missing.`` after a fallback.
         """
+        methods = self._processing_provenance.get('methods', {})
+        if methods and 'cellpose' not in methods.values():
+            return tr('Segmentation: {methods}.',
+                      methods=', '.join(sorted(set(methods.values()))))
         model = self._model_that_ran or self._model_box.currentText()
         label = tr("Model")
         if self._model_note:
@@ -4127,14 +4228,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         merged = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
             merged.update(self._compartment_settings())
-        pre = merged
-        post = merged
+        pre = deepcopy(merged)
+        post = pre
         model, note = self._model_for_this_pass()
-        self._model_that_ran = model
-        self._model_note = note
         return PreviewRequest(
             image=self._image,
             model=model,
+            model_note=note,
             diameter=self._diameter.value(),
             flow_threshold=self._flow.value(),
             cellprob=self._prob.value(),
@@ -4428,6 +4528,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if masks is None or not masks:
             self._status.setText("Preview returned no masks.")
             return
+        pending = self._pending_provenance
+        if pending is not None and pending[0] == token:
+            self._processing_provenance = pending[1]
+            self._model_that_ran = pending[1].get('model', '')
+            self._model_note = pending[1].get('model_note', '')
+            self._status.setToolTip(self._processing_tooltip(pending[1]))
+        self._pending_provenance = None
         self._raw_masks = masks
         self._recompute_masks(snapshot=True)
 
@@ -4475,6 +4582,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                     for k, v in out.items()]
         self._status.setText(
             f"Found {', '.join(counts)}.  {self._model_provenance()}")
+        operation = self._processing_provenance.get('processing', {}).get('operation')
+        if operation and operation != 'none':
+            self._status.setText(self._status.text() + '  ' + tr(
+                'PSF: {operation} (preview field).', operation=operation))
         self._refresh_canvases()
         if snapshot:
             self._snapshot_run(out, counts)
@@ -4498,7 +4609,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "model": self._model_that_ran or self._model_box.currentText(),
             "object": _combo_value(self._object_box),
             "summary": ", ".join(counts),
+            "processing_provenance": deepcopy(self._processing_provenance),
         }
+        methods = self._processing_provenance.get('methods', {})
+        if methods and 'cellpose' not in methods.values():
+            snap['model'] = ', '.join(sorted(set(methods.values())))
         self._history.append(snap)
         if len(self._history) > 50:
             self._history = self._history[-50:]
@@ -4536,6 +4651,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._compare_label.setText(
             f"{idx + 1}/{len(self._history)}  "
             f"{snap['model']}/{snap['object']}  {snap['summary']}")
+        self._compare_label.setToolTip(self._processing_tooltip(
+            snap.get('processing_provenance', {})))
 
     def refresh_model_choices(self) -> None:
         """Re-read the Cellpose model list and add anything new.

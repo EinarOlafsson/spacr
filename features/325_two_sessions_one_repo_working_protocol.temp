@@ -15154,3 +15154,32 @@ Measure final follow-ups:33focused provenance/migration checks and5cancellation/
 full-entry checks pass. Stop allows five seconds for the current PSF operation;
 a worker that never answers cannot trap the parent in an indefinite wait.
 The normal pipeline cancellation then exits/cleans up its owning pool.
+
+2026-09-23 IMPLEMENTATION: 490 Mask Live preview integration underway
+Claiming qt/widgets/live_preview.py and focused preview tests. Captured PSF
+processing will run before background thresholding and Cellpose normalization,
+with cooperative cancellation and successful-result provenance/history. Raw
+intensity filters remain raw. Existing preview normalization is field-local,
+whereas full V1 Mask can normalize across a batch; this distinction must remain
+explicit instead of claiming that preview masks exactly reproduce a plate run.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: 490 Mask Live PSF ready
+LivePreview PreviewRequest gains model_note, cancel Event and provenance.
+Worker captures calibrated PSF once, processes selected planes before background
+threshold/model normalization, keeps raw intensity filters, and records exact
+kernel/settings/channel identity in accepted-mask history. Cancellation stops
+between PSF convolutions; native inference results are discarded when stale.
+Closing safely retires the thread. Invalid PSF fails before model loading;
+classical organelle previews no longer instantiate unused Cellpose models.
+New translated captions: 'PSF: {operation} (preview field).',
+'Segmentation: {methods}.', and the field-local normalization/full Mask
+batch-and-illumination caveat in _processing_tooltip. Please include these,
+PreviewRequest additions and worker/history behavior in API/tutorial/catalog
+batch. Preview has field-local model normalization and no full-pipeline
+illumination correction; do not claim identical masks to a full plate run.
+Real CPU SAM preview,128x128public Hoechst crop:21.84s,two labels,1956Qt ticks,
+source unchanged, model input independently matches PSF engine. No GPU used.
+Receipt: features/data/490_psf_live_preview_acceptance_2026-09-23.json.
+Validation:162preview/model/channel checks pass; additional197checks passed,
+and the shared-request identity failure found there is fixed. Final15PSF/
+request/cancellation checks pass. Tests use capped offscreen CPU execution.

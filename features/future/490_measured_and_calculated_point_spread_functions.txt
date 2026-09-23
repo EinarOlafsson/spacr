@@ -1,7 +1,7 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: IN PROGRESS. Engine, Make Masks, Mask and Measure validated2026-09-23;
-Mask Live preview parity, optical acceptance and documentation remain.
+Status: IN PROGRESS. Engine, Make Masks, Mask, Measure and Mask Live preview
+validated2026-09-23; measured optical acceptance and documentation remain.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -160,3 +160,37 @@ Final Measure follow-ups:33provenance/migration checks pass;5targeted cancellati
 full-entry checks pass, including an actual spawned worker stopped during RL.
 An unresponsive worker gets a five-second cooperative grace period before the
 parent exits through normal pipeline cancellation and cleans up the pool.
+
+2026-09-23 — MASK LIVE PREVIEW PSF INTEGRATION
+The background worker captures one calibrated kernel per request and applies
+it to each selected intensity channel before background thresholding and
+model normalization. Channels shared by several objects are processed once;
+each segmenter receives its own copy. Invalid calibration fails before model
+construction. Classical organelle previews need no Cellpose model at all.
+Requests snapshot nested settings. Original loaded pixels and intensity filters
+remain unchanged; labels never pass through PSF processing.
+
+Cancel reaches PSF iteration/convolution boundaries. Native inference is allowed
+to finish, with its obsolete result discarded. Closing the preview detaches and
+parks an unfinished thread safely rather than destroying a running QThread.
+Every new run has its own generation. Only accepted masks acquire the captured
+processing/model details; failed or cancelled reruns cannot relabel old masks.
+History stores complete PSF/kernel/settings identity, channel mapping and stage;
+status and history tooltips expose the record. Classical history names its
+algorithm rather than implying that Cellpose ran.
+
+Preview normalization remains field-local, and the loaded field receives no
+full-pipeline illumination correction. Both limits are stated explicitly in
+the provenance and tooltip; this integration does not claim exact plate-run
+mask equality. Real CPU Cellpose-SAM preview of a128x128public microscopy crop
+completed in21.84s and returned two labels. Its exact model input matched the
+PSF engine, source bytes stayed unchanged, and1956Qt ticks ran (maximum gap
+0.557s). No GPU used.1um/px and Gaussian FWHM2um are verification geometry,
+not microscope calibration. Receipt:
+features/data/490_psf_live_preview_acceptance_2026-09-23.json.
+Remaining: measured optical PSF/application acceptance, documentation,
+translations and the matching PSF tutorial/animation.490remains in progress.
+Validation:162preview/model/channel checks passed; additional coverage run had
+197passes and one old shared-request identity regression, fixed by retaining
+one captured pre/post mapping. Final15focused PSF/request checks all pass.
+Earlier stale-token test failure was fixed; no failing check is claimed green.
