@@ -2831,30 +2831,33 @@ def _threshold_segmenter(request: _MagnifierRequest, load_model=None):
     Otsu, Li's minimum cross entropy, Yen, Triangle, IsoData, Mean,
     Minimum, Multi-Otsu, Sauvola and Niblack all arrive here, and the mode
     name maps to the algorithm name
-    (:func:`spacr.qt.cpu_modes.engine_algorithm`). Multi-Otsu instead uses
-    :func:`spacr.qt.mask_engine._otsu_instances` with the request's class
-    count and selected band, as the whole-image detect button does. Its
-    levels are estimated from the requested crop, so a small region can
-    produce different thresholds from a full image. Sensitivity is not
-    used for Multi-Otsu. For the other modes, the smoothing, correction,
-    bright or dark side, the filled holes and the split are the Detection
-    method category's, read the same way for every one of them, by
-    :func:`spacr.qt.mask_engine._classical_region_labels`.
+    (:func:`spacr.qt.cpu_modes.engine_algorithm`). Every named threshold
+    except plain Otsu uses :func:`spacr.qt.mask_engine._otsu_instances`,
+    the same engine as the detect button. The request supplies smoothing,
+    correction, polarity, hole filling, splitting and minimum area. Only
+    Multi-Otsu reads its class count and band; Sauvola and Niblack read
+    window and local k. None of these modes reads magnifier Sensitivity
+    or applies the legacy crop stretch, opening or noise-floor fallback.
+    Thresholds are estimated from the requested pixels, so different
+    crops can still yield different results.
 
-    This is the Otsu mode under its old name too: ``otsu`` reaches it and
-    gets exactly the call it always got.
+    Plain Otsu keeps :func:`spacr.qt.mask_engine._classical_region_labels`
+    and its existing sensitivity/noise-floor behavior.
     """
     mode = canonical_magnifier_mode(request.mode)
     params = request.cpu_params
-    if mode == cpu_modes.MULTIOTSU:
+    if mode in cpu_modes.THRESHOLD_LABELS:
+        multi = mode == cpu_modes.MULTIOTSU
         return engine._otsu_instances(
             request.crop, bright=request.bright, min_area=request.min_area,
             correction=request.otsu_correction,
             smoothing=request.otsu_smoothing,
             fill_holes=request.otsu_fill_holes,
             split_touching=request.otsu_split,
-            classes=max(3, int(request.otsu_classes)),
-            foreground_class=request.otsu_foreground_class)
+            algorithm=cpu_modes.engine_algorithm(mode),
+            classes=max(3, int(request.otsu_classes)) if multi else 2,
+            foreground_class=request.otsu_foreground_class if multi else None,
+            window=int(request.otsu_window), local_k=float(params.local_k))
     return engine._classical_region_labels(
         request.crop, sensitivity=request.sensitivity,
         bright=request.bright, min_area=request.min_area,
@@ -3031,9 +3034,10 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
 
-    Multi-Otsu errors are reported to the caller without substituting
-    two-class Otsu: a crop with too few distinct intensities cannot answer
-    the requested multi-band question. A later crop is free to try again.
+    Named CPU threshold errors are reported to the caller without
+    substituting Otsu. For example, Minimum may not find two histogram
+    maxima and Multi-Otsu may have too few distinct intensities. Neither
+    failure means the method is unavailable; a later crop can try again.
     """
     if request.ticket is not None:
         request.ticket.check()
@@ -3048,7 +3052,7 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     note = ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
-    elif mode == cpu_modes.MULTIOTSU:
+    elif mode in cpu_modes.THRESHOLD_LABELS:
         labels = segmenter(request, load_model)
         return _finished_labels(labels, chain, prepared), mode, ""
     elif mode != "otsu":
@@ -7967,6 +7971,10 @@ class MakeMasksScreen(QWidget):
         things under one name. A model mode (Cellpose, a backend) falls
         back to Otsu, because those have the Object detection button.
 
+        Otsu's saved local toggle and class/band choices cannot override
+        another named threshold. Multi-Otsu alone reads the class and band;
+        every other named threshold forces a two-class, non-Local-Otsu run.
+
         :returns: ``(labels, centres)``; ``centres`` is the number of
             maxima for the propagation and None for everything else.
         """
@@ -7984,6 +7992,9 @@ class MakeMasksScreen(QWidget):
         settings = dict(otsu)
         if method == cpu_modes.MULTIOTSU:
             settings["classes"] = max(3, int(settings["classes"]))
+            settings["local"] = False
+        elif method in cpu_modes.THRESHOLD_LABELS:
+            settings.update(classes=2, foreground_class=1, local=False)
         return (engine._otsu_instances(
             image, bright=self._otsu_bright.isChecked(),
             min_area=int(self._min_area.value()), algorithm=algorithm,
@@ -8079,13 +8090,15 @@ class MakeMasksScreen(QWidget):
         and a line that went on saying one of those two would be describing
         a run that had not happened.
         """
-        if self._otsu_local.isChecked():
+        settings = self._otsu_settings()
+        mode = canonical_magnifier_mode(self._magnifier.mode)
+        if settings["local"] or mode in ("sauvola", "niblack"):
             side = "bright" if self._otsu_bright.isChecked() else "dark"
-            return f"local {int(self._otsu_window.value())} px, {side}"
-        classes = int(self._otsu_classes.value())
+            return f"local {settings['window']} px, {side}"
+        classes = settings["classes"]
         if classes > 2:
             return (f"{classes} classes, class "
-                    f"{int(self._otsu_foreground.value())}")
+                    f"{settings['foreground_class']}")
         return "bright" if self._otsu_bright.isChecked() else "dark"
 
     def _on_show_otsu_histogram(self) -> None:
@@ -9517,23 +9530,24 @@ class MakeMasksScreen(QWidget):
         """
         mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
         multi = mode == cpu_modes.MULTIOTSU
+        plain = mode == "otsu"
         window_family = mode in ("sauvola", "niblack")
         if multi and int(self._otsu_classes.value()) < 3:
             self._otsu_classes.setValue(3)
         self._otsu_local_k.setEnabled(window_family)
-        self._otsu_local.setEnabled(not window_family and not multi)
+        self._otsu_local.setEnabled(plain)
         self._otsu_local_k_label.setVisible(window_family)
         self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
-        local = bool(self._otsu_local.isChecked()) and not window_family and not multi
-        self._otsu_classes.setEnabled(not local and (multi or classes > 2
-                                                     or not window_family))
-        self._otsu_foreground.setEnabled(not local and classes > 2)
+        local = bool(self._otsu_local.isChecked()) and plain
+        bands = (plain or multi) and not local
+        self._otsu_classes.setEnabled(bands)
+        self._otsu_foreground.setEnabled(bands and classes > 2)
         self._otsu_foreground.setRange(0, max(1, classes - 1))
         if classes > 2 and self._otsu_foreground.value() > classes - 1:
             self._otsu_foreground.setValue(classes - 1)
         self._otsu_window.setEnabled(local or window_family)
-        self._otsu_bright.setEnabled(local or classes == 2 or window_family)
+        self._otsu_bright.setEnabled(not bands or classes == 2)
 
     def _otsu_settings(self) -> dict:
         """What the Otsu category says, as :func:`_otsu_instances` keywords.
@@ -9547,17 +9561,21 @@ class MakeMasksScreen(QWidget):
         window cannot be combined with multiple intensity bands. Plain
         Otsu's magnifier keeps its existing region-specific algorithm;
         that mode's class count and Local Otsu toggle remain button-only.
+        Every other threshold ignores these saved Otsu settings and uses
+        two classes with its named algorithm. Disabled controls retain
+        their values for a later return to Otsu or Multi-Otsu.
         """
-        multi = canonical_magnifier_mode(self._magnifier.mode) == cpu_modes.MULTIOTSU
-        local = bool(self._otsu_local.isChecked()) and not multi
+        mode = canonical_magnifier_mode(self._magnifier.mode)
+        local = bool(self._otsu_local.isChecked()) and mode == "otsu"
+        bands = mode in ("otsu", cpu_modes.MULTIOTSU) and not local
         return {
             "correction": float(self._otsu_correction.value()),
             "smoothing": float(self._otsu_smoothing.value()),
             "fill_holes": bool(self._otsu_fill_holes.isChecked()),
             "split_touching": bool(self._otsu_split.isChecked()),
             "exclude_border": bool(self._otsu_exclude_border.isChecked()),
-            "classes": 2 if local else int(self._otsu_classes.value()),
-            "foreground_class": int(self._otsu_foreground.value()),
+            "classes": int(self._otsu_classes.value()) if bands else 2,
+            "foreground_class": int(self._otsu_foreground.value()) if bands else 1,
             "local": local,
             "window": int(self._otsu_window.value()),
         }

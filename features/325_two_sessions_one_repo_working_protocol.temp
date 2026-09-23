@@ -10894,3 +10894,42 @@ magnifier feeds that R=1 formula a stretched crop; qualify the recent guidance
 by scope until the shared implementation is resolved. Do not claim general
 scope equivalence. No translation or tutorial files edited by implementation.
 The Multi-Otsu source/test claim is released with this commit.
+
+2026-09-22 — IMPLEMENTATION:473 REMAINING CPU THRESHOLD SCOPE CLAIM
+Claiming make_masks.py CPU threshold dispatch/settings applicability and
+focused tests. Li/Yen/Triangle/IsoData/Mean/Minimum/Sauvola/Niblack currently
+use crop stretching/noise-floor or local polarity semantics different from
+whole-image detection. Prior Otsu class/local settings also override the
+chosen global method or reject a local method. Will route these eight modes
+through the shared threshold engine in both magnifier scopes, limit Otsu-only
+settings to their modes, and report threshold failures without substituting
+Otsu. Ordinary Otsu's explicitly retained legacy preview stays unchanged.
+CPU module docs and any changed help sources will be handed back explicitly;
+no translation catalog/tutorial edits or 476 implementation in this claim.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:473 CPU SCOPE/APPLICABILITY REPAIRED
+Li/Yen/Triangle/IsoData/Mean/Minimum/Sauvola/Niblack now call _otsu_instances
+in both magnifier scopes, as the CPU detect button does. The legacy crop
+stretch/opening/noise-floor path remains only for ordinary Otsu. Local k's
+raw-float/R=1 guidance therefore now applies to both named-local scopes;
+explicit normalization/enhancement may still alter that input before either
+runs. Thresholds are estimated from each scope's pixels, so different crops
+need not agree. No new runtime caption or setting default in this change.
+Class/band/Local Otsu values are retained but disabled/ignored outside their
+applicable modes. CPU dispatch also neutralizes stale caller settings;
+otherwise a prior Multi-Otsu selection made Li run Multi-Otsu or made a
+local algorithm raise. Status descriptions now use effective settings.
+Named threshold errors no longer substitute Otsu or mark a method permanently
+unavailable: Minimum can fail on one crop and succeed on the next.
+API-source updates: cpu_modes module doc, _threshold_segmenter,
+_segment_region, _cpu_detect, _otsu_settings; _sync_otsu_controls and
+_otsu_description behavior also changed. The49 new tests cover numerical
+results, switches, scopes, actual masks and undo; the184 detector checks pass.
+Evidence: features/data/473_cpu_threshold_scopes_2026-09-22.json.
+Next implementation findings to avoid documenting as finished: histogram
+preview still computes Otsu/raw-image levels for other selected thresholds;
+CPU magnifier/drag provenance still misses parameters.473 remains open.
+Final validation:159 additional existing magnifier/help checks pass,343 total
+distinct checks. This source/test claim is released with the commit.
+Also read the new OPS handoff6c5984274: verified no live driver and local
+run.log ends at B1 start. The idle observer is live, GPU30-35%, so no restart.

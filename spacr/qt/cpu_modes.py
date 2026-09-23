@@ -29,8 +29,12 @@ WHAT IS NOT HERE, AND WHY. Local MEAN and local GAUSSIAN thresholding are
 not offered again: they are the Adaptive threshold mode, which runs the
 organelle engine's ``adaptive`` branch with a block size and an offset.
 Local OTSU is not offered again either: it is the "Local threshold (uneven
-illumination)" switch, which every global algorithm on this list can be
-combined with. Niblack uses ``T = m - k*s``; Sauvola uses
+illumination)" switch in plain Otsu mode, used by whole-image detection.
+Other named thresholds ignore saved Local Otsu and class-count settings;
+Multi-Otsu alone uses the selected class count and band in both scopes.
+Plain Otsu retains its legacy magnifier preprocessing, while the other
+thresholds use the whole-image engine on the requested crop. Niblack uses
+``T = m - k*s``; Sauvola uses
 ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and
 standard deviation. The engine supplies float32 values without rescaling
 their range, so scikit-image's default Sauvola ``R`` is 1. These formulas

@@ -653,3 +653,49 @@ including Sauvola's effective intensity scale. The prior raw-float guidance
 is accurate for whole-image detect but needs that scope distinction or a
 shared implementation. This is the next implementation investigation; no
 claim that all CPU detector scopes are now equivalent is made.
+
+2026-09-22 — NAMED CPU THRESHOLDS SHARE DETECTION SEMANTICS ACROSS SCOPES
+--------------------------------------------------------------------------------
+Li, Yen, Triangle, IsoData, Mean, Minimum, Sauvola and Niblack now use the
+same _otsu_instances engine for region/image magnifier requests and the CPU
+detect button. The old magnifier path stretched each crop, reversed dark
+intensities before thresholding, opened foreground, and could replace the
+chosen global threshold with a noise-floor cut. Those extra operations no
+longer silently change these named algorithms. Smoothing, correction,
+bright/dark selection, filling, splitting and minimum area come from the
+same settings. Ordinary Otsu's established preview behavior remains as
+previously specified; Multi-Otsu was repaired in the preceding commit.
+
+Saved Classes, Foreground class and Local Otsu controls no longer override
+another selected threshold. They are disabled where inapplicable, their
+values remain available on return to Otsu/Multi-Otsu, and both the UI settings
+reader and CPU dispatch enforce applicability. Status descriptions report
+effective settings rather than a disabled control's saved value. Sauvola
+and Niblack use their own Local window and Local k with direct float input;
+the earlier R=1 guidance now applies to both scopes. Explicit enhancement
+and normalization still run before detection; crop statistics can differ.
+
+Named CPU threshold failures now reach the existing error UI without an
+Otsu substitution or permanent method disablement. Minimum failing to find
+two histogram maxima is exercised on an actual constant crop; a later valid
+crop succeeds. Multi-Otsu's insufficient-intensity behavior is retained.
+
+The new suite first reproduced25 failures against7234c9eb2. Its49 cases now
+cover direct numerical bright/dark thresholds in both scopes, retained but
+ignored Otsu state, actual button masks with smoothing/fill/split, undo and
+failure recovery. The184-check detector run passes. Numerical old/new pixel
+comparisons are in features/data/473_cpu_threshold_scopes_2026-09-22.json.
+No new runtime caption or default was introduced. API-source docstrings
+were updated and the API owner is notified in the shared coordination log.
+
+Still OPEN:473 API/tutorial/catalog acceptance and previously listed work.
+Next concrete defects: the histogram preview still takes Otsu levels from
+the raw image for other methods, and magnifier ledgers do not yet capture
+all CPU settings (including local k/window and drag provenance). These need
+implementation repairs; current tests do not prove those paths complete.
+
+Final validation:159 existing magnifier/help checks also pass (35.26s), for
+343 distinct focused checks this turn. Fatal-error Ruff and diff checks pass.
+GPU observer remains live with utilization30-35%, idle_seconds0; no GPU job
+launched. The latest OPS handoff is corroborated by no live plate driver and
+the local run.log ending at B1's07:12 start; restart remains idle-gated.
