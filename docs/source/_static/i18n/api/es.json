@@ -13880,6 +13880,26 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
+    "spacr.crop_loader.CropPlan.count": {
+      "source_blocks_sha256": [
+        "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6"
+      ],
+      "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
+      "text": "Número de recortes de imagen que cargará este plan.",
+      "translation_source_blocks_sha256": [
+        "2a97e991ad3a3750c4834ddf9c2c50bcc89cbb81048e53f756769591ebf962a4"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.is_empty": {
+      "source_blocks_sha256": [
+        "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7"
+      ],
+      "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
+      "text": "Si la consulta no encontró ningún resultado.",
+      "translation_source_blocks_sha256": [
+        "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7"
+      ]
+    },
     "spacr.crop_source": {
       "source_blocks_sha256": [
         "3dd5265b38e484f226d1712550f4ccf2e193fb31dd1504b2342bc38f64248e13",
@@ -52554,6 +52574,66 @@
         "f11b9549830393dd475bc7cc832a59a754732d4ec99a074257eaca10d221454a"
       ]
     },
+    "spacr.plaque_papers.Region.axis_ratio": {
+      "source_blocks_sha256": [
+        "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6"
+      ],
+      "source_sha256": "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6",
+      "text": "Relación entre el lado más corto y el más largo; 1.0 corresponde a un cuadrado.",
+      "translation_source_blocks_sha256": [
+        "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6"
+      ]
+    },
+    "spacr.plaque_papers.Region.height": {
+      "source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ],
+      "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
+      "text": "Altura del cuadro delimitador en píxeles.",
+      "translation_source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ]
+    },
+    "spacr.plaque_papers.Region.width": {
+      "source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ],
+      "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
+      "text": "Anchura del cuadro delimitador en píxeles.",
+      "translation_source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ]
+    },
+    "spacr.plaque_papers.Word.cx": {
+      "source_blocks_sha256": [
+        "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0"
+      ],
+      "source_sha256": "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0",
+      "text": "Centro horizontal.",
+      "translation_source_blocks_sha256": [
+        "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0"
+      ]
+    },
+    "spacr.plaque_papers.Word.cy": {
+      "source_blocks_sha256": [
+        "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575"
+      ],
+      "source_sha256": "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575",
+      "text": "Centro vertical.",
+      "translation_source_blocks_sha256": [
+        "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575"
+      ]
+    },
+    "spacr.plaque_papers.Word.panel_letter": {
+      "source_blocks_sha256": [
+        "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c"
+      ],
+      "source_sha256": "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c",
+      "text": "La letra cuando esta palabra identifica un panel de la figura, como ``F`` o ``(b)``.",
+      "translation_source_blocks_sha256": [
+        "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c"
+      ]
+    },
     "spacr.plate_measurements": {
       "source_blocks_sha256": [
         "60bb7ce13dcf782283394c81e08fc91f48b4fc9abbfcb394790be5dd0d3f97ca",
@@ -58154,6 +58234,36 @@
         "9b3de3e10544dd37660ae43d60417f3528a06a538cb446aae8da1910770b9c96"
       ]
     },
+    "spacr.qt.ai.cli_install.InstallOutcome.ok": {
+      "source_blocks_sha256": [
+        "8f1b6fd02a7ae0581d7297ce8af370420cd6aca71e8b897f769d2e7c55e809a2"
+      ],
+      "source_sha256": "8f1b6fd02a7ae0581d7297ce8af370420cd6aca71e8b897f769d2e7c55e809a2",
+      "text": "Si la herramienta está instalada y se puede localizar.",
+      "translation_source_blocks_sha256": [
+        "8f1b6fd02a7ae0581d7297ce8af370420cd6aca71e8b897f769d2e7c55e809a2"
+      ]
+    },
+    "spacr.qt.ai.cli_install.InstallPlan.automatic": {
+      "source_blocks_sha256": [
+        "5d7e0d2c0ef8a01752f610a0cfef4342f3645208507a834f39f609c672f34c9b"
+      ],
+      "source_sha256": "5d7e0d2c0ef8a01752f610a0cfef4342f3645208507a834f39f609c672f34c9b",
+      "text": "Si se encontró una línea de comandos que spaCR puede ejecutar.",
+      "translation_source_blocks_sha256": [
+        "5d7e0d2c0ef8a01752f610a0cfef4342f3645208507a834f39f609c672f34c9b"
+      ]
+    },
+    "spacr.qt.ai.cli_install.InstallPlan.command": {
+      "source_blocks_sha256": [
+        "4c607e66e735a3fb51d07de10b02d1a5024aeafab107b970e0289d76d03fbb38"
+      ],
+      "source_sha256": "4c607e66e735a3fb51d07de10b02d1a5024aeafab107b970e0289d76d03fbb38",
+      "text": "El comando que se mostrará: la línea que se ejecutaría o, en su defecto, la indicación.",
+      "translation_source_blocks_sha256": [
+        "ccca9f7ab2563ea73ad109312e4c36cca61cbd6e1bcfe425e69c99226475bcd6"
+      ]
+    },
     "spacr.qt.ai.github_auth": {
       "source_blocks_sha256": [
         "4c035fecc16b9767c38e7621213fa7a29a5d8e67952b793df0a8f7ba68fc90ba",
@@ -58946,6 +59056,16 @@
         "9c75466b1e02a12f1be466e44176b06649629b779926c30651976d6726e2104f"
       ]
     },
+    "spacr.qt.ai.providers.CommandLineTool.is_installed": {
+      "source_blocks_sha256": [
+        "fc88759a3ed90eb7c4f1a98e97543f68ba79e12ce1dc11f01e18ec9fe0b2840d"
+      ],
+      "source_sha256": "fc88759a3ed90eb7c4f1a98e97543f68ba79e12ce1dc11f01e18ec9fe0b2840d",
+      "text": "Devuelve True cuando el ejecutable de la herramienta está en ``PATH``.",
+      "translation_source_blocks_sha256": [
+        "fc88759a3ed90eb7c4f1a98e97543f68ba79e12ce1dc11f01e18ec9fe0b2840d"
+      ]
+    },
     "spacr.qt.ai.providers.GeminiCliProvider": {
       "source_blocks_sha256": [
         "64a60027349f225b2fb4b63387e2bcf6d7c1abcc2d757465d739994b43b3edad"
@@ -58998,6 +59118,16 @@
         "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
       ]
     },
+    "spacr.qt.ai.providers.github_cli": {
+      "source_blocks_sha256": [
+        "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90"
+      ],
+      "source_sha256": "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90",
+      "text": "La CLI de GitHub, descrita con el mismo formato que los proveedores de IA.",
+      "translation_source_blocks_sha256": [
+        "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90"
+      ]
+    },
     "spacr.qt.ai.providers.list_providers": {
       "source_blocks_sha256": [
         "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
@@ -59018,6 +59148,16 @@
       "translation_source_blocks_sha256": [
         "b7bddd767a897d6a0bc2f63d382c63dbe788054cbf8cea8ee92e73fede0582de",
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
+      ]
+    },
+    "spacr.qt.ai.pty_sign_in.PtySession.poll": {
+      "source_blocks_sha256": [
+        "7b0e38b23bf54b8b79d37f18ae5943c6509c40e3b280e93c07fcc5cc2321c2db"
+      ],
+      "source_sha256": "7b0e38b23bf54b8b79d37f18ae5943c6509c40e3b280e93c07fcc5cc2321c2db",
+      "text": "El código de salida, o None mientras se ejecuta.",
+      "translation_source_blocks_sha256": [
+        "7b0e38b23bf54b8b79d37f18ae5943c6509c40e3b280e93c07fcc5cc2321c2db"
       ]
     },
     "spacr.qt.ai.pty_sign_in.PtySession.stop": {
@@ -62220,6 +62360,26 @@
       "text": "Añadir o quitar un marcador.",
       "translation_source_blocks_sha256": [
         "e840cd78357865fbd5903b8086f5a8b9c3d40beeab17ac16db3d0fab8bfe5ada"
+      ]
+    },
+    "spacr.qt.cpu_modes.modes": {
+      "source_blocks_sha256": [
+        "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee"
+      ],
+      "source_sha256": "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee",
+      "text": "Todos los modos que añade este módulo, en el orden del cuadro de selección.",
+      "translation_source_blocks_sha256": [
+        "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee"
+      ]
+    },
+    "spacr.qt.cpu_modes.threshold_modes": {
+      "source_blocks_sha256": [
+        "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb"
+      ],
+      "source_sha256": "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb",
+      "text": "Los modos que corresponden a algoritmos de umbralización, incluido Multi-Otsu.",
+      "translation_source_blocks_sha256": [
+        "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb"
       ]
     },
     "spacr.qt.crash_recovery": {
@@ -65962,6 +66122,116 @@
         "12e1444fcaa2fe7fd17e14875e17723a7d39e808493d16bc3c5f252c9efe0d49"
       ]
     },
+    "spacr.qt.gui_scale.current_scale": {
+      "source_blocks_sha256": [
+        "08510d88321d39211476b557bdb25a29e93806a20b6c7c34b680ff8246501962"
+      ],
+      "source_sha256": "08510d88321d39211476b557bdb25a29e93806a20b6c7c34b680ff8246501962",
+      "text": "El factor de escala actual de la GUI (1.0 = 100 %).",
+      "translation_source_blocks_sha256": [
+        "08510d88321d39211476b557bdb25a29e93806a20b6c7c34b680ff8246501962"
+      ]
+    },
+    "spacr.qt.gui_scale.installed": {
+      "source_blocks_sha256": [
+        "e5fdf9dbe236e39c151c82755c490c2a378a2e469c3f5b4abee2f3b401d0a9ec"
+      ],
+      "source_sha256": "e5fdf9dbe236e39c151c82755c490c2a378a2e469c3f5b4abee2f3b401d0a9ec",
+      "text": "Si :func:`install_scaling_layer` se ha ejecutado en este proceso.",
+      "translation_source_blocks_sha256": [
+        "e5fdf9dbe236e39c151c82755c490c2a378a2e469c3f5b4abee2f3b401d0a9ec"
+      ]
+    },
+    "spacr.qt.help_index.HelpEntry.haystack": {
+      "source_blocks_sha256": [
+        "fd57e2bbf9c5c195bcabcc0fceff7a4e6ab670dc339a4fc9e0045611c82b644f"
+      ],
+      "source_sha256": "fd57e2bbf9c5c195bcabcc0fceff7a4e6ab670dc339a4fc9e0045611c82b644f",
+      "text": "Título, subtítulo y descripción en minúsculas para buscar coincidencias.",
+      "translation_source_blocks_sha256": [
+        "fd57e2bbf9c5c195bcabcc0fceff7a4e6ab670dc339a4fc9e0045611c82b644f"
+      ]
+    },
+    "spacr.qt.help_index.provider_names": {
+      "source_blocks_sha256": [
+        "24855a0eb4899b22f5fcd93812797358651c644e7febdb355bce3ecb49f37efd"
+      ],
+      "source_sha256": "24855a0eb4899b22f5fcd93812797358651c644e7febdb355bce3ecb49f37efd",
+      "text": "Los proveedores registrados, en orden de registro.",
+      "translation_source_blocks_sha256": [
+        "24855a0eb4899b22f5fcd93812797358651c644e7febdb355bce3ecb49f37efd"
+      ]
+    },
+    "spacr.qt.help_search.HelpSearchField.hide_popup": {
+      "source_blocks_sha256": [
+        "43bc98f3ad345ba7c988879cc19b27a47d08e55a5ecd88071d4b3d201c6dd5a5"
+      ],
+      "source_sha256": "43bc98f3ad345ba7c988879cc19b27a47d08e55a5ecd88071d4b3d201c6dd5a5",
+      "text": "Ocultar la ventana emergente.",
+      "translation_source_blocks_sha256": [
+        "43bc98f3ad345ba7c988879cc19b27a47d08e55a5ecd88071d4b3d201c6dd5a5"
+      ]
+    },
+    "spacr.qt.help_search.HelpSearchField.index": {
+      "source_blocks_sha256": [
+        "11a545ee5ce749127514778112ae690ea6936a157ded3d3a3accaee282ad8a0b"
+      ],
+      "source_sha256": "11a545ee5ce749127514778112ae690ea6936a157ded3d3a3accaee282ad8a0b",
+      "text": "El índice, o ``None`` mientras se está construyendo.",
+      "translation_source_blocks_sha256": [
+        "11a545ee5ce749127514778112ae690ea6936a157ded3d3a3accaee282ad8a0b"
+      ]
+    },
+    "spacr.qt.help_search.HelpSearchField.note": {
+      "source_blocks_sha256": [
+        "8a0de8cadb3e016b66bb67794e24d24fec57edd428badfafc173f7d35b3a283a"
+      ],
+      "source_sha256": "8a0de8cadb3e016b66bb67794e24d24fec57edd428badfafc173f7d35b3a283a",
+      "text": "La línea sobre la lista: qué se está construyendo o qué coincidencias se encontraron.",
+      "translation_source_blocks_sha256": [
+        "8a0de8cadb3e016b66bb67794e24d24fec57edd428badfafc173f7d35b3a283a"
+      ]
+    },
+    "spacr.qt.help_search.HelpSearchField.popup": {
+      "source_blocks_sha256": [
+        "df2ed8b50cac99a91a63b829e84862a49d92ed897a7277a498356d6c957b4e1e"
+      ],
+      "source_sha256": "df2ed8b50cac99a91a63b829e84862a49d92ed897a7277a498356d6c957b4e1e",
+      "text": "La ventana emergente de resultados, para que una prueba pueda comprobar si está visible.",
+      "translation_source_blocks_sha256": [
+        "df2ed8b50cac99a91a63b829e84862a49d92ed897a7277a498356d6c957b4e1e"
+      ]
+    },
+    "spacr.qt.help_search.HelpSearchField.results": {
+      "source_blocks_sha256": [
+        "73a7e3825148a9ce18bba17118f48e7385ebe7539d26d3217f930a0d7b111de8"
+      ],
+      "source_sha256": "73a7e3825148a9ce18bba17118f48e7385ebe7539d26d3217f930a0d7b111de8",
+      "text": "Los resultados que muestra la ventana emergente, con los mejores primero.",
+      "translation_source_blocks_sha256": [
+        "73a7e3825148a9ce18bba17118f48e7385ebe7539d26d3217f930a0d7b111de8"
+      ]
+    },
+    "spacr.qt.help_search.docs_reach": {
+      "source_blocks_sha256": [
+        "e7ea479da87ff4c3218eb504821abab11adaf0633c088a333245247bc2ac92a6"
+      ],
+      "source_sha256": "e7ea479da87ff4c3218eb504821abab11adaf0633c088a333245247bc2ac92a6",
+      "text": "La única comprobación de accesibilidad, realizada en el primer uso.",
+      "translation_source_blocks_sha256": [
+        "e7ea479da87ff4c3218eb504821abab11adaf0633c088a333245247bc2ac92a6"
+      ]
+    },
+    "spacr.qt.help_search.opener_kinds": {
+      "source_blocks_sha256": [
+        "85e73d707c9daf06f22e4a5be1e61658b0ba449fb0c02ffc20a123e3aeb80b8e"
+      ],
+      "source_sha256": "85e73d707c9daf06f22e4a5be1e61658b0ba449fb0c02ffc20a123e3aeb80b8e",
+      "text": "Los tipos que se pueden abrir, en orden de registro.",
+      "translation_source_blocks_sha256": [
+        "85e73d707c9daf06f22e4a5be1e61658b0ba449fb0c02ffc20a123e3aeb80b8e"
+      ]
+    },
     "spacr.qt.hf_download": {
       "source_blocks_sha256": [
         "1127fc6f7ebea87d5c6086fe062cb3d2bd2e78f8cca0d37f09d01e3bb57a6a75",
@@ -68642,6 +68912,26 @@
         "aa2c9ec1b5258dc39f1d127b03420ec3c4425dd942ad29cef658a9ac0208ee05"
       ]
     },
+    "spacr.qt.make_masks_datasets.DatasetPicker.chosen": {
+      "source_blocks_sha256": [
+        "5feea3dc9fe250a02ebd67b235127a7e1cc27838ecc0a606dc6c8ed10a367896"
+      ],
+      "source_sha256": "5feea3dc9fe250a02ebd67b235127a7e1cc27838ecc0a606dc6c8ed10a367896",
+      "text": "El conjunto de datos seleccionado, o None.",
+      "translation_source_blocks_sha256": [
+        "5feea3dc9fe250a02ebd67b235127a7e1cc27838ecc0a606dc6c8ed10a367896"
+      ]
+    },
+    "spacr.qt.make_masks_datasets.MaskDataset.size": {
+      "source_blocks_sha256": [
+        "79b1828b3be5bb97eb92c28bc2b5f36841b51e4c3ceca4bf1200f6b223efec99"
+      ],
+      "source_sha256": "79b1828b3be5bb97eb92c28bc2b5f36841b51e4c3ceca4bf1200f6b223efec99",
+      "text": "Número de campos de imagen que contiene una muestra completa de este conjunto de datos.",
+      "translation_source_blocks_sha256": [
+        "79b1828b3be5bb97eb92c28bc2b5f36841b51e4c3ceca4bf1200f6b223efec99"
+      ]
+    },
     "spacr.qt.make_masks_demo": {
       "source_blocks_sha256": [
         "e7cfbdcfefe2f9d1f5198a328e55ca3dc2442576b3045434de61513e539ec952",
@@ -69372,6 +69662,16 @@
         "961e9ea3d23405ee27bc920f4b35ae690b336270deff59825166c2c1a5b33d02"
       ]
     },
+    "spacr.qt.mask_engine.threshold_algorithms": {
+      "source_blocks_sha256": [
+        "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e"
+      ],
+      "source_sha256": "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e",
+      "text": "Todos los nombres de algoritmos de umbralización, primero los globales y después los locales.",
+      "translation_source_blocks_sha256": [
+        "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e"
+      ]
+    },
     "spacr.qt.mask_engine.write_recrop": {
       "source_blocks_sha256": [
         "1683d5ae208a8907090808833d1511f8364ea3aac51cec84c373697bf8cc9939",
@@ -69654,6 +69954,56 @@
         "c2c56bc0485c82cb023de769149b159eaa161c58bc04a350a97b23a5b05685a1"
       ]
     },
+    "spacr.qt.model_install.CheckpointDownload.is_running": {
+      "source_blocks_sha256": [
+        "f706ec222d52424e583ce1d3f7593b130a20f6811eb217b28f2f8331a4ec21fa"
+      ],
+      "source_sha256": "f706ec222d52424e583ce1d3f7593b130a20f6811eb217b28f2f8331a4ec21fa",
+      "text": "Si el hilo de descarga sigue ejecutándose.",
+      "translation_source_blocks_sha256": [
+        "f706ec222d52424e583ce1d3f7593b130a20f6811eb217b28f2f8331a4ec21fa"
+      ]
+    },
+    "spacr.qt.model_install.PackageInstall.cancel": {
+      "source_blocks_sha256": [
+        "c1e1404d26338f7e95f09f8a57e40c452052a3852122a2f95bacfda431b68488"
+      ],
+      "source_sha256": "c1e1404d26338f7e95f09f8a57e40c452052a3852122a2f95bacfda431b68488",
+      "text": "Detener el instalador e informar de que la instalación ha fallado.",
+      "translation_source_blocks_sha256": [
+        "c1e1404d26338f7e95f09f8a57e40c452052a3852122a2f95bacfda431b68488"
+      ]
+    },
+    "spacr.qt.model_install.PackageInstall.is_running": {
+      "source_blocks_sha256": [
+        "6471a54eccf2f447b5dec20768444fabd2815bb84bdf0ae8a2560d8cd757b381"
+      ],
+      "source_sha256": "6471a54eccf2f447b5dec20768444fabd2815bb84bdf0ae8a2560d8cd757b381",
+      "text": "Si el instalador sigue ejecutándose.",
+      "translation_source_blocks_sha256": [
+        "6471a54eccf2f447b5dec20768444fabd2815bb84bdf0ae8a2560d8cd757b381"
+      ]
+    },
+    "spacr.qt.model_install.PackageInstall.output": {
+      "source_blocks_sha256": [
+        "ebdf89c0ea771362c515a6de9c3316d44e49ebc5ca2a2234f9bc6a0d4d29eb8f"
+      ],
+      "source_sha256": "ebdf89c0ea771362c515a6de9c3316d44e49ebc5ca2a2234f9bc6a0d4d29eb8f",
+      "text": "Toda la salida que ha generado el instalador hasta el momento.",
+      "translation_source_blocks_sha256": [
+        "ebdf89c0ea771362c515a6de9c3316d44e49ebc5ca2a2234f9bc6a0d4d29eb8f"
+      ]
+    },
+    "spacr.qt.model_install.SegmentationBackendCombo.refresh_installed": {
+      "source_blocks_sha256": [
+        "980554b271e019bfc084efa97490589d66a250f2114d04541c275bc3bd032ce6"
+      ],
+      "source_sha256": "980554b271e019bfc084efa97490589d66a250f2114d04541c275bc3bd032ce6",
+      "text": "Mostrar en gris únicamente los motores que no están instalados.",
+      "translation_source_blocks_sha256": [
+        "980554b271e019bfc084efa97490589d66a250f2114d04541c275bc3bd032ce6"
+      ]
+    },
     "spacr.qt.module_hints": {
       "source_blocks_sha256": [
         "f608f7430c9c4f06eeb3a43b6dadd4705318c438a1e07d8c6f51bda2b3ceabfa",
@@ -69778,6 +70128,16 @@
         "17e5defd095d4988ca4757a8e1980911552455a38143396103dac837b8bcdfb3"
       ]
     },
+    "spacr.qt.night_themes.NightTheme.sound": {
+      "source_blocks_sha256": [
+        "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794"
+      ],
+      "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+      "text": "La clave del conjunto de sonidos de este tema; coincide con la clave del propio tema.",
+      "translation_source_blocks_sha256": [
+        "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794"
+      ]
+    },
     "spacr.qt.notify": {
       "source_blocks_sha256": [
         "3ffa67f28ba5754e73ec3db143549df36b0a1853203d3c05e2b40429a9100d3c",
@@ -69846,6 +70206,16 @@
       "translation_source_blocks_sha256": [
         "69f6bc9e831cba17532ad34bd2f910a37c6aefad03018acc8d1e6d27d8e70c2a",
         "0dfbab99bd95d60ff7a672078b6f898b08f3a22726280fa058d372a73d481f87"
+      ]
+    },
+    "spacr.qt.organelle_modes.modes": {
+      "source_blocks_sha256": [
+        "d9b62de3aa3fe4eae3e537303b3c9f87bf6a2dc2916177049651d3a441bdc670"
+      ],
+      "source_sha256": "d9b62de3aa3fe4eae3e537303b3c9f87bf6a2dc2916177049651d3a441bdc670",
+      "text": "Todos los modos que añade este módulo a Make Masks, en el orden del cuadro de selección.",
+      "translation_source_blocks_sha256": [
+        "d9b62de3aa3fe4eae3e537303b3c9f87bf6a2dc2916177049651d3a441bdc670"
       ]
     },
     "spacr.qt.organisms": {
@@ -73742,6 +74112,26 @@
         "f70796332a4dec1240ca8cfae03e82c5fecb6ffb63be378931fd385fdce800e8",
         "2cdb21a4fc0cddfa4df21f6930e0ce026aecda3aae71ae1ea70a2cd4e2f16676",
         "8b380e88414bb57dd4c4b788dd79de4945aa4f3a56f81b39e5fd53e6f71f02fc"
+      ]
+    },
+    "spacr.qt.resonance.Resonance.frames": {
+      "source_blocks_sha256": [
+        "bf6c42cd73418958927ab9495f28cf77328738d9e472472a9fc9ab6464bfbc0f"
+      ],
+      "source_sha256": "bf6c42cd73418958927ab9495f28cf77328738d9e472472a9fc9ab6464bfbc0f",
+      "text": "Número de fotogramas de análisis.",
+      "translation_source_blocks_sha256": [
+        "bf6c42cd73418958927ab9495f28cf77328738d9e472472a9fc9ab6464bfbc0f"
+      ]
+    },
+    "spacr.qt.resonance.clear_now_playing": {
+      "source_blocks_sha256": [
+        "88d9ce5c4978656f8766fa08886acbf0fd17d958a7df8efb903eecf392af88b4"
+      ],
+      "source_sha256": "88d9ce5c4978656f8766fa08886acbf0fd17d958a7df8efb903eecf392af88b4",
+      "text": "Ya no se está reproduciendo nada.",
+      "translation_source_blocks_sha256": [
+        "88d9ce5c4978656f8766fa08886acbf0fd17d958a7df8efb903eecf392af88b4"
       ]
     },
     "spacr.qt.resource_cleanup": {
@@ -79746,6 +80136,26 @@
         "7f86d6c6668ae0a51a0ccb106ebcb34b3bda682585618dd5a0175e36d9f3a3b4"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_record": {
+      "source_blocks_sha256": [
+        "d72b1d500b4a98a92eb059f9d4c70425970c8399d1f14dae223379b5a71fa359"
+      ],
+      "source_sha256": "d72b1d500b4a98a92eb059f9d4c70425970c8399d1f14dae223379b5a71fa359",
+      "text": "Los datos leídos en la última carga, tal como los registró el cargador.",
+      "translation_source_blocks_sha256": [
+        "d72b1d500b4a98a92eb059f9d4c70425970c8399d1f14dae223379b5a71fa359"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_source": {
+      "source_blocks_sha256": [
+        "198425cab2a7a3df2d8e7471be745aaa9d86cf56fdcafde98171e2134680e16f"
+      ],
+      "source_sha256": "198425cab2a7a3df2d8e7471be745aaa9d86cf56fdcafde98171e2134680e16f",
+      "text": "El tipo de origen de los recortes de imagen.",
+      "translation_source_blocks_sha256": [
+        "3535619fc22dd02b8179835192127a96e24f8f34a0567e3cd19336836116dc7f"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.embed": {
       "source_blocks_sha256": [
         "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df"
@@ -79764,6 +80174,16 @@
       "text": "Si una carrera está en vuelo.",
       "translation_source_blocks_sha256": [
         "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
+      "source_blocks_sha256": [
+        "67d882f598d5815116c5b9363f40480e0269805eaf63cc4313616a1c4b8692bd"
+      ],
+      "source_sha256": "67d882f598d5815116c5b9363f40480e0269805eaf63cc4313616a1c4b8692bd",
+      "text": "Si hay una carga de recortes de imagen en curso.",
+      "translation_source_blocks_sha256": [
+        "54870d7732d0f4ee830b145b075f7c581442004c8383d7562b58704e099087e3"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops": {
@@ -80008,6 +80428,16 @@
       "text": "La línea de estado, para pruebas.",
       "translation_source_blocks_sha256": [
         "c20f0bb0cd9556e266951a97c6302146487db4eae1c195552acd345e21c87353"
+      ]
+    },
+    "spacr.qt.screens.experiment_design.ExperimentDesignScreen.template_keys": {
+      "source_blocks_sha256": [
+        "d0eb7f103c8e3c81fc189c700a373fdf94abe718bc2ba0f8703e239cb76a5d6f"
+      ],
+      "source_sha256": "d0eb7f103c8e3c81fc189c700a373fdf94abe718bc2ba0f8703e239cb76a5d6f",
+      "text": "Las claves de las plantillas del menú, en el orden del menú.",
+      "translation_source_blocks_sha256": [
+        "d0eb7f103c8e3c81fc189c700a373fdf94abe718bc2ba0f8703e239cb76a5d6f"
       ]
     },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen.well_at": {
@@ -80468,6 +80898,16 @@
         "bf094c86760b4f9becc7f5f70482f6f3ad53cb57dba6174e073e1ff040e97505"
       ]
     },
+    "spacr.qt.screens.foreign.ForeignScreen.clear_mask_folders": {
+      "source_blocks_sha256": [
+        "6a5adfc144d33e63cc0bfb580f9b8d35a477ea1af122cac3d0efbdb692d9dced"
+      ],
+      "source_sha256": "6a5adfc144d33e63cc0bfb580f9b8d35a477ea1af122cac3d0efbdb692d9dced",
+      "text": "Olvidar todas las carpetas de máscaras para que una nueva selección no herede la anterior.",
+      "translation_source_blocks_sha256": [
+        "6a5adfc144d33e63cc0bfb580f9b8d35a477ea1af122cac3d0efbdb692d9dced"
+      ]
+    },
     "spacr.qt.screens.foreign.ForeignScreen.column_maps": {
       "source_blocks_sha256": [
         "449f666692a3705d7a05b932a5b2bc1709fa1bb156de84842bfda6869074cc6d"
@@ -80486,6 +80926,16 @@
       "text": "Una línea por conflicto, bloqueando o no.",
       "translation_source_blocks_sha256": [
         "cc2554bf0dc850d7491a4f47264556ce0fc0bf67d9368d60a1c88ee79fc4da8e"
+      ]
+    },
+    "spacr.qt.screens.foreign.ForeignScreen.custom_regex": {
+      "source_blocks_sha256": [
+        "f3505b3904aa9c46bca8137912d1e8da59028752f823327f1f30151ca9c73668"
+      ],
+      "source_sha256": "f3505b3904aa9c46bca8137912d1e8da59028752f823327f1f30151ca9c73668",
+      "text": "El patrón introducido para la convención Custom.",
+      "translation_source_blocks_sha256": [
+        "f3505b3904aa9c46bca8137912d1e8da59028752f823327f1f30151ca9c73668"
       ]
     },
     "spacr.qt.screens.foreign.ForeignScreen.destination_path": {
@@ -80556,6 +81006,16 @@
       "text": "La tabla de medición actualmente tecleada.",
       "translation_source_blocks_sha256": [
         "154e6e320955b77759b05ea34567bce05f172653f2957626968ba8ffa8716a30"
+      ]
+    },
+    "spacr.qt.screens.foreign.ForeignScreen.metadata_type": {
+      "source_blocks_sha256": [
+        "73bf0a62963f2bd9250d27be06523439a75407b2323484f71a6ba8f14355174c"
+      ],
+      "source_sha256": "73bf0a62963f2bd9250d27be06523439a75407b2323484f71a6ba8f14355174c",
+      "text": "La clave de la convención elegida; ``NAMING_AUTO`` para carpetas.",
+      "translation_source_blocks_sha256": [
+        "73bf0a62963f2bd9250d27be06523439a75407b2323484f71a6ba8f14355174c"
       ]
     },
     "spacr.qt.screens.foreign.ForeignScreen.on_conflict": {
@@ -85070,6 +85530,36 @@
         "7433ebdd05af746fc22f14dbd830a5e21cb851fc10ccf7043c662cd54bd262e1"
       ]
     },
+    "spacr.qt.screens.measure_inputs.MeasureInputsScreen.destination": {
+      "source_blocks_sha256": [
+        "01c2a68a48eed544818f183dbcbb0032db4d7fb37379827af62ca1c6f510fb9c"
+      ],
+      "source_sha256": "01c2a68a48eed544818f183dbcbb0032db4d7fb37379827af62ca1c6f510fb9c",
+      "text": "El destino de salida de la siguiente ejecución según la información de esta ventana.",
+      "translation_source_blocks_sha256": [
+        "01c2a68a48eed544818f183dbcbb0032db4d7fb37379827af62ca1c6f510fb9c"
+      ]
+    },
+    "spacr.qt.screens.measure_inputs.MeasureInputsScreen.result": {
+      "source_blocks_sha256": [
+        "06d176dee0e87ac58c0fa754d6dd6198de796bb4dd71246838b39a3c37e8215e"
+      ],
+      "source_sha256": "06d176dee0e87ac58c0fa754d6dd6198de796bb4dd71246838b39a3c37e8215e",
+      "text": "El resultado de la última ejecución, o ``None`` si todavía no ha terminado ninguna.",
+      "translation_source_blocks_sha256": [
+        "06d176dee0e87ac58c0fa754d6dd6198de796bb4dd71246838b39a3c37e8215e"
+      ]
+    },
+    "spacr.qt.screens.measure_inputs.MeasureInputsScreen.set_destination": {
+      "source_blocks_sha256": [
+        "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee"
+      ],
+      "source_sha256": "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee",
+      "text": "El destino donde se guarda el proyecto. ``None`` lo sitúa junto a los archivos.",
+      "translation_source_blocks_sha256": [
+        "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee"
+      ]
+    },
     "spacr.qt.screens.methods_export": {
       "source_blocks_sha256": [
         "eb0867358a3a38a37b617fb043e19a4c5734e6b85b58ad8e5a50c99ee96b8f7a",
@@ -86028,6 +86518,16 @@
         "2000ecdbfa0bf81539afd16bcb226fce5ffb3b530b552e85d38afb9e07f4b7c4",
         "e3223d07f2de49c7993a8f586bb89c63a370488e67ecb77ae84761a9dfdcd5eb",
         "f1d22b0a79b33158e29ceb030c851ee1a21dd18bdca5b9d1baf14b7eb1dfbf81"
+      ]
+    },
+    "spacr.qt.screens.model_zoo.ModelZooScreen.chosen_entry": {
+      "source_blocks_sha256": [
+        "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016"
+      ],
+      "source_sha256": "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016",
+      "text": "La entrada que representa actualmente una fila, respetando la versión seleccionada.",
+      "translation_source_blocks_sha256": [
+        "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016"
       ]
     },
     "spacr.qt.screens.model_zoo.ModelZooScreen.closeEvent": {
@@ -91924,6 +92424,16 @@
         "78c55809799568a45d954dab110fd05c4b78e40d8338abb51f4cacb4aebebd5e"
       ]
     },
+    "spacr.qt.settings_search.SettingsSearchBar.revealed_key": {
+      "source_blocks_sha256": [
+        "fd36d80c4e225a9f7694a7328b3fa2ca0177ddd7da77eff6e5ea312d1b885c2a"
+      ],
+      "source_sha256": "fd36d80c4e225a9f7694a7328b3fa2ca0177ddd7da77eff6e5ea312d1b885c2a",
+      "text": "El último ajuste que mostró :meth:`reveal`, o ``\"\"``.",
+      "translation_source_blocks_sha256": [
+        "fd36d80c4e225a9f7694a7328b3fa2ca0177ddd7da77eff6e5ea312d1b885c2a"
+      ]
+    },
     "spacr.qt.settings_search.SettingsSearchBar.set_level": {
       "source_blocks_sha256": [
         "e6148de0230969faa3505d9c8d2fb70feb4ba83a0ba3c0270f806f0868736eaf"
@@ -92516,6 +93026,126 @@
       "translation_source_blocks_sha256": [
         "51e743fe757ec036c4d62183ad10c4ee1b39bbf9bae67947d2792bc5d8f749ba",
         "598297bf8f861942cd576ec269e1d0a71f64cf993b6898de005a85f8218eb8ed"
+      ]
+    },
+    "spacr.qt.sound.SoundEngine.audio_thread": {
+      "source_blocks_sha256": [
+        "61d35c987e061114c11dcec1267a9d5e2aef9246c6a5df9e4a9565bb48e53273"
+      ],
+      "source_sha256": "61d35c987e061114c11dcec1267a9d5e2aef9246c6a5df9e4a9565bb48e53273",
+      "text": "El hilo en el que se generan los sonidos, o ``None`` cuando se ejecutan sin un hilo propio.",
+      "translation_source_blocks_sha256": [
+        "61d35c987e061114c11dcec1267a9d5e2aef9246c6a5df9e4a9565bb48e53273"
+      ]
+    },
+    "spacr.qt.sound.SoundEngine.closed": {
+      "source_blocks_sha256": [
+        "7bfce9b68bda6b48ef8672d1d776814f9f9cf7e8c6ba48e44f0ebdb387d3e7b7"
+      ],
+      "source_sha256": "7bfce9b68bda6b48ef8672d1d776814f9f9cf7e8c6ba48e44f0ebdb387d3e7b7",
+      "text": "Si :meth:`shutdown` se ha ejecutado.",
+      "translation_source_blocks_sha256": [
+        "7bfce9b68bda6b48ef8672d1d776814f9f9cf7e8c6ba48e44f0ebdb387d3e7b7"
+      ]
+    },
+    "spacr.qt.sound.SoundEngine.filter_installed": {
+      "source_blocks_sha256": [
+        "96a8d141af78bdb787a80b3dd677ae51fae96337fe8a12a3b5b9ac7b18e52b86"
+      ],
+      "source_sha256": "96a8d141af78bdb787a80b3dd677ae51fae96337fe8a12a3b5b9ac7b18e52b86",
+      "text": "Si está instalado el filtro de entrada de toda la aplicación.",
+      "translation_source_blocks_sha256": [
+        "96a8d141af78bdb787a80b3dd677ae51fae96337fe8a12a3b5b9ac7b18e52b86"
+      ]
+    },
+    "spacr.qt.sound.SoundEngine.player": {
+      "source_blocks_sha256": [
+        "19befc856b63c669ad6c1520ba15ec6f151d2aa78790735ba9e0af2f4da17c14"
+      ],
+      "source_sha256": "19befc856b63c669ad6c1520ba15ec6f151d2aa78790735ba9e0af2f4da17c14",
+      "text": "La parte que se ejecuta en el hilo de la GUI: aquí residen todos los objetos de Qt Multimedia.",
+      "translation_source_blocks_sha256": [
+        "88c500f93326c3b4296b79792939dcbd0196aaff9437143fc847c2aea5ae2029"
+      ]
+    },
+    "spacr.qt.sound.SoundEngine.settings": {
+      "source_blocks_sha256": [
+        "35375d859b83ce9787f729042e3fe43c115709b2ba6b365ac4f98e8b9ab109ec"
+      ],
+      "source_sha256": "35375d859b83ce9787f729042e3fe43c115709b2ba6b365ac4f98e8b9ab109ec",
+      "text": "La configuración que utiliza este motor.",
+      "translation_source_blocks_sha256": [
+        "35375d859b83ce9787f729042e3fe43c115709b2ba6b365ac4f98e8b9ab109ec"
+      ]
+    },
+    "spacr.qt.sound.SoundEngine.stop_preview": {
+      "source_blocks_sha256": [
+        "51b0cfd834dba371512379fd6d1f3f60eff4343bc7cc8633e3fb26776d2c4e35"
+      ],
+      "source_sha256": "51b0cfd834dba371512379fd6d1f3f60eff4343bc7cc8633e3fb26776d2c4e35",
+      "text": "Restablecer la música de fondo según la configuración guardada.",
+      "translation_source_blocks_sha256": [
+        "51b0cfd834dba371512379fd6d1f3f60eff4343bc7cc8633e3fb26776d2c4e35"
+      ]
+    },
+    "spacr.qt.sound.SoundSettings.gain": {
+      "source_blocks_sha256": [
+        "cf9426e0b98982b5a960065ea246cd3cbf3b3775c69bec4afb81443d69707e41"
+      ],
+      "source_sha256": "cf9426e0b98982b5a960065ea246cd3cbf3b3775c69bec4afb81443d69707e41",
+      "text": "La ganancia lineal que representa el control deslizante de volumen.",
+      "translation_source_blocks_sha256": [
+        "cf9426e0b98982b5a960065ea246cd3cbf3b3775c69bec4afb81443d69707e41"
+      ]
+    },
+    "spacr.qt.sound.SoundSettings.watches_input": {
+      "source_blocks_sha256": [
+        "d77d21a8614baa56553751422d2ea2be5b5b725c4b5381bdb360bfb142007e48"
+      ],
+      "source_sha256": "d77d21a8614baa56553751422d2ea2be5b5b725c4b5381bdb360bfb142007e48",
+      "text": "Si se necesita el filtro de entrada de toda la aplicación.",
+      "translation_source_blocks_sha256": [
+        "d77d21a8614baa56553751422d2ea2be5b5b725c4b5381bdb360bfb142007e48"
+      ]
+    },
+    "spacr.qt.sound.sound_engine": {
+      "source_blocks_sha256": [
+        "8bec1e2e5dc671f28c0f4a30a87286a5d2c463e6a5b823ae6f37e4388fa9e698"
+      ],
+      "source_sha256": "8bec1e2e5dc671f28c0f4a30a87286a5d2c463e6a5b823ae6f37e4388fa9e698",
+      "text": "El motor en ejecución, o ``None`` si el sonido nunca se ha activado.",
+      "translation_source_blocks_sha256": [
+        "8bec1e2e5dc671f28c0f4a30a87286a5d2c463e6a5b823ae6f37e4388fa9e698"
+      ]
+    },
+    "spacr.qt.sound.stop_sound_preview": {
+      "source_blocks_sha256": [
+        "7b5e7c7582e8216e2799e1ee30fcd602a6e60e5ea90971ea6bdd4c9adec6e893"
+      ],
+      "source_sha256": "7b5e7c7582e8216e2799e1ee30fcd602a6e60e5ea90971ea6bdd4c9adec6e893",
+      "text": "Finalizar cualquier vista previa y volver a la configuración guardada.",
+      "translation_source_blocks_sha256": [
+        "7b5e7c7582e8216e2799e1ee30fcd602a6e60e5ea90971ea6bdd4c9adec6e893"
+      ]
+    },
+    "spacr.qt.sound_preferences.SoundPage.save": {
+      "source_blocks_sha256": [
+        "5526559d3ab50abbcfb0e257fee30355674248b4911f64830fa4f7e97ac9adcf"
+      ],
+      "source_sha256": "5526559d3ab50abbcfb0e257fee30355674248b4911f64830fa4f7e97ac9adcf",
+      "text": "Guardar el valor de todos los controles de la página en las preferencias.",
+      "translation_source_blocks_sha256": [
+        "5526559d3ab50abbcfb0e257fee30355674248b4911f64830fa4f7e97ac9adcf"
+      ]
+    },
+    "spacr.qt.sound_synth.SoundTheme.beat": {
+      "source_blocks_sha256": [
+        "f3f36d8a85e977ea90432be071b990c15a0123f82c8ba1cb572f95eb8af7c10b"
+      ],
+      "source_sha256": "f3f36d8a85e977ea90432be071b990c15a0123f82c8ba1cb572f95eb8af7c10b",
+      "text": "Segundos por pulso al tempo de este tema.",
+      "translation_source_blocks_sha256": [
+        "f3f36d8a85e977ea90432be071b990c15a0123f82c8ba1cb572f95eb8af7c10b"
       ]
     },
     "spacr.qt.space": {
@@ -97638,6 +98268,26 @@
         "4a29c0962f315bf620c2c9b183b163774c6600072c9a90cef9b277d8e819b39e"
       ]
     },
+    "spacr.qt.widgets.ambient.ResonanceEngine.mode_position": {
+      "source_blocks_sha256": [
+        "b54a45528254f228f491b3073f55fc755a09232170b65b6671fca111f7dee829"
+      ],
+      "source_sha256": "b54a45528254f228f491b3073f55fc755a09232170b65b6671fca111f7dee829",
+      "text": "La posición de la figura dentro de :data:`spacr.qt.resonance.MODES`.",
+      "translation_source_blocks_sha256": [
+        "b54a45528254f228f491b3073f55fc755a09232170b65b6671fca111f7dee829"
+      ]
+    },
+    "spacr.qt.widgets.ambient.ResonanceEngine.plate": {
+      "source_blocks_sha256": [
+        "1d291dacedcf5b85d38a7c4eba4428b62fb171aefa28f3cc3d58e68373303598"
+      ],
+      "source_sha256": "1d291dacedcf5b85d38a7c4eba4428b62fb171aefa28f3cc3d58e68373303598",
+      "text": "El cuadrado en el que se dibuja la figura: ``(left, top, side)`` en px.",
+      "translation_source_blocks_sha256": [
+        "1d291dacedcf5b85d38a7c4eba4428b62fb171aefa28f3cc3d58e68373303598"
+      ]
+    },
     "spacr.qt.widgets.ambient.RippleEngine": {
       "source_blocks_sha256": [
         "f283eb690ec01c489642ec086bc1ee91d28fd90ee53397fe5a6ac301a3ae5c1d",
@@ -100342,6 +100992,36 @@
         "bb7fec63e8d30c30e21a3911d72161fc9fae80d95f39654d3d9c7a79278c6d5c"
       ]
     },
+    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.cancel": {
+      "source_blocks_sha256": [
+        "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027"
+      ],
+      "source_sha256": "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027",
+      "text": "Detener el instalador o dejar de esperar el inicio de sesión.",
+      "translation_source_blocks_sha256": [
+        "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027"
+      ]
+    },
+    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.done": {
+      "source_blocks_sha256": [
+        "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a"
+      ],
+      "source_sha256": "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a",
+      "text": "Cerrar el panel y solicitar a su propietario que vuelva a comprobar la herramienta.",
+      "translation_source_blocks_sha256": [
+        "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a"
+      ]
+    },
+    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.is_busy": {
+      "source_blocks_sha256": [
+        "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b"
+      ],
+      "source_sha256": "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b",
+      "text": "Si hay un instalador en ejecución.",
+      "translation_source_blocks_sha256": [
+        "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b"
+      ]
+    },
     "spacr.qt.widgets.collapsible_section": {
       "source_blocks_sha256": [
         "82a0e7705ef9efa6d9915130fa6e7af50f4925ce04a79b27c1df34811fb21f96",
@@ -100446,6 +101126,86 @@
         "9494e6657eaeca144cba17b1d12dd8209f5ab85b9b1c8f167868c04f16d83ad2",
         "cf07f01591fdd20844821e9ede21fc4a43d725986129a596603904bba3498a1d",
         "37e574be560d96919185ec77c38ae19db625b7c3fc20961837c0a1d64b5a7e4f"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.createHandle": {
+      "source_blocks_sha256": [
+        "a7d3dbbea0f96158da6625bf1ce0fb9e647d3af271bcbb4769abeaaf9010b055"
+      ],
+      "source_sha256": "a7d3dbbea0f96158da6625bf1ce0fb9e647d3af271bcbb4769abeaaf9010b055",
+      "text": "Cada control de arrastre es una instancia de :class:`_PaneHandle`.",
+      "translation_source_blocks_sha256": [
+        "a7d3dbbea0f96158da6625bf1ce0fb9e647d3af271bcbb4769abeaaf9010b055"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.extents": {
+      "source_blocks_sha256": [
+        "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90"
+      ],
+      "source_sha256": "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90",
+      "text": "``{pane name: size to open at}`` para cada panel registrado.",
+      "translation_source_blocks_sha256": [
+        "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.panes": {
+      "source_blocks_sha256": [
+        "7b8d5cbac22a5b0f63e3277b4cf09819cb92c3340e113ce4927128ab3e4cf33a"
+      ],
+      "source_sha256": "7b8d5cbac22a5b0f63e3277b4cf09819cb92c3340e113ce4927128ab3e4cf33a",
+      "text": "Todos los paneles registrados, en orden de registro.",
+      "translation_source_blocks_sha256": [
+        "7b8d5cbac22a5b0f63e3277b4cf09819cb92c3340e113ce4927128ab3e4cf33a"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.FocusCollapse.begin_view": {
+      "source_blocks_sha256": [
+        "28a509e4d44cc689826096778320a180e1f39a7ed1c0af40d9305a8f682f5548"
+      ],
+      "source_sha256": "28a509e4d44cc689826096778320a180e1f39a7ed1c0af40d9305a8f682f5548",
+      "text": "Al abrirse la pantalla, olvidar las preferencias fijadas en la vista anterior y aplicar la regla.",
+      "translation_source_blocks_sha256": [
+        "28a509e4d44cc689826096778320a180e1f39a7ed1c0af40d9305a8f682f5548"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.FocusCollapse.end_view": {
+      "source_blocks_sha256": [
+        "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376"
+      ],
+      "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
+      "text": "Al abandonar el usuario la pantalla, dejan de aplicarse las preferencias fijadas para esta vista.",
+      "translation_source_blocks_sha256": [
+        "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.FocusCollapse.is_active": {
+      "source_blocks_sha256": [
+        "26a1b33f2b7f5bcf560637cba2eec855f4333979172a0a096667aa494913eef8"
+      ],
+      "source_sha256": "26a1b33f2b7f5bcf560637cba2eec855f4333979172a0a096667aa494913eef8",
+      "text": "Si se muestra algún widget de enfoque.",
+      "translation_source_blocks_sha256": [
+        "26a1b33f2b7f5bcf560637cba2eec855f4333979172a0a096667aa494913eef8"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.FoldSection.shut": {
+      "source_blocks_sha256": [
+        "b66379c2b92a609d60d4d50859e27d17a07e6826edec5c4cef68a72a961167cb"
+      ],
+      "source_sha256": "b66379c2b92a609d60d4d50859e27d17a07e6826edec5c4cef68a72a961167cb",
+      "text": "Si la sección está contraída.",
+      "translation_source_blocks_sha256": [
+        "b66379c2b92a609d60d4d50859e27d17a07e6826edec5c4cef68a72a961167cb"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.Pane.is_collapsed": {
+      "source_blocks_sha256": [
+        "a07c37606842ad89bd4787cc92a815a18278761db71324c24f26a9042a220b3d"
+      ],
+      "source_sha256": "a07c37606842ad89bd4787cc92a815a18278761db71324c24f26a9042a220b3d",
+      "text": "Si el panel está contraído actualmente.",
+      "translation_source_blocks_sha256": [
+        "a07c37606842ad89bd4787cc92a815a18278761db71324c24f26a9042a220b3d"
       ]
     },
     "spacr.qt.widgets.colour_picker": {
@@ -104714,6 +105474,26 @@
         "d9d1c3f19f9253a23264d6eb4ba88d16b6fe6ad9d3781130ee7c15a0a836accd"
       ]
     },
+    "spacr.qt.widgets.dose_response.DoseResponseResult.model_function": {
+      "source_blocks_sha256": [
+        "88faaf1b2ef2cf40e09bef353cb47fa6b7a64b70f59b0de4d8419ac5d6cc57c5"
+      ],
+      "source_sha256": "88faaf1b2ef2cf40e09bef353cb47fa6b7a64b70f59b0de4d8419ac5d6cc57c5",
+      "text": ":func:`four_parameter_logistic` o :func:`five_parameter_logistic`.",
+      "translation_source_blocks_sha256": [
+        "88faaf1b2ef2cf40e09bef353cb47fa6b7a64b70f59b0de4d8419ac5d6cc57c5"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.DoseResponseResult.n_parameters": {
+      "source_blocks_sha256": [
+        "96562ba9b84b00e4271282770acab049d8d7ee98fec227f20d1fd3e9eeb45bfc"
+      ],
+      "source_sha256": "96562ba9b84b00e4271282770acab049d8d7ee98fec227f20d1fd3e9eeb45bfc",
+      "text": "4 o 5: el número de referencia para todos los cálculos de grados de libertad de este código.",
+      "translation_source_blocks_sha256": [
+        "96562ba9b84b00e4271282770acab049d8d7ee98fec227f20d1fd3e9eeb45bfc"
+      ]
+    },
     "spacr.qt.widgets.dose_response.DoseResponseResult.parameter_frame": {
       "source_blocks_sha256": [
         "e62b001186440a38aca3a5076329230a386c86504a75cef0bbf0df891b4c6d42",
@@ -105066,6 +105846,16 @@
       "text": "La fila de este nivel se obtiene en la tabla de resultados, denegación incluida.",
       "translation_source_blocks_sha256": [
         "453dd3731ae186e8c8859b40e9a6c26c0678f339dfb719c1a69968ea975c7a80"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.HormesisCheck.describe": {
+      "source_blocks_sha256": [
+        "76bcfe7124023901e7db5328a7182beeceff211dca0e26c79907e0db63f48629"
+      ],
+      "source_sha256": "76bcfe7124023901e7db5328a7182beeceff211dca0e26c79907e0db63f48629",
+      "text": "Una línea para un título, una salvedad o un mensaje de rechazo.",
+      "translation_source_blocks_sha256": [
+        "76bcfe7124023901e7db5328a7182beeceff211dca0e26c79907e0db63f48629"
       ]
     },
     "spacr.qt.widgets.dose_response.InteractionSurface": {
@@ -122856,6 +123646,86 @@
         "bb290a1692f9b52986d02138b1e713e444cc1e42ad3c5a6281fdb843a47f43a8"
       ]
     },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_field": {
+      "source_blocks_sha256": [
+        "50aa67babd8862b02a1388697c9ae81bf37cbe415df997ce2b5985e538f0c0c5"
+      ],
+      "source_sha256": "50aa67babd8862b02a1388697c9ae81bf37cbe415df997ce2b5985e538f0c0c5",
+      "text": "Añadir una fila vacía, con el número siguiente al de la última fila.",
+      "translation_source_blocks_sha256": [
+        "50aa67babd8862b02a1388697c9ae81bf37cbe415df997ce2b5985e538f0c0c5"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.is_scanning": {
+      "source_blocks_sha256": [
+        "bfda07c1b496ab3f4f20e6ac1579c6ef9e01330e6ee82269e3b7e65e709af1bc"
+      ],
+      "source_sha256": "bfda07c1b496ab3f4f20e6ac1579c6ef9e01330e6ee82269e3b7e65e709af1bc",
+      "text": "True mientras siga en curso un recorrido iniciado por :meth:`add_dropped`.",
+      "translation_source_blocks_sha256": [
+        "bfda07c1b496ab3f4f20e6ac1579c6ef9e01330e6ee82269e3b7e65e709af1bc"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.problems": {
+      "source_blocks_sha256": [
+        "be4a570c4b69af9184c69eb8debf07f12884430c1379659978f52b4fbc63f4c1"
+      ],
+      "source_sha256": "be4a570c4b69af9184c69eb8debf07f12884430c1379659978f52b4fbc63f4c1",
+      "text": "Todos los motivos que impiden medir esta tabla, expresados en frases.",
+      "translation_source_blocks_sha256": [
+        "be4a570c4b69af9184c69eb8debf07f12884430c1379659978f52b4fbc63f4c1"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.regex": {
+      "source_blocks_sha256": [
+        "0899c41600d2bcd3319fde4f6385d02d1ebd5512c4f15a031da51a7e00de308f"
+      ],
+      "source_sha256": "0899c41600d2bcd3319fde4f6385d02d1ebd5512c4f15a031da51a7e00de308f",
+      "text": "El patrón del cuadro de expresiones regulares.",
+      "translation_source_blocks_sha256": [
+        "0899c41600d2bcd3319fde4f6385d02d1ebd5512c4f15a031da51a7e00de308f"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.remove_selected": {
+      "source_blocks_sha256": [
+        "9159c029d52254308c6da1a0a2e87d0ada35404f7e8b5d1c225237847d4f07f2"
+      ],
+      "source_sha256": "9159c029d52254308c6da1a0a2e87d0ada35404f7e8b5d1c225237847d4f07f2",
+      "text": "Eliminar todas las filas seleccionadas y devolver cuántas se eliminaron.",
+      "translation_source_blocks_sha256": [
+        "9159c029d52254308c6da1a0a2e87d0ada35404f7e8b5d1c225237847d4f07f2"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_regex": {
+      "source_blocks_sha256": [
+        "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3"
+      ],
+      "source_sha256": "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3",
+      "text": "Introducir ``pattern`` en el cuadro de expresiones regulares y volver a ordenar los archivos conocidos.",
+      "translation_source_blocks_sha256": [
+        "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.table": {
+      "source_blocks_sha256": [
+        "1f3cf72aee7279879fd9405ee4290e3af2438fd8c65955af0504fa21a832849f"
+      ],
+      "source_sha256": "1f3cf72aee7279879fd9405ee4290e3af2438fd8c65955af0504fa21a832849f",
+      "text": "El modelo que edita este widget; es el modelo activo, no una copia.",
+      "translation_source_blocks_sha256": [
+        "1f3cf72aee7279879fd9405ee4290e3af2438fd8c65955af0504fa21a832849f"
+      ]
+    },
+    "spacr.qt.widgets.measure_input_table.MeasureInputTable.unassigned": {
+      "source_blocks_sha256": [
+        "3eb40042d246d440967b46bd414d3ab016a73b4d340cea09c300f3371a11206e"
+      ],
+      "source_sha256": "3eb40042d246d440967b46bd414d3ab016a73b4d340cea09c300f3371a11206e",
+      "text": "``(path, reason)`` para cada archivo arrastrado que no se pudo asignar.",
+      "translation_source_blocks_sha256": [
+        "3eb40042d246d440967b46bd414d3ab016a73b4d340cea09c300f3371a11206e"
+      ]
+    },
     "spacr.qt.widgets.measure_preview": {
       "source_blocks_sha256": [
         "b8d633f4d8a6001104c4bb381636691972c0d2d5f91b827df3af5ac3e08f15ed",
@@ -125010,6 +125880,26 @@
         "b33f3016b809811b1b871899b7f81570adef3e079805205959eadc07d0ddbbc9"
       ]
     },
+    "spacr.qt.widgets.measurements_example.example_measurements_db": {
+      "source_blocks_sha256": [
+        "d6349afaeb8e4c7b6a3f5c0700f94120cd25d5d3363587432cafb282533f5e86"
+      ],
+      "source_sha256": "d6349afaeb8e4c7b6a3f5c0700f94120cd25d5d3363587432cafb282533f5e86",
+      "text": "La ruta ``measurements/measurements.db`` de la placa de ejemplo, exista o no el archivo.",
+      "translation_source_blocks_sha256": [
+        "d6349afaeb8e4c7b6a3f5c0700f94120cd25d5d3363587432cafb282533f5e86"
+      ]
+    },
+    "spacr.qt.widgets.measurements_example.example_measurements_folder": {
+      "source_blocks_sha256": [
+        "490735e017fc577495ae4652c476018771ea4f4546cc63d0e5f479371a996eef"
+      ],
+      "source_sha256": "490735e017fc577495ae4652c476018771ea4f4546cc63d0e5f479371a996eef",
+      "text": "La carpeta compartida de la placa de ejemplo en la que se extrae el ejemplo de Annotate.",
+      "translation_source_blocks_sha256": [
+        "490735e017fc577495ae4652c476018771ea4f4546cc63d0e5f479371a996eef"
+      ]
+    },
     "spacr.qt.widgets.metadata_mapper": {
       "source_blocks_sha256": [
         "485485b8f5e24fb6db0e06faac2aaab89548e31828ee706456b36c96d7a63280"
@@ -125170,6 +126060,76 @@
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
       ]
     },
+    "spacr.qt.widgets.model_share.card": {
+      "source_blocks_sha256": [
+        "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f"
+      ],
+      "source_sha256": "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f",
+      "text": "La ficha del modelo, con la misma tabla que utilizan todas las fichas de modelos de spaCR.",
+      "translation_source_blocks_sha256": [
+        "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f"
+      ]
+    },
+    "spacr.qt.widgets.model_share.find_token": {
+      "source_blocks_sha256": [
+        "b688695597f69f7ddb29215d8b87aed0fcd25dc8f07555c0d3f7119c9af7ccee"
+      ],
+      "source_sha256": "b688695597f69f7ddb29215d8b87aed0fcd25dc8f07555c0d3f7119c9af7ccee",
+      "text": "El token de Hugging Face del usuario que sube el modelo, o ``None``.",
+      "translation_source_blocks_sha256": [
+        "b688695597f69f7ddb29215d8b87aed0fcd25dc8f07555c0d3f7119c9af7ccee"
+      ]
+    },
+    "spacr.qt.widgets.model_share.share": {
+      "source_blocks_sha256": [
+        "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6"
+      ],
+      "source_sha256": "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6",
+      "text": "Subir un punto de control y su ficha; devuelve la URL de la página del modelo.",
+      "translation_source_blocks_sha256": [
+        "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6"
+      ]
+    },
+    "spacr.qt.widgets.model_share.slugify": {
+      "source_blocks_sha256": [
+        "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2"
+      ],
+      "source_sha256": "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2",
+      "text": "Un nombre de carpeta válido para un repositorio.",
+      "translation_source_blocks_sha256": [
+        "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2"
+      ]
+    },
+    "spacr.qt.widgets.model_share_dialog": {
+      "source_blocks_sha256": [
+        "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb"
+      ],
+      "source_sha256": "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb",
+      "text": "El formulario que recoge la ficha de evaluación de un modelo compartido antes de subirlo.",
+      "translation_source_blocks_sha256": [
+        "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb"
+      ]
+    },
+    "spacr.qt.widgets.model_share_dialog.ShareDialog.train_data_dir": {
+      "source_blocks_sha256": [
+        "d1b14ff4ed5df35b0b66b1642ed76592c3c5c629b567315dc236e09a8bc8d4bc"
+      ],
+      "source_sha256": "d1b14ff4ed5df35b0b66b1642ed76592c3c5c629b567315dc236e09a8bc8d4bc",
+      "text": "La carpeta de datos de entrenamiento seleccionada, o una cadena vacía.",
+      "translation_source_blocks_sha256": [
+        "d1b14ff4ed5df35b0b66b1642ed76592c3c5c629b567315dc236e09a8bc8d4bc"
+      ]
+    },
+    "spacr.qt.widgets.model_share_dialog.ShareDialog.values": {
+      "source_blocks_sha256": [
+        "ee3567a1c9be16f4ab269f93ec7244ef437c36e730871d9d9a756b03dac3c8d0"
+      ],
+      "source_sha256": "ee3567a1c9be16f4ab269f93ec7244ef437c36e730871d9d9a756b03dac3c8d0",
+      "text": "Los valores introducidos por el usuario, asociados a las claves de los campos.",
+      "translation_source_blocks_sha256": [
+        "322dd1bf88f09de3d13bdf20c54e02ef1810cef07dd65be236fc736ece5d5f9b"
+      ]
+    },
     "spacr.qt.widgets.model_zoo_picker": {
       "source_blocks_sha256": [
         "8c984e0e5ee1ae6840a431247c6eb9b706531286d165ed5886d5ec4736b6c566",
@@ -125184,6 +126144,46 @@
         "11a1fe90e044ae03ac4d6942ae4534e5d4318fe2cd2c6da325dca6cc2be84539",
         "93d054503b7e6673b74f1864876f15956ffc99531dfffa4af9b16a5ddffd812e",
         "7d09cf3194704e18c27655096ad24c56305d3005ec1bdb57c65d1fca58743056"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8"
+      ],
+      "source_sha256": "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8",
+      "text": "Cerrar la ventana equivale a Cancelar; nunca deja un hilo en ejecución.",
+      "translation_source_blocks_sha256": [
+        "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "581c9b32c755b27e55e68a34c65af0bda4ef9e43fa047980d69164a15aa02589"
+      ],
+      "source_sha256": "581c9b32c755b27e55e68a34c65af0bda4ef9e43fa047980d69164a15aa02589",
+      "text": "Cancelar una instalación en curso y cerrar cuando se haya detenido.",
+      "translation_source_blocks_sha256": [
+        "826101b7851f235ecc30b64ef7c94d2e7737b408b8011ab9c5a53d94658f676a"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.running": {
+      "source_blocks_sha256": [
+        "4f014375c2f712d3aec8bbf844bb82f3fe6108130ee0fc9eebee32cd168728b6"
+      ],
+      "source_sha256": "4f014375c2f712d3aec8bbf844bb82f3fe6108130ee0fc9eebee32cd168728b6",
+      "text": "Si hay una instalación o desinstalación en curso.",
+      "translation_source_blocks_sha256": [
+        "4f014375c2f712d3aec8bbf844bb82f3fe6108130ee0fc9eebee32cd168728b6"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.start": {
+      "source_blocks_sha256": [
+        "7e6a1d9228b2cb30c2d78cc5952dfafbc98bd148e10b450b673bff7a972fdcca"
+      ],
+      "source_sha256": "7e6a1d9228b2cb30c2d78cc5952dfafbc98bd148e10b450b673bff7a972fdcca",
+      "text": "Iniciar la tarea en un hilo de trabajo.",
+      "translation_source_blocks_sha256": [
+        "fc4b78e2218079ac638c59fabd36b326fc005ce884ac9061e4e407fff4f49de7"
       ]
     },
     "spacr.qt.widgets.model_zoo_picker.ModelZooPicker": {
@@ -125256,6 +126256,36 @@
       "text": "La entrada de catálogo en la fila resaltada, o ``None``.",
       "translation_source_blocks_sha256": [
         "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.SourceStrip.enabled": {
+      "source_blocks_sha256": [
+        "7f86d5fbab4942b5aded6aaf03ee13c9e07f5bd673a6fca6a6a7b990dab20adc"
+      ],
+      "source_sha256": "7f86d5fbab4942b5aded6aaf03ee13c9e07f5bd673a6fca6a6a7b990dab20adc",
+      "text": "Los encabezados activados, en el orden de :data:`ZOO_SOURCES`.",
+      "translation_source_blocks_sha256": [
+        "7f86d5fbab4942b5aded6aaf03ee13c9e07f5bd673a6fca6a6a7b990dab20adc"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.SourceStrip.heading": {
+      "source_blocks_sha256": [
+        "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33"
+      ],
+      "source_sha256": "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33",
+      "text": "La etiqueta de un origen, para una prueba o para reasignar una descripción emergente.",
+      "translation_source_blocks_sha256": [
+        "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.SourceStrip.is_on": {
+      "source_blocks_sha256": [
+        "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb"
+      ],
+      "source_sha256": "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb",
+      "text": "Si un encabezado está activado.",
+      "translation_source_blocks_sha256": [
+        "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb"
       ]
     },
     "spacr.qt.widgets.model_zoo_picker.choose_model": {
@@ -128958,6 +129988,116 @@
         "2bfe5152bae8af9a6562ee637a7ac22baa64ce3562d6c1ed17040b466cc78de9"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.PlaqueModeSwitch.mode": {
+      "source_blocks_sha256": [
+        "afb6d3b6d4537f4b2bf61abb6b3abf5cb149e5a794d635de9aa625dd6cd53076"
+      ],
+      "source_sha256": "afb6d3b6d4537f4b2bf61abb6b3abf5cb149e5a794d635de9aa625dd6cd53076",
+      "text": "El modo seleccionado actualmente.",
+      "translation_source_blocks_sha256": [
+        "afb6d3b6d4537f4b2bf61abb6b3abf5cb149e5a794d635de9aa625dd6cd53076"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaqueOverlayDialog.overlay_style": {
+      "source_blocks_sha256": [
+        "a415c0f2ef704d831c9dd12c85bb38eecde82cf17822c3b5bfd3de3a99c367b6"
+      ],
+      "source_sha256": "a415c0f2ef704d831c9dd12c85bb38eecde82cf17822c3b5bfd3de3a99c367b6",
+      "text": "El estilo definido por los controles.",
+      "translation_source_blocks_sha256": [
+        "a415c0f2ef704d831c9dd12c85bb38eecde82cf17822c3b5bfd3de3a99c367b6"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.current_path": {
+      "source_blocks_sha256": [
+        "58fb79d509e13d7a3955d7c0daddad5f9fcf116c1c8f081851749a995a0d1e22"
+      ],
+      "source_sha256": "58fb79d509e13d7a3955d7c0daddad5f9fcf116c1c8f081851749a995a0d1e22",
+      "text": "La imagen seleccionada en el selector.",
+      "translation_source_blocks_sha256": [
+        "58fb79d509e13d7a3955d7c0daddad5f9fcf116c1c8f081851749a995a0d1e22"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.current_settings": {
+      "source_blocks_sha256": [
+        "5fa6d16f704147aa24ba85adf07fac4e1cdc457210861a3372c2047bad668aa4"
+      ],
+      "source_sha256": "5fa6d16f704147aa24ba85adf07fac4e1cdc457210861a3372c2047bad668aa4",
+      "text": "La configuración del módulo con los valores de este panel aplicados sobre ella.",
+      "translation_source_blocks_sha256": [
+        "5fa6d16f704147aa24ba85adf07fac4e1cdc457210861a3372c2047bad668aa4"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.mode": {
+      "source_blocks_sha256": [
+        "9dfa2c5afa981f22d5f4ff5327d0d3143f4a26b0df86a30c465a3ff0631197bb"
+      ],
+      "source_sha256": "9dfa2c5afa981f22d5f4ff5327d0d3143f4a26b0df86a30c465a3ff0631197bb",
+      "text": "El modo actual del panel.",
+      "translation_source_blocks_sha256": [
+        "9dfa2c5afa981f22d5f4ff5327d0d3143f4a26b0df86a30c465a3ff0631197bb"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.overlay_style": {
+      "source_blocks_sha256": [
+        "90264f0b345b09afd70eb2c1b5c2524c2999951fd4f12c013c4e1eedc0920a06"
+      ],
+      "source_sha256": "90264f0b345b09afd70eb2c1b5c2524c2999951fd4f12c013c4e1eedc0920a06",
+      "text": "Cómo se dibujan las placas actualmente.",
+      "translation_source_blocks_sha256": [
+        "90264f0b345b09afd70eb2c1b5c2524c2999951fd4f12c013c4e1eedc0920a06"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.propagate": {
+      "source_blocks_sha256": [
+        "63c1c73fc0be44116528daee7773c9cf424e1d40f86e8899d49bcfd528a90a70"
+      ],
+      "source_sha256": "63c1c73fc0be44116528daee7773c9cf424e1d40f86e8899d49bcfd528a90a70",
+      "text": "Guardar los valores ajustados en la configuración del módulo.",
+      "translation_source_blocks_sha256": [
+        "63c1c73fc0be44116528daee7773c9cf424e1d40f86e8899d49bcfd528a90a70"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.selected_well": {
+      "source_blocks_sha256": [
+        "24229130e165fb7d6c0a4bdc5478003564dd0831cca58564c8fb05b80a239710"
+      ],
+      "source_sha256": "24229130e165fb7d6c0a4bdc5478003564dd0831cca58564c8fb05b80a239710",
+      "text": "El índice del pocillo resaltado, o None.",
+      "translation_source_blocks_sha256": [
+        "24229130e165fb7d6c0a4bdc5478003564dd0831cca58564c8fb05b80a239710"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.shutdown": {
+      "source_blocks_sha256": [
+        "976f47217b7dae1bd69b703f3fba264362af96323227081ee6510badbfb2c8fc"
+      ],
+      "source_sha256": "976f47217b7dae1bd69b703f3fba264362af96323227081ee6510badbfb2c8fc",
+      "text": "No dejar ningún hilo de trabajo en ejecución.",
+      "translation_source_blocks_sha256": [
+        "04a9ceb4f2768fead7a99456e6a319cccebf981d8804377e2e5bc4709b655d2a"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.text_options": {
+      "source_blocks_sha256": [
+        "2904844155210e6d5ab2f6dedba173b05977d53566c041b91103cd4b418fc7e0"
+      ],
+      "source_sha256": "2904844155210e6d5ab2f6dedba173b05977d53566c041b91103cd4b418fc7e0",
+      "text": "Las opciones :class:`spacr.plaque_papers.TextOptions` definidas por los controles.",
+      "translation_source_blocks_sha256": [
+        "2904844155210e6d5ab2f6dedba173b05977d53566c041b91103cd4b418fc7e0"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog.give_back": {
+      "source_blocks_sha256": [
+        "ba515e6443aac47bf52b9ede20d678acf2ece92ce890441054d2b01dce950ef0"
+      ],
+      "source_sha256": "ba515e6443aac47bf52b9ede20d678acf2ece92ce890441054d2b01dce950ef0",
+      "text": "Devolver todos los controles prestados al panel, ocultos y con sus valores intactos.",
+      "translation_source_blocks_sha256": [
+        "ba515e6443aac47bf52b9ede20d678acf2ece92ce890441054d2b01dce950ef0"
+      ]
+    },
     "spacr.qt.widgets.plate_layout": {
       "source_blocks_sha256": [
         "f681f5c80dcb65b5a1617b5b7ffb8dc554a958c15d7aaec67cac05978806d0b1",
@@ -130650,6 +131790,46 @@
         "3f4ec34ea24e9290bc4fabc848aebfc7b9385da8108963f41f63d4f9fc2f461d",
         "c742293247b5247b9d8bd123caa611e3db5e6130f698a5d73861e7f9b1e21215",
         "3b13241813d6d53282869f30787f3ff35db7d6b092bd529f3ea0adf77138235a"
+      ]
+    },
+    "spacr.qt.widgets.preview_scale.PreviewScaler.apply": {
+      "source_blocks_sha256": [
+        "ddc35192de55943c9213968627e07bee8bbd732e4d01ff72d6c5a1a6c0144b7a"
+      ],
+      "source_sha256": "ddc35192de55943c9213968627e07bee8bbd732e4d01ff72d6c5a1a6c0144b7a",
+      "text": "Aplicar la escala actual a todos los widgets de la vista previa.",
+      "translation_source_blocks_sha256": [
+        "ddc35192de55943c9213968627e07bee8bbd732e4d01ff72d6c5a1a6c0144b7a"
+      ]
+    },
+    "spacr.qt.widgets.preview_scale.PreviewScaler.name": {
+      "source_blocks_sha256": [
+        "8d6534ab41bf8268bddbd18b16dbce110636a4f5111aa8a6d2e4dbe7c4b1ac5e"
+      ],
+      "source_sha256": "8d6534ab41bf8268bddbd18b16dbce110636a4f5111aa8a6d2e4dbe7c4b1ac5e",
+      "text": "La clave con la que se guarda la escala de esta vista previa.",
+      "translation_source_blocks_sha256": [
+        "8d6534ab41bf8268bddbd18b16dbce110636a4f5111aa8a6d2e4dbe7c4b1ac5e"
+      ]
+    },
+    "spacr.qt.widgets.preview_scale.PreviewScaler.refresh": {
+      "source_blocks_sha256": [
+        "c0fcfb2f26d189297bcfd99f6873ecd13307b4ea29335dc4ee4dc239b4695f1d"
+      ],
+      "source_sha256": "c0fcfb2f26d189297bcfd99f6873ecd13307b4ea29335dc4ee4dc239b4695f1d",
+      "text": "Reconstruir tras un cambio de la hoja de estilos de la aplicación (Zoom, tema).",
+      "translation_source_blocks_sha256": [
+        "c0fcfb2f26d189297bcfd99f6873ecd13307b4ea29335dc4ee4dc239b4695f1d"
+      ]
+    },
+    "spacr.qt.widgets.preview_scale.PreviewScaler.scale": {
+      "source_blocks_sha256": [
+        "7c968373ae85a721dc5296b42a21e0e9609e558417d6f9b74da52228f29ab3ee"
+      ],
+      "source_sha256": "7c968373ae85a721dc5296b42a21e0e9609e558417d6f9b74da52228f29ab3ee",
+      "text": "La escala actual de la vista previa.",
+      "translation_source_blocks_sha256": [
+        "7c968373ae85a721dc5296b42a21e0e9609e558417d6f9b74da52228f29ab3ee"
       ]
     },
     "spacr.qt.widgets.provider_marks": {
@@ -132390,6 +133570,26 @@
         "88ec6a5ebfb58ea504c92f060e285f104f2542083038ba990abeb7f3017db3c8",
         "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
         "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.SampleProjectDialog.accept": {
+      "source_blocks_sha256": [
+        "501f0b17323792978d09aadd6121da9e410c8503dee46bca740ef2c1d59fc86e"
+      ],
+      "source_sha256": "501f0b17323792978d09aadd6121da9e410c8503dee46bca740ef2c1d59fc86e",
+      "text": "Anunciar el primer módulo de la ruta de trabajo elegida y cerrar.",
+      "translation_source_blocks_sha256": [
+        "501f0b17323792978d09aadd6121da9e410c8503dee46bca740ef2c1d59fc86e"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.SampleProjectDialog.selected": {
+      "source_blocks_sha256": [
+        "4cc475866913b6545dc0655aadd248533aad235141b2be330d6fb47cd4394835"
+      ],
+      "source_sha256": "4cc475866913b6545dc0655aadd248533aad235141b2be330d6fb47cd4394835",
+      "text": "La ruta de trabajo resaltada actualmente, o None.",
+      "translation_source_blocks_sha256": [
+        "4cc475866913b6545dc0655aadd248533aad235141b2be330d6fb47cd4394835"
       ]
     },
     "spacr.qt.widgets.sample_project.pathway_graph": {
@@ -137920,6 +139120,36 @@
         "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
         "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
         "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
+      ]
+    },
+    "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image": {
+      "source_blocks_sha256": [
+        "bb4f6950d494f46914c8d88e853aa8e5170f359a26ec075dab161e9d8ad967eb"
+      ],
+      "source_sha256": "bb4f6950d494f46914c8d88e853aa8e5170f359a26ec075dab161e9d8ad967eb",
+      "text": "Vaciar la vista.",
+      "translation_source_blocks_sha256": [
+        "bb4f6950d494f46914c8d88e853aa8e5170f359a26ec075dab161e9d8ad967eb"
+      ]
+    },
+    "spacr.qt.widgets.zoom_view.ZoomableImageView.fit": {
+      "source_blocks_sha256": [
+        "2603f96b3286859cc085f89a0ab68f9b871d45bdd96d20aecfb08310c73923ed"
+      ],
+      "source_sha256": "2603f96b3286859cc085f89a0ab68f9b871d45bdd96d20aecfb08310c73923ed",
+      "text": "Volver a ajustar la imagen completa a esta vista y a las vistas vinculadas.",
+      "translation_source_blocks_sha256": [
+        "2603f96b3286859cc085f89a0ab68f9b871d45bdd96d20aecfb08310c73923ed"
+      ]
+    },
+    "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_factor": {
+      "source_blocks_sha256": [
+        "1e9f146a8937422b0ac2cda7acfbb3f82694cc7cb6a5292afcbb9b67ac330ba8"
+      ],
+      "source_sha256": "1e9f146a8937422b0ac2cda7acfbb3f82694cc7cb6a5292afcbb9b67ac330ba8",
+      "text": "El nivel de ampliación de esta vista, expresado como factor de escala.",
+      "translation_source_blocks_sha256": [
+        "1e9f146a8937422b0ac2cda7acfbb3f82694cc7cb6a5292afcbb9b67ac330ba8"
       ]
     },
     "spacr.read_background": {
@@ -153460,6 +154690,16 @@
         "89208c888e763f8af04f5284301a7274b6bd61e0c5597feca02b052892160907"
       ]
     },
+    "spacr.submodules.Cellpose3Checkpoint": {
+      "source_blocks_sha256": [
+        "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3"
+      ],
+      "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
+      "text": "Se ha pasado un punto de control de Cellpose 3 a Cellpose 4, que no puede cargarlo.",
+      "translation_source_blocks_sha256": [
+        "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3"
+      ]
+    },
     "spacr.submodules.CellposeLazyDataset": {
       "source_blocks_sha256": [
         "fad00c8724d8e0c47604d2daa2cb0f0f3ddd9025aea82084fbc47a9fa002fb70",
@@ -154982,6 +156222,16 @@
         "c9196885e8b0db48db15ee681fa0647c1b5fe15da513adacf9af9301e6b94b77",
         "c91a57c95fc0f830ea2677e94998d14523598f9c3c3210b0f9d700918e1e0c83",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.timeflows_model.CellposeSamFeatures.parameters": {
+      "source_blocks_sha256": [
+        "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902"
+      ],
+      "source_sha256": "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902",
+      "text": "Los parámetros del codificador, para congelarlos y para el optimizador.",
+      "translation_source_blocks_sha256": [
+        "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902"
       ]
     },
     "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
