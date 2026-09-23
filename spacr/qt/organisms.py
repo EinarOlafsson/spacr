@@ -32,11 +32,15 @@ ORGANISMS = {
             ("Entry and the intracellular niche", (
                 "Invasion Assay separates parasites attached to a host cell from "
                 "those that have entered it. Recruitment measures host-protein "
-                "enrichment around the parasite-containing vacuole. Used together, "
+                "enrichment around the parasite-containing vacuole. Host–Pathogen "
+                "combines vacuole-level recruitment, parasite counts and host "
+                "infection denominators in one analysis. Individual parasite "
+                "counts require suitable parasite masks or a validated estimator; "
+                "whole-vacuole masks alone cannot supply those counts. Used together, "
                 "these modules help separate a change in entry from a change in "
                 "the host response after entry. Choose image channels and marker "
                 "definitions that make those two populations distinguishable."
-            ), ("invasion", "recruitment")),
+            ), ("invasion", "recruitment", "host_pathogen")),
             ("Replication and the complete lytic cycle", (
                 "Replication Assay counts parasites per vacuole, providing a "
                 "readout of intracellular growth at the sampled time. Plaque "
@@ -78,7 +82,7 @@ ORGANISMS = {
             ("starplast", "Starplast", "Explore the Toxoplasma knowledge map in a separate alpha application.", "replication"),
             ("analyze_plaques", "Plaque Assay", "Quantify plaque number and size.", "analyze_plaques"),
             ("recruitment", "Recruitment", "Measure host-protein enrichment at the vacuole.", "recruitment"),
-            ('host_pathogen', 'Host–Pathogen Analysis', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.', 'recruitment'),
+            ('host_pathogen', 'Host–Pathogen', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.', 'recruitment'),
             ("invasion", "Invasion Assay", "Distinguish attached and invaded parasites.", "invasion"),
             ("replication", "Replication Assay", "Count parasites per vacuole.", "replication"),
             (None, "Egress", "Follow vacuole rupture and parasite exit over time.", "egress"),
