@@ -599,10 +599,10 @@ class SpacrFlowchartDialog(DiagramDialog):
         self.setWindowTitle(tr("spaCR flowchart"))
         self.resize(1180, 780)
         layout = QVBoxLayout(self)
-        note = QLabel(tr("Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom."))
+        note = QLabel(tr("Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks."))
         note.setWordWrap(True)
         layout.addWidget(note)
-        self.view = WorkflowView(data if data is not None else workflow_map(), parent=self, compact=True)
+        self.view = WorkflowView(data if data is not None else workflow_map(), parent=self)
         toolbar = QHBoxLayout()
         self.module_picker = QComboBox()
         self.module_picker.setAccessibleName(tr("Module"))
@@ -630,6 +630,14 @@ class SpacrFlowchartDialog(DiagramDialog):
         self.compatible.setChecked(False)
         self.compatible.toggled.connect(self._show_compatible)
         layout.addWidget(self.compatible)
+        from PySide6.QtGui import QKeySequence
+        modifier = QKeySequence("Ctrl+Z").toString(QKeySequence.NativeText).removesuffix("Z").rstrip("+")
+        self.navigation_hint = QLabel(tr(
+            "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.",
+            key=modifier))
+        self.navigation_hint.setObjectName("WorkflowNavigationHint")
+        self.navigation_hint.setWordWrap(True)
+        layout.addWidget(self.navigation_hint)
         self._show_compatible(False)
         self.splitter = diagram_splitter(self)
         self.splitter.addWidget(self.view)
