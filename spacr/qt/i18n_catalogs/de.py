@@ -1019,6 +1019,14 @@ SETTING_LABELS = {
     'text_use_above': 'Text oberhalb verwenden',
     'text_use_below': 'Text unterhalb verwenden',
     'text_use_left': 'Text links verwenden',
+    'psf_fwhm_um': 'PSF FWHM (um)',
+    'psf_image_sampling_um': 'Bildpixelabstand für PSF (um)',
+    'psf_iterations': 'PSF-Iterationen',
+    'psf_kernel_sampling_um': 'Pixelabstand des PSF-Kernels (um)',
+    'psf_measurement_source': 'Intensitätsquelle für PSF-Messung',
+    'psf_operation': 'PSF-Operation',
+    'psf_path': 'PSF-Pfad',
+    'psf_source': 'PSF-Quelle',
 }
 
 SETTING_TOOLTIPS = {
@@ -14068,4 +14076,12 @@ SOURCE_HASHES = {
     ('UI', 'Segmentation: {methods}.'): '44c9c0497ca652c0362573d1dd4a198cce8f6ca031019ad6288304601e52a0e9',
     ('UI', 'Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.'): '91bf3195d019e91e6c1a3cb0c5652c4f61f41c57e00584c987c5e19378fae0b7',
     ('UI', 'Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.'): '2f17db1295200b62eac581ec2a85b838e2cbe9cca2b3bed2ab4b7b11d197efd3',
+    ('SETTING_LABELS', 'psf_fwhm_um'): '367996532f9731fc891ef038b484a50f0d230d5576a3ffb8fca3597f448054fc',
+    ('SETTING_LABELS', 'psf_image_sampling_um'): 'b9e3fd7fe603c599961b74c4ea7a032415683a53185c2ddaf1754c7d1906218f',
+    ('SETTING_LABELS', 'psf_iterations'): '2e176a05de137cff333b00ea3615db49295877445ea1f16eaccc6df7ba35156c',
+    ('SETTING_LABELS', 'psf_kernel_sampling_um'): 'c765a7a8209f2f67e4d93ab5e41e0fcc5e57a8a28f282d43d60d68663d3b82d7',
+    ('SETTING_LABELS', 'psf_measurement_source'): 'ecf510c8840d085bae981b5c7ab8306862aaddb22f784d3b5bdd50bd56a6f4f7',
+    ('SETTING_LABELS', 'psf_operation'): 'c98412b92da4443332053dee4db6f328b81d747008c7344b885702306b13adb7',
+    ('SETTING_LABELS', 'psf_path'): '11cbcc8c1921deab667ff9aa82317ae13b6e9720a121904bd34e7e94554e6b03',
+    ('SETTING_LABELS', 'psf_source'): 'c9a272a1b2baac77be9358a6ce5654af26d4932a408f1c806c69de62c6df4a5c',
 }
