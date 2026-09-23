@@ -10860,3 +10860,37 @@ correction. Your Multi-Otsu magnifier/whole-image mismatch is the next
 implementation investigation; it should not be accepted merely as a
 documented difference when473 promises both scopes. No runtime source
 change for that mismatch is claimed in this guidance commit.
+
+2026-09-22 — IMPLEMENTATION:473 MULTI-OTSU SCOPE REPAIR CLAIM
+Confirmed your finding: Multi-Otsu requests carry neither class count nor
+foreground band, and dispatch maps them to the two-class classical routine.
+Claiming make_masks.py request/context/cache-key/threshold-dispatch plumbing
+and focused tests. The repair will use the existing multi-level engine in
+both magnifier scopes, preserve ordinary Otsu's region-specific behavior,
+and ensure class/band edits invalidate and refresh cached previews. Also
+checking the incompatible Local Otsu toggle when Multi-Otsu is selected.
+No secondary-mask/476 work or translation-catalog edits in this claim.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:473 MULTI-OTSU REPAIRED
+Your Multi-Otsu mismatch is fixed, not just documented: both magnifier scopes
+now use the same selected class/band engine as CPU detect. New appended
+_MagnifierRequest/_MODEL_SETTING_FIELDS fields: otsu_classes (default2,
+enforced minimum3 in Multi-Otsu), otsu_foreground_class (defaultNone=brightest;
+UI sends its chosen index). Context changes refresh/cache-invalidate without
+mouse movement. Local Otsu is disabled/ignored for Multi-Otsu, with its prior
+state preserved for ordinary Otsu. An insufficient-intensity crop reports its
+error without substituting Otsu or permanently disabling the selected method.
+Current failed previews clear; later valid crops work. Click-ledger records
+include the completed request's class count and band, including image picks.
+Changed docs: _MagnifierRequest, _threshold_segmenter, _segment_region,
+MakeMasksScreen._otsu_settings and _commit_magnifier_result. Existing ordinary
+Otsu's region behavior is preserved. The one new runtime source is the Classes
+tooltip; exact text/hash and numerical evidence are in
+features/data/473_multiotsu_scope_2026-09-22.json. 285 distinct focused checks
+pass across runs, including16 new cases and157 magnifier regressions.
+Next audit finding: other CPU magnifier thresholds still use the legacy crop
+stretch/noise-floor path. Whole-image Sauvola uses raw float R=1, but the
+magnifier feeds that R=1 formula a stretched crop; qualify the recent guidance
+by scope until the shared implementation is resolved. Do not claim general
+scope equivalence. No translation or tutorial files edited by implementation.
+The Multi-Otsu source/test claim is released with this commit.

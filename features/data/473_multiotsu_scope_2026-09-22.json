@@ -1,0 +1,48 @@
+{
+  "date": "2026-09-22",
+  "baseline": "99e4b9717",
+  "reproduced_failures": 13,
+  "new_regression_cases": 16,
+  "focused_checks_across_runs": 285,
+  "source_changes": "Multi-Otsu only: same multi-level engine for magnifier region/image and CPU detect, request/cache snapshots, refresh wiring, Local Otsu incompatibility, no silent two-class fallback, click-ledger band provenance.",
+  "examples": [
+    {
+      "classes": 3,
+      "foreground_class": 1,
+      "selected_pixels": 2880,
+      "old_two_class_pixels": 0,
+      "mode": "multiotsu",
+      "note": ""
+    },
+    {
+      "classes": 3,
+      "foreground_class": 2,
+      "selected_pixels": 2304,
+      "old_two_class_pixels": 0,
+      "mode": "multiotsu",
+      "note": ""
+    },
+    {
+      "classes": 4,
+      "foreground_class": 1,
+      "selected_pixels": 2880,
+      "old_two_class_pixels": 0,
+      "mode": "multiotsu",
+      "note": ""
+    },
+    {
+      "classes": 4,
+      "foreground_class": 3,
+      "selected_pixels": 576,
+      "old_two_class_pixels": 0,
+      "mode": "multiotsu",
+      "note": ""
+    }
+  ],
+  "runtime_caption": {
+    "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations \u2014 background, a dim halo and bright nuclei \u2014 and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+    "sha256": "75f6c992f2d348554ad9cca515f18a0d87798a4947a578b0a988e3626cbb8016"
+  },
+  "remaining": "473 translation/API integration and other acceptance remain open; other non-Otsu CPU magnifier algorithms still need a scope-semantics audit.",
+  "example_image": "96x96 nested rectangles at 0/100/200/300 plus uniform integer noise 0..9, NumPy default_rng(91)."
+}

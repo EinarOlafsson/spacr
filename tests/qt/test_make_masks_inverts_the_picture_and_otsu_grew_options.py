@@ -583,25 +583,19 @@ def test_the_detect_run_records_the_new_settings(screen):
     assert detail["otsu_window"] == mm.OTSU_LOCAL_WINDOW
 
 
-def test_the_whole_field_settings_are_the_detect_buttons_own(screen):
-    """Multi-class and local Otsu are whole-field judgements, so the box
-    does not read them.
+def test_multiotsu_bands_reach_the_box_but_local_otsu_remains_button_only(screen):
+    """473 adds band snapshots for Multi-Otsu in both magnifier scopes.
 
-    A 64 px box rarely holds three populations and a window the size of
-    the box is the box's own threshold, so offering either there would be
-    offering a control that does nothing -- the same defect, moved. The
-    precedent is 419's own "Drop objects the image border cuts".
-
-    THE LOCAL WINDOW IS THE EXCEPTION SINCE ITEM 473, and deliberately:
-    Sauvola and Niblack measure in that window and are offered in the box,
-    so a window the box ignored would be a control that does nothing in
-    the other direction.
+    The local window also reaches Sauvola/Niblack. The Local Otsu toggle
+    remains a whole-image detect setting, separate from those algorithms.
     """
     context = screen._magnifier_context()
-    for key in ("classes", "foreground_class", "local",
-                "otsu_classes", "otsu_local"):
+    for key in ("classes", "foreground_class", "local", "otsu_local"):
         assert key not in context, key
-    assert "otsu_classes" not in mm._MODEL_SETTING_FIELDS
+    assert context["otsu_classes"] == screen._otsu_classes.value()
+    assert context["otsu_foreground_class"] == screen._otsu_foreground.value()
+    assert "otsu_classes" in mm._MODEL_SETTING_FIELDS
+    assert "otsu_foreground_class" in mm._MODEL_SETTING_FIELDS
     assert "otsu_local" not in mm._MODEL_SETTING_FIELDS
     assert context["otsu_window"] == screen._otsu_window.value()
 

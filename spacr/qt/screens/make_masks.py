@@ -2364,6 +2364,12 @@ class _MagnifierRequest(NamedTuple):
     (or ``"image"`` for the whole field), every setting a model reads and,
     for a region, whether cut objects are left out -- and it is what a click
     is matched to its result by.
+
+    ``otsu_classes`` and ``otsu_foreground_class`` snapshot Multi-Otsu's
+    class count and selected zero-based intensity band. The default count
+    of 2 preserves legacy callers; Multi-Otsu enforces at least 3 classes.
+    A None foreground class selects the brightest band. Both fields are
+    appended to the request and settings key to preserve existing positions.
     """
 
     key: tuple
@@ -2432,6 +2438,8 @@ class _MagnifierRequest(NamedTuple):
     #: and whether the run is still wanted. None for a region, which is
     #: small enough to finish. Not part of ``key``, for the same reason.
     ticket: Any = None
+    otsu_classes: int = 2
+    otsu_foreground_class: Optional[int] = None
 
 
 class _RunCancelled(Exception):
@@ -2589,7 +2597,7 @@ _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "cellprob_threshold", "normalize", "otsu_correction",
                          "otsu_smoothing", "otsu_fill_holes", "otsu_split",
                          "invert", "chain", "method_params", "cpu_params",
-                         "otsu_window")
+                         "otsu_window", "otsu_classes", "otsu_foreground_class")
 
 
 class _MagnifierResult(NamedTuple):
@@ -2822,9 +2830,13 @@ def _threshold_segmenter(request: _MagnifierRequest, load_model=None):
 
     Otsu, Li's minimum cross entropy, Yen, Triangle, IsoData, Mean,
     Minimum, Multi-Otsu, Sauvola and Niblack all arrive here, and the mode
-    name IS the algorithm name
-    (:func:`spacr.qt.cpu_modes.engine_algorithm`). What differs between
-    them is one number; the smoothing, the threshold correction, the
+    name maps to the algorithm name
+    (:func:`spacr.qt.cpu_modes.engine_algorithm`). Multi-Otsu instead uses
+    :func:`spacr.qt.mask_engine._otsu_instances` with the request's class
+    count and selected band, as the whole-image detect button does. Its
+    levels are estimated from the requested crop, so a small region can
+    produce different thresholds from a full image. Sensitivity is not
+    used for Multi-Otsu. For the other modes, the smoothing, correction,
     bright or dark side, the filled holes and the split are the Detection
     method category's, read the same way for every one of them, by
     :func:`spacr.qt.mask_engine._classical_region_labels`.
@@ -2834,6 +2846,15 @@ def _threshold_segmenter(request: _MagnifierRequest, load_model=None):
     """
     mode = canonical_magnifier_mode(request.mode)
     params = request.cpu_params
+    if mode == cpu_modes.MULTIOTSU:
+        return engine._otsu_instances(
+            request.crop, bright=request.bright, min_area=request.min_area,
+            correction=request.otsu_correction,
+            smoothing=request.otsu_smoothing,
+            fill_holes=request.otsu_fill_holes,
+            split_touching=request.otsu_split,
+            classes=max(3, int(request.otsu_classes)),
+            foreground_class=request.otsu_foreground_class)
     return engine._classical_region_labels(
         request.crop, sensitivity=request.sensitivity,
         bright=request.bright, min_area=request.min_area,
@@ -3009,6 +3030,10 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
         the worker thread.
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
+
+    Multi-Otsu errors are reported to the caller without substituting
+    two-class Otsu: a crop with too few distinct intensities cannot answer
+    the requested multi-band question. A later crop is free to try again.
     """
     if request.ticket is not None:
         request.ticket.check()
@@ -3023,6 +3048,9 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     note = ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
+    elif mode == cpu_modes.MULTIOTSU:
+        labels = segmenter(request, load_model)
+        return _finished_labels(labels, chain, prepared), mode, ""
     elif mode != "otsu":
         try:
             labels = segmenter(request, load_model)
@@ -3934,7 +3962,8 @@ class _LiveMagnifier(QObject):
                    "chain": detect_chain.NO_CHAIN,
                    "method_params": organelle_modes.DEFAULT_PARAMS,
                    "cpu_params": cpu_modes.DEFAULT_PARAMS,
-                   "otsu_window": OTSU_LOCAL_WINDOW}
+                   "otsu_window": OTSU_LOCAL_WINDOW,
+                   "otsu_classes": 2, "otsu_foreground_class": None}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
@@ -3955,7 +3984,11 @@ class _LiveMagnifier(QObject):
                 context["chain"],
                 context["method_params"],
                 context["cpu_params"],
-                int(context["otsu_window"]))
+                int(context["otsu_window"]),
+                max(3, int(context["otsu_classes"])) if mode == cpu_modes.MULTIOTSU
+                else int(context["otsu_classes"]),
+                (None if context["otsu_foreground_class"] is None else
+                 int(context["otsu_foreground_class"])))
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -4784,6 +4817,10 @@ class _LiveMagnifier(QObject):
             return
         if error is not None:
             self._waiting.discard(request.key)
+            if request.key == self._requested_key:
+                self._shown = None
+                self._shown_image = None
+                self.canvas.update()
             LOG.warning("magnifier could not segment %s: %s",
                         request.box, error)
             self.status.emit(tr(
@@ -8470,7 +8507,11 @@ class MakeMasksScreen(QWidget):
             "where a field holds more than two populations — background, a "
             "dim halo and bright nuclei — and the cut moves off the one "
             "compromise level between all three onto the boundary you "
-            "actually want, chosen below. Otsu detect only.")
+            "actually want, chosen below. Multi-Otsu uses this count in both "
+            "magnifier scopes and whole-image detection. Each scope estimates "
+            "thresholds from its own pixels; a small region may contain too "
+            "few distinct intensities for the requested class count. In plain "
+            "Otsu mode, this count still applies only to whole-image detect.")
         more.addRow("Classes", self._otsu_classes)
 
         self._otsu_foreground = QSpinBox()
@@ -8528,6 +8569,8 @@ class MakeMasksScreen(QWidget):
             "detect only.")
         self._otsu_local.toggled.connect(self._sync_otsu_controls)
         self._otsu_classes.valueChanged.connect(self._sync_otsu_controls)
+        self._otsu_classes.valueChanged.connect(self._on_magnifier_context_changed)
+        self._otsu_foreground.valueChanged.connect(self._on_magnifier_context_changed)
         self._otsu_local_k.valueChanged.connect(
             self._on_magnifier_context_changed)
         self._otsu_window.valueChanged.connect(
@@ -9478,11 +9521,11 @@ class MakeMasksScreen(QWidget):
         if multi and int(self._otsu_classes.value()) < 3:
             self._otsu_classes.setValue(3)
         self._otsu_local_k.setEnabled(window_family)
-        self._otsu_local.setEnabled(not window_family)
+        self._otsu_local.setEnabled(not window_family and not multi)
         self._otsu_local_k_label.setVisible(window_family)
         self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
-        local = bool(self._otsu_local.isChecked()) and not window_family
+        local = bool(self._otsu_local.isChecked()) and not window_family and not multi
         self._otsu_classes.setEnabled(not local and (multi or classes > 2
                                                      or not window_family))
         self._otsu_foreground.setEnabled(not local and classes > 2)
@@ -9498,18 +9541,15 @@ class MakeMasksScreen(QWidget):
         One reader for the button and the magnifier, so a setting added to
         the category reaches both by being read here once.
 
-        THE CLASS COUNT, FOREGROUND CLASS AND LOCAL WINDOW ARE THE BUTTON'S
-        ONLY, and the tooltips say so, on the precedent "Drop objects the
-        image border cuts" already set.
-        Multi-level Otsu and a local window are judgements about a WHOLE
-        FIELD: the histogram of a 64 px box rarely holds three populations,
-        and a window the size of the box is the box's own threshold, so
-        offering either to the magnifier would be offering a control that
-        does nothing there.
-        :func:`spacr.qt.mask_engine._classical_region_labels`, which is the
-        magnifier's own routine, is untouched by them.
+        Multi-Otsu reads the class count and foreground band in both
+        magnifier scopes through :meth:`_magnifier_context`. Its local
+        Otsu toggle is disabled and ignored because one threshold per
+        window cannot be combined with multiple intensity bands. Plain
+        Otsu's magnifier keeps its existing region-specific algorithm;
+        that mode's class count and Local Otsu toggle remain button-only.
         """
-        local = bool(self._otsu_local.isChecked())
+        multi = canonical_magnifier_mode(self._magnifier.mode) == cpu_modes.MULTIOTSU
+        local = bool(self._otsu_local.isChecked()) and not multi
         return {
             "correction": float(self._otsu_correction.value()),
             "smoothing": float(self._otsu_smoothing.value()),
@@ -10056,6 +10096,8 @@ class MakeMasksScreen(QWidget):
             "method_params": self._method_params(),
             "cpu_params": self._cpu_params(),
             "otsu_window": int(self._otsu_window.value()),
+            "otsu_classes": int(self._otsu_classes.value()),
+            "otsu_foreground_class": int(self._otsu_foreground.value()),
         }
 
     def _on_magnifier_mode(self, mode) -> None:
@@ -10357,6 +10399,9 @@ class MakeMasksScreen(QWidget):
         A whole-image click arrives as that one object, cut to its bounding
         box, and is recorded with ``scope="image"``.
 
+        Multi-Otsu records the class count and selected band from the
+        completed request, even if the panel has since changed.
+
         :returns: the ids added; empty when nothing was.
         """
         from ..i18n import tr
@@ -10387,6 +10432,15 @@ class MakeMasksScreen(QWidget):
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
+        multi_settings = {}
+        if result.mode == cpu_modes.MULTIOTSU:
+            count = max(3, int(request.otsu_classes))
+            multi_settings = {
+                "otsu_classes": count,
+                "otsu_foreground_class": (
+                    count - 1 if request.otsu_foreground_class is None
+                    else int(request.otsu_foreground_class)),
+            }
         self._record("magnifier", list(added), changed,
                       mode=result.mode, overlap=overlap,
                       box=[int(v) for v in request.box],
@@ -10399,6 +10453,7 @@ class MakeMasksScreen(QWidget):
                       n_objects=len(added), scope=request.scope,
                       method_parameters=organelle_modes.provenance(
                           result.mode, request.method_params),
+                      **multi_settings,
                       **detect_chain.provenance(
                           request.chain or detect_chain.NO_CHAIN,
                           percentile_stretch=bool(

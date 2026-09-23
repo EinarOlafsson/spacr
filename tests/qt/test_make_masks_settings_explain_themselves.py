@@ -206,8 +206,10 @@ def _awaiting_translation(screen) -> set:
     corrected on 2026-09-22 to explain the local bright/dark distinction;
     that replacement source is also owed. The Method box's tooltip is now
     translated in all nine languages and is no longer excluded here.
+    The Classes tooltip now describes Multi-Otsu in both magnifier scopes;
+    its replacement source awaits the same catalog lane.
     """
-    widgets = [screen._otsu_local_k, screen._otsu_correction,
+    widgets = [screen._otsu_local_k, screen._otsu_correction, screen._otsu_classes,
                screen._btn_otsu]
     widgets += list(getattr(screen, "_method_widgets", {}).values())
     widgets += list(getattr(screen, "_propagate_widgets", {}).values())

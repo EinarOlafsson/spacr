@@ -606,3 +606,50 @@ references are in features/data/473_local_threshold_guidance_2026-09-22.json.
 Installed scikit-image0.23.2 source was checked against its official formulas.
 API/runtime translation reconciliation is handed to the other Codex session;
 473 remains OPEN for that work and its other previously recorded acceptance.
+
+2026-09-22 — MULTI-OTSU USES THE CHOSEN BANDS IN BOTH MAGNIFIER SCOPES
+--------------------------------------------------------------------------------
+The API inventory exposed an implementation defect: the magnifier mapped
+Multi-Otsu to ordinary two-class Otsu, with no class count or selected band in
+its request. The preview cache consequently did not distinguish those settings.
+Thirteen targeted cases failed before the repair.
+
+Multi-Otsu now calls the existing _otsu_instances multi-level implementation
+for both region and whole-image magnifier requests. The two appended immutable
+request/key fields are otsu_classes (legacy default2, minimum3 in Multi-Otsu)
+and otsu_foreground_class (None selects brightest; UI supplies its chosen
+zero-based band). Class/band changes refresh immediately, including without
+mouse movement, and existing requests retain their original values. Prefix
+positions used by existing caches/pace estimation remain unchanged.
+
+Local Otsu is disabled and ignored while Multi-Otsu is selected, so a previous
+local toggle cannot produce an incompatible local-plus-multiclass request.
+Its prior selection is preserved when returning to ordinary Otsu. Ordinary
+Otsu's existing region-specific segmentation remains unchanged.
+
+A crop with too few distinct intensities now reports the multi-level error
+instead of substituting two-class Otsu or permanently marking the method
+unavailable. Failed current previews are cleared; later valid regions can
+run Multi-Otsu. A magnifier click records the class count and band from its
+completed request, including whole-image object picks, even if the panel has
+since changed. Committing and undoing those masks are tested.
+
+Validation:285 distinct focused checks across the detection-method, expanded
+Otsu settings, help-coverage and three existing magnifier suites, including
+16 new regressions. The final magnifier run passes157 in32.00s. Deterministic
+three/four-class examples match direct multi-Otsu thresholds and CPU detection
+on the same pixels; selected bands differ from the old two-class result.
+Region/full-field thresholds can still differ when their input pixels differ.
+Fatal-error Ruff and git diff --check pass; no GPU work was launched.
+Evidence and the replacement Classes tooltip/hash are in
+features/data/473_multiotsu_scope_2026-09-22.json. The Classes tooltip is
+explicit translation debt until the other lane publishes its replacement.
+
+Still OPEN:473's full catalog/API/tutorial acceptance and prior remaining
+items. Further scope-audit finding: non-Otsu CPU magnifier methods still pass
+through _classical_region_labels, which stretches each crop and may use the
+legacy noise-floor fallback. That differs from whole-image _otsu_instances,
+including Sauvola's effective intensity scale. The prior raw-float guidance
+is accurate for whole-image detect but needs that scope distinction or a
+shared implementation. This is the next implementation investigation; no
+claim that all CPU detector scopes are now equivalent is made.
