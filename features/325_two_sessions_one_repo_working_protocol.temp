@@ -14394,3 +14394,31 @@ Docs run35897014803 failed on main's external PyTorch intersphinx inventory
 connection reset, while its nightly build passed; latest7401ce3c5 run is active
 and b97708cca queued. No docs.yml changes from runtime.129's successful live
 installer audit concerned the previously published snapshot, not these runs.
+
+2026-09-23 — ISSUE116 REMAINING LOADING FOLLOW-UP
+Historical audit found116's promised stage progress / cancellation still
+absent from CellMontageView. Taking that runtime widget and related tests:
+cooperative cancellation between loading stages and crop-source reads,
+generation-safe progress on the GUI thread, visible Cancel beside Show.
+Current filesystem/database operations may finish; no forced thread termination.
+Also verifying118/119/120/122 and updating121's obsolete Measure-sidecar caveat.
+
+2026-09-23 — USER FUTURE REQUEST493: PARALLEL GPU BATCHES
+Filed future/493_parallel_multi_gpu_mask_batches.txt, explicitly planned only.
+Cluster Distribution and Mask Generation: generate temporary NPZ inputs once,
+then distribute individual batches or disjoint lists to selected GPUs running
+in parallel. Mask's option is greyed out below two compatible detected GPUs.
+Includes device binding, progress, exclusive output ownership, cancellation/
+resume and real multi-GPU acceptance. No runtime/settings/API introduced yet;
+documentation owner should reference this as planned, not available.
+
+2026-09-23 — ISSUE116 LOAD PROGRESS / CANCEL VERIFIED
+CellMontageView adds cancel_loading() and Cancel beside Show the cells.
+load(request,*,progress=None,cancelled=None) accepts stage callback and
+cancellation predicate, keeping existing callers compatible. Worker stages
+report per-database reading, crop-path resolution, source discovery, selection
+and crop reads. Cancellation prevents subsequent stages and queued coefficient
+loads; an active disk operation may finish. Progress reaches widgets only on
+the GUI thread and stale progress/success/errors are discarded.184focused
+checks pass. Please include the new control/API and precise cancellation
+boundary in the regression montage documentation and translations.
