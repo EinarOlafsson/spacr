@@ -6606,6 +6606,7 @@ UI = {
     'Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.': '필수인 두 색상 차등 염색 측정값과 염색 기준선 대조군을 사용해 부착과 침입을 구분하세요.',
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': '{key} 키를 누른 채 마우스 휠을 돌려 확대하거나 축소하세요. 빈 공간을 드래그하여 화면을 이동하세요. 화면에 맞추기를 누르면 전체 지도가 표시됩니다.',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': '실선 화살표: 문서에 설명된 데이터 전달. 점선 화살표: 데이터 유형이 일치하지만 호환성 확인이 필요한 연결.',
+    'Save template': '템플릿 저장',
 }
 
 MODULE_SUMMARIES = {
@@ -13336,4 +13337,5 @@ SOURCE_HASHES = {
     ('UI', 'Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.'): '240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815',
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
+    ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
 }

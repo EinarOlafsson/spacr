@@ -6935,6 +6935,7 @@ UI = {
     'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': '测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。',
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': '按住 {key} 并滚动鼠标滚轮可缩放。拖动空白区域可平移视图。点击“适应窗口”可显示整个图。',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': '实线箭头：已说明的数据传递。虚线箭头：数据类型匹配，但仍需检查兼容性。',
+    'Save template': '保存模板',
 }
 
 MODULE_SUMMARIES = {
@@ -13993,4 +13994,5 @@ SOURCE_HASHES = {
     ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
+    ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
 }

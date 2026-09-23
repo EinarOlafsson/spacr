@@ -6539,6 +6539,7 @@ UI = {
     'Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.': 'Notaðu nauðsynlegar mælingar með tveggja lita aðgreinandi litun og viðmið fyrir grunnlitun til að greina á milli viðloðunar og innrásar.',
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': 'Haltu {key} niðri og skrunaðu með músarhjólinu til að þysja. Dragðu á auðu svæði til að færa sýnina. Aðlaga að glugga sýnir allt kortið.',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': 'Heildregnar örvar: skjalfestar gagnatilfærslur. Örvar með brotalínum: samsvarandi gagnategundir sem þarf að kanna samhæfni á.',
+    'Save template': 'Vista sniðmát',
 }
 
 MODULE_SUMMARIES = {
@@ -13202,4 +13203,5 @@ SOURCE_HASHES = {
     ('UI', 'Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.'): '240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815',
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
+    ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
 }

@@ -6746,6 +6746,7 @@ UI = {
     'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': 'पूरी रिक्तिकाओं और मेज़बान संदर्भ कंपार्टमेंट का मापन करें तथा संक्रमण अनुपात के हर में असंक्रमित मेज़बान कोशिकाओं को बनाए रखें। मार्कर चैनल और नियंत्रणों से अंशांकित अनुपात की सीमाएँ चुनें। वैकल्पिक रूप से, स्पष्ट रिक्तिका संबंधों या मापी गई गणना के स्तंभ से अलग-अलग विभाजित परजीवियों की गिनती करें। रिक्तिकाओं, मेज़बान कोशिकाओं और वेल की तालिकाओं, संयुक्त मार्कर अवस्थाओं, प्रतिकृति वितरणों और बेमेल परजीवी संबंधों की समीक्षा करें; अज्ञात माप अज्ञात ही रहते हैं।',
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': 'ज़ूम करने के लिए {key} दबाए रखें और माउस का पहिया घुमाएँ। दृश्य को खिसकाने के लिए खाली जगह पर खींचें। ‘पूरा दिखाएँ’ से पूरा मानचित्र दिखता है।',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': 'सतत रेखा वाले तीर: दस्तावेज़ों में वर्णित डेटा हस्तांतरण। खंडित रेखा वाले तीर: मेल खाते डेटा प्रकार, जिनकी संगतता जाँचना आवश्यक है।',
+    'Save template': 'टेम्पलेट सहेजें',
 }
 
 MODULE_SUMMARIES = {
@@ -13616,4 +13617,5 @@ SOURCE_HASHES = {
     ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
+    ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
 }
