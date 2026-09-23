@@ -1156,3 +1156,37 @@ work, model download or NAS access. API priority prose handoff sent.
 This supersedes the old statement that no real bar was checked. Independent
 human lawn-strip/region-count review, crop-specific corpus, duplicate-threshold
 calibration and the other acceptance limitations remain open.
+
+2026-09-23 — DUPLICATE THRESHOLD MEASURED ON PINNED FIGURES
+Restored all 182 original figures from 28 papers; every SHA256 matches the
+recorded transfer manifest. New tools/evaluate_plaque_duplicate_threshold.py
+runs the actual fingerprint and database matcher, checks every source hash
+and dimension, and refuses output paths that alias an input. CPU only.
+
+At the unchanged 4-bit threshold, 1078/1092 resized/JPEG controls match
+(98.72 percent); all 364 lossless PNG/BMP copies match exactly. None of the
+lossy/resized matches skip measurement. Fourteen controls across 7 figures
+are missed, with distances 5–8. Per-control histograms and all misses are in
+data/424_duplicate_threshold_controls_2026-09-23.json. These are known
+same-source transformations, not independently reviewed duplicate labels.
+
+Of 32942 ordered distinct-source pairs, 1250 pass the existing 3 percent aspect
+ratio gate; none are flagged at 4 bits. This is an unreviewed collision audit,
+not a measured false-positive rate. At 8 bits all 1456 controls are within the
+threshold, but one distinct-source pair is also flagged in both directions:
+PMC13028617 Fig 6/Fig 7. Assistant visual inspection shows similarly arranged
+adhesion/invasion bar charts with different axes and values. This is not a
+second human review. No threshold tuning or skip-policy change is justified
+by these controls alone; 4 bits remains the conservative flagging rule.
+
+33 focused checks pass; 1 existing optional PDF-reader check skips because host
+pdfplumber is absent. Input overwrite guards include symlinks and hardlinks;
+changed/missing source files leave prior evidence untouched. No runtime,
+public API signature, settings or translation catalog changed. Documentation
+handoff sent with the evaluator and interpretation limits.
+
+This supersedes the statement that 4 bits has never been measured. Natural
+preprint/published duplicates, crop/panel reuse, rotation and text overlays
+still need a separately reviewed corpus. Human lawn-strip/region-count
+review, crop-specific detector corpus and the other acceptance items remain
+open; these controls do not close all of 424.

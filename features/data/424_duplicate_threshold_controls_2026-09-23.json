@@ -1,0 +1,2834 @@
+{
+  "references": [
+    {
+      "key": "PMC12115599__vaccines-13-00495-g001.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "5f65a4d70d294ce6c0dc9ce9ed9243322e9f405b227d62752aca930fa037389c",
+      "pixels": [
+        763,
+        454
+      ],
+      "pixel_sha256": "743a115cea9f81968a47fa042e4a1e74c9c0fc84cfbb85a4fd7f9762d94fb34a",
+      "dhash": "a393038f6d799988"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g002.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "17f37a93972b5e945106a800f8dd0ead1e21f0351f62e5dc893924cbd37fce1d",
+      "pixels": [
+        763,
+        739
+      ],
+      "pixel_sha256": "e5922160877dd625e27b4ee061ac004f118fbc30e7f6a565a6118e96eb94286a",
+      "dhash": "4c6e2363bbeb6433"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g003.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "5b54f926ce08f908f3a4eaec0d0f289f0305a9970fdf90c604f441125bf0932e",
+      "pixels": [
+        792,
+        795
+      ],
+      "pixel_sha256": "ec78ecc561cf170e17dd1fb297996e21936870514d2e91eaca410436f2e4976a",
+      "dhash": "3939682c23ebcc33"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g004.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "c7d46045945605589954d0b8ec3ac1f5905e6ae6dc45957a96b5713dc13285a9",
+      "pixels": [
+        738,
+        862
+      ],
+      "pixel_sha256": "a0a1c58e33117ddc8d0ddb5f21f0678fcd8f1ac48ee943c97152ec62340a6122",
+      "dhash": "33737333e4cde733"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g005.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "82ebd84519f1f8965c11fb42fb7f5601a0317736f0d204141ebd7d9f98b6c798",
+      "pixels": [
+        788,
+        318
+      ],
+      "pixel_sha256": "e37371cab00249e15c0ecb962200edbaf43e8684dc65f3ae651e7ae9f2592959",
+      "dhash": "91c5697574746c69"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g006.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "e20d75d2447cbe50daa74f54e52368c9b9a90b4cec41ffad7ee95a51301bc42a",
+      "pixels": [
+        735,
+        783
+      ],
+      "pixel_sha256": "23271d07ccb252fb9193abe5f913c2404222f6f1c542d51b321061f8ba1707e6",
+      "dhash": "a6a722ea9932eb6b"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g007.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "37c9e30773c1616e4280185dc6a06125cf79e2c2cd10ba76698684949e67710c",
+      "pixels": [
+        736,
+        484
+      ],
+      "pixel_sha256": "f08dbed06b6295523c4a51b12aa8aab6f58685e2c1b3c420bc390dcaa684d838",
+      "dhash": "731363276b4a4426"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g008.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "f7cc816c485afebf213e16e3b43855c97e33c66ee28e638bb83c5128ef02e212",
+      "pixels": [
+        736,
+        1010
+      ],
+      "pixel_sha256": "39398211c33b97c18f9a1406979df03347ecaf316d53d72c80d63ce1987fd0af",
+      "dhash": "61795a49496db818"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g009.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "79d30c0615d47d1a0c62f75962627ac586877548ca0ee69ee6dc0b5c4929407f",
+      "pixels": [
+        772,
+        680
+      ],
+      "pixel_sha256": "66a6eadb1cae12e69675f5cae061eafc4962e47ab70a07a617853091c534a05f",
+      "dhash": "d557444c77715959"
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g010.jpg",
+      "pmcid": "PMC12115599",
+      "doi": "10.3390/vaccines13050495",
+      "licence": "cc by",
+      "sha256": "4a0a48a8a7cb2a0dbf842f4e07abfcc6b3b99e55b6c9346ee7112c883ea50f30",
+      "pixels": [
+        798,
+        269
+      ],
+      "pixel_sha256": "78e4d4ec0ff58cfff4093dabae402ecc50ff7a471e1b9d695433b598d7eab447",
+      "dhash": "a8a2aaaaaa2b2b0f"
+    },
+    {
+      "key": "PMC13472536__jgv-107-02315-g001.jpg",
+      "pmcid": "PMC13472536",
+      "doi": "10.1099/jgv.0.002315",
+      "licence": "cc by",
+      "sha256": "3792e60265673216631fa1a2199566b51ac9df3ab79ab1329acfe0af5b18114a",
+      "pixels": [
+        735,
+        779
+      ],
+      "pixel_sha256": "ddfaeb7d474f4f498900927d47ac9ffc5b51b6367e2d61d967c3720cbc831f5a",
+      "dhash": "9115c54c0c0d4c09"
+    },
+    {
+      "key": "PMC13472536__jgv-107-02315-g002.jpg",
+      "pmcid": "PMC13472536",
+      "doi": "10.1099/jgv.0.002315",
+      "licence": "cc by",
+      "sha256": "87b5ecaaad2bba26f7114ad60c2353a00c6a8a1d5534081d6a7447785f96e156",
+      "pixels": [
+        735,
+        392
+      ],
+      "pixel_sha256": "df4176e3631a7e5f5f9fde4277bae75e12a76b8a84af1e8179f889745627f2fd",
+      "dhash": "5e5e1c1d8b424362"
+    },
+    {
+      "key": "PMC13472536__jgv-107-02315-g003.jpg",
+      "pmcid": "PMC13472536",
+      "doi": "10.1099/jgv.0.002315",
+      "licence": "cc by",
+      "sha256": "02755c54166711e83a5092edd638bf91eb465acc53596bc1d6d43ede00a27ffa",
+      "pixels": [
+        735,
+        222
+      ],
+      "pixel_sha256": "94b1c882640cede5a56f80266bff9e03786ab25e811539488125b6f924014182",
+      "dhash": "4a4a6e6c4c4a4a4e"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f001.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "8ac9426c9c726dec7fb63d8047f1d9ef516e80ffcd315187b7e222e4d6dc4d53",
+      "pixels": [
+        706,
+        735
+      ],
+      "pixel_sha256": "fc025809ea3982c6b64bba80d5ce6400149f355e55ab24ebb2fc436284a58baf",
+      "dhash": "cb9bdb49696d7070"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f002.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "0b4e5abfefff485dcfb2638e56f83db5807b26156e65856f1fd1a88077cfbba5",
+      "pixels": [
+        611,
+        422
+      ],
+      "pixel_sha256": "02618d50dfe7c65f0237517eef3f7352af4e15e9cb268c6b1726daccd04910be",
+      "dhash": "31d1905c9c1f1b6a"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f003.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "b0c9ef78b2c2585e7681a3860a4b4f653e35ea3ad87712622945b09de0a22e1d",
+      "pixels": [
+        668,
+        856
+      ],
+      "pixel_sha256": "9675dc655c88cb3245dfc1c2ccd3701008d01f3fd4d3a4fb36811fda34911682",
+      "dhash": "65676767677785cc"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f004.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "70be62f9ca8e1aa7f0b30d7b54afc05d36fb24d7cc33ea5d463de59e01a88b9f",
+      "pixels": [
+        783,
+        927
+      ],
+      "pixel_sha256": "874ab4ef6b4f5f55fc4c187cfac75224b477776a06bb7ea188189b29248273f3",
+      "dhash": "3c76660fa73049cb"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f005.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "eeba23b823dad85c343ea0ddd7a169ada39fe05756d9f71faf75dc671a08217a",
+      "pixels": [
+        780,
+        1315
+      ],
+      "pixel_sha256": "0c1c92363ed8eda0c04ea2f74d69ae46166659c3aca0a94e2f49b8eea47de289",
+      "dhash": "1266677f7f1b43bb"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f006.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "c62478ab565992fc9c9f881ec60af7810b30164057cc1e2a533fa1b712ef8247",
+      "pixels": [
+        670,
+        877
+      ],
+      "pixel_sha256": "4fd1547b9eeb52269843d9dc7dda9b71158e0776486a78b9886cdbe27c6a558f",
+      "dhash": "475458485010344c"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f007.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "d8ee49f5141079bde7437d3c3ec5b42875c843beaf665a0f0d2ceba631cd9580",
+      "pixels": [
+        782,
+        999
+      ],
+      "pixel_sha256": "96e82c55f92bcd9eadbaf1b86d5012bd7731d4450e32c582cd69bfc3cf33d1b3",
+      "dhash": "c5b6c6d6d212120e"
+    },
+    {
+      "key": "PMC13464350__mbio.01284-26.f008.jpg",
+      "pmcid": "PMC13464350",
+      "doi": "10.1128/mbio.01284-26",
+      "licence": "cc by",
+      "sha256": "80db5e3e08db50c0d701856302ad8c8ddc005089368ebb69f712ac0c166b9a28",
+      "pixels": [
+        766,
+        604
+      ],
+      "pixel_sha256": "df8be48848660966c233a5e5619c0f32d3607777a62eb51420325558c2912d30",
+      "dhash": "3e3e3c3f3c3e7050"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g001.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "3e28f8cc7eca3cda3f4cd5d7d926a7e1795f763b4cd12bba64c939c6a7e43dc8",
+      "pixels": [
+        567,
+        568
+      ],
+      "pixel_sha256": "0fa3d32b6b4b0fbf4d5d7be6efcbdc01b5b0c9856d1369002f3366fe39e3e012",
+      "dhash": "0f1f3f7f7f3f1f0f"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g002.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "7fb4f90042bb20063019fb9686930dcd74767b7274264c4029964ea9b31094a9",
+      "pixels": [
+        567,
+        401
+      ],
+      "pixel_sha256": "6ecf22b071bd257756b6153afa9be1d309e76f552d27ca0b726addacca3d23b3",
+      "dhash": "6062e6ccd1b62f0f"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g003.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "4d953413f5859a08ad6630a1c108b22a83561b512ddad7fa74cf7c206cff50b2",
+      "pixels": [
+        570,
+        818
+      ],
+      "pixel_sha256": "aa849b3a5db223b69556f67f178efc0915b2523759027d5c81a6c46f442a6d2e",
+      "dhash": "63434303020a0303"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g004.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "780ac75622688bd75a89d460160961c10a8738ccfdc8f2fec0462ae0384dab64",
+      "pixels": [
+        714,
+        274
+      ],
+      "pixel_sha256": "10e45c1166939a72d35c6bbaf0ca739cd26bda1fd733a71ac28e625a5588f7ed",
+      "dhash": "8c8c8dcdcdcb1633"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g005.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "ac1e1bd8a504fd00126b6b0d77c160066fdc7b0c970b02fcb9c5ebf48b1f242d",
+      "pixels": [
+        767,
+        899
+      ],
+      "pixel_sha256": "7470ee69171f894beb8ecfb62a04c9c03e3b02c7097baf316ef5c86303e980fe",
+      "dhash": "963313cd07070703"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g006.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "8d870ba9c335ef7cc4a939db66714c8ecd3a985b645190574e2e852ba6720c2e",
+      "pixels": [
+        567,
+        397
+      ],
+      "pixel_sha256": "7b8406510ad8c37922a5f6b6a1136998f0e0057b019d9e17247c0d814cb4a90c",
+      "dhash": "5242e0a0b0d0724e"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g007.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "d2a1e1d401de4d8f787ba4bf9a2cadc58369ecc7240f2dee60f6754721e476ee",
+      "pixels": [
+        767,
+        287
+      ],
+      "pixel_sha256": "8e5d2ff9151e6a2c535889a4618a87aec5b3f91afdb1f5918881d747b655dca5",
+      "dhash": "81808080a1b1310c"
+    },
+    {
+      "key": "PMC13216507__fmicb-17-1828982-g008.jpg",
+      "pmcid": "PMC13216507",
+      "doi": "10.3389/fmicb.2026.1828982",
+      "licence": "cc by",
+      "sha256": "90bc6c769b68c95f23eaa5c16eda5384c9c37e3b88918462d9fe9331cf1e79c1",
+      "pixels": [
+        715,
+        365
+      ],
+      "pixel_sha256": "34e486e20b0f4f73697702e29be3f9fb3f9570be306954a54a161a4d7160a14d",
+      "dhash": "236363b5b5353533"
+    },
+    {
+      "key": "PMC13279940__41467_2026_72155_Fig1_HTML.jpg",
+      "pmcid": "PMC13279940",
+      "doi": "10.1038/s41467-026-72155-8",
+      "licence": "cc by",
+      "sha256": "ed33a4772f73db1c42dc62c7303160db0f5ca552d5bd26ed33ccbab41f2011f9",
+      "pixels": [
+        800,
+        347
+      ],
+      "pixel_sha256": "bdd6b15ebda85b55fd8d1c0c36b633868ded7f183a9d4857a0926c93a9cfdaf8",
+      "dhash": "4849717171696961"
+    },
+    {
+      "key": "PMC13279940__41467_2026_72155_Fig2_HTML.jpg",
+      "pmcid": "PMC13279940",
+      "doi": "10.1038/s41467-026-72155-8",
+      "licence": "cc by",
+      "sha256": "a709ce6eef2fe3c27debcbc249d3f3e6a7426b5cf267c960f29a7afae47a2116",
+      "pixels": [
+        694,
+        391
+      ],
+      "pixel_sha256": "6d327f29f18c43b2bb953c460abc8ce359970a3712d3dce1dea8bb1320726a41",
+      "dhash": "3320646133464446"
+    },
+    {
+      "key": "PMC13279940__41467_2026_72155_Fig3_HTML.jpg",
+      "pmcid": "PMC13279940",
+      "doi": "10.1038/s41467-026-72155-8",
+      "licence": "cc by",
+      "sha256": "0b77070c37250920388d87f561b2fc6ef04d446a5c1170a5e37c2b9ddd74354d",
+      "pixels": [
+        683,
+        324
+      ],
+      "pixel_sha256": "d78dd518568fec25ec7460bb9a379b9f6aa86e503c623025b5508829f7df325c",
+      "dhash": "a634703536252065"
+    },
+    {
+      "key": "PMC13279940__41467_2026_72155_Fig4_HTML.jpg",
+      "pmcid": "PMC13279940",
+      "doi": "10.1038/s41467-026-72155-8",
+      "licence": "cc by",
+      "sha256": "cb99cd1aaeae4434d66917d45ef90bb2c176da68e120a7f98c1cdd0e344d5de3",
+      "pixels": [
+        751,
+        678
+      ],
+      "pixel_sha256": "cc76ecce03b67ffe1c7a0ad72fe5d02e3dba52fd7d4b207b0281309a084d747e",
+      "dhash": "66676733e1317969"
+    },
+    {
+      "key": "PMC13279940__41467_2026_72155_Fig5_HTML.jpg",
+      "pmcid": "PMC13279940",
+      "doi": "10.1038/s41467-026-72155-8",
+      "licence": "cc by",
+      "sha256": "f35a9b3c2658fbe86c8355f469ea8cc173a1baa585b99a66805afbf8d697f55b",
+      "pixels": [
+        669,
+        726
+      ],
+      "pixel_sha256": "d9189fa1eed01c2d402c2f0b054f4805539f7091b9c366a28e78e297c5d9345a",
+      "dhash": "c9c9702aaccc2aa4"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g001.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "5256a0a80da8847f6aae36cef81fd29d16deff472bb8176961886b60b5672e37",
+      "pixels": [
+        718,
+        979
+      ],
+      "pixel_sha256": "913f19b276e530edff4c4f1b42a3c97d36c233a586735c7a98828f29987caa11",
+      "dhash": "6969edd9d9e3bb66"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g002.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "a568e49c33d11a3135637f885762a3706b9ae8425c66c71d4879d77d921ae57a",
+      "pixels": [
+        617,
+        981
+      ],
+      "pixel_sha256": "f6157efd82814441757a0f06a4aaeff09cdeb1ef9c5dac118ed3f58e63ef60a8",
+      "dhash": "6444493131313131"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g003.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "84896f65c0d618ce850bffbe41ad1acbe72a8ecc9dc6aa65fed9b959b6b62ffc",
+      "pixels": [
+        546,
+        655
+      ],
+      "pixel_sha256": "670b5943d78f350d8fc2d35d1689b3d776cd29adfd7d9d9d60c910a6f2e4b912",
+      "dhash": "535098c894d45554"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g004.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "4e5e2d996eddf67bc6af114aa7dede4e522cfb1f9251af43c60c1fa157616e8e",
+      "pixels": [
+        662,
+        980
+      ],
+      "pixel_sha256": "08ff2c20332a93f5ea6eb2a9ce0c4aea6f078d9aa63119c90a219ccf72b99b91",
+      "dhash": "f546457657272538"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g006.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "7827cf1b796520cac668e432c0076c2495a698f88ecd68a131efbea3f69efc8c",
+      "pixels": [
+        650,
+        979
+      ],
+      "pixel_sha256": "9c214d727683a6db4dd9c26872ccd72500e5565fd627473c20a9d0b55da3db65",
+      "dhash": "d91951b39d8d4d5c"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g007.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "ca767b0a899cf53313aafd83bfe92a6a58a0de8809505976f93da544e576ba00",
+      "pixels": [
+        605,
+        981
+      ],
+      "pixel_sha256": "1af038aae1506d9dc7a743d01e15cde3c8eb9f7087e7aece6aaa9f4dae68b7e2",
+      "dhash": "6a623e5354456464"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g008.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "1aaa3da78f77008a9f62ce2ca7cfc1e3efbf6e21ec4c02fcc5a5742014a3fe02",
+      "pixels": [
+        763,
+        980
+      ],
+      "pixel_sha256": "3e71deb3a43e5c79afbcd642b27486c9098940dc77d43860cbdd9db7a58ceae5",
+      "dhash": "7a1a7a7a49494949"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g009.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "7c0c399a2f5328495f8de06b04f2ec0499b89c9248fa6088c9a882a9f671936a",
+      "pixels": [
+        546,
+        472
+      ],
+      "pixel_sha256": "13ec3640b7481e631ad7a0d1673e865d788d66d85d6e7ffff28bf63a2ed66b0e",
+      "dhash": "4d644565a2527377"
+    },
+    {
+      "key": "PMC13403727__ADVS-9999-e76822-g010.jpg",
+      "pmcid": "PMC13403727",
+      "doi": "10.1002/advs.76822",
+      "licence": "cc by",
+      "sha256": "24f2662529feac7d1e68002c46e447d70eb41dc358dbdda72a122baff042e11b",
+      "pixels": [
+        640,
+        981
+      ],
+      "pixel_sha256": "5f7b9a0d2f5b8b0241ba6203757bb3ea83c1c4b48554ea274134444d06b7f2a6",
+      "dhash": "16061f1f0f0c3d25"
+    },
+    {
+      "key": "PMC13321789__aac.01960-25.f001.jpg",
+      "pmcid": "PMC13321789",
+      "doi": "10.1128/aac.01960-25",
+      "licence": "cc by",
+      "sha256": "b2763ee83e1035eaf63c328d130cf395c4c4ae141de8d631bd18abd220e5d39a",
+      "pixels": [
+        785,
+        648
+      ],
+      "pixel_sha256": "3e2597a244935dbed443b0039f00e2d79e97209d8279ae539822109b943a5429",
+      "dhash": "597989aea65594aa"
+    },
+    {
+      "key": "PMC13321789__aac.01960-25.f002.jpg",
+      "pmcid": "PMC13321789",
+      "doi": "10.1128/aac.01960-25",
+      "licence": "cc by",
+      "sha256": "330202a582c444bbd7d8eecafa26fc35b37e48ba72fa3630f168f852cb79edb0",
+      "pixels": [
+        676,
+        707
+      ],
+      "pixel_sha256": "9a2cdbcf56c2d469db17de7fde0b1e22656b4bd0a906f09f52670b6d3aac6cd6",
+      "dhash": "92d890c8303236f0"
+    },
+    {
+      "key": "PMC13321789__aac.01960-25.f003.jpg",
+      "pmcid": "PMC13321789",
+      "doi": "10.1128/aac.01960-25",
+      "licence": "cc by",
+      "sha256": "e2962df4cea81c2dc1d0bc641900eeb91c5ec5189a75d93cdc05bd0c3aec67c0",
+      "pixels": [
+        742,
+        715
+      ],
+      "pixel_sha256": "3ebe48e86d3b73d69343b35bad57c90a5989ebffc30a11c61e1381a7f2314841",
+      "dhash": "6293125252d86ccc"
+    },
+    {
+      "key": "PMC13321789__aac.01960-25.f004.jpg",
+      "pmcid": "PMC13321789",
+      "doi": "10.1128/aac.01960-25",
+      "licence": "cc by",
+      "sha256": "b09331c4ab3c655f6b2cb813581ac0b5fa00085008e944d0825ef514f90efe77",
+      "pixels": [
+        748,
+        1006
+      ],
+      "pixel_sha256": "0ca3005c6f1b9f83f857e637fc626c121372033ed686280bf5e69b57a07983b6",
+      "dhash": "33313331312524cc"
+    },
+    {
+      "key": "PMC13321789__aac.01960-25.f005.jpg",
+      "pmcid": "PMC13321789",
+      "doi": "10.1128/aac.01960-25",
+      "licence": "cc by",
+      "sha256": "046f32d7681edfce5831188865054395c7e0c58b55f1b3fb10a74751fc31a2c7",
+      "pixels": [
+        727,
+        1043
+      ],
+      "pixel_sha256": "c9ab68773683f98d9408b428fcde90958ff57b5118384c333977a253ad355c6a",
+      "dhash": "25252567e7131616"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g001.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "5da0f576573ecfedb4ac61cc804cb7f12ac85c10559be5770e40e605d8c85660",
+      "pixels": [
+        666,
+        844
+      ],
+      "pixel_sha256": "43b23e21a468bb4c539d270f9b5530774bb8f46dc4e81fefb0325491d81e951c",
+      "dhash": "e0e1e1e1f5a52b6b"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g002.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "ef345b774c0b05abfa0e287f64adbd688ff9155c08b6706faf167b38edbaac14",
+      "pixels": [
+        785,
+        473
+      ],
+      "pixel_sha256": "cc291d4f1c4d2da6847dff65dea0965110a9e27bb5e0c46d6ab0a84ff1cc31d6",
+      "dhash": "30b0b1cfd8f0614c"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g003.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "fd80e695d4ad10eb698acedd2a75ef36c504bb9943d672c4b0014840121299c8",
+      "pixels": [
+        760,
+        407
+      ],
+      "pixel_sha256": "a468d9181f617fb0f5cf2214a7c8ae4f7d1a0a647a172c36124948c6445ea84b",
+      "dhash": "c5d5d5d4d6565654"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g004.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "5de50ac05557de3f3f56d76ea914aef93de16fb4c88363c88e59358323e0c248",
+      "pixels": [
+        790,
+        699
+      ],
+      "pixel_sha256": "f708d0ee1d907c4f4de49a7a7d65382f70c4099b2af76b1349ba6c412df1a6f6",
+      "dhash": "6a6a6a6a6a222f2c"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g005.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "cb5f9ce935ff30c1b44daf681de14a5ccca9fb44892af8bb18f61f82d0423710",
+      "pixels": [
+        713,
+        401
+      ],
+      "pixel_sha256": "0b609c10690c38aaa97dbe962400b457070bb015a6cb252aeb00d072a2e67451",
+      "dhash": "5657575755545e56"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g006.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "4a18918c9988f88d05af8e474b0a01c0deb4725f18ee7dd5cbe8a4c8469e459d",
+      "pixels": [
+        781,
+        436
+      ],
+      "pixel_sha256": "846201953b2bbe11c9b497a58f0483ab910da039de8a9f4323a4d7385b083863",
+      "dhash": "d9495b49496d6d6d"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g007.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "fc1f5ce5775ad1d7238f3750aa94614e6c6ec4bf03ea6fef30773727a97723c2",
+      "pixels": [
+        719,
+        411
+      ],
+      "pixel_sha256": "a60f99113c3ca3095fd6e75b6774122687a9c7bc9f6387bdd0635cb5aab95815",
+      "dhash": "584dc9c9496d6d6c"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g008.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "4fd5f28fed62e254ee96d18fab199feee62e7bbfe9ee1931433fbbf746f4c6b6",
+      "pixels": [
+        700,
+        1215
+      ],
+      "pixel_sha256": "06eaf360eba9b31c8726c51af9839b4575e98babdff33f683815d430e5ffc34e",
+      "dhash": "d9455755575f4756"
+    },
+    {
+      "key": "PMC13028617__microorganisms-14-00645-g009.jpg",
+      "pmcid": "PMC13028617",
+      "doi": "10.3390/microorganisms14030645",
+      "licence": "cc by",
+      "sha256": "23cbfb628b45920a90a7e568be46b6bef8e588d3a2d20eb7ac628e38cd617074",
+      "pixels": [
+        716,
+        395
+      ],
+      "pixel_sha256": "8ebe399d32080d8c1858b6cfd1e76ae3390170eb9bcc3a1894e0ad8d5719dbc9",
+      "dhash": "c1f9b91d5f56561e"
+    },
+    {
+      "key": "PMC12846358__viruses-18-00071-g001.jpg",
+      "pmcid": "PMC12846358",
+      "doi": "10.3390/v18010071",
+      "licence": "cc by",
+      "sha256": "2f24a409ff4b490db9a30f54316362804a180131891571cdef8a7c2a64f1378b",
+      "pixels": [
+        763,
+        395
+      ],
+      "pixel_sha256": "9c2832cfcd0d84a6bb491697d0b6c66ee2ec85c3bcb9b35ab7bbdda400acf101",
+      "dhash": "fa1fe5c1c0c2661e"
+    },
+    {
+      "key": "PMC12846358__viruses-18-00071-g002.jpg",
+      "pmcid": "PMC12846358",
+      "doi": "10.3390/v18010071",
+      "licence": "cc by",
+      "sha256": "fb82b065f1650571be670cf42a5e4454c13fb8e87fca7516d7a84c68f9dfef6a",
+      "pixels": [
+        799,
+        442
+      ],
+      "pixel_sha256": "af911d8b353f09be3ce9bb8919c74a645ca1cc30b3d946b87f69ab73a25d272e",
+      "dhash": "c0535b5114373371"
+    },
+    {
+      "key": "PMC12846358__viruses-18-00071-sch001.jpg",
+      "pmcid": "PMC12846358",
+      "doi": "10.3390/v18010071",
+      "licence": "cc by",
+      "sha256": "560b93ef8f718d0809041f777356e3ff503911a5d51de04ec76273a68dfbb149",
+      "pixels": [
+        754,
+        460
+      ],
+      "pixel_sha256": "057a11036456cc3c56b223c27d23fbb8e05a2db0520e7a5fdbc102bebe3d1198",
+      "dhash": "d9c5a52161495565"
+    },
+    {
+      "key": "PMC12846358__viruses-18-00071-sch002.jpg",
+      "pmcid": "PMC12846358",
+      "doi": "10.3390/v18010071",
+      "licence": "cc by",
+      "sha256": "e85a7714939b34e31c96cd784fe1fe2b56bad55cc81d14e3e88a1e0b9262e3c4",
+      "pixels": [
+        738,
+        93
+      ],
+      "pixel_sha256": "98d6a02d46b6555c40145452c3ecef7b3ff31424a9e34f8379da2cb69736729a",
+      "dhash": "c9dda98bd9c9a4a4"
+    },
+    {
+      "key": "PMC13141887__spectrum.00408-25.f001.jpg",
+      "pmcid": "PMC13141887",
+      "doi": "10.1128/spectrum.00408-25",
+      "licence": "cc by",
+      "sha256": "60669a9eea8861bf95186533b2ea35dbfaddcb441695a18ca7213c7021c9097e",
+      "pixels": [
+        735,
+        1119
+      ],
+      "pixel_sha256": "6cd90b85e3b47f7261f863572774e8fb9443bb740b6d14f99efabe718b726bb7",
+      "dhash": "93e7717775716611"
+    },
+    {
+      "key": "PMC13141887__spectrum.00408-25.f002.jpg",
+      "pmcid": "PMC13141887",
+      "doi": "10.1128/spectrum.00408-25",
+      "licence": "cc by",
+      "sha256": "84e86dbdccd7705d37f7fb5f8e7ac9553a0e0fe35a5a7d4095a7137798b947f0",
+      "pixels": [
+        735,
+        670
+      ],
+      "pixel_sha256": "4d4e69808813fe2ee68601224869d91a918f36fafa6ec009cfd8cc73701e4db5",
+      "dhash": "9b2d4aa9b1cba5b1"
+    },
+    {
+      "key": "PMC13141887__spectrum.00408-25.f003.jpg",
+      "pmcid": "PMC13141887",
+      "doi": "10.1128/spectrum.00408-25",
+      "licence": "cc by",
+      "sha256": "f31c597ff1d8dcdbb451e5a6476b47c743aa9cdfc08b8d831f90ddeab17cfaac",
+      "pixels": [
+        735,
+        530
+      ],
+      "pixel_sha256": "77ef0a46e40c81c194a6b9501f94ab659103a3f56b4ddf35d3f1b61eea220f7d",
+      "dhash": "9d9d79ddd9599df9"
+    },
+    {
+      "key": "PMC13141887__spectrum.00408-25.f004.jpg",
+      "pmcid": "PMC13141887",
+      "doi": "10.1128/spectrum.00408-25",
+      "licence": "cc by",
+      "sha256": "244ff85c976def80be271f36e89cf66e73583f6f39a0f4cf6ad7a5e3bff61cf8",
+      "pixels": [
+        735,
+        426
+      ],
+      "pixel_sha256": "24c942e074d23a2ba34dc4cfd383e53d5d1f37cad7eefa6764b74958467be273",
+      "dhash": "aeb4dc764f0f0b0f"
+    },
+    {
+      "key": "PMC13141887__spectrum.00408-25.f005.jpg",
+      "pmcid": "PMC13141887",
+      "doi": "10.1128/spectrum.00408-25",
+      "licence": "cc by",
+      "sha256": "5dd0fc8363807f2012042902359340c95a78dd26581d6025d98d5a07baf75019",
+      "pixels": [
+        735,
+        542
+      ],
+      "pixel_sha256": "7c219ab8d99a1aa8c900a17009096faa088e6b1a4d53b20304c3c14ca9dfc762",
+      "dhash": "6b6b9633ab67cc23"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g001.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "43ed89cac43480ebf406116fb72d219a1f3834426d5e6f0ded795df4cdf56744",
+      "pixels": [
+        666,
+        321
+      ],
+      "pixel_sha256": "10373f1d7a5a24bf26a68b5f7a27e3cd51a8b5d63de01e211c9fb85e0a94bc26",
+      "dhash": "ccacac8cac8c8ccc"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g002.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "06dc6c6c13490d1be5b95b53880c7e36b7df46486b1bb3e4ccee937f9d9f77f6",
+      "pixels": [
+        627,
+        426
+      ],
+      "pixel_sha256": "ebc82267ef419b5e76c44258e4af12130946f6ca28ce9f411e2391f742bcd3d8",
+      "dhash": "1f0f0f2f67676f3e"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g003.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "3709ff17465dbc7b84f0f5a8602e160536ca53bd916fa88342546156b760d754",
+      "pixels": [
+        750,
+        258
+      ],
+      "pixel_sha256": "796ea78241f53c50b600463cd2f5fcec8d2c3019c6d4024c27adacdb8458d378",
+      "dhash": "232b39dbcdcdc433"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g004.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "590571fea30b8acb1e71bc29500b763669c245de86affb832ba2d1b8fc87e39b",
+      "pixels": [
+        788,
+        295
+      ],
+      "pixel_sha256": "202e5424c1a8f5b7b481f312cca9356e6758e90448e4f1477117b8d162720231",
+      "dhash": "b1809070c0808230"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g005.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "62755a4b0a5f84e5348c61651b53f99ee04066ba1542c1821fe9c8ae3b0dbf06",
+      "pixels": [
+        709,
+        410
+      ],
+      "pixel_sha256": "8edd63063d5b487eaf08bb61c2d006fd68ff97cf7362020c6399825692950953",
+      "dhash": "8484999070c0000c"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g006.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "feb46c2592b190a3320b36ea5ce45c07d26c1596d0223853efc00373cc03aa3f",
+      "pixels": [
+        780,
+        433
+      ],
+      "pixel_sha256": "b6df01984f5a519c68ecd5ee99b4652cf267fecdfd16cbc85ba478e39b68c965",
+      "dhash": "848185933f3f3f0c"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g007.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "371c89696105199d883436e868d5d21111fd2d22f61cc612d1a11157539830e6",
+      "pixels": [
+        676,
+        718
+      ],
+      "pixel_sha256": "f44850c943ca5e138099e0a13c5b63c91aec5f9e9b6d8ae75ef46b2916a8e90f",
+      "dhash": "54f4d4d4d5d4d4d6"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g008.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "cfd0dd3cb200b010139e1882b3242af68ca499280aad636d86e62df181d4d5f3",
+      "pixels": [
+        739,
+        428
+      ],
+      "pixel_sha256": "b4d828b75aa9cfb086837900a0a1736ffd7f6bd65314a69ee2455b33cc58d2a1",
+      "dhash": "2b2c738c8381000c"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g009.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "c5651401b04332ec8780267542fab1d6a87da117a449f5b0e20243b7b2fa5969",
+      "pixels": [
+        747,
+        576
+      ],
+      "pixel_sha256": "a81e1dd0448e93fa5bdbd8651c81451204d7bdadcfcb2c4141b690f33798d0db",
+      "dhash": "eba7ae0e1b193939"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g010.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "c842f5b0ff14eb1ea46947d53993089e404268706b2115f985eafb57722e099f",
+      "pixels": [
+        751,
+        545
+      ],
+      "pixel_sha256": "4d254208bde5a08cb220496cf0c251de0fbac0899d63394d18c300cbeb57147b",
+      "dhash": "13074e44d8c8ea69"
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g011.jpg",
+      "pmcid": "PMC13218526",
+      "doi": "10.1371/journal.pone.0348054",
+      "licence": "cc by",
+      "sha256": "a56f525123221385898a178b92ac97ceccac9f99b25ce296063ddce828a3d896",
+      "pixels": [
+        704,
+        892
+      ],
+      "pixel_sha256": "ab18ae4f2be15e3e403196d147da0b8d5281565c82839856aad74403af43948a",
+      "dhash": "998585979707a31c"
+    },
+    {
+      "key": "PMC12153296__mbio.00719-25.f001.jpg",
+      "pmcid": "PMC12153296",
+      "doi": "10.1128/mbio.00719-25",
+      "licence": "cc by",
+      "sha256": "e2c0732579ee783f35f1e0987883d1491c31c2343d8a02e0bb7ed0d870af2ce1",
+      "pixels": [
+        736,
+        275
+      ],
+      "pixel_sha256": "6754bb44bb3d8f7fc9315c5779b6aba6736e76811d5c09402ab3a2eda39f07fe",
+      "dhash": "33333139a2b23242"
+    },
+    {
+      "key": "PMC12153296__mbio.00719-25.f002.jpg",
+      "pmcid": "PMC12153296",
+      "doi": "10.1128/mbio.00719-25",
+      "licence": "cc by",
+      "sha256": "f722c2727e20b1b994f553585121efd3b9ac2214ef3f718761a7cc687ce49b01",
+      "pixels": [
+        762,
+        502
+      ],
+      "pixel_sha256": "d7a64dafb7fd8aa730cf1a7621c26fabfcb0685f9c1d0447a3a7c0bd58bbf022",
+      "dhash": "781ecf4d1b99c94d"
+    },
+    {
+      "key": "PMC12153296__mbio.00719-25.f003.jpg",
+      "pmcid": "PMC12153296",
+      "doi": "10.1128/mbio.00719-25",
+      "licence": "cc by",
+      "sha256": "78942659c26a93b0ba2b5d4086c9c452641bbfcf8b229f202ddcd21e51d27cc6",
+      "pixels": [
+        794,
+        345
+      ],
+      "pixel_sha256": "2bd6f48fd47c22b1e79de7469142ea701470372754b073ee1b2d1f06835ce4e9",
+      "dhash": "89c1a1a3e373236b"
+    },
+    {
+      "key": "PMC12153296__mbio.00719-25.f004.jpg",
+      "pmcid": "PMC12153296",
+      "doi": "10.1128/mbio.00719-25",
+      "licence": "cc by",
+      "sha256": "a41ed6ad6922d618e721c1904a16efa2e0da345c03d4a81576572426c29d4aaa",
+      "pixels": [
+        732,
+        594
+      ],
+      "pixel_sha256": "d103da25b57d6640d25cd288ec8601c5b46b9ceb76887b75cb9b516385e26ab1",
+      "dhash": "46676773f7bd3131"
+    },
+    {
+      "key": "PMC12153296__mbio.00719-25.f005.jpg",
+      "pmcid": "PMC12153296",
+      "doi": "10.1128/mbio.00719-25",
+      "licence": "cc by",
+      "sha256": "49dba86cd61025655eb3a0a402d92f13a16a7987683ee7ae8a9d903ed6c1aed6",
+      "pixels": [
+        717,
+        299
+      ],
+      "pixel_sha256": "291aa25cc2526a4323fa51107159d68755a693d1ad54c08e2bbeb2a7dd4a617b",
+      "dhash": "9ad94976726c6d4d"
+    },
+    {
+      "key": "PMC12153296__mbio.00719-25.f006.jpg",
+      "pmcid": "PMC12153296",
+      "doi": "10.1128/mbio.00719-25",
+      "licence": "cc by",
+      "sha256": "fda72a7e629919259491c74b76c3574e336aa1514b09af173f1d9faa6d3c704f",
+      "pixels": [
+        793,
+        592
+      ],
+      "pixel_sha256": "332c1a694b75f635edb6b328f93e46584f5ba33418f4c7a7150aa9f28116368a",
+      "dhash": "6667616355337333"
+    },
+    {
+      "key": "PMC13433746__fimmu-17-1861346-g001.jpg",
+      "pmcid": "PMC13433746",
+      "doi": "10.3389/fimmu.2026.1861346",
+      "licence": "cc by",
+      "sha256": "4a093ad944d09013956e2b1dc04f8d88d778f49807bcb9f3d99a2e955746dbde",
+      "pixels": [
+        788,
+        746
+      ],
+      "pixel_sha256": "a4ac53ef015dfe5311e4bcb12f0a64a0a9a6833ab7f68f700b450f8a29388d07",
+      "dhash": "2b23254979ab97d3"
+    },
+    {
+      "key": "PMC13433746__fimmu-17-1861346-g002.jpg",
+      "pmcid": "PMC13433746",
+      "doi": "10.3389/fimmu.2026.1861346",
+      "licence": "cc by",
+      "sha256": "6f8b3cf87ce962b0be0bc9346fa5f789b08d1967712a3bf7bcfbb2fa3dd222f2",
+      "pixels": [
+        669,
+        477
+      ],
+      "pixel_sha256": "984b79a29f56dfece89a9449a86e644c5baf2f5229e31afb6ca6c8d456b95430",
+      "dhash": "2343435645637333"
+    },
+    {
+      "key": "PMC13433746__fimmu-17-1861346-g003.jpg",
+      "pmcid": "PMC13433746",
+      "doi": "10.3389/fimmu.2026.1861346",
+      "licence": "cc by",
+      "sha256": "e3d98ff14f4661836a48289804154c38688adbe68eb5c1dd9ea01fe6aeade9fd",
+      "pixels": [
+        684,
+        878
+      ],
+      "pixel_sha256": "500aa18560744708e3c9218aaff282cc77348f617f27dd2a228ebdcb090c03b5",
+      "dhash": "33e3a9686f6f4555"
+    },
+    {
+      "key": "PMC13433746__fimmu-17-1861346-g004.jpg",
+      "pmcid": "PMC13433746",
+      "doi": "10.3389/fimmu.2026.1861346",
+      "licence": "cc by",
+      "sha256": "12fe2b2da9eec12284f11c8b4ffb09c6d624909ea30b1ee3d016d916e8b2e471",
+      "pixels": [
+        721,
+        1098
+      ],
+      "pixel_sha256": "58d735fdc8490d5b1dc16f3b2a276297c8040d13a010a3ee22aafe742ec38f1b",
+      "dhash": "0f0b131313594551"
+    },
+    {
+      "key": "PMC13433746__fimmu-17-1861346-g005.jpg",
+      "pmcid": "PMC13433746",
+      "doi": "10.3389/fimmu.2026.1861346",
+      "licence": "cc by",
+      "sha256": "add6bbbfcecbf5888669e14184f2f923c55ba09d24e1036495b50cd8096a8d7f",
+      "pixels": [
+        755,
+        1129
+      ],
+      "pixel_sha256": "b48e9f4887bd26ee998e6935d1dd80b2b8a18a57dd2ea64408ee8411ef67f8f2",
+      "dhash": "b7d75b33933b3734"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f001.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "3250338b2ce213cfe7bb5ac85b7273d416b29aaa69e0c3b3e98c8939d78a1934",
+      "pixels": [
+        695,
+        568
+      ],
+      "pixel_sha256": "9ebbc73f7a2d1cb8463fa0d39c009761c42cf442b8add1460b725ece530708ce",
+      "dhash": "753574c5b58cc534"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f002.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "274a97608cb00b4a35a9b1e9d7ed362047641ed33ce642b628c8a4f370b1071b",
+      "pixels": [
+        677,
+        938
+      ],
+      "pixel_sha256": "aac81b8c5d05f528f3f0cd57d40d120c64bb3bafb061bcb9341834d4c3d73bb4",
+      "dhash": "ad45b59393b9f7d7"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f003.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "2dcb5e09132e8654ffbc2c39a911cb0c50e500cfff5c8936d1dfacd9b810b36a",
+      "pixels": [
+        586,
+        615
+      ],
+      "pixel_sha256": "eddbbbdd234ae79c2d2364dba3bf8b988e77833e09914aefa17852f5bb99fde5",
+      "dhash": "dbdb49dad9d8d9c9"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f004.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "8455f79915ff24b4a4ca824e39eed8975a24a1edc4b8b0ff3906862dda003163",
+      "pixels": [
+        686,
+        616
+      ],
+      "pixel_sha256": "091c3b9f7f4677cdc274332736ae322acc05b1d90ae138a84fa8cc31e22d2286",
+      "dhash": "a5b92aa7f7d4aca6"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f005.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "3cd8eee7a786c06ebd72ae24d8a92953ea9a9600afc6cf65c6244fd69b9133c5",
+      "pixels": [
+        681,
+        860
+      ],
+      "pixel_sha256": "b98997f9f2948c723f5539fd91266a93cbe724c6794553d61811e9bcb07075ce",
+      "dhash": "96d1c54d6f67f9a9"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f006.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "86ee814da0f91fdc02de1636baa49107e04739b87751b51bec65f3134d30821d",
+      "pixels": [
+        696,
+        429
+      ],
+      "pixel_sha256": "a923cf098dba51e6ab29b1a99059e59d5712b6334b37b4de63d37328772ce216",
+      "dhash": "a5a8a5ada96d6574"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f007.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "b42e20988385a318a45fa264d2cb8fa3b6334c21724fe106b02ae494f4e16809",
+      "pixels": [
+        684,
+        788
+      ],
+      "pixel_sha256": "87fc5307222c8c8bb4fb4c3786a87a5bafbbac3309e2d7339fd9964f69b43b5c",
+      "dhash": "a7a7acd8a7a7afa9"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f008.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "3e1deee0ba24d1ba80fc49bf844ab5d8bc355abef6f07a034944d6606a5efb2d",
+      "pixels": [
+        699,
+        500
+      ],
+      "pixel_sha256": "e57f9b5d04054a8ab105b10f2108140db34d3ae355a078f93d922e745f3f8077",
+      "dhash": "abbb9d93d9d9d9db"
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f009.jpg",
+      "pmcid": "PMC13011394",
+      "doi": "10.1128/jvi.01972-25",
+      "licence": "cc by",
+      "sha256": "f007282933255858e3305e1d42f9c835bc08836530609333e0581194c056527c",
+      "pixels": [
+        720,
+        488
+      ],
+      "pixel_sha256": "6c245eb53171688e33e4e22851a161ebfe1898a564fa0754e011bd0375a56df9",
+      "dhash": "89696d694c898181"
+    },
+    {
+      "key": "PMC13072701__TEMI_A_2657186_F0001_OC.jpg",
+      "pmcid": "PMC13072701",
+      "doi": "10.1080/22221751.2026.2657186",
+      "licence": "cc by",
+      "sha256": "0f6e60f14c122d2abd01a2e35d16ee510814b434ad4299d017011e5a20b0d024",
+      "pixels": [
+        750,
+        597
+      ],
+      "pixel_sha256": "bc5310698e8cef096b70b03217f2078303212a9689b5e3021f613f52a8aa7a75",
+      "dhash": "67cfe74fcf4d6949"
+    },
+    {
+      "key": "PMC8224292__viruses-13-00959-g001.jpg",
+      "pmcid": "PMC8224292",
+      "doi": "10.3390/v13060959",
+      "licence": "cc by",
+      "sha256": "f5e20fa6e8ceb24d31907e8f10b7de9095d558c0ce6a0c2b7e74fc762b7c9926",
+      "pixels": [
+        766,
+        505
+      ],
+      "pixel_sha256": "fc5f2d4d792bf3c334becec532604c0583f45fb075b8c610535171f63d2111c4",
+      "dhash": "0313363633333303"
+    },
+    {
+      "key": "PMC8224292__viruses-13-00959-g002.jpg",
+      "pmcid": "PMC8224292",
+      "doi": "10.3390/v13060959",
+      "licence": "cc by",
+      "sha256": "975e4b903ef6be0bcc08e31e3a9b9e19a430e49fdecf20bbffb2ef103cf34d48",
+      "pixels": [
+        770,
+        512
+      ],
+      "pixel_sha256": "d0c044acaf17843db672b1511c3cb8dddda17aa3cb2bb8420948cf07465b0d4a",
+      "dhash": "1e1d191919190d8d"
+    },
+    {
+      "key": "PMC8224292__viruses-13-00959-g003.jpg",
+      "pmcid": "PMC8224292",
+      "doi": "10.3390/v13060959",
+      "licence": "cc by",
+      "sha256": "e63b8d02b7404e21c7971157838901ecbd576516d91975c9217238af90eda51b",
+      "pixels": [
+        778,
+        697
+      ],
+      "pixel_sha256": "f63bfed136e8db8396c96efe80e36c2ef199c1973f20518e470e9a9306917329",
+      "dhash": "6d25272717353333"
+    },
+    {
+      "key": "PMC8224292__viruses-13-00959-g004.jpg",
+      "pmcid": "PMC8224292",
+      "doi": "10.3390/v13060959",
+      "licence": "cc by",
+      "sha256": "11c3217fc44b0ffb972479a23b04e2861be474ebbdc88e173b0bda448ad3fb42",
+      "pixels": [
+        719,
+        1068
+      ],
+      "pixel_sha256": "eb079fb44dbd8736e73bf27975495a02359d56714e8b1706fc46ff26d863cc31",
+      "dhash": "1a57534647cec7c3"
+    },
+    {
+      "key": "PMC8224292__viruses-13-00959-g005.jpg",
+      "pmcid": "PMC8224292",
+      "doi": "10.3390/v13060959",
+      "licence": "cc by",
+      "sha256": "5fd23c41c318dd6d54d40a2ac225647fdb82cc4232e44748b9e71b64e4dd66f3",
+      "pixels": [
+        794,
+        1040
+      ],
+      "pixel_sha256": "563b47c00906ac9048230601e4a214b356b78fa3b6bbc1239629bd680f5eb704",
+      "dhash": "a7770f0f070f0787"
+    },
+    {
+      "key": "PMC12930041__fx1.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "56c917e09cbcd36a6d3ca4984f9b9c3cc75a23939d8d546ab33b5bcedb3ddcd3",
+      "pixels": [
+        664,
+        664
+      ],
+      "pixel_sha256": "7561d3e22a48605bc8045be8ab3f6025e8dbfc499cf433f339333e3fb80c74af",
+      "dhash": "3e0507337373733b"
+    },
+    {
+      "key": "PMC12930041__gr1.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "dcf246333353de0e1dd0a1df91e775d99e2647c77e12d4b7fb8fbb2ebe1b8eec",
+      "pixels": [
+        748,
+        774
+      ],
+      "pixel_sha256": "8ceef099b2c53384f027f5b6500534c890bee00f7ade12d56f5c9ba882e5853e",
+      "dhash": "2525a8b1d1276727"
+    },
+    {
+      "key": "PMC12930041__gr2.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "1bccf5440acfed4b53290530eda7ce47c23ba063a154e1f5bc592e5b77ccaf28",
+      "pixels": [
+        647,
+        360
+      ],
+      "pixel_sha256": "7a94744d6cfa1d02f91d09e111b97b6be85a38cd15951c986677471216f5846f",
+      "dhash": "6cc1d1d09c382e0e"
+    },
+    {
+      "key": "PMC12930041__gr3.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "94aeaaeaf614389de6cdb19cb148abc370762ff90ee334d2d05e92c669370b67",
+      "pixels": [
+        748,
+        421
+      ],
+      "pixel_sha256": "6c923bd5110480b8841b435323bd35532cc5a918e86e28601fbb50859823dd8a",
+      "dhash": "d5ad3a32342d1a06"
+    },
+    {
+      "key": "PMC12930041__gr4.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "6f17ea3ae163f6ad438ab60def2cb0c67a5b0110bb83031cdb2d7391c1fb5c42",
+      "pixels": [
+        724,
+        669
+      ],
+      "pixel_sha256": "a9aa4ff5500b893845f5342a68413c0481238204b751e3f72dba80178b477dfe",
+      "dhash": "585a5f5e5a5adc6f"
+    },
+    {
+      "key": "PMC12930041__gr5.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "c8a7860a1f51e36f83858e5dfc079f297e768375bed8ebf558dbd6c216c05cad",
+      "pixels": [
+        748,
+        835
+      ],
+      "pixel_sha256": "1215dea81d0302e9ec61bc2a139f89722d984b7d40d5f84c692c58bca50affa1",
+      "dhash": "2b297958182f2f07"
+    },
+    {
+      "key": "PMC12930041__gr6.jpg",
+      "pmcid": "PMC12930041",
+      "doi": "10.1016/j.isci.2026.114851",
+      "licence": "cc by",
+      "sha256": "5263f96d1b8baf5b9a32177086cd508dcad62b561ee76cd0414064bd9d5fd4c1",
+      "pixels": [
+        748,
+        987
+      ],
+      "pixel_sha256": "a25ceb23330f805d7a63b481c5d450b6be20c414a7d28d12afa7b8440b8efb7a",
+      "dhash": "3131b5f53131b5f5"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g001.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "3c1ada034fd254a2d60a5ce9b5e044ae4670d08b91560ceecf4caf211fd4e0f1",
+      "pixels": [
+        735,
+        1163
+      ],
+      "pixel_sha256": "d9af2aec1f98f3ff18ff33e83013039ec231fe14e0a0887ec5566a54903f18e3",
+      "dhash": "054d4d6c6c6c6d0d"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g002.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "73c62381e1dc544d68be6d716e9d890603f40153a784b56127cd25368f26d99d",
+      "pixels": [
+        735,
+        695
+      ],
+      "pixel_sha256": "d78facb2654d295bb5b71d1f921a960b47dd57ddb2bd27f9bb4e188092105878",
+      "dhash": "6b6ba6a7865b3373"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g003.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "9444a5afc37a42d014653b8ddd5e1a6812bdfc9ade34af156399dc1a4378b8eb",
+      "pixels": [
+        735,
+        861
+      ],
+      "pixel_sha256": "c22534cbb21de734436facbcc881431da13087d7548761f78899841230728236",
+      "dhash": "a3b733e7b133e731"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g004.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "c7711337876711bf99e47ccd4dfc9fc47d3c03b47b4f2b8ee05982f7aadd093d",
+      "pixels": [
+        735,
+        484
+      ],
+      "pixel_sha256": "265c1773cb68e784a399350e59e2f4764e874e1dde8c51bca11f5a0addc2018f",
+      "dhash": "6cc78f868c8ec70f"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g005.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "c5ee116ffac58954f93883733fca08028c34a72f1aa7893d55e356f772249eb7",
+      "pixels": [
+        735,
+        941
+      ],
+      "pixel_sha256": "8e2f3b243a0dc631250b2233aa0ba227f91dfeb6d2d805602614a1a0dc2818a0",
+      "dhash": "6c6f47715533b533"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g006.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "d3a6da3b5125d32b9730bceeeaf53f25733596840eea999a42b8aceeadd135cd",
+      "pixels": [
+        735,
+        271
+      ],
+      "pixel_sha256": "5a8bb25b3a63027429e7d38183bda30df9a825b4dc93a4d213977e740c2c079b",
+      "dhash": "54a595d55d555554"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g007.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "06506852e62a797539d2e29b6d56e4fc12a57ca9b061f69e88ac8daa2b21be7d",
+      "pixels": [
+        735,
+        966
+      ],
+      "pixel_sha256": "a7eeac0300cd3c20fe9d4d835f9b470ece1cf75887b53fa1b7292094789cfaf9",
+      "dhash": "759fcc3184339433"
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g008.jpg",
+      "pmcid": "PMC13278376",
+      "doi": "10.1099/jgv.0.002283",
+      "licence": "cc by",
+      "sha256": "a49a56a4923120b9b265d12b33612e6edef74034ded8bf52edb34d24115d70b4",
+      "pixels": [
+        735,
+        278
+      ],
+      "pixel_sha256": "297f504ea5cc6a20d9dc71dcd463d8ca9201d13cf1617a8c82cd8706b532c7b0",
+      "dhash": "a91818181a121010"
+    },
+    {
+      "key": "PMC13524343__ppat.1014520.g001.webp",
+      "pmcid": "PMC13524343",
+      "doi": "10.1371/journal.ppat.1014520",
+      "licence": "cc by",
+      "sha256": "a128f290a8d087ea145acc3ee2f89874726935ea5447de01f1ce25c1e74274ed",
+      "pixels": [
+        1600,
+        830
+      ],
+      "pixel_sha256": "bb2fe76d1b169d02ab5227063310d63997164265667e03f76ef7792488081e65",
+      "dhash": "819b9264a9db936c"
+    },
+    {
+      "key": "PMC13524343__ppat.1014520.g002.webp",
+      "pmcid": "PMC13524343",
+      "doi": "10.1371/journal.ppat.1014520",
+      "licence": "cc by",
+      "sha256": "47129a9dbf3bb23bc47299f187be9d765bc26c3340a9fc1fe69d28cdf67beea7",
+      "pixels": [
+        1599,
+        1509
+      ],
+      "pixel_sha256": "088b0d674d7544e90ba0b55fcd00a961186e7a8c3aa624f041cc789a37810310",
+      "dhash": "a9c9cb6961436a6a"
+    },
+    {
+      "key": "PMC13524343__ppat.1014520.g003.webp",
+      "pmcid": "PMC13524343",
+      "doi": "10.1371/journal.ppat.1014520",
+      "licence": "cc by",
+      "sha256": "68dc1f48e6b3fdd055b20b40c4332e53b75a9e6a2210ce13b6c1d3ed4612affe",
+      "pixels": [
+        1600,
+        928
+      ],
+      "pixel_sha256": "4ab5f41648357ad1caa8e08fab6d7ea8812904939ab1ebaa1b83a57ddbf6c5b6",
+      "dhash": "b1747464cba96969"
+    },
+    {
+      "key": "PMC13524343__ppat.1014520.g004.webp",
+      "pmcid": "PMC13524343",
+      "doi": "10.1371/journal.ppat.1014520",
+      "licence": "cc by",
+      "sha256": "bdff87e69125b193a218f029f4c3726ad05790c60a3dd6961ffe02c0bc8b9d84",
+      "pixels": [
+        1599,
+        1053
+      ],
+      "pixel_sha256": "6dcb26c57e2f45f9bfefa4e9805fa5c2b8cd119cbd08d9d8400972d83ec3d2ca",
+      "dhash": "954559955554d64a"
+    },
+    {
+      "key": "PMC13524343__ppat.1014520.g005.webp",
+      "pmcid": "PMC13524343",
+      "doi": "10.1371/journal.ppat.1014520",
+      "licence": "cc by",
+      "sha256": "c43c118252dde0da80b30d7d7366cbde6147349448b8efadf4b57c5345e6150f",
+      "pixels": [
+        1600,
+        689
+      ],
+      "pixel_sha256": "96f96dc969d03bb14e6848db2bdb8bf635ec0b17854e55f2cf5a37e043274626",
+      "dhash": "a3edc951a5dc6e4a"
+    },
+    {
+      "key": "PMC13524343__ppat.1014520.g006.webp",
+      "pmcid": "PMC13524343",
+      "doi": "10.1371/journal.ppat.1014520",
+      "licence": "cc by",
+      "sha256": "65cf50b72b5e70a6bf502b28f2f3ac7bdd6026259469e70230fea7521e90ec88",
+      "pixels": [
+        1600,
+        799
+      ],
+      "pixel_sha256": "2ab792f5f6b31b863f53c9e77b53bacbe037e02c513edae684c64a038785a249",
+      "dhash": "c4c7636385c6a323"
+    },
+    {
+      "key": "PMC13277272__40813_2026_516_Fig1_HTML.jpg",
+      "pmcid": "PMC13277272",
+      "doi": "10.1186/s40813-026-00516-2",
+      "licence": "cc by",
+      "sha256": "bbcef16a0137ad77d59eb8131e3608cc77bc9a277546ad5bfaadff62367c51cf",
+      "pixels": [
+        669,
+        466
+      ],
+      "pixel_sha256": "03953412bf571f0bef847bb69f04505ef807a49280d474e9afd2b9f58336dfdb",
+      "dhash": "0b4f8fcf13111959"
+    },
+    {
+      "key": "PMC13277272__40813_2026_516_Fig2_HTML.jpg",
+      "pmcid": "PMC13277272",
+      "doi": "10.1186/s40813-026-00516-2",
+      "licence": "cc by",
+      "sha256": "e5860e49823ef1d31e3c819e676eddb4265fe91274c9d44c9390dd11a2ba0e0b",
+      "pixels": [
+        669,
+        575
+      ],
+      "pixel_sha256": "e2891c0a7742ac5d94f6231eb6c7b2e963ed68648a72cf35d6bb724a27266e91",
+      "dhash": "9f9f33636393c969"
+    },
+    {
+      "key": "PMC13277272__40813_2026_516_Fig3_HTML.jpg",
+      "pmcid": "PMC13277272",
+      "doi": "10.1186/s40813-026-00516-2",
+      "licence": "cc by",
+      "sha256": "87fa2e86eccd89dcb6e373b3caeb08dd03a5d35562edec04cb1b03ae38b472a9",
+      "pixels": [
+        669,
+        397
+      ],
+      "pixel_sha256": "5ddc6435ef90161c710abc803fc4c151771e4db3bee2797c31ad6ee609ad9111",
+      "dhash": "24d6d2d6c6cf1006"
+    },
+    {
+      "key": "PMC13277272__40813_2026_516_Fig4_HTML.jpg",
+      "pmcid": "PMC13277272",
+      "doi": "10.1186/s40813-026-00516-2",
+      "licence": "cc by",
+      "sha256": "a967b790c59a8a6b7c8808d773c1aa73b7bc5189cec413e6cd2d74f35b84f2e8",
+      "pixels": [
+        669,
+        543
+      ],
+      "pixel_sha256": "0a6e5e4e4ee64f33232d730b621c114ebdecb0e7b8d28c0962bcc3270dafbcc8",
+      "dhash": "7fbaca3b5d5d5d19"
+    },
+    {
+      "key": "PMC13277272__40813_2026_516_Fig5_HTML.jpg",
+      "pmcid": "PMC13277272",
+      "doi": "10.1186/s40813-026-00516-2",
+      "licence": "cc by",
+      "sha256": "a121a106e89418718ac65085e6f7bc545fcf1fecb91763471a77a5a92fc82f2b",
+      "pixels": [
+        669,
+        610
+      ],
+      "pixel_sha256": "3a8971aed1cf5199fbe4e390758f2a539a08799e0b9bc3e35aeaa66729a38809",
+      "dhash": "ffde323371777373"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g001.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "92e3a65ac289a60ebd133254850be08a9f6acbbd3b82edabaf16b2f37e056b03",
+      "pixels": [
+        718,
+        1103
+      ],
+      "pixel_sha256": "988e02f18ac56e5be561e0f3e51bae1da4a3d93ad25b1758f9f790f986b31933",
+      "dhash": "78c947433e1f1703"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g002.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "bb0eea67486891812d93af26bbfcf76e557f92e2ca6dcad4f24eb9515afbe234",
+      "pixels": [
+        718,
+        1056
+      ],
+      "pixel_sha256": "ada9e779bd7e7714204cccb7edd495494bdd06dfb84683dc66e6823a88b913a5",
+      "dhash": "071f1f1e1727270f"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g003.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "fe6e25faea2935391db72415c9745dcd86ace5dca98af53cd8897b8a0933f726",
+      "pixels": [
+        704,
+        768
+      ],
+      "pixel_sha256": "91d4fade93b78b58700d5aa5f19dd021156911acd1996d57669d007b9e82cceb",
+      "dhash": "bd335135f1bf7b79"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g004.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "dd21d475886a0dd823ea2e6f725a917d992d92f62e1fc1fb938c869b3b332d83",
+      "pixels": [
+        786,
+        749
+      ],
+      "pixel_sha256": "39a754a73cb310f10013c04531f7439bc4c6810ccc7efdf876e57f31c70bff39",
+      "dhash": "30b098989b03010d"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g005.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "116674f134b75b5dfb1f1dbe3b91d018050c57a9ea17361ae0329a9cc5d7661a",
+      "pixels": [
+        704,
+        2416
+      ],
+      "pixel_sha256": "72372ac6c79dbfc7125568dd2843d0575493ee38108146377773dcf35d087b3f",
+      "dhash": "3321014121412131"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g006.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "e77027c5f6b109b8c7679417a2c55a6e55b2dfaf55144b5b8435b1e0e8b38c90",
+      "pixels": [
+        644,
+        861
+      ],
+      "pixel_sha256": "d3f61afd0d13385c258c3b9b1ab79a117f9431091df6da019f97a7e83b0abcec",
+      "dhash": "4464242486c4b424"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g007.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "7e57bd8e903a7d455f4a7202ff064711d39986499aa58900f961beb45b7865ed",
+      "pixels": [
+        664,
+        2230
+      ],
+      "pixel_sha256": "bfb8a1e49c82b65f2af9838a9bfef2e4bde8393927f9ec0640a3451c8c714512",
+      "dhash": "3131213331230321"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g008.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "c688aa090cdbfb842602e2ac352a7e0003a49f0f9a34725583ee3022fb2a43b8",
+      "pixels": [
+        718,
+        696
+      ],
+      "pixel_sha256": "af8a8e7f6275edf57664334e6d4d5e9a9f6ff6d4943480d113d43578463c6bba",
+      "dhash": "131373732381a131"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g009.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "3e8a765893be09d828bd59a2cc22f3041c83f9536061a5e92984d31dae84f068",
+      "pixels": [
+        692,
+        509
+      ],
+      "pixel_sha256": "66bd0048cdb07def80937bcffe122ad29ac4e39b9cdcb8dc9df5555182bd80dd",
+      "dhash": "0f0f1d1d1d1d1d37"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g010.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "aa4c65d4e2f3c8d48fdcc555685a42ca99caf21e9b107a97f754e0c6b8b70921",
+      "pixels": [
+        698,
+        527
+      ],
+      "pixel_sha256": "12539c52919c0730e7ffeba8df9c9de8c2c8a5a0ac5d4fa30ba684f6e78ccb95",
+      "dhash": "0569787870707127"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g011.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "2156b7be0794cde1d71b6e222578396b9b0f9ca2cff2c051a335ff01bf3ce54b",
+      "pixels": [
+        720,
+        1075
+      ],
+      "pixel_sha256": "53860a511baa42cc68c3d7ff4cb64e38e4b3d31126d6a9a4c73371a489f2447c",
+      "dhash": "f0b99b4647f39959"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g012.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "fa06c910212449f1678d52b3f39de42f779d473b75c478740ee690124c8d0708",
+      "pixels": [
+        665,
+        1181
+      ],
+      "pixel_sha256": "7dbb8daf49f8305ab9fa606a7e2279f0a97274eac0b540a97c0cc5b560def26b",
+      "dhash": "5311316250705210"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g013.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "c16b1575185b95464146f271b97e15b68e526458e7ccb5c6d3a4dbd421a67293",
+      "pixels": [
+        720,
+        1141
+      ],
+      "pixel_sha256": "a0e0bc466d1dbb99b09cd1d0ea3a701659196a337d58457f9f3b01378b4e51f6",
+      "dhash": "3a393e38193b3b3e"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g014.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "1f660423ecdfcf7e0e578933fb7790b43963a7ff9243feb8a6a82b403a27a4f6",
+      "pixels": [
+        680,
+        869
+      ],
+      "pixel_sha256": "79eebfa4e4c2644adbed7615f3e7e10e02a434c107cd2e1126617cd140da48c1",
+      "dhash": "1010103063505030"
+    },
+    {
+      "key": "PMC13309054__pntd.0014454.g015.jpg",
+      "pmcid": "PMC13309054",
+      "doi": "10.1371/journal.pntd.0014454",
+      "licence": "cc by",
+      "sha256": "44acd3a51f0b8b6697577b0d7885da2c6a468efda9d2ae55b2cb7850704a7b0d",
+      "pixels": [
+        647,
+        1539
+      ],
+      "pixel_sha256": "76c8998ac48cb0e0aefc9c5c07f4cf537209cba4ecc2ef3d646da6ac7a1a14cf",
+      "dhash": "4d4c0d6c6c29654c"
+    },
+    {
+      "key": "PMC8809380__msphere.00793-21-f001.jpg",
+      "pmcid": "PMC8809380",
+      "doi": "10.1128/msphere.00793-21",
+      "licence": "cc by",
+      "sha256": "b92b1c2c904af5a0806ad8b1b72ec80215eb2582eef5f8c9c377b8f36a9a0d0c",
+      "pixels": [
+        760,
+        376
+      ],
+      "pixel_sha256": "a01800f47eb7278b0cf24046256317fc4bbe8bd42c465b121278bd993860e86c",
+      "dhash": "6235c9494b799dad"
+    },
+    {
+      "key": "PMC8809380__msphere.00793-21-f002.jpg",
+      "pmcid": "PMC8809380",
+      "doi": "10.1128/msphere.00793-21",
+      "licence": "cc by",
+      "sha256": "0e7917abd50f6a641d9bbc1674b764168b80639465636873ea0b8ac13c824d0c",
+      "pixels": [
+        760,
+        599
+      ],
+      "pixel_sha256": "6d012ea369fd92944b5afbae8a05ceb94db4ee3f57b7ffa54797b913e93e6989",
+      "dhash": "8ee6363626062632"
+    },
+    {
+      "key": "PMC8809380__msphere.00793-21-f003.jpg",
+      "pmcid": "PMC8809380",
+      "doi": "10.1128/msphere.00793-21",
+      "licence": "cc by",
+      "sha256": "bad79ebc087177f90a58e18f80184072a55e1cac9e3300a195379a677abd80c3",
+      "pixels": [
+        760,
+        773
+      ],
+      "pixel_sha256": "38ee62b1a3d15de61c04b9c84ccdc83367a8afa7be0c84830dce5ac464bf8733",
+      "dhash": "3131273755333b55"
+    },
+    {
+      "key": "PMC8809380__msphere.00793-21-f004.jpg",
+      "pmcid": "PMC8809380",
+      "doi": "10.1128/msphere.00793-21",
+      "licence": "cc by",
+      "sha256": "00143b58229a5833ee959099a19d990a2f250d9e48e3c04b465a718a5721c4a7",
+      "pixels": [
+        753,
+        984
+      ],
+      "pixel_sha256": "cdcc9a5904dc111d9539b509ed761f886407e57a7201decc915b6f362fe6480c",
+      "dhash": "a6e66666e6e66666"
+    },
+    {
+      "key": "PMC8809380__msphere.00793-21-f005.jpg",
+      "pmcid": "PMC8809380",
+      "doi": "10.1128/msphere.00793-21",
+      "licence": "cc by",
+      "sha256": "db07c17cfc2130765ba94743fb869f893806a2a28008036b62f9f602d795d3a3",
+      "pixels": [
+        760,
+        332
+      ],
+      "pixel_sha256": "09ff245693227b4b49c28a29473cfaea1357204c5fdae22ef0b53b8c476962d4",
+      "dhash": "695971c1c4a53555"
+    },
+    {
+      "key": "PMC8809380__msphere.00793-21-f006.jpg",
+      "pmcid": "PMC8809380",
+      "doi": "10.1128/msphere.00793-21",
+      "licence": "cc by",
+      "sha256": "0b5a866ba5c6af8ba1dc978a4951810d55b58ac852bb91e99632a25437679097",
+      "pixels": [
+        760,
+        899
+      ],
+      "pixel_sha256": "650794227f377095d4a184a50ad8640b9341cb87e977da7ad8fe5bf8c5c609ca",
+      "dhash": "6d6d796921a54b4b"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g001.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "790664f4dfbcb7b70cf9cf8ae9b9959a60a54838b67d5a45e6d2f497583539d5",
+      "pixels": [
+        700,
+        671
+      ],
+      "pixel_sha256": "4eec412f9cb0c579340b3162df48cd99772b04d314a310c9894f54a70229921d",
+      "dhash": "3131313131333333"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g002.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "771a17b37b6abb743591fff368ce4dbf24115bb5a19cc53abaab397892dcff12",
+      "pixels": [
+        748,
+        338
+      ],
+      "pixel_sha256": "3b8993a03a0739c1c5fe00f8a2c6f8acedc7646305d836de376feb5bbc3dec63",
+      "dhash": "84d4c4640d8f8d2c"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g003.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "f34ef8453d7085333d12b0cf478d7b1b13b7d6d697466d1e0f42f0b692fb8a43",
+      "pixels": [
+        745,
+        315
+      ],
+      "pixel_sha256": "c18ebc2596120eb6af95748ffbba14695eaaa1ea6db202f04090c08a86d9ce68",
+      "dhash": "2687a7a7ebe7c704"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g004.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "bff11c424c541529ac4aaef10b16dbeb47da9fa345a64c02213fd49e27e9615c",
+      "pixels": [
+        749,
+        488
+      ],
+      "pixel_sha256": "5c98c8f6e5bfe66bfc6c62b6af22c62a3940fe75baa3865272c2bfcf970bba51",
+      "dhash": "2525654949717a79"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g005.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "11968d5b46b66c40172ff63509d88f43e3a57db4afe1c9b97f48ca5219e96228",
+      "pixels": [
+        750,
+        179
+      ],
+      "pixel_sha256": "8356699044314bacd62728ca77d19f9dbf17c665d61e8f61ae6366df98dfd8ea",
+      "dhash": "aca6a4d6e3737331"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g006.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "ed4939277ddf5a15cea3d94fcad37bd0311ab3dcfef88f79ee07dc8dd026f56f",
+      "pixels": [
+        749,
+        383
+      ],
+      "pixel_sha256": "bf79eb8e80cb4b6bd16a6bae58bf4fae6eeab7765b0167047bdc6375a1ba55ef",
+      "dhash": "26678745727a7268"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g007.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "94d077631527bb4fdec4ac68b76e09548355e28a92d64436dec3be15da8cde8f",
+      "pixels": [
+        749,
+        599
+      ],
+      "pixel_sha256": "13b5c2180ef32e526495ce8dc5d41dd19f8299505b8d75797989cc15b6354292",
+      "dhash": "3535357c74343713"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g008.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "93b0c6948216954042dfbf3554ef75b03e198b8ec5806fabffc159d10587e904",
+      "pixels": [
+        707,
+        799
+      ],
+      "pixel_sha256": "ff2071b75b96da6e58bd35b98115ea9a88be268ece8365666ffe7a6e8beaefe6",
+      "dhash": "7878f266cdc3cfc1"
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g009.jpg",
+      "pmcid": "PMC9744290",
+      "doi": "10.1371/journal.ppat.1011009",
+      "licence": "cc by",
+      "sha256": "7eb104dab080f57d44af601a10ac953fcb7a06280897bd5d3c435f34527fc099",
+      "pixels": [
+        732,
+        506
+      ],
+      "pixel_sha256": "52f2c5c5454a685be3f890f42ea5f038f34a81133e1242542d5ef61118608abc",
+      "dhash": "6f0f71ba9ab0290f"
+    },
+    {
+      "key": "PMC13170237__mbio.03124-25.f001.jpg",
+      "pmcid": "PMC13170237",
+      "doi": "10.1128/mbio.03124-25",
+      "licence": "cc by",
+      "sha256": "43c4dea8dd1b4f131f4d538e38ead454d58977ca05a60c31855f05b177f2af50",
+      "pixels": [
+        735,
+        630
+      ],
+      "pixel_sha256": "584e6638134cd172e02115475ec54016b49a64f6a0a89b87c07a25ab5ac2e725",
+      "dhash": "276767676764646d"
+    },
+    {
+      "key": "PMC13170237__mbio.03124-25.f002.jpg",
+      "pmcid": "PMC13170237",
+      "doi": "10.1128/mbio.03124-25",
+      "licence": "cc by",
+      "sha256": "da1aaae1255b219423ea507d22afe66f9ea5ef3f3be7fc74faeaeb0ebbd0e331",
+      "pixels": [
+        735,
+        999
+      ],
+      "pixel_sha256": "bd8731428e033b46e3eb27b45f954196a66bcce3b5193f4999f0b7b30bce9ada",
+      "dhash": "2bc1d2b4d0722a2e"
+    },
+    {
+      "key": "PMC13170237__mbio.03124-25.f003.jpg",
+      "pmcid": "PMC13170237",
+      "doi": "10.1128/mbio.03124-25",
+      "licence": "cc by",
+      "sha256": "b9fb0b0d54ab5580069319472d8ba52f4701abfce241ee0a8396f56c004f9b09",
+      "pixels": [
+        735,
+        642
+      ],
+      "pixel_sha256": "acca372d996577936be99b55a232f0f8db02081752146173c4d5fd09a68a0e2c",
+      "dhash": "6565656451d1d139"
+    },
+    {
+      "key": "PMC13170237__mbio.03124-25.f004.jpg",
+      "pmcid": "PMC13170237",
+      "doi": "10.1128/mbio.03124-25",
+      "licence": "cc by",
+      "sha256": "2c9dab6bec9367d1737b41f5de12eea47b67ed86bc41a4b0a2bb8aebb849dd4f",
+      "pixels": [
+        735,
+        1015
+      ],
+      "pixel_sha256": "d47860c682daaeae11f005c1c6b5399ded1faeb804e90abbd52b9d4811f557c1",
+      "dhash": "71595bca66462525"
+    },
+    {
+      "key": "PMC13170237__mbio.03124-25.f005.jpg",
+      "pmcid": "PMC13170237",
+      "doi": "10.1128/mbio.03124-25",
+      "licence": "cc by",
+      "sha256": "4cf9e6fc4fbaab09216be26b9dbe084e1479716ff1d2db622972c803cad98dcc",
+      "pixels": [
+        735,
+        732
+      ],
+      "pixel_sha256": "6c9d52aa962ee304f913e726ec1eee0d0c7463b450e73260c2935ae765d13789",
+      "dhash": "cc4e8a2aaf2d7878"
+    },
+    {
+      "key": "PMC13170237__mbio.03124-25.f006.jpg",
+      "pmcid": "PMC13170237",
+      "doi": "10.1128/mbio.03124-25",
+      "licence": "cc by",
+      "sha256": "3808665f590a4d618de9b1d83485a5b28ea63c18b643d1689ec56885cd16f807",
+      "pixels": [
+        735,
+        632
+      ],
+      "pixel_sha256": "962e145331bf9784e05a901bc2678bb27a7bed3f1cade829168bb6813ff1f42a",
+      "dhash": "79480d0b2db7e56d"
+    },
+    {
+      "key": "PMC11414933__pbio.3002791.g001.jpg",
+      "pmcid": "PMC11414933",
+      "doi": "10.1371/journal.pbio.3002791",
+      "licence": "cc by",
+      "sha256": "dc0c29c350c6478cb9f3433ac71a9c384781692af7df023c2804d2ef06d15098",
+      "pixels": [
+        700,
+        332
+      ],
+      "pixel_sha256": "6224197d7d40e724ee2e5f6fc0e6e8afe870f1b8001d5d9953f760d965f44e47",
+      "dhash": "c7426048584a0918"
+    },
+    {
+      "key": "PMC11414933__pbio.3002791.g002.jpg",
+      "pmcid": "PMC11414933",
+      "doi": "10.1371/journal.pbio.3002791",
+      "licence": "cc by",
+      "sha256": "ac3d40ed952415c306104ed07e07f188aec56b4eef4e57b3e1d8f5aeae633ff5",
+      "pixels": [
+        700,
+        389
+      ],
+      "pixel_sha256": "ff77bba899e6abbe9756d13869fa50bfb28ccfbab1e89301948aedf54e9783b4",
+      "dhash": "4747476e488f0e58"
+    },
+    {
+      "key": "PMC11414933__pbio.3002791.g003.jpg",
+      "pmcid": "PMC11414933",
+      "doi": "10.1371/journal.pbio.3002791",
+      "licence": "cc by",
+      "sha256": "fd6f32df4c3dae513aca1c229f5e94da6c6e03189f526a45f092f90ea61620da",
+      "pixels": [
+        700,
+        382
+      ],
+      "pixel_sha256": "cdc9cec76074db3bb032024d95b3658328d8c61ded907b91086518a65db43ab9",
+      "dhash": "7d397b79797b7b7c"
+    },
+    {
+      "key": "PMC11414933__pbio.3002791.g004.jpg",
+      "pmcid": "PMC11414933",
+      "doi": "10.1371/journal.pbio.3002791",
+      "licence": "cc by",
+      "sha256": "b066f06912dba90c882a34cdec99c1825a379997e734f3fe5d6aea5b38bd71a8",
+      "pixels": [
+        698,
+        397
+      ],
+      "pixel_sha256": "41c63d6c0c55315d129ee01c40c983a746286654c7d2ec7eb252f352ca45990a",
+      "dhash": "726a7f77733b3939"
+    },
+    {
+      "key": "PMC11414933__pbio.3002791.g005.jpg",
+      "pmcid": "PMC11414933",
+      "doi": "10.1371/journal.pbio.3002791",
+      "licence": "cc by",
+      "sha256": "0580df22cf84bd706baa4a6c87a3f5e1a51f277e4cd003540e552f7305960361",
+      "pixels": [
+        700,
+        383
+      ],
+      "pixel_sha256": "435c707f32bdc02ac62d2586a33eba95ecf2181f61c3941c3d414ac4aee2503c",
+      "dhash": "9c1c1c5c5c3e3e3e"
+    },
+    {
+      "key": "PMC11414933__pbio.3002791.g006.jpg",
+      "pmcid": "PMC11414933",
+      "doi": "10.1371/journal.pbio.3002791",
+      "licence": "cc by",
+      "sha256": "f712faa96c9009d00453017e21a5e5171d637cd90aacaeb0503e2c0d552a5b5b",
+      "pixels": [
+        700,
+        579
+      ],
+      "pixel_sha256": "25c9160cd3b007ed2a9f161798f802f95821110086bd27d5a63b48c7a4ac9c5d",
+      "dhash": "91397b39397a7979"
+    },
+    {
+      "key": "PMC13515172__microorganisms-14-01725-g001.webp",
+      "pmcid": "PMC13515172",
+      "doi": "10.3390/microorganisms14081725",
+      "licence": "cc by",
+      "sha256": "5634f3092363b6267e4b9800b5f15839e57320df16fb1ff0939cb1fd9a83a9f7",
+      "pixels": [
+        1599,
+        556
+      ],
+      "pixel_sha256": "829537a7f2ee05acdd91174369c64ebd1bfd1921abd4dab30570cae7abd713f8",
+      "dhash": "23e1d91933232121"
+    },
+    {
+      "key": "PMC13515172__microorganisms-14-01725-g002.webp",
+      "pmcid": "PMC13515172",
+      "doi": "10.3390/microorganisms14081725",
+      "licence": "cc by",
+      "sha256": "58d28d1e38f11fa67cd341bcf0c983cbb1a623013498515aaeaee4a068ac3b17",
+      "pixels": [
+        1600,
+        837
+      ],
+      "pixel_sha256": "c41483df580dfc621d7c81dfc5917b5edf0c39035982a564bab68ee33310627e",
+      "dhash": "e9a3e1f1c1d91918"
+    },
+    {
+      "key": "PMC13515172__microorganisms-14-01725-g003.webp",
+      "pmcid": "PMC13515172",
+      "doi": "10.3390/microorganisms14081725",
+      "licence": "cc by",
+      "sha256": "3339a5b2d4736f8aa336e6203cb6e11c9e95ef7b358fdeb783c1acdb4aca8a96",
+      "pixels": [
+        1600,
+        1083
+      ],
+      "pixel_sha256": "26f96cf80b9a556cf6292b1a372250dab5f99ecd482a43093b62941f28080633",
+      "dhash": "93c949da4b6b7733"
+    },
+    {
+      "key": "PMC13515172__microorganisms-14-01725-g004.webp",
+      "pmcid": "PMC13515172",
+      "doi": "10.3390/microorganisms14081725",
+      "licence": "cc by",
+      "sha256": "97d0edbca4abeaf68c957e466ead2be78bade5626c663983ff7dc111aa2d9f34",
+      "pixels": [
+        1600,
+        1085
+      ],
+      "pixel_sha256": "96ad153bf39cd05cc6e0c4c11cddde40b785d629f5580db1b2afd3af2417ea79",
+      "dhash": "93c9499249494f37"
+    },
+    {
+      "key": "PMC13515172__microorganisms-14-01725-g005.webp",
+      "pmcid": "PMC13515172",
+      "doi": "10.3390/microorganisms14081725",
+      "licence": "cc by",
+      "sha256": "393dcfdc46e934cb491d91ec0866e239ef5b18a2aaaa170250450828bf8ee9f9",
+      "pixels": [
+        1600,
+        1355
+      ],
+      "pixel_sha256": "090cee2c6dcca47b186613c0c779343b1c5904db9db18bf5b6e29c198503f02a",
+      "dhash": "d795b555c496f252"
+    },
+    {
+      "key": "PMC13515172__microorganisms-14-01725-g006.webp",
+      "pmcid": "PMC13515172",
+      "doi": "10.3390/microorganisms14081725",
+      "licence": "cc by",
+      "sha256": "7b1aaea9d296672d9c748c7a4ab68eeb8bc8a11922fd5f7bb077ad74764fcc47",
+      "pixels": [
+        1600,
+        889
+      ],
+      "pixel_sha256": "1db5fbda0a09d9acbf465415b4d650148a75fce105d8e33916666124456d15c3",
+      "dhash": "9b9b5948273f3313"
+    },
+    {
+      "key": "PMC13294430__40635_2026_935_Fig1_HTML.webp",
+      "pmcid": "PMC13294430",
+      "doi": "10.1186/s40635-026-00935-z",
+      "licence": "cc by",
+      "sha256": "1366ee7c07044cf3a0ec26ae863fed4a6eb1ca6ecd393d3e177f29cbf36a9e97",
+      "pixels": [
+        1600,
+        1499
+      ],
+      "pixel_sha256": "78ca6edcf6bad728b7392f2af6ae5ee57e595700664d5cee97ac18b3025fd6bc",
+      "dhash": "e6ceeeefe7eeceee"
+    },
+    {
+      "key": "PMC13294430__40635_2026_935_Fig2_HTML.webp",
+      "pmcid": "PMC13294430",
+      "doi": "10.1186/s40635-026-00935-z",
+      "licence": "cc by",
+      "sha256": "617afb0acc4d9604e8d25be2349866d3e00fdd3625d2069b52d08a85454b6847",
+      "pixels": [
+        1600,
+        1051
+      ],
+      "pixel_sha256": "67b1cf37fcc0173bf1d6b4458b086ae7c2ef5f83e628202c7e877d22d3cd565e",
+      "dhash": "77676764c96d6d64"
+    },
+    {
+      "key": "PMC13294430__40635_2026_935_Fig3_HTML.webp",
+      "pmcid": "PMC13294430",
+      "doi": "10.1186/s40635-026-00935-z",
+      "licence": "cc by",
+      "sha256": "57002328e6917376a74ca0c595444ee10c33e1b785b8e7af3ac4eedee2fea7ab",
+      "pixels": [
+        1600,
+        712
+      ],
+      "pixel_sha256": "052e230e4c71b911d76d5c87efc6951e7eabe56bc2c366a322b38e4a79cb9b38",
+      "dhash": "0f0f2d29b2b2b60e"
+    },
+    {
+      "key": "PMC13564517__cells-15-01590-g001.webp",
+      "pmcid": "PMC13564517",
+      "doi": "10.3390/cells15171590",
+      "licence": "cc by",
+      "sha256": "7eb1af10331f04a6190ddbfd285e260a34165b4b91aa0c83e31ade2512086126",
+      "pixels": [
+        1600,
+        859
+      ],
+      "pixel_sha256": "70b30c7d8d6b8ee0e5eb5c42793be4aa2f43217690cf752a246ea662dbc1672a",
+      "dhash": "5faa2a2a2a1a1635"
+    },
+    {
+      "key": "PMC13564517__cells-15-01590-g002.webp",
+      "pmcid": "PMC13564517",
+      "doi": "10.3390/cells15171590",
+      "licence": "cc by",
+      "sha256": "c0bdd2002ac5f0c97fb2c45cd51553ca6c2e5c9010306a80d168b1fb1e11b014",
+      "pixels": [
+        1600,
+        624
+      ],
+      "pixel_sha256": "482706fc1f9c43135f5688d74164d601a024a6bd172cea7eaddc6d4f3ce8419e",
+      "dhash": "6d695358699d6c6c"
+    }
+  ],
+  "by_control": {
+    "bmp": {
+      "total": 182,
+      "matched": 182,
+      "skipped_exact": 182,
+      "distance_histogram": {
+        "0": 182
+      }
+    },
+    "double": {
+      "total": 182,
+      "matched": 180,
+      "skipped_exact": 0,
+      "distance_histogram": {
+        "0": 88,
+        "1": 50,
+        "2": 23,
+        "3": 16,
+        "4": 3,
+        "6": 2
+      }
+    },
+    "half": {
+      "total": 182,
+      "matched": 181,
+      "skipped_exact": 0,
+      "distance_histogram": {
+        "0": 62,
+        "1": 59,
+        "2": 40,
+        "3": 13,
+        "4": 7,
+        "7": 1
+      }
+    },
+    "half_jpeg75": {
+      "total": 182,
+      "matched": 176,
+      "skipped_exact": 0,
+      "distance_histogram": {
+        "0": 52,
+        "1": 60,
+        "2": 34,
+        "3": 19,
+        "4": 11,
+        "5": 5,
+        "8": 1
+      }
+    },
+    "jpeg50": {
+      "total": 182,
+      "matched": 180,
+      "skipped_exact": 0,
+      "distance_histogram": {
+        "0": 54,
+        "1": 62,
+        "2": 46,
+        "3": 13,
+        "4": 5,
+        "6": 2
+      }
+    },
+    "jpeg75": {
+      "total": 182,
+      "matched": 179,
+      "skipped_exact": 0,
+      "distance_histogram": {
+        "0": 76,
+        "1": 52,
+        "2": 31,
+        "3": 15,
+        "4": 5,
+        "5": 2,
+        "7": 1
+      }
+    },
+    "jpeg95": {
+      "total": 182,
+      "matched": 182,
+      "skipped_exact": 0,
+      "distance_histogram": {
+        "0": 119,
+        "1": 38,
+        "2": 16,
+        "3": 6,
+        "4": 3
+      }
+    },
+    "png": {
+      "total": 182,
+      "matched": 182,
+      "skipped_exact": 182,
+      "distance_histogram": {
+        "0": 182
+      }
+    }
+  },
+  "current_threshold": 4,
+  "sweep": [
+    {
+      "bits": 0,
+      "same_source_within_distance": 815,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 1,
+      "same_source_within_distance": 1136,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 2,
+      "same_source_within_distance": 1326,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 3,
+      "same_source_within_distance": 1408,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 4,
+      "same_source_within_distance": 1442,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 5,
+      "same_source_within_distance": 1449,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 6,
+      "same_source_within_distance": 1453,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 7,
+      "same_source_within_distance": 1455,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 0
+    },
+    {
+      "bits": 8,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 2
+    },
+    {
+      "bits": 9,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 4
+    },
+    {
+      "bits": 10,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 4
+    },
+    {
+      "bits": 11,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 4
+    },
+    {
+      "bits": 12,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 4
+    },
+    {
+      "bits": 13,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 4
+    },
+    {
+      "bits": 14,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 6
+    },
+    {
+      "bits": 15,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 6
+    },
+    {
+      "bits": 16,
+      "same_source_within_distance": 1456,
+      "distinct_source_ordered_pairs_within_distance_and_aspect": 8
+    }
+  ],
+  "distinct_source_ordered_pairs": 32942,
+  "aspect_eligible_ordered_pairs": 1250,
+  "aspect_eligible_distance_histogram": {
+    "8": 2,
+    "9": 2,
+    "14": 2,
+    "16": 2,
+    "18": 5,
+    "19": 4,
+    "20": 10,
+    "21": 8,
+    "22": 32,
+    "23": 22,
+    "24": 44,
+    "25": 45,
+    "26": 70,
+    "27": 70,
+    "28": 76,
+    "29": 88,
+    "30": 93,
+    "31": 101,
+    "32": 117,
+    "33": 103,
+    "34": 68,
+    "35": 81,
+    "36": 51,
+    "37": 55,
+    "38": 36,
+    "39": 25,
+    "40": 10,
+    "41": 10,
+    "42": 6,
+    "43": 2,
+    "44": 8,
+    "51": 2
+  },
+  "close_source_pairs_at_most_8_bits": [
+    {
+      "query": "PMC13028617__microorganisms-14-00645-g006.jpg",
+      "candidate": "PMC13028617__microorganisms-14-00645-g007.jpg",
+      "distance": 8
+    },
+    {
+      "query": "PMC13028617__microorganisms-14-00645-g007.jpg",
+      "candidate": "PMC13028617__microorganisms-14-00645-g006.jpg",
+      "distance": 8
+    }
+  ],
+  "current_nearest_source_matches": [],
+  "manifest_sha256": "48886d12722d13da1e89f1d7a469a21a98be2ff04ca473836cd92af059339c5a",
+  "runtime_sha256": "9659b73cbe94c735fed54d71e42c52d40f7e502a6dda063cbd91970bc808dbe6",
+  "tool_sha256": "23a475bee125ff84345500af2b10ec78da7df1a411f72b9d88a08233ca77f661",
+  "pillow_version": "10.3.0",
+  "seconds": 77.9484668050136,
+  "limitations": [
+    "Same-source transformed controls, not human duplicate truth",
+    "Distinct source pairs are unreviewed, not confirmed negatives",
+    "No cropping, panel reuse, rotation or text-overlay controls",
+    "Similar hashes only flag; exact bytes/pixels alone skip",
+    "Threshold sweep does not automatically select a threshold"
+  ],
+  "measured": "2026-09-23",
+  "instruction": 424,
+  "manifest": "features/data/424_detector_transfer_2026-09-19.json",
+  "manifest_scope": "Only source figures, licences, dimensions and hashes used; old detector scores in this manifest remain void.",
+  "figures": 182,
+  "papers": 28,
+  "source_hashes_verified": 182,
+  "controls_count": 1456,
+  "resized_or_jpeg_controls": 1092,
+  "resized_or_jpeg_matched": 1078,
+  "resized_or_jpeg_match_percent": 98.71794871794872,
+  "lossless_controls": 364,
+  "lossless_exact_matches": 364,
+  "missed_same_source_controls": [
+    {
+      "key": "PMC12115599__vaccines-13-00495-g007.jpg",
+      "control": "jpeg75",
+      "sha256": "2e4ccc45e36f6c6209d5648aeab4a7c36ce7c3cc945ac22504fc8735e2048c0c",
+      "pixels": [
+        736,
+        484
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g007.jpg",
+      "control": "jpeg50",
+      "sha256": "f70748b1a9819bea8771d5094a762fbaa4d74bdb182ad84790c9a5a1eb34a1a6",
+      "pixels": [
+        736,
+        484
+      ],
+      "distance": 6,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g007.jpg",
+      "control": "double",
+      "sha256": "3aa2147da9048f8cf21949df326f9ca3ce0f00841d214938975f25cf60090481",
+      "pixels": [
+        1472,
+        968
+      ],
+      "distance": 6,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC12115599__vaccines-13-00495-g007.jpg",
+      "control": "half_jpeg75",
+      "sha256": "34caaada816b14cc3b0ecd242bb4977473a8517fe5283ddff209c1ea3f7f254a",
+      "pixels": [
+        368,
+        242
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13141887__spectrum.00408-25.f002.jpg",
+      "control": "half_jpeg75",
+      "sha256": "4ce81f3e532878974ffc3570583aa83f06e6c38abaae4c2d32efd1603cf778ce",
+      "pixels": [
+        368,
+        335
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g010.jpg",
+      "control": "jpeg75",
+      "sha256": "205fc39ccb8e9837740d2b472d2a387c7d1f268586df559a987a422f8622947c",
+      "pixels": [
+        751,
+        545
+      ],
+      "distance": 7,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g010.jpg",
+      "control": "jpeg50",
+      "sha256": "5ef825730ea91bb94d4ab9f18f5beb6b67fd8643953dcf3e7cde25ff4a8befd3",
+      "pixels": [
+        751,
+        545
+      ],
+      "distance": 6,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g010.jpg",
+      "control": "half",
+      "sha256": "5a994c00646633e208b175e40838911c729b1913f8c6e4ac360706a13e781bbd",
+      "pixels": [
+        376,
+        272
+      ],
+      "distance": 7,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13218526__pone.0348054.g010.jpg",
+      "control": "half_jpeg75",
+      "sha256": "b276adb36fcde1c92fcc46851984acd78b1b29f3ff446c5c69a97f97e0676504",
+      "pixels": [
+        376,
+        272
+      ],
+      "distance": 8,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f002.jpg",
+      "control": "jpeg75",
+      "sha256": "fe6772860026cdef8790f30212fdf8fb3f324a0a6f4cb93d2b72527a9d8aee96",
+      "pixels": [
+        677,
+        938
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13011394__jvi.01972-25.f002.jpg",
+      "control": "double",
+      "sha256": "6068be0eef991f4e57fb40a8276980e63f68fa3caf426f827c6b318624499e2b",
+      "pixels": [
+        1354,
+        1876
+      ],
+      "distance": 6,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC12930041__gr4.jpg",
+      "control": "half_jpeg75",
+      "sha256": "34e3dc5e8c955e1305abfb9e7a4b62bd142a2e09859b9d1108de262efcc6d659",
+      "pixels": [
+        362,
+        334
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC13278376__jgv-107-02283-g005.jpg",
+      "control": "half_jpeg75",
+      "sha256": "bd7de496cba65a2d6c10ba410dd8b413f6b6bcc0c0a7488e71c73504993e017c",
+      "pixels": [
+        368,
+        470
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    },
+    {
+      "key": "PMC9744290__ppat.1011009.g008.jpg",
+      "control": "half_jpeg75",
+      "sha256": "27940d401ecc43df73b0443bf9984a1d76a4ae07f096785a0d224bd0a0be6f25",
+      "pixels": [
+        354,
+        400
+      ],
+      "distance": 5,
+      "pixel_identical": false,
+      "match": null
+    }
+  ],
+  "threshold_decision": "Keep 4 bits. Controlled perturbations do not justify fitting a new production threshold without reviewed natural duplicate/negative pairs.",
+  "close_pair_visual_inspection": {
+    "reviewer": "assistant visual inspection, not independent human review",
+    "figures": [
+      "PMC13028617__microorganisms-14-00645-g006.jpg",
+      "PMC13028617__microorganisms-14-00645-g007.jpg"
+    ],
+    "distance": 8,
+    "observation": "Three similarly arranged colored bar charts; Fig6 axes report adhesion rate, Fig7 invasion rate. Different axes and bar values. Distinct figures with similar layout."
+  },
+  "reproducibility": {
+    "two_cpu_runs_identical_decisions": true,
+    "first_seconds": 77.32949240700691,
+    "final_seconds": 77.9484668050136,
+    "full_final_output_sha256": "730a9cc72157edc737afcf713b531b91a693674acf50f6c2c430ac0132d1ba40",
+    "memory_cap": "4G",
+    "swap_cap": 0,
+    "cuda_visible_devices": "",
+    "source_endpoint_template": "https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/supplementaryFiles",
+    "restore_function": "tools.measure_plaque_detector_transfer.fetch_figure_images",
+    "command": "PYTHONPATH=$PWD CUDA_VISIBLE_DEVICES='' OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2 tools/run_capped.sh 4G python tools/evaluate_plaque_duplicate_threshold.py --manifest features/data/424_detector_transfer_2026-09-19.json --images /path/to/restored/figures --output /path/to/result.json"
+  },
+  "validation": {
+    "passed": 33,
+    "skipped": 1,
+    "seconds": 2.63,
+    "tests": [
+      "tests/test_plaque_duplicate_threshold_audit.py",
+      "tests/test_plaque_papers_dedup_conflict_scale_db.py"
+    ],
+    "skip": "Existing optional test_the_reader_worker_reads_a_real_pdf: host pdfplumber unavailable.",
+    "new_tests": 10,
+    "ruff": "all configured checks pass",
+    "preservation": "Manifest/image/symlink/hardlink output aliases rejected; changed/missing sources preserve prior output."
+  }
+}
