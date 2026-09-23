@@ -67,6 +67,18 @@
       "source_sha256": "76bf447eb5b3bb88c0493d01426284b464fef6f7d6c79c4d6c88d03abe40e72f",
       "text": "Return the external-application folder without creating it.\n\n:param root: explicit folder, otherwise ``SPACR_APPS_DIR`` or ``~/.spacr/apps``.\n:returns: absolute application root."
     },
+    "spacr._starplast.check_starplast_update": {
+      "source_blocks_sha256": [
+        "ac37e36f747dc794e3a8d52b633a03c6b0724a3b4fa5c59420f9ca7fb1e369ff",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "2a6038ff6c10abd2e914afb14d3270a32aed55b6bf50fbd0ab73dadcd74a5664",
+        "5a64a08b84c1aad78432184fb527796029fbdac075104569bedd14a3d73d89aa",
+        "b5e5669ceb44bbc906c6bb6755d9e4e3877ccc0d81464a9ebac174dff804c363",
+        "f735c67c1ddfaace436e814516661ec496778fe9e1727746808578f24f5e8802"
+      ],
+      "source_sha256": "31a79a6624e2c2ab2b98e3be6103e5932fbc1dc7aeda775ce9fcea42294ecb7e",
+      "text": "Compare the actual isolated installation with compatible stable PyPI releases.\n\n:param root: external-application folder.\n:param cancel: optional cancellation event for subprocesses.\n:param runner: optional cancellable command runner for tests.\n:returns: installed/latest version strings and an ``available`` boolean.\n:raises RuntimeError: the installation or package index cannot be checked."
+    },
     "spacr._starplast.default_source": {
       "source_blocks_sha256": [
         "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
@@ -120,6 +132,20 @@
       ],
       "source_sha256": "f48fdf84b6ce238f46b381208925776df203b0784165ac2573ef278e0b7a0dee",
       "text": "Isolate Python, pip and Qt plugin lookup from the running spaCR process.\n\n:param env: Starplast's virtual environment.\n:returns: subprocess variables retaining desktop display and user settings."
+    },
+    "spacr._starplast.upgrade_starplast": {
+      "source_blocks_sha256": [
+        "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
+        "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
+        "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
+        "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
+        "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
+        "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c"
+      ],
+      "source_sha256": "928ec9f05a8dc5685ba38167dc043a4a28ca8965257e565873796dc6b1b52340",
+      "text": "Upgrade the owned environment using pip and PyPI, then verify its data.\n\n:param source: ignored; upgrades always use the PyPI Starplast package.\n:param root: external-application folder.\n:param progress: optional ``(step, total, text)`` callback.\n:param cancel: optional subprocess cancellation event.\n:param runner: optional command runner for tests.\n:returns: verified environment path.\n:raises RuntimeError: upgrade failed or was cancelled. Files and logs remain\n    for diagnosis; an interrupted environment must be repaired before launch."
     },
     "spacr._version": {
       "source_blocks_sha256": [
@@ -13039,13 +13065,13 @@
     "spacr.example_archives.explain_download_failure": {
       "source_blocks_sha256": [
         "9e696b9f50b6b01f6924cd833dfe805e5ea99b30c26e77c6a797d8cf2f4d302b",
-        "1b49b81315058332433093394b3c6c8e3364dd70c2c290be5a2858d4255b18a4",
+        "c6fa2b5bb81c233c777438ebcf95e42867e4ece267ae6089b956c9b15361ab12",
         "5667039f440821a89d698c27d2f3c16d07bc553b42dcd91e7436f570f313884f",
         "0476406c536d23dfc9317781b5529cddcb96d8c0b31c77099c2a90bcdb091e55",
         "162f1a32c58452129b6e8766ed287f6aca3ff015acc522c9ce826ba848bc7232"
       ],
-      "source_sha256": "88a177f58d500c4dfa0692d875375a53e1e2ecf94ecfd09fff4b8626aea6d984",
-      "text": "Turn a download exception into something a user can act on.\n\nThis is the only demo in the Demos menu that needs the network — the six\nsynthetic generators are entirely offline — so it is the only one that can\nfail for a reason outside spaCR. What the user saw before was\n``str(exc)``, which for the ordinary offline case is a nested urllib3\ndump::\n\n    (MaxRetryError(\"HTTPSConnectionPool(host='huggingface.co', port=443):\n    Max retries exceeded with url: /api/datasets/... (Caused by\n    NewConnectionError('<urllib3.connection.HTTPSConnection object at\n    0x7e8d...>: Failed to establish a new connection: [Errno 101] Network\n    is unreachable'))\"), '(Request ID: 73ac20ed-...)')\n\n— 300 characters that never say \"you are offline\" and never say what to do\ninstead. The three conditions this actually fails on are: no network, the\n``huggingface_hub`` extra not installed, and a truncated transfer. Each\ngets a sentence naming the cause and the way out; anything else keeps its\nown message with the same closing advice attached.\n\n:param exc: the exception raised inside the download worker.\n:returns: a multi-line message for the failure dialog."
+      "source_sha256": "1f1a1bba92ecfe48953d16f8d8afbaf525f3560174831eeb57057eedfd15d335",
+      "text": "Turn a download exception into something a user can act on.\n\nDownloading test data requires a network connection. What the user saw before was\n``str(exc)``, which for the ordinary offline case is a nested urllib3\ndump::\n\n    (MaxRetryError(\"HTTPSConnectionPool(host='huggingface.co', port=443):\n    Max retries exceeded with url: /api/datasets/... (Caused by\n    NewConnectionError('<urllib3.connection.HTTPSConnection object at\n    0x7e8d...>: Failed to establish a new connection: [Errno 101] Network\n    is unreachable'))\"), '(Request ID: 73ac20ed-...)')\n\n— 300 characters that never say \"you are offline\" and never say what to do\ninstead. The three conditions this actually fails on are: no network, the\n``huggingface_hub`` extra not installed, and a truncated transfer. Each\ngets a sentence naming the cause and the way out; anything else keeps its\nown message with the same closing advice attached.\n\n:param exc: the exception raised inside the download worker.\n:returns: a multi-line message for the failure dialog."
     },
     "spacr.example_archives.extract_example_archive": {
       "source_blocks_sha256": [
@@ -39177,15 +39203,6 @@
       "source_sha256": "f7d2b7aa1debecab5b6bc463221b75f50a40d8e049a77116fce5bc4104538b97",
       "text": "How finished ``key`` is — one of :data:`STAGES`.\n\nUnknown keys read as stable rather than raising: a stage is an\nannotation on an app, and an app with no annotation is one nobody\nhas flagged."
     },
-    "spacr.qt.app.demo_label_for_app": {
-      "source_blocks_sha256": [
-        "26a6a0a7d2c1c9ee3f7030bd638c58bf5390374f8d763beb60d3777f8e47b626",
-        "3e2d83bb6bd966c6d5488d87556d333501de180ef715471261921395ffee9a8e",
-        "7f911a9ad1321c855f6118d50638223fb1a88ed20db2e234cc5d098c00262307"
-      ],
-      "source_sha256": "a99082cddce76dc92e4dc6aaa6e2731a644cc0526da2fc56e0fd930de15146dd",
-      "text": "The Demos-menu label of the demo that opens in app ``app_key``.\n\n``None`` when no demo lands there, which is most of the registry —\nthe caller says something generic rather than naming a demo that\nwould take the user somewhere else.\n\nResolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target\napp) rather than a second table, so a demo that is re-pointed at a\ndifferent app moves its hint with it. The first match wins: two demos\nland on ``measure`` (Measure and Crop) and the one named after the\napp is the one it lists first."
-    },
     "spacr.qt.app.dock_rows": {
       "source_blocks_sha256": [
         "e1a583dd904e58b1393cc1444b5aaccbe59a4a0e2823a3f2843b27692b8a0298",
@@ -39583,24 +39600,24 @@
     "spacr.qt.assay_examples": {
       "source_blocks_sha256": [
         "b4f66861cc7515e1660a98d6617ee34b671b8dee27231dbab412ae5d4d4aa24d",
-        "1d6b62a10b2a6d0b6d7c064fe41d1dcae0f7f62a3772e49e0e36104b02d26d44",
-        "ee420f38b6e1c15fdb8ce3159843393a1744f4bc209a9e7847433118def3fad0",
+        "9c1c2fefccbc5dd8e6f26379cf0e339e4b407fc594030d073ac7ccf0a93fc211",
+        "bfea5ee7b31b25ccee51bbb08ba3b51fb86298c0e746c72b68f4ebc70e01961a",
         "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
         "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937"
       ],
-      "source_sha256": "8fa2205466d526644c90aafd29aa39f89476248d921e271ea1e830d1fa60f025",
-      "text": "Test data for the assay modules: a measured plate, one button away.\n\nReplication, Invasion and Recruitment get test data: small datasets on\nHugging Face and a \"Load test data…\" button in each module. Replication and\nRecruitment are slices of real screens. Invasion's is SYNTHETIC: no two-colour\ndifferential-staining acquisition exists, so its fields and their object\nmasks are drawn by spaCR and then measured by the Measure module. Its tooltip\nsays so.\n\nWHAT THE MODULES TAKE. All three read ``<src>/measurements/measurements.db``,\nthe output of Mask then Measure, so each example is a slice of a real screen's\ndatabase -- every row of twelve control wells -- with two merged fields and\nthe module's settings. :data:`spacr.example_archives.EXAMPLE_SETS` describes\nboth, so ``spacr-download replication`` fetches the same archive.\n\nITS OWN FOLDER PER SET. Both ship ``measurements/measurements.db``, as the\nAnnotate example in the shared plate does, so each unpacks beside that plate\n(:func:`spacr.example_archives.example_set_folder`) rather than into it.\n\nTHE SAME PATTERN AS THE OTHER EXAMPLES. One uncompressed ``.tar`` streamed to\na ``.part`` file on a worker thread behind the shared progress dialog,\nunpacked through the tar data filter, ``<dataset>`` in the settings replaced\nwith where it landed, and cached: a second press uses the copy on disk."
+      "source_sha256": "ac03e74f1172e77293b26c9da83b307018b3606c5c3dbcd28d70beae52c89382",
+      "text": "Test data for the assay modules: a measured plate, one button away.\n\nReplication, Invasion, Recruitment and Host–Pathogen offer published datasets\nthrough Load test data. Host–Pathogen contains two real THP-1 RNF213 fields,\nprepared host/nucleus/vacuole masks and fresh measurements of those fields.\nReplication and Recruitment contain slices of measured screens. Invasion's\nimages and masks are synthetic and explicitly labelled before downloading.\n\nAll four read ``<src>/measurements/measurements.db`` and apply the settings\nshipped in their archive. :data:`spacr.example_archives.EXAMPLE_SETS` describes\nthe same datasets for the GUI and ``spacr-download``.\n\nITS OWN FOLDER PER SET. Both ship ``measurements/measurements.db``, as the\nAnnotate example in the shared plate does, so each unpacks beside that plate\n(:func:`spacr.example_archives.example_set_folder`) rather than into it.\n\nTHE SAME PATTERN AS THE OTHER EXAMPLES. One uncompressed ``.tar`` streamed to\na ``.part`` file on a worker thread behind the shared progress dialog,\nunpacked through the tar data filter, ``<dataset>`` in the settings replaced\nwith where it landed, and cached: a second press uses the copy on disk."
     },
     "spacr.qt.assay_examples.download_assay_example": {
       "source_blocks_sha256": [
         "75bcfd959b7ba2d957b245589e508808480d384a36ac4f050e1fc8bf5b46f708",
         "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
-        "965cd876985cdc80e1511e4b85c3605c52d613d6038206bec0712f826cda59c0",
+        "d1701e845f8f5327bea635caf0246f8f4304597509a172dc12333c010ad8d506",
         "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
         "c317f727d08d41e4745bc3a7b7c5951923639887b9224573ca12d97afb05cae4"
       ],
-      "source_sha256": "577b1034d6f4fc070f6311df5095ea5c0edbea70be397332af0ca815bafe2297",
-      "text": "Fetch ``app_key``'s test data behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param app_key: ``replication``, ``recruitment`` or ``invasion``.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``;\n    ``result`` is ``None`` on failure or cancellation."
+      "source_sha256": "511b79d0e0f1556c0c38b01fa9a9e73c4755250d9838e02e6fd1956b24db8543",
+      "text": "Fetch ``app_key``'s test data behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param app_key: ``replication``, ``recruitment``, ``invasion`` or ``host_pathogen``.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``;\n    ``result`` is ``None`` on failure or cancellation."
     },
     "spacr.qt.assay_examples.install_assay_example_button": {
       "source_blocks_sha256": [
@@ -42932,12 +42949,12 @@
     "spacr.qt.first_run": {
       "source_blocks_sha256": [
         "32ffd2593ff642ea3187a8b4497252730274299149932de1870a87d52bd3c9e7",
-        "8b0fd85795a82ec3db1b3850b963a049fc69b6290173dccdf7fe55fd1d3505cb",
+        "5dcc9e04e888b281fe03b869b878ca00f383f1ffb2fcaf00bf0322153e8de4a7",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "0498452fb5ada348843bcf76d1a532dbd61700297e2df4c51795a8ffd4fbfaa1"
       ],
-      "source_sha256": "de2bcd63e240c77be89a2a8988fbe50bb8bb64fae602757a953f19e233528d18",
-      "text": "First-launch tour — one-time coach-marks over the home screen.\n\nFires the first time ``spacr`` boots (state stored in QSettings). A\ntranslucent full-window overlay dims the app; a numbered card walks\nthe user through: sidebar → Demos menu → home tiles → hint bar. The\nuser can dismiss at any point via Skip / Esc; the \"seen\" flag is\nsaved on skip OR after the last step so the tour never fires twice\nunless they hit \"Reset\" in Preferences.\n\nPublic API::\n\n    from spacr.qt.first_run import (\n        maybe_show_tour, was_tour_shown, mark_tour_seen,\n        reset_tour_state,\n    )\n\n    # In MainWindow.__init__ after everything is built:\n    maybe_show_tour(self)\n\n    # From a Preferences reset button:\n    reset_tour_state()\n\nThe tour is deliberately spartan — five steps, ~90 seconds tops.\nUsers who don't want it hit Esc and never see it again."
+      "source_sha256": "a1ae33c3dab5aafd585aed4edf3aa221776c5deb8ff6f979bb0126216a1326a8",
+      "text": "First-launch tour — one-time coach-marks over the home screen.\n\nFires the first time ``spacr`` boots (state stored in QSettings). A\ntranslucent full-window overlay dims the app; a numbered card walks\nthe user through: sidebar → test data → home tiles → hint bar. The\nuser can dismiss at any point via Skip / Esc; the \"seen\" flag is\nsaved on skip OR after the last step so the tour never fires twice\nunless they hit \"Reset\" in Preferences.\n\nPublic API::\n\n    from spacr.qt.first_run import (\n        maybe_show_tour, was_tour_shown, mark_tour_seen,\n        reset_tour_state,\n    )\n\n    # In MainWindow.__init__ after everything is built:\n    maybe_show_tour(self)\n\n    # From a Preferences reset button:\n    reset_tour_state()\n\nThe tour is deliberately spartan — five steps, ~90 seconds tops.\nUsers who don't want it hit Esc and never see it again."
     },
     "spacr.qt.first_run.TourStep": {
       "source_blocks_sha256": [
@@ -63821,15 +63838,36 @@
       "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
       "text": "Start the install after the explicit button press, keeping Qt responsive."
     },
+    "spacr.qt.starplast.StarplastUpdateCheckDialog": {
+      "source_blocks_sha256": [
+        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
+      ],
+      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
+      "text": "Check PyPI off the GUI thread, allowing a cancelled check to open the installed app.\nPrepare an automatic, read-only update check."
+    },
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8"
+      ],
+      "source_sha256": "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+      "text": "Prevent destruction of an active check thread."
+    },
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.reject": {
+      "source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ],
+      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
+      "text": "Cancel the check and keep the dialog alive until its worker exits."
+    },
     "spacr.qt.starplast.open_starplast": {
       "source_blocks_sha256": [
-        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
         "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
         "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
         "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
       ],
-      "source_sha256": "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d",
-      "text": "Offer installation once, then launch the independent Starplast application.\n\n:param parent: organism page requesting the launch.\n:param root: optional external-application folder.\n:returns: child process, or None if cancelled or launch failed."
+      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
+      "text": "Check for updates on every open and offer pip upgrades before launching.\n\n:param parent: organism page requesting the launch.\n:param root: optional external-application folder.\n:returns: child process, or None if cancelled or launch failed."
     },
     "spacr.qt.startup_benchmark": {
       "source_blocks_sha256": [

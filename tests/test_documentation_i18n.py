@@ -195,7 +195,9 @@ TOOLS = ROOT / "tools"
 # +12 inference/cursor/help/schema entries. English and Help are refreshed;
 # all locale key/hash checks remain strict while translations are completed.
 # +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_479
+# Starplast update APIs add five entries; the retired Demos label removes one.
+# Exact added/removed sets: features/data/411_starplast_demos_api_2026-09-23.json.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_483
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

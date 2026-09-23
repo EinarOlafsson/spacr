@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "baseline_commit": "0f651f706490302f471c7d34e2700ffdce9a4179",
+  "previous_count": 11479,
+  "current_count": 11483,
+  "added": [
+    "spacr._starplast.check_starplast_update",
+    "spacr._starplast.upgrade_starplast",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.reject"
+  ],
+  "removed": [
+    "spacr.qt.app.demo_label_for_app"
+  ],
+  "changed": [
+    "spacr.example_archives.explain_download_failure",
+    "spacr.qt.assay_examples",
+    "spacr.qt.assay_examples.download_assay_example",
+    "spacr.qt.first_run",
+    "spacr.qt.starplast.open_starplast"
+  ],
+  "localized_api_rebuilt": false,
+  "translation_policy": "report-only; incompatible entries use English"
+}

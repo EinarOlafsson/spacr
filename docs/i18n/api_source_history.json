@@ -857,6 +857,16 @@
       "source_sha256": "5ea1966927493082f5c0a29e52f966a2d23bda2c3f154c41d6d841b23b1f4647",
       "text": "Insert a divider bar labeled `label` (e.g. 'spaCR output — …').\n\nA BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now\nwrite under the \"spaCR output\" heading -- stdout, warnings, and the\nnotice path -- and each opens its topic. A run that alternates between\nthem therefore drew the identical banner before EVERY line:\n\n    === spaCR output — Mask Generation ===\n    Source directory (src): ...\n    === spaCR output — Mask Generation ===\n    12:09:37 [WARNING] cellpose.vit: Could not import CPDINO...\n    === spaCR output — Mask Generation ===\n    12:09:47 [INFO] spacr.qt.resource_cleanup: memory budget...\n\nwhich is what the console looked like when this was reported. The\ndivider exists to say the subject CHANGED; repeating it says nothing\nand costs three lines of a panel people read during a run.\n\nThe accent is deliberately not part of the comparison. It rides on the\nTEXT below the bar -- amber for a warning, blue for output -- so a\nwarning still reads differently without a second identical heading\nabove it."
     },
+    "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d": {
+      "source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d",
+      "text": "Offer installation once, then launch the independent Starplast application.\n\n:param parent: organism page requesting the launch.\n:param root: optional external-application folder.\n:returns: child process, or None if cancelled or launch failed."
+    },
     "61a76a2bf3d7159ad0fcfdf912e552da84ba778bf0830a3a3b2b74f25cccfb79": {
       "source_blocks_sha256": [
         "5e6a057267bffa21b5559bc41e0e25192be98562e1efb9fb8d1203ca475ab368",
@@ -1145,6 +1155,17 @@
       "source_sha256": "886b32b17dc1a9cd791411e20bca92965e3d324c976bbb2dc7527beb8e30fdd8",
       "text": "Persist AI Console preferences through Qt application settings.\n\nThe module stores provider response speed, the optional system-prompt\noverride, error-reporting preferences, and console-context sharing. Values\npersist across application sessions through :class:`PySide6.QtCore.QSettings`."
     },
+    "88a177f58d500c4dfa0692d875375a53e1e2ecf94ecfd09fff4b8626aea6d984": {
+      "source_blocks_sha256": [
+        "9e696b9f50b6b01f6924cd833dfe805e5ea99b30c26e77c6a797d8cf2f4d302b",
+        "1b49b81315058332433093394b3c6c8e3364dd70c2c290be5a2858d4255b18a4",
+        "5667039f440821a89d698c27d2f3c16d07bc553b42dcd91e7436f570f313884f",
+        "0476406c536d23dfc9317781b5529cddcb96d8c0b31c77099c2a90bcdb091e55",
+        "162f1a32c58452129b6e8766ed287f6aca3ff015acc522c9ce826ba848bc7232"
+      ],
+      "source_sha256": "88a177f58d500c4dfa0692d875375a53e1e2ecf94ecfd09fff4b8626aea6d984",
+      "text": "Turn a download exception into something a user can act on.\n\nThis is the only demo in the Demos menu that needs the network — the six\nsynthetic generators are entirely offline — so it is the only one that can\nfail for a reason outside spaCR. What the user saw before was\n``str(exc)``, which for the ordinary offline case is a nested urllib3\ndump::\n\n    (MaxRetryError(\"HTTPSConnectionPool(host='huggingface.co', port=443):\n    Max retries exceeded with url: /api/datasets/... (Caused by\n    NewConnectionError('<urllib3.connection.HTTPSConnection object at\n    0x7e8d...>: Failed to establish a new connection: [Errno 101] Network\n    is unreachable'))\"), '(Request ID: 73ac20ed-...)')\n\n— 300 characters that never say \"you are offline\" and never say what to do\ninstead. The three conditions this actually fails on are: no network, the\n``huggingface_hub`` extra not installed, and a truncated transfer. Each\ngets a sentence naming the cause and the way out; anything else keeps its\nown message with the same closing advice attached.\n\n:param exc: the exception raised inside the download worker.\n:returns: a multi-line message for the failure dialog."
+    },
     "893fde9faf389e5edb8eb72158932e5f149202b71e9598b87c0492fd69eff6e4": {
       "source_blocks_sha256": [
         "a6838ab6cedd30829143354c1eb14bc9912bb06a5b55c00da3b875d4f14dc0db",
@@ -1342,6 +1363,15 @@
       ],
       "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
       "text": "Read ``curate_scores.csv``, when there is one.\n\n:param folder: the queue folder.\n:returns: ``{stem: probability}``, and ``{}`` when the file is absent —\n    which is what makes ``prob`` and ``easy`` fall back, loudly.\n:raises CurationQueueError: when the file is present but has no stem\n    column or no recognised probability column. A scores file that\n    exists and cannot be used is a mistake worth stopping for; a\n    missing one is an ordinary state."
+    },
+    "a99082cddce76dc92e4dc6aaa6e2731a644cc0526da2fc56e0fd930de15146dd": {
+      "source_blocks_sha256": [
+        "26a6a0a7d2c1c9ee3f7030bd638c58bf5390374f8d763beb60d3777f8e47b626",
+        "3e2d83bb6bd966c6d5488d87556d333501de180ef715471261921395ffee9a8e",
+        "7f911a9ad1321c855f6118d50638223fb1a88ed20db2e234cc5d098c00262307"
+      ],
+      "source_sha256": "a99082cddce76dc92e4dc6aaa6e2731a644cc0526da2fc56e0fd930de15146dd",
+      "text": "The Demos-menu label of the demo that opens in app ``app_key``.\n\n``None`` when no demo lands there, which is most of the registry —\nthe caller says something generic rather than naming a demo that\nwould take the user somewhere else.\n\nResolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target\napp) rather than a second table, so a demo that is re-pointed at a\ndifferent app moves its hint with it. The first match wins: two demos\nland on ``measure`` (Measure and Crop) and the one named after the\napp is the one it lists first."
     },
     "ac6f93fb1192a57c2c499a9ef92c05d14b855f0b1f80b68849abfabc170e688f": {
       "source_blocks_sha256": [
@@ -1980,6 +2010,16 @@
       ],
       "source_sha256": "dccc26777ab54cd23d42fb2a448bc0b7d47aaaba88e516b8400e1b06cf948937",
       "text": "Constrain subsequent volume rotation to the selected axis.\n\n``\"z\"`` changes azimuth, ``\"x\"`` and ``\"y\"`` change elevation, and\n``\"\"`` permits both. Unsupported values fall back to ``\"z\"``. Axis\nlocking prevents a drag from changing both viewing angles at once.\n\n:param axis: ``\"x\"``, ``\"y\"``, ``\"z\"``, or ``\"\"`` for free rotation."
+    },
+    "de2bcd63e240c77be89a2a8988fbe50bb8bb64fae602757a953f19e233528d18": {
+      "source_blocks_sha256": [
+        "32ffd2593ff642ea3187a8b4497252730274299149932de1870a87d52bd3c9e7",
+        "8b0fd85795a82ec3db1b3850b963a049fc69b6290173dccdf7fe55fd1d3505cb",
+        "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+        "0498452fb5ada348843bcf76d1a532dbd61700297e2df4c51795a8ffd4fbfaa1"
+      ],
+      "source_sha256": "de2bcd63e240c77be89a2a8988fbe50bb8bb64fae602757a953f19e233528d18",
+      "text": "First-launch tour — one-time coach-marks over the home screen.\n\nFires the first time ``spacr`` boots (state stored in QSettings). A\ntranslucent full-window overlay dims the app; a numbered card walks\nthe user through: sidebar → Demos menu → home tiles → hint bar. The\nuser can dismiss at any point via Skip / Esc; the \"seen\" flag is\nsaved on skip OR after the last step so the tour never fires twice\nunless they hit \"Reset\" in Preferences.\n\nPublic API::\n\n    from spacr.qt.first_run import (\n        maybe_show_tour, was_tour_shown, mark_tour_seen,\n        reset_tour_state,\n    )\n\n    # In MainWindow.__init__ after everything is built:\n    maybe_show_tour(self)\n\n    # From a Preferences reset button:\n    reset_tour_state()\n\nThe tour is deliberately spartan — five steps, ~90 seconds tops.\nUsers who don't want it hit Esc and never see it again."
     },
     "dec2dd3419a7e0764f18ed626458c6aa3f3e51fdc6f1516c1b70763677c525c5": {
       "source_blocks_sha256": [
