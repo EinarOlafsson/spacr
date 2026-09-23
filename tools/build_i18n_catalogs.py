@@ -265,6 +265,9 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
+    # Scientific genus names and the Latin plural abbreviation stay exact
+    # on organism Home tiles; they are not untranslated English prose.
+    "Candida spp.", "Plasmodium spp.",
     "ER", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",

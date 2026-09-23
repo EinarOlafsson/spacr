@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "source_commit": "a69909cc5e40f5aee9d3bcf05374de525ed06174",
+  "scope": "Current working tree after section-heading/Apply/technical-identity batch; structural/source-hash census only, not linguistic or browser acceptance.",
+  "api_sources": 11356,
+  "external_ui_sources": 4663,
+  "languages": [
+    {
+      "language": "sv",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 578,
+      "ui_extra": 11
+    },
+    {
+      "language": "de",
+      "api_missing": 731,
+      "api_stale": 126,
+      "api_extra": 2,
+      "api_current_source_hash": 10499,
+      "ui_missing": 578,
+      "ui_extra": 11
+    },
+    {
+      "language": "es",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 578,
+      "ui_extra": 11
+    },
+    {
+      "language": "zh_CN",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 560,
+      "ui_extra": 11
+    },
+    {
+      "language": "pt",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 578,
+      "ui_extra": 11
+    },
+    {
+      "language": "hi",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 792,
+      "ui_extra": 43
+    },
+    {
+      "language": "ko",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 740,
+      "ui_extra": 43
+    },
+    {
+      "language": "is",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 792,
+      "ui_extra": 43
+    },
+    {
+      "language": "fr",
+      "api_missing": 786,
+      "api_stale": 144,
+      "api_extra": 2,
+      "api_current_source_hash": 10426,
+      "ui_missing": 578,
+      "ui_extra": 11
+    }
+  ]
+}

@@ -1,0 +1,863 @@
+{
+  "apply_compare_clear_translations": 27,
+  "existing_rows_corrected": 39,
+  "existing_rows_reviewed": 54,
+  "full_catalog_acceptance": false,
+  "heading_contexts": {
+    "Annotation columns": [
+      {
+        "call": "split.add_section(left, 'Annotation columns', persist_key='agreement/Annotation columns', stretch=0, extent=260)",
+        "file": "spacr/qt/screens/agreement.py",
+        "line": 250
+      }
+    ],
+    "Benchmark": [
+      {
+        "call": "split.add_section(self._bench_table, 'Benchmark', persist_key=f'{FOLD_KEY}/Benchmark', stretch=1, extent=700)",
+        "file": "spacr/qt/screens/model_zoo.py",
+        "line": 601
+      }
+    ],
+    "Can be deleted": [
+      {
+        "call": "split.add_section(self.prune_table, 'Can be deleted', persist_key='data_manager/Can be deleted', stretch=2)",
+        "file": "spacr/qt/screens/data_manager.py",
+        "line": 605
+      }
+    ],
+    "Caption": [
+      {
+        "call": "split.add_section(self._caption, 'Caption', stretch=1, extent=140, persist_key='regression/Caption')",
+        "file": "spacr/qt/widgets/cell_montage_view.py",
+        "line": 1098
+      }
+    ],
+    "Coefficient table": [
+      {
+        "call": "split.add_section(self.table, 'Coefficient table', stretch=2, extent=220, persist_key='regression/Coefficient table')",
+        "file": "spacr/qt/widgets/regression_results.py",
+        "line": 755
+      }
+    ],
+    "Column mapping": [
+      {
+        "call": "split.add_section(self._table, 'Column mapping', persist_key='foreign/Column mapping')",
+        "file": "spacr/qt/screens/foreign.py",
+        "line": 552
+      }
+    ],
+    "Conditions": [
+      {
+        "call": "split.add_section(conditions, 'Conditions', persist_key='experiment_design/Conditions', stretch=0, extent=260)",
+        "file": "spacr/qt/screens/experiment_design.py",
+        "line": 489
+      }
+    ],
+    "Confusion table": [
+      {
+        "call": "split.add_section(self._confusion, 'Confusion table', persist_key='classifier_evaluation/Confusion table')",
+        "file": "spacr/qt/screens/classifier_evaluation.py",
+        "line": 367
+      }
+    ],
+    "Console + AI": [
+      {
+        "call": "self._runtime_splitter.add_section(self._console, 'Console + AI', persist_key='annotate/Console + AI', stretch=2, actions=[self._btn_copy_console, self._btn_file_issue])",
+        "file": "spacr/qt/screens/annotate.py",
+        "line": 3077
+      }
+    ],
+    "Control chart": [
+      {
+        "call": "right.add_section(self.canvas, 'Control chart', persist_key='control_chart/Control chart', stretch=3)",
+        "file": "spacr/qt/screens/control_chart.py",
+        "line": 355
+      }
+    ],
+    "Conversion plan": [
+      {
+        "call": "split.add_section(self._table, 'Conversion plan', persist_key='convert/Conversion plan')",
+        "file": "spacr/qt/screens/convert.py",
+        "line": 365
+      }
+    ],
+    "Crop": [
+      {
+        "call": "split.add_section(side, 'Crop', persist_key=f'{APP_KEY}/Crop', stretch=0, extent=240)",
+        "file": "spacr/qt/screens/image_scatter.py",
+        "line": 552
+      }
+    ],
+    "Crops": [
+      {
+        "call": "self._runtime_splitter.add_section(self._content_stack, 'Crops', persist_key='annotate/Crops', stretch=4)",
+        "file": "spacr/qt/screens/annotate.py",
+        "line": 3037
+      }
+    ],
+    "Curation tools": [
+      {
+        "call": "split.add_section(self.tabs, 'Curation tools', persist_key='curate/Curation tools', stretch=0, extent=320)",
+        "file": "spacr/qt/screens/curate.py",
+        "line": 134
+      }
+    ],
+    "Curves": [
+      {
+        "call": "right.add_section(self._canvas, 'Curves', persist_key='train_compare/Curves', stretch=3)",
+        "file": "spacr/qt/screens/train_compare.py",
+        "line": 360
+      }
+    ],
+    "Details": [
+      {
+        "call": "splitter.add_section(self._details, 'Details', persist_key='pipeline_graph/Details', stretch=2)",
+        "file": "spacr/qt/screens/pipeline_graph.py",
+        "line": 494
+      }
+    ],
+    "Disagreeing rows": [
+      {
+        "call": "review_split.add_section(self._review_table, 'Disagreeing rows', persist_key='agreement/Disagreeing rows')",
+        "file": "spacr/qt/screens/agreement.py",
+        "line": 315
+      }
+    ],
+    "Distributions": [
+      {
+        "call": "body.add_section(self._figure_holder, 'Distributions', persist_key='feature_explorer/Distributions')",
+        "file": "spacr/qt/widgets/feature_explorer.py",
+        "line": 168
+      }
+    ],
+    "Dose-response curves": [
+      {
+        "call": "body.add_section(self.canvas, 'Dose-response curves', persist_key='dose_response/Dose-response curves', stretch=3)",
+        "file": "spacr/qt/screens/dose_response.py",
+        "line": 584
+      }
+    ],
+    "Edge-effect report": [
+      {
+        "call": "split.add_section(self._report_view, 'Edge-effect report', persist_key='plate_view/Edge-effect report', extent=520)",
+        "file": "spacr/qt/screens/plate_view.py",
+        "line": 622
+      }
+    ],
+    "Error inspector": [
+      {
+        "call": "split.add_section(inspector, 'Error inspector', persist_key='classifier_evaluation/Error inspector')",
+        "file": "spacr/qt/screens/classifier_evaluation.py",
+        "line": 415
+      }
+    ],
+    "Feature ranking": [
+      {
+        "call": "body.add_section(self.table, 'Feature ranking', persist_key='feature_explorer/Feature ranking')",
+        "file": "spacr/qt/widgets/feature_explorer.py",
+        "line": 158
+      }
+    ],
+    "Filter and columns": [
+      {
+        "call": "body.add_section(side, 'Filter and columns', persist_key='feature_explorer/Filter and columns', stretch=0)",
+        "file": "spacr/qt/screens/feature_explorer.py",
+        "line": 138
+      },
+      {
+        "call": "body.add_section(side, 'Filter and columns', persist_key='trellis/Filter and columns', stretch=0)",
+        "file": "spacr/qt/screens/trellis.py",
+        "line": 136
+      }
+    ],
+    "Findings": [
+      {
+        "call": "split.add_section(self.findings, 'Findings', persist_key=f'{HOST_KEY}/Findings', stretch=3, extent=230)",
+        "file": "spacr/qt/screens/map_barcodes.py",
+        "line": 1747
+      }
+    ],
+    "Fit results": [
+      {
+        "call": "side.add_section(self.table, 'Fit results', persist_key='dose_response/Fit results')",
+        "file": "spacr/qt/screens/dose_response.py",
+        "line": 600
+      }
+    ],
+    "Folders": [
+      {
+        "call": "split.add_section(self.tree, 'Folders', persist_key='import_workbench/Folders', stretch=1, extent=340)",
+        "file": "spacr/qt/widgets/import_workbench.py",
+        "line": 202
+      }
+    ],
+    "Gate table": [
+      {
+        "call": "self.body.add_section(self.tree, 'Gate table', persist_key=f'{FOLD_KEY}/Gate table', stretch=0)",
+        "file": "spacr/qt/widgets/gate_editor.py",
+        "line": 3280
+      }
+    ],
+    "Gene record": [
+      {
+        "call": "split.add_section(self.summary, 'Gene record', stretch=3, persist_key='regression/Gene record')",
+        "file": "spacr/qt/widgets/gene_panel.py",
+        "line": 164
+      }
+    ],
+    "Gene × measurement sweep": [
+      {
+        "call": "self._scan_panel.add_section(self._sweep_panel, 'Gene × measurement sweep')",
+        "file": "spacr/qt/screens/app_screen.py",
+        "line": 6372
+      }
+    ],
+    "Graph": [
+      {
+        "call": "stack.add_section(self.graph, 'Graph', persist_key='tabulate/Graph')",
+        "file": "spacr/qt/screens/tabulate.py",
+        "line": 167
+      },
+      {
+        "call": "self.body.add_section(self.canvas, 'Graph', persist_key=f'{FOLD_KEY}/Graph', stretch=1)",
+        "file": "spacr/qt/widgets/gate_editor.py",
+        "line": 3278
+      },
+      {
+        "call": "splitter.add_section(self.canvas, 'Graph', persist_key=f'{key}/Graph' if key else '', stretch=1, extent=900)",
+        "file": "spacr/qt/widgets/graph_builder.py",
+        "line": 1772
+      }
+    ],
+    "Guide agreement": [
+      {
+        "call": "agreement_split.add_section(self.agreement, 'Guide agreement', stretch=3, extent=340, persist_key='regression/Guide agreement')",
+        "file": "spacr/qt/widgets/regression_results.py",
+        "line": 835
+      }
+    ],
+    "Guide support table": [
+      {
+        "call": "agreement_split.add_section(self.support, 'Guide support table', stretch=2, extent=220, persist_key='regression/Guide support table')",
+        "file": "spacr/qt/widgets/regression_results.py",
+        "line": 838
+      }
+    ],
+    "Image sets": [
+      {
+        "call": "self._table_split.add_section(self._set_table, 'Image sets', stretch=0, extent=170, persist_key=f'{self.SECTION_KEY}/Image sets')",
+        "file": "spacr/qt/widgets/live_preview.py",
+        "line": 1943
+      }
+    ],
+    "Import report": [
+      {
+        "call": "split.add_section(self._report, 'Import report', persist_key='foreign/Import report', stretch=0, extent=190)",
+        "file": "spacr/qt/screens/foreign.py",
+        "line": 561
+      }
+    ],
+    "Job details and log": [
+      {
+        "call": "splitter.add_section(self._detail, 'Job details and log', persist_key='distributed_jobs/Job details and log', stretch=1)",
+        "file": "spacr/qt/screens/distributed_jobs.py",
+        "line": 581
+      }
+    ],
+    "Job log": [
+      {
+        "call": "split.add_section(self._log_view, 'Job log', persist_key='batch/Job log', stretch=2)",
+        "file": "spacr/qt/screens/batch.py",
+        "line": 320
+      }
+    ],
+    "Job queue": [
+      {
+        "call": "split.add_section(self._table, 'Job queue', persist_key='batch/Job queue', stretch=3)",
+        "file": "spacr/qt/screens/batch.py",
+        "line": 304
+      }
+    ],
+    "Jobs": [
+      {
+        "call": "splitter.add_section(self._table, 'Jobs', persist_key='distributed_jobs/Jobs', stretch=2)",
+        "file": "spacr/qt/screens/distributed_jobs.py",
+        "line": 574
+      }
+    ],
+    "Kept, and why": [
+      {
+        "call": "split.add_section(self.kept_table, 'Kept, and why', persist_key='data_manager/Kept, and why', stretch=1)",
+        "file": "spacr/qt/screens/data_manager.py",
+        "line": 609
+      }
+    ],
+    "Known about this gene": [
+      {
+        "call": "split.add_section(self._known, 'Known about this gene', stretch=4, persist_key='regression/Known about this gene')",
+        "file": "spacr/qt/widgets/gene_panel.py",
+        "line": 172
+      }
+    ],
+    "Mask preview": [
+      {
+        "call": "split.add_section(self._preview, 'Mask preview', persist_key=f'{FOLD_KEY}/Mask preview', stretch=1, extent=400)",
+        "file": "spacr/qt/screens/model_zoo.py",
+        "line": 610
+      }
+    ],
+    "Mask previews": [
+      {
+        "call": "results.add_section(preview, 'Mask previews', persist_key=f'{FOLD_KEY}/Mask previews', stretch=1)",
+        "file": "spacr/qt/screens/model_compare.py",
+        "line": 518
+      }
+    ],
+    "Movie": [
+      {
+        "call": "self._section_split.add_section(movie, 'Movie', stretch=1, persist_key=f'{key}/Movie')",
+        "file": "spacr/qt/widgets/timelapse_preview.py",
+        "line": 1438
+      }
+    ],
+    "Pairwise agreement": [
+      {
+        "call": "right.add_section(self._kappa_table, 'Pairwise agreement', persist_key='agreement/Pairwise agreement')",
+        "file": "spacr/qt/screens/agreement.py",
+        "line": 262
+      }
+    ],
+    "Parameters that reached each model": [
+      {
+        "call": "results.add_section(self._param_table, 'Parameters that reached each model', persist_key=f'{FOLD_KEY}/Parameters', stretch=0)",
+        "file": "spacr/qt/screens/model_compare.py",
+        "line": 487
+      }
+    ],
+    "Per-field comparison": [
+      {
+        "call": "results.add_section(rows, 'Per-field comparison', persist_key=f'{FOLD_KEY}/Per-field comparison', stretch=1)",
+        "file": "spacr/qt/screens/model_compare.py",
+        "line": 509
+      }
+    ],
+    "Pictures": [
+      {
+        "call": "split.add_section(picture_host, 'Pictures', stretch=3, persist_key=f'{key}/Pictures')",
+        "file": "spacr/qt/widgets/plaque_preview.py",
+        "line": 2182
+      }
+    ],
+    "Pipeline graph": [
+      {
+        "call": "splitter.add_section(self._scroll, 'Pipeline graph', persist_key='pipeline_graph/Pipeline graph', stretch=3)",
+        "file": "spacr/qt/screens/pipeline_graph.py",
+        "line": 483
+      }
+    ],
+    "Pivot": [
+      {
+        "call": "stack.add_section(self.pivot, 'Pivot', persist_key='tabulate/Pivot')",
+        "file": "spacr/qt/screens/tabulate.py",
+        "line": 165
+      }
+    ],
+    "Pivot fields": [
+      {
+        "call": "splitter.add_section(shelf, 'Pivot fields', persist_key='pivot_builder/Pivot fields', stretch=0, extent=300)",
+        "file": "spacr/qt/widgets/pivot_builder.py",
+        "line": 567
+      }
+    ],
+    "Pivot table": [
+      {
+        "call": "splitter.add_section(right, 'Pivot table', persist_key='pivot_builder/Pivot table', stretch=1, extent=900)",
+        "file": "spacr/qt/widgets/pivot_builder.py",
+        "line": 582
+      }
+    ],
+    "Pixel info": [
+      {
+        "call": "self._table_split.add_section(info, 'Pixel info', stretch=0, persist_key=f'{self.SECTION_KEY}/Pixel info')",
+        "file": "spacr/qt/widgets/live_preview.py",
+        "line": 1976
+      }
+    ],
+    "Plan report": [
+      {
+        "call": "split.add_section(right, 'Plan report', persist_key='align/Plan report', stretch=2)",
+        "file": "spacr/qt/screens/align.py",
+        "line": 404
+      }
+    ],
+    "Plate map": [
+      {
+        "call": "split.add_section(scroll, 'Plate map', persist_key='experiment_design/Plate map')",
+        "file": "spacr/qt/screens/experiment_design.py",
+        "line": 507
+      },
+      {
+        "call": "split.add_section(self._grid, 'Plate map', persist_key='plate_view/Plate map', extent=620)",
+        "file": "spacr/qt/screens/plate_view.py",
+        "line": 610
+      }
+    ],
+    "Point cloud": [
+      {
+        "call": "split.add_section(self.canvas, 'Point cloud', persist_key=f'{APP_KEY}/Point cloud', stretch=1, extent=700)",
+        "file": "spacr/qt/screens/image_scatter.py",
+        "line": 530
+      }
+    ],
+    "Power table": [
+      {
+        "call": "results.add_section(self._table, 'Power table', persist_key='power/Power table')",
+        "file": "spacr/qt/screens/power.py",
+        "line": 856
+      }
+    ],
+    "Power vs cells per well": [
+      {
+        "call": "results.add_section(self._cells_view, 'Power vs cells per well', persist_key='power/Power vs cells per well')",
+        "file": "spacr/qt/screens/power.py",
+        "line": 839
+      }
+    ],
+    "Power vs wells": [
+      {
+        "call": "results.add_section(self._wells_view, 'Power vs wells', persist_key='power/Power vs wells')",
+        "file": "spacr/qt/screens/power.py",
+        "line": 841
+      }
+    ],
+    "Preview settings": [
+      {
+        "call": "self._section_split.add_section(groups_host, 'Preview settings', stretch=0, persist_key=f'{key}/Preview settings')",
+        "file": "spacr/qt/widgets/motility_preview.py",
+        "line": 858
+      },
+      {
+        "call": "self._section_split.add_section(groups_host, 'Preview settings', stretch=0, persist_key=f'{key}/Preview settings')",
+        "file": "spacr/qt/widgets/timelapse_preview.py",
+        "line": 1356
+      }
+    ],
+    "Project details": [
+      {
+        "call": "split.add_section(self._detail, 'Project details', persist_key='project_browser/Project details', stretch=2)",
+        "file": "spacr/qt/screens/project_browser.py",
+        "line": 213
+      }
+    ],
+    "Projects": [
+      {
+        "call": "split.add_section(self._table, 'Projects', persist_key='project_browser/Projects', stretch=3)",
+        "file": "spacr/qt/screens/project_browser.py",
+        "line": 204
+      }
+    ],
+    "Proposal": [
+      {
+        "call": "split.add_section(notes, 'Proposal', persist_key=f'{HOST_KEY}/Proposal', stretch=1, extent=110)",
+        "file": "spacr/qt/screens/map_barcodes.py",
+        "line": 1753
+      }
+    ],
+    "Proposed layout": [
+      {
+        "call": "tables.add_section(self._table, 'Proposed layout', persist_key=f'{FOLD_KEY}/Proposed layout', stretch=1)",
+        "file": "spacr/qt/screens/image_import.py",
+        "line": 512
+      }
+    ],
+    "Purity plot": [
+      {
+        "call": "self.body.add_section(self.plot, 'Purity plot', stretch=3, persist_key=f'{key}/Purity plot')",
+        "file": "spacr/qt/widgets/annotation_umap_tab.py",
+        "line": 198
+      }
+    ],
+    "Questions": [
+      {
+        "call": "tables.add_section(self._answer_table, 'Questions', persist_key=f'{FOLD_KEY}/Questions', stretch=0)",
+        "file": "spacr/qt/screens/image_import.py",
+        "line": 526
+      }
+    ],
+    "Reads": [
+      {
+        "call": "split.add_section(self.reads, 'Reads', persist_key=f'{HOST_KEY}/Reads', stretch=3, extent=190)",
+        "file": "spacr/qt/screens/map_barcodes.py",
+        "line": 1750
+      }
+    ],
+    "Regression results": [
+      {
+        "call": "output.add_section(self.results, 'Regression results', persist_key=f'{APP_KEY}/Regression results', stretch=1)",
+        "file": "spacr/qt/screens/parameter_sweep.py",
+        "line": 288
+      }
+    ],
+    "Rule violations": [
+      {
+        "call": "outputs.add_section(self.violations, 'Rule violations', persist_key='control_chart/Rule violations')",
+        "file": "spacr/qt/screens/control_chart.py",
+        "line": 387
+      }
+    ],
+    "Run details": [
+      {
+        "call": "splitter.add_section(detail, 'Run details', persist_key='run_history/Run details', stretch=2)",
+        "file": "spacr/qt/screens/run_history.py",
+        "line": 277
+      }
+    ],
+    "Scores": [
+      {
+        "call": "self.body.add_section(self.table, 'Scores', stretch=2, persist_key=f'{key}/Scores')",
+        "file": "spacr/qt/widgets/annotation_umap_tab.py",
+        "line": 201
+      },
+      {
+        "call": "splitter.add_section(right, 'Scores', persist_key=f'{FOLD_KEY}/Scores', stretch=1, extent=900)",
+        "file": "spacr/qt/widgets/pca_view.py",
+        "line": 720
+      }
+    ],
+    "Search preview": [
+      {
+        "call": "split.add_section(self._preview_stack, 'Search preview', persist_key=f'{self.app_key}/Search preview', stretch=4)",
+        "file": "spacr/qt/screens/hyperparam.py",
+        "line": 1188
+      }
+    ],
+    "Settings diff": [
+      {
+        "call": "right.add_section(diff_panel, 'Settings diff', persist_key='train_compare/Settings diff', stretch=2)",
+        "file": "spacr/qt/screens/train_compare.py",
+        "line": 380
+      }
+    ],
+    "Table preview": [
+      {
+        "call": "split.add_section(right, 'Table preview', persist_key='db_browser/Table preview')",
+        "file": "spacr/qt/screens/db_browser.py",
+        "line": 1606
+      }
+    ],
+    "Tile layout": [
+      {
+        "call": "split.add_section(self._layout_view, 'Tile layout', persist_key='align/Tile layout', stretch=3)",
+        "file": "spacr/qt/screens/align.py",
+        "line": 386
+      }
+    ],
+    "Track quality": [
+      {
+        "call": "self._section_split.add_section(self._stats_label, 'Track quality', stretch=0, persist_key=f'{key}/Track quality')",
+        "file": "spacr/qt/widgets/timelapse_preview.py",
+        "line": 1445
+      }
+    ],
+    "Trellis": [
+      {
+        "call": "splitter.add_section(self.canvas, 'Trellis', persist_key='trellis_view/Trellis', stretch=1, extent=900)",
+        "file": "spacr/qt/widgets/trellis_view.py",
+        "line": 459
+      }
+    ],
+    "Trials": [
+      {
+        "call": "split.add_section(self._table, 'Trials', persist_key=f'{self.app_key}/Trials', stretch=3)",
+        "file": "spacr/qt/screens/hyperparam.py",
+        "line": 1139
+      },
+      {
+        "call": "output.add_section(trials, 'Trials', persist_key=f'{APP_KEY}/Trials', stretch=1)",
+        "file": "spacr/qt/screens/parameter_sweep.py",
+        "line": 281
+      }
+    ],
+    "Validation problems": [
+      {
+        "call": "split.add_section(self._problems_view, 'Validation problems', persist_key='batch/Validation problems', stretch=0, extent=140)",
+        "file": "spacr/qt/screens/batch.py",
+        "line": 312
+      }
+    ],
+    "Volcano plot": [
+      {
+        "call": "split.add_section(self.volcano, 'Volcano plot', stretch=3, extent=340, persist_key='regression/Volcano plot')",
+        "file": "spacr/qt/widgets/regression_results.py",
+        "line": 747
+      },
+      {
+        "call": "left.add_section(plot, 'Volcano plot', persist_key='volcano_explorer/Volcano plot', stretch=1)",
+        "file": "spacr/qt/widgets/volcano_explorer.py",
+        "line": 397
+      }
+    ],
+    "Wells and plaques": [
+      {
+        "call": "split.add_section(self._tabs, 'Wells and plaques', stretch=2, persist_key=f'{key}/Wells and plaques')",
+        "file": "spacr/qt/widgets/plaque_preview.py",
+        "line": 2185
+      }
+    ]
+  },
+  "heading_translations": 720,
+  "languages": [
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Edge-effect report": {
+          "after": "Rapport om kanteffekter",
+          "before": "Redogörelse för kanteffekter"
+        },
+        "Pairwise agreement": {
+          "after": "Parvis överensstämmelse",
+          "before": "Parvis överenskommelse"
+        },
+        "Parameters that reached each model": {
+          "after": "Parametrar som skickades till varje modell",
+          "before": "Parametrar som nådde varje modell"
+        },
+        "Per-field comparison": {
+          "after": "Jämförelse per bildfält",
+          "before": "Jämförelse per fält"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "sv"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Edge-effect report": {
+          "after": "Bericht zu Randeffekten",
+          "before": "Edge-Effekt-Bericht"
+        },
+        "Pairwise agreement": {
+          "after": "Paarweise Übereinstimmung",
+          "before": "Paarweise Vereinbarung"
+        },
+        "Parameters that reached each model": {
+          "after": "An jedes Modell übergebene Parameter",
+          "before": "Parameter, die jedes Modell erreicht haben"
+        },
+        "Per-field comparison": {
+          "after": "Vergleich je Bildfeld",
+          "before": "Vergleich pro Feld"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "de"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Edge-effect report": {
+          "after": "Informe de efectos de borde",
+          "before": "Informe sobre el efecto del borde"
+        },
+        "Pairwise agreement": {
+          "after": "Concordancia por pares",
+          "before": "Acuerdo de pareja"
+        },
+        "Parameters that reached each model": {
+          "after": "Parámetros enviados a cada modelo",
+          "before": "Parámetros que alcanzaron cada modelo"
+        },
+        "Per-field comparison": {
+          "after": "Comparación por campo de imagen",
+          "before": "Comparación por campo"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "es"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Console + AI": {
+          "after": "控制台 + AI",
+          "before": "主持人 + AI"
+        },
+        "Edge-effect report": {
+          "after": "边缘效应报告",
+          "before": "Edge 效应报告"
+        },
+        "Pairwise agreement": {
+          "after": "两两一致性",
+          "before": "双重协议"
+        },
+        "Parameters that reached each model": {
+          "after": "传递给各模型的参数",
+          "before": "到达每个模型的参数"
+        },
+        "Per-field comparison": {
+          "after": "各视野比较",
+          "before": "平面比较"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "zh_CN"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Edge-effect report": {
+          "after": "Relatório de efeitos de borda",
+          "before": "Relatório de efeito de borda"
+        },
+        "Pairwise agreement": {
+          "after": "Concordância por pares",
+          "before": "Acordo paritário"
+        },
+        "Parameters that reached each model": {
+          "after": "Parâmetros enviados a cada modelo",
+          "before": "Parâmetros que atingiram cada modelo"
+        },
+        "Per-field comparison": {
+          "after": "Comparação por campo de imagem",
+          "before": "Comparação por campo"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "pt"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Console + AI": {
+          "after": "कंसोल + AI",
+          "before": "कंसोल + एआई"
+        },
+        "Edge-effect report": {
+          "after": "किनारे के प्रभाव की रिपोर्ट",
+          "before": "Edge-Effect रिपोर्ट"
+        },
+        "Pairwise agreement": {
+          "after": "युग्मवार सहमति",
+          "before": "पारस्परिक समझौते"
+        },
+        "Parameters that reached each model": {
+          "after": "प्रत्येक मॉडल को भेजे गए पैरामीटर",
+          "before": "पैरामीटर जो प्रत्येक मॉडल तक पहुंचते हैं"
+        },
+        "Per-field comparison": {
+          "after": "प्रति दृश्य-क्षेत्र तुलना",
+          "before": "फ़ील्ड की तुलना"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "hi"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Edge-effect report": {
+          "after": "가장자리 효과 보고서",
+          "before": "Edge 효과 보고서"
+        },
+        "Pairwise agreement": {
+          "after": "쌍별 일치도",
+          "before": "쌍둥이 협정"
+        },
+        "Parameters that reached each model": {
+          "after": "각 모델에 전달된 매개변수",
+          "before": "각 모델에 도달하는 매개 변수"
+        },
+        "Per-field comparison": {
+          "after": "시야별 비교",
+          "before": "필드 비교"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "ko"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Console + AI": {
+          "after": "Stjórnborð + AI",
+          "before": "Sjálfsögn + AI"
+        },
+        "Edge-effect report": {
+          "after": "Skýrsla um jaðaráhrif",
+          "before": "Rannsókn á Edge Effect"
+        },
+        "Pairwise agreement": {
+          "after": "Samræmi milli para",
+          "before": "Pairwise samning"
+        },
+        "Parameters that reached each model": {
+          "after": "Stikar sem voru sendir til hvers líkans",
+          "before": "Hugbúnaður sem hefur náð hverri mönnun"
+        },
+        "Per-field comparison": {
+          "after": "Samanburður fyrir hvert myndsvið",
+          "before": "Sameinuðu á sviði"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "is"
+    },
+    {
+      "all_review_loaders_pass": true,
+      "corrected": {
+        "Edge-effect report": {
+          "after": "Rapport sur les effets de bord",
+          "before": "Rapport sur l'effet des bords"
+        },
+        "Pairwise agreement": {
+          "after": "Concordance par paires",
+          "before": "Accord par paire"
+        },
+        "Parameters that reached each model": {
+          "after": "Paramètres transmis à chaque modèle",
+          "before": "Paramètres qui ont atteint chaque modèle"
+        },
+        "Per-field comparison": {
+          "after": "Comparaison par champ d’image",
+          "before": "Comparaison par champ"
+        }
+      },
+      "exact_runtime_lookups": 84,
+      "headings_added": 74,
+      "language": "fr"
+    }
+  ],
+  "license_identities": 9,
+  "missing_rows_added": 666,
+  "public_api_count": 11356,
+  "remaining": "Other organism/Starplast runtime prose, global API catalog debt, complete Make Masks reference and current tutorial recording/listening/publication acceptance remain open.",
+  "review_method": "AI-assisted linguistic and technical review using section-owner source; no native-speaker sign-off.",
+  "schema": 1,
+  "scientific_name_identities": 18,
+  "section_headings": 80,
+  "source_commit": "a69909cc5e40f5aee9d3bcf05374de525ed06174",
+  "superseded_reviews_preserved": 9,
+  "ui_count": 4663,
+  "verification": {
+    "focused_tests_passed": 29,
+    "real_fold_headings_and_switch_back_to_english": 720,
+    "stable_fold_names_preserved": true,
+    "external_exact_runtime_rows": 756,
+    "compact_scientific_name_lookups": 18,
+    "log_sha256": {
+      "section-heading-tests.log": "e2176e3e553ec73c32f8fcee9d004ebb6e0c4dc17e5dcd78294609f9607079c6",
+      "section-final-tests.log": "721144eeda2cb5692b467720f12359c88412d543a734b2e20b5cbc543e62e9e7",
+      "section-final-verification.log": "b3a1ef6b89c3847c25c809e39191da9e1afbe00558cd7fed1a9fb6c89cde00eb"
+    }
+  },
+  "inventory_note": "Two Home genus labels moved into the compact registry dictionary and therefore leave the external UI source inventory; both remain covered in all nine locales."
+}

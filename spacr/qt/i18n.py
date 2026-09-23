@@ -85,6 +85,14 @@ def _row(*values: str) -> tuple[str, ...]:
 
 
 _ROWS: Dict[str, tuple[str, ...]] = {
+    "Candida spp.": _row(
+        "Candida spp.", "Candida spp.", "Candida spp.", "Candida spp.",
+        "Candida spp.", "Candida spp.", "Candida spp.", "Candida spp.",
+        "Candida spp."),
+    "Plasmodium spp.": _row(
+        "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.",
+        "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.",
+        "Plasmodium spp."),
     "What may leave this machine, and under whose name. With issue filing set to always, the default, a failed run files a redacted report on the public spaCR GitHub repository automatically, once per error, under the GitHub account signed in below. With ask, you see each report first and it is sent only when you press Send. With never, nothing is sent.": _row(
         "Vad som får lämna den här datorn och i vems namn. Med always, standardvalet för felrapportering, skickar en misslyckad körning automatiskt en rapport med känsliga uppgifter borttagna till spaCR:s offentliga GitHub-arkiv, en gång per fel, från det GitHub-konto som är inloggat nedan. Med ask får du först se varje rapport, och den skickas bara när du trycker på Skicka. Med never skickas ingenting.",
         "Was diesen Rechner verlassen darf und unter wessen Namen. Mit always, der Standardeinstellung für Fehlermeldungen, veröffentlicht ein fehlgeschlagener Lauf automatisch einmal pro Fehler einen Bericht mit entfernten sensiblen Angaben im öffentlichen GitHub-Repository von spaCR, unter dem unten angemeldeten GitHub-Konto. Mit ask sehen Sie jeden Bericht zuerst; er wird erst gesendet, wenn Sie auf Senden klicken. Mit never wird nichts gesendet.",

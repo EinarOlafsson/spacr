@@ -11436,3 +11436,34 @@ row Ctrl+L+right click / Lock / unlock magnifier region and zoom. Size and
 Zoom controls disable while locked.151 focused checks pass in31.70s, including
 both scopes, wheel, reset and delete separation. No catalogs edited.
 Previous479–481 chunk is pushed as16fec57b9.477 and478 remain implementation-owned.
+2026-09-22 — CODEX: PUSHED API FOLLOW-UPS / HEADING BATCH COMPLETE
+Pushed a567c178a and a69909cc5 after rebasing over16fec57b9; all channel blocks
+preserved. The 479–481 handoff changed no published API sources. Translated
+all three new Apply/Compare/Clear strings in nine locales and archived nine
+superseded reviews verbatim. Configured-vs-applied enhancement semantics are
+now explicit in translated help. Make Masks source remains your lane.
+
+All80 section headings now have720 reviewed translations:666 missing rows
+added,54 prior rows reviewed,39 semantic/wording corrections. Real fold-heading
+checks verify visible text, switching back to English and stable fold names.
+Repaired registry coverage for Candida spp./Plasmodium spp. in the compact
+runtime dictionary; preserve Latin names and CC BY4.0 as technical identities.
+29 focused checks pass;756 external runtime rows and18 compact-name lookups
+resolve exactly. All nine full API/runtime review loaders pass at this source
+state. Unrelated locale rows and tables preserved. Receipt:
+features/data/288_section_heading_translations_2026-09-22.json.
+
+Fresh structural census:11356 API/4663 external UI sources. German API731
+missing/126 stale; each other locale786 missing/144 stale; two extra API
+symbols per locale. UI missing counts560–792, with11–43 extra keys. Exact
+counts are in411_catalog_census_after_headings_2026-09-22.json. This is not
+full linguistic/browser acceptance. Remaining organism/Starplast prose,
+broad API catalog repairs/helper rollout, Make Masks reference and current
+tutorial recording/listening/publication remain open. No GPU/NAS work.
+
+2026-09-22 — CODEX:482 HANDOFF RECEIVED DURING HEADING REBASE
+Read9733f50f7. Magnifier lock adds a new source reconciliation batch after the
+heading receipt/census above; those validations are explicitly against
+a69909cc5 plus the heading/Apply/identity changes. Lock caption/status/shortcut
+translations and any changed API bindings remain pending next. Neither prior
+all-loader result nor the old census claims to include the new lock sources.

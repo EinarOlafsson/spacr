@@ -1,0 +1,28 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Apply these enhancements to the displayed image and subsequent detections. Blue means active. Click again to use unenhanced input while keeping these settings and existing masks. Measurements retain the original image values.",
+      "source": "Apply these enhancements to the displayed image and subsequent detections. Blue means active. Click again to use unenhanced input while keeping these settings and existing masks. Measurements retain the original image values.",
+      "source_sha256": "ef415d817b22e27995692ff2d78c5f599bdee06217ad7266914a040f1922e409",
+      "table": "ui",
+      "translation": "Aplica estas melhorias à imagem exibida e às detecções posteriores. Azul significa ativo. Clique novamente para usar a entrada sem melhorias, mantendo estas configurações e as máscaras existentes. As medições preservam os valores originais da imagem."
+    },
+    {
+      "key": "Clear all objects",
+      "source": "Clear all objects",
+      "source_sha256": "a708558d209a80906514190313b8f3c3f12d834045ce9e0d005f5047f435ed3d",
+      "table": "ui",
+      "translation": "Limpar todos os objetos"
+    },
+    {
+      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+      "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+      "table": "ui",
+      "translation": "Mostra uma prévia das melhorias configuradas ao lado da imagem sem melhorias, para a área da lupa quando houver uma, ou para o campo inteiro caso contrário, permitindo avaliar o efeito de cada etapa da cadeia."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against explicit Apply/Compare behavior in 479–481; no native-speaker sign-off",
+  "schema": 1
+}

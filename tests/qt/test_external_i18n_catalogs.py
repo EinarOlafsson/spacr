@@ -110,6 +110,7 @@ def test_standalone_technical_identity_values_remain_exact_in_every_language():
     """Short configuration tokens may never be semanticized as prose."""
 
     expected_examples = {
+        "Candida spp.", "Plasmodium spp.",
         "cividis", "coolwarm", "inferno", "magma", "plasma", "turbo",
         "viridis", "otsu", "cellpose", "pymc", "numpyro", "umap", "tsne",
         "btrack", "trackastra", "trackpy", "ultrack", "slurm", "ssh",

@@ -4631,3 +4631,19 @@ lookups pass; eight distinct runtime/plaque checks pass after review counts are
 reconciled against the exact eleven-source addition. Unrelated catalog rows
 are unchanged. Full runtime and API audits remain red on the broader backlog;
 these batches do not imply green CI or native-speaker sign-off.
+
+2026-09-22 — CODEX: SECTION HEADINGS AND CURRENT ENHANCEMENT CONTROLS
+All80 previously inventoried section headings now have exact, source-bound
+translations in nine languages:666 missing rows added,54 existing rows
+reviewed and39 corrected. Scientific contexts include CRISPR guide agreement,
+statistical power, sequencing reads, image fields and hyperparameter trials.
+Real FoldSection headings show all720 translations, switch back to English
+and retain stable fold names. The new Apply/Compare/Clear instructions have27
+translations; nine superseded reviews are retained verbatim. Home's two Latin
+genus labels are in the compact registry dictionary; CC BY4.0 remains exact.
+29 focused tests pass, including the repaired registry and technical-identity
+checks. All nine runtime/API review loaders pass. English inventories11356
+API entries and4663 external UI sources; the two genus labels now live in the
+compact dictionary rather than that external inventory. This does not claim
+full catalog coverage or green CI. Receipt:
+features/data/288_section_heading_translations_2026-09-22.json.

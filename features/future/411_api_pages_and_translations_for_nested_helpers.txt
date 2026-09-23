@@ -1638,3 +1638,19 @@ pass without raising the hidden-caption limit; complete English inventories
 match fresh extraction (4543 UI sources). Eighteen old correction/classes
 runtime reviews still need source reconciliation. Translations and the full
 reference remain open; see411_threshold_source_refresh_2026-09-22.json.
+
+2026-09-22 — CODEX: CURRENT EXTERNAL APP / DIAGRAM API HANDOFFS PUBLISHED
+Commits a567c178a and a69909cc5 publish/reconcile21 Starplast, diagram, organism
+registry and sample-route API entries in all nine locales. Sphinx -W passes;
+all21 actual anchors and189 served locale entries were checked. The first
+batch passes167 focused checks, the stable-layout follow-up166. Required
+parameter omissions stay2293. The shared explicit-module visibility policy
+publishes Starplast services while excluding private helpers/import aliases.
+English inventory11356 API entries; all nine review loaders pass. Existing
+full-catalog browser acceptance and the remaining nested-helper rollout are
+still open. Structural/source-hash census after the subsequent heading batch:
+German731 missing/126 stale API entries; each other language786 missing/144
+stale, plus two obsolete symbols per catalog. This is source binding evidence,
+not linguistic acceptance. Receipts:411_external_app_api_2026-09-22.json,
+411_stable_layout_api_2026-09-22.json and
+411_catalog_census_after_headings_2026-09-22.json under features/data/.

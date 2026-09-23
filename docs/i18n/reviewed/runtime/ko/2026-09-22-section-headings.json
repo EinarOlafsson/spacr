@@ -1,0 +1,567 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Annotation columns",
+      "source": "Annotation columns",
+      "source_sha256": "fab3988d62f923b3971b3377a9a4d4c275b21865cb41753865672164e4ab5db4",
+      "table": "ui",
+      "translation": "주석 열"
+    },
+    {
+      "key": "Benchmark",
+      "source": "Benchmark",
+      "source_sha256": "1fa330e271ba9b77e05c07ed9b7aacfceed8593aa76b21d9bc4640cf3c9ac483",
+      "table": "ui",
+      "translation": "성능 벤치마크"
+    },
+    {
+      "key": "Can be deleted",
+      "source": "Can be deleted",
+      "source_sha256": "6c1217038ed48548dcbd846f15fc6de578f3736221a59f2beafd9c85adf72e16",
+      "table": "ui",
+      "translation": "삭제 가능"
+    },
+    {
+      "key": "Caption",
+      "source": "Caption",
+      "source_sha256": "87d296ec94898c86baf805dbcc47af48e618ec25df0441f7471c60a7d6b05b4e",
+      "table": "ui",
+      "translation": "설명 문구"
+    },
+    {
+      "key": "Coefficient table",
+      "source": "Coefficient table",
+      "source_sha256": "3eeaf788df8ea75e5626ad1f1a54709dc97238fc75669f692fa81927bcd1735b",
+      "table": "ui",
+      "translation": "계수 표"
+    },
+    {
+      "key": "Column mapping",
+      "source": "Column mapping",
+      "source_sha256": "47ff1d8d9ef68e3006b598a72fb059b62395a25be2b4247ae71142cf7d960814",
+      "table": "ui",
+      "translation": "열 매핑"
+    },
+    {
+      "key": "Conditions",
+      "source": "Conditions",
+      "source_sha256": "97d4be8960698f97bff3834494ca9adb3ae0fac886a6773300ff107336350a90",
+      "table": "ui",
+      "translation": "실험 조건"
+    },
+    {
+      "key": "Confusion table",
+      "source": "Confusion table",
+      "source_sha256": "bc9cb500cef71d46294a118da538f866128b9ddc0014113d9a276e9bc802fa2b",
+      "table": "ui",
+      "translation": "혼동 행렬"
+    },
+    {
+      "key": "Console + AI",
+      "source": "Console + AI",
+      "source_sha256": "42938e94befbdbc173127f0fe0727e157d14d75596c08a9c7376b0eda5870fa2",
+      "table": "ui",
+      "translation": "콘솔 + AI"
+    },
+    {
+      "key": "Control chart",
+      "source": "Control chart",
+      "source_sha256": "aa040c850f9fe0f952bccb6cea438955a1695997a9c9e1237ea2035bfeb8db7b",
+      "table": "ui",
+      "translation": "관리도"
+    },
+    {
+      "key": "Conversion plan",
+      "source": "Conversion plan",
+      "source_sha256": "df321a44c533b928fd0df6b7dbc2abef134c6f82e611ec5cacc92b83d6243f76",
+      "table": "ui",
+      "translation": "변환 계획"
+    },
+    {
+      "key": "Crop",
+      "source": "Crop",
+      "source_sha256": "98caf7c43c6f2c35cbc0376c937d27f67edad50c0d3e98dbc451c272c02ce479",
+      "table": "ui",
+      "translation": "이미지 자르기"
+    },
+    {
+      "key": "Crops",
+      "source": "Crops",
+      "source_sha256": "0abd7c58bd51c6144b4433cfafe23a65966dab4c77d250a1f281b1dc23240c5c",
+      "table": "ui",
+      "translation": "잘라낸 이미지"
+    },
+    {
+      "key": "Curation tools",
+      "source": "Curation tools",
+      "source_sha256": "3d5fefc18d65056bf56ba9b56eaeb144c8e8104abb3ae95a355d01563a0c65e9",
+      "table": "ui",
+      "translation": "데이터 검토 도구"
+    },
+    {
+      "key": "Curves",
+      "source": "Curves",
+      "source_sha256": "4c2c115ca08db2afa9acf6da0f27fcec1964ee8e0a6769946061e3138e5d792b",
+      "table": "ui",
+      "translation": "곡선"
+    },
+    {
+      "key": "Details",
+      "source": "Details",
+      "source_sha256": "45989de49fb7f66dfe17a8fc26f3a02c7abcd74f7e8e6cf9f39fa0e3775780df",
+      "table": "ui",
+      "translation": "세부 정보"
+    },
+    {
+      "key": "Disagreeing rows",
+      "source": "Disagreeing rows",
+      "source_sha256": "9bd52e303ea250122a6b5a3cf86c45ee3a4c96c4d8dff49894664a9cd39e0d2b",
+      "table": "ui",
+      "translation": "불일치 행"
+    },
+    {
+      "key": "Distributions",
+      "source": "Distributions",
+      "source_sha256": "7fe7bf5ec1c8feb5f8b2a4f0b8f3bbdc68dcfbad7ce63502b64f862d05495157",
+      "table": "ui",
+      "translation": "분포"
+    },
+    {
+      "key": "Dose-response curves",
+      "source": "Dose-response curves",
+      "source_sha256": "2495882931f731e721a7325b47ac677bd02214977efcc7f8783aada9b954d8c0",
+      "table": "ui",
+      "translation": "용량 반응 곡선"
+    },
+    {
+      "key": "Edge-effect report",
+      "source": "Edge-effect report",
+      "source_sha256": "8ef6c05b8318ef6c3e257d2bc43511b2681aba2763687064262aad3fbb38c98c",
+      "table": "ui",
+      "translation": "가장자리 효과 보고서"
+    },
+    {
+      "key": "Error inspector",
+      "source": "Error inspector",
+      "source_sha256": "80c40e867db142ec4b1878cbcd465a3655ff0df9617862470d8c721e440af01b",
+      "table": "ui",
+      "translation": "오류 검사기"
+    },
+    {
+      "key": "Feature ranking",
+      "source": "Feature ranking",
+      "source_sha256": "4c712c472ee1740f4a8a3942986fe4fda0676621b0a4944ce8d2ae285cbb1416",
+      "table": "ui",
+      "translation": "특징 순위"
+    },
+    {
+      "key": "Filter and columns",
+      "source": "Filter and columns",
+      "source_sha256": "f90e34b4eda6623772571819af1b24e73c7d373c9e3b85b3c687abae57f753a7",
+      "table": "ui",
+      "translation": "필터 및 열"
+    },
+    {
+      "key": "Findings",
+      "source": "Findings",
+      "source_sha256": "e171c2ff25b55e5a2d63d081ec3a65e272d11afec9169a03822c970aac37e79e",
+      "table": "ui",
+      "translation": "발견 사항"
+    },
+    {
+      "key": "Fit results",
+      "source": "Fit results",
+      "source_sha256": "db7453f8d7dcf9e74dc3e229c01f9c631fea4178579b7e58dd169dffb419539d",
+      "table": "ui",
+      "translation": "적합 결과"
+    },
+    {
+      "key": "Folders",
+      "source": "Folders",
+      "source_sha256": "c4d6bb200f4c058a9b16e900cb5495e59b52fda24cf011eedef8645c90051a8c",
+      "table": "ui",
+      "translation": "폴더"
+    },
+    {
+      "key": "Gate table",
+      "source": "Gate table",
+      "source_sha256": "9908b431a03d543b79ebcf1e95917dc076424eb59ce4bfde5524bf2db2f9ae74",
+      "table": "ui",
+      "translation": "게이트 표"
+    },
+    {
+      "key": "Gene record",
+      "source": "Gene record",
+      "source_sha256": "d09ebf804e6664ad7dc5dd467c80e639c974e7a49ec884774bdbb4a0bfabb951",
+      "table": "ui",
+      "translation": "유전자 기록"
+    },
+    {
+      "key": "Gene × measurement sweep",
+      "source": "Gene × measurement sweep",
+      "source_sha256": "d237b855a7a11f5416476be9a03a5b765b2f2529faab1f2cc24d933bde865b03",
+      "table": "ui",
+      "translation": "유전자 × 측정값 탐색"
+    },
+    {
+      "key": "Graph",
+      "source": "Graph",
+      "source_sha256": "32ab018fd38a7b42f8a42c77d3453516c4f7fefdddbf18bc6eab14a4a1b0a10e",
+      "table": "ui",
+      "translation": "그래프"
+    },
+    {
+      "key": "Guide agreement",
+      "source": "Guide agreement",
+      "source_sha256": "80ff45ebd09b28268099e5735ce4a105f932e6a37b64552d1051884f09ec6944",
+      "table": "ui",
+      "translation": "가이드 RNA 일치도"
+    },
+    {
+      "key": "Guide support table",
+      "source": "Guide support table",
+      "source_sha256": "899e53cc31b4830fd3925538ce88c9d22734f3229ecf6f06428250f3b026a0be",
+      "table": "ui",
+      "translation": "가이드 RNA 근거 표"
+    },
+    {
+      "key": "Image sets",
+      "source": "Image sets",
+      "source_sha256": "8ef9ae0e77f782606710f92ae2cefbebfc88ee26031433215dd7a51dcdd95869",
+      "table": "ui",
+      "translation": "이미지 세트"
+    },
+    {
+      "key": "Import report",
+      "source": "Import report",
+      "source_sha256": "bcab4962e8810b662ede144630afac352dd9789f2de4b0e0a2947a77de44e4e8",
+      "table": "ui",
+      "translation": "가져오기 보고서"
+    },
+    {
+      "key": "Job details and log",
+      "source": "Job details and log",
+      "source_sha256": "eee370a0c2d11fd0ff5e7bbbf8f5b545732d3770c5353190bfa2af7ca491b93d",
+      "table": "ui",
+      "translation": "작업 세부 정보 및 로그"
+    },
+    {
+      "key": "Job log",
+      "source": "Job log",
+      "source_sha256": "4b3f74c14f7dd37fba010e464bccbf57f4f9a2ea80849bbf4bf0c4a1749ae4d5",
+      "table": "ui",
+      "translation": "작업 로그"
+    },
+    {
+      "key": "Job queue",
+      "source": "Job queue",
+      "source_sha256": "5332363197ce7ef308d22df7cef29a1d3fea4345fd48cf70374d1013471d59cf",
+      "table": "ui",
+      "translation": "작업 대기열"
+    },
+    {
+      "key": "Jobs",
+      "source": "Jobs",
+      "source_sha256": "2f17a0f8d518e491c5a0c490b2c1991828dd87d173994ba40996e1da59d4e368",
+      "table": "ui",
+      "translation": "작업"
+    },
+    {
+      "key": "Kept, and why",
+      "source": "Kept, and why",
+      "source_sha256": "cf789b9d89b967c176a7de03dde4e5424c0beab71929ec955fa7a4484bb26401",
+      "table": "ui",
+      "translation": "유지 항목 및 이유"
+    },
+    {
+      "key": "Known about this gene",
+      "source": "Known about this gene",
+      "source_sha256": "115f91c56060da49de55c55fb6d34eac53f957845f4bdef03a72a31c0128bf16",
+      "table": "ui",
+      "translation": "이 유전자에 대해 알려진 정보"
+    },
+    {
+      "key": "Mask preview",
+      "source": "Mask preview",
+      "source_sha256": "ac19b162c196c8e0f49ca420adb3096b3b29221ccd98b181dd9e26498471bfe5",
+      "table": "ui",
+      "translation": "마스크 미리보기"
+    },
+    {
+      "key": "Mask previews",
+      "source": "Mask previews",
+      "source_sha256": "ea9c908f8f7641ecd422d1bd98c450f26e11d4c04e0ec900859ab444b727b04d",
+      "table": "ui",
+      "translation": "마스크 미리보기 모음"
+    },
+    {
+      "key": "Movie",
+      "source": "Movie",
+      "source_sha256": "941de4447b2ec0d282b3bc0070cb8fb3b08085ebe8745c59d78bf4e7db453e35",
+      "table": "ui",
+      "translation": "동영상"
+    },
+    {
+      "key": "Pairwise agreement",
+      "source": "Pairwise agreement",
+      "source_sha256": "2115c351d75545696971f9a2170534dedd1364a18316530120b0d69b0adf3d88",
+      "table": "ui",
+      "translation": "쌍별 일치도"
+    },
+    {
+      "key": "Parameters that reached each model",
+      "source": "Parameters that reached each model",
+      "source_sha256": "e1bdef615d339738fc7a7fb9bf415a4f89f3fcaae1e07a898b86ae28e0478cce",
+      "table": "ui",
+      "translation": "각 모델에 전달된 매개변수"
+    },
+    {
+      "key": "Per-field comparison",
+      "source": "Per-field comparison",
+      "source_sha256": "a5b0f2fcb831f8be6cc68ce8cfc3c6c0868843a4327c869881dc800b9ae259c4",
+      "table": "ui",
+      "translation": "시야별 비교"
+    },
+    {
+      "key": "Pictures",
+      "source": "Pictures",
+      "source_sha256": "1e6245009d6770359aa1b1876ba50934316e7da4a22cd516deebcbe60eaf70c4",
+      "table": "ui",
+      "translation": "그림"
+    },
+    {
+      "key": "Pipeline graph",
+      "source": "Pipeline graph",
+      "source_sha256": "7c60445e5f8246ecd6a91e61df708c720aff5a1d6f3f5b3da3df48d541ab5475",
+      "table": "ui",
+      "translation": "파이프라인 그래프"
+    },
+    {
+      "key": "Pivot",
+      "source": "Pivot",
+      "source_sha256": "86d46933d5fa6df04fe38bdedad79ecb5439c64dbd2a9c8a8559d4c8acc0f508",
+      "table": "ui",
+      "translation": "피벗"
+    },
+    {
+      "key": "Pivot fields",
+      "source": "Pivot fields",
+      "source_sha256": "e44dc36d7818006ef375a5cfa6081586d610a22484ac5b64a421c237cb8e2795",
+      "table": "ui",
+      "translation": "피벗 필드"
+    },
+    {
+      "key": "Pivot table",
+      "source": "Pivot table",
+      "source_sha256": "c55e5bb1d002eec799d5d05d48dbda8f19dba34e58df45a7b67e7dbb80be3ccd",
+      "table": "ui",
+      "translation": "피벗 테이블"
+    },
+    {
+      "key": "Pixel info",
+      "source": "Pixel info",
+      "source_sha256": "f0988727c3f29dc12dbc582b6c750ccbeec200b190c28733e563beca25247047",
+      "table": "ui",
+      "translation": "픽셀 정보"
+    },
+    {
+      "key": "Plan report",
+      "source": "Plan report",
+      "source_sha256": "5711c0f79a0b8e6eca625ec3907c3d92a2737d088ed15261a3c2a1a145f2a5a4",
+      "table": "ui",
+      "translation": "계획 보고서"
+    },
+    {
+      "key": "Plate map",
+      "source": "Plate map",
+      "source_sha256": "f78c3c48411db042384ad9a7cbfbbd672fd75c7c036b6bd4971a0529d060d825",
+      "table": "ui",
+      "translation": "플레이트 배치도"
+    },
+    {
+      "key": "Point cloud",
+      "source": "Point cloud",
+      "source_sha256": "fd504c5731bae4c983baedb308e24cf99e84adf1d3b81b85e356a31015dd0aef",
+      "table": "ui",
+      "translation": "점군"
+    },
+    {
+      "key": "Power table",
+      "source": "Power table",
+      "source_sha256": "c5c2849d71a0da6ee8b3647f7babc6d1601cce0110d0a6c0a2f9cd65b3059451",
+      "table": "ui",
+      "translation": "통계적 검정력 표"
+    },
+    {
+      "key": "Power vs cells per well",
+      "source": "Power vs cells per well",
+      "source_sha256": "09497f5987e50cec27aa01087550a843240b29a4cd0e0c654264f30e0ec8c18c",
+      "table": "ui",
+      "translation": "웰당 세포 수에 따른 검정력"
+    },
+    {
+      "key": "Power vs wells",
+      "source": "Power vs wells",
+      "source_sha256": "1635e571a2b62e6cd85c470a37856b4dc9e8c2af6bf6fbfc8308a271f9886f5b",
+      "table": "ui",
+      "translation": "웰 수에 따른 검정력"
+    },
+    {
+      "key": "Preview settings",
+      "source": "Preview settings",
+      "source_sha256": "1b12f0cfad7e0728752e25b49400fe4d2e40b0f0fd54c1ca424adf1935784f8e",
+      "table": "ui",
+      "translation": "미리보기 설정"
+    },
+    {
+      "key": "Project details",
+      "source": "Project details",
+      "source_sha256": "5f770a8de37b95ee2d1358acc94fceb5e03c09241e79f6ec357be79ad3a5ebc1",
+      "table": "ui",
+      "translation": "프로젝트 세부 정보"
+    },
+    {
+      "key": "Projects",
+      "source": "Projects",
+      "source_sha256": "04e2a9728af7584043c5d58ae29e7cd811883e8dab15fc6287675270669a3ada",
+      "table": "ui",
+      "translation": "프로젝트"
+    },
+    {
+      "key": "Proposal",
+      "source": "Proposal",
+      "source_sha256": "5d42766c7ecac46c344f7ed2f8940a0054b00641cb56876ceb30c9eab50159b0",
+      "table": "ui",
+      "translation": "제안"
+    },
+    {
+      "key": "Proposed layout",
+      "source": "Proposed layout",
+      "source_sha256": "deae97603c879eeb3f3e13df7a70d02959cc386e5d955d16859d526fa767af60",
+      "table": "ui",
+      "translation": "제안된 배치"
+    },
+    {
+      "key": "Purity plot",
+      "source": "Purity plot",
+      "source_sha256": "0f4926288d7d7e58f64ad4bcff25f8ac2f55bd95693d68dc663d9581fd0f96e5",
+      "table": "ui",
+      "translation": "순도 그래프"
+    },
+    {
+      "key": "Questions",
+      "source": "Questions",
+      "source_sha256": "9a72221a27476f3e907767bc2614ae6aaa0a45c60543a23f89786b571897bb75",
+      "table": "ui",
+      "translation": "질문"
+    },
+    {
+      "key": "Reads",
+      "source": "Reads",
+      "source_sha256": "7f3e8bf052d3900e743f7c670197f168ae3649c08144c8cc39c7d666a5f0b92f",
+      "table": "ui",
+      "translation": "시퀀싱 리드"
+    },
+    {
+      "key": "Regression results",
+      "source": "Regression results",
+      "source_sha256": "e4bcb24cf2f5142f644872a7894b08af2361f556f2e3e4412a91496407d7654b",
+      "table": "ui",
+      "translation": "회귀 결과"
+    },
+    {
+      "key": "Rule violations",
+      "source": "Rule violations",
+      "source_sha256": "2132e7dfab7ab32a089cafff3ef3d1822d8bf501041cec2eb7f03068cdc07b68",
+      "table": "ui",
+      "translation": "규칙 위반"
+    },
+    {
+      "key": "Run details",
+      "source": "Run details",
+      "source_sha256": "7bbc36905270774ef9d63abed8e46f42954fea1e901066fa2eeabcb944074aad",
+      "table": "ui",
+      "translation": "실행 세부 정보"
+    },
+    {
+      "key": "Scores",
+      "source": "Scores",
+      "source_sha256": "c5f09715dba8604df4066110f56801bcb05d9f66c247cae1b412976456d6813d",
+      "table": "ui",
+      "translation": "점수"
+    },
+    {
+      "key": "Search preview",
+      "source": "Search preview",
+      "source_sha256": "8055cfebe2dad287b32353926c99caed12aee3b9230bae922d04925594efaf57",
+      "table": "ui",
+      "translation": "검색 미리보기"
+    },
+    {
+      "key": "Settings diff",
+      "source": "Settings diff",
+      "source_sha256": "173bc972fdae8615b61a463e1efbf83ffb420cd17a8a516fc61ad4a4ebfe5416",
+      "table": "ui",
+      "translation": "설정 차이"
+    },
+    {
+      "key": "Table preview",
+      "source": "Table preview",
+      "source_sha256": "52df6ffc26e1de692184445b5b077aba669f602ec583a2ccb2b8f9f10ec6305a",
+      "table": "ui",
+      "translation": "표 미리보기"
+    },
+    {
+      "key": "Tile layout",
+      "source": "Tile layout",
+      "source_sha256": "cac0be4dd0a03025c7d6f9dd0832390ad0b098c469f39e32ac3fd64912921e93",
+      "table": "ui",
+      "translation": "타일 배치"
+    },
+    {
+      "key": "Track quality",
+      "source": "Track quality",
+      "source_sha256": "e7ffab0149f6436368de1ae9689d68d3975a10186038ca25b88fe66037fbb2b9",
+      "table": "ui",
+      "translation": "궤적 품질"
+    },
+    {
+      "key": "Trellis",
+      "source": "Trellis",
+      "source_sha256": "ef64848a4dfefc870606111f758fc5a0e1d4adc73cb50e0f1e55d2f9d58ff20e",
+      "table": "ui",
+      "translation": "격자형 그래프"
+    },
+    {
+      "key": "Trials",
+      "source": "Trials",
+      "source_sha256": "9d3e674e1c363b5f13a043437f4049d6c13fce7acdb39a81df7116a8d3ad78d7",
+      "table": "ui",
+      "translation": "시험 실행"
+    },
+    {
+      "key": "Validation problems",
+      "source": "Validation problems",
+      "source_sha256": "27006e6ee1a07c3c23612a570ccccae7341832a225b956aad1e972cec06b99c1",
+      "table": "ui",
+      "translation": "검증 문제"
+    },
+    {
+      "key": "Volcano plot",
+      "source": "Volcano plot",
+      "source_sha256": "15ba56583a0ec7ec3fa3277abb72443f835a96c1e5dcee9283b082ab3ede412a",
+      "table": "ui",
+      "translation": "볼케이노 플롯"
+    },
+    {
+      "key": "Wells and plaques",
+      "source": "Wells and plaques",
+      "source_sha256": "b99e4876a0f2708c606f6ad277aa362f4579a656f9708f7f4ae7743b84b13e32",
+      "table": "ui",
+      "translation": "웰 및 플라크"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and domain review against the actual section owners: statistical agreement/power, CRISPR guides, sequencing reads, image fields and hyperparameter trials; no native-speaker sign-off",
+  "schema": 1
+}

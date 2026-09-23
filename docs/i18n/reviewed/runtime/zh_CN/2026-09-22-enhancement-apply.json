@@ -1,0 +1,28 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Apply these enhancements to the displayed image and subsequent detections. Blue means active. Click again to use unenhanced input while keeping these settings and existing masks. Measurements retain the original image values.",
+      "source": "Apply these enhancements to the displayed image and subsequent detections. Blue means active. Click again to use unenhanced input while keeping these settings and existing masks. Measurements retain the original image values.",
+      "source_sha256": "ef415d817b22e27995692ff2d78c5f599bdee06217ad7266914a040f1922e409",
+      "table": "ui",
+      "translation": "将这些增强应用于显示的图像和后续检测。蓝色表示已启用。再次点击可使用未经增强的输入，同时保留这些设置和现有掩膜。测量仍使用原始图像值。"
+    },
+    {
+      "key": "Clear all objects",
+      "source": "Clear all objects",
+      "source_sha256": "a708558d209a80906514190313b8f3c3f12d834045ce9e0d005f5047f435ed3d",
+      "table": "ui",
+      "translation": "清除所有对象"
+    },
+    {
+      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+      "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+      "table": "ui",
+      "translation": "将配置的增强效果与未经增强的图像并排预览：如果存在放大镜区域，则预览该区域，否则预览整个视野，以便根据实际效果评估处理链的每个步骤。"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against explicit Apply/Compare behavior in 479–481; no native-speaker sign-off",
+  "schema": 1
+}
