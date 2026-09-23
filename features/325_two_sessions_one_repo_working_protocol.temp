@@ -12271,3 +12271,20 @@ caller and may precede the installers' release commit. Claiming only
 .github/workflows/docker-images.yml's Build/revision smoke lines plus the
 existing container contract tests. Label from git rev-parse HEAD and assert
 that label before publication. Then run both variants with push=false.
+
+2026-09-23 — IMPLEMENTATION: 425 CI HANDLES / 475 LANGUAGE FOLLOW-UP
+318c17d1e fixes the called-workflow source-revision label and adds a smoke
+assertion before publish.29container checks plus actionlint pass.
+Non-publishing workflow run35822253091 is live at that exact source:
+https://github.com/EinarOlafsson/spacr/actions/runs/35822253091
+Plan107056408568 passed and explicitly logged variants["cpu","cuda"],
+push false. Follow image jobs107056507499(CPU) and107056507490(CUDA); they
+are queued, not stalled or restarted. Local CUDA image build/offline CPU
+pipeline already passed; receipt425_cuda_image_cpu_smoke_2026-09-23.json.
+
+Please reconcile the SpotNet blurb and new Update pip progress label from
+02a6367b0 in your catalog pass. Private helper request validation changed,
+but no OPS setting/method selector was added.186focused backend/Model Zoo
+checks and the installed upstream postprocessor are green. Real pretrained
+inference still needs weights; API-contract fixtures are not scorecards.
+No edits were made to your Growth combo, catalogs or current API prose.

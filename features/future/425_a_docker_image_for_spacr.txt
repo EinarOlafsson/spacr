@@ -443,3 +443,10 @@ Two executed shell checks use different caller/checkout revisions and prove
 the correct label is passed and a stale label fails the smoke gate. All29
 container checks and containerized actionlint pass. Dispatching both image
 variants with push=false next; this does not publish a release or an image.
+
+2026-09-23 — NON-PUBLISHING CI VALIDATION DISPATCHED
+Run35822253091 builds exact318c17d1e8322a35e7bc98b0c14341cf14a3a7ed:
+https://github.com/EinarOlafsson/spacr/actions/runs/35822253091
+Plan job107056408568 passed. Its actual log confirms variants["cpu","cuda"]
+and push false. Image jobs107056507499(CPU) and107056507490(CUDA) are queued;
+follow those handles instead of starting another run. No CI success claimed.
