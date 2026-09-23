@@ -220,3 +220,22 @@ None, empty quoted string and c2; location_column None; channels1/3; object
 filters differ. They all reach the same empty-split failure addressed by the
 existing ML control-selection and pre-split guards verified in earlier cohorts.
 92/93 detailed reports remain to review; no full audit completion claim.
+
+2026-09-23 — HISTORICAL READING FINISHED; RESOLUTION STILL OPEN
+Read92 and93 bodies and every discussion, comparing repeated log blocks after
+normalizing only timestamps/run identifiers.92 includes a separate maxvit_t
+ML-dispatch traceback; current classify.resolve_ml_model_type uses the ML key,
+and the earlier classifier cohort covers this.93's stale annotation column
+is explicitly rejected with available columns and migration advice; current
+ML analysis derives the training column locally. Earlier ML controls/merged
+classifier regression cohorts cover the zero/missing-control and settings
+preservation paths. Reconciled the complete103-issue snapshot against the
+issue-number/title list: all bodies and discussions have now been read.
+
+This completes reading, not resolution of every issue.127 still has remaining
+layout/platform acceptance;130 needs finished/public onboarding delivery and
+the reported dead Home-tile path verified;131 remains pending institutional
+Apple signing access. Posted the verified plaque responsiveness work on127:
+https://github.com/EinarOlafsson/spacr/issues/127#issuecomment-5802098915
+No1.5.1.0 bump or main promotion yet. Do not close these issues as a proxy for
+finishing the audit, and do not claim exact native-platform reproduction.

@@ -39,9 +39,11 @@ Ordered scope and acceptance gates
    recruitment fixes, replication-method selector and image-quality screening
    with their documented count/unit/denominator limitations. Deep replication
    model remains explicitly unavailable until the maintainer supplies it.
-   User added2026-09-23: ship Host–Pathogen test data accessible from the module,
-   with explicit synthetic provenance, known vacuole/parasite links and expected
-   outputs. Run it through the real analysis before calling it ready.
+   Host–Pathogen test data must use real public images and cell/vacuole masks,
+   as subsequently required by the maintainer. Completed public THP1/RNF213
+   example (ce0c7695c) has two measured fields, verified label-to-database links
+   and no invented individual-parasite counts; preserve that dataset in the
+   release candidate. Synthetic acceptance images remain software tests only.
 5. Installation/update/readme — PyPI Starplast environment/launch integration,
    verified package updates and graceful restart, system requirements link,
    PyPI-compatible README images, installer catalog synchronization. Build real

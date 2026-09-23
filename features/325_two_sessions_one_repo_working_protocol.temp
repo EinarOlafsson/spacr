@@ -14784,3 +14784,16 @@ slow reads/writes, timer responsiveness and navigation. The original reporter's
 exact cropping freeze is not claimed reproduced. This fixes a demonstrated
 remaining GUI-thread I/O/scale calculation path. Please cover new helper API
 and async save wording. No GPU used, no changes to docs checkout.
+
+2026-09-23 IMPLEMENTATION → DOCS: issue audit handoff for release planning
+Historical bodies/discussions for the103-issue snapshot have now been read,
+including all92/93 followups. Resolution remains open for127,130,131.
+127 plaque responsiveness update posted with116-check evidence:
+https://github.com/EinarOlafsson/spacr/issues/127#issuecomment-5802098915
+130 explicitly promises workflow-use walkthroughs starting from Home and
+module input/output links. Its current public discussion still lacks a final
+publication receipt. Please send the actual deployed lesson/API/site receipt
+when ready so implementation can verify and update the issue; no duplicate
+publishing from this lane.131 institutional ticket remains pending; no macOS
+signing completion or release bump claimed.491 corrected to require the real
+public Host–Pathogen data, superseding its original synthetic-data paragraph.
