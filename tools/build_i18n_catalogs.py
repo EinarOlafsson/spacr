@@ -3578,6 +3578,54 @@ def _has_prose_outside_protected_literals(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", _PROTECT_RE.sub(" ", text)))
 
 
+def _starplast_progress_sources() -> set[str]:
+    """Read installer phase labels forwarded dynamically to Qt's translator.
+
+    The installer stays unexecuted: only literal progress arguments and the
+    labels in its command-step tuples are read from its syntax tree.
+    """
+    tree = ast.parse((ROOT / "spacr/_starplast.py").read_text(encoding="utf-8"))
+    installer = next(node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "install_starplast")
+    found = set()
+    for node in ast.walk(installer):
+        candidate = None
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "report" and len(node.args) == 3):
+            candidate = node.args[2]
+        elif (isinstance(node, ast.Tuple) and len(node.elts) == 2
+              and isinstance(node.elts[1], (ast.List, ast.BinOp))):
+            candidate = node.elts[0]
+        if isinstance(candidate, ast.Constant) and isinstance(candidate.value, str):
+            found.add(candidate.value)
+    return found
+
+
+def _organism_description_sources() -> set[str]:
+    """Read only SVG descriptions reachable through registered compartment labels."""
+    import xml.etree.ElementTree as ET
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.widgets.organism_diagram import (
+        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
+    )
+
+    found = set()
+    for app_key, organism in ORGANISMS.items():
+        labels = (COMPARTMENT_SL if app_key == "toxoplasma" else
+                  YEAST_LABELS if app_key == "candida" else APICOMPLEXAN_LABELS)
+        root = ET.parse(ROOT / "spacr/resources/images" / organism["diagram"]).getroot()
+        for node in root.iter():
+            if node.get("id") not in labels.values():
+                continue
+            for text in node.findall("{http://www.w3.org/2000/svg}text"):
+                if text.get("property") == "description":
+                    description = " ".join(text.itertext()).strip()
+                    if description:
+                        found.add(description)
+    return found
+
+
 def _indirect_runtime_ui_sources() -> set[str]:
     """Return presentation prose exposed through runtime data structures.
 
@@ -3670,6 +3718,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.import_examples import IMPORT_VARIANTS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    found.update(_starplast_progress_sources())
+    found.update(_organism_description_sources())
     for detector_modes in (cpu_modes, organelle_modes):
         found.update(detector_modes.MODE_LABELS.values())
         found.update(detector_modes.guidance(mode)

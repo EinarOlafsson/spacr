@@ -87,18 +87,18 @@ def _summary(text: str) -> str:
 
 
 def _is_public(symbol: str) -> bool:
-    """Whether every component of a dotted name is public.
+    """Whether a symbol is public under the shared documentation policy.
 
     ``spacr.qt.app.MainWindow._build_menu_bar`` has no API page, so offering
     it as a result is offering a link to nothing.
 
     :param symbol: a dotted symbol name.
-    :returns: True when no component starts with an underscore.
+    :returns: True for ordinary public names and public members of explicitly
+        published service modules.
     """
-    return all(
-        part == "__main__" or not part.startswith("_")
-        for part in symbol.split(".")
-    )
+    from api_visibility import public_symbol
+
+    return public_symbol(symbol)
 
 
 def api_entries() -> List[Tuple[str, str]]:

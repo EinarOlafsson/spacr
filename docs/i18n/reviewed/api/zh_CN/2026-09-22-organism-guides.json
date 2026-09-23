@@ -23,13 +23,6 @@
       "translation": "以 ``toxoplasma``、``plasmodium`` 和 ``candida`` 为键的生物指南。"
     },
     {
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
-      "translation": "每条记录提供显示名称、描述、生物学来源 URL、随附图示的文件名和图示说明。``sections`` 包含标题、正文和关联分析键的三元组；``links`` 包含显示标签与 URL 的二元组。``modules`` 包含路由键、标题、描述和图标键的元组。路由为 ``None`` 表示计划中的分析，其磁贴无法启动分析。显示文本在使用时翻译；路由键、URL 和资源名称保持不变。"
-    },
-    {
       "context": "Sourced organism guides, interactive cell diagrams and assay navigation.",
       "label": "spacr.qt.screens.organism_screen#0",
       "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
@@ -149,13 +142,6 @@
       "translation": "所属的 Qt 控件。"
     },
     {
-      "context": "Build the illustration, label selector and shared-shape caption.",
-      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
-      "source": "Build the illustration, label selector and shared-shape caption.",
-      "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
-      "translation": "构建插图、标签选择器和共用形状说明。"
-    },
-    {
       "context": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
       "label": "spacr.qt.widgets.organism_diagram.YEAST_LABELS#0",
       "source": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
@@ -185,5 +171,27 @@
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review against the organism registry, navigation and compartment-mapping contracts; no native-speaker sign-off",
-  "schema": 1
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+        "label": "spacr.qt.organisms.ORGANISMS#1",
+        "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+        "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
+        "translation": "每条记录提供显示名称、描述、生物学来源 URL、随附图示的文件名和图示说明。``sections`` 包含标题、正文和关联分析键的三元组；``links`` 包含显示标签与 URL 的二元组。``modules`` 包含路由键、标题、描述和图标键的元组。路由为 ``None`` 表示计划中的分析，其磁贴无法启动分析。显示文本在使用时翻译；路由键、URL 和资源名称保持不变。"
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Build the illustration, label selector and shared-shape caption.",
+        "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
+        "source": "Build the illustration, label selector and shared-shape caption.",
+        "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
+        "translation": "构建插图、标签选择器和共用形状说明。"
+      }
+    }
+  ]
 }

@@ -14,6 +14,7 @@ from pathlib import Path
 _SOURCE_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_SOURCE_ROOT / 'tools'))
 import nested_helper_docs as _nested_helper_docs
+import api_visibility as _api_visibility
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(__file__, '..', '..', 'spacr')
@@ -138,6 +139,7 @@ autoapi_keep_files           = True
 autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical inside
 # A changed rollout must invalidate AutoAPI's otherwise unchanged source cache.
 spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))
+spacr_explicit_api_modules = tuple(sorted(_api_visibility.EXPLICIT_MODULES))
 
 
 def autoapi_prepare_jinja_env(env):
@@ -257,6 +259,9 @@ html_theme_options = {
 
 def _skip_implementation_data(app, what, name, obj, skip, options):
     """Hide mutable module state while retaining documented constants."""
+    explicit_policy = _api_visibility.explicit_page_policy(name)
+    if explicit_policy is not None:
+        return explicit_policy
     helper_policy = _nested_helper_docs.helper_page_policy(what, name, obj, skip, options)
     if helper_policy is not None:
         return helper_policy
@@ -269,5 +274,6 @@ def _skip_implementation_data(app, what, name, obj, skip, options):
 
 def setup(app):
     app.add_config_value('spacr_nested_helper_modules', (), 'env')
+    app.add_config_value('spacr_explicit_api_modules', (), 'env')
     _nested_helper_docs.register_sphinx_directive(app)
     app.connect('autoapi-skip-member', _skip_implementation_data)

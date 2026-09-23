@@ -403,7 +403,13 @@ class OrganismDiagram(QWidget):
         return text
 
     def eventFilter(self, watched, event):
-        """End the legend's transient highlight when the pointer leaves it."""
+        """End the legend's transient highlight when the pointer leaves it.
+
+        :param watched: object receiving the event; only the legend viewport
+            triggers highlight removal.
+        :param event: Qt event, inspected for a pointer-leave notification.
+        :returns: the parent widget's event-filter result.
+        """
         if watched is self.selector.viewport() and event.type() == QEvent.Leave:
             self.artwork.set_hover("")
         return super().eventFilter(watched, event)

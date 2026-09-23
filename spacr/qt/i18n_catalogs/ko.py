@@ -5945,10 +5945,7 @@ UI = {
     'Open Measure and collect the compartment or staining measurements needed by your assay.': '“측정 (Measure)”를 열어 분석에 필요한 구획 또는 염색 측정값을 수집하세요.',
     'For a recruitment question, open Recruitment and inspect compartment intensity ratios.': '분자 모집을 분석하려면 “리크루트먼트 분석 (Recruitment)”를 열고 구획 간 강도 비율을 살펴보세요.',
     'An optical pooled screen': '광학 풀링 스크리닝',
-    'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.': '“홈 (Home)”에서 “정렬 및 스티칭 (Align & Stitch)”를 열어 이미지 타일의 기하 구조와 좌표 매핑을 살펴보세요.',
-    'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.': '“홈 (Home)”으로 돌아가 “마스크 (Mask)”를 연 다음 “OPS”를 여세요. 주기 및 위치별 원본 이미지와 표현형 이미지에 대한 정합 정보를 제공하세요.',
     'Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.': '“회귀 (Regression)”을 열기 전에 해독된 객체 식별자를 기준으로 호환되는 표현형 반응을 결합하고 집계하세요.',
-    'A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.': '이어 붙인 이미지 하나만으로 시퀀싱 주기를 대체할 수는 없습니다. OPS 테이블은 회귀 분석 전에 식별자를 기준으로 명시적으로 결합하고 집계해야 합니다. 이 안내는 해당 변환을 자동으로 수행하지 않습니다.',
     'Import existing data': '기존 데이터 가져오기',
     'Start on Home with Import and select the route matching images, external masks or external measurements.': '“홈 (Home)”에서 “가져오기 (Import)”를 열고 이미지, 외부 마스크 또는 외부 측정값에 맞는 경로를 선택하세요.',
     'For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.': '이미지만 가져왔다면 “마스크 (Mask)”를 열어 분할을 추가하세요. 유효한 마스크가 이미 있으면 이 단계를 건너뛰세요.',
@@ -6122,6 +6119,8 @@ UI = {
     'Threshold histogram failed: {error}': '임곗값 히스토그램 실패: {error}',
     '{method} histogram': '{method} 히스토그램',
     'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.': '최댓값의 비율: 각 워터셰드 영역을 해당 시드 강도의 선택한 비율을 기준으로 잘라냅니다. 이는 강도의 비율이며 백분위수가 아닙니다. 배경 오프셋은 결과에 영향을 줍니다. 나머지 세 규칙은 처리된 시야 또는 영역에 공통 임곗값을 적용하여 워터셰드 분할을 제한합니다. 이후 구멍 채우기와 최소 면적 필터링을 수행합니다.',
+    'Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.': '“홈 (Home)”에서 시작하여 “마스크 (Mask)”를 연 다음 “OPS”를 여세요. 주기 및 위치별 원본 이미지와 표현형 이미지에 대한 정합 정보를 제공하세요.',
+    'Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.': '이미지 타일의 기하 구조를 확인하거나 좌표를 매핑해야 할 때 «정렬 및 이어 붙이기 (Align & Stitch)»를 선택적으로 사용할 수 있습니다. OPS 예제의 필수 사전 단계는 아닙니다. 이어 붙인 이미지 하나만으로 시퀀싱 주기를 대체할 수는 없습니다. OPS 테이블은 회귀 분석 전에 식별자를 기준으로 명시적으로 결합하고 집계해야 합니다. 이 안내는 해당 변환을 자동으로 수행하지 않습니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -12151,10 +12150,7 @@ SOURCE_HASHES = {
     ('UI', 'Open Measure and collect the compartment or staining measurements needed by your assay.'): '19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9',
     ('UI', 'For a recruitment question, open Recruitment and inspect compartment intensity ratios.'): '6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c',
     ('UI', 'An optical pooled screen'): '5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1',
-    ('UI', 'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.'): 'bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace',
-    ('UI', 'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.'): '5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41',
     ('UI', 'Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.'): 'df19c4dcb141716c6e405f540be988b099e47d3bc91338506c85df38b4fae2e6',
-    ('UI', 'A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.'): 'd0464c3d5e257dea6d13248c7f658e6ab11a2fcb5023516f516d2336d1cc1a88',
     ('UI', 'Import existing data'): 'a5a6482062d93f1ad491da5567c3311d4593e424ef2afc37990b2ad14da73500',
     ('UI', 'Start on Home with Import and select the route matching images, external masks or external measurements.'): '01ef9504c69d0019961de22b188615a3c8e2a364a0202bcff9c5d6c053cb0d7f',
     ('UI', 'For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.'): '124b7da63171ee19ec3f57223b8a2e369b241828a0b959ffc8d81130b597dd34',
@@ -12368,4 +12364,6 @@ SOURCE_HASHES = {
     ('UI', 'Threshold histogram failed: {error}'): '9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89',
     ('UI', '{method} histogram'): 'cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e',
     ('UI', 'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.'): '7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198',
+    ('UI', 'Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.'): 'cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea',
+    ('UI', 'Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.'): '94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903',
 }

@@ -35,7 +35,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "229e1407fb6fc21359484e763000c6af48fde767acc38d713eed4e707cb616b3"
+    "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -224,7 +224,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # against 6ae5e1b36: +1 / -0.
     # ViewGate.__post_init__ is the one new documented special method.
     assert len(dunders) == 214
-    assert len(assignments) == 20
+    assert len(assignments) == 21
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -1182,7 +1182,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 474 adds six module/class/method entries and four documented registries.
     # All ten have source-bound records in the nine locale catalogs.
     # Removing the four registry IDs reproduces the previous visible digest.
-    expected = 11_338
+    # Starplast contributes fourteen entries; diagram interactions add two.
+    # All sixteen and the three changed entries have nine-language catalogs.
+    # Removing REPOSITORY restores the prior visible-member digest exactly;
+    # features/data/411_external_app_api_2026-09-22.json records the audit.
+    expected = 11_354
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1224,7 +1228,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_338
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_354
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1565,7 +1569,9 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,390,
     # post-filter 10,931 -> 11,166, boundary 224 -> 224. Both halves moved
     # by exactly 235, so every arrival is rendered.
-    assert 11_562 - len(docs) == 224
+    # The sixteen Starplast/diagram additions occur on both sides; the
+    # independently measured non-rendered boundary remains 224.
+    assert 11_578 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
@@ -1614,8 +1620,8 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     docs = builder.public_docstrings()
     assignment_keys = _visible_assignment_docs()
 
-    # 474 adds four genuine registry contracts to the sixteen existing ones.
-    assert len(assignment_keys) == 20
+    # Four organism registries and Starplast's documented source URL add five.
+    assert len(assignment_keys) == 21
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

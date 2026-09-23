@@ -1,346 +1,355 @@
 {
-  "schema": 1,
   "language": "is",
   "records": [
     {
-      "table": "ui",
       "key": "A pooled spaCR screen",
       "source": "A pooled spaCR screen",
       "source_sha256": "6ca1525122e362340d6c63ded4d08a86e39fe655f3e2ad0c5ff8cddbb6541943",
+      "table": "ui",
       "translation": "spaCR-skimun í sameinuðu safni"
     },
     {
-      "table": "ui",
       "key": "Start on Home and open Mask. Load the example data, check channels and segmentation, then run.",
       "source": "Start on Home and open Mask. Load the example data, check channels and segmentation, then run.",
       "source_sha256": "5c9ca98dc0a9f7a2792e0c04492ad25378e3d9d44831bb46553356142bdc2db2",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» og opnaðu «Grímur (Mask)». Hladdu inn sýnigögnum, athugaðu rásir og hlutaskiptingu og ræstu síðan vinnsluna."
     },
     {
-      "table": "ui",
       "key": "Open Measure with the Mask project and create measurements and object crops.",
       "source": "Open Measure with the Mask project and create measurements and object crops.",
       "source_sha256": "8f215f1085e5fb30f918ba74ae3157da0d19b1c106dae6822e14a44d224961f4",
+      "table": "ui",
       "translation": "Opnaðu «Mæling (Measure)» með verkefninu úr «Grímur (Mask)» og búðu til mælingar og myndútskurði af hlutum."
     },
     {
-      "table": "ui",
       "key": "Open Annotate, inspect representative objects and save phenotype labels.",
       "source": "Open Annotate, inspect representative objects and save phenotype labels.",
       "source_sha256": "e2a0add24c82e2068b16512a6bf52feb76b59f3f50f19fee04e8103d97734569",
+      "table": "ui",
       "translation": "Opnaðu «Merking (Annotate)», skoðaðu dæmigerða hluti og vistaðu svipgerðarmerkingar."
     },
     {
-      "table": "ui",
       "key": "Open Classify, choose images or measured features, and inspect held-out predictions.",
       "source": "Open Classify, choose images or measured features, and inspect held-out predictions.",
       "source_sha256": "cdf52c512a66b2f0547210736181e197308ffabfcb3d73ba79c2409594e4e6ca",
+      "table": "ui",
       "translation": "Opnaðu «Flokkun (Classify)», veldu myndir eða mælda eiginleika og skoðaðu spár fyrir gögn sem voru ekki notuð við þjálfun."
     },
     {
-      "table": "ui",
       "key": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
       "source": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
       "source_sha256": "4d721c0a63bda31733c0ae0cb51e8d450d91328dd9ff5920939b0d86104e10ca",
+      "table": "ui",
       "translation": "Farðu aftur á «Heim (Home)» og opnaðu «Varpa strikamerkjum (Map Barcodes)» fyrir samsvarandi raðgreiningarlestra og viðmiðunargögn."
     },
     {
-      "table": "ui",
       "key": "Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.",
       "source": "Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.",
       "source_sha256": "153d187ed8cfaf5fcf5c936984bcbe33fc2d519a200b3363e70935553f544d20",
+      "table": "ui",
       "translation": "Opnaðu «Aðhvarf (Regression)» með samhæfum svipgerðarskorum og talningum leiðsöguraða fyrir hvern brunn; skoðaðu niðurstöður skimunar og greiningu á líkaninu."
     },
     {
-      "table": "ui",
       "key": "High-content image analysis",
       "source": "High-content image analysis",
       "source_sha256": "21b63199921b58025467aedb17efce3dcab26bbd9c723e2f0fe81c632020ad21",
+      "table": "ui",
       "translation": "Fjölþátta myndgreining"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Mask and inspect segmentation on representative fields.",
       "source": "Start on Home with Mask and inspect segmentation on representative fields.",
       "source_sha256": "db3eeb2db4dbdb1c3d3cd36da07c9747d71d58d6bd2b10c33a756e7c46aa92c7",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og skoðaðu hlutaskiptingu á dæmigerðum sjónsviðum."
     },
     {
-      "table": "ui",
       "key": "Open Measure on the resulting project and quantify objects.",
       "source": "Open Measure on the resulting project and quantify objects.",
       "source_sha256": "ce5cac3e074eaf4092757cbe53b02693f65e1bc8b4a829bab0cccc7ffa2c6404",
+      "table": "ui",
       "translation": "Opnaðu «Mæling (Measure)» fyrir verkefnið sem varð til og mældu hlutina."
     },
     {
-      "table": "ui",
       "key": "Open Image UMAP to explore measured phenotypes and inspect crops.",
       "source": "Open Image UMAP to explore measured phenotypes and inspect crops.",
       "source_sha256": "85d955247bee94b2a03dc8d0c78b9c1d2e6cdff0c971aef51ee25cdcd42454fd",
+      "table": "ui",
       "translation": "Opnaðu «Image UMAP» til að kanna mældar svipgerðir og skoða myndútskurði."
     },
     {
-      "table": "ui",
       "key": "Open Gate Editor to define an explicit population filter.",
       "source": "Open Gate Editor to define an explicit population filter.",
       "source_sha256": "3476beec6b95313561020f4174eee308581d5d3b32575138d7d40ea87701c424",
+      "table": "ui",
       "translation": "Opnaðu «Gate-ritill (Gate Editor)» til að skilgreina skýra síu fyrir hóp hluta."
     },
     {
-      "table": "ui",
       "key": "Open Graph Builder to compare the chosen measurements and groups.",
       "source": "Open Graph Builder to compare the chosen measurements and groups.",
       "source_sha256": "a65edb136bc2f17c7855933242dd185f40800f1235f159e8b1630705b4718b44",
+      "table": "ui",
       "translation": "Opnaðu «Grafasmiður (Graph Builder)» til að bera saman valdar mælingar og hópa."
     },
     {
-      "table": "ui",
       "key": "Train a segmentation model",
       "source": "Train a segmentation model",
       "source_sha256": "38cb81aed9ce48aaa74b4f063cdbed04602ce164f1d49311ee23c44431e8e9f4",
+      "table": "ui",
       "translation": "Þjálfa líkan fyrir hlutaskiptingu"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Make Masks and curate matching images and integer label masks.",
       "source": "Start on Home with Make Masks and curate matching images and integer label masks.",
       "source_sha256": "b1a9553bc76ef85a4fdb3f0e00d742417ca4ab29e8e4448e581982f329dcf2cf",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Búa til grímur (Make Masks)» og yfirfarðu og leiðréttu samsvarandi myndir og merkigrímur með heiltölugildum."
     },
     {
-      "table": "ui",
       "key": "Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs.",
       "source": "Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs.",
       "source_sha256": "ae05d7ed1d5de6b293dbae291428ffb85f47e2fb3d5c9ec793b3a5206207e835",
+      "table": "ui",
       "translation": "Opnaðu «Cellpose-vinnuborð» innan «Búa til grímur (Make Masks)», veldu «Train» og notaðu yfirförnu pörin."
     },
     {
-      "table": "ui",
       "key": "Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run.",
       "source": "Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run.",
       "source_sha256": "fa35f2c69eb72ee25dce97e8a202af3b3639786a05d413b26a985685f4bf38fa",
+      "table": "ui",
       "translation": "Farðu aftur á «Heim (Home)», opnaðu «Grímur (Mask)» og veldu vistað ástand þjálfaða líkansins; sannreyndu það á aðskildum sjónsviðum áður en þú keyrir allt verkefnið."
     },
     {
-      "table": "ui",
       "key": "A parasite imaging assay",
       "source": "A parasite imaging assay",
       "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+      "table": "ui",
       "translation": "Myndgreiningarpróf á sníkjudýrum"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source_sha256": "d2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og stilltu grímur fyrir hýsilfrumur, sníkjudýr og þau frumuhólf sem þarf."
     },
     {
-      "table": "ui",
       "key": "Open Measure and collect the compartment or staining measurements needed by your assay.",
       "source": "Open Measure and collect the compartment or staining measurements needed by your assay.",
       "source_sha256": "19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9",
+      "table": "ui",
       "translation": "Opnaðu «Mæling (Measure)» og safnaðu mælingum á frumuhólfum eða litun sem prófið þarf."
     },
     {
-      "table": "ui",
       "key": "For a recruitment question, open Recruitment and inspect compartment intensity ratios.",
       "source": "For a recruitment question, open Recruitment and inspect compartment intensity ratios.",
       "source_sha256": "6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c",
+      "table": "ui",
       "translation": "Til að kanna söfnun sameinda í frumuhólf skaltu opna «Söfnunargreining (Recruitment)» og skoða styrkhlutföll milli frumuhólfa."
     },
     {
-      "table": "ui",
       "key": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.",
       "source": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.",
       "source_sha256": "e3e6143c30ca17a9172c32c744c2f855ce0c00155530e90aa56aa5f61deca7e9",
+      "table": "ui",
       "translation": "«Invasion» og «Replication» lesa þau mældu frumuhólf sem hvort próf þarf; «Skellugreining (Plaque Assay)» notar hins vegar myndir eða grímur af skellum. Opnaðu þessi próf frá «Heim (Home)» → «Toxoplasma»."
     },
     {
-      "table": "ui",
       "key": "An optical pooled screen",
       "source": "An optical pooled screen",
       "source_sha256": "5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1",
+      "table": "ui",
       "translation": "Sjónræn skimun í sameinuðu safni"
     },
     {
-      "table": "ui",
-      "key": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
-      "source": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
-      "source_sha256": "bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace",
-      "translation": "Byrjaðu á «Heim (Home)» með «Jafna og sauma (Align & Stitch)» til að skoða rúmfræði myndflísa og vörpun hnita."
-    },
-    {
-      "table": "ui",
-      "key": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
-      "source": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
-      "source_sha256": "5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41",
-      "translation": "Farðu aftur á «Heim (Home)», opnaðu «Grímur (Mask)» og síðan «OPS»; tilgreindu upprunalegar myndir umferða og staðsetninga og samstillingu við svipgerðarmyndirnar."
-    },
-    {
-      "table": "ui",
       "key": "Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.",
       "source": "Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.",
       "source_sha256": "df19c4dcb141716c6e405f540be988b099e47d3bc91338506c85df38b4fae2e6",
+      "table": "ui",
       "translation": "Tengdu og taktu saman afkóðuð auðkenni hluta með samhæfum svipgerðarsvörunum áður en þú opnar «Aðhvarf (Regression)»."
     },
     {
-      "table": "ui",
-      "key": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
-      "source": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
-      "source_sha256": "d0464c3d5e257dea6d13248c7f658e6ab11a2fcb5023516f516d2336d1cc1a88",
-      "translation": "Samsett mynd ein og sér kemur ekki í stað raðgreiningarumferðanna. OPS-töflur krefjast skýrrar tengingar og samantektar eftir auðkennum fyrir aðhvarfsgreiningu; leiðsögnin framkvæmir ekki þessa umbreytingu sjálfkrafa."
-    },
-    {
-      "table": "ui",
       "key": "Import existing data",
       "source": "Import existing data",
       "source_sha256": "a5a6482062d93f1ad491da5567c3311d4593e424ef2afc37990b2ad14da73500",
+      "table": "ui",
       "translation": "Flytja inn fyrirliggjandi gögn"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Import and select the route matching images, external masks or external measurements.",
       "source": "Start on Home with Import and select the route matching images, external masks or external measurements.",
       "source_sha256": "01ef9504c69d0019961de22b188615a3c8e2a364a0202bcff9c5d6c053cb0d7f",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Flytja inn (Import)» og veldu leiðina sem samsvarar myndum, ytri grímum eða ytri mælingum."
     },
     {
-      "table": "ui",
       "key": "For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.",
       "source": "For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.",
       "source_sha256": "124b7da63171ee19ec3f57223b8a2e369b241828a0b959ffc8d81130b597dd34",
+      "table": "ui",
       "translation": "Þegar aðeins myndir eru fluttar inn skaltu opna «Grímur (Mask)» til að bæta við hlutaskiptingu; slepptu þessu ef gildar grímur eru þegar til."
     },
     {
-      "table": "ui",
       "key": "Use Measure when features have not already been imported or computed by External Masks.",
       "source": "Use Measure when features have not already been imported or computed by External Masks.",
       "source_sha256": "cc4a40acd3b4bc0d72f3fbba1b54b7a35eca8a1026f0dfa9a1ed3738b80a1ad5",
+      "table": "ui",
       "translation": "Notaðu «Mæling (Measure)» þegar eiginleikar hafa ekki þegar verið fluttir inn eða reiknaðir með «Ytri grímur (External Masks)»."
     },
     {
-      "table": "ui",
       "key": "Open Image UMAP to inspect the resulting measured objects and matching crops.",
       "source": "Open Image UMAP to inspect the resulting measured objects and matching crops.",
       "source_sha256": "e70fb42a71dcf7f07e8180aa39a4645e44811049c9139ca706d18f12d7cd5ae9",
+      "table": "ui",
       "translation": "Opnaðu «Image UMAP» til að skoða mældu hlutina sem urðu til og samsvarandi myndútskurði."
     },
     {
-      "table": "ui",
       "key": "Discover phenotypes without labels",
       "source": "Discover phenotypes without labels",
       "source_sha256": "81b0681b529685fa70da47028ad1370df35f71149f37da1698a058a2ffaaafe4",
+      "table": "ui",
       "translation": "Finna svipgerðir án merkinga"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Measure using an already segmented project, or use its example data.",
       "source": "Start on Home with Measure using an already segmented project, or use its example data.",
       "source_sha256": "14e362d1c4ce01b6442ffdd92b856b47b39e24551e0f82bf2844c22f51115b33",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Mæling (Measure)» og verkefni sem hefur þegar verið hlutaskipt, eða notaðu sýnigögn einingarinnar."
     },
     {
-      "table": "ui",
       "key": "Open Embeddings to encode object images; retain the object IDs and encoder/channel settings.",
       "source": "Open Embeddings to encode object images; retain the object IDs and encoder/channel settings.",
       "source_sha256": "2893f40e86a0d71e85479433ffbe21f6ff42e29ef857c11e8901e624a7b5fcd8",
+      "table": "ui",
       "translation": "Opnaðu «Innfellingar (Embeddings)» til að kóða myndir af hlutum; varðveittu auðkenni hlutanna og stillingar kóðarans og rásanna."
     },
     {
-      "table": "ui",
       "key": "Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups.",
       "source": "Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups.",
       "source_sha256": "c6b76ebcaeb30ff0c6a9c8f6c4877b93b0e361f879ce30041fdaf09933927427",
+      "table": "ui",
       "translation": "Opnaðu «Image UMAP» með samhæfum dálkum fyrir mælda eiginleika eða eiginleika frá kóðara og skoðaðu mögulega hópa."
     },
     {
-      "table": "ui",
       "key": "Define a reproducible selection in Gate Editor using the matching feature or projection columns.",
       "source": "Define a reproducible selection in Gate Editor using the matching feature or projection columns.",
       "source_sha256": "edfbd01229ab3fb4a0c20adede7264b0c55b9ae4beefb8c64a15a835bb596914",
+      "table": "ui",
       "translation": "Skilgreindu endurtakanlegt val í «Gate-ritill (Gate Editor)» með samsvarandi eiginleika- eða vörpunardálkum."
     },
     {
-      "table": "ui",
       "key": "Open Annotate and review candidate labels before using them as supervised training data.",
       "source": "Open Annotate and review candidate labels before using them as supervised training data.",
       "source_sha256": "81411cd6ae428855339bcca1b1adff7efe89c854bac66a4b81833e4a05143261",
+      "table": "ui",
       "translation": "Opnaðu «Merking (Annotate)» og yfirfarðu tillögur að merkingum áður en þær eru notaðar sem gögn fyrir stýrða þjálfun."
     },
     {
-      "table": "ui",
       "key": "Plan a screen",
       "source": "Plan a screen",
       "source_sha256": "0710b02da6ea311984cd45e175d0a0e276578f4f16005fccd81b158b257cc1d5",
+      "table": "ui",
       "translation": "Skipuleggja skimun"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Experiment Design; assign conditions, controls, replicates and wells.",
       "source": "Start on Home with Experiment Design; assign conditions, controls, replicates and wells.",
       "source_sha256": "91f9e7e6d1786721b0ba762b9938de0960e287ce38399617e1baacd89ff8a699",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Tilraunahönnun (Experiment Design)»; úthlutaðu skilyrðum, viðmiðum, endurtekningum og brunnum."
     },
     {
-      "table": "ui",
       "key": "Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions.",
       "source": "Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions.",
       "source_sha256": "15e381931b7b2f141b20e412fbe531782343eaae0a0c8f05373b5a8bdcf76231",
+      "table": "ui",
       "translation": "Opnaðu «Tölfræðilegt afl / hönnun (Power / Design)» og áætlaðu þörf á sýnatöku út frá skýrum forsendum um áhrifastærð og breytileika."
     },
     {
-      "table": "ui",
       "key": "Track live cells",
       "source": "Track live cells",
       "source_sha256": "c0c2eef95287a9ef0e5a8a76004d8c31d4f735d9c7fb2391c315d9ce6c14f311",
+      "table": "ui",
       "translation": "Rekja lifandi frumur"
     },
     {
-      "table": "ui",
       "key": "Start on Home with Mask and point it at an ordered time-series project.",
       "source": "Start on Home with Mask and point it at an ordered time-series project.",
       "source_sha256": "c3df465d54de1b8dcd1c9cf619c78de1e5b6b32a7bd14160fbdc61fc7b8a1692",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og veldu verkefni með myndaröð í tímaröð."
     },
     {
-      "table": "ui",
       "key": "Open the Timelapse action in Mask, configure timing and inspect linked objects.",
       "source": "Open the Timelapse action in Mask, configure timing and inspect linked objects.",
       "source_sha256": "3af9f985311376852848a23a7efab9849d9518a89ab52ba71add170f7cccd74c",
+      "table": "ui",
       "translation": "Opnaðu aðgerðina «Tímaraðir (Timelapse)» í «Grímur (Mask)», stilltu tímaupplýsingar og skoðaðu tengda hluti."
     },
     {
-      "table": "ui",
       "key": "Open Measure on the tracked project to quantify the objects.",
       "source": "Open Measure on the tracked project to quantify the objects.",
       "source_sha256": "b947e991f201e042e7ad14ee586dcb5709412a26ce3a55ada8a316662a259153",
+      "table": "ui",
       "translation": "Opnaðu «Mæling (Measure)» fyrir verkefnið með rakningunni til að mæla hlutina."
     },
     {
-      "table": "ui",
       "key": "Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters.",
       "source": "Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters.",
       "source_sha256": "f97ba1a6fc8a1e0feed470b633a46055ccdb85c9bbee957305be0df90a008c4f",
+      "table": "ui",
       "translation": "Opnaðu «Hreyfanleikapróf (Motility Assay)» innan «Mæling (Measure)» og athugaðu tímabil milli mynda, kvörðun myndpunkta og síur fyrir ferla."
     },
     {
-      "table": "ui",
       "key": "Start on Home with {module}. Next shows the route; it does not run the analysis. Close the walkthrough whenever you are ready to work.",
       "source": "Start on Home with {module}. Next shows the route; it does not run the analysis. Close the walkthrough whenever you are ready to work.",
       "source_sha256": "2794a01135ac131ecee5be183947790ff9accc5848c02503bc1de8587f69bda9",
+      "table": "ui",
       "translation": "Byrjaðu á «Heim (Home)» með {module}. «Áfram (Next)» sýnir leiðina en keyrir ekki greininguna. Lokaðu leiðsögninni þegar þú ert tilbúin(n) að vinna."
     }
   ],
+  "schema": 1,
   "superseded_records": [
     {
       "reason": "474 nests the available assays under the Toxoplasma Home page.",
       "record": {
-        "table": "ui",
         "key": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.",
         "source": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.",
         "source_sha256": "b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577",
+        "table": "ui",
         "translation": "«Invasion» og «Replication» lesa þau mældu frumuhólf sem hvort próf þarf; «Skellugreining (Plaque Assay)» notar hins vegar myndir eða grímur af skellum og getur hafist beint frá «Heim (Home)»."
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "key": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
+        "source": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
+        "source_sha256": "bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace",
+        "table": "ui",
+        "translation": "Byrjaðu á «Heim (Home)» með «Jafna og sauma (Align & Stitch)» til að skoða rúmfræði myndflísa og vörpun hnita."
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "key": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
+        "source": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
+        "source_sha256": "5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41",
+        "table": "ui",
+        "translation": "Farðu aftur á «Heim (Home)», opnaðu «Grímur (Mask)» og síðan «OPS»; tilgreindu upprunalegar myndir umferða og staðsetninga og samstillingu við svipgerðarmyndirnar."
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "key": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+        "source": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+        "source_sha256": "d0464c3d5e257dea6d13248c7f658e6ab11a2fcb5023516f516d2336d1cc1a88",
+        "table": "ui",
+        "translation": "Samsett mynd ein og sér kemur ekki í stað raðgreiningarumferðanna. OPS-töflur krefjast skýrrar tengingar og samantektar eftir auðkennum fyrir aðhvarfsgreiningu; leiðsögnin framkvæmir ekki þessa umbreytingu sjálfkrafa."
       }
     }
   ]

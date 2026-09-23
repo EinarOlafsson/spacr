@@ -58,6 +58,130 @@
         "61659d518158cd45fd362395495703aabf93d09715e297a1bce00179c5213537"
       ]
     },
+    "spacr._starplast": {
+      "source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ],
+      "source_sha256": "eced2ad5a7cee86848df1f1111914f766d0e7c5832f4b6c4db75313c8b9f9273",
+      "text": "Instalar e iniciar a aplicação de ambiente de trabalho Starplast em separado.\n\nO Starplast utiliza PyQt6 e nunca é importado no processo PySide6 do spaCR. O seu ambiente reside em ``~/.spacr/apps`` (ou ``SPACR_APPS_DIR``). A instalação reutiliza a procura do interpretador, o ambiente isolado de comandos e a execução cancelável de subprocessos dos instaladores de segmentação, sem registar um detetor.",
+      "translation_source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ]
+    },
+    "spacr._starplast.REPOSITORY": {
+      "source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ],
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "text": "Fonte predefinida quando não existe uma cópia de trabalho vizinha nem uma fonte explícita.",
+      "translation_source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ]
+    },
+    "spacr._starplast.apps_root": {
+      "source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ],
+      "source_sha256": "76bf447eb5b3bb88c0493d01426284b464fef6f7d6c79c4d6c88d03abe40e72f",
+      "text": "Devolver a pasta das aplicações externas sem a criar.\n\n:param root: pasta explícita; caso contrário, ``SPACR_APPS_DIR`` ou ``~/.spacr/apps``.\n:returns: caminho raiz absoluto das aplicações.",
+      "translation_source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ]
+    },
+    "spacr._starplast.default_source": {
+      "source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ],
+      "source_sha256": "e06e469a99925b64bfe439a2cbdef785316d3338e04c81ff070d45e4536f3833",
+      "text": "Preferir uma fonte explícita ou uma cópia de trabalho vizinha do Starplast e, depois, o GitHub.\n\n:returns: ``SPACR_STARPLAST_SOURCE``, uma cópia de trabalho local do Git ou o URL do repositório.",
+      "translation_source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ]
+    },
+    "spacr._starplast.install_starplast": {
+      "source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ],
+      "source_sha256": "5400178b2dee7e05ffed2233f94a0bbcd0d34e0fac7a925070631d6c134c7085",
+      "text": "Criar um ambiente isolado, instalar o Starplast e verificar os dados incluídos.\n\nAs fontes locais do Git são arquivadas a partir do HEAD confirmado para armazenamento temporário; o pip nunca escreve ficheiros de compilação na cópia de trabalho original. Uma instalação falhada remove apenas o ambiente criado aqui e conserva ``starplast-install.log``.\n\n:param source: cópia de trabalho local do Git ou URL de repositório para o pip; caso contrário, default_source.\n:param root: pasta das aplicações externas.\n:param progress: função de retorno ``(step, steps, text)``; chamada fora da thread da GUI.\n:param cancel: threading.Event; cancela comandos e os seus processos descendentes.\n:param runner: substituto opcional do executor de subprocessos para testes específicos.\n:param preflight: substituto opcional da verificação prévia do interpretador para testes específicos.\n:returns: caminho do ambiente cuja instalação foi concluída.\n:raises RuntimeError: a instalação falhou, foi cancelada ou a pasta não está identificada como pertencendo à aplicação.\n:raises ValueError: a fonte selecionada não é uma cópia de trabalho local do Git adequada nem um URL oficial de repositório permitido.",
+      "translation_source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "10c0ccfb82f3bf7cf4b34ccefe5498be92e365d26298919d02445b613cb84f49",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ]
+    },
+    "spacr._starplast.is_installed": {
+      "source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ],
+      "source_sha256": "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
+      "text": "Indicar se um ambiente pertencente à aplicação passou as verificações de importação e dos dados incluídos.\n\n:param root: pasta das aplicações externas.\n:returns: verdadeiro apenas se existirem o registo de conclusão e o interpretador do ambiente.",
+      "translation_source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ]
+    },
+    "spacr._starplast.launch_starplast": {
+      "source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ],
+      "source_sha256": "bbbcf044ee71764ed6ff3473b7040a473bcf075baf653efcc79c846210b4c3b9",
+      "text": "Iniciar o Starplast como processo separado e registar a saída junto ao seu ambiente.\n\n:param root: pasta das aplicações externas.\n:param popen: substituto opcional de subprocess.Popen para testes específicos.\n:returns: processo filho que a UI monitoriza para detetar erros de arranque.\n:raises RuntimeError: não existe nenhum ambiente com a instalação concluída.",
+      "translation_source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ]
+    },
+    "spacr._starplast.process_environment": {
+      "source_blocks_sha256": [
+        "d7bd8cb8f372ad37e63619756cef63b92eeda9bb6b16d3568c578c4110f7b940",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ],
+      "source_sha256": "f48fdf84b6ce238f46b381208925776df203b0784165ac2573ef278e0b7a0dee",
+      "text": "Isolar a procura do Python, do pip e dos complementos Qt do processo spaCR em execução.\n\n:param env: ambiente virtual do Starplast.\n:returns: variáveis do subprocesso que preservam a apresentação do ambiente de trabalho e as definições do utilizador.",
+      "translation_source_blocks_sha256": [
+        "b3242dc58c9441ed202916b831a70b7863ba0630a08aa81b666f18e4ee584250",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ]
+    },
     "spacr._version": {
       "source_blocks_sha256": [
         "5f19a0a5b02289864de1c76c59530587b17fd7f915361ef26bcc78ff097f7141",
@@ -69695,13 +69819,13 @@
     "spacr.qt.organisms.ORGANISMS": {
       "source_blocks_sha256": [
         "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
-        "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b"
+        "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693"
       ],
-      "source_sha256": "d6261fca301df212e91acaabcd6a9f4c13b51e9c067693d30994b0769f591f44",
-      "text": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium`` e ``candida``.\n\nCada registo fornece um nome apresentado, uma descrição, o URL da fonte biológica, o nome do ficheiro do diagrama incluído e uma nota sobre o diagrama. ``sections`` contém triplos de título, texto e chaves de ensaios ligados; ``links`` contém pares de rótulo apresentado e URL. ``modules`` contém tuplos de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` indica um ensaio planeado cujo mosaico não pode iniciar uma análise. O texto apresentado é traduzido na utilização; as chaves de rota, os URLs e os nomes dos recursos mantêm-se fixos.",
+      "source_sha256": "6f757c3332b2308287f372c85b9f108da2547e4c625606a9057694ac66ecbfa7",
+      "text": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium`` e ``candida``.\n\nCada registo fornece um nome apresentado, uma descrição, o URL da fonte biológica, o nome do ficheiro do diagrama incluído e uma nota sobre o diagrama. ``sections`` contém triplos de título, texto e chaves de ensaios associados; ``links`` contém pares de rótulo apresentado e URL. ``modules`` contém tuplos de chave de percurso, título, descrição e chave de ícone. Um percurso ``None`` indica um ensaio planeado cuja caixa não pode iniciar uma análise. ``starplast`` inicia uma aplicação externa a partir da página Toxoplasma; não é uma chave do registo de análises do spaCR nem um motor de segmentação. O texto apresentado é traduzido quando utilizado; as chaves de percurso, os URL e os nomes dos recursos permanecem fixos.",
       "translation_source_blocks_sha256": [
         "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
-        "c4627129f32875e079b51b71c81b42341286d2f806f25d127f10a62770ae9c12"
+        "11bf38e1f5333b42512f0140a0a12df3ff35aaf2f242f640564295ab78a07ca7"
       ]
     },
     "spacr.qt.ortho_view": {
@@ -92702,6 +92826,84 @@
         "9793459ab08ed94b2c5dccd9a5467fcbb905a543bdee595f54e40a64632005e4",
         "84f5e7326f0f91ae6ff7ef0e35ff5424197865d8b8ae7e1a1d3cfa716f44a6da",
         "83b5dc563aedee7b5385b34a22e7d734bd50c7d4deb7a7a7c1a4e75f343db1d4"
+      ]
+    },
+    "spacr.qt.starplast": {
+      "source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ],
+      "source_sha256": "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6",
+      "text": "Instalar o Starplast separadamente e depois iniciar e monitorizar o seu processo de ambiente de trabalho.",
+      "translation_source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "Explicar a aplicação alfa e o tamanho da transferência antes da instalação no seu próprio ambiente.\n\n:param parent: página do organismo à qual pertence.\n:param root: diretório raiz opcional das aplicações externas.\n:param job: substituto opcional do instalador para testes.\nCriar os controlos de consentimento e progresso; abrir o diálogo não instala nada.",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "Manter o diálogo aberto até a thread do instalador terminar.\n\n:param event: evento de fecho do Qt; ignorado enquanto o cancelamento estiver pendente.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "Cancelar os subprocessos ativos e adiar o fecho até o processamento em segundo plano terminar.",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "Iniciar a instalação após o clique explícito no botão, mantendo o Qt responsivo.",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.starplast.open_starplast": {
+      "source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d",
+      "text": "Oferecer a instalação uma vez e depois iniciar a aplicação independente Starplast.\n\n:param parent: página do organismo que solicita o arranque.\n:param root: pasta opcional das aplicações externas.\n:returns: processo filho, ou None se o arranque for cancelado ou falhar.",
+      "translation_source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
       ]
     },
     "spacr.qt.startup_benchmark": {
@@ -125982,16 +126184,42 @@
         "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
         "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
         "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
-        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
       ],
-      "source_sha256": "bbfb62063d8720234583542fd81ca4113e3a60544eaead1498cdcaed4a6ddb36",
-      "text": "Uma ilustração celular e um seletor de compartimentos acessível por teclado.\n\n:param app_key: chave do organismo; apenas Toxoplasma utiliza rótulos hyperLOPIT.\n:param path: caminho do SVG incluído; não é obtido qualquer recurso externo.\n:param parent: widget Qt proprietário.\nConstruir a ilustração, o seletor de rótulos e a legenda sobre a forma partilhada.",
+      "source_sha256": "46967dcf6ce7f43739f6c2c7fd0c991c513c0d0b2b96a3009dc654612f2d4e99",
+      "text": "Uma ilustração celular e um seletor de compartimentos acessível por teclado.\n\n:param app_key: chave do organismo; apenas Toxoplasma utiliza rótulos hyperLOPIT.\n:param path: caminho do SVG incluído; não é obtido qualquer recurso externo.\n:param parent: widget Qt proprietário.\nCriar uma ilustração vertical, uma legenda com seleção múltipla e descrições dos compartimentos.",
       "translation_source_blocks_sha256": [
         "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
         "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
         "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
         "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
-        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components": {
+      "source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ],
+      "source_sha256": "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e",
+      "text": "Limpar todas as seleções persistentes e o destaque temporário do compartimento.",
+      "translation_source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter": {
+      "source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ],
+      "source_sha256": "3ef33a4ee51bb98fd7e06b673a3b50ec878400657f0c881765303600fb27f665",
+      "text": "Terminar o destaque temporário da legenda quando o ponteiro sair dela.\n\n:param watched: objeto que recebe o evento; apenas a área de visualização da legenda desencadeia a remoção do destaque.\n:param event: evento Qt, examinado para detetar uma notificação de saída do ponteiro.\n:returns: resultado do filtro de eventos do widget pai.",
+      "translation_source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
       ]
     },
     "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
@@ -131842,6 +132070,22 @@
       "translation_source_blocks_sha256": [
         "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.start_example": {
+      "source_blocks_sha256": [
+        "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+        "bb63595b656f6a664a114f703ed8fc68a1102f33ce4c778649017d2789424dba",
+        "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
+      ],
+      "source_sha256": "e7b246c5356bafda18063dba2b8d19eef7373a970298416e3cf1195ca0c60a6a",
+      "text": "Carregar os dados de exemplo do módulo apresentado por ``screen``.\n\nCada módulo já sabe obter o seu próprio exemplo: Annotate pergunta de que metade precisa e OPS tem a sua amostra de ciclos de sequenciamento. Por isso, é chamada a função existente do módulo em vez de um segundo descarregador.\n\n:param screen: ecrã do módulo que acabou de ser aberto.\n:returns: o que foi iniciado: ``\"chooser\"``, ``\"test data\"`` ou ``\"\"``.",
+      "translation_source_blocks_sha256": [
+        "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
+        "a5db3d2bbae4dbed032b3ab10e09841befb48c7442d967607e66fc345186faf7",
+        "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
       ]
     },
     "spacr.qt.widgets.save_figure_dialog": {

@@ -1,0 +1,448 @@
+{
+  "schema": 1,
+  "source_commit": "fe0db614717d7af92b2a2e331e9a020a94287f9d",
+  "api_symbols": [
+    "spacr._starplast",
+    "spacr._starplast.REPOSITORY",
+    "spacr._starplast.apps_root",
+    "spacr._starplast.default_source",
+    "spacr._starplast.install_starplast",
+    "spacr._starplast.is_installed",
+    "spacr._starplast.launch_starplast",
+    "spacr._starplast.process_environment",
+    "spacr.qt.organisms.ORGANISMS",
+    "spacr.qt.starplast",
+    "spacr.qt.starplast.StarplastInstallDialog",
+    "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+    "spacr.qt.starplast.StarplastInstallDialog.reject",
+    "spacr.qt.starplast.StarplastInstallDialog.start",
+    "spacr.qt.starplast.open_starplast",
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram",
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter",
+    "spacr.qt.widgets.sample_project.start_example"
+  ],
+  "public_api_count": 11354,
+  "ui_count": 4668,
+  "languages": [
+    {
+      "language": "de",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "sv",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "api_documents": 19,
+      "api_blocks": 61,
+      "api_review_records": 56,
+      "runtime_lookups": 2,
+      "all_runtime_and_api_review_loaders": true,
+      "unrelated_catalog_rows_unchanged": true
+    }
+  ],
+  "preserved_api_reviews": 18,
+  "preserved_runtime_reviews": 27,
+  "workflow_modules": 74,
+  "pathways": 9,
+  "svg_description_sources": [
+    "A growing bud is an asexual reproductive structure, as in yeast or a hydra, that consists of an outgrowth capable of developing into a new individual.",
+    "Protein found in or associated with cytoplasmic granules.",
+    "The Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the Golgi exists as many copies of discrete stacks dispersed throughout the cytoplasm. The Golgi is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the plasma membrane and compartments of the endocytic pathway. The Golgi apparatus receives the entire output of de novo synthesized polypeptides from the ER, and functions to posttranslationally process and sort them within vesicles destined to their proper final destination (e.g. plasma membrane, endosomes, lysosomes).",
+    "The apicoplast is a plastid found in some apicocomplexan parasites which is a non-photosynthetic plastid relict. Apicoplasts do not contain thylakoids; it is not yet clear if they contain internal membranes.",
+    "The bud neck is a constriction between the mother and the daughter cell (bud) in an organism that reproduces by budding. This structure comprises the septin ring, an hourglass-shaped collar around the mother-bud neck, which splits into two rings flanking the division plane at cytokinesis and that acts as a diffusion barrier to maintain polarity factors in the bud and as a scaffold to recruit actomyosin contractile ring components.",
+    "The cell membrane is the selectively permeable membrane which separates the cytoplasm from its surroundings. Known as the cell inner membrane in prokaryotes with 2 membranes.",
+    "The complex and rigid layer surrounding the cell. Cell walls are found in bacteria, archaea, fungi, plants, and algae. The cell wall envelopes the inner or plasma membrane in all bacteria and is surrounded by the outer membrane in bacteria with 2 membranes (Gram-negative). Bacterial cell walls contain peptidoglycan while those of archaea are not made of peptidoglycan, but some archaea may contain pseudopeptidoglycan, which is composed of N-acetyltalosaminuronic acid, instead of N-acetyl muramic acid in peptidoglycan. The plant cell wall is made of fibrils of cellulose embedded in a matrix of several other kinds of polymers such as pectin and lignin. Algal cell walls are usually composed of cellulose, glycoproteins, sporopollenin, calcium and various polysaccharides such as manosyl, xylanes, alginic acid. Diatom cell walls (or frustules) contain silica. The cell wall plays a role in cell shape, cell stability and development, and protection against environmental dangers.",
+    "The cytoskeleton is a dynamic three-dimensional filamentous structure in the cytoplasm. Its roles include maintenance of cell shape, cell movement (in eukaryotes), cytokinesis, and the organization of organelles or organelle-like structures within the cell. The cytoskeleton includes microfilaments (actin-like proteins), microtubules (tubulin-like proteins), the intermediate filaments (mostly in eukaryotes) and the MinD-ParA proteins, which appear to be unique to prokaryotes.",
+    "The cytosol is the unstructured aqueous phase of the cytoplasm excluding organelles, membranes, and insoluble cytoskeletal components.",
+    "The endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic cell, especially those responsible for the production of hormones and other secretory products. The membrane is a continuation of the outer nuclear membrane, it encloses the cytosol cisternal spaces (or internal lumen), which are continuous with the nuclear periplasmic space. The ER sustains many general functions, including protein synthesis, protein modification, protein folding, insertion of membrane proteins, sequestration of calcium, production of phospholipids and steroids and transport of proteins destined for membranes and secretion.",
+    "The inner membrane complex, found in apicocomplexan parasites, is composed of flattened membrane cisternae closely associated to the cell membrane. Together, the cell membrane and the IMC form a triple lipid bilayer called the pellicle (or cell wall).",
+    "The membrane surrounding a mitochondrion. This term is used when it is not known if the protein is found in or associated with the inner or outer mitochondrial membrane.",
+    "The microneme is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Micronemes are the smallest, they are involved in the early stages of invasion.",
+    "The mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, eukaryotes. Each mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. Mitochondria are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP. The size and coding capacity of the mitochondrial DNA varies considerably in different organisms, and encodes rRNAs, tRNAs and essential mitochondrial proteins.",
+    "The nucleolus is a non-membrane bound nuclear compartment found in eukaryotic cells which is the site of ribosome biogenesis. The interphase nucleolus is organized around the tandemly repeated genes for preribosomal RNA (rRNA). It is composed of at least 2 sub-compartments: the dense fibrillar component (DFC, also called pars fibrosa) and the granular component (GC or pars granulosa). The DFC contains newly synthesized preribosomal RNA and a collection of proteins; the GC is made up of nearly completed preribosomal particles destined for the cytoplasm. In most metazoans, but generally not in lower eukaryotes, a third component, the fibrillar center (FC), can be seen. Plant and animal nuclei can contain more than one nucleolus.",
+    "The nucleus is the most obvious organelle in any eukaryotic cell. It is a membrane-bound organelle surrounded by double membranes which contains most of the cell's genetic material. It communicates with the surrounding cytosol via numerous nuclear pores.",
+    "The rhoptry is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Rhoptries are twin, membrane-bound, pear-shaped organelles that secrete proteins through their elongated necks at the apical tip of the parasite.",
+    "The vacuole is a generally large fluid-filled membrane-bound compartment in the cytoplasm. The precise form and function of vacuoles may vary between phyla. Plant vacuoles are among the best characterized. They differ in terms of their lumenal contents and processing enzymes, as well as on the basis of the type of integral proteins in their membranes (tonoplast intrinsic proteins, TIPs). Examples include the lytic vacuole, the storage vacuole and the lutoid. One important function of plant vacuoles is the maintenance of hydrostatic pressure. Other eukaryotes employ vacuoles for a variety of purposes, including storage (as in the yeast lysosome/vacuole), secretion and phagocytosis. In Protozoa, contractile vacuoles can be used to discharge water from the cytoplasm to the external environment."
+  ],
+  "starplast_progress_sources": [
+    "Check Starplast and bundled data",
+    "Checking Python, network and free disk space",
+    "Create Starplast environment",
+    "Install Starplast and dependencies",
+    "Install pip",
+    "Snapshot committed Starplast source",
+    "Starplast is installed"
+  ],
+  "growth_audit": {
+    "source_commit": "fe0db614717d7af92b2a2e331e9a020a94287f9d",
+    "new_callables": [
+      {
+        "symbol": "spacr._starplast.apps_root",
+        "category": "function",
+        "parameters": [
+          "root"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr._starplast.default_source",
+        "category": "function",
+        "parameters": [],
+        "required": []
+      },
+      {
+        "symbol": "spacr._starplast.install_starplast",
+        "category": "function",
+        "parameters": [
+          "cancel",
+          "preflight",
+          "progress",
+          "root",
+          "runner",
+          "source"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr._starplast.is_installed",
+        "category": "function",
+        "parameters": [
+          "root"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr._starplast.launch_starplast",
+        "category": "function",
+        "parameters": [
+          "popen",
+          "root"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr._starplast.process_environment",
+        "category": "function",
+        "parameters": [
+          "env"
+        ],
+        "required": [
+          "env"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog",
+        "category": "constructor",
+        "parameters": [
+          "job",
+          "parent",
+          "root"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+        "category": "method",
+        "parameters": [
+          "event"
+        ],
+        "required": [
+          "event"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog.reject",
+        "category": "method",
+        "parameters": [],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog.start",
+        "category": "method",
+        "parameters": [],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.starplast.open_starplast",
+        "category": "function",
+        "parameters": [
+          "parent",
+          "root"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
+        "category": "method",
+        "parameters": [],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter",
+        "category": "method",
+        "parameters": [
+          "event",
+          "watched"
+        ],
+        "required": [
+          "event",
+          "watched"
+        ]
+      }
+    ],
+    "callables": 9398,
+    "categories": {
+      "function": 4182,
+      "dataclass_constructor": 502,
+      "constructor": 431,
+      "method": 4061,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 17
+    },
+    "exposures": {
+      "autoapi": 9393,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9405,
+    "variant_counts": {
+      "1": 9391,
+      "2": 7
+    },
+    "constructor_prose": 430,
+    "constructor_with_prose": 430,
+    "parameters": 18640,
+    "required_parameters": 9594,
+    "signature_digest": "65b0ed4c6466df815cff2780dc163cce133659ab7204e72723ec9e6cc91c597f",
+    "subtracted_signature_digest": "3c35ada81c6f1b2b7024632ef9ad09c88ab4b720e61f03a80195dcd8baaaecc6",
+    "visible_digest": "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9",
+    "subtracted_visible_digest": "229e1407fb6fc21359484e763000c6af48fde767acc38d713eed4e707cb616b3",
+    "required_omissions": 2293
+  },
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
+  "full_catalog_acceptance": false,
+  "remaining": "New Starplast/diagram runtime prose and SVG descriptions are inventoried but not yet translated. Section headings, full existing API locale debt, remaining Make Masks reference and tutorial recordings/acceptance remain open.",
+  "boundary_audit": {
+    "prefilter": 11578,
+    "postfilter": 11354,
+    "boundary": 224,
+    "new_api_keys": [
+      "spacr._starplast",
+      "spacr._starplast.REPOSITORY",
+      "spacr._starplast.apps_root",
+      "spacr._starplast.default_source",
+      "spacr._starplast.install_starplast",
+      "spacr._starplast.is_installed",
+      "spacr._starplast.launch_starplast",
+      "spacr._starplast.process_environment",
+      "spacr.qt.starplast",
+      "spacr.qt.starplast.StarplastInstallDialog",
+      "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+      "spacr.qt.starplast.StarplastInstallDialog.reject",
+      "spacr.qt.starplast.StarplastInstallDialog.start",
+      "spacr.qt.starplast.open_starplast",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter"
+    ],
+    "subtracted_prefilter": 11562,
+    "subtracted_postfilter": 11338
+  },
+  "verification": {
+    "focused_tests_passed": 167,
+    "resolved_failures": "Two remaining old count pins (prefilter size and documented assignment count) were independently measured and corrected; focused reruns passed.",
+    "sphinx_warnings_as_errors": true,
+    "build_scope": "fe0db6147 plus this API/OPS/extraction batch; before later stable-hover and real-install handoffs.",
+    "rendered": {
+      "anchors": [
+        {
+          "symbol": "spacr._starplast",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "module-spacr._starplast"
+        },
+        {
+          "symbol": "spacr._starplast.REPOSITORY",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.REPOSITORY"
+        },
+        {
+          "symbol": "spacr._starplast.apps_root",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.apps_root"
+        },
+        {
+          "symbol": "spacr._starplast.default_source",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.default_source"
+        },
+        {
+          "symbol": "spacr._starplast.install_starplast",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.install_starplast"
+        },
+        {
+          "symbol": "spacr._starplast.is_installed",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.is_installed"
+        },
+        {
+          "symbol": "spacr._starplast.launch_starplast",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.launch_starplast"
+        },
+        {
+          "symbol": "spacr._starplast.process_environment",
+          "page": "api/spacr/_starplast/index.html",
+          "anchor": "spacr._starplast.process_environment"
+        },
+        {
+          "symbol": "spacr.qt.starplast",
+          "page": "api/spacr/qt/starplast/index.html",
+          "anchor": "module-spacr.qt.starplast"
+        },
+        {
+          "symbol": "spacr.qt.starplast.StarplastInstallDialog",
+          "page": "api/spacr/qt/starplast/index.html",
+          "anchor": "spacr.qt.starplast.StarplastInstallDialog"
+        },
+        {
+          "symbol": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+          "page": "api/spacr/qt/starplast/index.html",
+          "anchor": "spacr.qt.starplast.StarplastInstallDialog.closeEvent"
+        },
+        {
+          "symbol": "spacr.qt.starplast.StarplastInstallDialog.reject",
+          "page": "api/spacr/qt/starplast/index.html",
+          "anchor": "spacr.qt.starplast.StarplastInstallDialog.reject"
+        },
+        {
+          "symbol": "spacr.qt.starplast.StarplastInstallDialog.start",
+          "page": "api/spacr/qt/starplast/index.html",
+          "anchor": "spacr.qt.starplast.StarplastInstallDialog.start"
+        },
+        {
+          "symbol": "spacr.qt.starplast.open_starplast",
+          "page": "api/spacr/qt/starplast/index.html",
+          "anchor": "spacr.qt.starplast.open_starplast"
+        },
+        {
+          "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
+          "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+          "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components"
+        },
+        {
+          "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter",
+          "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+          "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter"
+        },
+        {
+          "symbol": "spacr.qt.organisms.ORGANISMS",
+          "page": "api/spacr/qt/organisms/index.html",
+          "anchor": "spacr.qt.organisms.ORGANISMS"
+        },
+        {
+          "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram",
+          "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+          "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram"
+        },
+        {
+          "symbol": "spacr.qt.widgets.sample_project.start_example",
+          "page": "api/spacr/qt/widgets/sample_project/index.html",
+          "anchor": "spacr.qt.widgets.sample_project.start_example"
+        }
+      ],
+      "private_helpers_and_import_aliases_hidden": true,
+      "copied_locale_documents": 171,
+      "full_locale_browser_acceptance": false
+    },
+    "logs": [
+      {
+        "log": "external-api-source-tests.log",
+        "sha256": "563987c029c1dd1d7f64426c4457696a6cee08431f7eb0412bf0b66627a686f1",
+        "result": "2 failed, 165 passed"
+      },
+      {
+        "log": "external-api-boundary-tests.log",
+        "sha256": "df0603200104693f37ffbd00efc82d5fff6bfbc2e654ca111f0f116f0260bdc9",
+        "result": "2 passed"
+      },
+      {
+        "log": "external-api-sphinx.log",
+        "sha256": "80e9f222a5d97695771d5f7f4c76c7e3cdf495265a2677ef3c4b55e30efa55a3",
+        "result": "build succeeded."
+      },
+      {
+        "log": "external-api-verification.log",
+        "sha256": "c1a79d00f5b846f9078749bae498e8164e2ea895728a57e954d2fb3143c8303f",
+        "result": "'preserved_reviews': 45"
+      }
+    ]
+  }
+}

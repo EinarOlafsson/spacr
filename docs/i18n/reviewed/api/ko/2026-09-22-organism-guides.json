@@ -23,13 +23,6 @@
       "translation": "``toxoplasma``, ``plasmodium``, ``candida``를 키로 사용하는 생물 안내 자료."
     },
     {
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
-      "translation": "각 레코드는 표시 이름, 설명, 생물학 자료의 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections``에는 제목, 본문, 연결된 분석 키의 3개 항목 묶음이 들어 있고, ``links``에는 표시 레이블과 URL의 쌍이 들어 있습니다. ``modules``에는 경로 키, 제목, 설명, 아이콘 키로 구성된 튜플이 들어 있습니다. 경로가 ``None``이면 계획된 분석을 뜻하며 해당 타일은 분석을 시작할 수 없습니다. 표시 문구는 사용 시 번역되지만 경로 키, URL 및 리소스 이름은 그대로 유지됩니다."
-    },
-    {
       "context": "Sourced organism guides, interactive cell diagrams and assay navigation.",
       "label": "spacr.qt.screens.organism_screen#0",
       "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
@@ -149,13 +142,6 @@
       "translation": "소유 Qt 위젯."
     },
     {
-      "context": "Build the illustration, label selector and shared-shape caption.",
-      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
-      "source": "Build the illustration, label selector and shared-shape caption.",
-      "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
-      "translation": "그림, 레이블 선택기 및 공유 도형 설명을 구성합니다."
-    },
-    {
       "context": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
       "label": "spacr.qt.widgets.organism_diagram.YEAST_LABELS#0",
       "source": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
@@ -185,5 +171,27 @@
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review against the organism registry, navigation and compartment-mapping contracts; no native-speaker sign-off",
-  "schema": 1
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+        "label": "spacr.qt.organisms.ORGANISMS#1",
+        "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+        "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
+        "translation": "각 레코드는 표시 이름, 설명, 생물학 자료의 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections``에는 제목, 본문, 연결된 분석 키의 3개 항목 묶음이 들어 있고, ``links``에는 표시 레이블과 URL의 쌍이 들어 있습니다. ``modules``에는 경로 키, 제목, 설명, 아이콘 키로 구성된 튜플이 들어 있습니다. 경로가 ``None``이면 계획된 분석을 뜻하며 해당 타일은 분석을 시작할 수 없습니다. 표시 문구는 사용 시 번역되지만 경로 키, URL 및 리소스 이름은 그대로 유지됩니다."
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Build the illustration, label selector and shared-shape caption.",
+        "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
+        "source": "Build the illustration, label selector and shared-shape caption.",
+        "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
+        "translation": "그림, 레이블 선택기 및 공유 도형 설명을 구성합니다."
+      }
+    }
+  ]
 }

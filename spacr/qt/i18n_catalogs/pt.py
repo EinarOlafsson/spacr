@@ -6087,10 +6087,7 @@ UI = {
     'Open Measure and collect the compartment or staining measurements needed by your assay.': 'Abra «Medição (Measure)» e obtenha as medições de compartimentos ou de coloração necessárias para o ensaio.',
     'For a recruitment question, open Recruitment and inspect compartment intensity ratios.': 'Para uma questão de recrutamento, abra «Ensaio de recrutamento (Recruitment)» e examine as razões de intensidade entre compartimentos.',
     'An optical pooled screen': 'Uma triagem óptica agrupada',
-    'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.': 'Comece em «Início (Home)» com «Alinhar e unir (Align & Stitch)» para examinar a geometria dos blocos de imagem e o mapeamento de coordenadas.',
-    'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.': 'Volte a «Início (Home)», abra «Máscaras (Mask)» e depois «OPS»; forneça as imagens originais dos ciclos e posições e o alinhamento com as imagens de fenótipo.',
     'Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.': 'Associe e agregue as identidades decodificadas dos objetos às respostas fenotípicas compatíveis antes de abrir «Regressão (Regression)».',
-    'A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.': 'Uma imagem montada, por si só, não substitui os ciclos de sequenciamento. As tabelas OPS exigem uma junção e agregação explícitas por identidade antes da regressão; o passo a passo não faz essa conversão automaticamente.',
     'Import existing data': 'Importar dados existentes',
     'Start on Home with Import and select the route matching images, external masks or external measurements.': 'Comece em «Início (Home)» com «Importar (Import)» e selecione o caminho correspondente a imagens, máscaras externas ou medições externas.',
     'For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.': 'Para importações apenas de imagens, abra «Máscaras (Mask)» para adicionar a segmentação; pule esta etapa se já houver máscaras válidas.',
@@ -6246,6 +6243,8 @@ UI = {
     'Threshold histogram failed: {error}': 'Falha no histograma de limiares: {error}',
     '{method} histogram': 'Histograma: {method}',
     'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.': 'Fração do pico: recorta cada região da segmentação por bacias no valor correspondente à fração escolhida da intensidade da sua semente. É uma razão de intensidades, não um percentil; os desvios do nível de fundo afetam o resultado. As outras três regras restringem a segmentação com um único limiar para o campo ou a região processados. Em seguida, são preenchidos os buracos e aplicado o filtro de área mínima.',
+    'Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.': 'Comece em «Início (Home)», abra «Máscaras (Mask)» e depois «OPS»; forneça as imagens originais dos ciclos e posições e o alinhamento com as imagens de fenótipo.',
+    'Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.': '«Alinhar e montar (Align & Stitch)» é opcional quando as imagens precisam de inspeção da geometria dos mosaicos ou de mapeamento de coordenadas; não é um pré-requisito para o exemplo OPS. Uma imagem montada, por si só, não substitui os ciclos de sequenciamento. As tabelas OPS exigem uma junção e agregação explícitas por identidade antes da regressão; o passo a passo não faz essa conversão automaticamente.',
 }
 
 MODULE_SUMMARIES = {
@@ -12417,10 +12416,7 @@ SOURCE_HASHES = {
     ('UI', 'Open Measure and collect the compartment or staining measurements needed by your assay.'): '19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9',
     ('UI', 'For a recruitment question, open Recruitment and inspect compartment intensity ratios.'): '6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c',
     ('UI', 'An optical pooled screen'): '5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1',
-    ('UI', 'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.'): 'bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace',
-    ('UI', 'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.'): '5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41',
     ('UI', 'Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.'): 'df19c4dcb141716c6e405f540be988b099e47d3bc91338506c85df38b4fae2e6',
-    ('UI', 'A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.'): 'd0464c3d5e257dea6d13248c7f658e6ab11a2fcb5023516f516d2336d1cc1a88',
     ('UI', 'Import existing data'): 'a5a6482062d93f1ad491da5567c3311d4593e424ef2afc37990b2ad14da73500',
     ('UI', 'Start on Home with Import and select the route matching images, external masks or external measurements.'): '01ef9504c69d0019961de22b188615a3c8e2a364a0202bcff9c5d6c053cb0d7f',
     ('UI', 'For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.'): '124b7da63171ee19ec3f57223b8a2e369b241828a0b959ffc8d81130b597dd34',
@@ -12616,4 +12612,6 @@ SOURCE_HASHES = {
     ('UI', 'Threshold histogram failed: {error}'): '9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89',
     ('UI', '{method} histogram'): 'cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e',
     ('UI', 'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.'): '7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198',
+    ('UI', 'Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.'): 'cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea',
+    ('UI', 'Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.'): '94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903',
 }

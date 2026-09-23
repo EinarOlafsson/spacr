@@ -57,7 +57,7 @@ Invasion and Replication read their required measured compartments; Plaque Assay
 An optical pooled screen
 ------------------------
 
-#. :ref:`OPS <workflow-module-ops>`: Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.
+#. :ref:`OPS <workflow-module-ops>`: Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.
 #. :ref:`Regression <workflow-module-regression>`: Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.
 
 Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.

@@ -36,6 +36,84 @@
       "source_sha256": "5a5ada0185b583db576b420a6058283d9e9b5b2fd0be1a109253db8e180caa1b",
       "text": "CLI entry point; dispatch to the requested spacr subcommand.\n\n:param argv: Argument list to parse. When None, ``sys.argv[1:]`` is used.\n:returns: ``0`` for the version command; window commands return the Qt\n    launcher's integer exit status.\n:raises SystemExit: with code ``2`` when argparse rejects the arguments or\n    a command accepted by the parser has no dispatcher. ``parser.error``\n    never returns, so there is no exit code to hand back in either case."
     },
+    "spacr._starplast": {
+      "source_blocks_sha256": [
+        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
+        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+      ],
+      "source_sha256": "eced2ad5a7cee86848df1f1111914f766d0e7c5832f4b6c4db75313c8b9f9273",
+      "text": "Install and launch the separate Starplast desktop application.\n\nStarplast uses PyQt6 and never imports into spaCR's PySide6 process. Its\nenvironment lives under ``~/.spacr/apps`` (or ``SPACR_APPS_DIR``). Installation\nreuses the segmentation installers' interpreter discovery, isolated command\nenvironment and cancellable subprocess runner, without registering a detector."
+    },
+    "spacr._starplast.REPOSITORY": {
+      "source_blocks_sha256": [
+        "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b"
+      ],
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "text": "Default source when no sibling checkout or explicit source is available."
+    },
+    "spacr._starplast.apps_root": {
+      "source_blocks_sha256": [
+        "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
+        "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
+        "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
+      ],
+      "source_sha256": "76bf447eb5b3bb88c0493d01426284b464fef6f7d6c79c4d6c88d03abe40e72f",
+      "text": "Return the external-application folder without creating it.\n\n:param root: explicit folder, otherwise ``SPACR_APPS_DIR`` or ``~/.spacr/apps``.\n:returns: absolute application root."
+    },
+    "spacr._starplast.default_source": {
+      "source_blocks_sha256": [
+        "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+        "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232"
+      ],
+      "source_sha256": "e06e469a99925b64bfe439a2cbdef785316d3338e04c81ff070d45e4536f3833",
+      "text": "Prefer an explicit source or a sibling Starplast checkout, then GitHub.\n\n:returns: ``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL."
+    },
+    "spacr._starplast.install_starplast": {
+      "source_blocks_sha256": [
+        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
+        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
+        "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb"
+      ],
+      "source_sha256": "5400178b2dee7e05ffed2233f94a0bbcd0d34e0fac7a925070631d6c134c7085",
+      "text": "Build an isolated environment, install Starplast and check its bundled data.\n\nLocal Git sources are archived from committed HEAD into temporary storage;\npip never writes build files into the original checkout. A failed install\nremoves only the environment created here, and retains ``starplast-install.log``.\n\n:param source: local Git checkout or pip repository URL; default_source otherwise.\n:param root: external-application folder.\n:param progress: callback ``(step, steps, text)``; called off the GUI thread.\n:param cancel: threading.Event; cancels commands and their descendants.\n:param runner: optional subprocess-runner substitute for focused tests.\n:param preflight: optional interpreter-preflight substitute for focused tests.\n:returns: completed environment path.\n:raises RuntimeError: installation failed, was cancelled, or folder is unowned.\n:raises ValueError: the selected source is neither a suitable local Git\n    checkout nor an allowed official repository URL."
+    },
+    "spacr._starplast.is_installed": {
+      "source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ],
+      "source_sha256": "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
+      "text": "Whether an owned environment has passed the import and bundled-data checks.\n\n:param root: external-application folder.\n:returns: true only with a completed record and environment interpreter."
+    },
+    "spacr._starplast.launch_starplast": {
+      "source_blocks_sha256": [
+        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
+        "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
+        "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
+      ],
+      "source_sha256": "bbbcf044ee71764ed6ff3473b7040a473bcf075baf653efcc79c846210b4c3b9",
+      "text": "Start Starplast as a separate process, logging output beside its environment.\n\n:param root: external-application folder.\n:param popen: optional subprocess.Popen substitute for focused tests.\n:returns: child process, which the UI monitors for launch errors.\n:raises RuntimeError: no completed environment exists."
+    },
+    "spacr._starplast.process_environment": {
+      "source_blocks_sha256": [
+        "d7bd8cb8f372ad37e63619756cef63b92eeda9bb6b16d3568c578c4110f7b940",
+        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
+      ],
+      "source_sha256": "f48fdf84b6ce238f46b381208925776df203b0784165ac2573ef278e0b7a0dee",
+      "text": "Isolate Python, pip and Qt plugin lookup from the running spaCR process.\n\n:param env: Starplast's virtual environment.\n:returns: subprocess variables retaining desktop display and user settings."
+    },
     "spacr._version": {
       "source_blocks_sha256": [
         "5f19a0a5b02289864de1c76c59530587b17fd7f915361ef26bcc78ff097f7141",
@@ -46895,10 +46973,10 @@
     "spacr.qt.organisms.ORGANISMS": {
       "source_blocks_sha256": [
         "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
-        "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b"
+        "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693"
       ],
-      "source_sha256": "d6261fca301df212e91acaabcd6a9f4c13b51e9c067693d30994b0769f591f44",
-      "text": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.\n\nEach record supplies a display name, description, biology source URL, bundled\ndiagram filename and diagram note. ``sections`` contains heading, prose and\nlinked assay-key triples; ``links`` contains display-label and URL pairs.\n``modules`` contains route-key, title, description and icon-key tuples. A\n``None`` route denotes a planned assay whose tile cannot start an analysis.\nDisplay prose is translated at use; route keys, URLs and asset names stay fixed."
+      "source_sha256": "6f757c3332b2308287f372c85b9f108da2547e4c625606a9057694ac66ecbfa7",
+      "text": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.\n\nEach record supplies a display name, description, biology source URL, bundled\ndiagram filename and diagram note. ``sections`` contains heading, prose and\nlinked assay-key triples; ``links`` contains display-label and URL pairs.\n``modules`` contains route-key, title, description and icon-key tuples. A\n``None`` route denotes a planned assay whose tile cannot start an analysis.\n``starplast`` launches an external app from the Toxoplasma page; it is not\na spaCR analysis registry key or segmentation backend.\nDisplay prose is translated at use; route keys, URLs and asset names stay fixed."
     },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
@@ -63219,6 +63297,57 @@
       ],
       "source_sha256": "18b74968c27029ccdc9f886ecc8f4a4fcfa4c03ddca1608dede782a714a38cb3",
       "text": "Report the GUI thread's stack whenever it stops answering.\n\n:param app: the live ``QApplication``. The heartbeat timer is parented\n    to it so the timer lives exactly as long as the application does.\n:param stall_seconds: override :data:`STALL_SECONDS` for one call.\n:param echo: also write each report to ``sys.stderr``. Pass ``False``\n    under a harness that captures streams. THE FILE IS THE RECORD AND\n    STDERR IS A CONVENIENCE: this writes from a DAEMON THREAD, and a\n    thread writing into a stream the harness is swapping underneath it\n    crashed pytest inside its own `capture.py` -- not in our write,\n    which is guarded, but in pytest reading a stream that moved while\n    it read. A tool must not write to a stream it does not own when\n    somebody else is holding it.\n:returns: the watcher thread, or ``None`` if Qt could not be reached.\n\nTHE HEARTBEAT IS THE MEASUREMENT. A ``QTimer`` on the GUI thread bumps\nan integer; a daemon thread watches the integer. If it stops moving the\nGUI thread is not running the event loop, which is exactly the\ncondition being hunted -- and the reason a timer cannot report it\nitself: a wedged loop does not deliver the timer either."
+    },
+    "spacr.qt.starplast": {
+      "source_blocks_sha256": [
+        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+      ],
+      "source_sha256": "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6",
+      "text": "Install Starplast separately, then launch and monitor its desktop process."
+    },
+    "spacr.qt.starplast.StarplastInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "Explain the alpha app and download size before installing in its own environment.\n\n:param parent: owning organism page.\n:param root: optional external-application root.\n:param job: optional installer substitute for tests.\nBuild the consent and progress controls; opening the dialog installs nothing."
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "Keep the dialog alive until its installer thread has stopped.\n\n:param event: Qt close event; ignored while cancellation is pending.\n:returns: None."
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "Cancel active subprocesses and defer closing until the worker has ended."
+    },
+    "spacr.qt.starplast.StarplastInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "Start the install after the explicit button press, keeping Qt responsive."
+    },
+    "spacr.qt.starplast.open_starplast": {
+      "source_blocks_sha256": [
+        "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d",
+      "text": "Offer installation once, then launch the independent Starplast application.\n\n:param parent: organism page requesting the launch.\n:param root: optional external-application folder.\n:returns: child process, or None if cancelled or launch failed."
     },
     "spacr.qt.startup_benchmark": {
       "source_blocks_sha256": [
@@ -86002,10 +86131,27 @@
         "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
         "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
         "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
-        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+        "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
       ],
-      "source_sha256": "bbfb62063d8720234583542fd81ca4113e3a60544eaead1498cdcaed4a6ddb36",
-      "text": "A cell illustration and keyboard-accessible compartment selector.\n\n:param app_key: organism key; only Toxoplasma uses hyperLOPIT labels.\n:param path: bundled SVG path; no external resource is fetched.\n:param parent: owning Qt widget.\nBuild the illustration, label selector and shared-shape caption."
+      "source_sha256": "46967dcf6ce7f43739f6c2c7fd0c991c513c0d0b2b96a3009dc654612f2d4e99",
+      "text": "A cell illustration and keyboard-accessible compartment selector.\n\n:param app_key: organism key; only Toxoplasma uses hyperLOPIT labels.\n:param path: bundled SVG path; no external resource is fetched.\n:param parent: owning Qt widget.\nBuild upright artwork, a multi-select legend and compartment descriptions."
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components": {
+      "source_blocks_sha256": [
+        "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
+      ],
+      "source_sha256": "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e",
+      "text": "Clear all persistent selections and the transient compartment highlight."
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter": {
+      "source_blocks_sha256": [
+        "13644b33e4947f6322ece410d062e85a0b1bdf866a4d9c7a32eab92c28e622f2",
+        "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
+        "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
+        "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ],
+      "source_sha256": "3ef33a4ee51bb98fd7e06b673a3b50ec878400657f0c881765303600fb27f665",
+      "text": "End the legend's transient highlight when the pointer leaves it.\n\n:param watched: object receiving the event; only the legend viewport\n    triggers highlight removal.\n:param event: Qt event, inspected for a pointer-leave notification.\n:returns: the parent widget's event-filter result."
     },
     "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
       "source_blocks_sha256": [
@@ -90731,12 +90877,12 @@
     "spacr.qt.widgets.sample_project.start_example": {
       "source_blocks_sha256": [
         "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
-        "5bf3406ea066617dc650e1dbc92e36cbdde553046df77b52c86643aadc1333e0",
+        "c6b7fb9ddf2bb710e0f71e15e31301b028ce3eaefcd91f48593d9dd1e683af6f",
         "bb63595b656f6a664a114f703ed8fc68a1102f33ce4c778649017d2789424dba",
         "866ae356fbc57b7bd8c6687b8e171070268252520e91e71e4fa82251268ca503"
       ],
-      "source_sha256": "a55462ae339238019a139e2ef91b00939267bc7ca4bc61d0e0286d944996cc9f",
-      "text": "Load the example data of the module ``screen`` shows.\n\nEach module already knows how to fetch its own example -- Annotate asks\nwhich half it needs, the rest share the \"Load test data…\" button -- so\nthis calls what the module has rather than a second downloader.\n\n:param screen: the module screen just opened.\n:returns: what was started: ``\"chooser\"``, ``\"test data\"`` or ``\"\"``."
+      "source_sha256": "e7b246c5356bafda18063dba2b8d19eef7373a970298416e3cf1195ca0c60a6a",
+      "text": "Load the example data of the module ``screen`` shows.\n\nEach module already knows how to fetch its own example -- Annotate asks\nwhich half it needs and OPS has its sequencing-cycle sample -- so this\ncalls what the module has rather than a second downloader.\n\n:param screen: the module screen just opened.\n:returns: what was started: ``\"chooser\"``, ``\"test data\"`` or ``\"\"``."
     },
     "spacr.qt.widgets.save_figure_dialog": {
       "source_blocks_sha256": [

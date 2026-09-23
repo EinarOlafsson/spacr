@@ -2080,7 +2080,7 @@
       "steps": [
         {
           "module": "ops",
-          "action": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
+          "action": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
           "after": []
         },
         {

@@ -23,13 +23,6 @@
       "translation": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium`` e ``candida``."
     },
     {
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
-      "translation": "Cada registo fornece um nome apresentado, uma descrição, o URL da fonte biológica, o nome do ficheiro do diagrama incluído e uma nota sobre o diagrama. ``sections`` contém triplos de título, texto e chaves de ensaios ligados; ``links`` contém pares de rótulo apresentado e URL. ``modules`` contém tuplos de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` indica um ensaio planeado cujo mosaico não pode iniciar uma análise. O texto apresentado é traduzido na utilização; as chaves de rota, os URLs e os nomes dos recursos mantêm-se fixos."
-    },
-    {
       "context": "Sourced organism guides, interactive cell diagrams and assay navigation.",
       "label": "spacr.qt.screens.organism_screen#0",
       "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
@@ -149,13 +142,6 @@
       "translation": "widget Qt proprietário."
     },
     {
-      "context": "Build the illustration, label selector and shared-shape caption.",
-      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
-      "source": "Build the illustration, label selector and shared-shape caption.",
-      "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
-      "translation": "Construir a ilustração, o seletor de rótulos e a legenda sobre a forma partilhada."
-    },
-    {
       "context": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
       "label": "spacr.qt.widgets.organism_diagram.YEAST_LABELS#0",
       "source": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers.",
@@ -185,5 +171,27 @@
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review against the organism registry, navigation and compartment-mapping contracts; no native-speaker sign-off",
-  "schema": 1
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+        "label": "spacr.qt.organisms.ORGANISMS#1",
+        "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+        "source_sha256": "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b",
+        "translation": "Cada registo fornece um nome apresentado, uma descrição, o URL da fonte biológica, o nome do ficheiro do diagrama incluído e uma nota sobre o diagrama. ``sections`` contém triplos de título, texto e chaves de ensaios ligados; ``links`` contém pares de rótulo apresentado e URL. ``modules`` contém tuplos de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` indica um ensaio planeado cujo mosaico não pode iniciar uma análise. O texto apresentado é traduzido na utilização; as chaves de rota, os URLs e os nomes dos recursos mantêm-se fixos."
+      }
+    },
+    {
+      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "record": {
+        "context": "Build the illustration, label selector and shared-shape caption.",
+        "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",
+        "source": "Build the illustration, label selector and shared-shape caption.",
+        "source_sha256": "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697",
+        "translation": "Construir a ilustração, o seletor de rótulos e a legenda sobre a forma partilhada."
+      }
+    }
+  ]
 }

@@ -126,6 +126,8 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
     :param preflight: optional interpreter-preflight substitute for focused tests.
     :returns: completed environment path.
     :raises RuntimeError: installation failed, was cancelled, or folder is unowned.
+    :raises ValueError: the selected source is neither a suitable local Git
+        checkout nor an allowed official repository URL.
     """
     root = apps_root(root)
     env = root / "starplast"

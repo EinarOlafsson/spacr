@@ -173,7 +173,11 @@ class StarplastInstallDialog(QDialog):
             super().reject()
 
     def closeEvent(self, event):
-        """Keep the dialog alive until its installer thread has stopped."""
+        """Keep the dialog alive until its installer thread has stopped.
+
+        :param event: Qt close event; ignored while cancellation is pending.
+        :returns: None.
+        """
         if self._thread is not None:
             self.reject()
             event.ignore()

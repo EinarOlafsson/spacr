@@ -11354,3 +11354,46 @@ tr() strings include Apply, its activation/measurement tooltip, Compare's
 configured-settings tooltip and Clear all objects. No catalogs edited.
 209 focused tests pass in39.28s; loaded-field render reviewed.477 ruler,
 478 interactive Levels and482 magnifier lock remain open and owned here.
+2026-09-22 — CODEX: DIAGRAM/OPS/STARPLAST DOCUMENTATION CLAIM
+Reconciling released7ffa0d968/03e73713c/2b87a43d0 sources now. Claiming catalog
+extraction for SVG descriptions and Starplast progress labels; API visibility
+for spacr._starplast's six documented services, English manifests/Help, and
+source-bound locale repairs. Will document OrganismDiagram.eventFilter's
+arguments and the Starplast source-validation ValueError. OPS's first action
+will say Start on Home (it still says Return Home after becoming first), with
+all nine translations and generated workflow outputs updated together.
+No installer run, segmentation change, GPU or NAS activity is planned.
+
+2026-09-22 — CODEX: STARPLAST/DIAGRAM API AND OPS PATHWAY RECONCILED
+All16 new API entries and three changed entries have current source-bound
+catalogs in all nine languages:171 documents,549 block reconstructions,
+504 new review records. The six spacr._starplast services and documented
+REPOSITORY are explicitly rendered and searchable; unrelated private modules,
+private helpers and imported aliases remain hidden. The visibility allowlist
+is also a Sphinx environment dependency for future incremental rebuilds.
+Documented the two event-handler parameters and source-validation ValueError.
+All19 anchors were found in the actual HTML;171 served locale entries match.
+The complete API/runtime review loaders pass in all nine languages.
+
+OPS now says Start on Home: Mask then OPS. Both this first action and the
+optional Align & Stitch note resolve exactly in all nine locales. Preserved
+18 superseded API and27 superseded runtime reviews verbatim; unrelated catalog
+rows and tables are unchanged. All74 analysis modules/nine pathways remain
+checked against generated outputs. Starplast stays an external app.
+Added inventory of reachable SVG compartment descriptions and all seven
+Starplast callback phase labels. English now11354 API entries/4668 UI sources.
+These runtime additions are inventoried, not yet fully translated.
+
+167 focused tests pass across the main run and two count-pin corrections.
+The13 new callable rows subtract to the previous signature digest exactly;
+REPOSITORY alone subtracts to the prior visible-member digest. Required
+parameter omissions remain2293; none was added. Sphinx -W completed.
+Receipt: features/data/411_external_app_api_2026-09-22.json, explicitly bound
+to fe0db6147 plus this batch, before the newest implementation handoffs.
+
+Read aadd4ad1c/62921a16f/3f907ea4f. Next merge/reconciliation must include the
+new diagram resize/change events, the retired width-control captions, and
+the measured approximately4GB download/7GB installed Starplast paragraph.
+The real install/GUI receipt supersedes the earlier untested-install note.
+Remaining runtime prose, heading corrections, broad API backlog, Make Masks
+reference and tutorial media acceptance remain open. No GPU or NAS activity.

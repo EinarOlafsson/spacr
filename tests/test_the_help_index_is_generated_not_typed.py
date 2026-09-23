@@ -158,6 +158,7 @@ def test_the_api_rows_are_the_published_symbols(monkeypatch):
     monkeypatch.syspath_prepend(str(ROOT / "tools"))
     from build_documentation_i18n import AUTOAPI_IGNORE
     from nested_helper_docs import active_entries
+    from api_visibility import EXPLICIT_MODULES
 
     manifest = (ROOT / "docs" / "source" / "_static" / "i18n" / "api"
                 / "en.json")
@@ -166,9 +167,17 @@ def test_the_api_rows_are_the_published_symbols(monkeypatch):
     published = set(json.loads(manifest.read_text("utf-8"))["symbols"])
     indexed = {symbol for symbol, _summary in API_ENTRIES}
     assert indexed <= published
-    private = {s for s in published
-               if any(p.startswith("_") and p != "__main__"
-                      for p in s.split("."))}
+    private = set()
+    for symbol in published:
+        suffix = symbol
+        for module in EXPLICIT_MODULES:
+            if symbol == module:
+                suffix = ""
+            elif symbol.startswith(module + "."):
+                suffix = symbol[len(module) + 1:]
+        if any(part.startswith("_") and part != "__main__"
+               for part in suffix.split(".")):
+            private.add(symbol)
     helpers = {
         entry.qualified_key
         for entry in active_entries(ROOT, ignore_patterns=AUTOAPI_IGNORE)
