@@ -1,0 +1,35 @@
+{
+  "feature": 396,
+  "related_features": [
+    288,
+    476
+  ],
+  "date": "2026-09-23",
+  "base_commit": "145e89556c52156ac9630da48e2b7e46f8179c28",
+  "source_sha256": "40fa3d24ba080784d03ea7ec62ebafb8c7340e4e5aa948db591426739527c447",
+  "reproduction": {
+    "binary_components": 66049,
+    "previous_positive_stored_ids": 65535,
+    "previous_lost_foreground_pixels": 1,
+    "wide_original_id": 9223372036854775815,
+    "previous_saved_id": 7,
+    "regressions_before": "8 failed,3 passed in1.15s"
+  },
+  "fix": "Validate connected-component count before uint16 conversion; validate original multiple IDs before any signed-int64 intermediate conversion. Existing documented oversized-ID refusal is now enforced.",
+  "validation": "105 passed in11.99s:11 new capacity tests plus existing secondary-ID/source and every queue-layout save tests",
+  "checks": [
+    "Exactly65535 disconnected objects retain all foreground and distinct labels",
+    "65536/66049 binary objects refuse without changing the input",
+    "Multiple uint64 IDs at65536/2**63+7/2**64-1 refuse without wrapping",
+    "One foreground uint64 value still receives the documented binary interpretation; exact-ID mode refuses it",
+    "Failed TIFF and Cellpose-bundle saves preserve existing files byte-for-byte, including bundle metadata, and leave no temporary output"
+  ],
+  "execution": "8GiB/no swap; CPU only; isolated HOME/config; two BLAS/OpenMP threads",
+  "limits": [
+    "No public signature/docstring/caption/setting changed",
+    "This fixes data preservation; it does not add an output format supporting more than65535IDs",
+    "Full module ratchet not yet proven: broader current baseline exposes an obsolete Recrop-last assertion after the Ruler addition",
+    "No actual training/GPU/network/NAS access"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/mask-engine-ratchet"
+}

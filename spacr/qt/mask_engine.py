@@ -657,9 +657,16 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
     else:
         values = list(np.unique(m[m > 0]))
     if len(values) <= 1:
-        labeled, _ = _ndimage().label(m > 0, structure=_EIGHT)
+        labeled, count = _ndimage().label(m > 0, structure=_EIGHT)
+        if count > np.iinfo(np.uint16).max:
+            raise ValueError(
+                f"mask needs {count} object labels, past what a uint16 mask can hold.")
         return labeled.astype(np.uint16)
 
+    largest = int(max(values))
+    if largest > np.iinfo(np.uint16).max:
+        raise ValueError(
+            f"mask carries label {largest}, past what a uint16 mask can hold.")
     whole = tuple(slice(None) for _axis in range(m.ndim))
     out = None
     used = {int(v) for v in values}

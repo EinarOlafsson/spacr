@@ -508,3 +508,19 @@ measurable after curation. It is recorded rather than fixed because fixing it
 is an edit to the editor, which is this item's, and because a fix that lands
 between two curation sessions would change the meaning of the rows already
 written.
+
+2026-09-23 — REFUSE LABEL OVERFLOW BEFORE REPLACING A CURATED MASK
+canonical_labels silently narrowed a binary mask with66049components to
+65535positive IDs, merging identities and losing one foreground pixel.
+A multi-ID uint64 mask with ID2**63+7 also saved that object as7 after a
+signed-int64 intermediate conversion. Both contradicted the documented
+oversized-ID refusal. Counts and original IDs are now checked before casts.
+Exactly65535objects still work, and a single foreground value keeps the
+existing default binary interpretation; exact-ID mode remains strict.
+
+Eleven new boundary cases first reproduced8failures. After the correction,
+105checks pass11.99s including primary/secondary identities, source masks
+and all queue-layout save tests. Failed saves preserve existing TIFF and
+Cellpose-bundle bytes and metadata, leave no temporary file and do not
+change input masks. No output-format expansion or API signature/prose change.
+Receipt396_mask_save_label_capacity_2026-09-23.json. CPU8GiB/no swap only.

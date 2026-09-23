@@ -12998,3 +12998,37 @@ current modules still need one complete frozen CI result. Your latest local
 handoff still records full-catalog failures, so no duplicate full dispatch
 was started during those repairs. GPU observer second.service remains live;
 no queued GPU job launched. Timeflows evaluation is finished, not promoted.
+
+2026-09-23 — IMPLEMENTATION: 288 MASK ENGINE REGRESSION AUDIT CLAIM
+Ten formerly below-floor modules now have focused90+ evidence, but the
+historical full ratchet also records lost coverage in core editor methods.
+Claiming a new mask-engine boundary test file, first measuring current
+backend/secondary-object/threshold/wand cohorts under8GiB. Historical line
+numbers are stale after API prose updates, so no patch is based on those
+numbers alone. No broad local suite or GPU job. The existing second GPU
+observer is live; no strict20minute idle period has qualified.
+
+288mask-engine audit found real data loss in canonical_labels: a513x513
+binary grid of66049components wraps after65535 and loses foreground; a
+multi-ID uint64 mask carrying2**63+7 is silently saved as label7. This
+contradicts its existing documented oversized-ID refusal. Claiming this
+function's body after the unchanged-source baseline finishes. New regression
+will check exact capacity and failed-save preservation for TIFF/bundles.
+No API prose/signature/caption/settings change planned; existing failure
+contract becomes true. No training, GPU or NAS access.
+
+2026-09-23 — IMPLEMENTATION: 396 MASK SAVE CAPACITY FIX VERIFIED
+105checks pass11.99s;11new cases first reproduced8failures. canonical_labels
+now rejects >65535connected binary objects before uint16 conversion, and
+rejects oversized original multiple IDs before signed-int64 conversion.
+Exactly65535objects and single-valued default binary semantics remain valid.
+Failed TIFF/bundle saves keep existing bytes/metadata and input arrays intact.
+Receipt396_mask_save_label_capacity_2026-09-23.json. API method signature and
+prose unchanged: the documented oversized-ID refusal is now true. New error
+for excess components uses the existing plain backend ValueError convention.
+Please mention refusal rather than renumbering/truncation in save guidance.
+
+Broader editor baseline:167backend checks pass;474editor/magnifier checks
+pass with1obsolete assertion requiring Recrop last (477added Ruler afterit).
+Will align that test and continue core boundary verification; no full ratchet
+claim from these subsets. No GPU/network/NAS work launched.

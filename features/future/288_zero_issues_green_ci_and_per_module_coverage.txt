@@ -4766,3 +4766,14 @@ observe diameter37,flow_threshold0.27,CP_prob-2.5 and channel_axis at the actual
 model-call boundary for all three paths. No public signature/docstring,
 caption or setting change. Pretrained accuracy/network transfer are not
 claimed. Full current CI/ratchet acceptance remains separate and open.
+
+2026-09-23 — CORE MASK AUDIT FOUND SILENT SAVE CORRUPTION
+Current backend/editor cohorts exposed an additional behavior bug while
+checking the historical ratchet: binary component counts over65535 and
+multi-ID uint64 labels beyond signed-int64 were narrowed before validation.
+396now refuses both before replacing any saved mask.105focused checks pass,
+including file-byte preservation and exact capacity. Receipt396_mask_save_
+label_capacity_2026-09-23.json. This is not a full ratchet-pass claim. The
+broader unchanged-source baseline also found an old test requiring Recrop
+last, superseded by477's Ruler. That alignment and remaining boundaries are
+next; no baseline, floor, gate or exemption has changed.
