@@ -146,6 +146,11 @@ class OrganismScreen(QWidget):
 
     def _open_module_link(self, key: str) -> None:
         """Navigate only to a live assay listed on this organism page."""
+        if key == "starplast" and self.app_key == "toxoplasma":
+            from ..starplast import open_starplast
+
+            open_starplast(self)
+            return
         if any(row[0] == key for row in self.organism["modules"] if row[0]):
             self.module_requested.emit(key)
 
@@ -179,14 +184,14 @@ class OrganismScreen(QWidget):
                 tr(title), tr(description), artwork,
                 width=scaled_px(TILE_W), height=scaled_px(TILE_H),
                 icon_px=scaled_px(TILE_ICON_PX),
-                stage=app_stage(key) if key else "alpha", parent=self._modules)
+                stage=app_stage(key) if key and key != "starplast" else "alpha", parent=self._modules)
             tile.setProperty("organismModuleKey", key or "")
             tile.setMaximumWidth(scaled_px(TILE_MAX_W))
             tile.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
             if key:
                 tile.setToolTip(tr(title) + "\n" + tr(description))
                 tile.clicked.connect(lambda checked=False, target=key:
-                                     self.module_requested.emit(target))
+                                     self._open_module_link(target))
             else:
                 note = tr("Coming soon") + " — " + tr(title) + "\n" + tr(description)
                 tile.setToolTip(note)

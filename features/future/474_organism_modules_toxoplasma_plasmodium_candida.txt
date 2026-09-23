@@ -227,3 +227,47 @@ Still OPEN in the maintainer follow-up: Starplast as the first Toxoplasma tile,
 its isolated installation and later launch, alpha and size warnings. That
 addition changes Toxoplasma from eight to nine tiles. New caption translation
 and API/workflow integration remain with the other Codex session.
+
+2026-09-22 — STARPLAST FIRST TILE, ISOLATED INSTALLATION AND LATER LAUNCH
+--------------------------------------------------------------------------------
+Starplast is now the first Toxoplasma tile, explicitly alpha, using Home's
+AppTile. Toxoplasma therefore has nine tiles; the other organisms retain eight.
+It is an external application, not an analysis registry key or mask backend.
+The first click offers Install and open with alpha, approximately2GB Linux
+CUDA-wheel downloads plus application/data/dependencies, and at least12GB free
+disk warnings. Installation is deferred until that button is pressed.
+
+The environment is ~/.spacr/apps/starplast, configurable with SPACR_APPS_DIR.
+Source selection prefers SPACR_STARPLAST_SOURCE or a sibling local Starplast
+checkout, otherwise its official GitHub main branch. The dialog also offers
+a checkout chooser. Public PyPI metadata and the tested GitHub archive returned
+404 during this session; authenticated Git works, so local-source support is
+necessary on this machine. Local sources use git archive HEAD in a temporary
+folder: no editable install or build artifacts touch the original checkout.
+
+The installer discovers an appropriate Python, uses that to create a venv,
+runs all pip commands through the venv interpreter, and marks success only
+after importing the application and checking its bundled data. It keeps logs,
+rejects unowned target folders and concurrent installs, and removes its own
+partial environment on failure/cancellation. Installation runs on a Qt thread;
+Cancel stops subprocess descendants, and failed installs can be retried.
+
+Later clicks launch the environment's python -I -m starplast directly. Python
+and pip target variables and host Qt plugin/library paths are isolated; PyQt6
+stays in the child process. Child failures show the launch-log location. The
+Starplast process is independent of spaCR's window lifetime.
+
+Validation:48 focused checks pass. They include actual Git archiving of a
+checkout with spaces/uncommitted edits, a real temporary venv child process,
+installation command isolation, self-test failure/cleanup, preserved unowned
+folders, concurrent install refusal, responsive Qt cancellation/retry, tile
+routing, later launches and child-error reporting. Reused subprocess helpers
+also pass their real descendant-cancellation tests. Reviewed actual MainWindow
+and install-dialog renders. Fatal-error Ruff and git diff --check pass.
+
+Scope of evidence: the real multi-gigabyte Starplast dependency installation
+and its full desktop/data session were NOT run. Tests validate the integration
+and process boundaries; they do not establish third-party runtime acceptance.
+New API/source and translation inventory is handed to the other Codex lane.
+The twenty proposed organism assay pipelines remain unimplemented. No GPU
+analysis, package download or NAS access was performed for this change.

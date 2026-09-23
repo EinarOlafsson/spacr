@@ -75,6 +75,7 @@ ORGANISMS = {
             ("BEI Resources", "https://www.beiresources.org/PathogensLinks.aspx"),
         ),
         "modules": (
+            ("starplast", "Starplast", "Explore the Toxoplasma knowledge map in a separate alpha application.", "replication"),
             ("analyze_plaques", "Plaque Assay", "Quantify plaque number and size.", "analyze_plaques"),
             ("recruitment", "Recruitment", "Measure host-protein enrichment at the vacuole.", "recruitment"),
             ("invasion", "Invasion Assay", "Distinguish attached and invaded parasites.", "invasion"),
@@ -245,5 +246,7 @@ diagram filename and diagram note. ``sections`` contains heading, prose and
 linked assay-key triples; ``links`` contains display-label and URL pairs.
 ``modules`` contains route-key, title, description and icon-key tuples. A
 ``None`` route denotes a planned assay whose tile cannot start an analysis.
+``starplast`` launches an external app from the Toxoplasma page; it is not
+a spaCR analysis registry key or segmentation backend.
 Display prose is translated at use; route keys, URLs and asset names stay fixed.
 """

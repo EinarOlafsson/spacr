@@ -29,14 +29,14 @@ def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
 
 
 @pytest.mark.parametrize("key", ORGANISMS)
-def test_each_organism_has_eight_home_tiles_and_a_credited_cell_diagram(
+def test_each_organism_has_home_tiles_and_a_credited_cell_diagram(
         qtbot, qt_theme_applied, key):
     screen = OrganismScreen(key)
     qtbot.addWidget(screen)
     screen.resize(1280, 800)
     screen.show()
     qtbot.wait(30)
-    assert len(screen._tiles) == 8
+    assert len(screen._tiles) == (9 if key == "toxoplasma" else 8)
     assert screen._diagram.artwork.renderer.isValid()
     credits = screen.findChildren(QLabel, "OrganismImageCredit")
     assert len(credits) == 1
@@ -75,7 +75,7 @@ def test_the_four_existing_assays_emit_their_unchanged_keys(qtbot):
     qtbot.addWidget(screen)
     requested = []
     screen.module_requested.connect(requested.append)
-    for tile in screen._tiles[:4]:
+    for tile in screen._tiles[1:5]:
         assert tile.isEnabled()
         qtbot.mouseClick(tile, Qt.LeftButton)
     assert requested == list(ASSAYS)
@@ -97,7 +97,7 @@ def test_registry_factory_builds_the_page_and_wires_navigation(qtbot, key):
     assert isinstance(screen, OrganismScreen)
     assert screen.app_key == key
     if key == "toxoplasma":
-        screen._tiles[0].click()
+        screen._tiles[1].click()
         assert host.selected == ["analyze_plaques"]
 
 
@@ -256,7 +256,7 @@ def test_main_window_opens_an_assay_from_the_organism_page_and_returns_home(
     window._on_nav_selected("toxoplasma")
     screen = window._screens["toxoplasma"]
     assert window._stack.currentWidget() is screen
-    screen._tiles[3].click()
+    screen._tiles[4].click()
     assert window._stack.currentWidget() is window._screens["replication"]
     assert window._screens["replication"].app_key == "replication"
     window._on_nav_selected("toxoplasma")

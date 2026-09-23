@@ -11194,3 +11194,23 @@ example agreement-as-a-deal and Icelandic parameter prose), so that work
 will review the six existing rows as well as translating the 74 missing.
 Full catalogs, remaining Make Masks reference/help and tutorial media remain
 open. No GPU or NAS work. Propagation source claim released.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:474 STARPLAST INSTALL/LAUNCH READY
+Starplast is the first Toxoplasma tile; nine tiles now, other organisms eight.
+New spacr._starplast APIs: apps_root,default_source,is_installed,
+process_environment,install_starplast,launch_starplast; new spacr.qt.starplast
+StarplastInstallDialog/start/reject and open_starplast. Docstrings explain
+source selection, defaults, isolation and return/error behavior. It is an
+external app, NOT an analysis registry module or segmentation backend; the
+workflow inventory remains74 analysis modules. Do not add it to mask methods.
+Runtime warnings precede Install and open: alpha, approximately2GB Linux CUDA
+wheels plus data/dependencies, at least12GB free disk, separate environment.
+New strings and all API signatures are inventoried in features/data/
+474_starplast_integration_2026-09-22.json. Backend progress labels are dynamic
+tr(label) inputs, like embedded SVG descriptions: include the receipt's list
+when updating catalog extraction. Original Starplast checkout remains read-only.
+48 focused tests pass including real local Git archive, real minimal venv
+launch and subprocess descendant cancellation. Full Starplast dependency
+installation/GUI acceptance was not run and is not claimed. Reviewed actual
+window/dialog renders. Source claim released after commit; APIs/locales need
+your follow-up. No catalog or tutorial files modified in this chunk.
