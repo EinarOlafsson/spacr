@@ -365,20 +365,23 @@ def test_the_plan_runs_pip_only_inside_the_environment():
     assert steps[0].argv == ("/own/python", "-m", "venv", env)
     for step in steps[1:]:
         assert step.argv[0] == python, step
-    torch = steps[1].argv
+    assert steps[1].label == "Update pip"
+    assert steps[1].argv[-2:] == ("--upgrade", "pip")
+    assert "--index-url" not in steps[1].argv
+    torch = steps[2].argv
     assert torch[-2:] == ("--index-url", "https://t/cpu")
     assert "torch==2.10.0" in torch and "torchvision==0.25.0" in torch
-    assert "dinocell==0.74" in steps[2].argv
-    assert steps[3].selftest and steps[3].argv[1:] == (
+    assert "dinocell==0.74" in steps[3].argv
+    assert steps[4].selftest and steps[4].argv[1:] == (
         "-I", "/w.py", "--selftest", "dinocell")
     plain = SB._install_plan(SB._SPECS["cellpose3"], env, ("/p",))
-    assert "--index-url" not in plain[1].argv
-    assert plain[3].argv[2] == SB._worker_path()
+    assert "--index-url" not in plain[2].argv
+    assert plain[4].argv[2] == SB._worker_path()
     import dataclasses
 
     no_torch = dataclasses.replace(SB._SPECS["samcell"], torch=())
     assert [s.label for s in SB._install_plan(no_torch, env, ("/p",))] == [
-        "Create the environment", "Install SAMCell", "Check it loads"]
+        "Create the environment", "Update pip", "Install SAMCell", "Check it loads"]
 
 
 def test_the_environment_variables_cannot_point_pip_elsewhere(monkeypatch):
@@ -665,11 +668,11 @@ def test_an_install_builds_the_environment_and_marks_it_finished_last(
     assert [r[0][1:3] for r in record][:1] == [("-m", "venv")]
     assert all(r[2] == str(_sandboxed_backends) for r in record)
     assert progress[0] == (0, 1, "Checking this computer can install it")
-    assert progress[-1] == (4, 4, "Cellpose 3 is installed")
-    assert (0, 4, "Create the environment: line from step 0") in progress
+    assert progress[-1] == (5, 5, "Cellpose 3 is installed")
+    assert (0, 5, "Create the environment: line from step 0") in progress
     assert not (_sandboxed_backends / "cellpose3.lock").exists()
     log = (_sandboxed_backends / "cellpose3.log").read_text()
-    assert "line from step 3" in log and "--selftest" in log
+    assert "line from step 4" in log and "--selftest" in log
     again = SB._install_backend("cellpose3", runner=None, preflight=None)
     assert again.ready, "an installed backend is not installed twice"
 
@@ -694,13 +697,15 @@ def test_an_unfinished_folder_is_replaced_not_reused(_sandboxed_backends):
     assert not leftover.exists()
 
 
+@pytest.mark.parametrize("step, label", [(1, "Update pip"), (2, "Install PyTorch"),
+                                         (3, "Install Cellpose 3")])
 def test_a_failed_step_is_reported_verbatim_and_leaves_nothing(
-        _sandboxed_backends):
+        _sandboxed_backends, step, label):
     with pytest.raises(SB._InstallFailed) as exc:
-        SB._install_backend("cellpose3", runner=_fake_runner([], fail_at=2),
+        SB._install_backend("cellpose3", runner=_fake_runner([], fail_at=step),
                             preflight=_no_preflight, torch_index="")
     message = str(exc.value)
-    assert message.startswith("Install Cellpose 3 failed: `")
+    assert message.startswith(f"{label} failed: `")
     assert "exited with code 1" in message
     assert "ERROR: no matching distribution" in message
     assert "cellpose3.log" in message
@@ -747,7 +752,7 @@ def test_an_install_uses_the_torch_index_spacr_has_by_default(
     record = []
     SB._install_backend("cellpose3", runner=_fake_runner(record),
                         preflight=_no_preflight)
-    assert record[1][0][-2:] == ("--index-url", "https://t/cu999")
+    assert record[2][0][-2:] == ("--index-url", "https://t/cu999")
 
 
 def test_a_second_install_is_refused_while_one_runs(_sandboxed_backends):

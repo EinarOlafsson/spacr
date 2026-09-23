@@ -359,3 +359,71 @@ def test_spotnet_pins_the_dependencies_deepcell_spots_leaves_open():
     assert any(r.startswith("trackpy==") for r in requirements)
     assert any(r.startswith("deepcell==") for r in requirements)
     assert requirements[-1].startswith("deepcell-spots==")
+
+
+def test_spotnet_installs_its_torch_dependencies_from_the_requested_index(tmp_path):
+    spec = SB._spec("spotnet")
+    plan = SB._install_plan(spec, str(tmp_path / "spotnet"), ("python3.10",),
+                            torch_index="https://download.pytorch.org/whl/cpu")
+    torch_step = next(step for step in plan if step.label == "Install PyTorch")
+    assert "torch" in torch_step.argv and "torchvision" in torch_step.argv
+    assert torch_step.argv[-2:] == ("--index-url", "https://download.pytorch.org/whl/cpu")
+    assert plan.index(torch_step) < next(i for i, step in enumerate(plan)
+                                       if step.label == "Install SpotNet (DeepCell)")
+
+
+@pytest.mark.parametrize("count", [0, 1, 2, 5])
+@pytest.mark.parametrize("container", [np.array, list, tuple])
+def test_spotnet_worker_unpacks_one_batch_and_preserves_subpixel_coordinates(
+        tmp_path, count, container):
+    image = np.arange(80, dtype=np.uint16).reshape(8, 10)
+    path = tmp_path / "spots.npy"
+    np.save(path, image)
+    coordinates = np.array([[i + .25, i + 1.75] for i in range(count)])
+    calls = []
+
+    def predict(batch, *, threshold):
+        calls.append(threshold)
+        assert batch.shape == (1, 8, 10, 1)
+        assert batch.dtype == np.float32
+        np.testing.assert_array_equal(batch[0, ..., 0], image)
+        return container([coordinates])
+
+    adapters = {"spotnet": SimpleNamespace(predict=predict)}
+    result = SB._worker_detect_spots({"image": path, "threshold": .7}, adapters)
+    assert result == {"spots": coordinates.tolist()}
+    assert calls == [.7]
+    assert json.loads(json.dumps(result)) == result
+    np.testing.assert_array_equal(np.load(path), image)
+
+
+@pytest.mark.parametrize("found", [[], np.zeros((2, 1, 2)), np.array(3),
+                                  np.ones((1, 2, 3)), np.zeros((1, 2, 0)),
+                                  np.zeros((1, 0, 3)), np.array([[[np.nan, 1]]])])
+def test_spotnet_worker_refuses_missing_extra_or_malformed_predictions(tmp_path, found):
+    path = tmp_path / "spots.npy"
+    np.save(path, np.zeros((8, 10)))
+    model = SimpleNamespace(predict=lambda *a, **kw: found)
+    with pytest.raises(ValueError, match="SpotNet"):
+        SB._worker_detect_spots({"image": path}, {"spotnet": model})
+
+
+@pytest.mark.parametrize("threshold", [-.1, 1.1, np.nan, np.inf])
+def test_spotnet_rejects_invalid_threshold_before_loading_weights(tmp_path, threshold):
+    path = tmp_path / "spots.npy"
+    np.save(path, np.zeros((8, 10)))
+    adapters = {}
+    with pytest.raises(ValueError, match="threshold"):
+        SB._worker_detect_spots({"image": path, "threshold": threshold}, adapters)
+    assert adapters == {}
+
+
+@pytest.mark.parametrize("image", [np.zeros((8, 10, 2)), np.zeros((0, 10)),
+                                  np.zeros((8,)), np.full((8, 10), np.nan)])
+def test_spotnet_rejects_invalid_images_before_loading_weights(tmp_path, image):
+    path = tmp_path / "spots.npy"
+    np.save(path, image)
+    adapters = {}
+    with pytest.raises(ValueError, match="image"):
+        SB._worker_detect_spots({"image": path}, adapters)
+    assert adapters == {}

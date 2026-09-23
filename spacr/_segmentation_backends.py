@@ -340,7 +340,7 @@ _SPECS = {
         distribution="deepcell-spots",
         requirements=("trackpy==0.6.1", "deepcell==0.12.10",
                       "deepcell-spots==0.4.2"),
-        torch=(), python=((3, 7), (3, 10)),
+        torch=("torch", "torchvision"), python=((3, 7), (3, 10)),
         licence="Modified Apache-2.0, NON-COMMERCIAL ACADEMIC USE ONLY",
         licence_note=(
             "DeepCell's models and training data are licensed for "
@@ -355,10 +355,10 @@ _SPECS = {
         blurb=(
             "SpotNet finds fluorescent SPOTS -- single molecules, FISH "
             "puncta, sequencing-by-synthesis signals -- and returns their "
-            "coordinates, not masks. It is TensorFlow, so it installs into "
-            "an environment of its own; deepcell-spots 0.4.2 needs Python "
-            "3.7 to 3.10, so a spaCR running a newer Python cannot build "
-            "it. The weights need a free DeepCell token. trackpy and "
+            "coordinates, not masks. Its environment contains TensorFlow "
+            "and PyTorch. deepcell-spots 0.4.2 needs Python 3.7 to 3.10 "
+            "available to create that environment; spaCR itself may use "
+            "a newer Python. The weights need a free DeepCell token. trackpy and "
             "deepcell are pinned with it: deepcell-spots pins neither, and "
             "pip walked back to trackpy 0.2.3 (2014), whose setup.py cannot "
             "build (reported 2026-09-22)."),
@@ -942,7 +942,8 @@ def _install_plan(spec, env, interpreter, torch_index=None, worker=None):
     pip = (python, "-m", "pip", "install", "--disable-pip-version-check",
            "--no-input", "--progress-bar", "off")
     steps = [_Step("Create the environment",
-                   tuple(interpreter) + ("-m", "venv", env))]
+                   tuple(interpreter) + ("-m", "venv", env)),
+             _Step("Update pip", pip + ("--upgrade", "pip"))]
     if spec.torch:
         index = ("--index-url", torch_index) if torch_index else ()
         steps.append(_Step("Install PyTorch", pip + tuple(spec.torch) + index))
@@ -2304,25 +2305,40 @@ def _worker_detect(request, adapters):
 def _worker_detect_spots(request, adapters):
     """Find fluorescent spots in one image with SpotNet.
 
-    :param request: ``image`` (a ``.npy`` path, ``H x W`` or ``H x W x 1``)
-        and ``threshold`` (SpotNet's detection threshold, 0 to 1).
+    :param request: ``image`` (a ``.npy`` path, ``H x W`` or ``H x W x 1``
+        with finite values) and ``threshold`` (a finite detection probability
+        from 0 to 1). Invalid inputs are rejected before loading weights.
     :param adapters: the worker's cache; the application loads once.
     :returns: ``{"spots": [[y, x], ...]}`` in image pixels.
     """
     import numpy as np
 
+    image = np.load(str(request["image"]), allow_pickle=False)
+    if image.ndim == 2:
+        image = image[..., None]
+    if image.ndim != 3 or image.shape[-1] != 1 or not all(image.shape):
+        raise ValueError("SpotNet needs one nonempty single-channel image.")
+    batch = image[None].astype("float32")
+    if not np.isfinite(batch).all():
+        raise ValueError("SpotNet image values must be finite.")
+    threshold = float(request.get("threshold", 0.95))
+    if not np.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ValueError("SpotNet threshold must be between 0 and 1.")
     if "spotnet" not in adapters:
         from deepcell_spots.applications import SpotDetection
 
         adapters["spotnet"] = SpotDetection()
-    image = np.load(str(request["image"]), allow_pickle=False)
-    if image.ndim == 2:
-        image = image[..., None]
-    batch = image[None].astype("float32")
-    threshold = float(request.get("threshold", 0.95))
     found = adapters["spotnet"].predict(batch, threshold=threshold)
-    spots = np.asarray(found[0] if isinstance(found, (list, tuple)) else found)
-    return {"spots": [[float(y), float(x)] for y, x in np.atleast_2d(spots)]}
+    if (not isinstance(found, (list, tuple, np.ndarray))
+            or (isinstance(found, np.ndarray) and found.ndim == 0)
+            or len(found) != 1):
+        raise ValueError("SpotNet must return coordinates for exactly one image.")
+    spots = np.asarray(found[0], dtype=float)
+    if spots.shape in ((0,), (0, 2)):
+        return {"spots": []}
+    if spots.ndim != 2 or spots.shape[1] != 2 or not np.isfinite(spots).all():
+        raise ValueError("SpotNet coordinates must be finite (y, x) pairs.")
+    return {"spots": spots.tolist()}
 
 
 def _worker_read_text(request, adapters):

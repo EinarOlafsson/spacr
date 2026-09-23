@@ -12221,3 +12221,17 @@ from lists/tuples. Empty results also need their documented empty-coordinate
 shape. Will validate against the installed postprocessor if install succeeds.
 Asked for locally configured DeepCell credentials or an existing weights path;
 no token is configured, so real-image scoring remains pending that dependency.
+
+2026-09-23 — IMPLEMENTATION: 475 INSTALLER SCOPE EXPANDED BY REAL FAILURE
+The pinned deepcell-spots metadata requires torch AND torchvision, although
+our spec declared no Torch bootstrap. Corrected that declaration so the
+existing index choice applies. Stopped only our first private pip process
+when it began fetching unrelated CUDA13 wheels; installer removed its failed
+venv and released its lock. The next CPU-index attempt ended with a concrete
+old-pip metadata-name mismatch and missing flit_core on the Torch index.
+Extending the claim to _install_plan and its contract tests: upgrade pip in
+the newly created environment before either scientific dependency step.
+The original interpreter/host packages remain untouched. No install-success
+claim yet. Backend guidance will also stop saying a newer host Python cannot
+install when an older interpreter is available; that changed blurb needs the
+normal translation-lane reconciliation.
