@@ -63,7 +63,7 @@ def commands(route='pip', version='1.5.0.5', prefix=None):
                      'list', '--prefix', str(prefix), 'spacr'], 'conda-forge')
         result[3] = ('04_environment_prefix', ['python', '-c',
                      'import sys; print(sys.prefix)'], str(prefix))
-        result[4] = ('05_doctor', ['spacr-doctor'], 'pylibCZIrw')
+        result[4] = ('05_doctor', ['spacr-doctor', '--no-gpu-probe'], 'pylibCZIrw')
     elif route == 'linux_installer':
         profile = Path(prefix).parent / 'install-profile.json'
         launcher = Path(prefix).parents[1] / 'bin/spacr'

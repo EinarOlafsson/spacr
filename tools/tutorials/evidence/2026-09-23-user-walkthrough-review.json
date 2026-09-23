@@ -19,6 +19,8 @@
     "04_platform_installers",
     "05_home",
     "09_annotate",
+    "17_timelapse",
+    "18_motility",
     "19_train_cellpose",
     "41_classify",
     "76_ops"
@@ -27,6 +29,8 @@
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
+    "17_timelapse",
+    "18_motility",
     "19_train_cellpose",
     "76_ops"
   ],
@@ -37,6 +41,8 @@
     "04_platform_installers",
     "05_home",
     "09_annotate",
+    "17_timelapse",
+    "18_motility",
     "19_train_cellpose",
     "41_classify",
     "76_ops"
@@ -541,108 +547,50 @@
     },
     {
       "lesson": "17_timelapse",
-      "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
-      "scene_count": 16,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "retired_menu"
-        },
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[1].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[1].narration",
-          "reason": "retired_menu"
-        },
-        {
-          "field": "scenes[3].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[4].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[13].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[15].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "english_sha256": "7dfcbd1b67b1763a639b950eb034224b23d4a57d8e94683aed87313d350b264c",
+      "scene_count": 12,
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {
       "lesson": "18_motility",
-      "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
-      "scene_count": 15,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "retired_menu"
-        },
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[10].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[11].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[12].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "english_sha256": "1155781b36408826714ada8926caddfe2dfd291d707e614535d014938450cb71",
+      "scene_count": 11,
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {
