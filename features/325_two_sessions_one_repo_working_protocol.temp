@@ -12671,3 +12671,24 @@ utils._choose_model, pipeline_v2, submodules Test/Apply and ops_engine change
 constructor bodies only. Please refresh those API source bindings and describe
 CPU inference consistently with Make Masks. Tests' two generic Backend.eval
 doubles now declare the supported full contract; no new ratchet exemption.
+
+2026-09-23 — IMPLEMENTATION: 288 STARPLAST FAILURE/LIFECYCLE COVERAGE CLAIM
+Read last completed CI35807838039's full coverage artifact: 11modules below
+90percent and71ratchet failures at old6006a0608 (not current-head claims).
+Current push CI remains live; no extra full dispatch while docs work moves.
+Claiming tests/test_starplast_environment.py and tests/qt/test_starplast_launcher.py
+for real boundary cases: invalid source/ownership, cancellation after preflight,
+partial-environment recovery, close while installing, launch failures and child
+reaping. Will measure the two current Starplast modules in a bounded cohort;
+no baseline/exemption/threshold changes or repeat multi-GB installation.
+
+2026-09-23 — IMPLEMENTATION: 288 STARPLAST BOUNDARIES VERIFIED
+35focused tests pass. Current installer/launcher statement+branch coverage
+rises from86.89/83.62percent to98.91/97.74percent. Tests cover ownership/source
+refusals, preflight cancellation, partial-install recovery, malformed self-test,
+frozen library isolation, concurrent-start/close behavior, retries and launch/
+child reaping. Existing real Git and isolated child tests remain included;
+no repeated multi-GB install, runtime/API/UI change or relaxed coverage gate.
+Receipt288_starplast_boundary_coverage_2026-09-23.json. Two floor gaps closed;
+the old CI's11below-floor/71ratchet failures are not a current-head claim.
+No translation/tutorial action needed beyond the existing474installation docs.

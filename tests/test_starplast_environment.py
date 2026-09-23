@@ -154,3 +154,121 @@ def test_pre_cancelled_install_does_not_create_environment(tmp_path):
     with pytest.raises(service.environments._InstallCancelled):
         service.install_starplast(service.REPOSITORY, root=tmp_path, cancel=cancel)
     assert not (tmp_path/'starplast').exists()
+
+
+def test_default_source_prefers_override_then_sibling_then_official_repository(tmp_path, monkeypatch):
+    monkeypatch.setattr(service, '__file__', str(tmp_path/'spacr'/'spacr'/'_starplast.py'))
+    monkeypatch.setenv('SPACR_STARPLAST_SOURCE', 'chosen source')
+    assert service.default_source() == 'chosen source'
+    monkeypatch.delenv('SPACR_STARPLAST_SOURCE')
+    assert service.default_source() == service.REPOSITORY
+    sibling = tmp_path/'starplast'
+    (sibling/'starplast').mkdir(parents=True)
+    (sibling/'starplast'/'app.py').touch()
+    (sibling/'.git').touch()
+    assert service.default_source() == str(sibling)
+
+
+@pytest.mark.parametrize('local', [True, False])
+def test_invalid_source_fails_before_preflight_or_environment_creation(tmp_path, local):
+    source = tmp_path/'not-a-checkout'
+    source.mkdir()
+    if not local:
+        source = 'git+https://example.org/unrelated.git'
+    root = tmp_path/'apps'
+    with pytest.raises(ValueError, match='checkout'):
+        service.install_starplast(source, root=root,
+                                  preflight=lambda *args: pytest.fail('preflight on invalid source'))
+    assert not root.exists()
+
+
+@pytest.mark.parametrize('record', ['[]', '{"app":"another-app","ready":true}', '{broken'])
+def test_invalid_ownership_never_launches_or_deletes_an_existing_folder(tmp_path, record):
+    env = ready(tmp_path)
+    (env/service._OWNER).write_text(record)
+    keep = env/'user-file'
+    keep.write_text('preserve')
+    assert not service.is_installed(tmp_path)
+    with pytest.raises(RuntimeError, match='installed before'):
+        service.launch_starplast(root=tmp_path, popen=lambda *args, **kwargs: pytest.fail('launched'))
+    with pytest.raises(service.environments._InstallFailed, match='not a spaCR-owned'):
+        service.install_starplast(service.REPOSITORY, root=tmp_path, preflight=preflight)
+    assert keep.read_text() == 'preserve'
+    assert (env/service._OWNER).read_text() == record
+
+
+def test_cancellation_during_preflight_preserves_existing_partial_environment(tmp_path):
+    env = ready(tmp_path)
+    (env/service._OWNER).write_text('{"app":"starplast","ready":false}')
+    keep = env/'old-install'
+    keep.write_text('still here')
+    cancel = threading.Event()
+
+    def cancelled_preflight(*args):
+        cancel.set()
+        return (sys.executable,)
+
+    with pytest.raises(service.environments._InstallCancelled):
+        service.install_starplast(service.REPOSITORY, root=tmp_path, cancel=cancel,
+                                  preflight=cancelled_preflight,
+                                  runner=lambda *args, **kwargs: pytest.fail('command after cancellation'))
+    assert keep.read_text() == 'still here'
+    assert not (tmp_path/'starplast.lock').exists()
+
+
+def test_retry_replaces_only_owned_partial_environment_and_recovers_invalid_lock(tmp_path):
+    env = ready(tmp_path)
+    (env/service._OWNER).write_text('{"app":"starplast","ready":false}')
+    (env/'old-install').write_text('partial')
+    (tmp_path/'starplast.lock').write_text('interrupted lock write')
+    outside = tmp_path/'project.txt'
+    outside.write_text('preserve')
+
+    def runner(argv, **kwargs):
+        assert not (env/'old-install').exists()
+        if 'venv' in argv:
+            interpreter = Path(service.environments._env_python(str(env)))
+            interpreter.parent.mkdir(exist_ok=True)
+            interpreter.touch()
+        return 0, ['{"ok":true,"version":"fixture"}']
+
+    service.install_starplast(service.REPOSITORY, root=tmp_path, runner=runner, preflight=preflight)
+    assert service.is_installed(tmp_path)
+    assert outside.read_text() == 'preserve'
+    assert not (tmp_path/'starplast.lock').exists()
+    assert not list(tmp_path.glob('starplast-source-*'))
+
+
+@pytest.mark.parametrize('response', [[], ['[]'], ['{"ok":false}']])
+def test_successful_exit_without_positive_selftest_never_marks_ready(tmp_path, response):
+    with pytest.raises(service.environments._InstallFailed, match='did not confirm'):
+        service.install_starplast(service.REPOSITORY, root=tmp_path, preflight=preflight,
+                                  runner=lambda *args, **kwargs: (0, response))
+    assert not service.is_installed(tmp_path)
+    assert not (tmp_path/'starplast').exists()
+    assert not (tmp_path/'starplast.lock').exists()
+    assert (tmp_path/'starplast-install.log').is_file()
+
+
+def test_frozen_launcher_drops_bundled_libraries_without_original_paths(tmp_path, monkeypatch):
+    monkeypatch.setattr(sys, 'frozen', True, raising=False)
+    for key in ('LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH'):
+        monkeypatch.setenv(key, '/bundled/qt-libraries')
+        monkeypatch.delenv(key + '_ORIG', raising=False)
+    values = service.process_environment(tmp_path/'starplast')
+    assert 'LD_LIBRARY_PATH' not in values and 'DYLD_LIBRARY_PATH' not in values
+    assert values['QT_API'] == 'pyqt6'
+
+
+def test_completed_install_between_initial_check_and_lock_is_not_rebuilt(tmp_path, monkeypatch):
+    claim = service._claim
+
+    def finish_then_claim(root):
+        ready(root)
+        claim(root)
+
+    monkeypatch.setattr(service, '_claim', finish_then_claim)
+    assert service.install_starplast(service.REPOSITORY, root=tmp_path,
+                                    preflight=lambda *args: pytest.fail('already installed')) == tmp_path/'starplast'
+    assert service.is_installed(tmp_path)
+    assert not (tmp_path/'starplast.lock').exists()

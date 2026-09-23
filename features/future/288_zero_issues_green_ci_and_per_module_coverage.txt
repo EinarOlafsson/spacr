@@ -4647,3 +4647,29 @@ API entries and4663 external UI sources; the two genus labels now live in the
 compact dictionary rather than that external inventory. This does not claim
 full catalog coverage or green CI. Receipt:
 features/data/288_section_heading_translations_2026-09-22.json.
+
+2026-09-23 — IMPLEMENTATION: TWO STARPLAST MODULES NOW EXCEED THE FLOOR
+The last completed CI35807838039 artifact10730121853 reports11modules below
+90percent and71ratchet failures at6006a0608. That is historical evidence,
+not a current-head verdict. Rechecking the current two Starplast modules
+reproduced their gaps:86.89percent installer and83.62percent Qt launcher,
+14passing existing tests.
+
+Added meaningful boundary and lifecycle cases: source selection/validation,
+invalid ownership preservation, preflight cancellation, owned partial-install
+recovery, invalid-lock recovery, completed-install race, malformed/negative
+self-test replies, frozen-parent library isolation, checkout chooser cancel,
+duplicate start, window-close cancellation, worker outcomes, retry, launch
+failure and a child polled while running then reaped once after successful exit.
+Existing real Git archive and isolated subprocess checks still pass; real Qt
+threads drive the cancellation/lifecycle cases. Worker outcome branches are
+also checked directly, without starting a native thread.
+
+35tests pass in7.62seconds under8GiB/no-swap/offscreen CPU limits. Measured
+combined statement/branch coverage: spacr/_starplast.py98.91percent and
+spacr/qt/starplast.py97.74percent. Runtime behavior/code, baseline, exemptions,
+exclusions and coverage threshold are unchanged. No repeated multi-GB install
+or new desktop-acceptance claim. Receipt:
+features/data/288_starplast_boundary_coverage_2026-09-23.json.
+This closes these two measured floor gaps, not the remaining modules, ratchet
+regressions, translation backlog or full green-CI requirement.

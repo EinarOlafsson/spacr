@@ -1,0 +1,139 @@
+{
+  "feature": 288,
+  "related_feature": 474,
+  "date": "2026-09-23",
+  "base_commit": "dedfb8371",
+  "historical_ci": {
+    "run": 35807838039,
+    "commit": "6006a0608fd120fda76c3bd22d29ff0bfc7713b7",
+    "artifact": 10730121853,
+    "status": "Old complete report has 11 modules below floor and 71 ratchet failures; not a current-head verdict."
+  },
+  "scope": "Two current Starplast modules measured with their focused installer and Qt launcher tests. No aggregate CI completion claim.",
+  "tests_before": "14 passed in 6.16s",
+  "tests_final": "35 passed in 7.62s",
+  "modules": {
+    "spacr/_starplast.py": {
+      "before": {
+        "covered_lines": 124,
+        "num_statements": 137,
+        "percent_covered": 86.88524590163935,
+        "percent_covered_display": "86.89",
+        "missing_lines": 13,
+        "excluded_lines": 0,
+        "percent_statements_covered": 90.51094890510949,
+        "percent_statements_covered_display": "90.51",
+        "num_branches": 46,
+        "num_partial_branches": 11,
+        "covered_branches": 35,
+        "missing_branches": 11,
+        "percent_branches_covered": 76.08695652173913,
+        "percent_branches_covered_display": "76.09"
+      },
+      "after": {
+        "covered_lines": 135,
+        "num_statements": 137,
+        "percent_covered": 98.90710382513662,
+        "percent_covered_display": "98.91",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.54014598540147,
+        "percent_statements_covered_display": "98.54",
+        "num_branches": 46,
+        "num_partial_branches": 0,
+        "covered_branches": 46,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "remaining_lines": [
+        109,
+        110
+      ],
+      "remaining_branches": []
+    },
+    "spacr/qt/starplast.py": {
+      "before": {
+        "covered_lines": 133,
+        "num_statements": 153,
+        "percent_covered": 83.61581920903954,
+        "percent_covered_display": "83.62",
+        "missing_lines": 20,
+        "excluded_lines": 0,
+        "percent_statements_covered": 86.9281045751634,
+        "percent_statements_covered_display": "86.93",
+        "num_branches": 24,
+        "num_partial_branches": 5,
+        "covered_branches": 15,
+        "missing_branches": 9,
+        "percent_branches_covered": 62.5,
+        "percent_branches_covered_display": "62.50"
+      },
+      "after": {
+        "covered_lines": 151,
+        "num_statements": 153,
+        "percent_covered": 97.74011299435028,
+        "percent_covered_display": "97.74",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.69281045751634,
+        "percent_statements_covered_display": "98.69",
+        "num_branches": 24,
+        "num_partial_branches": 2,
+        "covered_branches": 22,
+        "missing_branches": 2,
+        "percent_branches_covered": 91.66666666666667,
+        "percent_branches_covered_display": "91.67"
+      },
+      "remaining_lines": [
+        173,
+        185
+      ],
+      "remaining_branches": [
+        [
+          167,
+          173
+        ],
+        [
+          181,
+          185
+        ]
+      ]
+    }
+  },
+  "coverage_version": "7.15.4",
+  "coverage_branch_enabled": true,
+  "bounds": {
+    "memory_gib": 8,
+    "swap_bytes": 0,
+    "qt_platform": "offscreen",
+    "gpu": false
+  },
+  "behavior_verified": [
+    "Source precedence and invalid sources rejected before preflight.",
+    "Invalid ownership cannot launch or delete existing folders.",
+    "Cancellation after preflight preserves preexisting partial environment.",
+    "Retry clears only owned partial environment and recovers invalid lock.",
+    "Completed install during lock acquisition is not rebuilt.",
+    "Successful process exit without positive structured self-test never marks ready.",
+    "Frozen parent Qt libraries are excluded from independent PyQt6 child.",
+    "Choose-checkout cancel and selection; no automatic install.",
+    "Repeated start does not launch duplicate work; close waits asynchronously for cancellation.",
+    "Worker outcomes and retry after unsolicited cancellation.",
+    "Launch error reporting; child remains monitored while running and reaped exactly once after success."
+  ],
+  "limitations": [
+    "No new multi-GB dependency install or third-party desktop acceptance run.",
+    "Some command/dialog boundaries use controlled substitutes; existing real Git archive and isolated child-process tests also pass.",
+    "Qt worker outcome branches also checked synchronously; existing and new lifecycle tests use real QThreads.",
+    "Coverage baseline, exclusions, exemptions and threshold unchanged."
+  ],
+  "source_sha256": {
+    "spacr/_starplast.py": "e446c26233182f34abffeaa3a984c2a19d5c703597e62210ae86a8842693cb01",
+    "spacr/qt/starplast.py": "8259a968f6ab86f463adfb4de9185aa2213671180c29bdde145a1abb437aa036",
+    "tests/test_starplast_environment.py": "cf4813785fe1b7ba375ad6562968286ce6ff1337e7615b5c2d9b7a752ce7379b",
+    "tests/qt/test_starplast_launcher.py": "d17e026ae67a97135e5d5f074b27ffbd211db0785c51f195fa11425a6b309b6a"
+  },
+  "raw_coverage_sha256": "265a6a65b429a53eadecb814ea41edb268ae59a044b0b89424e137759d406252",
+  "raw_coverage_path": "/mnt/firecuda2/Claude/implementation-20260922/starplast-coverage/final.json"
+}
