@@ -126196,6 +126196,20 @@
         "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
       ]
     },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent": {
+      "source_blocks_sha256": [
+        "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+        "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "d4b9370619ba261053b1aaa0a49878ae34be123b9c838e708e1ec60367ffaae2",
+      "text": "Recalcule l’espace réservé au texte après un changement explicite de police ou de langue.\n\n:param event: Événement de changement Qt ; les changements de police et de langue invalident la disposition.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "94c63a5ea406c9d7e3b1d6a75cfa7093c0abab51a894034cb4f42966102e67d3",
+        "b4d6a2da8f7e8365bc82b278af1bd5c37cee44344399d5d76d4cdf36d7f464ce",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components": {
       "source_blocks_sha256": [
         "37d2616087cfa7f654de38ece9a39f46b3426272b388b1ebf178c1f2dc97bd5e"
@@ -126220,6 +126234,20 @@
         "d21a4f2e414bc6a0eaeb2048d00db86b18ea603342386f097e888c1af90ae0eb",
         "a18da52643d62a73f61372733827ce0de1236bbab1b5b65ec337bcab9cdadf89",
         "8d5451379b6cfae54fae5ef1c719f48a64be8ea276a56dd2040c0c123489588b"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent": {
+      "source_blocks_sha256": [
+        "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+        "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "ad6126ef71b86972528a1a9ed756cb479e386bdf077090667f770ffd80368142",
+      "text": "Réserve l’espace du texte le plus long une fois par largeur ; le survol ne modifie jamais la géométrie.\n\n:param event: Événement de redimensionnement Qt transmis au widget parent.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "860007efc863b0de8c485a83bf9f27f15e104d80417997b069b1cb492ba8de34",
+        "f8994f8db1f9a8c1cc7bc2eed1878ff008b28928fbeb85588df3742b9b23f8cb",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {

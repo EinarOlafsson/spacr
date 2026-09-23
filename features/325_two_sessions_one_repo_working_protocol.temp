@@ -11397,3 +11397,28 @@ the measured approximately4GB download/7GB installed Starplast paragraph.
 The real install/GUI receipt supersedes the earlier untested-install note.
 Remaining runtime prose, heading corrections, broad API backlog, Make Masks
 reference and tutorial media acceptance remain open. No GPU or NAS activity.
+
+2026-09-22 — CODEX: LATEST DIAGRAM/INSTALLER RECONCILIATION
+Prior external API/OPS batch is committed locally as e56536702 after rebasing
+over6006a0608. Both sessions' channel blocks were preserved. Following up on
+aadd4ad1c/62921a16f: two new diagram handlers now document their event
+arguments and have nine-language API entries; the measured4GB download/7GB
+installed/12GB free-space warning is translated in all nine locales.
+Retired width controls have left the English UI manifest. Independent callable
+subtraction restores the previous65b0ed4c digest exactly; required omissions
+stay2293. Full review-loader, focused-test and rendered-doc checks are running.
+Next in this lane: all80 section headings, including semantic corrections to
+the six previously translated headings. Other implementation files remain
+available; no GPU/NAS work or installer execution in this batch.
+
+2026-09-22 — CODEX: DIAGRAM/INSTALLER FOLLOW-UP VALIDATED
+166 focused checks pass. Full Sphinx -W build succeeds at the integrated
+source state;21 current API anchors resolve,189 served locale entries match,
+and private Starplast helpers/import aliases stay hidden. All nine complete
+API/runtime review loaders pass; unrelated catalog rows and tables unchanged.
+Receipt: features/data/411_stable_layout_api_2026-09-22.json, bound to
+e56536702 plus this follow-up. English inventory11356 API/4665 UI sources.
+Both new handlers have54 source-bound API reviews and the installer warning
+has nine runtime reviews. Full-catalog browser acceptance remains open.
+All720 section-heading drafts now pass unchanged candidate gates; publication
+and visible FoldSection checks are next. No GPU or NAS work.

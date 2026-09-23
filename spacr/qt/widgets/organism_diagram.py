@@ -322,7 +322,11 @@ class OrganismDiagram(QWidget):
         self._select()
 
     def resizeEvent(self, event) -> None:
-        """Reserve the longest caption once per width; hover never changes geometry."""
+        """Reserve the longest caption once per width; hover never changes geometry.
+
+        :param event: Qt resize event forwarded to the parent widget.
+        :returns: None.
+        """
         super().resizeEvent(event)
         self._fit_width()
 
@@ -343,7 +347,11 @@ class OrganismDiagram(QWidget):
         self.caption.setFixedHeight(max(heights) + scaled_px(6))
 
     def changeEvent(self, event) -> None:
-        """Recompute reserved text space after an explicit font or language change."""
+        """Recompute reserved text space after an explicit font or language change.
+
+        :param event: Qt change event; font and language changes invalidate the layout.
+        :returns: None.
+        """
         super().changeEvent(event)
         if event.type() in (QEvent.FontChange, QEvent.LanguageChange):
             self._layout_width = None

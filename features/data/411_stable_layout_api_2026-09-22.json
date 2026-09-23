@@ -1,0 +1,178 @@
+{
+  "all_review_loaders_pass": true,
+  "api_documents": 18,
+  "api_review_records": 54,
+  "callables": 9400,
+  "categories": {
+    "constructor": 431,
+    "dataclass_constructor": 502,
+    "exception_constructor": 147,
+    "function": 4182,
+    "inherited_or_default_constructor": 58,
+    "method": 4063,
+    "namedtuple_constructor": 17
+  },
+  "exposures": {
+    "autoapi": 9395,
+    "cli_only": 2,
+    "compatibility": 3
+  },
+  "full_catalog_acceptance": false,
+  "languages": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "parameters": 18642,
+  "public_api_count": 11356,
+  "remaining": "Other new organism/Starplast runtime captions, heading corrections, global API catalog debt, Make Masks reference and tutorial acceptance remain open.",
+  "required_omissions": 2293,
+  "required_parameters": 9596,
+  "retired_ui": [
+    "Restore columns",
+    "Widen text",
+    "Widen the information pane; you can also drag the divider."
+  ],
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
+  "runtime_source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+  "runtime_warning_translations": 9,
+  "schema": 1,
+  "signature_digest": "c2d382b1ff3c0efbd08e1216cd18ec74d7f482fb38b549d53837a28c3d66d72d",
+  "source_commit": "e56536702c0383a3afa3bc4b05198562aae9c50c",
+  "subtracted_signature_digest": "65b0ed4c6466df815cff2780dc163cce133659ab7204e72723ec9e6cc91c597f",
+  "symbols": [
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent",
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent"
+  ],
+  "ui_count": 4665,
+  "unrelated_catalog_rows_unchanged": true,
+  "variant_counts": {
+    "1": 9393,
+    "2": 7
+  },
+  "variants": 9407,
+  "verification": {
+    "focused_tests_passed": 166,
+    "sphinx_warnings_as_errors": true,
+    "rendered_anchors": [
+      {
+        "symbol": "spacr._starplast",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "module-spacr._starplast"
+      },
+      {
+        "symbol": "spacr._starplast.REPOSITORY",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.REPOSITORY"
+      },
+      {
+        "symbol": "spacr._starplast.apps_root",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.apps_root"
+      },
+      {
+        "symbol": "spacr._starplast.default_source",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.default_source"
+      },
+      {
+        "symbol": "spacr._starplast.install_starplast",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.install_starplast"
+      },
+      {
+        "symbol": "spacr._starplast.is_installed",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.is_installed"
+      },
+      {
+        "symbol": "spacr._starplast.launch_starplast",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.launch_starplast"
+      },
+      {
+        "symbol": "spacr._starplast.process_environment",
+        "page": "api/spacr/_starplast/index.html",
+        "anchor": "spacr._starplast.process_environment"
+      },
+      {
+        "symbol": "spacr.qt.organisms.ORGANISMS",
+        "page": "api/spacr/qt/organisms/index.html",
+        "anchor": "spacr.qt.organisms.ORGANISMS"
+      },
+      {
+        "symbol": "spacr.qt.starplast",
+        "page": "api/spacr/qt/starplast/index.html",
+        "anchor": "module-spacr.qt.starplast"
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog",
+        "page": "api/spacr/qt/starplast/index.html",
+        "anchor": "spacr.qt.starplast.StarplastInstallDialog"
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+        "page": "api/spacr/qt/starplast/index.html",
+        "anchor": "spacr.qt.starplast.StarplastInstallDialog.closeEvent"
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog.reject",
+        "page": "api/spacr/qt/starplast/index.html",
+        "anchor": "spacr.qt.starplast.StarplastInstallDialog.reject"
+      },
+      {
+        "symbol": "spacr.qt.starplast.StarplastInstallDialog.start",
+        "page": "api/spacr/qt/starplast/index.html",
+        "anchor": "spacr.qt.starplast.StarplastInstallDialog.start"
+      },
+      {
+        "symbol": "spacr.qt.starplast.open_starplast",
+        "page": "api/spacr/qt/starplast/index.html",
+        "anchor": "spacr.qt.starplast.open_starplast"
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram",
+        "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+        "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram"
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent",
+        "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+        "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent"
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
+        "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+        "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components"
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter",
+        "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+        "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter"
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent",
+        "page": "api/spacr/qt/widgets/organism_diagram/index.html",
+        "anchor": "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent"
+      },
+      {
+        "symbol": "spacr.qt.widgets.sample_project.start_example",
+        "page": "api/spacr/qt/widgets/sample_project/index.html",
+        "anchor": "spacr.qt.widgets.sample_project.start_example"
+      }
+    ],
+    "copied_locale_entries": 189,
+    "private_helpers_and_import_aliases_hidden": true,
+    "log_sha256": {
+      "stable-layout-tests.log": "c00af9d8b44ea9abd5fd7026818ca89143e6882393a41cbc00e9feb7833d8630",
+      "stable-layout-sphinx.log": "3f8ca6352a3f115d34efb8000334da8d2ec78d85f3c1f93d0ca2e9d150c6dcf8",
+      "stable-layout-verification.log": "7198f1d15ee4df1562bedf9cf6fb1245103ed95b43c6286b15630d52bcf7299e"
+    }
+  }
+}
