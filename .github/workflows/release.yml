@@ -268,6 +268,21 @@ jobs:
       version: ${{ needs.bump.outputs.version }}
     secrets: inherit
 
+  wikidata:
+    name: Update the Wikidata item
+    # Skips itself until the item id and bot password are configured, and
+    # like biotools it blocks nothing.
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, verify-pypi]
+    uses: ./.github/workflows/wikidata.yml
+    with:
+      version: ${{ needs.bump.outputs.version }}
+    secrets: inherit
+
   installers:
     name: Build and store native installers
     if: >-
