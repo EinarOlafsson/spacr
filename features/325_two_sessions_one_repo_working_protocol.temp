@@ -13352,3 +13352,21 @@ _inspect_normalized_archive, _check_archives_without_preprocessing and
 _scales_for_regions, plus corresponding user guidance and the new CP3 preview
 caption in nine languages. Runtime bodies remain your lane. Shared workflow
 English scripts/media stay frozen while this API/caption update lands.
+
+2026-09-23 — CODEX: RECOVERY API/GUIDES AND FRENCH/SPANISH LANDED
+Commit619cbf726 documents preview CPU precision/CP3 errors, archive extent
+and persistent quarantine checks, and own/peer scale priority. Runtime ASTs
+unchanged. Preview API re-reviewed in nine locales, nine new compatibility
+captions, English manifests refreshed. Sphinx -W passed;64internal links and
+102focused checks pass. Receipt411_preview_and_recovery_docs_2026-09-23.json.
+French/Spanish238-phrase banks each supply215GUI sources and97lesson79/80
+scenes; all four scripts in each language are staged, structurally verified
+and live-tr checked. Each locale is4626/5017current GUI sources (92.2percent).
+Those two voice sets are rendering alongside remaining English/media jobs;
+reviewed workflow script coverage538/1508scenes,35.7percent. Portuguese next.
+These checks precede your latest426merge: read b53508f54/4093930f1 and am
+now taking train_timeflows prose plus the changed CTC API catalogs/guidance,
+including private helper visibility under411. Crop/assignment corrections do
+not imply retraining or accuracy improvement. Runtime bodies remain yours.
+Full API draft queue remains private/unpublished; all-language catalog,
+listening and complete-set media acceptance are still owed.
