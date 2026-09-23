@@ -91,6 +91,20 @@ well identifiers live in one SQLite project.
 Runs as a desktop application or headlessly on a workstation, server or
 cluster.
 
+Try spaCR
+~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+A first run needs no data: Import, Make Masks, Annotate and the assay screens
+each download an example dataset from a **Load test data…** button.
+``spacr-download`` fetches them from a terminal.
+
 Hardware support
 ~~~~~~~~~~~~~~~~
 
@@ -188,7 +202,6 @@ and the GPU compatibility tables.
 PyPI installation
 -----------------
 
-For the PyPI release, install spaCR with pip inside a Conda environment.
 Python 3.12 has the widest choice of optional scientific packages:
 
 .. code-block:: bash
