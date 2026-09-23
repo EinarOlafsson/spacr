@@ -79,3 +79,24 @@ spacr_recipe JSON version, storage paths and saved user files stay compatible.
 New user-visible strings use tr(); documentation session owns translation/API
 refresh.80 existing recipe persistence/dialog checks pass with the renamed
 captions. The other six issue127 items remain under audit; issue stays open.
+
+2026-09-23 — ISSUE127 PACKAGE UPDATE / RESTART FIXES VERIFIED
+The GUI no longer calls an editable checkout's refused upgrade a success:
+it explains the source location and git-pull route before cleanup/install.
+Active analyses defer updating, and repeated Check clicks cannot start a
+second updater while one is running. An accepted package update pins the
+version offered and verifies that distribution in a fresh isolated interpreter.
+Only verified success proceeds to a normal restart: save module/settings,
+cooperatively close, then launch this interpreter's Qt entry after the old
+event loop returns. Failed state saving or deferred shutdown leaves the window
+open and does not launch a duplicate; failed installs do not restart.
+
+99 focused updater/GUI checks pass (72backend/sequence/restart;27existing
+window/update paths). A real isolated pip upgrade of checksum-verified published
+wheels1.5.0.8→1.5.0.9 passed the new version probe. Dependencies were deliberately
+not installed in that scratch environment, so this is package-update validation,
+not a scientific-runtime acceptance test. A real offscreen Qt launch/update/
+close cycle reached the replacement-launch boundary only after loopLevel()==0;
+replacement process creation was intercepted to avoid opening another GUI.
+Native macOS/Windows installer replacement/relaunch remains to be validated.
+Issue127 remains open for those paths, layout/measurement audit and plaque freeze.

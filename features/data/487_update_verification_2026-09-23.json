@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-23",
+  "issue": 127,
+  "focused_tests": 99,
+  "published_wheel_upgrade": {
+    "from": "1.5.0.8",
+    "target": "1.5.0.9",
+    "exit_code": 0,
+    "interpreter": "/mnt/firecuda2/Claude/implementation-20260922/update127-env/bin/python",
+    "distribution": "real published spaCR wheels; SHA-256 verified",
+    "dependencies": "not installed; metadata/update verification only",
+    "fresh_interpreter_version_check": "passed"
+  },
+  "qt_event_loop": {
+    "event_loop_stopped": true,
+    "state": {
+      "version": 1,
+      "saved": "2026-09-23T16:50:00+00:00",
+      "module": "__home__",
+      "settings": {},
+      "running": [],
+      "run_folders": []
+    }
+  },
+  "limits": [
+    "CPU/offscreen Linux only",
+    "No scientific dependencies installed in scratch wheel environment",
+    "Replacement GUI process intercepted at spawn boundary",
+    "Native installer paths still require validation"
+  ]
+}

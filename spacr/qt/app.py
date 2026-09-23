@@ -3903,6 +3903,13 @@ class MainWindow(QMainWindow):
         Both the network call and an accepted ``pip`` upgrade run on
         :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
+        worker = getattr(self, "_update_worker", None)
+        try:
+            if worker is not None and worker.isRunning():
+                self.statusBar().showMessage(tr("An update operation is already running."), 4000)
+                return
+        except RuntimeError:
+            pass
         try:
             from spacr.updater import check_for_updates
         except Exception as e:
@@ -3940,10 +3947,30 @@ class MainWindow(QMainWindow):
                 f"You're on {info.installed_version}. No updates.")
             return
 
+        try:
+            from spacr.updater import editable_install_location
+        except ImportError as exc:
+            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=str(exc)))
+            return
+        checkout = editable_install_location()
+        if checkout:
+            QMessageBox.information(
+                self, tr("Source checkout"),
+                tr("This spaCR runs from the source checkout at {path}. "
+                   "Update that checkout with git pull to receive source changes. "
+                   "No package upgrade was performed.", path=checkout))
+            return
+        from .bridge import registry
+        if registry().is_busy():
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("Finish or stop the active analyses before updating spaCR."))
+            return
+
         msg = (f"A new version is available.\n\n"
                f"Installed: {info.installed_version}\n"
                f"Latest:    {info.latest_release}\n\n"
-               f"Run pip install --upgrade spacr now?")
+               f"{tr('Install this update and restart spaCR?')}")
         if QMessageBox.question(
                 self, "Update available", msg) != QMessageBox.Yes:
             return
@@ -3978,9 +4005,7 @@ class MainWindow(QMainWindow):
         else:
             return_code, output = result, ""
         if return_code == 0:
-            QMessageBox.information(
-                self, "Updates",
-                "Upgrade finished. Restart spaCR to use it.")
+            self._restart_after_package_upgrade()
             return
         lines = [line for line in (output or "").splitlines() if line.strip()]
         detail = "\n".join(lines[-6:]) if lines else "No output was captured."
@@ -3993,6 +4018,35 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(
             self, "Updates",
             f"pip returned exit code {return_code}.\n\n{detail}")
+
+    def _restart_after_package_upgrade(self) -> None:
+        """Save the visible module and request a normal, cooperative restart."""
+        from spacr import restart_state
+
+        screen = self._stack.currentWidget()
+        module = str(getattr(screen, "app_key", "") or "__home__")
+        model = getattr(screen, "_settings_model", None)
+        try:
+            settings = model.collect() if model is not None else {}
+            saved = restart_state.save(module=module, settings=settings)
+        except Exception:
+            LOG.exception("Could not save the interface for an update restart")
+            saved = None
+        if saved is None:
+            QMessageBox.warning(
+                self, tr("Updates"),
+                tr("The update is installed, but the current settings could not "
+                   "be saved for restart. Keep this window open until you have "
+                   "saved your work, then restart spaCR."))
+            return
+        self._restart_after_update = True
+        if self.close() is False:
+            self._restart_after_update = False
+            restart_state.discard()
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("The update is installed. Restart was deferred while work "
+                   "finishes shutting down; restart spaCR after it stops."))
 
     def _on_old_installs_found(self, records) -> None:
         """Show what step 1 found, then run steps 2 and 3 in that order.
@@ -4037,7 +4091,8 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "upgrade",
             lambda: install_cleanup.run_update_sequence(
-                updater.run_pip_upgrade, records=records, ticked=ticked),
+                lambda: updater.run_pip_upgrade(target_version=version),
+                records=records, ticked=ticked),
             self._on_update_sequence_done)
 
     def _confirm_old_installs(self, records):
@@ -6067,6 +6122,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
             note_a_clean_shutdown()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not record a clean shutdown", exc_info=True)
+        if getattr(win, "_restart_after_update", False):
+            from spacr.updater import launch_updated_app
+            try:
+                launch_updated_app()
+            except OSError:
+                LOG.exception("The update is installed but spaCR could not restart")
+                return 1
         return code
     finally:
         written = _timing.write_report()

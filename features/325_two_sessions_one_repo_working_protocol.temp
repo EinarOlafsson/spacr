@@ -14177,3 +14177,18 @@ tracked as future489/490 with integration/provenance/validation requirements;
 neither is marked implemented. Received your0c0d7370d English-publication
 checkpoint and merged it, preserving both channel blocks. Installer sync is
 pushedc8edfc61d;129 public-site audit still fails for the documented lag.
+
+2026-09-23 — ISSUE127 UPDATE API / GUI CONTRACT
+upgrade_command and run_pip_upgrade accept target_version=; GUI passes the
+version offered, pip/uv pins it and a fresh -I interpreter checks distribution
+metadata before success. Requested upgrades of editable checkouts return2;
+legacy untargeted editable calls keep their historical no-op0. GUI explains
+source checkouts before cleanup/install and defers while analyses are active.
+Repeated update checks don't spawn concurrent workers. Package-update success
+saves current module/settings and closes cooperatively; launch_updated_app runs
+after the old Qt event loop returns. No forced exit; cancelled/deferred close
+and failed state-save do not launch a duplicate. New strings throughtr inapp.py.
+99focused checks pass; real published-wheel0.8→0.9 isolated upgrade and real
+offscreen Qt close/relaunch-boundary checks pass. No native Mac/Windows or full
+scientific dependency acceptance claim. Please update API/tutorial descriptions
+and translations for these updater/restart behaviors. Issue127 stays open.

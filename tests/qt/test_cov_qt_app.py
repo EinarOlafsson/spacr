@@ -1888,23 +1888,28 @@ def test_being_up_to_date_says_so(win, qtbot, modals, monkeypatch):
 
 def test_accepting_an_upgrade_runs_pip(win, qtbot, modals, monkeypatch):
     import spacr.updater as updater
+    monkeypatch.setattr(updater, "editable_install_location", lambda: None)
+    restarted = []
+    monkeypatch.setattr(win, "_restart_after_package_upgrade", lambda: restarted.append(True))
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
     calls = []
     monkeypatch.setattr(updater, "run_pip_upgrade",
-                        lambda: (calls.append(1), 0)[1])
+                        lambda **kwargs: (calls.append(kwargs), 0)[1])
     modals.answers = [QMessageBox.Yes]
-    _run_update_check(win, qtbot, modals)
-    assert calls == [1]
+    win._check_for_updates()
+    qtbot.waitUntil(lambda: bool(restarted), timeout=5000)
+    assert calls == [{"target_version": "2.0.0"}]
     assert "1.0.0" in modals.questions[0][1]
     assert "2.0.0" in modals.questions[0][1]
-    assert modals.information[0][1].startswith("Upgrade finished")
+    assert restarted == [True]
 
 
 def test_a_failing_pip_upgrade_shows_its_exit_code(win, qtbot, modals,
                                                    monkeypatch):
     import spacr.updater as updater
+    monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
-    monkeypatch.setattr(updater, "run_pip_upgrade", lambda: 3)
+    monkeypatch.setattr(updater, "run_pip_upgrade", lambda **kwargs: 3)
     modals.answers = [QMessageBox.Yes]
     _run_update_check(win, qtbot, modals)
     assert "pip returned exit code 3" in modals.warning[0][1]
@@ -1912,6 +1917,7 @@ def test_a_failing_pip_upgrade_shows_its_exit_code(win, qtbot, modals,
 
 def test_declining_an_upgrade_does_nothing(win, qtbot, modals, monkeypatch):
     import spacr.updater as updater
+    monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
 
     def _must_not_run():
