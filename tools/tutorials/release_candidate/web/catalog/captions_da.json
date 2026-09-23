@@ -10308,6 +10308,166 @@
           "hold_after": 0.7
         }
       ]
+    },
+    {
+      "id": "78_spacr_screens",
+      "number": 78,
+      "slug": "spacr_screens",
+      "title": "Screening med spaCR",
+      "series": 1,
+      "app_key": null,
+      "section": "Arbejdsgange",
+      "description": "Følg en poolet billedbaseret screening fra Home gennem billedmålinger, fænotypeklassifikation og stregkodetællinger til regression.",
+      "objectives": [
+        "Vælge startmodul ud fra de data, der allerede er til rådighed.",
+        "Identificere hvilke data hvert modul læser og skriver.",
+        "Bruge de tilknyttede modullektioner og API-beskrivelser til næste trin."
+      ],
+      "prerequisite": "Installér spaCR, og åbn Home. Denne lektion forklarer navigation og dataoverdragelse; de tilknyttede modullektioner indeholder gennemarbejdede dataeksempler. Input og output omfatter betingede alternativer, som forklares for hvert modul.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Begynd på Home med det materiale, du allerede har. En poolet billedbaseret screening har to datagrene: billeder beskriver fænotypen, mens sekventering identificerer de perturbationer, der er repræsenteret i hver brønd. Mask, Measure, Annotate og Classify udgør billedgrenen. Map Barcodes udgør sekventeringsgrenen. Regression samler kompatible scorer og guideantal. Det er sammenkoblede dataprodukter, ikke seks knapper, der altid skal køres i en fast rækkefølge.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ]
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Åbn Mask fra Home. Vælg kanaler og modeller, undersøg en forhåndsvisning, og kør derefter Mask. Measure bruger de sammenflettede arrays; tællingsdatabasen er endnu ikke en tabel med egenskaber. Inputdata: mikroskopibilleder; segmenteringscheckpoint. Outputdata: billeder og labelmasker; labelmasker; objektantal. Mask til Measure: brug det samme projekt og de korrekte kanalindekser for billeder og masker.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Åbn Measure fra Home. Measure læser billeder og labelplaner sammen. Aktivér lagring af udsnit, hvis du har brug for PNG-filer; behold databasen og kildeprojektet sammen til udsnit, der læses efter behov. Inputdata: billeder og labelmasker; labelmasker. Outputdata: målte objekter; objektudsnit. Mask til Measure: brug det samme projekt og de korrekte kanalindekser for billeder og masker. Measure til Annotate: gem eller læs udsnit efter behov med stabile objektidentifikatorer. Measure til Classify: vælg billedfamilien eller den tabulære familie, der passer til dine input.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Åbn Annotate fra Home. Mærk repræsentative objekter i png_list før superviseret træning. Brug separate annoteringer til forskellige spørgsmål, og hold trænings- og evalueringsgrupper uafhængige. Inputdata: målte objekter; objektudsnit; genanvendelige udvælgelsesområder. Outputdata: træningsannoteringer. Measure til Annotate: gem eller læs udsnit efter behov med stabile objektidentifikatorer. Annotate til Classify: hold annoterede trænings- og evalueringsgrupper adskilt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Åbn Classify fra Home. Vælg Computer Vision til udsnit eller objektbilleder, der læses efter behov, eller Tabular Machine Learning til kolonner med målte egenskaber. De to familier bruger forskellige input. Inputdata: målte objekter; objektudsnit; træningsannoteringer. Outputdata: klassifikationsscorer for objekter; trænet billedklassifikator; tilpasset egenskabsklassifikator; evalueringspakke til klassifikatorer. Measure til Classify: vælg billedfamilien eller den tabulære familie, der passer til dine input. Annotate til Classify: hold annoterede trænings- og evalueringsgrupper adskilt. Classify til Regression: vælg den ønskede CV- eller ML-scorekolonne, og bevar plade- og brøndidentifikatorerne.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Åbn Map Barcodes fra Home. Angiv de referencer, der koder dit eksperiment. Undersøg de tildelte tællinger og kvalitetskontrollen af stregkoder, før du parrer guideantal pr. brønd med fænotypescorer. Inputdata: sekventeringslæsninger. Outputdata: guideantal pr. brønd. Map Barcodes til Regression: par guideantal med fænotypescorer ved hjælp af konsistente plade- og brøndnøgler.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Åbn Regression fra Home. Match plade- og brøndidentifikatorer mellem fænotypeinput og guideantal, vælg responsvariabel og kontroller, og undersøg diagnostikken, før du fortolker hits. Direkte målte responser understøttes også. Inputdata: klassifikationsscorer for objekter; guideantal pr. brønd; optiske stregkodetildelinger; målte objekter. Outputdata: regressionsresultater og hits. Classify til Regression: vælg den ønskede CV- eller ML-scorekolonne, og bevar plade- og brøndidentifikatorerne. Map Barcodes til Regression: par guideantal med fænotypescorer ved hjælp af konsistente plade- og brøndnøgler. OPS til Regression: sammenkobl eller aggregér eksplicit de afkodede objekter til fænotype- og guideinput før Regression; dette er ikke en direkte CSV-overdragelse.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Kontrollér før Regression, at billedscorer, sekventeringstællinger og forsøgsopstilling bruger matchende plade- og brøndidentifikatorer. Bevar objektidentifikatorer, annoteringskolonne, klassifikatorindstillinger og stregkodereferencer sammen med kørslen. Brug de tilknyttede modullektioner til et gennemarbejdet eksempel på hvert trin; vælg gennemgangen for poolet screening, hvis du vil have Home til at guide navigationen.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ]
 }

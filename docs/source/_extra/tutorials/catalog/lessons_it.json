@@ -11369,6 +11369,174 @@
           "speech_text": "Conserva insieme matrice, copertura, posizioni, checksum degli originali e rapporto. Lo script riapre i risultati e conferma che i quattro file originali non sono cambiati. È un passaggio geometrico riproducibile. Un tutorial ottico completo richiede ancora la validazione separata delle fasi successive."
         }
       ]
+    },
+    {
+      "id": "78_spacr_screens",
+      "number": 78,
+      "slug": "spacr_screens",
+      "title": "Screening con spaCR",
+      "series": 1,
+      "app_key": null,
+      "section": "Flussi di lavoro",
+      "description": "Segui uno screening in pool basato su immagini da Home, passando per le misurazioni delle immagini, la classificazione dei fenotipi e i conteggi dei codici a barre, fino alla regressione.",
+      "objectives": [
+        "Scegliere il modulo iniziale in base ai dati già disponibili.",
+        "Identificare quali dati legge e scrive ciascun modulo.",
+        "Consultare le lezioni dei moduli e le descrizioni delle API collegate per il passo successivo."
+      ],
+      "prerequisite": "Installa spaCR e apri Home. Questa lezione spiega la navigazione e il passaggio dei dati; le lezioni dei moduli collegati forniscono esempi pratici con dati. Gli ingressi e le uscite comprendono alternative condizionali, spiegate per ciascun modulo.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Inizia da Home con il materiale che hai già. Uno screening in pool basato su immagini ha due rami di dati: le immagini descrivono il fenotipo, mentre il sequenziamento identifica le perturbazioni rappresentate in ciascun pozzetto. Mask, Measure, Annotate e Classify costituiscono il ramo delle immagini. Map Barcodes costituisce il ramo del sequenziamento. Regression riunisce punteggi e conteggi delle guide compatibili. Si tratta di prodotti di dati collegati, non di sei pulsanti da eseguire sempre in un ordine fisso.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "Inizia da Home con il materiale che hai già. Uno screening in pool basato su immagini ha due rami di dati: le immagini descrivono il fenotipo, mentre il sequenziamento identifica le perturbazioni rappresentate in ciascun pozzetto. Mask, Measure, Annotate e Classify costituiscono il ramo delle immagini. Map Barcodes costituisce il ramo del sequenziamento. Regression riunisce punteggi e conteggi delle guide compatibili. Si tratta di prodotti di dati collegati, non di sei pulsanti da eseguire sempre in un ordine fisso."
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Apri Mask da Home. Seleziona canali e modelli, esamina un’anteprima, quindi esegui Mask. Measure utilizza gli array uniti; il database dei conteggi non è ancora una tabella di caratteristiche. Dati in ingresso: immagini al microscopio; checkpoint di segmentazione. Dati in uscita: immagini e maschere di etichette; maschere di etichette; conteggi degli oggetti. Da Mask a Measure: usa lo stesso progetto e gli indici di canale corretti per immagini e maschere.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ],
+          "speech_text": "Apri Mask da Home. Seleziona canali e modelli, esamina un’anteprima, quindi esegui Mask. Measure utilizza gli array uniti; il database dei conteggi non è ancora una tabella di caratteristiche. Dati in ingresso: immagini al microscopio; checkpoint di segmentazione. Dati in uscita: immagini e maschere di etichette; maschere di etichette; conteggi degli oggetti. Da Mask a Measure: usa lo stesso progetto e gli indici di canale corretti per immagini e maschere."
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Apri Measure da Home. Measure legge insieme immagini e piani di etichette. Attiva il salvataggio dei ritagli se ti servono file PNG; conserva insieme il database e il progetto di origine per leggere i ritagli su richiesta. Dati in ingresso: immagini e maschere di etichette; maschere di etichette. Dati in uscita: oggetti misurati; ritagli degli oggetti. Da Mask a Measure: usa lo stesso progetto e gli indici di canale corretti per immagini e maschere. Da Measure a Annotate: salva o leggi su richiesta ritagli con identificatori degli oggetti stabili. Da Measure a Classify: scegli la famiglia di immagini o quella tabulare in base ai dati in ingresso.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ],
+          "speech_text": "Apri Measure da Home. Measure legge insieme immagini e piani di etichette. Attiva il salvataggio dei ritagli se ti servono file PNG; conserva insieme il database e il progetto di origine per leggere i ritagli su richiesta. Dati in ingresso: immagini e maschere di etichette; maschere di etichette. Dati in uscita: oggetti misurati; ritagli degli oggetti. Da Mask a Measure: usa lo stesso progetto e gli indici di canale corretti per immagini e maschere. Da Measure a Annotate: salva o leggi su richiesta ritagli con identificatori degli oggetti stabili. Da Measure a Classify: scegli la famiglia di immagini o quella tabulare in base ai dati in ingresso."
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Apri Annotate da Home. Etichetta oggetti rappresentativi in png_list prima dell’addestramento supervisionato. Usa annotazioni separate per domande diverse e mantieni indipendenti i gruppi di addestramento e valutazione. Dati in ingresso: oggetti misurati; ritagli degli oggetti; regioni di selezione riutilizzabili. Dati in uscita: annotazioni di addestramento. Da Measure a Annotate: salva o leggi su richiesta ritagli con identificatori degli oggetti stabili. Da Annotate a Classify: mantieni separati i gruppi annotati di addestramento e valutazione.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ],
+          "speech_text": "Apri Annotate da Home. Etichetta oggetti rappresentativi in png_list prima dell’addestramento supervisionato. Usa annotazioni separate per domande diverse e mantieni indipendenti i gruppi di addestramento e valutazione. Dati in ingresso: oggetti misurati; ritagli degli oggetti; regioni di selezione riutilizzabili. Dati in uscita: annotazioni di addestramento. Da Measure a Annotate: salva o leggi su richiesta ritagli con identificatori degli oggetti stabili. Da Annotate a Classify: mantieni separati i gruppi annotati di addestramento e valutazione."
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Apri Classify da Home. Scegli Computer Vision per ritagli o immagini degli oggetti letti su richiesta, oppure Tabular Machine Learning per colonne di caratteristiche misurate. Le due famiglie utilizzano ingressi diversi. Dati in ingresso: oggetti misurati; ritagli degli oggetti; annotazioni di addestramento. Dati in uscita: punteggi di classificazione degli oggetti; classificatore di immagini addestrato; classificatore di caratteristiche adattato ai dati; pacchetto di valutazione del classificatore. Da Measure a Classify: scegli la famiglia di immagini o quella tabulare in base ai dati in ingresso. Da Annotate a Classify: mantieni separati i gruppi annotati di addestramento e valutazione. Da Classify a Regression: seleziona la colonna di punteggi CV o ML desiderata e conserva gli identificatori di piastra e pozzetto.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "41_classify"
+          ],
+          "speech_text": "Apri Classify da Home. Scegli Computer Vision per ritagli o immagini degli oggetti letti su richiesta, oppure Tabular Machine Learning per colonne di caratteristiche misurate. Le due famiglie utilizzano ingressi diversi. Dati in ingresso: oggetti misurati; ritagli degli oggetti; annotazioni di addestramento. Dati in uscita: punteggi di classificazione degli oggetti; classificatore di immagini addestrato; classificatore di caratteristiche adattato ai dati; pacchetto di valutazione del classificatore. Da Measure a Classify: scegli la famiglia di immagini o quella tabulare in base ai dati in ingresso. Da Annotate a Classify: mantieni separati i gruppi annotati di addestramento e valutazione. Da Classify a Regression: seleziona la colonna di punteggi CV o ML desiderata e conserva gli identificatori di piastra e pozzetto."
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Apri Map Barcodes da Home. Fornisci i riferimenti che codificano il tuo esperimento. Esamina i conteggi assegnati e il controllo qualità dei codici a barre prima di associare i conteggi delle guide per pozzetto ai punteggi fenotipici. Dati in ingresso: letture di sequenziamento. Dati in uscita: conteggi delle guide per pozzetto. Da Map Barcodes a Regression: associa i conteggi delle guide ai punteggi fenotipici usando chiavi coerenti di piastra e pozzetto.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ],
+          "speech_text": "Apri Map Barcodes da Home. Fornisci i riferimenti che codificano il tuo esperimento. Esamina i conteggi assegnati e il controllo qualità dei codici a barre prima di associare i conteggi delle guide per pozzetto ai punteggi fenotipici. Dati in ingresso: letture di sequenziamento. Dati in uscita: conteggi delle guide per pozzetto. Da Map Barcodes a Regression: associa i conteggi delle guide ai punteggi fenotipici usando chiavi coerenti di piastra e pozzetto."
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Apri Regression da Home. Fai corrispondere gli identificatori di piastra e pozzetto tra i dati fenotipici e i conteggi delle guide, seleziona la variabile risposta e i controlli, quindi esamina le diagnostiche prima di interpretare i risultati positivi. Sono supportate anche risposte misurate direttamente. Dati in ingresso: punteggi di classificazione degli oggetti; conteggi delle guide per pozzetto; assegnazioni di codici a barre ottici; oggetti misurati. Dati in uscita: risultati della regressione e risultati positivi. Da Classify a Regression: seleziona la colonna di punteggi CV o ML desiderata e conserva gli identificatori di piastra e pozzetto. Da Map Barcodes a Regression: associa i conteggi delle guide ai punteggi fenotipici usando chiavi coerenti di piastra e pozzetto. Da OPS a Regression: unisci o aggrega esplicitamente gli oggetti decodificati per formare gli ingressi di fenotipo e guide prima di Regression; non è un passaggio diretto di CSV.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "76_ops"
+          ],
+          "speech_text": "Apri Regression da Home. Fai corrispondere gli identificatori di piastra e pozzetto tra i dati fenotipici e i conteggi delle guide, seleziona la variabile risposta e i controlli, quindi esamina le diagnostiche prima di interpretare i risultati positivi. Sono supportate anche risposte misurate direttamente. Dati in ingresso: punteggi di classificazione degli oggetti; conteggi delle guide per pozzetto; assegnazioni di codici a barre ottici; oggetti misurati. Dati in uscita: risultati della regressione e risultati positivi. Da Classify a Regression: seleziona la colonna di punteggi CV o ML desiderata e conserva gli identificatori di piastra e pozzetto. Da Map Barcodes a Regression: associa i conteggi delle guide ai punteggi fenotipici usando chiavi coerenti di piastra e pozzetto. Da OPS a Regression: unisci o aggrega esplicitamente gli oggetti decodificati per formare gli ingressi di fenotipo e guide prima di Regression; non è un passaggio diretto di CSV."
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Prima di Regression, controlla che i punteggi delle immagini, i conteggi del sequenziamento e il disegno sperimentale usino identificatori di piastra e pozzetto corrispondenti. Conserva gli identificatori degli oggetti, la colonna di annotazioni, le impostazioni del classificatore e i riferimenti dei codici a barre insieme all’esecuzione. Consulta le lezioni dei moduli collegati per un esempio pratico di ogni passo; scegli il percorso guidato dello screening in pool se vuoi che Home ti accompagni nella navigazione.",
+          "hold_after": 0.7,
+          "speech_text": "Prima di Regression, controlla che i punteggi delle immagini, i conteggi del sequenziamento e il disegno sperimentale usino identificatori di piastra e pozzetto corrispondenti. Conserva gli identificatori degli oggetti, la colonna di annotazioni, le impostazioni del classificatore e i riferimenti dei codici a barre insieme all’esecuzione. Consulta le lezioni dei moduli collegati per un esempio pratico di ogni passo; scegli il percorso guidato dello screening in pool se vuoi che Home ti accompagni nella navigazione."
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "language": "it"

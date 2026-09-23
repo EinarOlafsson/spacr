@@ -10308,6 +10308,166 @@
           "hold_after": 0.7
         }
       ]
+    },
+    {
+      "id": "78_spacr_screens",
+      "number": 78,
+      "slug": "spacr_screens",
+      "title": "Screening med spaCR",
+      "series": 1,
+      "app_key": null,
+      "section": "Arbetsflöden",
+      "description": "Följ en poolad bildbaserad screening från Home via bildmätningar, fenotypklassificering och streckkodsräkning till regression.",
+      "objectives": [
+        "Välja startmodul utifrån de data som redan finns.",
+        "Identifiera vilka data varje modul läser och skriver.",
+        "Använda de länkade modullektionerna och API-beskrivningarna för nästa steg."
+      ],
+      "prerequisite": "Installera spaCR och öppna Home. Den här lektionen förklarar navigering och dataöverföring; de länkade modullektionerna innehåller genomarbetade dataexempel. In- och utdata omfattar villkorade alternativ som förklaras för varje modul.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Börja på Home med det material du redan har. En poolad bildbaserad screening har två datagrenar: bilder beskriver fenotypen, medan sekvensering identifierar vilka perturbationer som finns representerade i varje brunn. Mask, Measure, Annotate och Classify bygger bildgrenen. Map Barcodes bygger sekvenseringsgrenen. Regression sammanför kompatibla poäng och guideantal. Det är sammankopplade dataprodukter, inte sex knappar som alltid måste köras i en bestämd ordning.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ]
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Öppna Mask från Home. Välj kanaler och modeller, granska en förhandsvisning och kör sedan Mask. Measure använder de sammanslagna arrayerna; räkningsdatabasen är ännu inte en tabell med egenskaper. Indata: mikroskopbilder; segmenteringscheckpoint. Utdata: bilder och etikettmasker; etikettmasker; objektantal. Mask till Measure: använd samma projekt och rätt kanalindex för bilder och masker.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Öppna Measure från Home. Measure läser bilder och etikettplan tillsammans. Aktivera sparande av utsnitt om du behöver PNG-filer; behåll databasen och källprojektet tillsammans för utsnitt som läses vid behov. Indata: bilder och etikettmasker; etikettmasker. Utdata: uppmätta objekt; objektutsnitt. Mask till Measure: använd samma projekt och rätt kanalindex för bilder och masker. Measure till Annotate: spara eller läs utsnitt vid behov med stabila objektidentifierare. Measure till Classify: välj bildfamiljen eller den tabulära familjen efter dina indata.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Öppna Annotate från Home. Märk representativa objekt i png_list före övervakad träning. Använd separata annoteringar för olika frågeställningar och håll tränings- och utvärderingsgrupper oberoende av varandra. Indata: uppmätta objekt; objektutsnitt; återanvändbara urvalsgrindar. Utdata: träningsannoteringar. Measure till Annotate: spara eller läs utsnitt vid behov med stabila objektidentifierare. Annotate till Classify: håll annoterade tränings- och utvärderingsgrupper åtskilda.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Öppna Classify från Home. Välj Computer Vision för utsnitt eller objektbilder som läses vid behov, eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De två familjerna använder olika indata. Indata: uppmätta objekt; objektutsnitt; träningsannoteringar. Utdata: klassificeringspoäng för objekt; tränad bildklassificerare; anpassad egenskapsklassificerare; utvärderingspaket för klassificerare. Measure till Classify: välj bildfamiljen eller den tabulära familjen efter dina indata. Annotate till Classify: håll annoterade tränings- och utvärderingsgrupper åtskilda. Classify till Regression: välj den avsedda CV- eller ML-poängkolumnen och bevara platt- och brunnsidentifierarna.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Öppna Map Barcodes från Home. Ange referenserna som kodar ditt experiment. Granska mappade antal och kvalitetskontrollen av streckkoder innan du parar ihop guideantal per brunn med fenotyppoäng. Indata: sekvenseringsläsningar. Utdata: guideantal per brunn. Map Barcodes till Regression: para ihop guideantal med fenotyppoäng med konsekventa nycklar för platta och brunn.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Öppna Regression från Home. Matcha platt- och brunnsidentifierare mellan fenotypdata och guideantal, välj responsvariabel och kontroller och granska diagnostiken innan du tolkar träffar. Direkt uppmätta responser stöds också. Indata: klassificeringspoäng för objekt; guideantal per brunn; optiska streckkodstilldelningar; uppmätta objekt. Utdata: regressionsresultat och träffar. Classify till Regression: välj den avsedda CV- eller ML-poängkolumnen och bevara platt- och brunnsidentifierarna. Map Barcodes till Regression: para ihop guideantal med fenotyppoäng med konsekventa nycklar för platta och brunn. OPS till Regression: sammanfoga eller aggregera uttryckligen avkodade objekt till fenotyp- och guideindata före Regression; detta är inte en direkt CSV-överföring.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Kontrollera före Regression att bildpoäng, sekvenseringsantal och försökslayout använder matchande platt- och brunnsidentifierare. Bevara objektidentifierare, annoteringskolumn, klassificerarinställningar och streckkodsreferenser tillsammans med körningen. Använd de länkade modullektionerna för ett genomarbetat exempel på varje steg; välj genomgången för poolad screening om du vill att Home ska vägleda navigeringen.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ]
 }

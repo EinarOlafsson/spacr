@@ -603,6 +603,17 @@ function voiceById(language, id) {
   return language?.voices.find(voice => voice.id === id);
 }
 
+function lessonVoices(language, lesson = activeLesson) {
+  // An absent declaration preserves the published fifty-voice lessons.
+  // An explicit declaration offers only the tracks verified for this lesson.
+  if (!lesson || !Object.prototype.hasOwnProperty.call(lesson, "narration_voices")) {
+    return language.voices;
+  }
+  const declared = lesson.narration_voices?.[language.id];
+  if (!Array.isArray(declared)) return [];
+  return language.voices.filter(voice => declared.includes(voice.id));
+}
+
 function narrationRoot() {
   return AUDIO_ROOT;
 }
@@ -718,8 +729,9 @@ function defaultTimingSource(lesson = activeLesson) {
 
 function populateVoiceSelector(preferredVoice = "") {
   const language = languageById(elements.language.value);
+  const voices = lessonVoices(language);
   elements.voice.innerHTML = "";
-  language.voices.forEach(voice => {
+  voices.forEach(voice => {
     const option = document.createElement("option");
     option.value = voice.id;
     option.textContent = `${voice.name} · ${voice.variant}`;
@@ -729,20 +741,27 @@ function populateVoiceSelector(preferredVoice = "") {
   silent.value = "silent";
   silent.textContent = "Silent master";
   elements.voice.appendChild(silent);
-  const available = preferredVoice === "silent" || voiceById(language, preferredVoice);
-  elements.voice.value = available ? preferredVoice : language.voices[0]?.id || "silent";
+  const available = preferredVoice === "silent" || voices.some(voice => voice.id === preferredVoice);
+  elements.voice.value = available ? preferredVoice : voices[0]?.id || "silent";
+}
+
+function populateNarrationLanguages(preferredLanguage) {
+  elements.language.innerHTML = "";
+  VOICE_CATALOG.forEach(language => {
+    const count = lessonVoices(language).length;
+    const option = document.createElement("option");
+    option.value = language.id;
+    option.textContent = count
+      ? `${language.label} · ${count} ${count === 1 ? "voice" : "voices"}`
+      : `${language.label} · silent`;
+    elements.language.appendChild(option);
+  });
+  elements.language.value = languageById(preferredLanguage).id;
 }
 
 function setupNarrationSelectors() {
   const preferredLanguage = localStorage.getItem(LANGUAGE_KEY) || DEFAULT_LANGUAGE;
-  elements.language.innerHTML = "";
-  VOICE_CATALOG.forEach(language => {
-    const option = document.createElement("option");
-    option.value = language.id;
-    option.textContent = `${language.label} · ${language.voices.length} ${language.voices.length === 1 ? "voice" : "voices"}`;
-    elements.language.appendChild(option);
-  });
-  elements.language.value = languageById(preferredLanguage).id;
+  populateNarrationLanguages(preferredLanguage);
   const preferredVoice = localStorage.getItem(VOICE_KEY) ||
     (elements.language.value === DEFAULT_LANGUAGE ? DEFAULT_VOICE : "");
   populateVoiceSelector(preferredVoice);
@@ -876,6 +895,9 @@ async function selectLesson(id, options = {}) {
   if (activeLesson) saveWatchPosition();
   elements.video.pause();
   activeLesson = lesson;
+  const preferredVoice = elements.voice.value;
+  populateNarrationLanguages(elements.language.value);
+  populateVoiceSelector(preferredVoice);
   if (!options.skipHash) history.replaceState(null, "", `#lesson=${lesson.id}`);
   renderCurriculum(elements.search.value);
   updateLessonHeader();

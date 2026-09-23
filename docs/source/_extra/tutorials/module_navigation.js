@@ -1,7 +1,7 @@
 "use strict";
 window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
   "schema": 1,
-  "source_commit": "46bfd663f5d263298a374da1f2015227ba344f2f",
+  "source_commit": "50fc16b2e45f529d2361c44aa91c5fee369372aa",
   "labels": {
     "en": [
       "Main modules",
@@ -123,7 +123,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "title": "",
           "kind": "intro",
           "lessons": [
-            "05_home"
+            "05_home",
+            "78_spacr_screens"
           ]
         }
       ]
@@ -911,6 +912,7 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
     "74_import_images",
     "75_regression_diagnostics",
     "77_embeddings",
-    "76_ops"
+    "76_ops",
+    "78_spacr_screens"
   ]
 });

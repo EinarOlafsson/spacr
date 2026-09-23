@@ -11369,6 +11369,174 @@
           "speech_text": "把数组、覆盖图、放置坐标、源文件校验和及运行报告一起保存。脚本重新读取输出，并确认四个原始文件都未改变。请把它视为可复现的几何处理检查点。完整的光学筛选教程仍需要分别验证后续阶段。"
         }
       ]
+    },
+    {
+      "id": "78_spacr_screens",
+      "number": 78,
+      "slug": "spacr_screens",
+      "title": "spaCR 筛选实验",
+      "series": 1,
+      "app_key": null,
+      "section": "工作流程",
+      "description": "从 Home 开始，沿着图像测量、表型分类、条形码计数和回归分析，了解基于图像的混合池筛选流程。",
+      "objectives": [
+        "根据已有数据选择起始模块。",
+        "确定每个模块读取和写出哪些数据。",
+        "通过链接的模块课程和 API 说明了解下一步。"
+      ],
+      "prerequisite": "安装 spaCR 并打开 Home。本课程解释界面导航和数据交接；链接的模块课程提供完整的数据操作示例。输入和输出包含有条件的替代方案，各模块会分别说明。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "从 Home 开始，先考虑你已有的材料。基于图像的混合池筛选有两条数据分支：图像描述表型，测序则识别每个孔中包含的扰动。Mask、Measure、Annotate 和 Classify 构成图像分支。Map Barcodes 构成测序分支。Regression 将相互兼容的评分和向导序列计数结合起来。这些是相互连接的数据产物，并不是每次都必须按固定顺序运行的六个按钮。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "从 主页 开始，先考虑你已有的材料。基于图像的混合池筛选有两条数据分支：图像描述表型，测序则识别每个孔中包含的扰动。Mask、Measure、Annotate 和 Classify 构成图像分支。Map Barcodes 构成测序分支。Regression 将相互兼容的评分和向导序列计数结合起来。这些是相互连接的数据产物，并不是每次都必须按固定顺序运行的六个按钮。"
+        },
+        {
+          "visual": "module_mask",
+          "narration": "从 Home 打开 Mask。选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并后的数组；计数数据库此时还不是特征表。输入数据：显微镜图像；分割模型检查点。输出数据：图像与标签掩膜；标签掩膜；对象计数。Mask 到 Measure：使用同一个项目，以及正确的图像和掩膜通道索引。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ],
+          "speech_text": "从 主页 打开 Mask。选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并后的数组；计数数据库此时还不是特征表。输入数据：显微镜图像；分割模型检查点。输出数据：图像与标签掩膜；标签掩膜；对象计数。Mask 到 Measure：使用同一个项目，以及正确的图像和掩膜通道索引。"
+        },
+        {
+          "visual": "module_measure",
+          "narration": "从 Home 打开 Measure。Measure 同时读取图像和标签平面。如果需要 PNG 文件，请启用裁剪图像保存；若要按需读取裁剪图像，请将数据库与源项目保存在一起。输入数据：图像与标签掩膜；标签掩膜。输出数据：已测量对象；对象裁剪图像。Mask 到 Measure：使用同一个项目，以及正确的图像和掩膜通道索引。Measure 到 Annotate：保存或按需读取裁剪图像，并保持对象标识稳定。Measure 到 Classify：根据输入选择图像类或表格类方法。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ],
+          "speech_text": "从 主页 打开 Measure。Measure 同时读取图像和标签平面。如果需要 PNG 文件，请启用裁剪图像保存；若要按需读取裁剪图像，请将数据库与源项目保存在一起。输入数据：图像与标签掩膜；标签掩膜。输出数据：已测量对象；对象裁剪图像。Mask 到 Measure：使用同一个项目，以及正确的图像和掩膜通道索引。Measure 到 Annotate：保存或按需读取裁剪图像，并保持对象标识稳定。Measure 到 Classify：根据输入选择图像类或表格类方法。"
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "从 Home 打开 Annotate。在监督训练之前，在 png_list 中标注有代表性的对象。针对不同问题使用独立的标注，并保持训练组与评估组相互独立。输入数据：已测量对象；对象裁剪图像；可复用的门控区域。输出数据：训练标注。Measure 到 Annotate：保存或按需读取裁剪图像，并保持对象标识稳定。Annotate 到 Classify：将已标注的训练组与评估组分开。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ],
+          "speech_text": "从 主页 打开 Annotate。在监督训练之前，在 png_list 中标注有代表性的对象。针对不同问题使用独立的标注，并保持训练组与评估组相互独立。输入数据：已测量对象；对象裁剪图像；可复用的门控区域。输出数据：训练标注。Measure 到 Annotate：保存或按需读取裁剪图像，并保持对象标识稳定。Annotate 到 Classify：将已标注的训练组与评估组分开。"
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "从 Home 打开 Classify。对于裁剪图像或按需读取的对象图像，选择 Computer Vision；对于测得的特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。输入数据：已测量对象；对象裁剪图像；训练标注。输出数据：对象分类评分；训练好的图像分类器；拟合好的特征分类器；分类器评估数据包。Measure 到 Classify：根据输入选择图像类或表格类方法。Annotate 到 Classify：将已标注的训练组与评估组分开。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板和孔的标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "41_classify"
+          ],
+          "speech_text": "从 主页 打开 Classify。对于裁剪图像或按需读取的对象图像，选择 Computer Vision；对于测得的特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。输入数据：已测量对象；对象裁剪图像；训练标注。输出数据：对象分类评分；训练好的图像分类器；拟合好的特征分类器；分类器评估数据包。Measure 到 Classify：根据输入选择图像类或表格类方法。Annotate 到 Classify：将已标注的训练组与评估组分开。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板和孔的标识。"
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "从 Home 打开 Map Barcodes。提供编码本实验的参考序列。在将每孔向导序列计数与表型评分配对之前，先检查映射计数和条形码质量控制结果。输入数据：测序读段。输出数据：每孔向导序列计数。Map Barcodes 到 Regression：使用一致的板和孔键，将向导序列计数与表型评分配对。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ],
+          "speech_text": "从 主页 打开 Map Barcodes。提供编码本实验的参考序列。在将每孔向导序列计数与表型评分配对之前，先检查映射计数和条形码质量控制结果。输入数据：测序读段。输出数据：每孔向导序列计数。Map Barcodes 到 Regression：使用一致的板和孔键，将向导序列计数与表型评分配对。"
+        },
+        {
+          "visual": "module_regression",
+          "narration": "从 Home 打开 Regression。使表型输入和向导序列计数输入中的板、孔标识相互匹配，选择响应变量和对照，并在解释命中结果之前检查诊断信息。也支持直接测得的响应。输入数据：对象分类评分；每孔向导序列计数；光学条形码分配结果；已测量对象。输出数据：回归结果和命中结果。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板和孔的标识。Map Barcodes 到 Regression：使用一致的板和孔键，将向导序列计数与表型评分配对。OPS 到 Regression：在 Regression 之前，明确地连接或汇总解码后的对象，形成表型和向导序列输入；这不是直接交接一个 CSV 文件。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "76_ops"
+          ],
+          "speech_text": "从 主页 打开 Regression。使表型输入和向导序列计数输入中的板、孔标识相互匹配，选择响应变量和对照，并在解释命中结果之前检查诊断信息。也支持直接测得的响应。输入数据：对象分类评分；每孔向导序列计数；光学条形码分配结果；已测量对象。输出数据：回归结果和命中结果。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板和孔的标识。Map Barcodes 到 Regression：使用一致的板和孔键，将向导序列计数与表型评分配对。OPS 到 Regression：在 Regression 之前，明确地连接或汇总解码后的对象，形成表型和向导序列输入；这不是直接交接一个 CSV 文件。"
+        },
+        {
+          "visual": "home_summary",
+          "narration": "在 Regression 之前，检查图像评分、测序计数和实验布局是否使用相匹配的板和孔标识。将对象标识、标注列、分类器设置和条形码参考序列与本次运行一起保存。通过链接的模块课程查看每一步的完整操作示例；如果希望 Home 引导你进行界面导航，请选择混合池筛选的交互式导览。",
+          "hold_after": 0.7,
+          "speech_text": "在 Regression 之前，检查图像评分、测序计数和实验布局是否使用相匹配的板和孔标识。将对象标识、标注列、分类器设置和条形码参考序列与本次运行一起保存。通过链接的模块课程查看每一步的完整操作示例；如果希望 主页 引导你进行界面导航，请选择混合池筛选的交互式导览。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "language": "zh-CN"

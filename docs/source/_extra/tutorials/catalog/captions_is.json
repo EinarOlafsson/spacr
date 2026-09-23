@@ -10308,6 +10308,166 @@
           "hold_after": 0.7
         }
       ]
+    },
+    {
+      "id": "78_spacr_screens",
+      "number": 78,
+      "slug": "spacr_screens",
+      "title": "Skimanir með spaCR",
+      "series": 1,
+      "app_key": null,
+      "section": "Verkferlar",
+      "description": "Fylgdu myndbyggðri skimun á sameinuðu safni frá Home, í gegnum myndmælingar, svipgerðarflokkun og talningu strikamerkja, að aðhvarfsgreiningu.",
+      "objectives": [
+        "Velja upphafseiningu út frá þeim gögnum sem þegar eru tiltæk.",
+        "Átta sig á hvaða gögn hver eining les og skrifar.",
+        "Nota tengdar kennslustundir eininganna og API-lýsingar fyrir næsta skref."
+      ],
+      "prerequisite": "Settu upp spaCR og opnaðu Home. Þessi kennslustund útskýrir leiðsögn og afhendingu gagna milli eininga; tengdar kennslustundir eininganna sýna útfærð dæmi með gögnum. Inntök og úttök fela í sér skilyrta valkosti sem eru útskýrðir fyrir hverja einingu.",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Byrjaðu á Home með það efni sem þú hefur þegar. Myndbyggð skimun á sameinuðu safni hefur tvær gagnagreinar: myndir lýsa svipgerðinni en raðgreining auðkennir þær truflanir sem eru til staðar í hverjum brunni. Mask, Measure, Annotate og Classify mynda myndgreinina. Map Barcodes myndar raðgreiningargreinina. Regression sameinar samhæf skor og talningar leiðsöguraða. Þetta eru tengdar gagnaafurðir, ekki sex hnappar sem alltaf þarf að keyra í fastri röð.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ]
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Opnaðu Mask frá Home. Veldu rásir og líkön, skoðaðu forskoðun og keyrðu síðan Mask. Measure notar sameinuðu fylkin; talningagagnagrunnurinn er enn ekki tafla með mælieiginleikum. Inntaksgögn: smásjármyndir; vistuð staða aðgreiningarlíkans. Úttaksgögn: myndir og merkjagrímur; merkjagrímur; fjöldi hluta. Frá Mask til Measure: notaðu sama verkefni og rétta rásarvísa fyrir myndir og grímur.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Opnaðu Measure frá Home. Measure les myndir og merkjaplön saman. Virkjaðu vistun útskurða ef þú þarft PNG-skrár; haltu gagnagrunninum og upprunaverkefninu saman fyrir útskurði sem eru lesnir eftir þörfum. Inntaksgögn: myndir og merkjagrímur; merkjagrímur. Úttaksgögn: mældir hlutir; útskurðir af hlutum. Frá Mask til Measure: notaðu sama verkefni og rétta rásarvísa fyrir myndir og grímur. Frá Measure til Annotate: vistaðu eða lestu útskurði eftir þörfum með stöðugum auðkennum hluta. Frá Measure til Classify: veldu myndafjölskylduna eða töflugagnafjölskylduna eftir inntakinu.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Opnaðu Annotate frá Home. Merktu dæmigerða hluti í png_list fyrir stýrt nám. Notaðu aðskildar merkingar fyrir ólíkar spurningar og haltu þjálfunar- og matshópum óháðum. Inntaksgögn: mældir hlutir; útskurðir af hlutum; endurnýtanleg valsvæði. Úttaksgögn: þjálfunarmerkingar. Frá Measure til Annotate: vistaðu eða lestu útskurði eftir þörfum með stöðugum auðkennum hluta. Frá Annotate til Classify: haltu merktum þjálfunar- og matshópum aðskildum.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Opnaðu Classify frá Home. Veldu Computer Vision fyrir útskurði eða myndir af hlutum sem eru lesnar eftir þörfum, eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Fjölskyldurnar tvær nota ólík inntök. Inntaksgögn: mældir hlutir; útskurðir af hlutum; þjálfunarmerkingar. Úttaksgögn: flokkunarskor hluta; þjálfað myndflokkunarlíkan; aðlagað flokkunarlíkan fyrir eiginleika; matsgagnapakki fyrir flokkunarlíkan. Frá Measure til Classify: veldu myndafjölskylduna eða töflugagnafjölskylduna eftir inntakinu. Frá Annotate til Classify: haltu merktum þjálfunar- og matshópum aðskildum. Frá Classify til Regression: veldu viðeigandi CV- eða ML-skordálk og varðveittu auðkenni platna og brunna.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "41_classify"
+          ]
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Opnaðu Map Barcodes frá Home. Leggðu fram viðmiðunarraðirnar sem kóða tilraunina þína. Skoðaðu talningar úthlutaðra raða og gæðaeftirlit strikamerkja áður en þú parar talningar leiðsöguraða í hverjum brunni við svipgerðarskor. Inntaksgögn: raðgreiningarlestrar. Úttaksgögn: talningar leiðsöguraða í hverjum brunni. Frá Map Barcodes til Regression: paraðu talningar leiðsöguraða við svipgerðarskor með samræmdum lyklum fyrir plötur og brunna.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Opnaðu Regression frá Home. Láttu auðkenni platna og brunna samsvara milli svipgerðargagna og talninga leiðsöguraða, veldu svarbreytu og viðmið og skoðaðu greiningarprófanir áður en þú túlkar jákvæðar niðurstöður. Beint mæld svör eru einnig studd. Inntaksgögn: flokkunarskor hluta; talningar leiðsöguraða í hverjum brunni; úthlutanir ljósrænna strikamerkja; mældir hlutir. Úttaksgögn: niðurstöður aðhvarfsgreiningar og jákvæðar niðurstöður. Frá Classify til Regression: veldu viðeigandi CV- eða ML-skordálk og varðveittu auðkenni platna og brunna. Frá Map Barcodes til Regression: paraðu talningar leiðsöguraða við svipgerðarskor með samræmdum lyklum fyrir plötur og brunna. Frá OPS til Regression: tengdu eða safnaðu sérstaklega saman afkóðuðum hlutum í svipgerðar- og leiðsöguinntök fyrir Regression; þetta er ekki bein afhending CSV-skrár.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "76_ops"
+          ]
+        },
+        {
+          "visual": "home_summary",
+          "narration": "Athugaðu fyrir Regression að myndskor, raðgreiningartalningar og tilraunaskipan noti samsvarandi auðkenni platna og brunna. Varðveittu auðkenni hluta, merkingardálk, stillingar flokkunarlíkans og viðmiðunarraðir strikamerkja með keyrslunni. Notaðu tengdar kennslustundir eininganna til að sjá útfært dæmi um hvert skref; veldu leiðsögnina fyrir skimun á sameinuðu safni ef þú vilt að Home leiði þig um viðmótið.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ]
 }

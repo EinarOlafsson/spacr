@@ -1,23 +1,21 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "candidate-8738b_pd",
+  "branch": "candidate-workflow78-20260923-gt7g959",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "e35b2c12f00260629d9d5353b86dcd4577b9b617",
-  "tag": "tutorials-2026-09-15-8738b_pd",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617",
-  "manifest_sha256": "62aa93f4f9fd41d7eca86a8ef12cef10594f16da38c15b3b817915fcfbabab29",
-  "media_files": 7676,
-  "media_bytes": 7299473261,
+  "commit": "03fbad4b67cd60d9689b3106bcff4a9103f2eaad",
+  "tag": "tutorials-20260923-workflow78-gt7g959",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/03fbad4b67cd60d9689b3106bcff4a9103f2eaad",
+  "manifest_sha256": "6d93d7519271293f41cc47b2965b2dafbb708be94d1fd51394ef104cb3e921d5",
+  "media_files": 7777,
+  "media_bytes": 7396500386,
   "readback": {
-    "commit": "e35b2c12f00260629d9d5353b86dcd4577b9b617",
-    "files_expected": 7676,
-    "metadata_matched": 7676,
+    "commit": "03fbad4b67cd60d9689b3106bcff4a9103f2eaad",
+    "files_expected": 7777,
+    "metadata_matched": 7777,
     "metadata_failures": [],
-    "bytes_read_back": 7299473261,
-    "downloaded_sha256_matched": 7676,
+    "bytes_read_back": 7396500386,
+    "downloaded_sha256_matched": 7777,
     "download_failures": [],
-    "seconds": 2109.4,
-    "passed": true,
     "files_on_revision_not_in_candidate": [
       ".gitattributes",
       "71_investigate_hit/audio/en/af_aoede.json",
@@ -122,21 +120,26 @@
       "71_investigate_hit/audio/zh-CN/zm_yunyang.m4a",
       "71_investigate_hit/video/71_investigate_hit_silent.mp4",
       "README.md"
-    ]
+    ],
+    "seconds": 2100.3,
+    "passed": true,
+    "reuse_reason": "Identical complete hosted-media manifest; only navigation and player web files changed.",
+    "original_manifest_sha256": "8bbc068a43acc5ae5b0bffc4cd86b01c6c2bb4636378a1f63abbccfbbf6824b3"
   },
-  "readback_source": "the upload run itself; it stopped at a wrong tag check",
+  "readback_source": "completed immutable-commit readback resumed after upload",
   "pages": {
     "destination": "docs/source/_extra/tutorials",
-    "files_from_candidate": 199,
-    "index_sha256": "f2698e218aa4c1e5dea10c98e06b4f6ff356a8fcad177990d30984167d12511e",
-    "candidate_index_sha256": "86b07ce480d7f44622cd22da0dd05bc9240c5346ce6c9a7c4c3c9d3dc92ea620",
-    "cache_key": "20260915-8738b_pd",
+    "files_from_candidate": 202,
+    "index_sha256": "9b92620a8959c8e35c28177f63b86c4d59cbf563ead2c006504a88970ee3b91d",
+    "candidate_index_sha256": "d6ec0be10fed443096905282b32039621e32102a5d88a5245bce3b40d03223c9",
+    "cache_key": "20260923-workflow78-learning-order",
     "unchanged_versioned_assets": [
       "app_v2.js",
+      "lesson_catalog.js",
       "styles.css",
       "voice_catalog.js"
     ],
-    "ready": 76,
-    "routes": 77
+    "ready": 77,
+    "routes": 78
   }
 }
