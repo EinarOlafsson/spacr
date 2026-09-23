@@ -10,3 +10,12 @@ ACCEPTANCE
 The gesture takes precedence over right-click removal and pan. While locked, moving the mouse or scrolling cannot move the inspected image region or alter its zoom. Show a visible lock state, retain editing against the locked region, and clear stale locks when switching images.
 
 Validate real UI interaction and affected pixel/mask behavior with focused tests.
+
+2026-09-22 — IMPLEMENTED: hold Ctrl+L and right-click to lock/unlock the
+current lens in either scope. Locked lenses ignore hover/leave, size/zoom
+setters and both wheel gestures. Detector settings may still refresh the
+pinned region. Size/Zoom controls disable while locked; the lens says Locked,
+with updating state retained. Disabling the lens or changing fields unlocks.
+The chord cannot delete an object; plain Ctrl+right still deletes. Held-key
+state resets on release/deactivation.151 focused interaction, magnifier,
+settings and edit tests pass in31.70s under8GB. New tests use real Qt events.

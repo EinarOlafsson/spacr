@@ -496,6 +496,7 @@ SHORTCUT_HINTS = (
     ("M", "Live magnifier"),
     ("Magnifier: wheel", "Box zoom"),
     ("Magnifier: Shift + wheel", "Box size"),
+    ("Ctrl+L+right click", "Lock / unlock magnifier region and zoom"),
     ("Magnifier: drag", "Add the objects it passes over"),
     ("Magnifier, whole image: right", "Remove the object under it"),
 )
@@ -1704,6 +1705,21 @@ class _MaskCanvas(QLabel):
         """
         if self.mask is None:
             return super().mousePressEvent(event)
+
+        magnifier = self.magnifier
+        if (magnifier is not None and magnifier.enabled
+                and magnifier._lock_key_down
+                and event.modifiers() & Qt.ControlModifier
+                and event.button() == Qt.RightButton):
+            if event.buttons() == event.button():
+                self._swallowed.clear()
+                self._ctrl_click = None
+                if not magnifier.locked:
+                    magnifier.hover(event.position())
+                magnifier.set_locked(not magnifier.locked)
+            self._swallowed.add(event.button())
+            event.accept()
+            return
 
         if event.buttons() == event.button():
             self._swallowed.clear()
@@ -3683,6 +3699,7 @@ class _LiveMagnifier(QObject):
     #: A press-and-drag's objects as ``(outcome, final)``: shown
     #: while the button is down, committed once when ``final``.
     drag_ready = Signal(object)
+    locked_changed = Signal(bool)
 
     def __init__(self, canvas, parent=None, *, load_model=None, context=None):
         """Build a magnifier that is off and holds no thread."""
@@ -3692,6 +3709,8 @@ class _LiveMagnifier(QObject):
         self._emit_safely = emit_safely
         self.canvas = canvas
         self.enabled = False
+        self.locked = False
+        self._lock_key_down = False
         self.mode = "otsu"
         self.size = _MAGNIFIER_SIZE
         self.zoom = _MAGNIFIER_ZOOM
@@ -3771,6 +3790,43 @@ class _LiveMagnifier(QObject):
         self._delivered.connect(self._on_delivered, Qt.QueuedConnection)
         self._init_stroke()
 
+    def eventFilter(self, watched, event):
+        """Track the held L in Ctrl+L+right-click without stealing edit keys."""
+        from PySide6.QtCore import QEvent
+
+        kind = event.type()
+        if kind in (QEvent.ApplicationDeactivate, QEvent.WindowDeactivate):
+            self._lock_key_down = False
+        elif kind == QEvent.KeyRelease and event.key() in (Qt.Key_L, Qt.Key_Control):
+            if not event.isAutoRepeat():
+                self._lock_key_down = False
+        elif (kind == QEvent.KeyPress and event.key() == Qt.Key_L
+              and event.modifiers() & Qt.ControlModifier
+              and self.enabled and self.canvas.isVisible()
+              and isinstance(watched, QWidget)
+              and watched.window() == self.canvas.window()):
+            self._lock_key_down = True
+            return True
+        return super().eventFilter(watched, event)
+
+    def set_locked(self, locked: bool) -> None:
+        """Pin or release the current image region, lens position, size and zoom.
+
+        Locking needs an enabled lens over the image. Detector settings can
+        still refresh this region. Disabling the lens or opening another
+        field releases it. This transient viewing state is never saved.
+        """
+        from ..i18n import tr
+
+        locked = bool(locked and self.enabled and self._cursor is not None)
+        if locked == self.locked:
+            return
+        self.locked = locked
+        self.locked_changed.emit(locked)
+        self.status.emit(tr("Magnifier locked: Ctrl+L+right-click to unlock.")
+                         if locked else tr("Magnifier unlocked."))
+        self.canvas.update()
+
 
     def set_enabled(self, on: bool) -> None:
         """Turn the box on or off; objects already committed are untouched.
@@ -3781,9 +3837,13 @@ class _LiveMagnifier(QObject):
         """
         self.enabled = bool(on)
         if self.enabled:
+            QApplication.instance().installEventFilter(self)
             self._image_halted = None
             self.refresh()
         else:
+            QApplication.instance().removeEventFilter(self)
+            self.set_locked(False)
+            self._lock_key_down = False
             self._cursor = None
             self._anchor = None
         self.canvas.update()
@@ -3862,6 +3922,8 @@ class _LiveMagnifier(QObject):
 
     def set_size(self, size: int) -> None:
         """Set the region's side in image pixels, within its range."""
+        if self.locked:
+            return
         low, high = self.size_range()
         self.size = max(low, min(high, int(size)))
         self.refresh()
@@ -3891,6 +3953,8 @@ class _LiveMagnifier(QObject):
 
     def set_zoom(self, zoom: float) -> None:
         """Set the magnification, within its range. The model is not asked."""
+        if self.locked:
+            return
         low, high = _MAGNIFIER_ZOOM_RANGE
         self.zoom = max(low, min(high, float(zoom)))
         self.canvas.update()
@@ -3924,6 +3988,10 @@ class _LiveMagnifier(QObject):
         The canvas calls this with the new field already in place, which is
         what lets the size's range follow the field that has just opened.
         """
+        self.set_locked(False)
+        self._lock_key_down = False
+        self._cursor = None
+        self._anchor = None
         self._field += 1
         self._shown = None
         self._shown_image = None
@@ -3942,6 +4010,7 @@ class _LiveMagnifier(QObject):
         The kept whole-image objects go with them: the screen is closing,
         and a label image per field is the largest thing this object holds.
         """
+        QApplication.instance().removeEventFilter(self)
         if self._image_ticket is not None:
             self._image_ticket.cancel()
         region = self._worker.close()
@@ -3973,6 +4042,8 @@ class _LiveMagnifier(QObject):
 
     def hover(self, pos) -> None:
         """Follow the mouse to widget point ``pos``; None puts the box away."""
+        if self.locked:
+            return
         point = (None if pos is None
                  else self.canvas._canvas_to_image(pos.x(), pos.y()))
         if point is None:
@@ -5078,10 +5149,12 @@ class _LiveMagnifier(QObject):
         painter.setPen(pen)
         painter.setBrush(Qt.NoBrush)
         painter.drawRect(lens)
-        if updating:
+        if updating or self.locked:
             from ..i18n import tr
 
-            caption = _updating_caption(self.running_name())
+            caption = _updating_caption(self.running_name()) if updating else ""
+            if self.locked:
+                caption = tr("Locked") + (" · " + caption if caption else "")
             metrics = painter.fontMetrics()
             badge = QRectF(lens.left() + 4, lens.top() + 4,
                            metrics.horizontalAdvance(caption) + 10,
@@ -8427,6 +8500,8 @@ class MakeMasksScreen(QWidget):
         drawing its keys in near-black on the dark canvas -- invisible, and
         visible as such only in a rendered grab.
         """
+        from ..i18n import tr
+
         panel = Card("Shortcuts")
         panel.setObjectName("Card")
         panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -8439,13 +8514,13 @@ class MakeMasksScreen(QWidget):
         for index, (keys, does) in enumerate(SHORTCUT_HINTS):
             if index:
                 body.addSpacing(SPACING["xs"])
-            key_label = QLabel(keys, panel)
+            key_label = QLabel(tr(keys), panel)
             key_label.setObjectName("CardSubtitle")
             key_label.setWordWrap(True)
             font = key_label.font()
             font.setBold(True)
             key_label.setFont(font)
-            does_label = QLabel(does, panel)
+            does_label = QLabel(tr(does), panel)
             does_label.setObjectName("Muted")
             does_label.setWordWrap(True)
             body.addWidget(key_label)
@@ -10227,6 +10302,18 @@ class MakeMasksScreen(QWidget):
         self._mag_zoom.valueChanged.connect(magnifier.set_zoom)
         magnifier.zoom_changed.connect(self._mag_zoom.setValue)
         form.addRow("Zoom", self._mag_zoom)
+
+        from ..i18n import tr
+
+        self._mag_lock_hint = QLabel(tr(
+            "Hold Ctrl+L and right-click to lock the region and zoom. "
+            "Repeat to unlock."))
+        self._mag_lock_hint.setWordWrap(True)
+        form.addRow(self._mag_lock_hint)
+        magnifier.locked_changed.connect(
+            lambda locked: self._mag_size.setEnabled(not locked))
+        magnifier.locked_changed.connect(
+            lambda locked: self._mag_zoom.setEnabled(not locked))
 
         self._mag_sensitivity = QDoubleSpinBox()
         self._mag_sensitivity.setDecimals(2)

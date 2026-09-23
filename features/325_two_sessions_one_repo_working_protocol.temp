@@ -11422,3 +11422,17 @@ Both new handlers have54 source-bound API reviews and the installer warning
 has nine runtime reviews. Full-catalog browser acceptance remains open.
 All720 section-heading drafts now pass unchanged candidate gates; publication
 and visible FoldSection checks are next. No GPU or NAS work.
+
+2026-09-22 — IMPLEMENTATION:482 MAGNIFIER LOCK / API HANDOFF
+Ctrl+L held with right-click toggles lens lock before the Ctrl-delete handler.
+_LiveMagnifier.set_locked(bool), locked and locked_changed(bool) are new.
+Lock pins image region, lens anchor, size and zoom; hover/leave and size/zoom
+changes are ignored, while detector settings can refresh the pinned region.
+Changing fields or disabling the magnifier releases it. This is transient,
+not a persistent setting. Event tracking runs only with the magnifier enabled
+and clears held-key state on key release/window deactivation. New translated
+strings: Locked, lock/unlock status, Live magnifier gesture hint, and shortcut
+row Ctrl+L+right click / Lock / unlock magnifier region and zoom. Size and
+Zoom controls disable while locked.151 focused checks pass in31.70s, including
+both scopes, wheel, reset and delete separation. No catalogs edited.
+Previous479–481 chunk is pushed as16fec57b9.477 and478 remain implementation-owned.
