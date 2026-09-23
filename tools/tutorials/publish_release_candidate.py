@@ -39,6 +39,7 @@ import sys
 import time
 
 from check_completed_matrix import digest
+from build_release_candidate import copy_checked
 from stage_lesson import REPO, read, write
 from validate_candidate import validate
 
@@ -262,8 +263,7 @@ def pages(root, key):
         source, target = root / 'web' / relative, PAGES / relative
         if digest(source) != record['sha256']:
             raise SystemExit(f'Candidate file changed: {relative}')
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(source.read_bytes())
+        copy_checked(source, target, [], PAGES, record['sha256'])
         if digest(target) != record['sha256']:
             raise SystemExit(f'Copy differs: {relative}')
         written.append(relative)
@@ -293,7 +293,9 @@ def pages(root, key):
     index = replace(r'Lesson 1 of \d+', f'Lesson 1 of {len(catalog)}', index)
     if '../media_host' in index or 'data-production-root="production"' not in index:
         raise SystemExit('Pages index still points at local media')
-    (PAGES / 'index.html').write_text(index, encoding='utf-8')
+    index_temporary = PAGES / 'index.html.publishing'
+    index_temporary.write_text(index, encoding='utf-8')
+    index_temporary.replace(PAGES / 'index.html')
     receipt['pages'] = {'destination': str(PAGES.relative_to(REPO)), 'files_from_candidate': len(written) + 1,
                         'index_sha256': digest(PAGES / 'index.html'),
                         'candidate_index_sha256': web['index.html']['sha256'],

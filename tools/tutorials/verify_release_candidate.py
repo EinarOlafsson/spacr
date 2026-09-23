@@ -209,6 +209,11 @@ def verify(root, *, placeholders_only=False, published=None):
                     page.evaluate('(seconds) => seekTo(seconds)', requested)
                     page.wait_for_timeout(1500)
                     page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
+                    page.wait_for_function('''!videoClockCorrectionPending &&
+                        !elements.video.seeking && !elements.audio.seeking &&
+                        Math.abs(elements.video.currentTime -
+                            videoTimeFromAudio(elements.audio.currentTime)) < .5''',
+                        timeout=1000, polling=50)
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
                         video: elements.video.currentTime, expected: videoTimeFromAudio(elements.audio.currentTime),
                         width: elements.video.videoWidth, height: elements.video.videoHeight,

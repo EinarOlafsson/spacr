@@ -9,8 +9,35 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_appended_candidate import (append_catalogs, append_javascript_catalog,
+                                     copy_preserved_web,
                                      require_baseline_receipt, require_no_new_route_gaps)
 from audit_staged_catalogs import CATALOGS
+
+
+@pytest.mark.parametrize('replace', [False, True])
+@pytest.mark.parametrize('local_missing', [False, True])
+def test_preserved_web_uses_verified_media_and_excludes_leftover_clips(tmp_path, replace, local_missing):
+    published, baseline, candidate = [tmp_path / name for name in ('pages', 'baseline', 'candidate')]
+    relative = Path('production/01_existing/video/01_existing_silent.mp4')
+    for base, content in ((published, b'unverified local change'), (baseline / 'web', b'verified video')):
+        (base / relative).parent.mkdir(parents=True)
+        (base / relative).write_bytes(content)
+    leftover = published / 'production/02_held/video/02_held_silent.mp4'
+    leftover.parent.mkdir(parents=True)
+    leftover.write_bytes(b'retired clip')
+    (published / 'app_v2.js').write_text('current player')
+    if local_missing:
+        (published / relative).unlink()
+    manifest = {'files': [{'path': 'web/' + relative.as_posix(), 'bytes': 14,
+                           'sha256': hashlib.sha256(b'verified video').hexdigest()}]}
+    copied = copy_preserved_web(published, baseline, candidate, manifest,
+                                replacements=['01_existing'] if replace else [])
+    assert (candidate / 'web/app_v2.js').read_text() == 'current player'
+    assert not (candidate / 'web/production/02_held').exists()
+    assert (candidate / 'web' / relative).exists() is not replace
+    if not replace:
+        assert (candidate / 'web' / relative).read_bytes() == b'verified video'
+    assert len(copied) == (1 if replace else 2)
 
 
 @pytest.fixture

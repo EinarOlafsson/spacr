@@ -149,6 +149,26 @@ def require_no_new_route_gaps(before, after):
         raise ValueError('Appending lessons introduced missing module routes')
 
 
+def copy_preserved_web(published, baseline, root, manifest, *, replacements=()):
+    """Retain verified media; ignore leftover production files in the Pages tree."""
+    records = []
+    baseline_web = {record['path'][len('web/'):]: record for record in manifest['files']
+                    if record['path'].startswith('web/')}
+    for path in sorted(published.rglob('*')):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(published)
+        if relative.parts[0] != 'production':
+            copy_checked(path, root / 'web' / relative, records, root)
+    for name, record in sorted(baseline_web.items()):
+        relative = Path(name)
+        if relative.parts[0] != 'production' or relative.parts[1] in replacements:
+            continue
+        copy_checked(baseline / 'web' / relative, root / 'web' / relative,
+                     records, root, record['sha256'])
+    return records
+
+
 def build(stage, baseline, identities, *, replace=False):
     """Create a new private candidate; never upload or modify the published tree."""
     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
@@ -188,13 +208,9 @@ def build(stage, baseline, identities, *, replace=False):
         print(identity, len(checks[identity]), 'current audio tracks verified', flush=True)
     catalogs, compatibility = append_catalogs(catalogs, lessons, voices, reviews, replace=replace)
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
-    records, web_checks = [], []
-    for path in sorted(published.rglob('*')):
-        if path.is_file():
-            relative = path.relative_to(published)
-            if replace and len(relative.parts) > 1 and relative.parts[0] == 'production' and relative.parts[1] in identities:
-                continue
-            copy_checked(path, root / 'web' / path.relative_to(published), records, root)
+    records = copy_preserved_web(published, baseline, root, previous,
+                                 replacements=identities if replace else ())
+    web_checks = []
     for record in previous['files']:
         if record['path'].startswith('media_host/'):
             if replace and Path(record['path']).parts[1] in identities:

@@ -12,6 +12,21 @@ from check_completed_matrix import digest
 from validate_candidate import validate
 
 
+def test_checkpoint_copy_preserves_a_hardlinked_previous_snapshot(tmp_path):
+    import os
+    from build_release_candidate import copy_checked
+
+    source, destination, snapshot = [tmp_path / name for name in ('new', 'published', 'snapshot')]
+    source.write_bytes(b'new media')
+    snapshot.write_bytes(b'previous media')
+    os.link(snapshot, destination)
+    records = []
+    copy_checked(source, destination, records, tmp_path, digest(source))
+    assert destination.read_bytes() == b'new media'
+    assert snapshot.read_bytes() == b'previous media'
+    assert records[0]['sha256'] == digest(source)
+
+
 def save(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value))
