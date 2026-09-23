@@ -111,7 +111,9 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # Subtraction is recorded in 411_api_prose_cleanup_2026-09-22.json.
 # +22 / -0 for the flowchart and secondary-object APIs; exact delta in
 # 411_flowchart_secondary_inventory_2026-09-23.json.
-REAL_SYMBOL_COUNT = 11_402
+# +7 source-bound Timeflows nested helpers; subtraction and nine-language
+# review evidence: features/data/411_timeflows_guidance_2026-09-23.json.
+REAL_SYMBOL_COUNT = 11_409
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

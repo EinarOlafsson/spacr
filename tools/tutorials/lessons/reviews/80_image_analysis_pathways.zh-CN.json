@@ -1,0 +1,44 @@
+{
+  "language": "zh-CN",
+  "lesson": "80_image_analysis_pathways",
+  "english_sha256": "1ddf059e6f9d6a1097030c4639af64f66b7ac137672b81f60bc96cbbefc5e9a9",
+  "title": "图像分析模块及其关系",
+  "section": "工作流程",
+  "description": "选择一条图像分析路径，涵盖分割、测量、标注、分类、投影、门控、图像配准、质量控制和专项实验分析。",
+  "objectives": [
+    "根据已有数据选择起始模块。",
+    "明确每个模块读取和写入的内容。",
+    "下一步请参阅链接的模块教程和 API 输入输出约定。"
+  ],
+  "prerequisite": "安装 spaCR 并打开 Home。本教程说明导航和数据传递；链接的模块教程提供完整数据示例。输入和输出包含取决于条件的不同情况，各模块中均有说明。",
+  "scenes": [
+    "从 Home 开始，先确定已有的是原始图像、现有掩膜还是已测量对象。Mask 生成分割输出；Make Masks 用于整理单个视野；Measure 将兼容的图像和标签转换为对象测量值，并可生成裁剪图像。随后，根据科学问题选择分类、探索投影、定义门控或开展专项实验分析。需要共同坐标系的分析应先对齐图块。这里的路径是可选路线和分支，并不要求运行所有模块。",
+    "从 Home 打开 Mask。 选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。 输入数据: 显微镜图像; 分割检查点. 输出数据: 图像和标签掩膜; 标签掩膜; 对象计数. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。",
+    "从 Home 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 整理后的训练视野; 标签掩膜. Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+    "从 Home 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 输入数据: 图像和标签掩膜; 标签掩膜. 输出数据: 已测量对象; 对象裁剪图. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Measure 到 QC：检查可用的检查结果和缺失证据。 Measure 到 Recruitment：需要目标区室的强度测量值和标识。 Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。 Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。",
+    "从 Home 打开 Annotate。 监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。 输入数据: 已测量对象; 对象裁剪图; 可复用门控. 输出数据: 训练标注. Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。",
+    "从 Home 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。",
+    "从 Home 打开 Image UMAP。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类. Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。",
+    "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控. Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。",
+    "从 Home 打开 Align & Stitch。 检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。 输入数据: 显微镜图像. 输出数据: 对齐后的拼接图像和坐标.",
+    "从 Home 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 实验分析结果; 标签掩膜. Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+    "从 Home 打开 Toxoplasma，然后选择 Recruitment。 使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Recruitment：需要目标区室的强度测量值和标识。",
+    "从 Home 打开 Toxoplasma，然后选择 Invasion Assay。 使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。",
+    "从 Home 打开 Toxoplasma，然后选择 Replication Assay。 使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。",
+    "从 Home 打开 QC。 检查存储的分割、单位、数据泄漏和孔板效应检查结果。打开其中嵌套的查看器进行详细检查。 输入数据: 已测量对象; 质量控制结果. 输出数据: 质量控制结果; 图形和表格导出. Measure 到 QC：检查可用的检查结果和缺失证据。",
+    "从 Home 打开 Embeddings。 使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 图像嵌入. Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。",
+    "在 Python 中通过 spacr.submodules.analyze_endodyogeny 使用 Endodyogeny size proxy。这条仅限 API 的工作流程没有 Home 入口或菜单项。 读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。 输入数据: 按宿主细胞汇总的区室面积. 输出数据: 由面积推算的大小代理指标结果. Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。",
+    "在 Python 中通过 spacr.spacr_cellpose.identify_masks_finetune 使用 Direct Cellpose mask generation。这条仅限 API 的工作流程没有 Home 入口或菜单项。 通过 Python API，在 TIFF 视野上运行标准或自定义 Cellpose 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。 输入数据: 用于直接 Cellpose 推理的 TIFF 视野; 分割检查点. 输出数据: 直接生成的 Cellpose TIFF 掩膜.",
+    "对于高内涵分析，先运行 Mask，再运行 Measure，然后选择能够回答研究问题的方法。对于分割训练，先在 Make Masks 中整理图像与掩膜对，再运行 Train Cellpose，并在 Mask 中测试保存的模型。已有兼容掩膜或测量数据时，可从后面的步骤开始。保留通道标识、单位、对象键以及生成各项结果所用的设置；请参阅所选路径的专门演示。"
+  ],
+  "review": {
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "phrase_bank_sha256": "f576a42c9323385850fcb0278004ea15b4d5844c020b57413a473e524b602b8c",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ]
+  }
+}

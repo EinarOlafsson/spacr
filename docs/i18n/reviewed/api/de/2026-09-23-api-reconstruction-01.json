@@ -1180,6 +1180,8 @@
     {
       "context": "the random seed.",
       "label": "spacr.timeflows_model.train_timeflows#9",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "the random seed.",
       "source_sha256": "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
       "translation": "der Startwert des Zufallsgenerators."
@@ -1908,6 +1910,8 @@
     {
       "context": "the training pairs.",
       "label": "spacr.timeflows_model.train_timeflows#3",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "the training pairs.",
       "source_sha256": "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
       "translation": "die Trainingspaare."
@@ -2608,6 +2612,8 @@
     {
       "context": "the loss at every step.",
       "label": "spacr.timeflows_model.train_timeflows#12",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "the loss at every step.",
       "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
       "translation": "der Verlustwert bei jedem Schritt."
@@ -2713,6 +2719,8 @@
     {
       "context": "``'cpu'`` or ``'cuda'``.",
       "label": "spacr.timeflows_model.train_timeflows#10",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "``'cpu'`` or ``'cuda'``.",
       "source_sha256": "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
       "translation": "``'cpu'`` oder ``'cuda'``."

@@ -753,6 +753,8 @@
     {
       "context": "steps with the backbone frozen.",
       "label": "spacr.timeflows_model.train_timeflows#4",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "steps with the backbone frozen.",
       "source_sha256": "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
       "translation": "Trainingsschritte mit eingefrorenem Basisnetz."

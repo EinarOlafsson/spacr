@@ -1,0 +1,280 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "label": "spacr.timeflows_model.ctc_pairs#0",
+      "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+      "translation": "Þjálfunarpör úr samliggjandi römmum einnar Cell Tracking Challenge-myndraðar."
+    },
+    {
+      "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
+      "label": "spacr.timeflows_model.ctc_pairs#1",
+      "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
+      "source_sha256": "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+      "translation": "Rammar úr ``<movie>/<seq>/t*.tif`` og heilar grímur úr silver-svæðaskiptingunni ``<movie>/<seq>_ST/SEG/man_seg*.tif``, endurmerktar samkvæmt rakningarmerkjum í ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Ramma er sleppt ef eitthvað af þessum þremur inntökum vantar og aðeins samliggjandi rammanúmer mynda par. Skráarnöfn sneiðagríma eru hunsuð og tvítekin rammanúmer eru ekki leyfð. Ef merki upprunahlutar í næsta ramma hefur enga ótvíræða heila grímu er hluturinn tekinn úr leiðsögn þess pars í stað þess að merkja hann sem horfinn."
+    },
+    {
+      "context": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "label": "spacr.timeflows_model.ctc_pairs#2",
+      "source": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "source_sha256": "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+      "translation": "Mappa myndraðarinnar (t.d. ``.../ctc_dic_hela_timelapse``)."
+    },
+    {
+      "context": "``'01'`` or ``'02'``.",
+      "label": "spacr.timeflows_model.ctc_pairs#3",
+      "source": "``'01'`` or ``'02'``.",
+      "source_sha256": "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+      "translation": "``'01'`` eða ``'02'``."
+    },
+    {
+      "context": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "label": "spacr.timeflows_model.ctc_pairs#4",
+      "source": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "source_sha256": "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+      "translation": "Í mesta lagi svo mörg pör, jafnt dreifð um myndröðina og valin áður en nokkur skrá er lesin. Stilltu þessi mörk til að takmarka ramma sem hlaðast úr löngum myndröðum; heildarsöfn geta þurft tugi gígabæta af minni."
+    },
+    {
+      "context": "the pairs, in time order.",
+      "label": "spacr.timeflows_model.ctc_pairs#5",
+      "source": "the pairs, in time order.",
+      "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+      "translation": "Pörin, í tímaröð."
+    },
+    {
+      "context": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
+      "label": "spacr.timeflows_model.ctc_pairs#6",
+      "source": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
+      "source_sha256": "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df",
+      "translation": "röðin eða mörkin, tvítekin auðkenni ramma eða fylki merkinga eru ógild."
+    },
+    {
+      "context": "Full object masks labelled with their TRACK ids.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#0",
+      "source": "Full object masks labelled with their TRACK ids.",
+      "source_sha256": "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+      "translation": "Heilar hlutagrímur merktar með TRACK-auðkennum sínum."
+    },
+    {
+      "context": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#1",
+      "source": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
+      "source_sha256": "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+      "translation": "Cell Tracking Challenge birtir rakningarviðmið sem MARKERS: lítið svæði innan hverrar frumu, merkt með rakningarauðkenni hennar í hverjum ramma. Heilar útlínur eru birtar sérstaklega sem silver-grímur í ``ST/SEG``, merktar eftir römmum. Aðeins ótvíræðar einn-á-móti-einum tengingar eru varðveittar: hluturinn inniheldur nákvæmlega eitt merkjaauðkenni og það merki skarast ekki við annan afmarkaðan hlut. Tengingum án merkis, sameinuðum tengingum og skiptum tengingum er sleppt í stað þess að giska."
+    },
+    {
+      "context": "one frame's instance labels, any ids.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#2",
+      "source": "one frame's instance labels, any ids.",
+      "source_sha256": "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+      "translation": "tilviksmerkingar eins ramma, með hvaða auðkennum sem er."
+    },
+    {
+      "context": "the same frame's TRA markers, labelled by track id.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#3",
+      "source": "the same frame's TRA markers, labelled by track id.",
+      "source_sha256": "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+      "translation": "TRA-merki sama ramma, merkt með rakningarauðkenni."
+    },
+    {
+      "context": "int64 ``segmentation`` relabelled by track id, 0 elsewhere.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#4",
+      "source": "int64 ``segmentation`` relabelled by track id, 0 elsewhere.",
+      "source_sha256": "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+      "translation": "``segmentation`` sem int64, endurmerkt með rakningarauðkenni, en 0 annars staðar."
+    },
+    {
+      "context": "annotations are not matching 2-D non-negative integer arrays, or marker IDs cannot be represented in int64.",
+      "label": "spacr.timeflows_model.track_masks_from_ctc#5",
+      "source": "annotations are not matching 2-D non-negative integer arrays, or marker IDs cannot be represented in int64.",
+      "source_sha256": "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e",
+      "translation": "merkingarnar eru ekki samsvarandi 2-D-fylki af heiltölum sem eru ekki neikvæðar, eða merkjaauðkennin rúmast ekki í int64."
+    },
+    {
+      "context": "Train the time head, then the whole network, on track-labelled pairs.",
+      "label": "spacr.timeflows_model.train_timeflows#0",
+      "source": "Train the time head, then the whole network, on track-labelled pairs.",
+      "source_sha256": "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+      "translation": "Þjálfar fyrst tímalega úttakshlutann og síðan allt netið á pörum með rakningarmerkingum."
+    },
+    {
+      "context": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
+      "label": "spacr.timeflows_model.train_timeflows#1",
+      "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
+      "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+      "translation": "Þjálfun í tveimur stigum: grunnnetið hefur þegar lært svæðaskiptingu og er því fryst meðan nýi úttakshlutinn lærir. Síðan er allt netið þjálfað með litlum námshraða. Sömu gagnabreytingar eru gerðar á báðum römmum hvers pars áður en markgildi eru reiknuð."
+    },
+    {
+      "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",
+      "label": "spacr.timeflows_model.train_timeflows#2",
+      "source": "A training crop keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable crops are retried up to 32 times per step. Censoring prevents incorrect targets at crop boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",
+      "source_sha256": "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+      "translation": "Þjálfunarútskurður heldur aðeins leiðsögn fyrir heilar upprunagrímur og heilar arftakagrímur þegar þær eru til staðar í öllum markrammanum. Arftaki utan reitsins er ekki hvarf. Fjarvera í gefnum merkingum heilla ramma er áfram notuð sem leiðsögn; þetta staðfestir ekki að merkingarnar séu réttar. Ónothæfir útskurðir eru endurvaldir allt að 32 sinnum í hverju skrefi. Útilokunin kemur í veg fyrir röng markgildi við skurðarmörk en fjarlægir einnig sum dæmi um hraða hreyfingu; hún staðfestir ekki nákvæmni yfir allt hreyfisviðið."
+    },
+    {
+      "context": "from :func:`TimeflowsNet`.",
+      "label": "spacr.timeflows_model.train_timeflows#3",
+      "source": "from :func:`TimeflowsNet`.",
+      "source_sha256": "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+      "translation": "frá :func:`TimeflowsNet`."
+    },
+    {
+      "context": "the training pairs.",
+      "label": "spacr.timeflows_model.train_timeflows#4",
+      "source": "the training pairs.",
+      "source_sha256": "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+      "translation": "þjálfunarpörin."
+    },
+    {
+      "context": "steps with the backbone frozen.",
+      "label": "spacr.timeflows_model.train_timeflows#5",
+      "source": "steps with the backbone frozen.",
+      "source_sha256": "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+      "translation": "skref með frystu grunnneti."
+    },
+    {
+      "context": "steps with everything trainable.",
+      "label": "spacr.timeflows_model.train_timeflows#6",
+      "source": "steps with everything trainable.",
+      "source_sha256": "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+      "translation": "skref þar sem allir stikar eru þjálfanlegir."
+    },
+    {
+      "context": "learning rate for the head stage.",
+      "label": "spacr.timeflows_model.train_timeflows#7",
+      "source": "learning rate for the head stage.",
+      "source_sha256": "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+      "translation": "námshraði á þjálfunarstigi úttakshlutans."
+    },
+    {
+      "context": "learning rate for the full stage.",
+      "label": "spacr.timeflows_model.train_timeflows#8",
+      "source": "learning rate for the full stage.",
+      "source_sha256": "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+      "translation": "námshraði á fulla þjálfunarstiginu."
+    },
+    {
+      "context": "sampling weight per pair (:func:`pair_sampling_weights`); uniform when None.",
+      "label": "spacr.timeflows_model.train_timeflows#9",
+      "source": "sampling weight per pair (:func:`pair_sampling_weights`); uniform when None.",
+      "source_sha256": "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+      "translation": "úrtaksvægi fyrir hvert par (:func:`pair_sampling_weights`); jafnt þegar None."
+    },
+    {
+      "context": "the random seed.",
+      "label": "spacr.timeflows_model.train_timeflows#10",
+      "source": "the random seed.",
+      "source_sha256": "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+      "translation": "upphafsgildi slembigjafans."
+    },
+    {
+      "context": "``'cpu'`` or ``'cuda'``.",
+      "label": "spacr.timeflows_model.train_timeflows#11",
+      "source": "``'cpu'`` or ``'cuda'``.",
+      "source_sha256": "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+      "translation": "``'cpu'`` eða ``'cuda'``."
+    },
+    {
+      "context": "``fn(line)`` for progress.",
+      "label": "spacr.timeflows_model.train_timeflows#12",
+      "source": "``fn(line)`` for progress.",
+      "source_sha256": "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+      "translation": "``fn(line)`` fyrir framvinduskilaboð."
+    },
+    {
+      "context": "the loss at every step.",
+      "label": "spacr.timeflows_model.train_timeflows#13",
+      "source": "the loss at every step.",
+      "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+      "translation": "tapgildið í hverju skrefi."
+    },
+    {
+      "context": "no usable supervision remains after 32 sampled extracted image regions for a step; inspect the full masks and motion relative to the tile.",
+      "label": "spacr.timeflows_model.train_timeflows#14",
+      "source": "no usable supervision remains after 32 sampled crops for a step; inspect the full masks and motion relative to the tile.",
+      "source_sha256": "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885",
+      "translation": "engin nothæf leiðsögn er eftir þegar 32 útskurðir hafa verið valdir fyrir eitt skref; skoðaðu heilu grímurnar og hreyfinguna miðað við reitinn."
+    },
+    {
+      "context": "Register the backbone and build the head and upsampler.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.__init__#0",
+      "source": "Register the backbone and build the head and upsampler.",
+      "source_sha256": "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+      "translation": "Skráir grunnnetið og býr til úttakshlutann og uppsýnatökueininguna."
+    },
+    {
+      "context": "The backbone (or its ``net``) is registered as ``encoder`` when it is a module, so its weights train and move with the network.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.__init__#1",
+      "source": "The backbone (or its ``net``) is registered as ``encoder`` when it is a module, so its weights train and move with the network.",
+      "source_sha256": "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae",
+      "translation": "Grunnnetið, eða ``net`` þess, er skráð sem ``encoder`` þegar það er eining, svo vægi þess séu þjálfuð og færð með netinu."
+    },
+    {
+      "context": "Join both frames' backbone features and predict the time maps.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#0",
+      "source": "Join both frames' backbone features and predict the time maps.",
+      "source_sha256": "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+      "translation": "Sameinar eiginleika grunnnetsins úr báðum römmum og spáir fyrir um tímakortin."
+    },
+    {
+      "context": "frame ``t``, ``(B, 3, H, W)``.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#1",
+      "source": "frame ``t``, ``(B, 3, H, W)``.",
+      "source_sha256": "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+      "translation": "rammi ``t``, ``(B, 3, H, W)``."
+    },
+    {
+      "context": "frame ``t+1``, the same shape.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#2",
+      "source": "frame ``t+1``, the same shape.",
+      "source_sha256": "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+      "translation": "rammi ``t+1``, með sömu lögun."
+    },
+    {
+      "context": "``(B, 3, H, W)``: the vector ``(dy, dx)`` and the successor logit.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.forward#3",
+      "source": "``(B, 3, H, W)``: the vector ``(dy, dx)`` and the successor logit.",
+      "source_sha256": "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205",
+      "translation": "``(B, 3, H, W)``: vigurinn ``(dy, dx)`` og logit-gildi fyrir arftaka."
+    },
+    {
+      "context": "The new layers' parameters: the head and the upsampler.",
+      "label": "spacr.timeflows_model.TimeflowsNet._Net.head_parameters#0",
+      "source": "The new layers' parameters: the head and the upsampler.",
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "translation": "Stikar nýju laganna: úttakshlutans og uppsýnatökueiningarinnar."
+    },
+    {
+      "context": "Apply this call's quarter-turns and optional flip to ``array``.",
+      "label": "spacr.timeflows_model.augment_pair.apply#0",
+      "source": "Apply this call's quarter-turns and optional flip to ``array``.",
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "translation": "Beitir fjórðungssnúningum og valfrjálsri speglun þessa kalls á ``array``."
+    },
+    {
+      "context": "Map frame number to path for the ``prefix*.tif`` files in ``folder``.",
+      "label": "spacr.timeflows_model.ctc_pairs.indexed#0",
+      "source": "Map frame number to path for the ``prefix*.tif`` files in ``folder``.",
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "translation": "Tengir rammanúmer við slóð skránna ``prefix*.tif`` í ``folder``."
+    },
+    {
+      "context": "Microscope image field origins covering ``extent`` with a quarter-microscope image field overlap.",
+      "label": "spacr.timeflows_model.predict_pair.starts#0",
+      "source": "Tile origins covering ``extent`` with a quarter-tile overlap.",
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "translation": "Upphafspunktar reita sem þekja ``extent`` með skörun sem nemur fjórðungi reits."
+    },
+    {
+      "context": "Train ``params`` for ``steps`` steps, the backbone frozen or not.",
+      "label": "spacr.timeflows_model.train_timeflows.run#0",
+      "source": "Train ``params`` for ``steps`` steps, the backbone frozen or not.",
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "translation": "Þjálfar ``params`` í ``steps`` skref, með grunnnetið fryst eða þjálfanlegt."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of strict annotation assignment, crop supervision and seven nested helpers; no native-speaker or accuracy sign-off",
+  "schema": 1
+}

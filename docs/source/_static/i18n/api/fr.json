@@ -154878,24 +154878,162 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
+    "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
+      "source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ],
+      "source_sha256": "a4cb7e2b82abe12ef51cac69c08048338e7e0ad275a5256346831ecf79372e5d",
+      "text": "Enregistre le réseau de base et construit la tête et le module de suréchantillonnage.\n\nLe réseau de base, ou son ``net``, est enregistré comme ``encoder`` lorsqu'il s'agit d'un module ; ses poids sont ainsi entraînés et déplacés avec le réseau.",
+      "translation_source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.forward": {
+      "source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ],
+      "source_sha256": "24aa50c47bfe401075b622b32babde16d77b9e1b23ce37479e954dae0c2042ea",
+      "text": "Réunit les caractéristiques du réseau de base des deux trames et prédit les cartes temporelles.\n\n:param frame_t: trame ``t``, ``(B, 3, H, W)``.\n:param frame_t1: trame ``t+1``, de même forme.\n:returns: ``(B, 3, H, W)`` : le vecteur ``(dy, dx)`` et le logit de présence d'un successeur.",
+      "translation_source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.head_parameters": {
+      "source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ],
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "text": "Les paramètres des nouvelles couches : la tête et le module de suréchantillonnage.",
+      "translation_source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ]
+    },
+    "spacr.timeflows_model.augment_pair.apply": {
+      "source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ],
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "text": "Applique à ``array`` les quarts de tour et le retournement facultatif de cet appel.",
+      "translation_source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ]
+    },
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
-      "text": "Paires d’entraînement de trames consécutives d’une séquence Cell Tracking Challenge.\n\nTrames provenant de ``<movie>/<seq>/t*.tif`` et masques complets de la segmentation silver ``<movie>/<seq>_ST/SEG/man_seg*.tif``, réétiquetés à partir des marqueurs de suivi ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Une trame à laquelle manque l’un de ces trois éléments est ignorée ; une paire n’est formée qu’avec deux numéros de trame consécutifs.\n\n:param movie: Le dossier de la séquence (par exemple ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` ou ``'02'``.\n:param max_pairs: Au plus ce nombre de paires, réparties régulièrement dans la séquence et choisies avant toute lecture de fichier. Cette limite borne les trames chargées depuis les longues séquences ; charger des collections entières peut nécessiter des dizaines de gigaoctets de mémoire.\n:returns: Les paires, dans l’ordre temporel.",
+      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
+      "text": "Paires d’entraînement de trames consécutives d’une séquence Cell Tracking Challenge.\n\nTrames de ``<movie>/<seq>/t*.tif`` et masques complets de la segmentation silver ``<movie>/<seq>_ST/SEG/man_seg*.tif``, réétiquetés selon les marqueurs de suivi ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Une trame à laquelle manque l'une de ces trois entrées est ignorée ; seules deux trames de numéros consécutifs forment une paire. Les noms de fichiers de masques de coupe sont ignorés et les numéros de trame en double sont refusés. Si le marqueur de la trame suivante d'un objet source ne possède pas de masque complet non ambigu, cet objet est exclu de la supervision de cette paire au lieu d'être étiqueté comme disparu.\n\n:param movie: Le dossier de la séquence (par exemple ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` ou ``'02'``.\n:param max_pairs: Au plus ce nombre de paires, réparties régulièrement dans la séquence et choisies avant toute lecture de fichier. Cette limite borne les trames chargées depuis les longues séquences ; charger des collections entières peut nécessiter des dizaines de gigaoctets de mémoire.\n:returns: Les paires, dans l’ordre temporel.\n:raises ValueError: la séquence ou la limite, les identités de trame en double ou les tableaux d'annotations sont invalides.",
       "translation_source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs.indexed": {
+      "source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ],
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "text": "Associe les numéros de trame aux chemins des fichiers ``prefix*.tif`` dans ``folder``.",
+      "translation_source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ]
+    },
+    "spacr.timeflows_model.predict_pair.starts": {
+      "source_blocks_sha256": [
+        "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"
+      ],
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "text": "Origines des tuiles couvrant ``extent`` avec un chevauchement d'un quart de tuile.",
+      "translation_source_blocks_sha256": [
+        "ef84c5c36db7702b09bc2d52eeb2cb2841578ab22aa142cf408b20f299eee01f"
+      ]
+    },
+    "spacr.timeflows_model.track_masks_from_ctc": {
+      "source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ],
+      "source_sha256": "5ed2059c473f15002794182a63f6e2807cc36acbcebb0675439ca169ca773775",
+      "text": "Masques complets d'objets portant leurs identifiants TRACK.\n\nCell Tracking Challenge publie la référence de suivi sous forme de MARKERS : une petite région dans chaque cellule, étiquetée avec son identifiant de trajectoire à chaque trame. Les contours complets sont fournis séparément, sous forme de masques silver ``ST/SEG`` étiquetés par trame. Seules les associations un à un sont conservées : l'objet contient exactement un identifiant de marqueur, et ce marqueur ne recouvre aucun autre objet segmenté. Les associations sans marqueur, fusionnées ou scindées sont exclues plutôt que devinées.\n\n:param segmentation: les étiquettes d'instances d'une trame, avec des identifiants quelconques.\n:param markers: les marqueurs TRA de la même trame, étiquetés par identifiant de trajectoire.\n:returns: ``segmentation`` en int64 réétiquetée par identifiant de trajectoire, avec 0 ailleurs.\n:raises ValueError: les annotations ne sont pas des tableaux 2-D correspondants d'entiers non négatifs, ou les identifiants de marqueurs ne sont pas représentables en int64.",
+      "translation_source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows": {
+      "source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
+      ],
+      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
+      "text": "Entraîne la tête temporelle, puis tout le réseau, sur des paires étiquetées par trajectoire.\n\nEntraînement en deux étapes : la segmentation du réseau de base est déjà apprise ; il reste donc figé pendant l'apprentissage de la nouvelle tête, puis l'ensemble est entraîné à faible taux d'apprentissage. Les deux trames de chaque paire subissent les mêmes augmentations avant le calcul de leurs cibles.\n\nUn recadrage d'entraînement conserve la supervision uniquement pour les masques sources complets et, lorsqu'ils existent dans la trame cible complète, les masques complets des successeurs. Un successeur hors de la tuile n'est pas une disparition. Les absences dans les étiquettes de trames complètes fournies restent supervisées ; cela ne valide pas ces annotations. Les recadrages inutilisables sont rééchantillonnés jusqu'à 32 fois par étape. Cette exclusion évite des cibles incorrectes aux bords des recadrages, mais supprime certains exemples de mouvement rapide ; elle ne démontre pas la précision sur toute l'étendue des mouvements.\n\n:param net: issu de :func:`TimeflowsNet`.\n:param pairs: les paires d'entraînement.\n:param head_steps: étapes avec le réseau de base figé.\n:param full_steps: étapes où tous les paramètres peuvent être entraînés.\n:param lr_head: taux d'apprentissage de la phase d'entraînement de la tête.\n:param lr_full: taux d'apprentissage de la phase complète.\n:param weights: poids d'échantillonnage par paire (:func:`pair_sampling_weights`) ; uniforme si None.\n:param seed: la graine aléatoire.\n:param device: ``'cpu'`` ou ``'cuda'``.\n:param log: ``fn(line)`` pour le suivi de la progression.\n:returns: la perte à chaque étape.\n:raises ValueError: aucune supervision utilisable ne subsiste après 32 recadrages échantillonnés pour une étape ; inspectez les masques complets et le mouvement par rapport à la tuile.",
+      "translation_source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "edcd27fa0e5d61f7c6e2cf5aab0c1ba0f8e9c8f5beb82a1fd7c9b54afc4716fd",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.run": {
+      "source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ],
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "text": "Entraîne ``params`` pendant ``steps`` étapes, avec le réseau de base figé ou entraînable.",
+      "translation_source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
       ]
     },
     "spacr.timelapse": {

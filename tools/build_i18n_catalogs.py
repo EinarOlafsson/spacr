@@ -1199,6 +1199,11 @@ _EXCEPTION_RAISE_SOURCE = (
 # Source-conditioned repairs for common scientific false friends.  These are
 # deliberately narrower than CONTEXT_REPLACEMENTS: for example, Chinese 门 is
 # ordinary in navigation prose but means the wrong thing for a cytometry gate.
+_DOCUMENTATION_GUIDE_SOURCE = (
+    r"\b(?:organism|user|installation|setup|tutorial|reference|"
+    r"troubleshooting|getting[- ]started)\s+guides?\b"
+)
+
 SOURCE_CONTEXT_REPLACEMENTS: Mapping[
     str, tuple[tuple[str, str, str], ...]
 ] = {
@@ -5010,6 +5015,12 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     for source_pattern, wrong, right in SOURCE_CONTEXT_REPLACEMENTS.get(
         language, ()
     ):
+        # Documentation guides are not molecular guides. In a paragraph that
+        # names both, leave the choice of target occurrences to its reviewer.
+        if "RNA" in right and re.search(
+            _DOCUMENTATION_GUIDE_SOURCE, str(source), re.IGNORECASE,
+        ):
+            continue
         if (language == "zh_CN" and wrong == "单元格"
                 and str(source) in _TABLE_CELL_UI_SOURCES):
             continue

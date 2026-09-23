@@ -188,6 +188,8 @@
     {
       "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",
       "label": "spacr.timeflows_model.ctc_pairs#1",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",
       "source_sha256": "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
       "translation": "帧来自 ``<movie>/<seq>/t*.tif``；完整掩膜来自银标准分割 ``<movie>/<seq>_ST/SEG/man_seg*.tif``，并根据跟踪标记 ``<movie>/<seq>_GT/TRA/man_track*.tif`` 重新标注（:func:`track_masks_from_ctc`）。任一帧若缺少这三项中的任何一项，就会被跳过；只有帧编号连续的两帧才能组成一对。"

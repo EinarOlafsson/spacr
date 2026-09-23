@@ -4,12 +4,36 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from build_i18n_catalogs import _contextualize, _syntax_preserved  # noqa: E402
+
+
+@pytest.mark.parametrize("source", [
+    "Open the organism guide from Home.",
+    "Read the user guide before running the analysis.",
+    "Consult the installation guide.",
+    "The organism guide describes guide counts and guide filtering.",
+])
+@pytest.mark.parametrize("language, target", [
+    ("zh_CN", "请阅读指南。"),
+    ("de", "Lesen Sie den Leitfaden."),
+])
+def test_documentation_guide_does_not_become_guide_rna(source, language, target):
+    assert _contextualize(target, language, source) == target
+
+
+@pytest.mark.parametrize("language, target, corrected", [
+    ("zh_CN", "比较指南计数。", "比较引导 RNA计数。"),
+    ("de", "Vergleichen Sie die Leitfäden.", "Vergleichen Sie die Guide-RNAs."),
+])
+def test_molecular_guide_false_friend_still_gets_corrected(language, target, corrected):
+    assert _contextualize(target, language, "Compare guide counts.") == corrected
 
 
 def test_settings_dictionary_prose_is_not_a_parameter_declaration():

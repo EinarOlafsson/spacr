@@ -537,6 +537,14 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
     trained at a low learning rate. Every pair is augmented identically on
     both frames before its targets are computed.
 
+    A training crop keeps supervision only for complete source masks and,
+    when present in the full target frame, complete successor masks. A
+    successor outside the tile is not a disappearance. Absences in the
+    supplied full-frame labels remain supervised; this does not validate
+    those annotations. Unusable crops are retried up to 32 times per step.
+    Censoring prevents incorrect targets at crop boundaries but removes some
+    fast-motion examples; it does not establish full-motion accuracy.
+
     :param net: from :func:`TimeflowsNet`.
     :param pairs: the training pairs.
     :param head_steps: steps with the backbone frozen.
@@ -549,6 +557,8 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
     :param device: ``'cpu'`` or ``'cuda'``.
     :param log: ``fn(line)`` for progress.
     :returns: the loss at every step.
+    :raises ValueError: no usable supervision remains after 32 sampled crops
+        for a step; inspect the full masks and motion relative to the tile.
     """
     torch = _torch()
     rng = np.random.default_rng(seed)

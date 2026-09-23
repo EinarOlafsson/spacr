@@ -427,3 +427,22 @@ Receipt2026-09-23-spanish-workflow-phrases.json. Spanish narration is rendering
 CPU-only. Reviewed scene coverage for the four new workflows is538/1508
 (35.7percent across13languages); this is script coverage, not listening or
 publication acceptance. Ten shared phrase languages remain.
+
+2026-09-23 — CODEX: SEVEN WORKFLOW LANGUAGE SETS AND FOUR VIDEO MASTERS
+Portuguese, Swedish, Chinese and Italian shared phrase banks join German,
+French and Spanish. Each new bank has 238 reviewed phrases and generates
+97 scenes for lessons 79/80. All four workflow scripts are staged and checked
+per language, preserving unrelated lessons, source/map hashes, scene links
+and spoken-form rules. Chinese/Portuguese/Swedish also share 215 GUI captions.
+Reviewed workflow scene coverage is now 926/1508 (61.4 percent across 13
+languages). Danish, Norwegian, Japanese, Hindi, Korean and Icelandic shared
+banks remain. Twenty-four generator/promotion tests pass.
+All four 4K video masters are rendered. Lessons 79/80/81 pass full video
+decoding, source-fresh default Heart audio checks and actual browser playback,
+including 540/130/68 sentence-caption checks and desktop/mobile inspection.
+Their separate default-media receipts are in tools/tutorials/evidence/.
+The overview already has its complete technical voice/caption matrix; the
+other three still need that full matrix. English, French, Spanish, Portuguese,
+Chinese and Italian remaining voice tracks are rendering on the CPU in the
+private staging directory. None of these receipts claims native-speaker,
+listening or complete-set publication acceptance. The release hold remains.

@@ -186,6 +186,8 @@
     {
       "context": "steps with everything trainable.",
       "label": "spacr.timeflows_model.train_timeflows#5",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "steps with everything trainable.",
       "source_sha256": "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
       "translation": "Die Anzahl der Schritte, bei denen alle Parameter trainierbar sind."
@@ -403,6 +405,8 @@
     {
       "context": "learning rate for the full stage.",
       "label": "spacr.timeflows_model.train_timeflows#7",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "learning rate for the full stage.",
       "source_sha256": "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
       "translation": "Die Lernrate für die Phase, in der das gesamte Modell trainiert wird."
@@ -410,6 +414,8 @@
     {
       "context": "learning rate for the head stage.",
       "label": "spacr.timeflows_model.train_timeflows#6",
+      "retired": true,
+      "retired_reason": "2026-09-23: strict CTC assignment, unknown-successor exclusion and crop-supervision documentation changed the source or its block position; original review retained, with current evidence in 2026-09-23-timeflows-supervision.json.",
       "source": "learning rate for the head stage.",
       "source_sha256": "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
       "translation": "Die Lernrate für die Trainingsphase des Ausgabekopfs."

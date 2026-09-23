@@ -1189,7 +1189,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 477 adds the shared ruler module, class and seven public methods.
     # The source-derived callable subtraction and rendered anchors are
     # recorded in features/data/411_shared_ruler_api_2026-09-22.json.
-    expected = 11_402
+    # +7 Timeflows nested helpers; removing those seven keys restores 11,402.
+    # The exact delta is recorded in 411_timeflows_guidance_2026-09-23.json.
+    expected = 11_409
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1231,7 +1233,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_402
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_409
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

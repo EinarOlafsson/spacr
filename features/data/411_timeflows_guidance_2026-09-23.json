@@ -1,0 +1,554 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "9b981c8aec2aa78b05780706c523f676216c6637",
+  "changes": [
+    "Document strict CTC assignments, int64 labels, unknown successors and cropped-object supervision.",
+    "Expose seven source-bound nested Timeflows helpers with their own nine-language API entries; private top-level helpers stay hidden.",
+    "Review39source blocks for10symbols in9languages and retain19retired review records with reasons.",
+    "Preserve documentation-guide meaning during Chinese/German terminology repairs; molecular-guide corrections remain active."
+  ],
+  "files": {
+    "spacr/timeflows_model.py": "c7fff384821796726acfb30df65b877b818dbb486249553ad5b0860d768b15f2",
+    "docs/source/timeflows_training.rst": "1554f9d591838d412954d90b7bc304808e5e2c0760d1bdc27a3e392fa6f820df",
+    "docs/source/model_zoo.rst": "229a4b8d2e1e95a1371f12503bd81a531fd12a2a0f3219882efbfce99cdbd8df",
+    "docs/source/index.rst": "55e664639d98af8f4c4c890341b75657af744a353d60ffe7ae88a36aa56aee3a",
+    "tools/nested_helper_docs.py": "0a3a1af0c8d52ccd267a65c3f24e1714471fdfa12b4815a8b642eaaf5d4024ef",
+    "spacr/qt/help_api_index.py": "e7a01f822c093fec07fdea3b976071e7a47f064572b8dd2f5e0895856b0c954d",
+    "tests/test_built_nested_helper_api.py": "5e0fa102487cd6fec3d96ac04100ddb9a24e930dcb4943b29cc5d5d0f7e713ac",
+    "tools/build_i18n_catalogs.py": "492a42cd166a91d610bca034fdaa601ad17018518183dc0da4cf3cdd54a10b3c",
+    "tests/test_i18n_literal_boundaries.py": "79830770b8bdad333012bbc57f7c8983d5bb238ab56d3e6756ec4db407220726"
+  },
+  "validation": {
+    "sphinx_warnings_as_errors": "passed",
+    "sphinx_log_sha256": "aa1857416599bd36c80772aa88707e0e7806a7fac6dc06270c733a0eaa02f7fb",
+    "tests": {
+      "inventory": {
+        "result": "23 passed in 96.60s (0:01:36)",
+        "log_sha256": "a4bd89997973ae849e441b0b40bcd83b8f8d3cb8ab29a25cdc453372f81b16f7"
+      },
+      "render_fixture": {
+        "result": "9 passed, 1 skipped, 19 deselected in 63.23s (0:01:03)",
+        "log_sha256": "2fd8206d152d826aa334cc446076b7ab104d4f128946cf5a948f6d44650d5024"
+      },
+      "built_helper_slice_browser": {
+        "result": "19 passed, 28 deselected in 482.57s (0:08:02)",
+        "log_sha256": "0a4931394a4a54aed76267052d2b9f30856b11b0f2f5e02b8dffe5515c6c49fd"
+      },
+      "public_api_count_ratchets": {
+        "result": "2 passed in 129.22s (0:02:09)",
+        "log_sha256": "0b37f8f967e2ffeedc513dba9bf5b2ab7b8b34e7cc2dfb98ceb56e169563d33a"
+      },
+      "guide_context_and_literal_boundaries": {
+        "result": "17 passed in 55.25s",
+        "log_sha256": "389945b8a003cc615f6b37aa66f7bd3cc7a3c7b46eeb5e2a4a1881cf5a64ff43"
+      },
+      "generated_help_index": {
+        "result": "22 passed in 28.52s",
+        "log_sha256": "ce2af15845c29afb906c369852c237bb82eaf30f58f81b67ff4c75f2e47c79bc"
+      }
+    },
+    "internal_links": [
+      {
+        "page": "timeflows_training.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.ctc_pairs"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.track_masks_from_ctc"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.ctc_pairs.indexed"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows.run"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.augment_pair.apply"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/core/index.html#module-spacr.core"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#build-pairs-from-cell-tracking-challenge-annotations"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#understand-crop-boundaries"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#keep-checkpoint-provenance-with-the-results"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#applications-and-workflow"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#modules-reached-from-another-screen"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#stability"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#complete-module-reference"
+      }
+    ],
+    "catalogs": {
+      "public_api_count": 11409,
+      "enabled_nested_helpers": 10,
+      "timeflows_nested_helpers": 7,
+      "languages": [
+        {
+          "language": "sv",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "de",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "es",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "zh_CN",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "pt",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "hi",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "ko",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "is",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        },
+        {
+          "language": "fr",
+          "symbols": 10,
+          "source_bound_blocks": 39,
+          "full_api_and_runtime_review_loaders": true
+        }
+      ],
+      "preserved_retired_records": 19,
+      "runtime_ast_unchanged": true,
+      "english_manifest_current": true,
+      "full_catalog_acceptance": false,
+      "native_speaker_signoff": false,
+      "added_symbols": [
+        "spacr.timeflows_model.TimeflowsNet._Net.__init__",
+        "spacr.timeflows_model.TimeflowsNet._Net.forward",
+        "spacr.timeflows_model.TimeflowsNet._Net.head_parameters",
+        "spacr.timeflows_model.augment_pair.apply",
+        "spacr.timeflows_model.ctc_pairs.indexed",
+        "spacr.timeflows_model.predict_pair.starts",
+        "spacr.timeflows_model.train_timeflows.run"
+      ],
+      "removed_symbols": [],
+      "prior_surface_by_subtraction": 11402,
+      "whole_catalog_browser_acceptance": {
+        "passed": false,
+        "observed_result": "Five object-helper language cases failed before the run was interrupted; existing whole-catalog freshness prevents language selection.",
+        "log_sha256": "2410eb3aea97d76089d3fce2c3e36bcdfbce872acc6d29221a58cf57adec5bed",
+        "all_full_catalog_test_cases_retained": true
+      },
+      "whole_catalog_freshness_debt": {
+        "de": {
+          "missing_count": 760,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 130,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.count",
+            "spacr.crop_loader.CropPlan.is_empty",
+            "spacr.crop_loader.CropQuery"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.cli_download",
+            "spacr.cli_make_masks",
+            "spacr.convert.plan"
+          ],
+          "all_debt_keys_sha256": "203cde5229095b88606c3b8ca67208413fbbbe296cd68b0d77bfd8749d920845"
+        },
+        "es": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "fr": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "hi": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "is": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "ko": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "pt": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "sv": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        },
+        "zh_CN": {
+          "missing_count": 815,
+          "extra": [
+            "spacr.cli_make_masks.editor_refusal",
+            "spacr.qt.ai.providers.ChatProvider.is_installed"
+          ],
+          "stale_count": 148,
+          "missing_examples": [
+            "spacr.crop_loader",
+            "spacr.crop_loader.CropLoadError",
+            "spacr.crop_loader.CropPlan",
+            "spacr.crop_loader.CropPlan.__post_init__",
+            "spacr.crop_loader.CropPlan.capped"
+          ],
+          "stale_examples": [
+            "spacr.accelerator.cellpose_gpu",
+            "spacr.accelerator.cellpose_kwargs",
+            "spacr.batch.resolve_job_settings",
+            "spacr.cli.resolve_settings",
+            "spacr.cli_download"
+          ],
+          "all_debt_keys_sha256": "b143a93a6ae3da62f4e25087027c59887eaaf6f6d12e1bf8ab8c99aa09098112"
+        }
+      }
+    }
+  },
+  "native_speaker_signoff": false,
+  "full_catalog_acceptance": false,
+  "published": false,
+  "remaining": [
+    "Nested-helper rollout for remaining modules",
+    "Complete nine-language catalog review and freshness",
+    "Complete tutorial media/listening/publication acceptance"
+  ]
+}

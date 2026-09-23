@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "79_module_inputs_outputs",
+  "english_sha256": "7817d4da0202ce30bd2eff391a0094aeb88f8bc5ab50e3706de32c6f7eb9b2b0",
+  "stage": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P",
+  "video": {
+    "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/79_module_inputs_outputs/video/79_module_inputs_outputs_silent.mp4",
+    "sha256": "18a7d45bb86bef74ae1e0928c4828df89e641d68ee0fd5b508a2bc5c47041f33",
+    "metadata": {
+      "width": 3840,
+      "height": 2160,
+      "r_frame_rate": "30/1",
+      "duration": "2758.800000",
+      "nb_frames": "82764"
+    },
+    "full_decode_command": [
+      "tools/run_capped.sh",
+      "3G",
+      "ffmpeg",
+      "-v",
+      "error",
+      "-threads",
+      "2",
+      "-i",
+      "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/79_module_inputs_outputs/video/79_module_inputs_outputs_silent.mp4",
+      "-f",
+      "null",
+      "-"
+    ],
+    "observed_full_decode_exit_code": 0,
+    "decode_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "default_audio": {
+    "path": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/production/79_module_inputs_outputs/audio/en/af_heart.m4a",
+    "sha256": "794a0b3b6671196311c3aa11324942f5ac9607a35ba85d827136dafbe63f585d",
+    "decoded_true_peak_dbfs": -1.6,
+    "full_decode_freshness_timing_activity": true
+  },
+  "browser": {
+    "receipt": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P/browser/79_module_inputs_outputs/en-af_heart-sentence-cues/playback-checks.json",
+    "sha256": "d428f50be8d22034f48a2466895399e8211bb5b4f554617995b1a30f8fd99b42",
+    "player_sha256": "3f0e6384184a162c1ac5b8a52d813107247b36c60f2931b366bf82b3b367b55e",
+    "scene_count": 79,
+    "sentence_cues_checked": 540,
+    "passed": true,
+    "desktop_and_mobile_screenshots_visually_inspected": true
+  },
+  "native_speaker_signoff": false,
+  "listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "The other49 voice tracks and13-language caption matrix for this lesson",
+    "Remaining workflow tutorials and complete-set acceptance",
+    "Pronunciation/listening review and complete-set publication"
+  ]
+}

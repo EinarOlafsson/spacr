@@ -1811,3 +1811,34 @@ French and Spanish shared workflow banks each add209fresh GUI sources and
 97tutorial scenes, reaching4626/5017(92.2percent)GUI source freshness. Separate
 script receipts preserve exact source/map and generated structure evidence.
 No full-catalog linguistic acceptance or native-speaker sign-off is claimed.
+
+2026-09-23 — CODEX: TIMEFLOWS SUPERVISION AND SEVEN NESTED HELPERS
+Added the Timeflows training guide and clarified train_timeflows supervision
+without changing its runtime AST. The guide distinguishes strict CTC identity
+assignment, unknown successors, cropped-object censoring, annotation validity
+and retraining. Seven Timeflows nested helpers now have their own rendered
+anchors and source-bound translations in all nine locales; private top-level
+helpers remain hidden. Ten affected symbols contain 39 reviewed source blocks
+per language. Nineteen obsolete review records retain their original content
+and gain retirement reasons. Public API pins move by exactly +7 to 11,409;
+removing the seven named additions restores 11,402. Help indexing is current.
+Sphinx -W passes. Checks: 23 inventory, 9 rendering fixtures, 19 built-anchor
+and helper-slice browser cases, 2 API count assertions and 22 Help checks pass.
+The full-catalog browser gate remains enabled and fails on existing catalog
+debt: German lacks 760 symbols and has 130 stale entries; each other locale
+lacks 815 and has 148 stale entries. Each also retains two obsolete keys.
+The scoped browser fixture uses exact shipped helper records and does not
+exempt the full-catalog gate. No whole-catalog acceptance is claimed.
+Receipt: data/411_timeflows_guidance_2026-09-23.json.
+
+2026-09-23 — CODEX: PORTUGUESE, SWEDISH AND CHINESE MAP CAPTIONS
+Each locale gains a 238-phrase workflow bank, 215 matching GUI map captions
+and 97 generated lesson scenes. Existing reviewed entries are preserved;
+each locale gains 209 fresh GUI sources. Portuguese and Swedish reach
+4626/5017 (92.2 percent); Chinese reaches 4645/5017 (92.6 percent).
+Current source/map hashes, actual tr() and full runtime/API review loaders
+pass. A source-context correction preserves organism/user documentation
+guides instead of rewriting them as guide RNA; molecular-guide repair still
+works. Seventeen literal/context checks pass. Language-specific receipts are
+under tools/tutorials/evidence/. Native-speaker and full-catalog acceptance
+remain open.

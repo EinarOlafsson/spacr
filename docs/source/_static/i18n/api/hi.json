@@ -154878,24 +154878,162 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
+    "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
+      "source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ],
+      "source_sha256": "a4cb7e2b82abe12ef51cac69c08048338e7e0ad275a5256346831ecf79372e5d",
+      "text": "आधार नेटवर्क को पंजीकृत करता है और हेड तथा अपसैंपलिंग मॉड्यूल बनाता है।\n\nआधार नेटवर्क या उसका ``net`` मॉड्यूल होने पर ``encoder`` के रूप में पंजीकृत होता है, ताकि उसके भार नेटवर्क के साथ प्रशिक्षित और स्थानांतरित हों।",
+      "translation_source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.forward": {
+      "source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ],
+      "source_sha256": "24aa50c47bfe401075b622b32babde16d77b9e1b23ce37479e954dae0c2042ea",
+      "text": "दोनों फ़्रेमों के आधार नेटवर्क फ़ीचर जोड़ता है और समय-संबंधी मानचित्रों का पूर्वानुमान करता है।\n\n:param frame_t: फ़्रेम ``t``, ``(B, 3, H, W)``।\n:param frame_t1: फ़्रेम ``t+1``, समान आकार।\n:returns: ``(B, 3, H, W)``: वेक्टर ``(dy, dx)`` और उत्तरवर्ती वस्तु का लॉजिट।",
+      "translation_source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.head_parameters": {
+      "source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ],
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "text": "नई परतों के पैरामीटर: हेड और अपसैंपलिंग मॉड्यूल।",
+      "translation_source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ]
+    },
+    "spacr.timeflows_model.augment_pair.apply": {
+      "source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ],
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "text": "इस कॉल के चौथाई-चक्र घुमाव और वैकल्पिक पलटाव को ``array`` पर लागू करता है।",
+      "translation_source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ]
+    },
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
-      "text": "एक Cell Tracking Challenge मूवी के लगातार फ़्रेमों से प्रशिक्षण जोड़े।\n\nफ़्रेम ``<movie>/<seq>/t*.tif`` से आते हैं और पूर्ण मास्क सिल्वर सेगमेंटेशन ``<movie>/<seq>_ST/SEG/man_seg*.tif`` से आते हैं। ट्रैकिंग मार्कर ``<movie>/<seq>_GT/TRA/man_track*.tif`` से उन्हें फिर लेबल किया जाता है (:func:`track_masks_from_ctc`)। किसी फ़्रेम में इन तीनों में से कोई एक भी न हो तो उसे छोड़ दिया जाता है; जोड़ा केवल लगातार दो फ़्रेम नंबरों से बनता है।\n\n:param movie: मूवी का फ़ोल्डर (जैसे ``.../ctc_dic_hela_timelapse``)।\n:param sequence: ``'01'`` या ``'02'``।\n:param max_pairs: अधिकतम इतने जोड़े, जो मूवी में समान अंतराल पर हों और किसी भी फ़ाइल को पढ़ने से पहले चुने गए हों। लंबी मूवी से लोड होने वाले फ़्रेम सीमित करने के लिए यह सीमा सेट करें; पूरे संग्रह लोड करने में कई दस गीगाबाइट मेमोरी लग सकती है।\n:returns: जोड़े, समय के क्रम में।",
+      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
+      "text": "एक Cell Tracking Challenge मूवी के लगातार फ़्रेमों से प्रशिक्षण जोड़े।\n\nफ़्रेम ``<movie>/<seq>/t*.tif`` से और पूर्ण मास्क silver विभाजन ``<movie>/<seq>_ST/SEG/man_seg*.tif`` से लिए जाते हैं; ट्रैकिंग मार्करों ``<movie>/<seq>_GT/TRA/man_track*.tif`` के अनुसार उन्हें फिर से लेबल किया जाता है (:func:`track_masks_from_ctc`)। तीनों में से कोई इनपुट गायब होने पर फ़्रेम छोड़ दिया जाता है, और केवल लगातार फ़्रेम संख्याओं से जोड़ा बनता है। स्लाइस-मास्क के फ़ाइल नाम अनदेखे किए जाते हैं और दोहराई गई फ़्रेम संख्याएँ अस्वीकार होती हैं। यदि किसी स्रोत वस्तु के अगले फ़्रेम के मार्कर का स्पष्ट पूर्ण मास्क नहीं है, तो उस जोड़े के लिए वस्तु को पर्यवेक्षण से हटाया जाता है, गायब होने का लेबल नहीं दिया जाता।\n\n:param movie: मूवी का फ़ोल्डर (जैसे ``.../ctc_dic_hela_timelapse``)।\n:param sequence: ``'01'`` या ``'02'``।\n:param max_pairs: अधिकतम इतने जोड़े, जो मूवी में समान अंतराल पर हों और किसी भी फ़ाइल को पढ़ने से पहले चुने गए हों। लंबी मूवी से लोड होने वाले फ़्रेम सीमित करने के लिए यह सीमा सेट करें; पूरे संग्रह लोड करने में कई दस गीगाबाइट मेमोरी लग सकती है।\n:returns: जोड़े, समय के क्रम में।\n:raises ValueError: सीक्वेंस या सीमा, दोहराई गई फ़्रेम पहचानें या एनोटेशन ऐरे अमान्य हैं।",
       "translation_source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs.indexed": {
+      "source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ],
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "text": "``prefix*.tif`` फ़ाइलों की फ़्रेम संख्या को ``folder`` में उनके पथ से जोड़ता है।",
+      "translation_source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ]
+    },
+    "spacr.timeflows_model.predict_pair.starts": {
+      "source_blocks_sha256": [
+        "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"
+      ],
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "text": "``extent`` को ढकने वाले टाइल आरंभ बिंदु, जिनमें चौथाई टाइल का ओवरलैप होता है।",
+      "translation_source_blocks_sha256": [
+        "ef84c5c36db7702b09bc2d52eeb2cb2841578ab22aa142cf408b20f299eee01f"
+      ]
+    },
+    "spacr.timeflows_model.track_masks_from_ctc": {
+      "source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ],
+      "source_sha256": "5ed2059c473f15002794182a63f6e2807cc36acbcebb0675439ca169ca773775",
+      "text": "TRACK पहचान से लेबल किए गए वस्तुओं के पूर्ण मास्क।\n\nCell Tracking Challenge ट्रैकिंग संदर्भ को MARKERS के रूप में प्रकाशित करता है: हर कोशिका के भीतर एक छोटा क्षेत्र, जो प्रत्येक फ़्रेम में उसकी ट्रैक पहचान से लेबल होता है। पूर्ण सीमाएँ अलग से silver ``ST/SEG`` मास्क के रूप में दी जाती हैं, जिन पर प्रति फ़्रेम लेबल होते हैं। केवल एक-से-एक मिलान रखे जाते हैं: वस्तु में ठीक एक मार्कर पहचान होनी चाहिए और वह मार्कर किसी दूसरी विभाजित वस्तु से ओवरलैप नहीं करना चाहिए। बिना मार्कर वाले, संयुक्त और विभाजित मिलान अनुमान लगाने के बजाय हटा दिए जाते हैं।\n\n:param segmentation: एक फ़्रेम के इंस्टेंस लेबल, किसी भी पहचान मान के साथ।\n:param markers: उसी फ़्रेम के TRA मार्कर, ट्रैक पहचान से लेबल किए हुए।\n:returns: ट्रैक पहचान से दोबारा लेबल किया गया int64 ``segmentation``, बाकी स्थानों पर 0।\n:raises ValueError: एनोटेशन मेल खाते गैर-ऋणात्मक पूर्णांक 2-D ऐरे नहीं हैं, या मार्कर पहचानें int64 में व्यक्त नहीं की जा सकतीं।",
+      "translation_source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows": {
+      "source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
+      ],
+      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
+      "text": "ट्रैक-लेबल वाले जोड़ों पर पहले समय-संबंधी हेड, फिर पूरे नेटवर्क को प्रशिक्षित करता है।\n\nदो चरणों में प्रशिक्षण होता है: आधार नेटवर्क पहले ही विभाजन सीख चुका है, इसलिए नया हेड सीखते समय उसे स्थिर रखा जाता है; फिर पूरे नेटवर्क को कम सीखने की दर से प्रशिक्षित किया जाता है। लक्ष्य निकालने से पहले प्रत्येक जोड़े के दोनों फ़्रेमों पर समान डेटा-वृद्धि परिवर्तन लागू होते हैं।\n\nप्रशिक्षण क्रॉप केवल पूर्ण स्रोत मास्कों और, पूरे लक्ष्य फ़्रेम में मौजूद होने पर, पूर्ण उत्तरवर्ती मास्कों का पर्यवेक्षण रखता है। टाइल से बाहर होना उत्तरवर्ती वस्तु का गायब होना नहीं है। दिए गए पूर्ण-फ़्रेम लेबलों में अनुपस्थितियाँ पर्यवेक्षण में बनी रहती हैं; इससे उन एनोटेशन की सत्यता प्रमाणित नहीं होती। अनुपयोगी क्रॉप के लिए प्रति चरण अधिकतम 32 बार फिर प्रयास किया जाता है। यह बहिष्करण क्रॉप की सीमाओं पर गलत लक्ष्यों से बचाता है, लेकिन तेज़ गति के कुछ उदाहरण भी हटा देता है; इससे पूरी गति-सीमा में सटीकता प्रमाणित नहीं होती।\n\n:param net: :func:`TimeflowsNet` से प्राप्त।\n:param pairs: प्रशिक्षण जोड़े।\n:param head_steps: आधार नेटवर्क को स्थिर रखकर किए जाने वाले चरण।\n:param full_steps: वे चरण जिनमें सभी पैरामीटर प्रशिक्षित किए जा सकते हैं।\n:param lr_head: हेड के प्रशिक्षण चरण की सीखने की दर।\n:param lr_full: पूर्ण प्रशिक्षण चरण की सीखने की दर।\n:param weights: प्रति जोड़ा नमूना-चयन भार (:func:`pair_sampling_weights`); None होने पर समान।\n:param seed: यादृच्छिक बीज।\n:param device: ``'cpu'`` या ``'cuda'``।\n:param log: प्रगति के लिए ``fn(line)``।\n:returns: हर चरण का लॉस।\n:raises ValueError: एक चरण के लिए 32 क्रॉप चुनने के बाद भी उपयोगी पर्यवेक्षण नहीं बचा; पूर्ण मास्क और टाइल के सापेक्ष गति की जाँच करें।",
+      "translation_source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "edcd27fa0e5d61f7c6e2cf5aab0c1ba0f8e9c8f5beb82a1fd7c9b54afc4716fd",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.run": {
+      "source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ],
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "text": "आधार नेटवर्क को स्थिर या प्रशिक्षण योग्य रखकर ``params`` को ``steps`` चरणों तक प्रशिक्षित करता है।",
+      "translation_source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
       ]
     },
     "spacr.timelapse": {

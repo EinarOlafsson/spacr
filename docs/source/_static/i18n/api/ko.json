@@ -154878,24 +154878,162 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
+    "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
+      "source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ],
+      "source_sha256": "a4cb7e2b82abe12ef51cac69c08048338e7e0ad275a5256346831ecf79372e5d",
+      "text": "백본을 등록하고 헤드와 업샘플링 모듈을 만듭니다.\n\n백본 또는 그 ``net``이 모듈이면 ``encoder``로 등록하여 가중치가 네트워크와 함께 학습되고 이동하도록 합니다.",
+      "translation_source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.forward": {
+      "source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ],
+      "source_sha256": "24aa50c47bfe401075b622b32babde16d77b9e1b23ce37479e954dae0c2042ea",
+      "text": "두 프레임의 백본 특징을 결합하여 시간 맵을 예측합니다.\n\n:param frame_t: 프레임 ``t``이며 모양은 ``(B, 3, H, W)``입니다.\n:param frame_t1: 프레임 ``t+1``이며 모양은 같습니다.\n:returns: ``(B, 3, H, W)``: 벡터 ``(dy, dx)``와 후속 객체 존재 여부의 로짓입니다.",
+      "translation_source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ]
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.head_parameters": {
+      "source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ],
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "text": "새 레이어인 헤드와 업샘플링 모듈의 매개변수입니다.",
+      "translation_source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ]
+    },
+    "spacr.timeflows_model.augment_pair.apply": {
+      "source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ],
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "text": "이번 호출의 4분의 1회전들과 선택적 뒤집기를 ``array``에 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ]
+    },
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
-      "text": "하나의 Cell Tracking Challenge 영상에서 얻은 연속 프레임 학습 쌍.\n\n프레임은 ``<movie>/<seq>/t*.tif``에서, 전체 마스크는 실버 분할 ``<movie>/<seq>_ST/SEG/man_seg*.tif``에서 가져오며 추적 마커 ``<movie>/<seq>_GT/TRA/man_track*.tif``로 레이블을 다시 지정합니다(:func:`track_masks_from_ctc`). 셋 중 하나라도 없는 프레임은 건너뛰고, 프레임 번호가 연속된 두 프레임으로만 쌍을 만듭니다.\n\n:param movie: 영상 폴더(예: ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` 또는 ``'02'``.\n:param max_pairs: 영상 전체에 균등하게 분포하도록 파일을 읽기 전에 선택한, 최대 이 개수의 쌍입니다. 긴 영상에서 불러올 프레임 수를 제한하려면 이 한도를 설정하세요. 전체 모음을 불러오면 수십 기가바이트의 메모리가 필요할 수 있습니다.\n:returns: 시간순으로 정렬한 쌍.",
+      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
+      "text": "하나의 Cell Tracking Challenge 영상에서 얻은 연속 프레임 학습 쌍.\n\n프레임은 ``<movie>/<seq>/t*.tif``에서, 전체 마스크는 silver 분할 ``<movie>/<seq>_ST/SEG/man_seg*.tif``에서 읽고 추적 마커 ``<movie>/<seq>_GT/TRA/man_track*.tif``에 따라 다시 라벨링합니다(:func:`track_masks_from_ctc`). 세 입력 중 하나라도 없는 프레임은 건너뛰며, 연속된 프레임 번호끼리만 쌍을 만듭니다. 슬라이스 마스크 파일명은 무시하고 중복 프레임 번호는 거부합니다. 원본 객체의 다음 프레임 마커에 명확한 전체 마스크가 없으면 해당 쌍에서 그 객체의 감독 신호를 제외하며, 소실로 라벨링하지 않습니다.\n\n:param movie: 영상 폴더(예: ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` 또는 ``'02'``.\n:param max_pairs: 영상 전체에 균등하게 분포하도록 파일을 읽기 전에 선택한, 최대 이 개수의 쌍입니다. 긴 영상에서 불러올 프레임 수를 제한하려면 이 한도를 설정하세요. 전체 모음을 불러오면 수십 기가바이트의 메모리가 필요할 수 있습니다.\n:returns: 시간순으로 정렬한 쌍.\n:raises ValueError: 시퀀스 또는 제한값, 중복 프레임 식별자 또는 주석 배열이 잘못되었습니다.",
       "translation_source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs.indexed": {
+      "source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ],
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "text": "``prefix*.tif`` 파일의 프레임 번호를 ``folder`` 내 경로에 대응시킵니다.",
+      "translation_source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ]
+    },
+    "spacr.timeflows_model.predict_pair.starts": {
+      "source_blocks_sha256": [
+        "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"
+      ],
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "text": "타일의 4분의 1만큼 겹치면서 ``extent``를 덮는 타일 시작점입니다.",
+      "translation_source_blocks_sha256": [
+        "ef84c5c36db7702b09bc2d52eeb2cb2841578ab22aa142cf408b20f299eee01f"
+      ]
+    },
+    "spacr.timeflows_model.track_masks_from_ctc": {
+      "source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ],
+      "source_sha256": "5ed2059c473f15002794182a63f6e2807cc36acbcebb0675439ca169ca773775",
+      "text": "TRACK 식별자로 라벨링된 전체 객체 마스크입니다.\n\nCell Tracking Challenge는 추적 참조를 MARKERS로 제공합니다. 이는 각 세포 안의 작은 영역으로, 각 프레임에서 궤적 식별자로 라벨링됩니다. 전체 윤곽은 프레임별로 라벨링된 silver ``ST/SEG`` 마스크로 별도 제공됩니다. 일대일 할당만 유지합니다. 객체에는 정확히 하나의 마커 식별자가 있어야 하고, 해당 마커는 다른 분할 객체와 겹치면 안 됩니다. 마커가 없거나 병합 또는 분할된 할당은 추측하지 않고 제외합니다.\n\n:param segmentation: 한 프레임의 인스턴스 라벨이며 식별자는 임의의 값입니다.\n:param markers: 궤적 식별자로 라벨링된 같은 프레임의 TRA 마커입니다.\n:returns: 궤적 식별자로 다시 라벨링한 int64 ``segmentation``이며, 나머지 위치는 0입니다.\n:raises ValueError: 주석이 서로 일치하는 비음수 정수 2-D 배열이 아니거나 마커 식별자를 int64로 표현할 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
+        "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
+        "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows": {
+      "source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
+      ],
+      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
+      "text": "궤적 라벨이 있는 쌍으로 시간 예측 헤드를 먼저 학습한 뒤 전체 네트워크를 학습합니다.\n\n두 단계로 학습합니다. 백본의 분할은 이미 학습되어 있으므로 새 헤드가 학습하는 동안 백본을 동결하고, 이후 낮은 학습률로 전체를 학습합니다. 각 쌍의 두 프레임에 동일한 데이터 증강을 적용한 뒤 목표값을 계산합니다.\n\n학습용 잘라내기는 온전한 원본 마스크에 대해서만 감독 신호를 유지하며, 후속 객체가 전체 대상 프레임에 있으면 그 마스크도 온전해야 합니다. 타일 밖에 있는 후속 객체는 소실된 것이 아닙니다. 제공된 전체 프레임 라벨에서의 부재는 계속 감독 신호로 사용되지만, 이것이 주석의 정확성을 검증하지는 않습니다. 사용할 수 없는 잘라내기는 단계당 최대 32번 다시 시도합니다. 이러한 제외는 잘라내기 경계의 잘못된 목표값을 방지하지만 빠른 움직임의 일부 예제도 제거하므로 전체 움직임 범위의 정확성을 입증하지 않습니다.\n\n:param net: :func:`TimeflowsNet`에서 생성합니다.\n:param pairs: 학습 쌍입니다.\n:param head_steps: 백본을 동결한 상태의 학습 단계 수입니다.\n:param full_steps: 모든 매개변수를 학습할 수 있는 단계 수입니다.\n:param lr_head: 헤드 학습 단계의 학습률입니다.\n:param lr_full: 전체 학습 단계의 학습률입니다.\n:param weights: 쌍별 샘플링 가중치입니다(:func:`pair_sampling_weights`). None이면 균등합니다.\n:param seed: 난수 시드입니다.\n:param device: ``'cpu'`` 또는 ``'cuda'``입니다.\n:param log: 진행 상황을 알리는 ``fn(line)``입니다.\n:returns: 각 단계의 손실값입니다.\n:raises ValueError: 한 단계에서 32개 영역을 샘플링한 뒤에도 사용할 수 있는 감독 신호가 없습니다. 전체 마스크와 타일에 대한 상대적인 움직임을 확인하세요.",
+      "translation_source_blocks_sha256": [
+        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
+        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "edcd27fa0e5d61f7c6e2cf5aab0c1ba0f8e9c8f5beb82a1fd7c9b54afc4716fd",
+        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
+        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
+        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
+        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
+        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
+        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
+        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
+        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
+        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
+        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.run": {
+      "source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ],
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "text": "백본을 동결하거나 학습 가능하게 두고 ``params``를 ``steps``단계 동안 학습합니다.",
+      "translation_source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
       ]
     },
     "spacr.timelapse": {

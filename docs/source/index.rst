@@ -131,6 +131,7 @@ Contents
    features
    make_masks
    plaque_assay
+   timeflows_training
    python_api
    settings_flow
    model_zoo

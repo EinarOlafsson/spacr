@@ -105837,6 +105837,31 @@
       "source_sha256": "a1847593c94fe57f3cb4f1474c3c88eccbbb0be1cb07e28dc41d3f77dec2ffa9",
       "text": "The time head on a shared backbone, as a ``torch.nn.Module``.\n\nBoth frames go through the same backbone; their features are joined and\nread by a small head that predicts three channels at full resolution:\n``dy``, ``dx`` (toward the successor's centre, in diameters) and a\nsuccessor logit.\n\n:param backbone: callable ``(B, 3, H, W) -> (B, C, H/ps, W/ps)`` with\n    ``parameters()``; :class:`CellposeSamFeatures` for the real model.\n:param channels: ``C``; read from ``backbone.channels`` when None.\n:param ps: the backbone's downsampling; read from ``backbone.ps``.\n:returns: the module."
     },
+    "spacr.timeflows_model.TimeflowsNet._Net.__init__": {
+      "source_blocks_sha256": [
+        "9f3575d6edb95b1d680d248fb262f69b0d0a17eb9af8f7ee606bc3c818602f68",
+        "6437fe8053888977f129fc7d242cf1bff51fd8b44db85a6dc38e35678bd6a7ae"
+      ],
+      "source_sha256": "a4cb7e2b82abe12ef51cac69c08048338e7e0ad275a5256346831ecf79372e5d",
+      "text": "Register the backbone and build the head and upsampler.\n\nThe backbone (or its ``net``) is registered as ``encoder`` when it\nis a module, so its weights train and move with the network."
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.forward": {
+      "source_blocks_sha256": [
+        "7fb225c8c49c32a0b5d08dc3fc269daeac21f26f0bbc14119a7a10203cc5f127",
+        "afc0c0c0f41cf7b37010668c148743fd87a2d3e7b234bd11739d011455cc914d",
+        "cb5b3a3398809a2b9b05c684c9584e09f9d856d234676af7da96a7c81138b787",
+        "05375adc44cf877f216898e73c5908b48ea29bd590c36124f99053334f1ff205"
+      ],
+      "source_sha256": "24aa50c47bfe401075b622b32babde16d77b9e1b23ce37479e954dae0c2042ea",
+      "text": "Join both frames' backbone features and predict the time maps.\n\n:param frame_t: frame ``t``, ``(B, 3, H, W)``.\n:param frame_t1: frame ``t+1``, the same shape.\n:returns: ``(B, 3, H, W)``: the vector ``(dy, dx)`` and the\n    successor logit."
+    },
+    "spacr.timeflows_model.TimeflowsNet._Net.head_parameters": {
+      "source_blocks_sha256": [
+        "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d"
+      ],
+      "source_sha256": "b9fb9068876b4855c29f26ac8c674110ceb9738eb2df3c980b68d24a0c40fa8d",
+      "text": "The new layers' parameters: the head and the upsampler."
+    },
     "spacr.timeflows_model.augment_pair": {
       "source_blocks_sha256": [
         "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
@@ -105849,17 +105874,32 @@
       "source_sha256": "539a59f94906a739498f68442528eb9715b869116f76e257a4b60b7fb5ec4dc9",
       "text": "One random flip and quarter-turn, the SAME for every frame and label.\n\nA flip applied to frame ``t`` and not ``t+1`` teaches a displacement that\nnever happened, which is the easiest way to get a model that trains\nbeautifully and tracks nothing. Targets are computed\nfrom the augmented labels afterwards, so the vectors follow automatically.\n\n:param frames: the images, ``(H, W)`` or ``(H, W, C)``.\n:param labels: the label images, ``(H, W)``.\n:param rng: the random generator.\n:returns: the augmented frames and labels."
     },
+    "spacr.timeflows_model.augment_pair.apply": {
+      "source_blocks_sha256": [
+        "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b"
+      ],
+      "source_sha256": "6feaab46de82041cf0b3e08c9971ef6e8dcfe20a8efedfa47e31cbff1cab5d6b",
+      "text": "Apply this call's quarter-turns and optional flip to ``array``."
+    },
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
-      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:returns: the pairs, in time order."
+      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
+      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\nSlice-mask filenames are ignored and duplicate frame numbers are rejected.\nA source whose next-frame marker lacks an unambiguous full mask is\ncensored for that pair, rather than labelled as a disappearance.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:returns: the pairs, in time order.\n:raises ValueError: sequence/limit, duplicate frame identities or annotation\n    arrays are invalid."
+    },
+    "spacr.timeflows_model.ctc_pairs.indexed": {
+      "source_blocks_sha256": [
+        "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
+      ],
+      "source_sha256": "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea",
+      "text": "Map frame number to path for the ``prefix*.tif`` files in ``folder``."
     },
     "spacr.timeflows_model.link_by_timeflows": {
       "source_blocks_sha256": [
@@ -105917,6 +105957,13 @@
       "source_sha256": "8a144f9d4aa8c595a5621548fe252e4013e1a1a05f63b61b6980a7a6d0208688",
       "text": "The time head's prediction for one pair.\n\n:param net: a trained :func:`TimeflowsNet`.\n:param frame_t: frame ``t``, normalised.\n:param frame_t1: frame ``t+1``, normalised.\n:param device: where to run.\n:returns: ``vector`` (2, H, W) and ``successor`` probability (H, W).\n    The frame is read in :data:`TILE`-pixel tiles with a quarter-tile\n    overlap and the overlaps averaged; the vectors are in each object's\n    own diameters, so a tile needs no context beyond the object."
     },
+    "spacr.timeflows_model.predict_pair.starts": {
+      "source_blocks_sha256": [
+        "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"
+      ],
+      "source_sha256": "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213",
+      "text": "Tile origins covering ``extent`` with a quarter-tile overlap."
+    },
     "spacr.timeflows_model.random_window": {
       "source_blocks_sha256": [
         "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
@@ -105973,18 +106020,20 @@
     "spacr.timeflows_model.track_masks_from_ctc": {
       "source_blocks_sha256": [
         "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
-        "3d9e7b21d2bb0646fcd50b3b100aa005ee08f304bda068a18585c847842e2d71",
+        "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
         "ad79eedef96f1d1d6e4f70fa80fd51835ae2dbd239981452c20a8b8e616ad7cc",
         "5641d329567dcb906945d79d1d57e24164b3d0f40886e3e5c223413e20a433df",
-        "6aff1e56dbe03c09f815e2026637ffd5dc56b2d30b6858140700c989c947c917"
+        "404bb927c98e5dbb7e59d6c852f325a7b8862cba17a98cc9d1ba1fa4068722b1",
+        "1119a84d72e01609d2a051baa3228b30d0242424e6eaf6472b83f3dd9ce1780e"
       ],
-      "source_sha256": "0423cfdd701eb6a49d65def18e11584ad2ed9d6ebb88bf111f1f3b89d32ca34d",
-      "text": "Full object masks labelled with their TRACK ids.\n\nThe Cell Tracking Challenge publishes tracking ground truth as MARKERS --\na small blob inside each cell, labelled with its track id in every frame\n-- and full outlines separately (the silver ``ST/SEG`` masks, labelled per\nframe). Each segmented object takes the id of the marker it contains; an\nobject holding no marker is dropped, and one holding two takes the marker\nit overlaps most.\n\n:param segmentation: one frame's instance labels, any ids.\n:param markers: the same frame's TRA markers, labelled by track id.\n:returns: ``segmentation`` relabelled by track id, 0 elsewhere."
+      "source_sha256": "5ed2059c473f15002794182a63f6e2807cc36acbcebb0675439ca169ca773775",
+      "text": "Full object masks labelled with their TRACK ids.\n\nThe Cell Tracking Challenge publishes tracking ground truth as MARKERS --\na small blob inside each cell, labelled with its track id in every frame\n-- and full outlines separately (the silver ``ST/SEG`` masks, labelled per\nframe). Only one-to-one assignments are retained: the object contains\nexactly one marker ID and that ID overlaps no other segmented object.\nUnmarked, merged and split assignments are excluded rather than guessed.\n\n:param segmentation: one frame's instance labels, any ids.\n:param markers: the same frame's TRA markers, labelled by track id.\n:returns: int64 ``segmentation`` relabelled by track id, 0 elsewhere.\n:raises ValueError: annotations are not matching 2-D non-negative integer\n    arrays, or marker IDs cannot be represented in int64."
     },
     "spacr.timeflows_model.train_timeflows": {
       "source_blocks_sha256": [
         "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
         "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
+        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
         "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
         "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
         "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
@@ -105995,10 +106044,18 @@
         "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
         "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
         "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
-        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28"
+        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
+        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
       ],
-      "source_sha256": "e06c68710364c531c6de78e12d15a682bf21b57f82450fb422795a6d5599d6a5",
-      "text": "Train the time head, then the whole network, on track-labelled pairs.\n\nA two-stage curriculum: the backbone's segmentation is already\npaid for, so it is frozen while the new head learns, then everything is\ntrained at a low learning rate. Every pair is augmented identically on\nboth frames before its targets are computed.\n\n:param net: from :func:`TimeflowsNet`.\n:param pairs: the training pairs.\n:param head_steps: steps with the backbone frozen.\n:param full_steps: steps with everything trainable.\n:param lr_head: learning rate for the head stage.\n:param lr_full: learning rate for the full stage.\n:param weights: sampling weight per pair (:func:`pair_sampling_weights`);\n    uniform when None.\n:param seed: the random seed.\n:param device: ``'cpu'`` or ``'cuda'``.\n:param log: ``fn(line)`` for progress.\n:returns: the loss at every step."
+      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
+      "text": "Train the time head, then the whole network, on track-labelled pairs.\n\nA two-stage curriculum: the backbone's segmentation is already\npaid for, so it is frozen while the new head learns, then everything is\ntrained at a low learning rate. Every pair is augmented identically on\nboth frames before its targets are computed.\n\nA training crop keeps supervision only for complete source masks and,\nwhen present in the full target frame, complete successor masks. A\nsuccessor outside the tile is not a disappearance. Absences in the\nsupplied full-frame labels remain supervised; this does not validate\nthose annotations. Unusable crops are retried up to 32 times per step.\nCensoring prevents incorrect targets at crop boundaries but removes some\nfast-motion examples; it does not establish full-motion accuracy.\n\n:param net: from :func:`TimeflowsNet`.\n:param pairs: the training pairs.\n:param head_steps: steps with the backbone frozen.\n:param full_steps: steps with everything trainable.\n:param lr_head: learning rate for the head stage.\n:param lr_full: learning rate for the full stage.\n:param weights: sampling weight per pair (:func:`pair_sampling_weights`);\n    uniform when None.\n:param seed: the random seed.\n:param device: ``'cpu'`` or ``'cuda'``.\n:param log: ``fn(line)`` for progress.\n:returns: the loss at every step.\n:raises ValueError: no usable supervision remains after 32 sampled crops\n    for a step; inspect the full masks and motion relative to the tile."
+    },
+    "spacr.timeflows_model.train_timeflows.run": {
+      "source_blocks_sha256": [
+        "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ],
+      "source_sha256": "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c",
+      "text": "Train ``params`` for ``steps`` steps, the backbone frozen or not."
     },
     "spacr.timeflows_qc": {
       "source_blocks_sha256": [
