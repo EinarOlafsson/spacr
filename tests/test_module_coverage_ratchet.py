@@ -177,8 +177,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_532_not_asset_generators():
-    """The ratchet follows all 532 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_622_not_asset_generators():
+    """The ratchet follows all 622 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -401,7 +401,17 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     #                                        slider
     assert "spacr/qt/gui_scale.py" in shipped
     assert "spacr/qt/widgets/preview_scale.py" in shipped
-    assert len(shipped) == 608
+    added_since_608 = {
+        'spacr/_starplast.py', 'spacr/qt/cpu_modes.py', 'spacr/qt/detect_chain.py',
+        'spacr/qt/organelle_modes.py', 'spacr/qt/organisms.py',
+        'spacr/qt/screens/organism_screen.py', 'spacr/qt/secondary_masks.py',
+        'spacr/qt/starplast.py', 'spacr/qt/widgets/image_ruler.py',
+        'spacr/qt/widgets/organism_diagram.py', 'spacr/qt/widgets/primary_mask_selector.py',
+        'spacr/qt/widgets/sample_project.py', 'spacr/qt/widgets/workflow_diagram.py',
+        'spacr/qt/widgets/zoom_view.py',
+    }
+    assert added_since_608 <= shipped
+    assert len(shipped) == 608 + len(added_since_608) == 622
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -717,7 +727,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 604 -> 605: the installed Gate Editor volume view (f6e92893b).
     # 605 -> 606: the collapsible splitter (item 471).
     # 606 -> 608: the GUI scale and the preview scale (471 slice A).
-    assert "--expected-file-count 608" in combine_script
+    assert "--expected-file-count 622" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

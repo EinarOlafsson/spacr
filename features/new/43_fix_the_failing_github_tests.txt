@@ -2190,3 +2190,22 @@ Private evidence: ci-followup/contracts-second.log, isolated-dependency-final.lo
 handle-hidpi.log, prose-hygiene-final.log and check-prose-ast.py.
 This does not close feature43: the old-revision full CI still has remaining
 runtime-worker, documentation/catalog, coverage and packaging failures.
+
+2026-09-23 — FINAL DISPATCH TRIAGE AND CURRENT INVENTORIES
+Dispatch35807838039completed failed; Fast recorded97unique failed node IDs,
+Minimum-dependencies15. These are failures at its old6006a0608revision, not a
+verdict on current code. Most remaining final-job entries are API/i18n and
+have been handed to the documentation lane with the complete local logs.
+The old Qt crash-site files and public-prose checks pass on current source:
+145checks passed. This focused run cannot establish full-shard stability.
+
+The guarded-QThread inventory reproduced a current failure: Starplast and
+the primary-mask selector were absent from its explicit module list. Both
+are now tested by the same existing safety assertions. The packaging count
+measured622installed Python modules,14added and0removed since the608pin at
+97c7307ab. CI's expected-file-count and both matching tests now require622;
+the complete added set is named in the test. No90percent requirement,
+coverage baseline, exclusion or other workflow behavior changed.
+26focused worker/coverage-inventory checks pass. This is a repaired contract,
+not a claim of green CI or full coverage. Evidence: private ci-followup/
+final-run-current-triage.log and worker-denominator-inventories.log.

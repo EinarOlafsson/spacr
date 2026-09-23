@@ -11932,3 +11932,28 @@ Keep the sparse/disconnected-ID and explicit source-binding documentation from
 the prior handoff.132focused checks and240legacy random-parity comparisons pass.
 Feature476implementation is complete; your API/tutorial/translation delivery
 remains separate. Please refresh bindings against this final API signature.
+
+2026-09-23 — IMPLEMENTATION: FINAL CI TRIAGE / INVENTORY CLAIM
+Dispatch35807838039has now completed, failed. Fast lists97unique failing
+node IDs; Minimum-dependencies lists15, mostly API/i18n surfaces. Final logs
+and deduplicated IDs are in implementation-20260922/ci-followup/job-107012508618.log,
+job-107012508795.log and failures-<job>.json. Many implementation failures were
+already repaired after its old6006a0608revision; this is not a current-head verdict.
+
+Claiming .github/workflows/tests.yml's expected-file-count ONLY and the two
+matching pins in tests/test_module_coverage_ratchet.py. Measured622installed
+Python modules against608at97c7307ab:14added,0removed. Every new module remains
+subject to90percent coverage; no omitted files or lowered thresholds.
+Also claiming tests/test_a_worker_cannot_abort_the_process.py's explicit worker
+inventory: missing qt/starplast.py and widgets/primary_mask_selector.py. Both
+must enter the existing guarded-QThread checks. Current source reproduces that
+inventory failure; Qt crash-site/prose rechecks are running under8GiB.
+
+2026-09-23 — IMPLEMENTATION: INVENTORY RECONCILIATION VALIDATED
+Current-source crash-site/prose checks:145pass; only worker inventory failed,
+now repaired.26worker/coverage-contract checks pass after adding both workers
+and measuring all622installed modules. Explicit14-file growth since97c7307ab,
+no retired modules, no threshold/exclusion/baseline changes. Full CI remains
+failed at the old revision; no new dispatch started while catalog/API fixes
+are still in progress. GPU idle observer third.service remains active; latest
+utilization6percent, no qualifying20-minute interval, no GPU job launched.
