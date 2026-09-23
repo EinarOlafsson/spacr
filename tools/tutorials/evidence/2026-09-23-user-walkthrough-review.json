@@ -34,6 +34,7 @@
     "19_train_cellpose",
     "20_cellpose_masks",
     "21_model_compare",
+    "28_training_runs",
     "41_classify",
     "76_ops"
   ],
@@ -70,6 +71,7 @@
     "19_train_cellpose",
     "20_cellpose_masks",
     "21_model_compare",
+    "28_training_runs",
     "41_classify",
     "76_ops"
   ],
@@ -799,29 +801,26 @@
     },
     {
       "lesson": "28_training_runs",
-      "english_sha256": "38b9651086f9d5987277949a9411fad70caa86a367a30069abb9954d0652539f",
+      "english_sha256": "5c420444e0e59e63e7705c7883bf7775ea09c5bc991288a08248c0d267d2c54c",
       "scene_count": 17,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[12].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {

@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/training_runs",
+  "synthetic": true,
+  "files": [
+    {
+      "path": "training_runs/baseline/model/maxvit_t/0_1/epochs_20/train.csv",
+      "sha256": "86bd53471a1d0f6002f179b35a804b42b3ec7661c37496004eb39089866eee54",
+      "bytes": 2771
+    },
+    {
+      "path": "training_runs/baseline/model/maxvit_t/0_1/epochs_20/validation.csv",
+      "sha256": "815e92b6032f3074140717b41ccadca9ecc42ff760d93b2c82be4da6bc92e177",
+      "bytes": 2675
+    },
+    {
+      "path": "training_runs/baseline/settings/train_test_maxvit_t_20.csv",
+      "sha256": "e885541f9e51a7a8a277b4255b4d22519a5423ab7db28d8dcaab9c86d1bcd48f",
+      "bytes": 212
+    },
+    {
+      "path": "training_runs/cross_validated/model/resnet50/0_1/epochs_18/fold_1/train.csv",
+      "sha256": "d2baa266f8339f6369df0ed7056220c2427004c3ad932dbbb94768a02e408406",
+      "bytes": 2503
+    },
+    {
+      "path": "training_runs/cross_validated/model/resnet50/0_1/epochs_18/fold_1/validation.csv",
+      "sha256": "93e65b0e7c07dcfc4e3fb21e44f9f098aa7e0a6d100097332ec8a95286e9a211",
+      "bytes": 2496
+    },
+    {
+      "path": "training_runs/cross_validated/model/resnet50/0_1/epochs_18/fold_2/train.csv",
+      "sha256": "1f298d925ece4ff4d77742c2643e7ea0607b7a2c401e6d4f6e4b7ce6ee7e932e",
+      "bytes": 2515
+    },
+    {
+      "path": "training_runs/cross_validated/model/resnet50/0_1/epochs_18/fold_2/validation.csv",
+      "sha256": "2246a16aa4756cc7455a0bf4b45bc4bac3fe47ba61e1d27fafbac8e0fd7de48d",
+      "bytes": 2494
+    },
+    {
+      "path": "training_runs/cross_validated/model/resnet50/0_1/epochs_18/fold_3/train.csv",
+      "sha256": "b4382875a7c2c076e4ead091097aec3b22c328ce324d40c7cfac0a8794dfa05f",
+      "bytes": 2555
+    },
+    {
+      "path": "training_runs/cross_validated/model/resnet50/0_1/epochs_18/fold_3/validation.csv",
+      "sha256": "b14973c157bf870442d3e45ff294c223f1cf06acfc8f1a64ac0f74245ca80dab",
+      "bytes": 2506
+    },
+    {
+      "path": "training_runs/cross_validated/settings/train_test_resnet50_18.csv",
+      "sha256": "87c32a84f9563a2add4c181301af6812413c91dff30531174500ed0fa2959aed",
+      "bytes": 219
+    },
+    {
+      "path": "training_runs/incomplete/model/maxvit_t/0_1/epochs_8/maxvit_t_epoch_8_channels_0_1.pth",
+      "sha256": "3344e4754144763ccbaa373956254e4d3348fe04dfa4b7859306b788803faac0",
+      "bytes": 41
+    },
+    {
+      "path": "training_runs/tuned/model/maxvit_t/0_1/epochs_25/train.csv",
+      "sha256": "07c47b9174fca1722ff3bbf97d34c717133df1228b3951fe6627be5c7ac24d21",
+      "bytes": 3472
+    },
+    {
+      "path": "training_runs/tuned/model/maxvit_t/0_1/epochs_25/validation.csv",
+      "sha256": "fe0d071c4171ae3124f237a01d3ba047228dac5d826c8e4c0dcf3159a969b8d8",
+      "bytes": 3395
+    },
+    {
+      "path": "training_runs/tuned/settings/train_test_maxvit_t_25.csv",
+      "sha256": "58b7c2277d658a20b8e1c715e6f057b23be62a3e145832cdb82edfc4893138cc",
+      "bytes": 208
+    }
+  ],
+  "archive_sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0",
+  "archive_bytes": 13438,
+  "original_csv_hashes_verified": 11,
+  "new_training_performed": false
+}
