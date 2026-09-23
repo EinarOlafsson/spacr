@@ -6427,7 +6427,7 @@ class AppScreen(QWidget):
             self._cell_montage = None
             self._figures_card.body_layout.addWidget(
                 self._queue_the_results_hold, 1)
-            self._figures_card.setMinimumHeight(360)
+            self._figures_card.setMinimumHeight(0)
             return None
         return self._figures_split
 
@@ -6513,6 +6513,14 @@ class AppScreen(QWidget):
         results_expected = (
             self._part_is_owed(_REGRESSION_RESULTS)
             or self._if_built("_results_panel") is not None)
+        if results_expected:
+            content = self._figures_card.body
+            scroll = QScrollArea(self._figures_card)
+            scroll.setFrameShape(QScrollArea.NoFrame)
+            scroll.setWidgetResizable(True)
+            self._figures_card._outer.replaceWidget(content, scroll)
+            scroll.setWidget(content)
+            self._figures_card.body = scroll
         if not results_expected:
             self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         self._figure_queue.set_propagate_callback(
@@ -6522,7 +6530,7 @@ class AppScreen(QWidget):
         if self.app_key == "umap":
             self._owe_part(_UMAP_EXPLORER, self._build_umap_explorer)
         self._figures_card.setMinimumHeight(
-            560 if results_expected else 360)
+            0 if results_expected else 360)
         self._figures_card.hide()
 
         from ..widgets import ConsolePanel

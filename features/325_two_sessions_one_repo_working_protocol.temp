@@ -11282,3 +11282,18 @@ paragraph in qt/starplast.py needs renewed translations. Receipt below
 supersedes earlier "full install not run" limitation; broad Starplast tool
 validation remains outside this integration check.
 Receipt: features/data/474_starplast_real_install_2026-09-22.json.
+
+2026-09-22 — IMPLEMENTATION:471 REGRESSION OVERLAP FIXED
+Regression's old560px Figures minimum overran Console at laptop height.
+Wrapped its lazy body in a frameless scroll area and removed the outer fixed
+minimum, including the figure-queue fallback. The scroll area is the fold
+target; body_layout still fills the original content. Results remain lazy.
+Actual MainWindow1366x768 now has Figures463px, Console starts469px; no91px
+overlap. New tests exercise600/768px windows, scroll endpoints, adjacent
+headings, Console reopening and Figures fold/reopen. Reviewed render at768px.
+No new APIs, strings or catalogs. app_screen.py sizing claim released after
+commit. Starplast real-install follow-up landed62921a16f separately; its
+changed installer paragraph still needs the API/translation lane's review.
+Validation: all37 focused shell/results/deferred-build tests pass in30.98s
+under8GB cap; no GPU or NAS work. GPU idle observer remains live with recent
+nonzero utilization, so the OPS continuation has not been started.

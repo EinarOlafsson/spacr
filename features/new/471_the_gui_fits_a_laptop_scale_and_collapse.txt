@@ -861,3 +861,16 @@ DONE WHEN, checked
 So 471's DONE WHEN is met. What is left is not a missing fold but taste: a
 handful of one-figure tabs and forms that are deliberately not foldable, and
 slice B's open question about the Live switch.
+
+2026-09-22 — Regression Figures overlap repaired
+The handoff's known Regression exception is now fixed. At1366x768 the
+Figures widget enforced560px while Console began at469px, painting91px
+beyond its allocation. Regression's body now has a frameless scroll area;
+its contents retain their natural minimum while the outer card can shrink.
+The fold target is the scroll area, so folding hides the whole body; lazy
+results construction and the missing-dependency figure-queue fallback remain.
+Measured actual MainWindow after repair: Figures463px, Console begins469px,
+System496px, Actions558px within579px runtime area. New real-window checks
+cover1366x600 and1366x768, no sibling overlap, scrolling to both ends,
+reopening Console, folding/reopening Figures and deferred construction.
+Receipt: features/data/471_regression_figures_fit_2026-09-22.json.

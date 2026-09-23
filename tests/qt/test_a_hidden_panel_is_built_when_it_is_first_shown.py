@@ -153,7 +153,8 @@ def test_results_dependencies_wait_until_the_panel_is_needed(
         assert screen._results_panel_if_built() is None
         assert screen._figures_card.body_layout.indexOf(
             screen._queue_the_results_hold) >= 0
-        assert screen._figures_card.minimumHeight() == 360
+        assert screen._figures_card.minimumHeight() == 0
+        assert screen._figures_card.body.isAncestorOf(screen._queue_the_results_hold)
         assert not _has(screen, "RegressionResultsPanel")
         screen._figures_card.hide()
         screen._figures_card.show()
