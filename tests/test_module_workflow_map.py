@@ -46,6 +46,10 @@ def test_size_proxy_inference_and_simulation_keep_their_scientific_boundaries():
     assert "inference, not training" in data["modules"]["cellpose_masks"]["guidance"]
     assert "does not produce merged arrays or measurements.db" in data["artifacts"]["cellpose_tiff_masks"]["location"]
     assert "not measured experimental hits" in data["artifacts"]["simulation_summary"]["location"]
+    assert "transfer those assumptions manually" in data["modules"]["simulation"]["guidance"]
+    assert not any("simulation" in (edge["from"], edge["to"])
+                   for edge in data["connections"]), (
+        "planning advice is prose, not a declared simulation-file handoff")
 
 
 def test_optical_sample_starts_in_mask_ops_without_mandatory_generic_alignment():

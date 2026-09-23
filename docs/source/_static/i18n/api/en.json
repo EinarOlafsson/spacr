@@ -45528,6 +45528,21 @@
       "source_sha256": "3a260c53ebacbbabb66a0e5a766cce937b3b77b147bd94a2f09f7746debabeac",
       "text": "What the Make Masks readout says about one pixel of the open field.\n\n:ivar x: column, in image pixels.\n:ivar y: row, in image pixels.\n:ivar intensity: the raw image value at the pixel, before any display\n    stretching.\n:ivar label: the id of the object under the pixel, as\n    :func:`canonical_labels` numbers it; 0 on background.\n:ivar area: that object's pixel count; 0 on background.\n:ivar mean_intensity: that object's mean raw intensity, or ``None`` on\n    background."
     },
+    "spacr.qt.mask_engine.PrimarySecondaryReport": {
+      "source_blocks_sha256": [
+        "6b57c1da202c1131fa9ed2f76b46a3bdabb06a49e02adf7ee1d77e63aadff3df",
+        "fae867fe1beb51df01790181e7502c457affa8d560c12022def9812ef423e24a",
+        "1f60f5dbea3fcb4ac9cfcb45e5d3934c8b21584241dc4170f7328eebcab90221",
+        "0b56f588d74c3406fc4d19ae2b305072257575d3f082213a0252e5aab5f69f42",
+        "c1c9c0dde21553cbd88840d5805514974a77a61314ff01039b192f8335195979",
+        "30e863affce4eb1666abb7892d25cd3774f2b834de7c8b2cac0062fece571fcd",
+        "805c579d17c6ba555f34d4727bece48c279c7f5be20a8a099ac31e07e418d4be",
+        "2e6b664b03ff177b7bbf651ae71dda4f75f3f9934991f0fe54bf8f73669994a8",
+        "f3fdf08e91d112c10ea0fa6a6f7bc93d22f0987281f0cde9cbf58943c24cc840"
+      ],
+      "source_sha256": "9cc1fe8ebc77bb3ecf9deb2f51c07560bb74b3cc05f0536b25ce7b867ba9c669",
+      "text": "Label relationships between a primary mask and a secondary mask.\n\nAll fields contain sorted tuples of Python integer IDs; 0 is excluded.\n``matched_ids`` occur in both masks. ``missing_secondary_ids`` occur\nonly in the primary mask, and ``orphan_secondary_ids`` only in the\nsecondary mask. ``incomplete_primary_ids`` are matched IDs whose\nsecondary does not contain every pixel of its primary. Matched IDs\nwithout any secondary pixels outside their own primary are listed in\n``unexpanded_primary_ids``; these can indicate a threshold that stopped\ngrowth immediately. A match alone does not prove correct cell boundaries.\n\n:ivar primary_ids: nonzero IDs present in the primary mask.\n:ivar secondary_ids: nonzero IDs present in the secondary mask.\n:ivar matched_ids: IDs present in both masks.\n:ivar missing_secondary_ids: primary IDs absent from the secondary mask.\n:ivar orphan_secondary_ids: secondary IDs absent from the primary mask.\n:ivar incomplete_primary_ids: matched IDs whose secondary omits primary pixels.\n:ivar unexpanded_primary_ids: matched IDs with no growth beyond their primary."
+    },
     "spacr.qt.mask_engine.PropagateResult": {
       "source_blocks_sha256": [
         "bcbad8c5ffba7b6862da3c6a6d3fcc47c6cf453cccadc80163c01128d0dee9b2",
@@ -45563,6 +45578,17 @@
       "source_sha256": "d5d949ee302de047df16913a72825add78e483975e5422fcac3999f057497634",
       "text": "Raised when a proposed recrop does not satisfy recropping rules.\n\n:ivar reason: Stable reason code: ``\"no_field\"``, ``\"too_small\"``, or\n    ``\"redraw\"``.\n\n:param reason: the stable code above. Callers branch on it, so it must\n    be one of the three rather than prose.\n:param message: what to say to the user. This is the exception's own\n    message, so it is what an unhandled raise would print.\nRecord why a re-crop was refused.\n\n:param reason: the machine-readable refusal code, kept so a caller can\n    branch on it rather than parsing the message.\n:param message: the sentence shown to the user."
     },
+    "spacr.qt.mask_engine.SecondaryResult": {
+      "source_blocks_sha256": [
+        "1cdf326eb2007e940f2da6d25205fb8be0582267a0e84609b081b832d96017fa",
+        "958f32bd0dfdcf7161c302cdf2533ae24887fe072ac0f2d9d2cd81621052e504",
+        "170f1294b2d7b58f6151b8ad0b3a0c31a9eda2c358b5287589a78f6d2db03bc4",
+        "fb65af9ba1bcbeed2495fe863673351d2c4a1f7e8df26ad18f2c875c6510e81c",
+        "15dd9587977f356ec1b10ecd9180dd78e9ef73f97fcad503e54544d69d058488"
+      ],
+      "source_sha256": "76a5053e00d085b300f61bbb6e1af92ffecec4136246e266592a6aad1259f13c",
+      "text": "Secondary labels, their primary relationships and the common stop level.\n\n``labels`` has the primary mask's dtype, shape and retained object IDs.\n``relationships`` includes primaries removed by minimum-area filtering.\n``level`` is None for the per-primary peak-ratio rule or an empty primary\nmask; otherwise it is the common threshold in processed intensity units.\n\n:ivar labels: secondary label array retaining primary IDs and dtype.\n:ivar relationships: primary/secondary identity report after filtering.\n:ivar level: shared stop threshold, or None when no common threshold applies."
+    },
     "spacr.qt.mask_engine.box_overlap": {
       "source_blocks_sha256": [
         "0d066f8f5059c0b571eb042163ff0afe36687cfa8bf050149c7bcbd6356e72bc",
@@ -45579,12 +45605,13 @@
         "dd44de89b4b6e40eafa5c325d301bf42811217aeaee645f9ff2091a9a10b421b",
         "225da79df652064f3c375fbfac2f12822dab9726091547be0892a300e3703c80",
         "f8c09a00d0044b24c4f65f46e3b0f1a45f5db1068130558d4f2c58e61799796e",
-        "5bcc1bd9ca6390043b3ebf094c742cb095382820febf1177393044f86ed35371",
+        "035c3e4784c95a1772f269c6baac4f7e4f502ffe307b7e98a606203256e18694",
+        "016cba00f46b45fc49c70ed1922755167cf08c6579e06a49ed4bc55e60ed58d1",
         "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
-        "c3722ae6b88bffb5157fc72cffceb2cb00f3b71737ae164bd271b2749cc9fb7b"
+        "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0"
       ],
-      "source_sha256": "488acaaae485a5ca89a21e6653eded5b0f58269ad0aef5b9829fabf4e36f8544",
-      "text": "Return ``mask`` as uint16 labels, keeping every id it already had.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one.\n\nEach id is examined inside its own bounding box\n(:func:`scipy.ndimage.find_objects`) rather than across the whole field,\nwhich gives the same pieces in the same order and makes the call cheap\nenough to run while the mouse moves: on a 2048 x 2048 field of 400\nobjects it went from about 3.5 s to tens of milliseconds.\n\n:param mask: a label image; any integer or boolean dtype.\n:returns: the labels as ``uint16``.\n:raises ValueError: when an id does not fit in ``uint16``."
+      "source_sha256": "5ae92e2d86b18c397565231cbc7a313495958796baba3b9547a081fa9542fa60",
+      "text": "Return ``mask`` as uint16 labels, keeping every id it already had.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one.\n\nEach id is examined inside its own bounding box\n(:func:`scipy.ndimage.find_objects`) rather than across the whole field,\nwhich gives the same pieces in the same order and makes the call cheap\nenough to run while the mouse moves: on a 2048 x 2048 field of 400\nobjects it went from about 3.5 s to tens of milliseconds.\n\n:param mask: a label image; any integer or boolean dtype in default mode.\n:param preserve_ids: disable binary interpretation and component splitting.\n    Use for primary/secondary relationships: a lone cell 900 remains 900,\n    and separated pieces with the same primary ID remain one label.\n    Requires a nonempty 2-D nonnegative integer array, not a boolean mask.\n:returns: the labels as ``uint16``.\n:raises ValueError: when an id does not fit in ``uint16``, or exact-ID\n    mode receives invalid labels. Oversized IDs are never truncated."
     },
     "spacr.qt.mask_engine.clear_mask": {
       "source_blocks_sha256": [
@@ -45972,6 +45999,17 @@
       "source_sha256": "c7ce9bdd1bbd8f92ad295899ee3024f2701d0a701d6131d947c52b06218c2a93",
       "text": "In-place stamp a line of disks between two points (Bresenham)."
     },
+    "spacr.qt.mask_engine.primary_secondary_report": {
+      "source_blocks_sha256": [
+        "b56889789374ad6045f467bc4f910d6c2d951a3361bd6d641a3eb5fc831a2faa",
+        "12ee15dab189b0b99af406cf0d6f9bde203b2f8b054a67fe8d764c28a2fe4e91",
+        "391ceea12639a6b2c055c7c79d6898920a1c7f8f1f5193b6ff003de92d9f2b5c",
+        "1be24cbaf7843a9a6f760b089437e3fa0465df1c46d8246fbad281d54f4dd2c4",
+        "ecd89ebb40bfc14ec4733cd7d06fbf4885e18834c5566bc7168c3b7837807cd9"
+      ],
+      "source_sha256": "b1dfefb155822123984b3e54d8cb0bb0aaf0c1ea747b23384e964d153d9e2319",
+      "text": "Report shared, missing, orphaned and incompletely enclosed object IDs.\n\n:param primary: nonempty 2-D nonnegative integer primary labels.\n:param secondary: secondary labels of the same shape. Sparse and uint64\n    IDs are compared exactly, including values above signed int64.\n:returns: :class:`PrimarySecondaryReport`; no array is modified. An ID\n    match means the IDs agree, not that spatial overlap was used to\n    infer or repair a parent assignment.\n:raises ValueError: mismatched shapes or invalid label arrays."
+    },
     "spacr.qt.mask_engine.read_curation": {
       "source_blocks_sha256": [
         "c273fa0829419fcf5bb3cdc46c3143c0820340bace0b7d32c58e8408cbf0ed6b",
@@ -46105,10 +46143,11 @@
         "ec8e788e56fb3a2c6610ee0863d41097ce3f6169b8daae8b3e6b6e8ee305a151",
         "9328ec46644267e81a5f0a8a1b38565a154836b11dea2ae08216664e484bd140",
         "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
+        "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
       ],
-      "source_sha256": "7c6687ed4190d3018a8cbdad5070d9a76e6bbe430306ce4a3d51b495027d5770",
-      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:returns: the path written."
+      "source_sha256": "2fc699388dc1810d3625bc145142aad0dc6fa44c9fda62a6880f2c9c86685273",
+      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 65535 before writing; it never silently renumbers them.\n:returns: the path written."
     },
     "spacr.qt.mask_engine.save_seg_bundle": {
       "source_blocks_sha256": [
@@ -46118,11 +46157,32 @@
         "4512d8585bda3c7f00bc28a4bf6e04bd87c3369e5ed99dee191eb404407b5ed6",
         "1a7791c876b3a03ecd04ffd813bfde5c8e9607f0a8fe4c6f119695186ba13c18",
         "1ff7977629fe768d38f93c120a633a45b75678e61dccaaa054ec047b409375df",
+        "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
         "bb68e2df885e347011fc1871954ad112d58b5213b0a1f2dc448f859cdb09de0d",
         "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf"
       ],
-      "source_sha256": "01713ee926c88615bb7f55f347bd3e9f012c2b17bad027c89914b452934ae790",
-      "text": "Write edited labels back into the bundle they came from.\n\nEvery key the bundle already had is kept -- ``img``, ``flows``,\n``filename``, ``source_image``, ``diameter``, and any other -- and\n``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys\nare DERIVED from the masks and would describe the old ones if left:\n\n* ``outlines`` is redrawn by :func:`seg_outlines`;\n* ``ismanual``, one flag per object, is resized to the new largest id:\n  an id the bundle already flagged keeps its flag, and an id beyond the\n  old list was drawn in this editor, so it is flagged manual.\n\n:param path: the ``_seg.npy`` bundle.\n:param mask: the edited labels.\n:returns: ``path``.\n:raises ValueError: when ``path`` is not a bundle."
+      "source_sha256": "f9aae0dee9303cec8b84d18e8cfb5e409e980a70e4091a89a5d5a9a5de109a95",
+      "text": "Write edited labels back into the bundle they came from.\n\nEvery key the bundle already had is kept -- ``img``, ``flows``,\n``filename``, ``source_image``, ``diameter``, and any other -- and\n``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys\nare DERIVED from the masks and would describe the old ones if left:\n\n* ``outlines`` is redrawn by :func:`seg_outlines`;\n* ``ismanual``, one flag per object, is resized to the new largest id:\n  an id the bundle already flagged keeps its flag, and an id beyond the\n  old list was drawn in this editor, so it is flagged manual.\n\n:param path: the ``_seg.npy`` bundle.\n:param mask: the edited labels.\n:param preserve_ids: keep every supplied label exactly, including a lone\n    ID or disconnected pieces with the same ID. Labels must fit uint16.\n:returns: ``path``.\n:raises ValueError: when ``path`` is not a bundle."
+    },
+    "spacr.qt.mask_engine.secondary_object_instances": {
+      "source_blocks_sha256": [
+        "ed44d6c3a93dd5bce969deb8fcd9c8327f97d84246f4fa594816ba212709aa4e",
+        "79917964034a2fc816388a5c5b5909546db231b6c79d631bd406d4d5ec3cb4dd",
+        "19d5ca2454ed0cbbc92a2df588de29ae1417f8654160f613bfac0fa50a1e4880",
+        "c41f991374b50ce6c5daa4400a56120b28de055012135f2fc1d46578571cb5ac",
+        "1d9f0243902d1877e96434a1f379698f9fe395d9ca11600cef797d24c93f825e",
+        "9294fdc6cd3d4f5d12d25e5306cbd454e83fc02593e3f1fddd2ccd0ea90c985c",
+        "245ef6666ac5a2caf77720a081cc203a93015e93265ee954e276196f0111d87a",
+        "1c0828447a44f562ce574d89234db2b282e702318233dfbe434bd33f33245ddb",
+        "bf6921247cbde56bcf58da2165bb7633a76ad9cc8b95235809bad6e552b60b08",
+        "76235a3210b833aa86172c5dcd565b50d459416b856b9a71f5c2d7eea3a3f6ce",
+        "04a750409c1f7ff3d2facc6c9e350deedfe04aecb75ca72b4c8f0af4a0daa637",
+        "9f3dfd0f5b46bfe0c0a27ffdb5868ae83414cd35e9b32f450430f341b3986941",
+        "ae9007960a26c15cd0a16109b40762ec050e56d1e510d58ba06778eb4b459a43",
+        "b816949f8ccf52296c0fb687f0f3c46fbca702e0c8074591d0a0b38e8aa307c1"
+      ],
+      "source_sha256": "f7fe42d2c6ec06a91de111d1ea6765529ce1e9c7051db3934f158d14f0546c81",
+      "text": "Grow secondary objects from labelled primaries using intensity watershed.\n\nEvery positive primary label is a marker, including all its pixels.\nGrowth follows the negative, optionally Gaussian-smoothed intensity.\nThis is an intensity watershed, not CellProfiler's shortest-path\nPropagation algorithm or a distance/intensity regularization model.\n\nThe four rules in :data:`PROPAGATE_STOPS` use processed intensities.\n``absolute``, ``percentile`` and ``threshold`` restrict growth with a\ncommon foreground mask. ``seed_fraction`` trims each watershed basin\nat a fraction of the brightest processed pixel inside its primary.\nThat ratio is not a quantile and depends on background offset. With a\ndark nucleus in a cytoplasmic channel, use a common threshold instead\nof a nucleus-relative peak ratio.\n\nPrimary pixels are always included before minimum-area filtering, even\nbelow the threshold. Hole filling can also restore below-threshold\npixels. Filtering can remove a whole secondary together with its seed;\nthe missing ID is reported. Remaining labels retain their primary IDs\nexactly, without splitting or renumbering disconnected components.\nSparse IDs use compact internal markers, never arrays sized by max ID.\n\n:param image: finite nonempty 2-D intensities, converted to float32.\n    The caller supplies normalization, background correction or inversion.\n:param primary: same-shape nonnegative integer primary labels; 0 means\n    background. The returned labels retain this dtype and these IDs.\n:param sigma: finite nonnegative Gaussian sigma in pixels; 0 disables\n    smoothing. Smoothing affects growth and threshold estimation.\n:param stop: one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.\n:param stop_value: intensity for ``absolute``, percentile in [0,100] for\n    ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored\n    by ``threshold``. Fractions require nonnegative processed intensities.\n:param stop_algorithm: global threshold algorithm, default ``\"otsu\"``;\n    read only for ``threshold``. The full supplied image determines it.\n:param min_area: minimum secondary area after hole filling; 0 disables\n    filtering. The whole primary footprint counts toward the area.\n:param fill_holes: fill enclosed background pixels per label before\n    filtering. Does not overwrite another primary's labelled pixels.\n:returns: :class:`SecondaryResult`, including ID relationship diagnostics.\n    Empty primary masks yield an empty result and no common stop level.\n:raises ValueError: invalid images, labels, shape, sigma, stop rule,\n    rule-specific stop value or negative minimum area."
     },
     "spacr.qt.mask_engine.seg_outlines": {
       "source_blocks_sha256": [
@@ -90917,22 +90977,22 @@
     },
     "spacr.qt.widgets.sample_project": {
       "source_blocks_sha256": [
-        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b38450bf202eaf7daedc959d3ae8e3b2a3ead2d523d2d2f059450425fadacdee",
         "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
         "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
       ],
-      "source_sha256": "7b15385c921097a0e3b591bb3b6d000e1f039db2580a27378ae1e7387fedb524",
-      "text": "Open an example project from Home for the chosen experiment type.\n\nThe dialog opens the first module in the selected pathway with example data\nand settings supplied. A status-bar walkthrough button keeps the route\navailable after the example opens.\n\nPathways come from ``spacr/resources/module_workflows.json``, shared with\ntutorials, walkthroughs and API pages. Three fallback pathways are available\nif the bundled map is missing."
+      "source_sha256": "cbd5722eacde19541f2c7f24f275a54d529ce7067b62777f50dccca5c7b62f15",
+      "text": "Explore pipeline flowcharts and optionally start an example from Home.\n\nThe dialog opens the first module in the selected pathway with example data\nand settings supplied. A status-bar walkthrough button keeps the route\navailable after the example opens.\n\nPathways come from ``spacr/resources/module_workflows.json``, shared with\ntutorials, walkthroughs and API pages. Three fallback pathways are available\nif the bundled map is missing."
     },
     "spacr.qt.widgets.sample_project.SampleProjectDialog": {
       "source_blocks_sha256": [
-        "9de07ea24dc29a833ba9456d11c02d85bcee7396ea2fcaab58b5b4b9a5b4f70e",
+        "bc6496bb31b2c0c5054d3dfb03035c6c3b1c7432d573401a6f9fbdf863562c28",
         "863837a57f8b0ee23ab230e20cada068ed47e0a5a354f8c36ecdb62863197f38",
         "6fe37c66373e7800aeae217ea0761d403051fcaf330b127f001affb2610c18bd",
-        "f3d09bd37b9bb3c1b37f65e9c8d4cc059ab811e087ea2866b986a42786f9da84"
+        "0f9024c4221e8ecae2583d4d6207006d0ebf7b0e7b5b894fbe5601a8bf59b349"
       ],
-      "source_sha256": "8b0182e2b928490e81c59ccc75d8555535f2bcdbc875555b9c380821ed230b19",
-      "text": "Which kind of experiment, and start it.\n\n:param parent: the window it belongs to.\n:param entries: the pathways; :func:`pathways` when None.\nShow one row per pathway, the first selected."
+      "source_sha256": "3b059c290f517d4a7f4ec304f7e57f6b00fe82de7c658fff3e662ec136e21a36",
+      "text": "Explore pathway flowcharts and optionally start an example project.\n\n:param parent: the window it belongs to.\n:param entries: the pathways; :func:`pathways` when None.\nShow a module/input/output flowchart for each pathway row."
     },
     "spacr.qt.widgets.sample_project.SampleProjectDialog.accept": {
       "source_blocks_sha256": [
@@ -94598,6 +94658,180 @@
       ],
       "source_sha256": "3cc5f5d87ed52c0eceb7b555fd98d12a64dc56d206368e852a260693382fc0d7",
       "text": "The screen axes matplotlib builds from three camera angles.\n\nMirrors ``Axes3D.get_proj`` and ``proj3d._view_axes`` for a Z-up axes:\n``w`` points from the centre of the box to the eye, ``u`` is\n``V x w`` with ``V`` the vertical axis (negated past the pole), and\n``roll`` turns ``u`` and ``v`` about ``w``.\n\n:param elev: the camera elevation in degrees.\n:param azim: the camera azimuth in degrees.\n:param roll: the camera roll in degrees.\n:returns: ``(u, v, w)``, three orthonormal vectors."
+    },
+    "spacr.qt.widgets.workflow_diagram": {
+      "source_blocks_sha256": [
+        "b625789774c55de873e857a43110fc4179cff20fb82fbd6683431d1c71cac32c",
+        "268f5baf393e9ede2fe55d3a331c27a875a63322c27883ee7bad0d1a763d4eb2"
+      ],
+      "source_sha256": "4227e1d1452589323447d18dcdad0feeba5263d07fddb1c28a09883daf236b99",
+      "text": "Interactive workflow diagrams built from the shared module and artifact map.\n\nSolid arrows describe documented handoffs. Dashed arrows connect matching\nartifact types or pathway prerequisites; their explanations distinguish these\nfrom verified handoffs. Nodes and edges never start analysis. Hover or select\none to read its description in the owning dialog's fixed details area."
+    },
+    "spacr.qt.widgets.workflow_diagram.DiagramDialog": {
+      "source_blocks_sha256": [
+        "12a279ae98b1543825da60d4f5a391f474c63d3c1df9f159c07a15adc0b6efc3",
+        "24907a12728d3e46c6a8517f25af2422f86fb02fd970ad6ea69fcffee0600eff",
+        "3c744e7c52d7334054873023947a5cb7e439c4dac1633341fbb08e8eb9ca6d68"
+      ],
+      "source_sha256": "f8a5dcf2ac8145a3531cd31c4ae8af9889f0720d0abfbc69ae740a148f9f9d4e",
+      "text": "A diagram window with a rounded, 80-percent opaque background.\n\n:param parent: owning widget; defaults to None for a top-level window.\nKeep the background translucent without reducing text opacity."
+    },
+    "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent": {
+      "source_blocks_sha256": [
+        "c3fe81fd7236dcd025c65f7b311cc4b18c6e846f9f98238c751d68bb47eed7d7",
+        "8544b27093841a6febd445415c4b35c740ad674711adcb952ce4a8739f1f4fe6",
+        "a7e026dcd75cff26f163bfe61af6e5b6d797f229ed1ea8d2d9b898dd8683c271"
+      ],
+      "source_sha256": "5fb9945ffae88e75df62d70a28c7f0cd3630e799c8bdb72a8792559692936583",
+      "text": "Paint one 80-percent surface beneath the diagram and its controls.\n\n:param event: Qt paint event; the complete background is repainted.\n:returns: None; text and child controls retain their own opacity."
+    },
+    "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog": {
+      "source_blocks_sha256": [
+        "70397b02b61a263cc2b772a6141784e6580461346abbd2dd1b498cf3f59ae87e",
+        "4585e4e0645cd1b2ad4b7109dbe8d98c66d22fe43131d3a5ab6d4a905a4e1182",
+        "81a757e46ce625cce79207397a8fe46cee88ef7032276381f263f45ee42c4347",
+        "049c7182325e1efc3131df763c6e53c325129617f505479897a2d8ef49eda284"
+      ],
+      "source_sha256": "4b371056808fa34cf51f1dbf27c1ac13d578c5df0d658f3a0f6779ba616c2111",
+      "text": "Show every mapped module and directed input/output connection.\n\n:param parent: owning main window.\n:param data: workflow map override; None reads the bundled map.\nBuild the network, keyboard selectors, view controls and details."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView": {
+      "source_blocks_sha256": [
+        "3fa56da81245a106bcc60adaa60e88ab89cf857858b8440186e4840b465f188f",
+        "36d56839b80d0e0e294c06295a0257661f2df776ffdea69ead1328b32946a290",
+        "c4678ac1cee40232e4b75ef06e0c2d51a20b49877a3192992a735642228e1732",
+        "d7c141443e3c62ad46f7ae3f3afb27e3e775b41fded9d5b3ca13d38b010df696",
+        "6e48e348623bb4f66da15bd5781edb2c32c5158b244b7ba13f77ce9469be7c38",
+        "acd7146d2a9370ee08641deff7befe206c621200f55e59e4cc395afd53bfec70",
+        "d6f95fedb76559a8df2cac3b93ee9e275e648f4e4062d63f481ac657272459ed"
+      ],
+      "source_sha256": "b6038445baf1471d63b637bd52436e944f79a65bf20bdc861b6dd18f16a76e91",
+      "text": "Zoomable, pannable map whose selection emits explanatory HTML.\n\n:param data: shared workflow map.\n:param keys: optional subset of module keys for one pathway.\n:param steps: optional pathway dependencies; no sequence links are invented.\n:param parent: owning widget.\n:param compact: show module titles only; full input/output descriptions\n    remain in the emitted explanation. Suitable for the complete network.\nBuild nodes and directed connections once; hover changes only ink."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge": {
+      "source_blocks_sha256": [
+        "01146d9a9e6e5f1b79a99194c441a81b593e5ed52850f6053eae855cd1aaa3dc",
+        "5a659f1399bd5972453617033f88c9e3e3225e03b0c90c769b0c89fe7692895e",
+        "b0981a878f9e4196344d22b6e19e0a90c20761e75f60049372e765a770025eb4",
+        "fe1104cb355a3b08a465196566efd196499fb16fa53701ab36db58255695a654"
+      ],
+      "source_sha256": "94032337bb0e7b75e32bfc270e985401eeadea360fb8d37f2fe41c9b334ccecf",
+      "text": "Describe a connection and highlight its two endpoint modules.\n\n:param edge: graphical edge item from this view's edges list.\n:param center: when True, fit the edge and both endpoint nodes into\n    the viewport and disable automatic fitting; defaults to False.\n:returns: None; emits explanation HTML and the activated signal."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node": {
+      "source_blocks_sha256": [
+        "84afd644a73861e8964627e0e34c1c7816c89c8d57221572fec6cfe89f821bc7",
+        "731537c60793ddd8e82869736a5ed38dbcfcc70d49314521ba54fc7c9ce157fe",
+        "2da84b3203e5f2e55a0ae08fc0c8b888678689fae91c739d721974c603d370ed",
+        "fe1104cb355a3b08a465196566efd196499fb16fa53701ab36db58255695a654"
+      ],
+      "source_sha256": "63a4a65d40e87985b025b6d24084e11e2cdba8ab2137c68236b7a59de88a8432",
+      "text": "Highlight a module and emit its explanation without running analysis.\n\n:param key: module key present in this view.\n:param center: when True, reset the zoom and center the module,\n    disabling automatic fitting; defaults to False.\n:returns: None; emits explanation HTML and the activated signal."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram": {
+      "source_blocks_sha256": [
+        "cb3fcb9a8b75acaec01c2cfa9f6ddd10e4833d030ec8c1597d8bcb683ae46537",
+        "820b9ff42e22704de89431bb972b0d7e6f379a286fbe7f04ce288ebb47f69b32"
+      ],
+      "source_sha256": "b4b9b4dcc29523480d4d492a7a99cfa13c81363aafb596d4d84aa3d86e2b5a9d",
+      "text": "Fit the complete diagram with preserved aspect ratio and resume auto-fit.\n\n:returns: None; updates the view transform and automatic resize behavior."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent": {
+      "source_blocks_sha256": [
+        "b3df762ed3e69ade7fe2898ac263c2c3681b34d5637d5d5ee1da053f5585ebc2",
+        "8930d64af0d740726b77dec6a01d3464631b5b38b057e05e43f7c7ee8078e09b",
+        "2a69c217b4edaf4d766907f1bd77230e6b9903ce11ea643cd48b83a25ba64bb4",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "411927aa5ce4d85280dedbd2fae0096aebf20ac0f803b49fb84dab41bf4f96af",
+      "text": "Refit on resize while automatic fitting remains enabled.\n\nManual zoom or explicit centering disables automatic fitting until\n:meth:`fit_diagram` is called again.\n\n:param event: Qt resize event forwarded to the base view.\n:returns: None."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent": {
+      "source_blocks_sha256": [
+        "bd422afd6c385f5ec837c7d66af469530bf78cf67cbf3b33b9bd3112a1d5385c",
+        "6919f6b752634cd761190980de2337829f601b2c5e689281e67f212fa882a47c",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "a90f47a0009ae92b811beb047d5b33d82001e4736a0f64ce5f3a4e7d032c6180",
+      "text": "Fit once when a viewport first acquires a useful size.\n\n:param event: Qt show event forwarded to the base view.\n:returns: None."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent": {
+      "source_blocks_sha256": [
+        "86ef2a8d4518fd4483e567018264d954a5f2b2c552a334e85d84d3e9e7d0f161",
+        "cfb1d36f3cd845ac50255ea979af5ad712f2c507dcc7a8c2bb8a0f7bf0d7c51e",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "8d0d2271af1def7d4100a814b12a345fe4cc271455a314cdaf3924ac80bf8e57",
+      "text": "Use Ctrl+wheel for zoom; ordinary wheel scrolls the diagram.\n\n:param event: Qt wheel event; control-modified events are accepted\n    here, and other events are forwarded to the base view.\n:returns: None."
+    },
+    "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom": {
+      "source_blocks_sha256": [
+        "e38c06c2b0e472feede3fdd0f63c407e12a757368719b5e1fe648ca9c39c95e6",
+        "d789834fdd4e21818111de3a1d30b036a4a966cf2e6b1c8be56e83a4d8b0c6f1",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "55c39122ea8d9db4aa709dffefa5e9584db56f5aae31fe306dd90b0bd0f72aa4",
+      "text": "Scale the view without changing node layout.\n\n:param factor: multiplier for the current view scale. The change is\n    applied only when the resulting scale is between 0.04 and 3,\n    inclusive; accepted changes disable automatic fitting.\n:returns: None."
+    },
+    "spacr.qt.widgets.workflow_diagram.connections": {
+      "source_blocks_sha256": [
+        "6397210a0432ce605dd6730abc8a277db5ff8e2bd58bf328bbf4abd2e9a7c0a4",
+        "36d56839b80d0e0e294c06295a0257661f2df776ffdea69ead1328b32946a290",
+        "582000a79d242544a92f4dc396570bc8ba7cda6e2fae174324397ef8560a4802",
+        "847c7d0eebaf75dd202c0ba1c673471b77bea081daac8c6d169f609c9e26a3ca",
+        "8692c45742dc3379f506d0eff528179f39b6acd4752895226dbe86a0cc37f285"
+      ],
+      "source_sha256": "6cbe395e2aeea004189e64319cd2aa888cd25d374f3b0b1ff726713a6c99c54d",
+      "text": "Return documented handoffs and explicitly distinguished inferred links.\n\n:param data: shared workflow map.\n:param keys: optional module subset; None includes every mapped module.\n:param steps: pathway steps, whose ``after`` dependencies define its edges.\n    None builds the full network, including matching artifact types.\n:returns: dictionaries with ``from``, ``to``, ``artifacts``, ``handoff``\n    and ``kind`` (documented, compatible or prerequisite). Inferred\n    compatibility describes matching types, not an automatic file import."
+    },
+    "spacr.qt.widgets.workflow_diagram.details_box": {
+      "source_blocks_sha256": [
+        "6c5b75a32e454eb1f39aa80e98e35e7886c0f6a634341b8cc41ce2133402be94",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "e1db80ba5392507720b5d9a4027abdc8913c241cd46e9de5f542ae9cd481d726"
+      ],
+      "source_sha256": "539501777c2b44f8b405b126be4df41ac632bc192138b1954f6bd16314d3d1d6",
+      "text": "Build a fixed-height, scrollable explanation area shared by diagrams.\n\n:param parent: owning widget; defaults to None.\n:returns: QTextBrowser with external API links enabled and introductory\n    text. Its height is ten times the current body-font pixel size."
+    },
+    "spacr.qt.widgets.workflow_diagram.edge_description": {
+      "source_blocks_sha256": [
+        "42105762a77705c0d215c0623c11fc792a4e4a60659cb65ed62bcf4578222791",
+        "5efcf471b395d53874cb865c76b01ef56378f5cd72648d9583f1745d9fba0cfa",
+        "7d65503ae1b35ba4374b16bb4d506e24fcf062975a5cc887203f139e023a0245",
+        "a6683528f1cef283a85baeea6c6479cd203589f491eb48fe243e4f300abdf20c"
+      ],
+      "source_sha256": "7b8daad18be9d6d268c32caa7cc813eecc7631af7dd6a43e36982dade42b8bed",
+      "text": "Explain a connection and link both endpoint APIs.\n\n:param data: shared workflow map containing both endpoint modules.\n:param edge: connection record returned by :func:`connections`.\n:returns: escaped, translated HTML describing artifact locations and\n    whether the edge is a documented handoff, a matching data type or a\n    pathway prerequisite. Inferred links do not establish file compatibility."
+    },
+    "spacr.qt.widgets.workflow_diagram.node_description": {
+      "source_blocks_sha256": [
+        "197599a39ce1edfcbef385f01f0e5cfbc86acdd7e076de046a8fd93cb18d0706",
+        "36d56839b80d0e0e294c06295a0257661f2df776ffdea69ead1328b32946a290",
+        "02aaa48bc9b72429db62b42bbf00258bcb25a2fa0f035aa2d4169971fce3c076",
+        "13d2504707b32688adf45226bbb6022fc67fabb6bbfe23632df4cd733cef2af9"
+      ],
+      "source_sha256": "e3224e86daa3d9aae2c4336abb5af4f70734100abb1cb4b5c4b4a336dbb0c5b9",
+      "text": "Describe a module, its API link and its input/output artifacts.\n\n:param data: shared workflow map.\n:param key: module key present in the map.\n:returns: escaped, translated HTML for the fixed details panel."
+    },
+    "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart": {
+      "source_blocks_sha256": [
+        "6efb7e799e2b8bd5bc84394127366e265fff9f04c34eaaf82791c9ff6f9f5508",
+        "b4a6d2f62392d6ddd253d326262eb605f45977991307722963ff8c425807cf41",
+        "4e2664fb7c3faec46db4992d159a36a9f701cb4b9287fe4705e8cffe253ed9e5"
+      ],
+      "source_sha256": "274cea4eb027ff96f3c24187072a6b161f175d955966a7f6610b0b002b4e34a1",
+      "text": "Open or raise the window's single nonmodal spaCR workflow diagram.\n\n:param window: owning main window, which retains the dialog for reuse.\n:returns: the shown and activated :class:`SpacrFlowchartDialog`."
+    },
+    "spacr.qt.widgets.workflow_diagram.workflow_map": {
+      "source_blocks_sha256": [
+        "04eba32f63d60f5fb9d0d1e2c31644cd82683e725555bde78e112a75f1cb791b",
+        "e1c37b8746f942a4ced3f6c2952a764762364836182d1eaa38ac6196143b618a",
+        "df69efcf127dd6a1e549d2fe68e45bc81a9f2eddcc518d42edaca15847b44f51",
+        "6a229420763e13d32d7641117a918a347b0431996cb065c9898a2345a35977b2",
+        "7cbf6731cfa94feb0e51d53c27d4ed31d048fc8c0921528c3902929541626c84"
+      ],
+      "source_sha256": "12b3b6fb217e3c1d32675ec344c01be4fdc45ab7f23e9bf6b5f148fb0ee693b6",
+      "text": "Read the bundled module map, or an explicitly supplied JSON path.\n\n:param path: JSON file; None selects the bundled module_workflows.json.\n:returns: the parsed map; modules and artifacts must be dictionaries.\n    The bundled map also supplies pathways and connections.\n:raises OSError: the file cannot be read.\n:raises ValueError: invalid JSON or missing module/artifact dictionaries."
     },
     "spacr.qt.widgets.zoom_view": {
       "source_blocks_sha256": [

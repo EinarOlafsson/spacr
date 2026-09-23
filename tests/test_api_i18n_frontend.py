@@ -109,7 +109,9 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 474's ten additional entries have reviewed records in every locale.
 # +27 / -0 since 1d5a80f78: 14 Starplast, 9 ruler and 4 diagram entries.
 # Subtraction is recorded in 411_api_prose_cleanup_2026-09-22.json.
-REAL_SYMBOL_COUNT = 11_365
+# +22 / -0 for the flowchart and secondary-object APIs; exact delta in
+# 411_flowchart_secondary_inventory_2026-09-23.json.
+REAL_SYMBOL_COUNT = 11_387
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

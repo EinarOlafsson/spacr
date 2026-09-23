@@ -132318,14 +132318,14 @@
     },
     "spacr.qt.widgets.sample_project": {
       "source_blocks_sha256": [
-        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b38450bf202eaf7daedc959d3ae8e3b2a3ead2d523d2d2f059450425fadacdee",
         "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
         "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
       ],
-      "source_sha256": "7b15385c921097a0e3b591bb3b6d000e1f039db2580a27378ae1e7387fedb524",
-      "text": "Öppna ett exempelprojekt från Hem för den valda experimenttypen.\n\nDialogen öppnar den första modulen i det valda arbetsflödet med exempeldata och inställningar. En genomgångsknapp i statusfältet håller flödet tillgängligt efter att exemplet har öppnats.\n\nArbetsflödena kommer från ``spacr/resources/module_workflows.json``, som delas med handledningar, genomgångar och API-sidor. Tre reservflöden finns om den medföljande kartan saknas.",
+      "source_sha256": "cbd5722eacde19541f2c7f24f275a54d529ce7067b62777f50dccca5c7b62f15",
+      "text": "Utforska flödesscheman och starta ett exempel från Hem om du vill.\n\nDialogen öppnar den första modulen i det valda arbetsflödet med exempeldata och inställningar. En genomgångsknapp i statusfältet håller flödet tillgängligt efter att exemplet har öppnats.\n\nArbetsflödena kommer från ``spacr/resources/module_workflows.json``, som delas med handledningar, genomgångar och API-sidor. Tre reservflöden finns om den medföljande kartan saknas.",
       "translation_source_blocks_sha256": [
-        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "88ec6a5ebfb58ea504c92f060e285f104f2542083038ba990abeb7f3017db3c8",
         "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
         "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
       ]

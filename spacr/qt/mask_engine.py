@@ -2418,6 +2418,14 @@ class PrimarySecondaryReport(NamedTuple):
     without any secondary pixels outside their own primary are listed in
     ``unexpanded_primary_ids``; these can indicate a threshold that stopped
     growth immediately. A match alone does not prove correct cell boundaries.
+
+    :ivar primary_ids: nonzero IDs present in the primary mask.
+    :ivar secondary_ids: nonzero IDs present in the secondary mask.
+    :ivar matched_ids: IDs present in both masks.
+    :ivar missing_secondary_ids: primary IDs absent from the secondary mask.
+    :ivar orphan_secondary_ids: secondary IDs absent from the primary mask.
+    :ivar incomplete_primary_ids: matched IDs whose secondary omits primary pixels.
+    :ivar unexpanded_primary_ids: matched IDs with no growth beyond their primary.
     """
 
     primary_ids: Tuple[int, ...]
@@ -2436,6 +2444,10 @@ class SecondaryResult(NamedTuple):
     ``relationships`` includes primaries removed by minimum-area filtering.
     ``level`` is None for the per-primary peak-ratio rule or an empty primary
     mask; otherwise it is the common threshold in processed intensity units.
+
+    :ivar labels: secondary label array retaining primary IDs and dtype.
+    :ivar relationships: primary/secondary identity report after filtering.
+    :ivar level: shared stop threshold, or None when no common threshold applies.
     """
 
     labels: np.ndarray

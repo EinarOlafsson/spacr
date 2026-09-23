@@ -1666,3 +1666,15 @@ exemption. Browser symbol pin now11365, proved by27additions/0removals since
 1d5a80f78; exact identities and scoped rendered evidence are in
 features/data/411_api_prose_cleanup_2026-09-22.json. Full catalog reconstruction
 and nested-helper rollout remain open; new483/476sources await integration.
+
+2026-09-23 — CODEX: 483 FLOWCHART / INITIAL476 API INVENTORY
+English11387 includes22new API entries:18flowchart/4secondary-engine. The
+21new callables and three preserve_ids keywords are measured by exact
+subtraction; all22new required-parameter omissions were documented, keeping
+the existing2293omission threshold unchanged.135flowchart controls and nine
+replacement module headings have source-bound translations;45superseded
+reviews remain preserved. Full nine-language review loaders pass. Sphinx-W,
+22built anchors and45focused checks pass. Complete API/runtime catalogs
+still fail missing/stale rows; no gate waived. A fixed private source snapshot
+is now undergoing sequential CPU reconstruction. The later476GUI/distance
+handoff awaits integration. See411_flowchart_secondary_inventory_2026-09-23.json.

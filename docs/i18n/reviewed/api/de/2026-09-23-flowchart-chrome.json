@@ -1,0 +1,14 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Explore workflow flowcharts and optionally start an example from Home.",
+      "label": "spacr.qt.widgets.sample_project#0",
+      "source": "Explore pipeline flowcharts and optionally start an example from Home.",
+      "source_sha256": "b38450bf202eaf7daedc959d3ae8e3b2a3ead2d523d2d2f059450425fadacdee",
+      "translation": "Erkunden Sie Pipeline-Ablaufdiagramme und starten Sie bei Bedarf ein Beispiel von Home aus."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of the flowchart/sample-project heading; no native-speaker sign-off.",
+  "schema": 1
+}

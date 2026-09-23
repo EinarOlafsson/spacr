@@ -1,0 +1,112 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Connection",
+      "source": "Connection",
+      "source_sha256": "639a40e82b9a96f0cbeed5f006cf5634c8d1b990b3c83753c00a910fc268d2a6",
+      "table": "ui",
+      "translation": "连接"
+    },
+    {
+      "key": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+      "source": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+      "source_sha256": "f4adf5da80dd620415aa8589fe929881b6b668f4dc38d2042bc072b9021a19e5",
+      "table": "ui",
+      "translation": "浏览流程图及其模块、输入和输出，也可选择使用示例数据开始。"
+    },
+    {
+      "key": "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
+      "source": "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
+      "source_sha256": "51c8722f376e30a7fa197714a5daf6ff9c48cf3685876fdd94ec1fe742c202b3",
+      "table": "ui",
+      "translation": "浏览每条流程中的模块、输入和输出。将鼠标悬停在模块或箭头上可查看详情。选择流程并点击“启动示例”，即可使用示例数据打开其第一个模块。Ctrl+滚轮可缩放图表；拖动可平移。"
+    },
+    {
+      "key": "Hover or select a module or connection to read its inputs, outputs and explanation here.",
+      "source": "Hover or select a module or connection to read its inputs, outputs and explanation here.",
+      "source_sha256": "87805d706a97cfc6888db14954c1121e5c5b4ffd11f893c497aa280b1de1bd7d",
+      "table": "ui",
+      "translation": "悬停或选择模块或连接，即可在此查看其输入、输出和说明。"
+    },
+    {
+      "key": "Matching data types. Check the destination's required fields, object identities and settings; this is not an automatic transfer.",
+      "source": "Matching data types. Check the destination's required fields, object identities and settings; this is not an automatic transfer.",
+      "source_sha256": "6908a8d17abf8ad0ea0d2caa5afab6c202b817e881d18b8b8d2138c880b43d6b",
+      "table": "ui",
+      "translation": "数据类型匹配。请检查目标模块要求的字段、对象标识和设置；这并不表示自动传输。"
+    },
+    {
+      "key": "None declared",
+      "source": "None declared",
+      "source_sha256": "648cb0dad5013ff0cfb35bae45d54cbe60d35fd4a1b0987966ab261bf6c485d4",
+      "table": "ui",
+      "translation": "未声明"
+    },
+    {
+      "key": "Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.",
+      "source": "Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.",
+      "source_sha256": "96b5350b8f99150f95b0525e32a1f06b7699833aa983cb97f023214c393e36b3",
+      "table": "ui",
+      "translation": "流程前置条件。请按流程说明操作；此模块对未声明直接文件交接。"
+    },
+    {
+      "key": "Pipeline overviews",
+      "source": "Pipeline overviews",
+      "source_sha256": "2639dddac8a037e40fe5d1887f35c815c3cdf82cc9c568ba3b9c40376a83c378",
+      "table": "ui",
+      "translation": "流程概览"
+    },
+    {
+      "key": "Select a connection…",
+      "source": "Select a connection…",
+      "source_sha256": "c5fc27bd6dd9740ce57ccf1c950b257eef4d9cf6af27b3f0c45e3cd766e3e8c2",
+      "table": "ui",
+      "translation": "选择连接…"
+    },
+    {
+      "key": "Select a module…",
+      "source": "Select a module…",
+      "source_sha256": "710534de0e8c8361e2b2aac2d0e27b1fbdba02527a022ede572167bfaa79b36f",
+      "table": "ui",
+      "translation": "选择模块…"
+    },
+    {
+      "key": "Show matching data types",
+      "source": "Show matching data types",
+      "source_sha256": "22b449adec133084323670cf03802c74cab5cd58438f23263f5ff2ee419922ec",
+      "table": "ui",
+      "translation": "显示匹配的数据类型"
+    },
+    {
+      "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+      "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+      "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+      "table": "ui",
+      "translation": "实线箭头：已记录的交接。虚线箭头：数据类型匹配，但仍需检查兼容性。拖动可平移；Ctrl+滚轮可缩放。"
+    },
+    {
+      "key": "Start example",
+      "source": "Start example",
+      "source_sha256": "cfe29fdc4c304dc79190f8684c32d34cbad0ff3c91e9279bbf0b6d0d392ca7b3",
+      "table": "ui",
+      "translation": "启动示例"
+    },
+    {
+      "key": "spaCR flowchart",
+      "source": "spaCR flowchart",
+      "source_sha256": "b05553203d49d98d5d4c9cbfd450e243951bde2d9982e6cba687c1d75752a4fe",
+      "table": "ui",
+      "translation": "spaCR 流程图"
+    },
+    {
+      "key": "{module} API",
+      "source": "{module} API",
+      "source_sha256": "108491bb0128cb8c5588ba2c26efc432994cc0ea805aeb9eab52bae81da1e03a",
+      "table": "ui",
+      "translation": "{module} 的 API"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of pipeline/flowchart controls, hover and pan/zoom guidance, and declared versus candidate data links; no native-speaker sign-off.",
+  "schema": 1
+}

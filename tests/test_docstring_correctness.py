@@ -2100,7 +2100,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 477 adds ImageRuler and seven methods: ten parameters, five required.
     # Subtracting those eight rows restores c2d382b1 exactly; required
     # omissions remain 2293. See 411_shared_ruler_api_2026-09-22.json.
-    assert len(callables) == len(by_symbol) == 9_408
+    # 483/476 add 21 callables and preserve_ids on three existing functions.
+    # Removing those rows/keywords restores 5ab6aa2a; omissions stay 2293.
+    # Exact source deltas: 411_flowchart_secondary_inventory_2026-09-23.json.
+    assert len(callables) == len(by_symbol) == 9_429
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2159,19 +2162,19 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # functions. Subtracted, 3,776.
         # 2026-09-20: see the note above this assertion. The seven
         # buckets sum to 9,047, which is the total pinned there.
-        "function": 4_182,
+        "function": 4_190,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_070,
+        "method": 4_078,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 432,
+        "constructor": 435,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
         # RemovalReport. Subtracted, 474.
         "dataclass_constructor": 502,
-        "namedtuple_constructor": 17,
+        "namedtuple_constructor": 19,
         "exception_constructor": 147,
         "inherited_or_default_constructor": 58,
     }
@@ -2213,7 +2216,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # that arrived in the five days is rendered by autoapi and by
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
-        "autoapi": 9_403,
+        "autoapi": 9_424,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2259,7 +2262,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,692 -> 8,705 on 2026-09-15, the same +13: each of 412's and 416's
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
-    assert sum(item.variant_count for item in callables) == 9_415
+    assert sum(item.variant_count for item in callables) == 9_436
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2271,7 +2274,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,691 -> 9,040 on 2026-09-20: every callable that arrived in
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
-        1: 9_401,
+        1: 9_422,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2313,10 +2316,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # states still holds: it rose, so no constructor prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 431
+    ) == 434
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 431
+    ) == 434
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2454,7 +2457,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_652
+    assert sum(len(item.parameters) for item in callables) == 18_702
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2483,7 +2486,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # make_masks_example_folder have no required parameter. Subtracted, 8,812.
     # 8,830 -> 9,214 on 2026-09-20, moving with the parameter total
     # above.
-    assert sum(len(item.required_parameters) for item in callables) == 9_601
+    assert sum(len(item.required_parameters) for item in callables) == 9_629
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2568,7 +2571,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and restoring those four baseline rows returns 8215ebec..., the
     # previous pin, byte for byte.
     # 474: subtracting its two constructors and eventFilter reproduces ac7e2d1f.
-) == "5ab6aa2ac72d73c334a011fc9596f5ef4c5c050959ad85b70bc13668c50a5230"
+) == "52f55683395e8202e80ebcb400169905e5cbba2a3dcda59df9e3dc034c859d2c"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3048,7 +3051,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 6ae5e1b36: the 192 callables named at the callable inventory above
     # plus the module and class docstrings that came with them. The
     # extractor's own pin moved by the same count in the same commit.
-    assert len(docs) == 11_365
+    assert len(docs) == 11_387
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3083,7 +3086,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # `SearchThresholds` is both rendered and documented.
     # 8,680 -> 8,693 on 2026-09-15: their 13 documented, rendered callables.
     # 8,693 -> 9,042 on 2026-09-20; the inventory's note accounts for it.
-    assert len(rendered_documented_callables) == 9_403
+    assert len(rendered_documented_callables) == 9_424
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -3156,7 +3159,10 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # FoldSection now documents its required body as retained state as well
     # as a constructor parameter. It is an ordinary constructor, so the
     # generated-constructor counts below remain unchanged.
-    assert len(required_ivars) == 56
+    # 2026-09-23: PrimarySecondaryReport and SecondaryResult add two
+    # namedtuple constructors and ten required fields, documented in
+    # features/data/411_flowchart_secondary_inventory_2026-09-23.json.
+    assert len(required_ivars) == 58
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
@@ -3173,7 +3179,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # (stack, kept, refused, missing, channel_shifts, cycle_shifts).
     # 198 -> 217 on 2026-09-20, the fields of the nine new documented
     # dataclass constructors.
-    assert sum(map(len, required_ivars.values())) == 228
+    assert sum(map(len, required_ivars.values())) == 238
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -3189,11 +3195,11 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # constructor docstring is reduced to :ivar: fields.
     # 39 -> 40 on 2026-09-15: AlignedField, wholly in the GENERATED half.
     # 40 -> 48 on 2026-09-20, the new documented dataclass constructors.
-    assert len(generated) == 50
+    assert len(generated) == 52
     # 161 -> 181, the 20 fields of the five curation_queue dataclasses.
     # 181 -> 187 on 2026-09-15, +6: the same six AlignedField fields.
     # 187 -> 204 on 2026-09-20, moving with the generated constructors.
-    assert sum(map(len, generated.values())) == 214
+    assert sum(map(len, generated.values())) == 224
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
@@ -3211,7 +3217,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # ivar prose where one did. That is a different event from a
         # dataclass arriving, and it is named here rather than absorbed
         # into the total.
-        "namedtuple_constructor": 4,
+        "namedtuple_constructor": 6,
     }
     assert Counter(
         by_symbol[symbol].category
@@ -3228,7 +3234,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # (5 -> 14), which the comments above say is the part worth
         # asserting: these are namedtuple fields, not dataclass ones.
         "dataclass_constructor": 200,
-        "namedtuple_constructor": 14,
+        "namedtuple_constructor": 24,
     }
     # 4 -> 5 on 2026-09-20, one more ordinary class whose __init__
     # documents its parameters as :ivar:.
@@ -3258,7 +3264,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 40 -> 48 on 2026-09-20, tracking `generated`. The two zeros below
     # are unchanged, which is the assertion that matters: every one of
     # the eight new constructors documents every required field.
-    assert sum(not names for names in remaining.values()) == 50
+    assert sum(not names for names in remaining.values()) == 52
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

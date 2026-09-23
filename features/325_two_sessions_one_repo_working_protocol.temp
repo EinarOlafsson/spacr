@@ -12048,3 +12048,58 @@ does not make locales usable. 34organism long passages remain; five have
 private nine-language drafts. No GPU job started. 476UI integration ownership
 remains with Claude; this lane handles its API/docs/translations after source
 handoff. Map77modules needs a check against the new structured flowchart.
+
+2026-09-23 — CODEX: 483/MAP INTEGRATION AND EXTRACTION CLAIM
+Rebased all three local batches throughf4964b9af; retained both channel tails
+and483's flowchart module introduction. Current local batch commits:
+77748a3a6 organism captions; workflow/API commit IDs follow after validation.
+The integrated graph check exposed a cycle in the two new simulation-planning
+arrows. Neither planning tool actually imports/exports the simulation grid or
+database, so these are now explicitly manual advice in simulation guidance,
+not declared data-handoff edges. Three Python-only modules remain mapped.
+
+Claiming tools/build_i18n_catalogs.py's workflow JSON extraction and its focused
+test:483renders module guidance, artifact titles/locations and handoff text
+through tr(), while the existing extractor only reads pathway prose. Those
+actual visible sources must enter the English manifest before catalog repair.
+No workflow_diagram implementation or476engine/UI edits claimed.
+
+2026-09-23 — CODEX: 483 PUBLIC API PROSE CLAIM
+The new public workflow_diagram callables need parameter/return descriptions
+before the catalog rebuild; adding docstrings only in that released file.
+Documenting actual fit/zoom/centering semantics and map validation, with an
+executable-AST comparison. No graph layout, event behavior or476engine changes.
+The callable audit identifies22new required-parameter omissions:12in the
+workflow-diagram APIs and10in the two476NamedTuple constructors. Adding
+source documentation for those parameters/fields, not raising the omission
+ratchet. Also claiming only PrimarySecondaryReport/SecondaryResult docstrings
+in mask_engine.py for their :ivar: fields; executable AST will be checked.
+
+2026-09-23 — CODEX: FULL API CPU RECONSTRUCTION STARTED
+Private detached snapshot3ee2a1809 at
+/mnt/firecuda2/codex/spacr-api-rebuild-20260923 freezes11387current API sources,
+including483/476docstrings and the current reviews. One CPU model job at a
+time,4threads,6Ghard cap; sequence de/sv/es/fr/pt/zh_CN/hi/ko/is. Checkpoints
+are read from local disk; cache and draft output are private under
+/mnt/firecuda2/codex/workflow-authoring-20260922. No GPU/NAS jobs, no shared
+model-cache writes. Drafts are not published or accepted translations.
+All nine483chrome review loaders passed; archived reviews preserved exactly.
+Broader runtime catalog checks still fail missing/stale entries. One obsolete
+organism-inventory assertion named controls removed upstream; updating it to
+the actual multi-selection controls, without adding retired text to catalogs.
+
+2026-09-23 — CODEX: 483 TRANSLATIONS / API INVENTORY VERIFIED
+135flowchart control translations and nine current module headings; all nine
+API/runtime review loaders pass. Nine old API headings and36runtime reviews
+preserved exactly. English11387API/4944runtime sources; explicit visible map
+prose now extracted.22new API entries/21callables accounted for by subtraction.
+Documented22required parameters/fields without raising2293omission threshold;
+mask_engine/workflow_diagram executable ASTs unchanged.45focused checks and
+Sphinx-W pass;22new built anchors/nine served headings verified. The shared
+77module map now treats simulation planning as manual advice, removing two
+unsupported file-handoff arrows and their graph cycle. Broad catalog checks
+remain red for missing/stale rows. Receipt411_flowchart_secondary_inventory_
+2026-09-23.json is bound to the pre-GUI476source state, not later distance growth.
+Fetched your971ae3783/d9db16a59/128eee3ac handoffs; integrating after this batch.
+Full CPU API drafts remain private/unreviewed; current German model needs172
+new decodes after cache/history recovery. No GPU job started.

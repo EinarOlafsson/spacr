@@ -1,0 +1,112 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Connection",
+      "source": "Connection",
+      "source_sha256": "639a40e82b9a96f0cbeed5f006cf5634c8d1b990b3c83753c00a910fc268d2a6",
+      "table": "ui",
+      "translation": "Conexión"
+    },
+    {
+      "key": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+      "source": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+      "source_sha256": "f4adf5da80dd620415aa8589fe929881b6b668f4dc38d2042bc072b9021a19e5",
+      "table": "ui",
+      "translation": "Explore diagramas de flujo, sus módulos, entradas y salidas, y comience con datos de ejemplo si lo desea."
+    },
+    {
+      "key": "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
+      "source": "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
+      "source_sha256": "51c8722f376e30a7fa197714a5daf6ff9c48cf3685876fdd94ec1fe742c202b3",
+      "table": "ui",
+      "translation": "Explore los módulos, entradas y salidas de cada flujo. Pase el cursor por un módulo o una flecha para ver detalles. Seleccione un flujo y elija Iniciar ejemplo para abrir su primer módulo con datos de muestra. Ctrl+rueda amplía o reduce el diagrama; arrastre para desplazarlo."
+    },
+    {
+      "key": "Hover or select a module or connection to read its inputs, outputs and explanation here.",
+      "source": "Hover or select a module or connection to read its inputs, outputs and explanation here.",
+      "source_sha256": "87805d706a97cfc6888db14954c1121e5c5b4ffd11f893c497aa280b1de1bd7d",
+      "table": "ui",
+      "translation": "Pase el cursor o seleccione un módulo o conexión para leer aquí sus entradas, salidas y explicación."
+    },
+    {
+      "key": "Matching data types. Check the destination's required fields, object identities and settings; this is not an automatic transfer.",
+      "source": "Matching data types. Check the destination's required fields, object identities and settings; this is not an automatic transfer.",
+      "source_sha256": "6908a8d17abf8ad0ea0d2caa5afab6c202b817e881d18b8b8d2138c880b43d6b",
+      "table": "ui",
+      "translation": "Tipos de datos coincidentes. Compruebe los campos obligatorios, las identidades de objetos y los ajustes del destino; no es una transferencia automática."
+    },
+    {
+      "key": "None declared",
+      "source": "None declared",
+      "source_sha256": "648cb0dad5013ff0cfb35bae45d54cbe60d35fd4a1b0987966ab261bf6c485d4",
+      "table": "ui",
+      "translation": "Ninguno declarado"
+    },
+    {
+      "key": "Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.",
+      "source": "Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.",
+      "source_sha256": "96b5350b8f99150f95b0525e32a1f06b7699833aa983cb97f023214c393e36b3",
+      "table": "ui",
+      "translation": "Requisito previo de la ruta. Siga sus instrucciones; no se declara una transferencia directa de archivos entre este par."
+    },
+    {
+      "key": "Pipeline overviews",
+      "source": "Pipeline overviews",
+      "source_sha256": "2639dddac8a037e40fe5d1887f35c815c3cdf82cc9c568ba3b9c40376a83c378",
+      "table": "ui",
+      "translation": "Resúmenes de flujos"
+    },
+    {
+      "key": "Select a connection…",
+      "source": "Select a connection…",
+      "source_sha256": "c5fc27bd6dd9740ce57ccf1c950b257eef4d9cf6af27b3f0c45e3cd766e3e8c2",
+      "table": "ui",
+      "translation": "Seleccionar una conexión…"
+    },
+    {
+      "key": "Select a module…",
+      "source": "Select a module…",
+      "source_sha256": "710534de0e8c8361e2b2aac2d0e27b1fbdba02527a022ede572167bfaa79b36f",
+      "table": "ui",
+      "translation": "Seleccionar un módulo…"
+    },
+    {
+      "key": "Show matching data types",
+      "source": "Show matching data types",
+      "source_sha256": "22b449adec133084323670cf03802c74cab5cd58438f23263f5ff2ee419922ec",
+      "table": "ui",
+      "translation": "Mostrar tipos de datos coincidentes"
+    },
+    {
+      "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+      "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+      "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+      "table": "ui",
+      "translation": "Flechas continuas: transferencias documentadas. Flechas discontinuas: tipos de datos coincidentes que requieren comprobar compatibilidad. Arrastre para desplazar; Ctrl+rueda para ajustar el zoom."
+    },
+    {
+      "key": "Start example",
+      "source": "Start example",
+      "source_sha256": "cfe29fdc4c304dc79190f8684c32d34cbad0ff3c91e9279bbf0b6d0d392ca7b3",
+      "table": "ui",
+      "translation": "Iniciar ejemplo"
+    },
+    {
+      "key": "spaCR flowchart",
+      "source": "spaCR flowchart",
+      "source_sha256": "b05553203d49d98d5d4c9cbfd450e243951bde2d9982e6cba687c1d75752a4fe",
+      "table": "ui",
+      "translation": "Diagrama de flujo de spaCR"
+    },
+    {
+      "key": "{module} API",
+      "source": "{module} API",
+      "source_sha256": "108491bb0128cb8c5588ba2c26efc432994cc0ea805aeb9eab52bae81da1e03a",
+      "table": "ui",
+      "translation": "API de {module}"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of pipeline/flowchart controls, hover and pan/zoom guidance, and declared versus candidate data links; no native-speaker sign-off.",
+  "schema": 1
+}

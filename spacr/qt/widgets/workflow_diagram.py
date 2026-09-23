@@ -27,9 +27,11 @@ from ..theme import active_palette, font_px
 def workflow_map(path=None):
     """Read the bundled module map, or an explicitly supplied JSON path.
 
-    :returns: the map containing modules, artifacts, pathways and connections.
+    :param path: JSON file; None selects the bundled module_workflows.json.
+    :returns: the parsed map; modules and artifacts must be dictionaries.
+        The bundled map also supplies pathways and connections.
     :raises OSError: the file cannot be read.
-    :raises ValueError: the JSON is invalid or lacks the required collections.
+    :raises ValueError: invalid JSON or missing module/artifact dictionaries.
     """
     source = Path(path) if path is not None else (
         Path(__file__).resolve().parents[2] / "resources/module_workflows.json")
@@ -94,7 +96,12 @@ def _api_link(data, key):
 
 
 def node_description(data, key):
-    """Return escaped, translated HTML describing a module and its data ports."""
+    """Describe a module, its API link and its input/output artifacts.
+
+    :param data: shared workflow map.
+    :param key: module key present in the map.
+    :returns: escaped, translated HTML for the fixed details panel.
+    """
     module = data["modules"][key]
     parts = [f'<b>{escape(tr(module["name"]))}</b>', _api_link(data, key),
              escape(tr(module.get("guidance", "")))]
@@ -109,7 +116,14 @@ def node_description(data, key):
 
 
 def edge_description(data, edge):
-    """Explain the direction, artifact locations and limits of a connection."""
+    """Explain a connection and link both endpoint APIs.
+
+    :param data: shared workflow map containing both endpoint modules.
+    :param edge: connection record returned by :func:`connections`.
+    :returns: escaped, translated HTML describing artifact locations and
+        whether the edge is a documented handoff, a matching data type or a
+        pathway prerequisite. Inferred links do not establish file compatibility.
+    """
     source, target = (tr(data["modules"][edge[k]]["name"]) for k in ("from", "to"))
     if edge["kind"] == "documented":
         explanation = tr(edge["handoff"])
@@ -369,32 +383,57 @@ class WorkflowView(QGraphicsView):
         self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-20, -20, 20, 20))
 
     def fit_diagram(self):
-        """Fit every module into the viewport; preserve geometry and text size."""
+        """Fit the complete diagram with preserved aspect ratio and resume auto-fit.
+
+        :returns: None; updates the view transform and automatic resize behavior.
+        """
         self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
         self._fitted = True
         self._auto_fit = True
 
     def resizeEvent(self, event):
-        """Refit after actual layout sizing until the user pans or zooms."""
+        """Refit on resize while automatic fitting remains enabled.
+
+        Manual zoom or explicit centering disables automatic fitting until
+        :meth:`fit_diagram` is called again.
+
+        :param event: Qt resize event forwarded to the base view.
+        :returns: None.
+        """
         super().resizeEvent(event)
         if self._auto_fit and self.scene() is not None:
             self.fit_diagram()
 
     def showEvent(self, event):
-        """Fit once when a viewport first acquires a useful size."""
+        """Fit once when a viewport first acquires a useful size.
+
+        :param event: Qt show event forwarded to the base view.
+        :returns: None.
+        """
         super().showEvent(event)
         if not self._fitted:
             self.fit_diagram()
 
     def zoom(self, factor):
-        """Scale the view within readable bounds without relaying out nodes."""
+        """Scale the view without changing node layout.
+
+        :param factor: multiplier for the current view scale. The change is
+            applied only when the resulting scale is between 0.04 and 3,
+            inclusive; accepted changes disable automatic fitting.
+        :returns: None.
+        """
         target = self.transform().m11() * factor
         if .04 <= target <= 3:
             self._auto_fit = False
             self.scale(factor, factor)
 
     def wheelEvent(self, event):
-        """Use Ctrl+wheel for zoom; ordinary wheel scrolls the diagram."""
+        """Use Ctrl+wheel for zoom; ordinary wheel scrolls the diagram.
+
+        :param event: Qt wheel event; control-modified events are accepted
+            here, and other events are forwarded to the base view.
+        :returns: None.
+        """
         if event.modifiers() & Qt.ControlModifier:
             self.zoom(1.2 if event.angleDelta().y() > 0 else 1 / 1.2)
             event.accept()
@@ -412,7 +451,13 @@ class WorkflowView(QGraphicsView):
             edge.update()
 
     def describe_node(self, key, *, center=False):
-        """Describe a module; optionally zoom to it for keyboard selection."""
+        """Highlight a module and emit its explanation without running analysis.
+
+        :param key: module key present in this view.
+        :param center: when True, reset the zoom and center the module,
+            disabling automatic fitting; defaults to False.
+        :returns: None; emits explanation HTML and the activated signal.
+        """
         self._highlight({key})
         self.explanation.emit(node_description(self.data, key))
         self.activated.emit()
@@ -422,7 +467,13 @@ class WorkflowView(QGraphicsView):
             self.centerOn(self.nodes[key])
 
     def describe_edge(self, edge, *, center=False):
-        """Describe a connection and highlight its two endpoint modules."""
+        """Describe a connection and highlight its two endpoint modules.
+
+        :param edge: graphical edge item from this view's edges list.
+        :param center: when True, fit the edge and both endpoint nodes into
+            the viewport and disable automatic fitting; defaults to False.
+        :returns: None; emits explanation HTML and the activated signal.
+        """
         self._highlight({edge.edge['from'], edge.edge['to']}, edge)
         self.explanation.emit(edge_description(self.data, edge.edge))
         self.activated.emit()
@@ -433,7 +484,10 @@ class WorkflowView(QGraphicsView):
 
 
 class DiagramDialog(QDialog):
-    """A diagram window with a rounded, 80-percent opaque background."""
+    """A diagram window with a rounded, 80-percent opaque background.
+
+    :param parent: owning widget; defaults to None for a top-level window.
+    """
 
     def __init__(self, parent=None):
         """Keep the background translucent without reducing text opacity."""
@@ -442,7 +496,11 @@ class DiagramDialog(QDialog):
         self.setStyleSheet("QDialog { background: transparent; }")
 
     def paintEvent(self, event):
-        """Paint one 80-percent surface beneath the diagram and its controls."""
+        """Paint one 80-percent surface beneath the diagram and its controls.
+
+        :param event: Qt paint event; the complete background is repainted.
+        :returns: None; text and child controls retain their own opacity.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         palette = active_palette()
@@ -454,7 +512,12 @@ class DiagramDialog(QDialog):
 
 
 def details_box(parent=None):
-    """Build a fixed-height, scrollable explanation area shared by diagrams."""
+    """Build a fixed-height, scrollable explanation area shared by diagrams.
+
+    :param parent: owning widget; defaults to None.
+    :returns: QTextBrowser with external API links enabled and introductory
+        text. Its height is ten times the current body-font pixel size.
+    """
     box = QTextBrowser(parent)
     box.setObjectName("WorkflowDetails")
     box.setFixedHeight(font_px("body") * 10)
@@ -539,7 +602,11 @@ class SpacrFlowchartDialog(DiagramDialog):
 
 
 def show_spacr_flowchart(window):
-    """Open or raise the window's single nonmodal spaCR workflow diagram."""
+    """Open or raise the window's single nonmodal spaCR workflow diagram.
+
+    :param window: owning main window, which retains the dialog for reuse.
+    :returns: the shown and activated :class:`SpacrFlowchartDialog`.
+    """
     dialog = getattr(window, "_spacr_flowchart", None)
     if dialog is None:
         dialog = SpacrFlowchartDialog(window)

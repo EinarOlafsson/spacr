@@ -3647,6 +3647,24 @@ def _make_masks_shortcut_sources() -> set[str]:
     return set()
 
 
+def _workflow_ui_sources() -> set[str]:
+    """Read the prose shown by pathway dialogs and interactive flowcharts."""
+    path = ROOT / "spacr" / "resources" / "module_workflows.json"
+    workflow = json.loads(path.read_text(encoding="utf-8"))
+    found = set()
+    for route in workflow["pathways"].values():
+        found.add(route["title"])
+        found.update(step["action"] for step in route["steps"])
+        if route.get("note"):
+            found.add(route["note"])
+    for module in workflow["modules"].values():
+        found.update((module["name"], module["guidance"]))
+    for artifact in workflow["artifacts"].values():
+        found.update((artifact["title"], artifact["location"]))
+    found.update(edge["handoff"] for edge in workflow["connections"])
+    return found
+
+
 def _indirect_runtime_ui_sources() -> set[str]:
     """Return presentation prose exposed through runtime data structures.
 
@@ -3757,13 +3775,6 @@ def _indirect_runtime_ui_sources() -> set[str]:
         found.update(label for label, _url in organism["links"])
     for compartment_labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
         found.update(compartment_labels)
-    workflow_path = ROOT / "spacr" / "resources" / "module_workflows.json"
-    workflow = json.loads(workflow_path.read_text(encoding="utf-8"))
-    for route in workflow["pathways"].values():
-        found.add(route["title"])
-        found.update(step["action"] for step in route["steps"])
-        if route.get("note"):
-            found.add(route["note"])
     # Hover explanations are class data, passed to Qt through loop variables.
     # Keep their exact English sources separate from runtime-translated text.
     chooser_sources = {TestDataChooser.RESTING_TEXT, ImportTestDataChooser.RESTING_TEXT}
@@ -3860,7 +3871,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
-    return {value.strip() for value in chooser_sources} | {
+    return {value.strip() for value in chooser_sources | _workflow_ui_sources()} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 

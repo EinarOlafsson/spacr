@@ -48,6 +48,10 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    "None declared": _row(
+        "Inga angivna", "Keine deklariert", "Ninguno declarado", "未声明",
+        "Nenhum declarado", "कोई घोषित नहीं", "선언된 항목 없음",
+        "Ekkert tilgreint", "Aucun déclaré"),
     # Organism vocabulary reviewed in its compartment/module context. Some
     # natural target nouns equal English; each has a complete locale row.
     'Cytosol': _row(

@@ -18,10 +18,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 * **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
 
-**Before this module**
-
-* :ref:`Pooled-screen simulation sweep <workflow-module-simulation>`: Use simulated performance to reconsider sampling and plate constraints manually; the simulation database is not an importable plate layout.
-
 **After this module**
 
 * :ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design.

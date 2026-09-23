@@ -1731,7 +1731,7 @@
       "outputs": [
         "simulation_summary"
       ],
-      "guidance": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded."
+      "guidance": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid."
     }
   },
   "artifacts": {
@@ -2983,22 +2983,6 @@
         "cellpose_tiff_masks"
       ],
       "handoff": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
-    },
-    {
-      "from": "power",
-      "to": "simulation",
-      "artifacts": [
-        "design"
-      ],
-      "handoff": "Translate planning assumptions into the simulation settings dictionary manually; Power / Design does not export a ready-to-run simulation grid."
-    },
-    {
-      "from": "simulation",
-      "to": "experiment_design",
-      "artifacts": [
-        "simulation_summary"
-      ],
-      "handoff": "Use simulated performance to reconsider sampling and plate constraints manually; the simulation database is not an importable plate layout."
     }
   ]
 }

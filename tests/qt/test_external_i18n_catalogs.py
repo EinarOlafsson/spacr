@@ -386,8 +386,56 @@ def test_organism_registry_prose_is_inventoried_without_location_ids():
     for labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
         assert set(labels) <= known
         assert not set(labels.values()) & discovered
-    assert {"Widen text", "Restore columns", "Cell compartments",
-            "All compartments", "Select a label to highlight its compartment."} <= known
+    assert {"Cell compartments", "hyperLOPIT compartment", "UniProt compartment",
+            "Clear components", "Hover over the cell to identify a compartment. "
+            "Check several labels to keep them highlighted."} <= known
+
+
+def test_visible_flowchart_node_and_edge_prose_has_catalog_sources(monkeypatch, qapp):
+    """Capture actual rendered descriptions so new dynamic fields cannot hide."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+    from spacr.qt.widgets import workflow_diagram
+
+    observed = set()
+
+    def record(text, **values):
+        if text:
+            observed.add(text)
+        return text.format(**values) if values else text
+
+    monkeypatch.setattr(workflow_diagram, "tr", record)
+    data = workflow_diagram.workflow_map()
+    for key in data["modules"]:
+        workflow_diagram.node_description(data, key)
+    for edge in workflow_diagram.connections(data):
+        workflow_diagram.edge_description(data, edge)
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
+    assert observed <= known, sorted(observed - known)
+    assert {module["guidance"] for module in data["modules"].values()} <= observed
+    map_prose = builder._workflow_ui_sources()
+    assert not {module["api_module"] for module in data["modules"].values()} & map_prose
+    assert not {module["api_entry"] for module in data["modules"].values()
+                if module.get("api_entry")} & map_prose
+
+
+def test_empty_flowchart_caption_translates_without_changing_python_none():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    for language in LANGUAGES:
+        translated = builder._reviewed_translation("None declared", language)
+        assert translated is not None
+        assert builder._syntax_preserved_or_reviewed("None declared", translated, language)
+        assert not builder._syntax_preserved_or_reviewed(
+            "Return None when no artifacts are declared.", translated, language)
+        assert not builder._syntax_preserved_or_reviewed("``None``", translated, language)
 
 
 def test_every_set_translatable_text_call_has_static_catalog_sources():

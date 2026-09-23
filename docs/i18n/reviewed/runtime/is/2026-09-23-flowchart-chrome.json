@@ -1,0 +1,112 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Connection",
+      "source": "Connection",
+      "source_sha256": "639a40e82b9a96f0cbeed5f006cf5634c8d1b990b3c83753c00a910fc268d2a6",
+      "table": "ui",
+      "translation": "Tenging"
+    },
+    {
+      "key": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+      "source": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+      "source_sha256": "f4adf5da80dd620415aa8589fe929881b6b668f4dc38d2042bc072b9021a19e5",
+      "table": "ui",
+      "translation": "Skoðaðu flæðirit vinnslukeðja, einingar þeirra, inntak og úttak og byrjaðu með dæmigögn ef þú vilt."
+    },
+    {
+      "key": "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
+      "source": "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
+      "source_sha256": "51c8722f376e30a7fa197714a5daf6ff9c48cf3685876fdd94ec1fe742c202b3",
+      "table": "ui",
+      "translation": "Skoðaðu einingar, inntak og úttak í hverri vinnslukeðju. Haltu bendlinum yfir einingu eða ör til að sjá nánar. Veldu vinnslukeðju og Ræsa dæmi til að opna fyrstu eininguna með dæmigögnum. Ctrl+músarhjól breytir aðdrætti; dragðu til að færa sýnina."
+    },
+    {
+      "key": "Hover or select a module or connection to read its inputs, outputs and explanation here.",
+      "source": "Hover or select a module or connection to read its inputs, outputs and explanation here.",
+      "source_sha256": "87805d706a97cfc6888db14954c1121e5c5b4ffd11f893c497aa280b1de1bd7d",
+      "table": "ui",
+      "translation": "Haltu bendlinum yfir einingu eða tengingu eða veldu hana til að lesa um inntak, úttak og skýringar hér."
+    },
+    {
+      "key": "Matching data types. Check the destination's required fields, object identities and settings; this is not an automatic transfer.",
+      "source": "Matching data types. Check the destination's required fields, object identities and settings; this is not an automatic transfer.",
+      "source_sha256": "6908a8d17abf8ad0ea0d2caa5afab6c202b817e881d18b8b8d2138c880b43d6b",
+      "table": "ui",
+      "translation": "Gagnategundir passa saman. Athugaðu nauðsynlega reiti, auðkenni hluta og stillingar áfangastaðarins; þetta er ekki sjálfvirkur flutningur."
+    },
+    {
+      "key": "None declared",
+      "source": "None declared",
+      "source_sha256": "648cb0dad5013ff0cfb35bae45d54cbe60d35fd4a1b0987966ab261bf6c485d4",
+      "table": "ui",
+      "translation": "Ekkert tilgreint"
+    },
+    {
+      "key": "Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.",
+      "source": "Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.",
+      "source_sha256": "96b5350b8f99150f95b0525e32a1f06b7699833aa983cb97f023214c393e36b3",
+      "table": "ui",
+      "translation": "Forsenda leiðarinnar. Fylgdu leiðbeiningum hennar; enginn beinn skráaflutningur er tilgreindur fyrir þetta par."
+    },
+    {
+      "key": "Pipeline overviews",
+      "source": "Pipeline overviews",
+      "source_sha256": "2639dddac8a037e40fe5d1887f35c815c3cdf82cc9c568ba3b9c40376a83c378",
+      "table": "ui",
+      "translation": "Yfirlit vinnslukeðja"
+    },
+    {
+      "key": "Select a connection…",
+      "source": "Select a connection…",
+      "source_sha256": "c5fc27bd6dd9740ce57ccf1c950b257eef4d9cf6af27b3f0c45e3cd766e3e8c2",
+      "table": "ui",
+      "translation": "Velja tengingu…"
+    },
+    {
+      "key": "Select a module…",
+      "source": "Select a module…",
+      "source_sha256": "710534de0e8c8361e2b2aac2d0e27b1fbdba02527a022ede572167bfaa79b36f",
+      "table": "ui",
+      "translation": "Velja einingu…"
+    },
+    {
+      "key": "Show matching data types",
+      "source": "Show matching data types",
+      "source_sha256": "22b449adec133084323670cf03802c74cab5cd58438f23263f5ff2ee419922ec",
+      "table": "ui",
+      "translation": "Sýna samsvarandi gagnategundir"
+    },
+    {
+      "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+      "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+      "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+      "table": "ui",
+      "translation": "Heilar örvar: skráðir afhendingarpunktar. Strikaðar örvar: samsvarandi gagnategundir sem þarf að athuga hvort séu samhæfar. Dragðu til að færa sýnina; Ctrl+músarhjól til að breyta aðdrætti."
+    },
+    {
+      "key": "Start example",
+      "source": "Start example",
+      "source_sha256": "cfe29fdc4c304dc79190f8684c32d34cbad0ff3c91e9279bbf0b6d0d392ca7b3",
+      "table": "ui",
+      "translation": "Ræsa dæmi"
+    },
+    {
+      "key": "spaCR flowchart",
+      "source": "spaCR flowchart",
+      "source_sha256": "b05553203d49d98d5d4c9cbfd450e243951bde2d9982e6cba687c1d75752a4fe",
+      "table": "ui",
+      "translation": "spaCR-flæðirit"
+    },
+    {
+      "key": "{module} API",
+      "source": "{module} API",
+      "source_sha256": "108491bb0128cb8c5588ba2c26efc432994cc0ea805aeb9eab52bae81da1e03a",
+      "table": "ui",
+      "translation": "API fyrir {module}"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of pipeline/flowchart controls, hover and pan/zoom guidance, and declared versus candidate data links; no native-speaker sign-off.",
+  "schema": 1
+}

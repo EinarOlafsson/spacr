@@ -1,0 +1,537 @@
+{
+  "executable_ast_unchanged": true,
+  "full_catalog_acceptance": false,
+  "languages": [
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "sv",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "de",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "es",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "zh_CN",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "pt",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "hi",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "ko",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "is",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    },
+    {
+      "api_heading": 1,
+      "archived_reviews_preserved": true,
+      "full_review_loaders": true,
+      "language": "fr",
+      "runtime_rows": 15,
+      "unrelated_api_entries_unchanged": true
+    }
+  ],
+  "public_api_count": 11387,
+  "runtime_source_count": 4944,
+  "schema": 1,
+  "source_commit": "0faa11a819b0be46bc81b6fea933badf8ef18eb0",
+  "source_files": {
+    "spacr/qt/mask_engine.py": "be456f5ba2d3f1f74526c4662e29e6828b1fb84a842076d09a012ddfa424c1d2",
+    "spacr/qt/widgets/workflow_diagram.py": "7c93f724894f6ca0a3a1a33da33e6355476f50d9e9e67f2f9e078837904e9619",
+    "spacr/resources/module_workflows.json": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984"
+  },
+  "inventory": {
+    "added": [
+      {
+        "symbol": "spacr.qt.mask_engine.PrimarySecondaryReport",
+        "parameters": [
+          "incomplete_primary_ids",
+          "matched_ids",
+          "missing_secondary_ids",
+          "orphan_secondary_ids",
+          "primary_ids",
+          "secondary_ids",
+          "unexpanded_primary_ids"
+        ],
+        "required": [
+          "incomplete_primary_ids",
+          "matched_ids",
+          "missing_secondary_ids",
+          "orphan_secondary_ids",
+          "primary_ids",
+          "secondary_ids",
+          "unexpanded_primary_ids"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.mask_engine.SecondaryResult",
+        "parameters": [
+          "labels",
+          "level",
+          "relationships"
+        ],
+        "required": [
+          "labels",
+          "level",
+          "relationships"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.mask_engine.primary_secondary_report",
+        "parameters": [
+          "primary",
+          "secondary"
+        ],
+        "required": [
+          "primary",
+          "secondary"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.mask_engine.secondary_object_instances",
+        "parameters": [
+          "fill_holes",
+          "image",
+          "min_area",
+          "primary",
+          "sigma",
+          "stop",
+          "stop_algorithm",
+          "stop_value"
+        ],
+        "required": [
+          "image",
+          "primary"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.DiagramDialog",
+        "parameters": [
+          "parent"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent",
+        "parameters": [
+          "event"
+        ],
+        "required": [
+          "event"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog",
+        "parameters": [
+          "data",
+          "parent"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView",
+        "parameters": [
+          "compact",
+          "data",
+          "keys",
+          "parent",
+          "steps"
+        ],
+        "required": [
+          "data"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge",
+        "parameters": [
+          "center",
+          "edge"
+        ],
+        "required": [
+          "edge"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node",
+        "parameters": [
+          "center",
+          "key"
+        ],
+        "required": [
+          "key"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram",
+        "parameters": [],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent",
+        "parameters": [
+          "event"
+        ],
+        "required": [
+          "event"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent",
+        "parameters": [
+          "event"
+        ],
+        "required": [
+          "event"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent",
+        "parameters": [
+          "event"
+        ],
+        "required": [
+          "event"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom",
+        "parameters": [
+          "factor"
+        ],
+        "required": [
+          "factor"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.connections",
+        "parameters": [
+          "data",
+          "keys",
+          "steps"
+        ],
+        "required": [
+          "data"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.details_box",
+        "parameters": [
+          "parent"
+        ],
+        "required": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.edge_description",
+        "parameters": [
+          "data",
+          "edge"
+        ],
+        "required": [
+          "data",
+          "edge"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.node_description",
+        "parameters": [
+          "data",
+          "key"
+        ],
+        "required": [
+          "data",
+          "key"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart",
+        "parameters": [
+          "window"
+        ],
+        "required": [
+          "window"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.workflow_map",
+        "parameters": [
+          "path"
+        ],
+        "required": []
+      }
+    ],
+    "changed_preserve_ids": [
+      "spacr.qt.mask_engine.canonical_labels",
+      "spacr.qt.mask_engine.save_mask",
+      "spacr.qt.mask_engine.save_seg_bundle"
+    ],
+    "callables": 9429,
+    "categories": {
+      "function": 4190,
+      "dataclass_constructor": 502,
+      "constructor": 435,
+      "method": 4078,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9424,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9436,
+    "variant_counts": {
+      "1": 9422,
+      "2": 7
+    },
+    "constructor_prose": 434,
+    "constructor_with_prose": 434,
+    "parameters": 18702,
+    "required_parameters": 9629,
+    "signature_digest": "52f55683395e8202e80ebcb400169905e5cbba2a3dcda59df9e3dc034c859d2c",
+    "subtracted_signature_digest": "5ab6aa2ac72d73c334a011fc9596f5ef4c5c050959ad85b70bc13668c50a5230",
+    "required_omissions": 2293,
+    "new_omission_candidates": [],
+    "api_added": [
+      "spacr.qt.mask_engine.PrimarySecondaryReport",
+      "spacr.qt.mask_engine.SecondaryResult",
+      "spacr.qt.mask_engine.primary_secondary_report",
+      "spacr.qt.mask_engine.secondary_object_instances",
+      "spacr.qt.widgets.workflow_diagram",
+      "spacr.qt.widgets.workflow_diagram.DiagramDialog",
+      "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent",
+      "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent",
+      "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom",
+      "spacr.qt.widgets.workflow_diagram.connections",
+      "spacr.qt.widgets.workflow_diagram.details_box",
+      "spacr.qt.widgets.workflow_diagram.edge_description",
+      "spacr.qt.widgets.workflow_diagram.node_description",
+      "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart",
+      "spacr.qt.widgets.workflow_diagram.workflow_map"
+    ],
+    "api_removed": [],
+    "old_api_count": 11365,
+    "api_count": 11387,
+    "prefilter_api_count": 11611,
+    "excluded_boundary": 224
+  },
+  "namedtuple_required_fields": {
+    "PrimarySecondaryReport": [
+      "primary_ids",
+      "secondary_ids",
+      "matched_ids",
+      "missing_secondary_ids",
+      "orphan_secondary_ids",
+      "incomplete_primary_ids",
+      "unexpanded_primary_ids"
+    ],
+    "SecondaryResult": [
+      "labels",
+      "relationships",
+      "level"
+    ]
+  },
+  "total_runtime_translations": 135,
+  "total_api_heading_reviews": 9,
+  "retired_api_reviews_preserved": 9,
+  "retired_runtime_reviews_preserved": 36,
+  "workflow": {
+    "modules": 77,
+    "artifacts": 43,
+    "pathways": 9,
+    "simulation_planning_assumptions_transferred_manually": true
+  },
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
+  "validation": {
+    "sphinx_warnings_as_errors": true,
+    "new_api_anchors": [
+      {
+        "symbol": "spacr.qt.mask_engine.PrimarySecondaryReport",
+        "page": "api/spacr/qt/mask_engine/index.html",
+        "anchor": "spacr.qt.mask_engine.PrimarySecondaryReport"
+      },
+      {
+        "symbol": "spacr.qt.mask_engine.SecondaryResult",
+        "page": "api/spacr/qt/mask_engine/index.html",
+        "anchor": "spacr.qt.mask_engine.SecondaryResult"
+      },
+      {
+        "symbol": "spacr.qt.mask_engine.primary_secondary_report",
+        "page": "api/spacr/qt/mask_engine/index.html",
+        "anchor": "spacr.qt.mask_engine.primary_secondary_report"
+      },
+      {
+        "symbol": "spacr.qt.mask_engine.secondary_object_instances",
+        "page": "api/spacr/qt/mask_engine/index.html",
+        "anchor": "spacr.qt.mask_engine.secondary_object_instances"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "module-spacr.qt.widgets.workflow_diagram"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.DiagramDialog",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.DiagramDialog"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.connections",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.connections"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.details_box",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.details_box"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.edge_description",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.edge_description"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.node_description",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.node_description"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart"
+      },
+      {
+        "symbol": "spacr.qt.widgets.workflow_diagram.workflow_map",
+        "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+        "anchor": "spacr.qt.widgets.workflow_diagram.workflow_map"
+      }
+    ],
+    "served_heading_entries": 9,
+    "focused_checks_passed": 45,
+    "public_api_contract_checks_passed_initially": 141,
+    "initial_ivar_inventory_failure_corrected_and_retested": true,
+    "broad_catalog_checks_initially_passed": 68,
+    "broad_catalog_checks_initially_failed": 9,
+    "obsolete_organism_caption_assertion_corrected_and_retested": true,
+    "remaining_catalog_failure_categories": [
+      "exact runtime keys",
+      "runtime placeholders for missing keys",
+      "incremental repair fixed point",
+      "Chinese scientific terms for missing keys",
+      "reviewed false friends for missing keys",
+      "missing setting tooltips",
+      "unreviewed English fallbacks",
+      "full API symbol parity"
+    ]
+  },
+  "private_reconstruction_snapshot": "3ee2a18093c21b77fc852f1a65aade42d8cdf587",
+  "log_sha256": {
+    "flowchart-chrome-verification.log": "c08790745184885ad35c60452228b7f1633b8bb7bf5e7ff3886b4f827d2c2ca1",
+    "flowchart-scoped-final.log": "537e24f5ae5588022889f56223a55d5ee83a7f6e27e2a4965f89caea751f3b75",
+    "flowchart-api-contract-tests.log": "e9d8d618030aed79c94a39d4997e2d363e4811e2990d9ff1607281908de434b4",
+    "flowchart-localized-integration-final.log": "08aa8b8ec2876ddf458f003760142c1462c6a765ab2f97b006a8ed3f790d4e53",
+    "flowchart-secondary-sphinx.log": "9715e328fe0a65858bece50fa8e4945c2884dcacd7583feb0da54a0535a27037"
+  },
+  "remaining": "Full locale API/runtime repair, new API translations, nested-helper rollout, complete references and tutorial releases remain open. This receipt is bound to 0faa11a81 plus recorded source changes, before later 476 GUI/distance-growth integration."
+}
