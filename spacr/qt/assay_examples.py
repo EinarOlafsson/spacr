@@ -50,6 +50,22 @@ __all__ = [
 ASSAY_EXAMPLE_KEYS = ("replication", "recruitment", "invasion")
 
 
+class _HostPathogenExampleWorker(_TarExampleWorker):
+    """Prepare the small synthetic project offline on the existing worker thread."""
+
+    def run(self):
+        """Build atomically and report completion through the shared dialog contract."""
+        from ..host_pathogen_example import build_example
+
+        try:
+            self.info.emit(tr('Preparing synthetic Host–Pathogen test data…'))
+            folder = build_example(self._dest, cancelled=lambda: self._cancel,
+                progress=lambda done, total: self.progress.emit(tr('Synthetic fields'), done, total))
+            self.finished.emit(True, str(folder), str(folder / 'settings'), '')
+        except Exception as exc:
+            self.finished.emit(False, '', '', str(exc))
+
+
 class _AssayTarWorker(_TarExampleWorker):
     """Fetches one assay example's archive. Nothing to do after extraction."""
 
@@ -69,11 +85,19 @@ def _title(app_key: str) -> str:
         return tr("Downloading the Replication Assay test data")
     if app_key == "invasion":
         return tr("Downloading the synthetic Invasion Assay test data")
+    if app_key == 'host_pathogen':
+        return tr('Preparing synthetic Host–Pathogen test data')
     return tr("Downloading the Recruitment test data")
 
 
 def _tooltip(app_key: str) -> str:
     """What the button says it will fetch, size first."""
+    if app_key == 'host_pathogen':
+        return tr('Generate about 13 MB of SYNTHETIC test data offline: four fields, '
+                  '24 hosts, 28 vacuoles and individually labelled parasites. '
+                  'Includes uninfected hosts, multiple vacuoles, unknown marker '
+                  'states and expected results. These are drawn test images, '
+                  'not biological validation. Settings are filled in; Run is next.')
     if app_key == "replication":
         return tr(
             "Download about 170 MB of test data: every parasite of twelve "
@@ -107,6 +131,11 @@ def download_assay_example(parent, app_key: str, dest, on_done: Callable[
     :param on_done: called on the GUI thread as ``on_done(result, error)``;
         ``result`` is ``None`` on failure or cancellation.
     """
+    if app_key == 'host_pathogen':
+        download_toxo_mito_demo(parent, Path(dest), on_done,
+                                worker_factory=_HostPathogenExampleWorker,
+                                title=_title(app_key))
+        return
     repo = example_set(app_key).repo
 
     def _factory(where):
@@ -150,15 +179,21 @@ def load_the_assay_example(screen, *, ask=None, folder=None) -> Dict:
         download is still running, and after a failure.
     """
     key = screen.app_key
-    chosen = example_set(key)
-    folder = Path(folder) if folder is not None else example_set_folder(key)
+    if key == 'host_pathogen':
+        from .. import host_pathogen_example as chosen
+
+        folder = Path(folder) if folder is not None else chosen.example_folder()
+    else:
+        chosen = example_set(key)
+        folder = Path(folder) if folder is not None else example_set_folder(key)
     if chosen.is_present(folder):
         return put_the_assay_example_in_place(screen, folder)
 
     button = getattr(screen, "_assay_example_button", None)
     if button is not None:
         button.setEnabled(False)
-        button.setText(tr("Fetching test data…"))
+        button.setText(tr('Preparing test data…') if key == 'host_pathogen'
+                       else tr("Fetching test data…"))
 
     placed: Dict = {}
 

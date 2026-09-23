@@ -9,6 +9,12 @@ Runtime lane owns issue updates. Coordinate #130 with the documentation lane
 in325; it owns API/tutorial/translation delivery. Never close an issue merely
 because a related feature exists. Distinguish nightly fixes from released builds.
 
+Priority update2026-09-23: the maintainer explicitly requires this item finished
+before updating to1.5.1.0. It now precedes the version bump/main promotion.
+Four issues currently open:127,129,130,131.73 was reclosed after581 focused
+checks verified the classification decoder correction. The historical audit
+remains incomplete. External prerequisites do not justify closing an issue.
+
 133 — CLOSED after revalidating pointer-anchored zoom from d8fa55897.
 128 — CLOSED after five real settings-dialog visibility/scrolling checks passed;
       existing fix7f04a5790 keeps OK/Cancel outside the scrolling form.

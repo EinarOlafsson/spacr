@@ -9030,12 +9030,14 @@ class SettingsWidgets:
                     return typ(text)
                 except ValueError:
                     continue
-            if typ in (list, tuple):
+            if typ in (list, tuple, dict):
                 try:
                     parsed = ast.literal_eval(text)
                 except (ValueError, SyntaxError):
                     continue
-                if isinstance(parsed, (list, tuple)):
+                if typ is dict and isinstance(parsed, dict):
+                    return parsed
+                if typ in (list, tuple) and isinstance(parsed, (list, tuple)):
                     return typ(parsed)
                 continue
         return value

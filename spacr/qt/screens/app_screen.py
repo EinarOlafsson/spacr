@@ -1237,6 +1237,7 @@ EXAMPLE_DATA_SECTIONS = {
     "recruitment": "Data source",
     "umap": "Input Data",
     "invasion": "Assay Inputs",
+    'host_pathogen': 'Assay Inputs',
     "ops": "OPS input",
 }
 
@@ -3171,7 +3172,7 @@ class AppScreen(QWidget):
                 self._install_sequencing_example_button(section)
             elif self.app_key == "analyze_plaques":
                 self._install_plaque_example_button(section)
-            elif self.app_key in ("replication", "recruitment", "invasion"):
+            elif self.app_key in ("replication", "recruitment", "invasion", 'host_pathogen'):
                 from ..assay_examples import install_assay_example_button
 
                 install_assay_example_button(self, section)

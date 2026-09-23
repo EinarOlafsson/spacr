@@ -115,6 +115,8 @@ def summarize_tables(cells, vacuoles, reference, parasites=None, *, settings=Non
             isinstance(c, bool) or not isinstance(c, int) or c < 0 for c in channels):
         raise ValueError('hp_marker_channels must list nonnegative channel indices')
     channels = list(dict.fromkeys(channels))
+    if not isinstance(config['hp_marker_thresholds'], dict):
+        raise ValueError('Marker thresholds must be a dictionary mapping channel indices to ratios')
     thresholds = {int(key): float(value) for key, value in config['hp_marker_thresholds'].items()}
     if any(key not in channels or not math.isfinite(value) or value < 0
            for key, value in thresholds.items()):

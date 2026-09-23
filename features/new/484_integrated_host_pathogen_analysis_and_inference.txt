@@ -106,3 +106,19 @@ exact settings. No biological benchmark or GPU inference is claimed.
 PART6 SKIPPED AS AUTHORIZED: current model catalogue has weights and per-model
 settings but no validated recruitment-assay bundle with staining/threshold
 metadata. Creating and calibrating such a bundle is not a simple wiring change.
+
+2026-09-23 — REQUESTED TEST DATA COMPLETE
+Load test data now generates an offline synthetic project on the existing
+background worker:4fields,2wells,24hosts,28vacuoles,88parasites including4orphans.
+Includes uint16 microscopy-like TIFFs, drawn masks, merged arrays, RGB previews,
+current-schema measurements.db, ready settings, provenance and independent
+expected CSVs. Explicitly synthetic; no biological accuracy claim. Approximately
+13MB, no network/GPU needed. Existing complete projects preserve user edits;
+unknown nonempty destinations are refused and cancellation leaves no partials.
+Generator:spacr.host_pathogen_example; CLI python -m spacr.host_pathogen_example
+--out /path/to/new/project. GUI Toxoplasma > Host–Pathogen > Load test data > Run.
+228focused backend/Qt/settings checks pass. Both loaded settings-pack and actual
+GUI settings run the real analysis with known counts/ratios/states. Input DB
+bytes remain unchanged. The exercise also fixed dictionary-valued GUI settings
+arriving as strings, including hp_marker_thresholds. API error handling now
+explains an invalid threshold mapping instead of failing at .items().
