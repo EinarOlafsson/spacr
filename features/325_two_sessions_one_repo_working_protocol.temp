@@ -15067,3 +15067,52 @@ Receipt: features/data/490_psf_mask_pipeline_acceptance_2026-09-23.json.
 Also repaired training settings absent from the shared category map and the
 Host–Pathogen category added after cached category lists had been generated;
 its generic category now has help. Retained the existing curated module layouts.
+
+2026-09-23 — CODEX: HOME/PATHWAYS PUBLICATION AND PRACTICAL CORE REFRESH
+694cddb1e publishes 79–81 and refreshes 01/05, preserving 09/41 and other lessons.
+The new immutable media revision is 9acff844bf68cbecc61ee9a05cb139c6336393ce.
+All 7,492 files / 7.444 GB were read back exactly; all 80 ready lessons and
+14 placeholder languages pass hosted playback. Both placeholder guard mutations
+and seven final package/readback checks pass. The package has 81 routes,
+80 ready lessons and 3,706 narration tracks; incomplete translations are
+registered with English fallback. Actual nightly deployment is still owed.
+Hosted seek checks now allow a cold network range request to settle, preserving
+0.5-second clock agreement and bounding elapsed playback by actual wall time.
+
+45dd3bae7 adds the PSF Python guide and English API refresh; the follow-up
+adds Make Masks/Mask PSF instructions and current parameter/help references.
+English API is now 11,509 symbols, UI source inventory 5,197; exact additions
+and changed contracts are in 411_psf_integration_api_2026-09-23.json.
+The earlier full English Sphinx build passed; current integration has 19
+publication/source checks passing, one built-artifact check awaiting its build.
+GitHub docs run35922296498 failed on the generated Make Masks reference being
+stale after PSF fields landed. Publication now generates that reference directly
+from its pinned branch, just as it refreshes English manifests. Field/prose
+consistency is still enforced; incompatible translations remain report-only.
+
+3e857ac07 adds 27 reviewed caption translations in nine languages and fixes
+preview-registry prose being discarded because host/vacuole/parasite resembled
+a filesystem path. Settings templates and Host–Pathogen preview title/tooltip
+now resolve correctly.7318642f2 reconciles Swedish/French review cohorts with
+698 later distinct sources each and the exact retired-source subtraction.
+All five failures found in the focused translation audit are resolved by their
+reruns; the original cohort also had 18 expected failures. No whole-CI claim.
+
+ d422a5851 rewrites Mask, Measure, image/tabular Classify, Map Barcodes,
+Regression and Image UMAP as practical user steps; 19 of 81 source lessons
+have now been rewritten. It adds the downloadable SRR33531217 reference ZIP,
+with all 1,425 barcode rows and reverse complements checked. Fresh native CPU
+Motility capture completed at b077129b7 with eight preview states; independent
+checks match 128 objects, 256 centroids and 256 raw channel means. Source inputs
+remain unchanged. The recorder uses the current drop_straight_tracks key and
+private picker locations. Original failed captures remain unaccepted.
+
+Next private candidate: workflow-authoring-20260922/user-walkthrough-stage/
+release-candidate-append-835305u0, refreshing 07/08/10/11/12/13/15/18. Narration,
+4K masters, 1440p web renditions, fingerprints/full decode and sentence-cue/web
+browser checks pass for all eight. Candidate browser verification is running;
+no upload or live-publication claim for these eight yet. I have consumed the
+CLI regression plan fix and will recapture the API terminal lesson next.
+OPS then native Train remain queued with your GPU-idle owner; no GPU work here.
+Remaining setup captures, other tutorial rewrites, new PSF captions/animation
+and broad API translation completion stay open.
