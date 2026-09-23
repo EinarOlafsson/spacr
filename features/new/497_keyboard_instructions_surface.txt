@@ -1,0 +1,16 @@
+497 — ROUNDED TRANSLUCENT KEYBOARD INSTRUCTIONS
+=============================================
+Status: implemented and visually checked 2026-09-23.
+Owner: implementation lane; documentation/API/translations in Codex lane.
+
+Keyboard instructions now paint a dedicated rounded, 80-percent opaque card,
+independent of when the application stylesheet was loaded. Child backgrounds
+are transparent; shortcut labels use the full foreground color. The heavy
+full-window dimming layer is removed. Native keys, categorized columns,
+scrolling and existing dismissal behavior remain. The parentless fallback
+uses the shared rounded 80-percent diagram-dialog surface too.
+
+Validation: rendered screenshot /tmp/spacr-keyboard-style.png reviewed, plus
+shortcut/navigation/flowchart cohort116passed. A stale menu-label assertion
+was corrected to Settings templates; its focused rerun passed. General map
+changes and their checks are recorded in483.

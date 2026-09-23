@@ -14623,3 +14623,15 @@ Published-source navigation generated for the currently77available routes;
 new pipeline entries appear in orientation as each ready lesson publishes.
 New source scripts for76OPS,09Annotate,41Classify are being revised separately;
 no claim that their public audio or captions have changed yet.
+2026-09-23 — KEYBOARD CARD / DETAILED GENERAL FLOWCHART
+497keyboard instructions now have independently painted rounded80%-opaque
+surface, transparent child backgrounds, full-contrast labels and no heavy
+full-window scrim. Existing dismissal behavior retained; fallback uses
+DiagramDialog.483general network switches compact=False to match pipeline
+cards (input/output rows); existing pan/zoom unchanged. New persistent localized
+navigation string: Hold {key} and scroll the mouse wheel to zoom. Drag empty
+space to move around. Fit shows the whole map. Native modifier is supplied.
+The legend now contains only solid/dashed handoff explanation. Please translate
+the two new strings and refresh applicable media/API screenshots.116cohortchecks
+passed; corrected unrelated stale Settings recipes test to Settings templates,
+then11focused checks pass. Visual renders inspected.

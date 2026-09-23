@@ -26,8 +26,8 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import QEvent, Qt
-from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QShortcut
+from PySide6.QtCore import QEvent, QRectF, Qt
+from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QPen, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -556,6 +556,23 @@ OVERLAY_CARD_NAME = "ShortcutOverlayCard"
 OVERLAY_SCROLL_NAME = "ShortcutOverlayScroll"
 
 
+class _ShortcutCard(QWidget):
+    """Paint the rounded shortcut surface independently of global stylesheet timing."""
+
+    def paintEvent(self, event):
+        """Keep the background 80-percent opaque and shortcut text fully opaque."""
+        from .theme import active_palette
+
+        palette = active_palette()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        fill = QColor(palette["surface"])
+        fill.setAlphaF(.8)
+        painter.setBrush(fill)
+        painter.setPen(QPen(QColor(palette["border"]), 1))
+        painter.drawRoundedRect(QRectF(self.rect()).adjusted(.5, .5, -.5, -.5), 16, 16)
+
+
 class ShortcutOverlay(QWidget):
     """The ``?`` overlay — every shortcut, over the window, dismissed by any key.
 
@@ -590,8 +607,11 @@ class ShortcutOverlay(QWidget):
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setFocusPolicy(Qt.StrongFocus)
 
-        self._card = QWidget(self)
+        self._card = _ShortcutCard(self)
         self._card.setObjectName(OVERLAY_CARD_NAME)
+        self._card.setStyleSheet(
+            "QWidget#ShortcutOverlayCard, QScrollArea#ShortcutOverlayScroll, "
+            "QScrollArea#ShortcutOverlayScroll QWidget { background: transparent; border: none; }")
         card_layout = QVBoxLayout(self._card)
         card_layout.setContentsMargins(0, 0, 0, 0)
         card_layout.setSpacing(0)
@@ -658,10 +678,8 @@ class ShortcutOverlay(QWidget):
         window.installEventFilter(self)
 
     def paintEvent(self, event) -> None:
-        """Dim whatever is behind the card."""
-        painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor(0, 0, 0, 170))
-        painter.end()
+        """Leave the main window visible around the translucent shortcut card."""
+        pass
 
     def resizeEvent(self, event) -> None:
         """Keep the card centred when the window resizes."""
@@ -802,7 +820,8 @@ def show_cheat_sheet(parent) -> None:
         overlay.setFocus()
         return overlay
 
-    dlg = QDialog(parent)
+    from .widgets.workflow_diagram import DiagramDialog
+    dlg = DiagramDialog(parent)
     dlg.setWindowTitle("spaCR — Keyboard shortcuts")
     from .preferences import scaled_px
     
@@ -869,7 +888,7 @@ QLabel#ShortcutOverlayKeys {{
     color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayLabel {{
-    color: {palette["fg_dim"]};
+    color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayHint {{
     color: {palette["fg_dim"]};

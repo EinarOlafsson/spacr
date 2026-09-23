@@ -512,7 +512,7 @@ def test_menu_commands_survive_being_collected(window, qtbot):
     for cmd in menu_cmds:
         assert " → " in cmd.label
     labels = {c.label for c in menu_cmds}
-    assert any("Settings recipes" in label for label in labels)
+    assert any("Settings templates" in label for label in labels)
 
 
 def test_installing_shortcuts_twice_is_harmless(window):
