@@ -2370,6 +2370,9 @@ class _MagnifierRequest(NamedTuple):
     of 2 preserves legacy callers; Multi-Otsu enforces at least 3 classes.
     A None foreground class selects the brightest band. Both fields are
     appended to the request and settings key to preserve existing positions.
+    ``detection_percentiles`` is None for raw detector input or the saved
+    whole-field (low, high) display percentiles applied before cropping.
+    It is separate from model normalization and is also part of the key.
     """
 
     key: tuple
@@ -2440,6 +2443,7 @@ class _MagnifierRequest(NamedTuple):
     ticket: Any = None
     otsu_classes: int = 2
     otsu_foreground_class: Optional[int] = None
+    detection_percentiles: Optional[tuple] = None
 
 
 class _RunCancelled(Exception):
@@ -2597,7 +2601,8 @@ _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "cellprob_threshold", "normalize", "otsu_correction",
                          "otsu_smoothing", "otsu_fill_holes", "otsu_split",
                          "invert", "chain", "method_params", "cpu_params",
-                         "otsu_window", "otsu_classes", "otsu_foreground_class")
+                         "otsu_window", "otsu_classes", "otsu_foreground_class",
+                         "detection_percentiles")
 
 
 class _MagnifierResult(NamedTuple):
@@ -3400,6 +3405,57 @@ def _object_window(result: _MagnifierResult, label: int) -> Optional[tuple]:
     return (int(cols[0]), int(rows[0]), int(cols[-1]) + 1, int(rows[-1]) + 1)
 
 
+def _magnifier_provenance(request: _MagnifierRequest, mode: str,
+                          note: str = "") -> dict:
+    """JSON-safe detector settings from a completed request, never the panel.
+
+    ``mode`` is the algorithm that actually ran; ``request.mode`` and
+    ``note`` preserve a model fallback. Common model controls retain their
+    historical keys; ``method_parameters`` holds the applicable CPU or
+    organelle settings. Display percentile normalization is separate from
+    the model's ``normalize`` option. A whole-image object pick records the
+    full detection box as well as its smaller paste box at the call site.
+    Paste-time overlap and minimum area are added by the commit handler.
+    """
+    percentiles = request.detection_percentiles
+    height, width = request.shape
+    detail = {
+        "mode": mode, "requested_mode": request.mode, "fallback_note": str(note),
+        "scope": request.scope,
+        "detection_box": ([0, 0, int(width), int(height)] if request.scope == "image"
+                          else [int(v) for v in request.box]),
+        "sensitivity": float(request.sensitivity), "bright": bool(request.bright),
+        "min_area": int(request.min_area), "exclude_border": bool(request.exclude_border),
+        "invert": bool(request.invert), "model": str(request.model_name),
+        "flow_threshold": float(request.flow_threshold),
+        "cellprob_threshold": float(request.cellprob_threshold),
+        "diameter": int(request.diameter), "normalize": bool(request.normalize),
+        "otsu_correction": float(request.otsu_correction),
+        "detect_on_normalized": percentiles is not None,
+        "normalization_percentiles": (None if percentiles is None else
+                                       [float(v) for v in percentiles]),
+        "method_parameters": (organelle_modes.provenance(mode, request.method_params)
+                              or cpu_modes.provenance(mode, request.cpu_params)),
+    }
+    if mode == "otsu" or mode in cpu_modes.THRESHOLD_LABELS:
+        multi = mode == cpu_modes.MULTIOTSU
+        count = max(3, int(request.otsu_classes)) if multi else 2
+        detail.update(
+            otsu_smoothing=float(request.otsu_smoothing),
+            otsu_fill_holes=bool(request.otsu_fill_holes),
+            otsu_split=bool(request.otsu_split), otsu_classes=count,
+            otsu_foreground_class=(count - 1 if request.otsu_foreground_class is None
+                                   else int(request.otsu_foreground_class)) if multi else 1,
+            otsu_local=False)
+        if mode in engine.LOCAL_THRESHOLDS:
+            detail["otsu_window"] = int(request.otsu_window)
+    elif mode == cpu_modes.PROPAGATE:
+        detail["otsu_fill_holes"] = bool(request.otsu_fill_holes)
+    detail.update(detect_chain.provenance(
+        request.chain or detect_chain.NO_CHAIN, percentile_stretch=percentiles is not None))
+    return detail
+
+
 def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     """One object of a whole-image result, as a result of its own.
 
@@ -3992,7 +4048,9 @@ class _LiveMagnifier(QObject):
                 max(3, int(context["otsu_classes"])) if mode == cpu_modes.MULTIOTSU
                 else int(context["otsu_classes"]),
                 (None if context["otsu_foreground_class"] is None else
-                 int(context["otsu_foreground_class"])))
+                 int(context["otsu_foreground_class"])),
+                ((float(self.canvas.norm_lo), float(self.canvas.norm_hi))
+                 if self.canvas.detect_on_normalized else None))
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -4642,13 +4700,15 @@ class _LiveMagnifier(QObject):
         stroke = _DragStroke(
             canvas.image.shape, self._cursor,
             step=0 if whole else _frame_step(self.size),
-            keep_untouched=not whole and self.save_mode != "touching")
+            keep_untouched=not whole and self.save_mode != "touching",
+            provenance={"save": self.save_mode})
         self._stroke = stroke
         self._stroke_from = (QPointF(self._anchor), self._field)
         self._stroke_moved = False
         if whole:
             stroke.expect("image")
-            stroke.deliver("image", found.labels, found.request.box)
+            stroke.deliver("image", found.labels, found.request.box,
+                           provenance=_magnifier_provenance(found.request, found.mode, found.note))
         else:
             self._stroke_frame(self._cursor)
         return True
@@ -4714,7 +4774,8 @@ class _LiveMagnifier(QObject):
         self._stroke.expect(request.key)
         shown = self._shown
         if shown is not None and shown.request.key == request.key:
-            self._stroke.deliver(request.key, shown.labels, request.box)
+            self._stroke.deliver(request.key, shown.labels, request.box,
+                                 provenance=_magnifier_provenance(shown.request, shown.mode, shown.note))
         else:
             self._worker.submit(request, pin=True)
 
@@ -4726,7 +4787,8 @@ class _LiveMagnifier(QObject):
             return
         if error is not None:
             stroke.drop(request.key)
-        elif stroke.deliver(request.key, result.labels, request.box):
+        elif stroke.deliver(request.key, result.labels, request.box,
+                            provenance=_magnifier_provenance(result.request, result.mode, result.note)):
             self._stroke_dirty()
         self._stroke_finish()
 
@@ -10566,8 +10628,10 @@ class MakeMasksScreen(QWidget):
         A whole-image click arrives as that one object, cut to its bounding
         box, and is recorded with ``scope="image"``.
 
-        Multi-Otsu records the class count and selected band from the
-        completed request, even if the panel has since changed.
+        Detector settings, CPU/organelle parameters and enhancement come
+        from the completed request, even if the panel has since changed.
+        ``min_area`` records detection's filter; ``paste_min_area`` records
+        the current filter applied while pasting through the overlap rule.
 
         :returns: the ids added; empty when nothing was.
         """
@@ -10599,32 +10663,13 @@ class MakeMasksScreen(QWidget):
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
-        multi_settings = {}
-        if result.mode == cpu_modes.MULTIOTSU:
-            count = max(3, int(request.otsu_classes))
-            multi_settings = {
-                "otsu_classes": count,
-                "otsu_foreground_class": (
-                    count - 1 if request.otsu_foreground_class is None
-                    else int(request.otsu_foreground_class)),
-            }
         self._record("magnifier", list(added), changed,
-                      mode=result.mode, overlap=overlap,
+                      overlap=overlap, paste_min_area=self._detect_min_area(),
                       box=[int(v) for v in request.box],
-                      sensitivity=float(request.sensitivity),
-                      model=str(request.model_name),
-                      flow_threshold=float(request.flow_threshold),
-                      cellprob_threshold=float(request.cellprob_threshold),
-                      diameter=int(request.diameter),
-                      otsu_correction=float(request.otsu_correction),
-                      n_objects=len(added), scope=request.scope,
-                      method_parameters=organelle_modes.provenance(
-                          result.mode, request.method_params),
-                      **multi_settings,
-                      **detect_chain.provenance(
-                          request.chain or detect_chain.NO_CHAIN,
-                          percentile_stretch=bool(
-                              self._canvas.detect_on_normalized)))
+                      n_objects=len(added),
+                      **({"source_labels": [int(v) for v in np.unique(result.labels) if v > 0]}
+                         if request.scope == "image" else {}),
+                      **_magnifier_provenance(request, result.mode, result.note))
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(tr(
@@ -10677,6 +10722,10 @@ class MakeMasksScreen(QWidget):
 
         :param payload: ``(outcome, final)`` from
             :attr:`_LiveMagnifier.drag_ready`.
+            Outcome provenance supplies the cursor path, saved selection
+            rule and each accepted frame's detector request in delivery order.
+            A mixed-method stroke is marked ``mode="mixed"``; its per-frame
+            records retain the actual methods, settings and fallback notes.
         :returns: the ids the final paste added; empty for a preview.
         """
         from ..i18n import tr
@@ -10705,13 +10754,20 @@ class MakeMasksScreen(QWidget):
             return []
         height, width = found.labels.shape[:2]
         x0, y0 = found.origin
+        provenance = found.provenance or {}
+        frames = provenance.get("frame_requests", [])
+        def common(field, default):
+            """Return a shared frame value, or the explicit mixed/unknown value."""
+            values = [frame.get(field, default) for frame in frames]
+            return values[0] if values and all(value == values[0] for value in values) else default
         self._record("magnifier", list(added), self._pixels_changed(out),
-                     mode=self._magnifier.mode, overlap=overlap,
+                     mode=common("mode", "mixed" if frames else "unknown"), overlap=overlap,
+                     paste_min_area=self._detect_min_area(),
                      box=[x0, y0, x0 + width, y0 + height],
-                     sensitivity=float(self._magnifier.sensitivity),
-                     n_objects=len(added), scope=self._magnifier.scope,
-                     drag=True, save=self._magnifier.save_mode,
-                     frames=found.frames, merged=found.merged)
+                     sensitivity=common("sensitivity", None),
+                     n_objects=len(added), scope=common("scope", "mixed" if frames else "unknown"),
+                     drag=True, frames=found.frames, merged=found.merged,
+                     **provenance)
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(tr(

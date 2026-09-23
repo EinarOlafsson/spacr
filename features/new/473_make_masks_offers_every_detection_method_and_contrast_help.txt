@@ -738,3 +738,32 @@ features/data/473_threshold_histogram_2026-09-22.json for the other lane.
 
 Still OPEN: catalog/API/tutorial reconciliation and earlier473 acceptance.
 CPU magnifier/drag provenance remains the next implementation repair.
+
+2026-09-22 — MAGNIFIER CLICK AND DRAG HISTORY RETAINS DETECTOR REQUESTS
+--------------------------------------------------------------------------------
+Completed requests now carry the whole-field normalization percentiles
+(None when off), separately from model normalization. This snapshot is part
+of the request key. Click ledgers record detector-time polarity, inversion,
+minimum area, border choice, threshold smoothing/fill/split/class/window,
+applicable CPU or organelle parameters, model controls and enhancement chain.
+The actual mode, requested mode and fallback note are retained. Image-object
+picks record full detection bounds plus paste bounds and source label IDs.
+Paste-time overlap and paste_min_area remain distinct from detector settings.
+
+Drag outcomes append optional JSON-safe provenance while preserving the first
+five fields and the older five-argument construction. Each accepted frame
+records its completed request in delivery order; duplicate or unsolicited
+frames add no metadata. Path vertices, shape, frame spacing and the selection
+rule are saved with the press-time save mode. A stroke using multiple methods
+is marked mixed, with the actual methods preserved per frame. No image arrays
+are added to the JSON. Segmentation and drag merging algorithms are unchanged.
+
+Ten new cases verify panel changes cannot rewrite click history, CPU local
+and propagation settings persist in saved mask sidecars, complete detector
+outputs replay from JSON and source pixels, a mixed-method drag replays to
+the committed mask, undo remains one operation, and duplicate deliveries are
+ignored.257 distinct focused checks pass (53 drag/provenance/Multi-Otsu plus
+204 existing magnifier/detector checks). Fatal-error lint and diff checks pass.
+This does not add a general history-replay UI or repair older incomplete
+sidecars. No new runtime captions. The source APIs and record schema are
+handed to the documentation owner;473 remains open for its full acceptance.

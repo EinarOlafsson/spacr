@@ -11006,3 +11006,43 @@ This is source inventory, not translation acceptance:18 active old runtime
 reviews (correction/classes, two per locale) need preserved retirement and
 replacement. No active API review binding is stale, but locale catalog
 freshness and the new CPU/organism prose still need work. No GPU/NAS activity.
+
+2026-09-22 — IMPLEMENTATION:473 MAGNIFIER PROVENANCE CLAIM
+Claiming make_masks.py request/click/drag provenance, _magnifier_drag.py
+outcome metadata and focused tests. Click records omit CPU local/propagation
+settings and read percentile normalization at commit time. Drag records read
+current panel mode/sensitivity and omit per-frame settings/chain. Will record
+completed-request settings, snapshot normalization percentiles, actual modes
+and fallback notes, and per-frame/path metadata for drags. Paste-time overlap
+and minimum area remain distinct from detector-time settings. No catalogs,
+tutorial files or segmentation-algorithm changes in this claim.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:473 MAGNIFIER PROVENANCE REPAIRED
+_MagnifierRequest and _MODEL_SETTING_FIELDS append detection_percentiles:
+None when display normalization is off, otherwise the whole-field (low,high)
+percentiles used before cropping. Model normalize remains separate. New
+_magnifier_provenance(request,mode,note) records completed-request settings,
+CPU/organelle parameters, chain, actual/requested modes and fallback notes.
+Click records add paste_min_area; image picks retain detection_box, paste box
+and source_labels. They no longer read current normalization at commit time.
+_StrokeOutcome appends optional provenance (old five-argument construction
+still works). _DragStroke accepts press-time provenance; deliver accepts
+per-frame provenance only for accepted frames. Outcome stores path vertices,
+shape, frame_step, keep_untouched and frame_requests in delivery order.
+Drag history uses these snapshots rather than the current panel, with mixed
+mode/scope markers when needed. No arrays in JSON, no segmentation change,
+no new runtime captions.257 focused checks pass, including10 new persistence
+and numerical-replay cases. Existing incomplete sidecars are not retrofilled;
+a general replay UI is not claimed. Source/test claim released with commit.
+
+2026-09-22 — MAINTAINER FOLLOW-UP:474 DIAGRAMS / TILES / STARPLAST
+New request now takes implementation priority after the provenance commit:
+upright Toxoplasma/Plasmodium (rhoptries at top), white outlines on a rounded
+transparent-black panel, fill only on hover/selection, multiple compartment
+selections, matching colored legend and hovered LOPIT location descriptions.
+Match Home tile shape exactly, pack tiles more closely, and use a thin splitter.
+Add Starplast as the first Toxoplasma tile: first click offers its separate
+environment install with size and alpha warnings; later clicks launch it.
+The local Starplast celldiagram.py already supplies portrait/outline/hit-test
+reference code. Implementation will own these runtime changes; please defer
+final diagram-caption acceptance until the resulting source handoff.

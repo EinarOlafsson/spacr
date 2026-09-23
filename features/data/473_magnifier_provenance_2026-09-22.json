@@ -1,0 +1,10 @@
+{
+  "date": "2026-09-22",
+  "baseline": "3f0ebf289",
+  "new_cases": 10,
+  "focused_checks": 257,
+  "validation": ["CPU click masks replay from JSON and source pixels", "Saved mask sidecars retain request parameters after panel changes", "Mixed-method drag replays from frame requests and path vertices", "One-step undo", "Duplicate-frame metadata rejected"],
+  "api_changes": ["_MagnifierRequest.detection_percentiles", "_MODEL_SETTING_FIELDS", "_magnifier_provenance", "_StrokeOutcome.provenance", "_DragStroke.__init__", "_DragStroke.deliver", "_DragStroke.outcome", "_LiveMagnifier._model_settings", "_LiveMagnifier.press", "_LiveMagnifier._stroke_frame", "_LiveMagnifier._stroke_delivered", "MakeMasksScreen._commit_magnifier_result", "MakeMasksScreen._apply_magnifier_drag"],
+  "runtime_sources_changed": [],
+  "remaining": ["473 full API/catalog/tutorial acceptance", "No general history-replay UI or backfill of old incomplete sidecars", "474 latest diagram/tile/Starplast request now takes implementation priority"]
+}

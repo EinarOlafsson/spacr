@@ -70,6 +70,10 @@ class _StrokeOutcome(NamedTuple):
     every other positive value is an object of its own. ``merged`` is how many
     pieces went into the object the path passed over, ``objects`` how many
     objects ``labels`` holds and ``frames`` how many frames were taken in.
+    Optional ``provenance`` holds JSON-safe path vertices, the selection
+    rule, image shape, frame spacing and accepted frame metadata in delivery
+    order. It contains no image arrays. Older five-argument construction
+    remains valid with provenance defaulting to None.
     """
 
     labels: np.ndarray
@@ -77,6 +81,7 @@ class _StrokeOutcome(NamedTuple):
     merged: int
     objects: int
     frames: int
+    provenance: Optional[dict] = None
 
 
 def _line_pixels(start, end) -> np.ndarray:
@@ -105,14 +110,18 @@ class _DragStroke:
         frame is the whole image.
     :param keep_untouched: rule 3 -- True adds every object the frames found,
         False only the object the path passed over.
+    :param provenance: optional stroke settings captured at the press.
+        Frame-specific metadata is supplied separately to :meth:`deliver`.
     """
 
     def __init__(self, shape, start, *, step: int,
-                 keep_untouched: bool = True):
+                 keep_untouched: bool = True, provenance: Optional[dict] = None):
         """Start a stroke at ``start`` with no frame and nothing to add."""
         self.shape = (int(shape[0]), int(shape[1]))
         self.step = max(0, int(step))
         self.keep_untouched = bool(keep_untouched)
+        self._provenance = dict(provenance or {})
+        self._frame_provenance = []
         #: Whether the button has come up.
         self.released = False
         #: Whether what the stroke adds changed since :meth:`outcome` said.
@@ -196,17 +205,22 @@ class _DragStroke:
         """Whether the button is up and every frame asked for has arrived."""
         return self.released and not self._waiting
 
-    def deliver(self, key, labels, box) -> bool:
+    def deliver(self, key, labels, box, *, provenance: Optional[dict] = None) -> bool:
         """Take in the frame asked for under ``key``.
 
         :param labels: the frame's label image, shaped like its box.
         :param box: ``(x0, y0, x1, y1)`` in image pixels, ends exclusive.
+        :param provenance: JSON-safe metadata for the actual completed
+            detector request. Only accepted frames append it; duplicates
+            and unsolicited deliveries cannot add provenance records.
         :returns: False, taking nothing in, when no frame waits under ``key``.
         """
         if key not in self._waiting:
             return False
         self._waiting.discard(key)
         self._take_in(np.asarray(labels).astype(np.int32, copy=False), box)
+        if provenance is not None:
+            self._frame_provenance.append(dict(provenance))
         return True
 
     def _take_in(self, labels: np.ndarray, box) -> None:
@@ -277,6 +291,8 @@ class _DragStroke:
         Rule 3 is applied here rather than as frames arrive, so an object the
         path reaches late still goes in, and the answer can be asked for at any
         time: while the button is down, to show, and once more at the end.
+        Provenance stores the start and each movement's endpoint; replaying
+        the straight lines between these vertices reconstructs the path.
         """
         self.dirty = False
         if self._owner is None:
@@ -298,4 +314,8 @@ class _DragStroke:
         x0, y0, x1, y1 = self._span
         labels = lookup[self._owner[y0:y1, x0:x1]]
         objects = int(np.count_nonzero(np.unique(labels)))
-        return _StrokeOutcome(labels, (x0, y0), merged, objects, self._frames)
+        provenance = dict(self._provenance,
+                          path=[[int(v) for v in segment[-1]] for segment in self._path],
+                          keep_untouched=self.keep_untouched, frame_step=self.step,
+                          shape=list(self.shape), frame_requests=list(self._frame_provenance))
+        return _StrokeOutcome(labels, (x0, y0), merged, objects, self._frames, provenance)
