@@ -210,7 +210,9 @@
       "source_sha256": "f3a930e281429677d25bc3a0403db5e0230cb62800bc2f3a769a5d37a40a6abb",
       "source": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, and nothing 5 px across survives a crop-and-measure as an object. Relative to the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
       "context": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the microscope field of view's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, and nothing 5 px across survives an image-region extraction-and-measurement operation as an object. Relative to the laboratory microplate: the microscope field of view holds ``seg_qc_size_ratio``-fold more objects than the laboratory microplate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
-      "translation": "``over-segmentation`` (splittrade objekt) Två kännetecken. Absolut: minst ``seg_qc_tiny_fraction`` (0.30) av fältets objekt är smalare än ``seg_qc_min_diameter`` (5 px) — spaCR:s diameteruppskattare förkastar redan komponenter som är mindre än 4 px som skräp, och inget som är 5 px brett överlever en utskärnings- och mätningsoperation som ett objekt. Relativt plattan: fältet innehåller ``seg_qc_size_ratio`` gånger fler objekt än plattans median vid ``1/seg_qc_size_ratio`` av dess mediandiameter. Parametern är avsiktligt 1.4 = sqrt(2) som standard — två objekt som svetsas samman har sqrt(2) gånger diametern hos ett objekt, och ett objekt som delas i två får 1/sqrt(2) av diametern, så 1.4 är själva kännetecknet för ett sammanfogat par eller en halvering, inte en godtycklig tolerans."
+      "translation": "``over-segmentation`` (splittrade objekt) Två kännetecken. Absolut: minst ``seg_qc_tiny_fraction`` (0.30) av fältets objekt är smalare än ``seg_qc_min_diameter`` (5 px) — spaCR:s diameteruppskattare förkastar redan komponenter som är mindre än 4 px som skräp, och inget som är 5 px brett överlever en utskärnings- och mätningsoperation som ett objekt. Relativt plattan: fältet innehåller ``seg_qc_size_ratio`` gånger fler objekt än plattans median vid ``1/seg_qc_size_ratio`` av dess mediandiameter. Parametern är avsiktligt 1.4 = sqrt(2) som standard — två objekt som svetsas samman har sqrt(2) gånger diametern hos ett objekt, och ett objekt som delas i två får 1/sqrt(2) av diametern, så 1.4 är själva kännetecknet för ett sammanfogat par eller en halvering, inte en godtycklig tolerans.",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "label": "spacr.seg_qc.FieldQC#4",
@@ -262,11 +264,14 @@
       "translation": "Behovsladdad bild- och etikettdatauppsättning för Cellpose träning och inferens."
     },
     {
-      "label": "spacr.submodules.analyze_replication#4",
+      "label": "spacr.submodules.analyze_replication#5",
       "source_sha256": "0a95ad215fc5ea2dc5cfdb3c2ececdb6389631015c69bd68c6b9d0ee16c1ee4f",
       "source": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
       "context": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
-      "translation": "Statistik: jämförelsen av två villkor är ett Mann–Whitneys U-test på fördubbling index ``log2(n_parasites)``, med en chi-kvadrat omnibus test tillsammans med det. :func:`_replication_compare_conditions` förklarar varför, och varför ett t-test på de råa räkningarna är fel instrument."
+      "translation": "Statistik: jämförelsen av två villkor är ett Mann–Whitneys U-test på fördubbling index ``log2(n_parasites)``, med en chi-kvadrat omnibus test tillsammans med det. :func:`_replication_compare_conditions` förklarar varför, och varför ett t-test på de råa räkningarna är fel instrument.",
+      "previous_labels": [
+        "spacr.submodules.analyze_replication#4"
+      ]
     },
     {
       "label": "spacr.submodules.interpret_vision_model#1",

@@ -166,11 +166,14 @@
       "translation": "**eingedrungen / innen** = im Kanal der Außenfärbung *nicht vorhanden*."
     },
     {
-      "label": "spacr.submodules.analyze_replication#4",
+      "label": "spacr.submodules.analyze_replication#5",
       "source_sha256": "0a95ad215fc5ea2dc5cfdb3c2ececdb6389631015c69bd68c6b9d0ee16c1ee4f",
       "source": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
       "context": "Statistics: the two-condition comparison is a Mann-Whitney U test on the doubling index ``log2(n_parasites)``, with a chi-squared omnibus test alongside it. :func:`_replication_compare_conditions` explains why, and why a t-test on the raw counts is the wrong instrument.",
-      "translation": "Statistik: Der Zwei-Bedingungen-Vergleich ist ein Mann-Whitney U-Test auf dem Verdoppelung-Index ``log2(n_parasites)``, mit einem Chi-Quadrat Omnibus-Test daneben. :func:`_replication_compare_conditions` erklärt warum, und warum ein t-Test auf den Rohzahlen das falsche Instrument ist."
+      "translation": "Statistik: Der Zwei-Bedingungen-Vergleich ist ein Mann-Whitney U-Test auf dem Verdoppelung-Index ``log2(n_parasites)``, mit einem Chi-Quadrat Omnibus-Test daneben. :func:`_replication_compare_conditions` erklärt warum, und warum ein t-Test auf den Rohzahlen das falsche Instrument ist.",
+      "previous_labels": [
+        "spacr.submodules.analyze_replication#4"
+      ]
     },
     {
       "label": "spacr.timelapse.automated_motility_assay#0",

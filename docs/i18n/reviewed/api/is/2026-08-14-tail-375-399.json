@@ -80,10 +80,13 @@
     },
     {
       "context": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
-      "label": "spacr.measure.measure_crop#15",
+      "label": "spacr.measure.measure_crop#16",
       "source": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
       "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
-      "translation": "aðeins í ströngu ham (``settings['strict_errors']``, eða ``SPACR_STRICT_ERRORS`` umhverfisbreytan). Annars prenta ``normalize``, ``normalize_by``, maska-mál/min-stærð og ``channels`` tegundarprófanir VIÐVARANIR og skila ``None`` án þess að mæla neitt."
+      "translation": "aðeins í ströngu ham (``settings['strict_errors']``, eða ``SPACR_STRICT_ERRORS`` umhverfisbreytan). Annars prenta ``normalize``, ``normalize_by``, maska-mál/min-stærð og ``channels`` tegundarprófanir VIÐVARANIR og skila ``None`` án þess að mæla neitt.",
+      "previous_labels": [
+        "spacr.measure.measure_crop#15"
+      ]
     },
     {
       "context": "**The organelle image layer this writes is measured into nothing, and the defect is not in this module.** Image layer ``organelle_mask_dim`` of every merged stack carries 64 real labels, but a measure run over this folder writes ``cell``/``nucleus``/``pathogen``/``cytoplasm`` and no ``organelle`` table at all (verified: 4 microscope fields of view → cell 64, nucleus 64, pathogen 71, cytoplasm 64, organelle absent).",

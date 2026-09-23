@@ -1,0 +1,814 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "scope": "Identical source moves keep their translation review; changed sources are retained as retired evidence. No translation text or reviewed source hash is altered.",
+  "changes": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-08-14-current-final-066-098.json",
+      "language": "de",
+      "label": "spacr.submodules.analyze_replication#4",
+      "source_sha256": "0a95ad215fc5ea2dc5cfdb3c2ececdb6389631015c69bd68c6b9d0ee16c1ee4f",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.submodules.analyze_replication#5"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-api-prose-cleanup.json",
+      "language": "de",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "language": "de",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "language": "de",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "language": "de",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "language": "de",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "language": "de",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "language": "de",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-02.json",
+      "language": "de",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.preview_running#0",
+      "source_sha256": "0deef10d0baf3b9ee34a4aba2616689ff7f626b0470bf662d3dcbce6c5f26b80",
+      "action": "retire_changed_source",
+      "current_block": "Whether a pass still owns a worker, including after Cancel."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-api-prose-cleanup.json",
+      "language": "es",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "language": "es",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "language": "es",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "language": "es",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "language": "es",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "language": "es",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "language": "es",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-08-14-current-final-020-039.json",
+      "language": "fr",
+      "label": "spacr.measure.measure_crop#15",
+      "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.measure.measure_crop#16"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-08-14-current-final-040-059.json",
+      "language": "fr",
+      "label": "spacr.qt.first_run#1",
+      "source_sha256": "8b0fd85795a82ec3db1b3850b963a049fc69b6290173dccdf7fe55fd1d3505cb",
+      "action": "retire_changed_source",
+      "current_block": "Fires the first time ``spacr`` boots (state stored in QSettings). A translucent full-window overlay dims the app; a numbered card walks the user through: sidebar → test data → home tiles → hint bar. The user can dismiss at any point via Skip / Esc; the \"seen\" flag is saved on skip OR after the last step so the tour never fires twice unless they hit \"Reset\" in Preferences."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-api-prose-cleanup.json",
+      "language": "fr",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "language": "fr",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "language": "fr",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "language": "fr",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "language": "fr",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "language": "fr",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "language": "fr",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-08-14-tail-045-065.json",
+      "language": "hi",
+      "label": "spacr.submodules.analyze_replication#11",
+      "source_sha256": "e69239fa60b793cb9337127d607becded455cd0cc107d29d798056aadd832f7e",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.submodules.analyze_replication#12"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-api-prose-cleanup.json",
+      "language": "hi",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "language": "hi",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "language": "hi",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "language": "hi",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "language": "hi",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "language": "hi",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "language": "hi",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-025-049.json",
+      "language": "is",
+      "label": "spacr.submodules.analyze_replication#3",
+      "source_sha256": "d677c2117583955bb8308d9cde6a3b5ea7e81b214e47e69b1c41b356a7005fa2",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.submodules.analyze_replication#4"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-050-074.json",
+      "language": "is",
+      "label": "spacr.submodules.analyze_replication#11",
+      "source_sha256": "e69239fa60b793cb9337127d607becded455cd0cc107d29d798056aadd832f7e",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.submodules.analyze_replication#12"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-375-399.json",
+      "language": "is",
+      "label": "spacr.measure.measure_crop#15",
+      "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.measure.measure_crop#16"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-26-frozen-tail.json",
+      "language": "is",
+      "label": "spacr.qt.screens.train_cellpose#1",
+      "source_sha256": "2115c4d84027b9bc154ba34eab468a019dfea771a4bd26529b82a347612b70d2",
+      "action": "retire_changed_source",
+      "current_block": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-16-mask-mean-bounds.json",
+      "language": "is",
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
+      "source_sha256": "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.pipeline_v2.stream_masks_from_stack#11"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-api-prose-cleanup.json",
+      "language": "is",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "language": "is",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "language": "is",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "language": "is",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "language": "is",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "language": "is",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "language": "is",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-api-prose-cleanup.json",
+      "language": "ko",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "language": "ko",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "language": "ko",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "language": "ko",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "language": "ko",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "language": "ko",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "language": "ko",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-08-12-tail-020-039.json",
+      "language": "pt",
+      "label": "spacr.io.generate_dataset_from_lists#2",
+      "source_sha256": "823624158ae90975677e4d6ae6f2c0388beceb71e8d347f0e2a0b43d3d237dda",
+      "action": "retire_changed_source",
+      "current_block": "Each destination class folder is stamped before it is filled. Uniform source formats keep their original bytes and marker. Mixed source formats are decoded into declared uint8 crops in the destination only, so no generated folder silently loses its channel-order record."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-api-prose-cleanup.json",
+      "language": "pt",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "language": "pt",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "language": "pt",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "language": "pt",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "language": "pt",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "language": "pt",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "language": "pt",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-08-14-current-final-108-161.json",
+      "language": "sv",
+      "label": "spacr.seg_qc#9",
+      "source_sha256": "f3a930e281429677d25bc3a0403db5e0230cb62800bc2f3a769a5d37a40a6abb",
+      "action": "retire_changed_source",
+      "current_block": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-08-14-current-final-108-161.json",
+      "language": "sv",
+      "label": "spacr.submodules.analyze_replication#4",
+      "source_sha256": "0a95ad215fc5ea2dc5cfdb3c2ececdb6389631015c69bd68c6b9d0ee16c1ee4f",
+      "action": "rebind_identical_source",
+      "new_label": "spacr.submodules.analyze_replication#5"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-api-prose-cleanup.json",
+      "language": "sv",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "language": "sv",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "language": "sv",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "language": "sv",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "language": "sv",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "language": "sv",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "language": "sv",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-08-14-tail-080-099.json",
+      "language": "zh_CN",
+      "label": "spacr.seg_qc#2",
+      "source_sha256": "205452c8bed26fccbbe5b2a8d1f7349b401bd8eec2ec9a495144249c764a2aff",
+      "action": "retire_changed_source",
+      "current_block": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious fields, but cannot establish their cause or validate biological interpretation."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-api-prose-cleanup.json",
+      "language": "zh_CN",
+      "label": "spacr.qt.detect_chain#4",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "action": "retire_changed_source",
+      "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "language": "zh_CN",
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
+      "action": "retire_changed_source",
+      "current_block": "Optional explicit source for development installations."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "language": "zh_CN",
+      "label": "spacr._starplast.default_source#0",
+      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "action": "retire_changed_source",
+      "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "language": "zh_CN",
+      "label": "spacr._starplast.default_source#1",
+      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "action": "retire_changed_source",
+      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "language": "zh_CN",
+      "label": "spacr._starplast.install_starplast#2",
+      "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
+      "action": "retire_changed_source",
+      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "language": "zh_CN",
+      "label": "spacr._starplast.install_starplast#10",
+      "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
+      "action": "retire_changed_source",
+      "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "language": "zh_CN",
+      "label": "spacr.qt.starplast.open_starplast#0",
+      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "action": "retire_changed_source",
+      "current_block": "Check for updates on every open and offer pip upgrades before launching."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-08-14-current-final-066-098.json",
+      "before_sha256": "0b59e3460dde8b55b65d25431ce942aaaa44244aad3582d964b89fbdc9bf5cea",
+      "after_sha256": "978a5535758cdedd3ebd45d5495cbf8fe9ad31dd58f805e3e9760e0e414d1bdc",
+      "records_preserved": 27
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "9bb110fb2436ff2eb3d7e08814e9133c474e6ca3b34bfa1987d80315c35807a0",
+      "after_sha256": "693a1fbdee74dc3ad89497690c9e2fe6f2298eddce1d45d1a6452c70b7ee97e6",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "545cf02724fbf4df8c7ec829077f484a024d64c0d3b900836accdae05dbd6503",
+      "after_sha256": "78ac55e84cce1627427ba843d2ae17d11ecc678977f90c581832e1e7a55cf39d",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-02.json",
+      "before_sha256": "30beb4eed720cdd14dba82b63b5541a6ec1f8241b271227a5490497cb3a5b04f",
+      "after_sha256": "163b78d59cf7b3302de0ad254c950f8ed57d9be402399874394862baa9ea1e58",
+      "records_preserved": 120
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "8376324caa2140a7c9826b5ebfc7f53fbeec0d311f991a60a370825c03307b9f",
+      "after_sha256": "3127244f855a86637724247d2aa921eb45196a3c7bfffb28999b30037f995466",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "09f5dc85186e5529e22f428d4f23634a6e4f67277425417e0f88cf835f2f4fa4",
+      "after_sha256": "6b6fa7b95a0718d343dde4fb3e7dc82ba91c75695bf592c33514c0b0c2d8c9c3",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-08-14-current-final-020-039.json",
+      "before_sha256": "16662cd6a7dd102ebb8f6aced7f0978b0c4a0ab355854d53d85d20605b91c822",
+      "after_sha256": "0ba8f30627dfc823ab07e4180e02b3a4c514d6fcff05a5419c06723734c6f334",
+      "records_preserved": 18
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-08-14-current-final-040-059.json",
+      "before_sha256": "4ce80404a683488432ba3fca2edbfc34582b91ef2564ee538012e60bf1cf9b09",
+      "after_sha256": "d2c404e2eaeda1ee2090aa3f49c7e5148db7af2f32912cae9dc038a310dd9cc7",
+      "records_preserved": 18
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "11d3cb5917e659106e8c6212d2649c5a66ac7002988f43fc8bf9a788c33080cf",
+      "after_sha256": "76081cc38e58b624ded3488fcb13c2c8b3c69542af67ebdd11dbea11842104fb",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "71634b5893846c1aa080161734049d73937e078eda02ae2b67173cb8901a7dad",
+      "after_sha256": "c9751bb4848291420e836b31457d5a948215ad6dc3ecbc25547c3f24898137bc",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-08-14-tail-045-065.json",
+      "before_sha256": "4a01fa2b035ba18e3dca124f8ebc6c42354f6bfeaecd0713525a82c52ad18eb7",
+      "after_sha256": "a82ddbbf82caedd1b2b67c4b169598be286ac9f070baad89ace8e77e4c997ed8",
+      "records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "a8cf66557d0a5f4d4af3b04a3ccc45eb8f01f30c3cd6827f5f6f63ab3a81efcb",
+      "after_sha256": "24bd107f3e988aae5313d966847f1c1d740b8f83118775ea34b7908974b40f88",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "0da863a17aa0c03ca8b61a82b87215c9be5c5855d14b2e48e25544bd26b54ea8",
+      "after_sha256": "bccd10f405a01162b62b2c927ef182b25f18b9ba82fb2546e5ce86c5e393a47a",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-025-049.json",
+      "before_sha256": "86ab18ab856176b6ba2861a7adb1246e6e97914d45afc26608e9817f82c92fdf",
+      "after_sha256": "2bd59cb9d4120376fc92c2a7e7725598fba9e8ed4e2fd96121863a0a5065544d",
+      "records_preserved": 23
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-050-074.json",
+      "before_sha256": "89a778d0c500d6be4cb4e5e09120ff2b79cb62c55a0812f3024d2a7763ac433c",
+      "after_sha256": "797b2ef0de59d0bad714a521e836164598d8c2c361b3325b40475a9d88c4691b",
+      "records_preserved": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-375-399.json",
+      "before_sha256": "1b06ae62f0609a8445a31f7ec83a70f7ee51ae29b0a809f7a598ca27c24c24f4",
+      "after_sha256": "6110f24c402711091f5bfe9803d5908bfe1baf5dd55ee43f66364c4fdc8d2111",
+      "records_preserved": 24
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-26-frozen-tail.json",
+      "before_sha256": "d366efe7d86cdf74487ed70d3797f6da46566f35cca8279d4e0b46ca191809d6",
+      "after_sha256": "f48553a74f9ec03b2fbfc10bc91f4ee7dc4d4a0bb972333ad390d58e25932ce2",
+      "records_preserved": 14
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-16-mask-mean-bounds.json",
+      "before_sha256": "5ec2673c944d952224d8bf7cc941bc4564cf531c70f97dba8949ed4dd4388e35",
+      "after_sha256": "2e5f87b8cd38fb97ff94e28c10716d911dd6fa7d48f440701b66840102756288",
+      "records_preserved": 49
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "fb8c26ddcdd3f1b50fbc0dd0592c3494f32023aad73651b1d843d8ebd511b129",
+      "after_sha256": "da1aeb3f40c813ffdc4346690aa096723905e833f3407c99906ae5b9f20d2cd7",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "78b84679b885181bbef55f2ae7cb10c3e71bb187dd9b56688704e3e547f8953d",
+      "after_sha256": "b340059a8080ade58774949e765379af1b7f020c6367d8bda51c249d1a60bf61",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "79e071e3a7e05ff221f4a36fba6e1048ea0f0accf6b2c4f1acd4ddd048ac1d70",
+      "after_sha256": "3e5b80834e5798d9e070c6baee04c1de680b5c6e9104920b1195eb0a5be5d04f",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "9583ffa94896543ce21442abf20af1aea7f603f73945e82ff079e76270f38c65",
+      "after_sha256": "3dc4a4593f42b73b7c9c63604bd1e5e5f3606e047ca0ecb4d9c05120dd463f9d",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-08-12-tail-020-039.json",
+      "before_sha256": "9dbd984a37eafe054551b4ac338193677590cd0c2accaa172ede8d9d836b66e3",
+      "after_sha256": "fdee752318b8ee9c5261ede18951f744c694d4b81efb97948224f3715e5f0881",
+      "records_preserved": 16
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "9f190af0a9f079442e739971c9c0a7a448a7227ba7e371c53fe55cf13510366a",
+      "after_sha256": "0e96c6243a99c7c31fc25c2c09b888349b224cb74c7258fc9df621f74081aa5f",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "ae350b6c7bbfd569a3d501e029588f32ebe4f299fbc75e0ce13575661f141ca6",
+      "after_sha256": "a5978214b2d6eeb2bf6de7c6604364719a7e3796cac3f73f55a91b1f6c74867d",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-08-14-current-final-108-161.json",
+      "before_sha256": "144787cdf79b8e5058a637df865cf8b4a87f6a20940224048002583799ffc451",
+      "after_sha256": "d1c6a654b16f33a8cba994b47d87ac86d7dc8bb6972d33826afeb90b788b86f5",
+      "records_preserved": 50
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "7162e166bff9358f71c972b0a4b8192864eed7124b4f5744b892ea73c0a1939d",
+      "after_sha256": "7081ca31dd670d25ef7e1af91ddeb97166a04db8ac3ca4a0f6aadc90543ea1ca",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "62a6e86c3cd17b329e85e95afb45cf55a5e0ea192c39ebd8daba7024c3d2eda9",
+      "after_sha256": "b0d9753c30213581f22b0efe58ec545022604061ee720487ae9e82a75aad5526",
+      "records_preserved": 56
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-08-14-tail-080-099.json",
+      "before_sha256": "733b096c6c0a94e81821636940146ddb2a91024b3288e019da849321fc4201cb",
+      "after_sha256": "21139633c38bbf4544ba83ceef6c8ddd5b1ad38e4e7305155419507bcfc253ce",
+      "records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-api-prose-cleanup.json",
+      "before_sha256": "18f9b03b39753c929469c70747bd76014741f41155dba72ae7b49c85ccdd20ab",
+      "after_sha256": "a9895383a83caa7b6e71683317e5a74d894b5eecd6483cbed53f5f6e451aaa07",
+      "records_preserved": 31
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "before_sha256": "df6c8c07e0af97f51160820e2de3218b9f51110b14ceb03678372db007d9a9a9",
+      "after_sha256": "3e5d8dc1345c8b897ebe5f50fe5f2f1ff45695c61d584419d246fe45d435237d",
+      "records_preserved": 56
+    }
+  ],
+  "all_nine_review_loaders_passed": true,
+  "focused_tests_passed": 17,
+  "reviewed_prose_and_hashes_unchanged": true
+}
