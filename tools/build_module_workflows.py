@@ -7,6 +7,7 @@ It never imports a pipeline entry point or opens a user's project.
 from __future__ import annotations
 
 import argparse
+import ast
 from dataclasses import asdict
 import json
 from pathlib import Path
@@ -40,6 +41,14 @@ def validate(data, root=ROOT, *, live=True):
             raise ValueError(f"{key}: missing API source {api}")
         if not module["guidance"].strip():
             raise ValueError(f"{key}: missing handoff guidance")
+        if module.get("api_entry"):
+            prefix, _, name = module["api_entry"].rpartition(".")
+            if (prefix != module["api_module"] or module["home"] is not None
+                    or module["parent"] is not None):
+                raise ValueError(f"{key}: invalid API-only route")
+            if not any(isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                       and node.name == name for node in ast.parse(api.read_text()).body):
+                raise ValueError(f"{key}: missing API entry point")
     seen = set()
     for edge in data["connections"]:
         pair = edge["from"], edge["to"]
@@ -87,18 +96,24 @@ def validate(data, root=ROOT, *, live=True):
     import spacr.qt
     spacr.qt.register_self_registering_modules()
     from spacr import ports
+    from spacr.validate import APP_FUNCTIONS
     from spacr.qt import app
     from spacr.qt.widgets.fold_strip import folded_modules
     from spacr.qt.screens.settings_model import _APP_API_MODULE
     names = {row[0]: row[1] for row in app.APPS}
     names.update({key: row[0] for key, row in folded_modules().items()})
-    if set(modules) != set(names) | set(MODES):
+    if set(modules) != set(names) | set(MODES) | set(APP_FUNCTIONS) | set(ports.PORTS):
         raise ValueError("workflow modules differ from the live registry")
     parents = {child: host for host, children in app.folded_children().items()
                for child in children}
     parents.update(MODES)
     tiles = {row[0] for row in app.tiled_apps()}
     for key, module in modules.items():
+        if key not in names and key not in MODES:
+            if not module.get("api_entry") or module["api_entry"] != APP_FUNCTIONS.get(key):
+                raise ValueError(f"{key}: API-only entry point drift")
+        elif module.get("api_entry"):
+            raise ValueError(f"{key}: live GUI route marked API-only")
         if key in names and module["name"] != names[key]:
             raise ValueError(f"{key}: display name drift")
         if module["parent"] != parents.get(key):
@@ -129,7 +144,10 @@ def module_rst(data, key):
     parts = [f".. _workflow-module-{key}:\n\n",
              _heading(module["name"], "~"), module["guidance"] + "\n\n"]
     parent = module["parent"]
-    if parent:
+    if module.get("api_entry"):
+        parts.append(f"**Use from Python:** :func:`{module['api_entry']}`. "
+                     "This API-only workflow has no Home tile or menu entry.\n\n")
+    elif parent:
         parts.append(f"**Open:** {data['modules'][parent]['name']} → {module['name']}.\n\n")
     elif module["home"]:
         parts.append(f"**Open:** Home → {module['name']}.\n\n")
@@ -179,7 +197,10 @@ def lesson_document(data, key):
     for module_key in tutorial["modules"]:
         module = data["modules"][module_key]
         parent = module["parent"]
-        if parent:
+        if module.get("api_entry"):
+            opening = (f"Use {module['name']} from Python through {module['api_entry']}. "
+                       "This API-only workflow has no Home tile or menu entry.")
+        elif parent:
             opening = f"Open {data['modules'][parent]['name']} from Home, then choose {module['name']}."
         elif module["home"]:
             opening = f"Open {module['name']} from Home."

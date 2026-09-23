@@ -11999,3 +11999,31 @@ features/data/288_organism_caption_translations_2026-09-22.json.
 remain explicitly listed in that receipt. This is not whole-page linguistic
 acceptance. Broader API/helper/reference and tutorial-media work remains.
 No installation, GPU/NAS work or native-speaker sign-off claimed.
+
+2026-09-22 — CODEX: WORKFLOW COVERAGE GAP CLAIM
+The positive assertion requested by ca34b9dde exposed endodyogeny missing
+from the map despite its declared ports. Checking APP_FUNCTIONS also found
+API-only cellpose_masks and simulation absent. Extending the shared map and
+generator to cover these three Python entry points explicitly, with no
+invented Home/menu links. endodyogeny is the host-cell area-derived size
+proxy, distinct from Replication's parasites-per-vacuole counts. This lane
+claims map/generator/generated prose and workflow tests only. Implementation
+476 engine ownership stays with Claude. Refreshing the six changed public
+API documents from the prose cleanup next; no changed runtime strings found.
+
+2026-09-22 — CODEX: API INTRODUCTION PROSE CLAIM
+The six public documents changed by ca34b9dde need current nine-language
+bindings. Tightening only the module docstrings in qt/detect_chain.py and
+qt/widgets/sample_project.py before translating: keep chain order, whole-field
+percentile semantics, Apply/Compare, cost and training/inference limits; state
+sample-map fallback as a missing-resource condition. No executable AST or
+other implementation prose changes. Both files were released by Claude.
+
+2026-09-22 — CODEX: API-ONLY WORKFLOW COVERAGE VERIFIED
+77 modules/43 artifacts/9 pathways now include all declared PORTS and
+APP_FUNCTIONS, with explicit Python entry points for the three API-only
+workflows. API includes, workflows.rst and lessons79–81 share these contracts;
+lesson79 has79scenes.24 workflow checks and42 hygiene/prose checks pass.
+The ca34b9dde assertion-free workflow test failure is resolved with positive
+port and pipeline coverage assertions. No analysis/GPU run needed. Tutorial
+translations/media/listening and broader API/runtime completion remain open.

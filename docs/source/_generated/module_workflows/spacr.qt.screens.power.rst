@@ -26,6 +26,10 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 * :ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design.
 
+**After this module**
+
+* :ref:`Pooled-screen simulation sweep <workflow-module-simulation>`: Translate planning assumptions into the simulation settings dictionary manually; Power / Design does not export a ready-to-run simulation grid.
+
 :doc:`API reference </api/spacr/qt/screens/power/index>`.
 
 `Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=68_power_design>`__.

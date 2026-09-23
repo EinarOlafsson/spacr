@@ -190,6 +190,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Database Browser <workflow-module-db_browser>`: Inspect actual tables before exporting.
 * :ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns.
 * :ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls.
+* :ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.
 
 :doc:`API reference </api/spacr/measure/index>`.
 
@@ -481,6 +482,10 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
   Relevant tables, depending on the route: ``png_list``.
   Relevant columns, depending on the route: ``png_path``, ``prcfo``.
 
+**Before this module**
+
+* :ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.
+
 **After this module**
 
 * :ref:`Measure <workflow-module-measure>`: Re-measure only when needed; External Masks can already perform measurement.
@@ -757,6 +762,10 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 * **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
 
+**Before this module**
+
+* :ref:`Pooled-screen simulation sweep <workflow-module-simulation>`: Use simulated performance to reconsider sampling and plate constraints manually; the simulation database is not an importable plate layout.
+
 **After this module**
 
 * :ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design.
@@ -816,6 +825,10 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Before this module**
 
 * :ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design.
+
+**After this module**
+
+* :ref:`Pooled-screen simulation sweep <workflow-module-simulation>`: Translate planning assumptions into the simulation settings dictionary manually; Power / Design does not export a ready-to-run simulation grid.
 
 :doc:`API reference </api/spacr/qt/screens/power/index>`.
 
@@ -1469,6 +1482,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Mask <workflow-module-mask>`: Select the saved compatible checkpoint in Mask.
+* :ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
@@ -2251,4 +2265,92 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
+
+.. _workflow-module-endodyogeny:
+
+Endodyogeny size proxy
+~~~~~~~~~~~~~~~~~~~~~~
+
+Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.
+
+**Use from Python:** :func:`spacr.submodules.analyze_endodyogeny`. This API-only workflow has no Home tile or menu entry.
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Host-cell-aggregated compartment areas** — Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.
+  Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``.
+  Relevant columns, depending on the route: ``cell_id``, ``pathogen_area``.
+
+**Outputs**
+
+* **Area-derived size-proxy results** — Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.
+  Relevant columns, depending on the route: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``.
+
+**Before this module**
+
+* :ref:`Measure <workflow-module-measure>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.
+
+:doc:`API reference </api/spacr/submodules/index>`.
+
+.. _workflow-module-cellpose_masks:
+
+Direct Cellpose mask generation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project.
+
+**Use from Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. This API-only workflow has no Home tile or menu entry.
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **TIFF fields for direct Cellpose inference** — Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.
+* **Segmentation checkpoint** — Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration.
+
+**Outputs**
+
+* **Direct Cellpose TIFF masks** — When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.
+
+**Before this module**
+
+* :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.
+
+**After this module**
+
+* :ref:`External Masks <workflow-module-external_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.
+
+:doc:`API reference </api/spacr/spacr_cellpose/index>`.
+
+.. _workflow-module-simulation:
+
+Pooled-screen simulation sweep
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded.
+
+**Use from Python:** :func:`spacr.sim.run_multiple_simulations`. This API-only workflow has no Home tile or menu entry.
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Pooled-screen simulation assumptions** — Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.
+
+**Outputs**
+
+* **Synthetic screen simulation summaries** — src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.
+  Relevant tables, depending on the route: ``simulations``.
+
+**Before this module**
+
+* :ref:`Power / Design <workflow-module-power>`: Translate planning assumptions into the simulation settings dictionary manually; Power / Design does not export a ready-to-run simulation grid.
+
+**After this module**
+
+* :ref:`Experiment Design <workflow-module-experiment_design>`: Use simulated performance to reconsider sampling and plate constraints manually; the simulation database is not an importable plate layout.
+
+:doc:`API reference </api/spacr/sim/index>`.
 

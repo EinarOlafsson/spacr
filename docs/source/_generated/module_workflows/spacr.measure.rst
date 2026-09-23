@@ -48,6 +48,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Database Browser <workflow-module-db_browser>`: Inspect actual tables before exporting.
 * :ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns.
 * :ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls.
+* :ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.
 
 :doc:`API reference </api/spacr/measure/index>`.
 

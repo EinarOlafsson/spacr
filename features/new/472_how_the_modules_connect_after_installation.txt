@@ -296,3 +296,17 @@ for the maintainer's September22 move of Live onto the preview card: OPS
 remains next to Time in Actions. New optional-preparation note translation
 and API source-binding refresh are handed to the other Codex lane.
 No analysis, GPU job, example download or NAS access was performed.
+
+2026-09-22 — CODEX: PYTHON-ONLY WORKFLOWS INCLUDED
+The map now covers77 modules,43 artifacts and all9 Home pathways. The live
+check covers APP_FUNCTIONS and declared PORTS as well as the GUI/folded
+registries. Three previously omitted Python-only workflows are explicit:
+endodyogeny (host-cell area-derived size proxy, not parasite count), direct
+Cellpose inference (not training; saved TIFF masks need project import before
+Measure) and pooled-screen simulation sweeps (synthetic planning estimates).
+Their real callable entry points replace any Home/menu instruction. The API,
+workflow reference and lessons79–81 are regenerated from the same contracts;
+lesson79 now has79 scenes. Source literals and callable definitions are
+checked without importing or running analysis pipelines.24 focused workflow
+checks pass, including drift rejection and the scientific/data boundaries.
+Tutorial translations, media and listening acceptance remain open.

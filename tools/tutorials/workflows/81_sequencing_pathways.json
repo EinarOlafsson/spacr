@@ -16,7 +16,8 @@
     "power",
     "experiment_design",
     "dose_response",
-    "run_compare"
+    "run_compare",
+    "simulation"
   ],
   "schema_version": 1,
   "source": "spacr/resources/module_workflows.json",
@@ -218,6 +219,21 @@
         "comparison"
       ],
       "guidance": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison."
+    },
+    "simulation": {
+      "name": "Pooled-screen simulation sweep",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.sim",
+      "api_entry": "spacr.sim.run_multiple_simulations",
+      "lesson": null,
+      "inputs": [
+        "simulation_settings"
+      ],
+      "outputs": [
+        "simulation_summary"
+      ],
+      "guidance": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded."
     }
   },
   "pathway_steps": {
@@ -352,6 +368,22 @@
         "regression"
       ],
       "handoff": "Compare compatible saved result sets and their settings."
+    },
+    {
+      "from": "power",
+      "to": "simulation",
+      "artifacts": [
+        "design"
+      ],
+      "handoff": "Translate planning assumptions into the simulation settings dictionary manually; Power / Design does not export a ready-to-run simulation grid."
+    },
+    {
+      "from": "simulation",
+      "to": "experiment_design",
+      "artifacts": [
+        "simulation_summary"
+      ],
+      "handoff": "Use simulated performance to reconsider sampling and plate constraints manually; the simulation database is not an importable plate layout."
     }
   ]
 }

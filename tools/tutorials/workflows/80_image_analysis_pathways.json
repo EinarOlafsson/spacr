@@ -25,7 +25,9 @@
     "invasion",
     "replication",
     "qc_dashboard",
-    "embeddings"
+    "embeddings",
+    "endodyogeny",
+    "cellpose_masks"
   ],
   "schema_version": 1,
   "source": "spacr/resources/module_workflows.json",
@@ -533,6 +535,56 @@
         "embedding_features"
       ],
       "guidance": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
+    },
+    "endodyogeny": {
+      "name": "Endodyogeny size proxy",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.submodules",
+      "api_entry": "spacr.submodules.analyze_endodyogeny",
+      "lesson": null,
+      "inputs": [
+        "endodyogeny_input"
+      ],
+      "outputs": [
+        "size_proxy"
+      ],
+      "guidance": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "declared_ports": {
+        "key": "endodyogeny",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the measurements this analysis reads"
+          }
+        ],
+        "produces": [],
+        "summary": "reads the measurements database"
+      }
+    },
+    "cellpose_masks": {
+      "name": "Direct Cellpose mask generation",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.spacr_cellpose",
+      "api_entry": "spacr.spacr_cellpose.identify_masks_finetune",
+      "lesson": null,
+      "inputs": [
+        "cellpose_tiffs",
+        "segmentation_model"
+      ],
+      "outputs": [
+        "cellpose_tiff_masks"
+      ],
+      "guidance": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project."
     }
   },
   "pathway_steps": {
@@ -875,6 +927,14 @@
         "masks"
       ],
       "handoff": "Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+    },
+    {
+      "from": "measure",
+      "to": "endodyogeny",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
     }
   ]
 }

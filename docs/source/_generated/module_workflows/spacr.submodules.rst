@@ -133,8 +133,35 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Mask <workflow-module-mask>`: Select the saved compatible checkpoint in Mask.
+* :ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
 `Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=19_train_cellpose>`__.
+
+Endodyogeny size proxy
+~~~~~~~~~~~~~~~~~~~~~~
+
+Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.
+
+**Use from Python:** :func:`spacr.submodules.analyze_endodyogeny`. This API-only workflow has no Home tile or menu entry.
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Host-cell-aggregated compartment areas** — Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.
+  Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``.
+  Relevant columns, depending on the route: ``cell_id``, ``pathogen_area``.
+
+**Outputs**
+
+* **Area-derived size-proxy results** — Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.
+  Relevant columns, depending on the route: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``.
+
+**Before this module**
+
+* :ref:`Measure <workflow-module-measure>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.
+
+:doc:`API reference </api/spacr/submodules/index>`.
 

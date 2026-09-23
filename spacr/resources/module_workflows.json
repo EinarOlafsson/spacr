@@ -1667,6 +1667,71 @@
         "organism_navigation"
       ],
       "guidance": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+    },
+    "endodyogeny": {
+      "name": "Endodyogeny size proxy",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.submodules",
+      "api_entry": "spacr.submodules.analyze_endodyogeny",
+      "lesson": null,
+      "inputs": [
+        "endodyogeny_input"
+      ],
+      "outputs": [
+        "size_proxy"
+      ],
+      "guidance": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "declared_ports": {
+        "key": "endodyogeny",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the measurements this analysis reads"
+          }
+        ],
+        "produces": [],
+        "summary": "reads the measurements database"
+      }
+    },
+    "cellpose_masks": {
+      "name": "Direct Cellpose mask generation",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.spacr_cellpose",
+      "api_entry": "spacr.spacr_cellpose.identify_masks_finetune",
+      "lesson": null,
+      "inputs": [
+        "cellpose_tiffs",
+        "segmentation_model"
+      ],
+      "outputs": [
+        "cellpose_tiff_masks"
+      ],
+      "guidance": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project."
+    },
+    "simulation": {
+      "name": "Pooled-screen simulation sweep",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.sim",
+      "api_entry": "spacr.sim.run_multiple_simulations",
+      "lesson": null,
+      "inputs": [
+        "simulation_settings"
+      ],
+      "outputs": [
+        "simulation_summary"
+      ],
+      "guidance": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded."
     }
   },
   "artifacts": {
@@ -1924,6 +1989,58 @@
       "title": "Organism guide and assay selection",
       "location": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
       "tables": [],
+      "columns": []
+    },
+    "size_proxy": {
+      "title": "Area-derived size-proxy results",
+      "location": "Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.",
+      "tables": [],
+      "columns": [
+        "pathogen_area",
+        "pathogen_volume",
+        "pathogen_volume_bin",
+        "bin_index"
+      ]
+    },
+    "endodyogeny_input": {
+      "title": "Host-cell-aggregated compartment areas",
+      "location": "Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.",
+      "tables": [
+        "cell",
+        "nucleus",
+        "pathogen",
+        "cytoplasm",
+        "png_list"
+      ],
+      "columns": [
+        "cell_id",
+        "pathogen_area"
+      ]
+    },
+    "cellpose_tiffs": {
+      "title": "TIFF fields for direct Cellpose inference",
+      "location": "Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.",
+      "tables": [],
+      "columns": []
+    },
+    "cellpose_tiff_masks": {
+      "title": "Direct Cellpose TIFF masks",
+      "location": "When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.",
+      "tables": [],
+      "columns": []
+    },
+    "simulation_settings": {
+      "title": "Pooled-screen simulation assumptions",
+      "location": "Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.",
+      "tables": [],
+      "columns": []
+    },
+    "simulation_summary": {
+      "title": "Synthetic screen simulation summaries",
+      "location": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
+      "tables": [
+        "simulations"
+      ],
       "columns": []
     }
   },
@@ -2325,7 +2442,10 @@
         "parameter_sweep",
         "toxoplasma",
         "plasmodium",
-        "candida"
+        "candida",
+        "endodyogeny",
+        "cellpose_masks",
+        "simulation"
       ]
     },
     "80_image_analysis_pathways": {
@@ -2355,7 +2475,9 @@
         "invasion",
         "replication",
         "qc_dashboard",
-        "embeddings"
+        "embeddings",
+        "endodyogeny",
+        "cellpose_masks"
       ]
     },
     "81_sequencing_pathways": {
@@ -2376,7 +2498,8 @@
         "power",
         "experiment_design",
         "dose_response",
-        "run_compare"
+        "run_compare",
+        "simulation"
       ]
     }
   },
@@ -2407,6 +2530,34 @@
         "ops_objects",
         "ops_barcodes",
         "ops_reads"
+      ]
+    },
+    {
+      "path": "spacr/submodules.py",
+      "literals": [
+        "def analyze_endodyogeny(settings):",
+        "os.path.join(s, 'measurements/measurements.db')",
+        "df[volume_column] = df[area_column] ** 1.5",
+        "'results', 'analyze_endodyogeny'",
+        "'chi_squared_pairwise_results.csv'"
+      ]
+    },
+    {
+      "path": "spacr/spacr_cellpose.py",
+      "literals": [
+        "def identify_masks_finetune(settings):",
+        "f.endswith('.tif')",
+        "dst = os.path.join(settings['src'], 'masks')",
+        "write_tiff(output_filename, mask)"
+      ]
+    },
+    {
+      "path": "spacr/sim.py",
+      "literals": [
+        "def run_multiple_simulations(settings):",
+        "src = os.path.join(f'{src}/{date_string}',settings['name'])",
+        "sqlite3.connect(f'{src}/simulations.db', timeout=3600)",
+        "append_database(src, df_concat, 'simulations')"
       ]
     }
   ],
@@ -2808,6 +2959,46 @@
         "measurements"
       ],
       "handoff": "Join the measured response to explicit doses and controls."
+    },
+    {
+      "from": "measure",
+      "to": "endodyogeny",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+    },
+    {
+      "from": "train_cellpose",
+      "to": "cellpose_masks",
+      "artifacts": [
+        "segmentation_model"
+      ],
+      "handoff": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+    },
+    {
+      "from": "cellpose_masks",
+      "to": "external_masks",
+      "artifacts": [
+        "cellpose_tiff_masks"
+      ],
+      "handoff": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+    },
+    {
+      "from": "power",
+      "to": "simulation",
+      "artifacts": [
+        "design"
+      ],
+      "handoff": "Translate planning assumptions into the simulation settings dictionary manually; Power / Design does not export a ready-to-run simulation grid."
+    },
+    {
+      "from": "simulation",
+      "to": "experiment_design",
+      "artifacts": [
+        "simulation_summary"
+      ],
+      "handoff": "Use simulated performance to reconsider sampling and plate constraints manually; the simulation database is not an importable plate layout."
     }
   ]
 }

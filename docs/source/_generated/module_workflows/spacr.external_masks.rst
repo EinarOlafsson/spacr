@@ -25,6 +25,10 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
   Relevant tables, depending on the route: ``png_list``.
   Relevant columns, depending on the route: ``png_path``, ``prcfo``.
 
+**Before this module**
+
+* :ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.
+
 **After this module**
 
 * :ref:`Measure <workflow-module-measure>`: Re-measure only when needed; External Masks can already perform measurement.
