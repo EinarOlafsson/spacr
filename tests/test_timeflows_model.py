@@ -77,6 +77,70 @@ def test_sampling_weights_favour_the_rare_large_moves():
     assert np.isclose(weights[-1], weights[:-1].sum())
 
 
+def _independent_pairs(mixed_sizes):
+    """Six small moves and one large move, with unrelated starting positions."""
+    pairs = []
+    for index, step in enumerate([1, 1, 1, 1, 1, 1, 14]):
+        shape = (80, 96) if mixed_sizes and index % 2 else (64, 64)
+        labels = np.zeros((2,) + shape, np.int32)
+        x = 10 if index % 2 else 35
+        for frame in (0, 1):
+            _disc(shape, 24, x + frame * step, 5, 1, labels[frame])
+        pairs.append(tm._Pair((labels[0] > 0).astype(np.float32),
+                              (labels[1] > 0).astype(np.float32),
+                              labels[0], labels[1]))
+    return pairs
+
+
+@pytest.mark.parametrize("mixed_sizes", [False, True])
+def test_pair_weights_follow_real_endpoints_across_movie_boundaries(mixed_sizes):
+    pairs = _independent_pairs(mixed_sizes)
+    weights = tm._training_pair_sampling_weights(pairs)
+    np.testing.assert_allclose(weights, [1 / 12] * 6 + [1 / 2])
+    order = np.array([6, 2, 0, 4, 1, 5, 3])
+    reordered = tm._training_pair_sampling_weights([pairs[index] for index in order])
+    np.testing.assert_allclose(reordered, weights[order])
+
+
+def test_independent_and_contiguous_sampling_agree_for_one_complete_movie():
+    images, labels = _movie(frames=4, step=6)
+    pairs = [tm._Pair(images[t], images[t + 1], labels[t], labels[t + 1])
+             for t in range(3)]
+    np.testing.assert_allclose(tm._training_pair_sampling_weights(pairs),
+                               tm.pair_sampling_weights(labels))
+    assert tm._training_pair_sampling_weights([]).shape == (0,)
+
+
+@pytest.mark.parametrize("mixed_sizes", [False, True])
+def test_cli_trains_with_pair_weights_and_records_them(tmp_path, monkeypatch, mixed_sizes):
+    import json
+    import sys
+    import types
+
+    pairs = _independent_pairs(mixed_sizes)
+    monkeypatch.setattr(tm, "ctc_pairs", lambda movie, sequence, max_pairs: pairs if sequence == "01" else [])
+    monkeypatch.setitem(sys.modules, "cellpose", types.SimpleNamespace(
+        models=types.SimpleNamespace(CellposeModel=lambda **kwargs: types.SimpleNamespace(net=None))))
+    monkeypatch.setattr(tm, "CellposeSamFeatures", lambda net: None)
+    monkeypatch.setattr(tm, "TimeflowsNet", lambda net: types.SimpleNamespace(state_dict=lambda: {}))
+    seen = {}
+
+    def train(net, actual_pairs, **kwargs):
+        assert actual_pairs == pairs
+        seen.update(kwargs)
+        return [0.1]
+
+    monkeypatch.setattr(tm, "train_timeflows", train)
+    target = tmp_path / "model.pt"
+    assert tm.main(["--movies", "ctc-example", "--out", str(target), "--device", "cpu"]) == 0
+    expected = [1 / 12] * 6 + [1 / 2]
+    np.testing.assert_allclose(seen["weights"], expected)
+    record = json.loads(target.with_suffix(".pt.json").read_text())
+    assert record["sampling"]["strategy"] == "inverse_frequency_displacement_bins"
+    assert record["sampling"]["bins"] == 5
+    np.testing.assert_allclose(record["sampling"]["weights"], expected)
+
+
 def test_ctc_markers_relabel_the_silver_masks():
     seg = np.zeros((20, 20), np.int32)
     seg[2:8, 2:8] = 5

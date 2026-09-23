@@ -1,0 +1,384 @@
+{
+  "scope": "Motion-sampling validation on up to three evenly selected actual pairs per sequence from the six v1 training movies; no model training or evaluation.",
+  "source_provenance": "/mnt/wd4tb/af3/projects/live_cell/timeflows/timeflows_v1.pt.json",
+  "source_provenance_sha256": "7567329a3c22cfbddec7fab255504280241c0247b21b0cde502bcc1f57461b47",
+  "seconds": 4.66901612401125,
+  "pairs": 36,
+  "shapes": [
+    [
+      576,
+      720
+    ],
+    [
+      700,
+      1100
+    ],
+    [
+      782,
+      1200
+    ],
+    [
+      832,
+      992
+    ],
+    [
+      1010,
+      1010
+    ],
+    [
+      1024,
+      1024
+    ],
+    [
+      1036,
+      1070
+    ]
+  ],
+  "old_cli_weights": null,
+  "old_cli_effect": "Uniform sampling because training movies have mixed shapes.",
+  "new_weights": [
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.04999999999999998,
+    0.02857142857142856,
+    0.04999999999999998,
+    0.009090909090909089,
+    0.02857142857142856,
+    0.09999999999999996,
+    0.009090909090909089,
+    0.04999999999999998,
+    0.02857142857142856,
+    0.09999999999999996,
+    0.02857142857142856,
+    0.19999999999999993,
+    0.04999999999999998,
+    0.02857142857142856,
+    0.02857142857142856,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.009090909090909089,
+    0.02857142857142856,
+    0.009090909090909089,
+    0.009090909090909089
+  ],
+  "min_weight": 0.009090909090909089,
+  "max_weight": 0.19999999999999993,
+  "max_min_ratio": 21.999999999999996,
+  "groups": [
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "01",
+      "pairs": 3,
+      "frame_shape": [
+        576,
+        720
+      ],
+      "before_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "after_within_sequence": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "pair_array_sha256": [
+        "7db25c81bf69d87158b975714e3da3534b9f602ea2dcdfa14fa21b812be48ffe",
+        "40b0a8d01f2fdd8665c3401d0f294850f856df3692da71463c7128c78efc68b7",
+        "d19021ca3f5daf0ac2cec4c7e9d29953bd7898a91c3f861a5f5f580739101477"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "sequence": "02",
+      "pairs": 3,
+      "frame_shape": [
+        576,
+        720
+      ],
+      "before_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "after_within_sequence": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "pair_array_sha256": [
+        "86db241709bc48d43281b831f6c53489e060d9b3c6084ae432d8165b368622c9",
+        "49398ec54b8e3b067e0e913ce58a5bb6a4d33aec1722474832e669ae3ba78caf",
+        "55b21ed92ae37a79ece6051bae04193cd589d62cb40f9f3e78544fc5909243a1"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "01",
+      "pairs": 3,
+      "frame_shape": [
+        832,
+        992
+      ],
+      "before_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "00ef272f4e41e66e207f0b437d30995d48ed994aedd9413b641875f44c91d8ac",
+        "6c0f1fcd7501ad61cc5cc49e525855ff6f12545f3de6e9224632117b76c80cf3",
+        "1f46aa397ebb5144b0f6542c3307326cabc3adcef8385f01b4e5f5d8ecbe5526"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "sequence": "02",
+      "pairs": 3,
+      "frame_shape": [
+        782,
+        1200
+      ],
+      "before_within_sequence": [
+        0.25,
+        0.5,
+        0.25
+      ],
+      "after_within_sequence": [
+        0.25,
+        0.5,
+        0.25
+      ],
+      "pair_array_sha256": [
+        "5f81c192db775bb3ed3100215d16cdba0104dfe94798bd6cf092c474215f4833",
+        "78e8cba7ac03844dd9b5b8872ea2b890a5e016071309a2471f585a4b55cdcd5c",
+        "0d24b33e1fa9ddd843b28c5effa6c3a43a3df106dc1055c72b3bc1757fcfee3c"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "01",
+      "pairs": 3,
+      "frame_shape": [
+        1036,
+        1070
+      ],
+      "before_within_sequence": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "058cde471cd4923400da6cbf10cf2d03486c87640823ea97469712116f6dd3e7",
+        "f542a877db7d08eadfb96372bca9590860c666776a815071a43bb41b323eeac8",
+        "a571cb3c3489e4e0852fc026432755c0a116f031f1351ac3a4e819a2d867688e"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "sequence": "02",
+      "pairs": 3,
+      "frame_shape": [
+        1036,
+        1070
+      ],
+      "before_within_sequence": [
+        0.25,
+        0.25,
+        0.5
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "a00a883b1936278833f336c280d2f7cb5ebd9249390c1e5b3488ea2a063f53a9",
+        "830914084b0fc99ae0d91962731f87832d0e27fd70b501206c06d3206aa6d16f",
+        "8ad56bee09698122f94a1644459b2953cc2c46bbf8377971cbacc1dc8a91a78f"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "01",
+      "pairs": 3,
+      "frame_shape": [
+        1010,
+        1010
+      ],
+      "before_within_sequence": [
+        0.25,
+        0.25,
+        0.5
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "2dd23a7bc689116ac26607775d094ddc89561ded580c1c727627f0e937ebfd6e",
+        "7994a81b99ca614ea16980ae890af7baf495c97b10e797f9fdeb145890fc403a",
+        "952aad38fcb0cd074f006f79b2cf06b2b3c0fad52db025b4ae49d13d4009dc9c"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "sequence": "02",
+      "pairs": 3,
+      "frame_shape": [
+        1010,
+        1010
+      ],
+      "before_within_sequence": [
+        0.25,
+        0.25,
+        0.5
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "f869e49fe188a32f47e6ef9afc90ab58f4bae0dbe82ea4fbdf5e960df4a66129",
+        "acbea4654b6a2adc6a69f7594571a2eb1ebb5d35e7ad1fe46f8af8b0aac350e8",
+        "d090112aea89c4411820dca3ab7508c05c85152e67c6ffb52b5f1d78b09e184a"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "01",
+      "pairs": 3,
+      "frame_shape": [
+        1024,
+        1024
+      ],
+      "before_within_sequence": [
+        0.25,
+        0.25,
+        0.5
+      ],
+      "after_within_sequence": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "pair_array_sha256": [
+        "4143115f8d48bf75ad8921c29c2e514461cd8bfea06fb36b0190085554705aa6",
+        "e4bc45170a403fed032646cb4570ae57697e1e91068e226e276789965f351da9",
+        "dfcdba7337cb4f253c55e0c42d43bd28d455253f0708c053d9514d243d21a4e6"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "sequence": "02",
+      "pairs": 3,
+      "frame_shape": [
+        1024,
+        1024
+      ],
+      "before_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "7ec120c3f7c1447f97b5d0ecca4da2c4847a6a68554fc40c3f4fb5d4590af048",
+        "f7de2785ebf80e33311005df2a2ddd873c8a312237c5994db1e25469f1924bfb",
+        "9ed12e15ed75a7abf910f928363e6421634cf226445e54ae7dbd9923cc765da0"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "01",
+      "pairs": 3,
+      "frame_shape": [
+        700,
+        1100
+      ],
+      "before_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "after_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "pair_array_sha256": [
+        "d73d5db460f2805243b67510ff92b6040444ff79285528fdd9f062597cf21e3a",
+        "598cbb190dbd0bb487de02e200d8ac43a8f78d5df7c6648e3bc5dcece340debe",
+        "ef99dd0f6f7d40b0966e0daef000d32489ae5b43839dc22e211fa29c583d7f8d"
+      ]
+    },
+    {
+      "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa",
+      "sequence": "02",
+      "pairs": 3,
+      "frame_shape": [
+        700,
+        1100
+      ],
+      "before_within_sequence": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "after_within_sequence": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "pair_array_sha256": [
+        "81b920ee5cf4b112be9fc697f1ab4938bf54b03f788c8cdf406f4db5e40c4031",
+        "202170bb25e94caeb5038b0c19a1737de23b556a7cffbc6cf50d62e9f5981ba9",
+        "62010a03b6711498ea2625ebef064e67d2759341f7953377cdd9c6703becce42"
+      ]
+    }
+  ],
+  "checkpoint_modified": false,
+  "training_started": false,
+  "feature": 426,
+  "base_commit": "162326509",
+  "changed_behavior": "Compute motion bins from each independent pair, including mixed image sizes; record weights in training provenance.",
+  "tests": "15 focused Timeflows model tests pass, including real CLI argument flow with isolated model/training stand-ins.",
+  "memory_max_gib": 6,
+  "swap_max_bytes": 0,
+  "code_sha256": "232efe692314d6851a999f0ca89da99c863fad378bf60e2877335e892ba3f578",
+  "limitations": [
+    "A bounded 36-pair sample checks sampling behavior, not the entire 694-pair training collection.",
+    "No checkpoint trained or modified; v1 has no sampling weights in its metadata.",
+    "No model accuracy, improved tracking or model promotion claim."
+  ]
+}

@@ -262,6 +262,11 @@ def pair_sampling_weights(label_stack: np.ndarray, bins: int = 5) -> np.ndarray:
                  for k, v in previous.items() if k in current]
         motion.append(float(np.median(moves)) if moves else 0.0)
         previous = current
+    return _motion_sampling_weights(motion, bins)
+
+
+def _motion_sampling_weights(motion: Sequence[float], bins: int) -> np.ndarray:
+    """Balance observed pair displacements across equal-width motion bins."""
     motion = np.asarray(motion, float)
     if not motion.size:
         return motion
@@ -416,6 +421,25 @@ class _Pair:
     frame_t1: np.ndarray
     labels_t: np.ndarray
     labels_t1: np.ndarray
+
+
+def _training_pair_sampling_weights(pairs: Sequence[_Pair], bins: int = 5
+                                    ) -> np.ndarray:
+    """Measure each pair's own endpoints, including mixed-size movies.
+
+    Pairs may be spaced through a sequence or come from different movies
+    whose track IDs overlap. Joining their first frames into a stack would
+    measure unrelated motion across those boundaries and omit most second
+    frames. Reading each pair independently also avoids a full-stack copy.
+    """
+    motion = []
+    for pair in pairs:
+        here = object_centroids(pair.labels_t)
+        there = object_centroids(pair.labels_t1)
+        moves = [math.hypot(there[k][0] - v[0], there[k][1] - v[1]) / max(v[2], 1.0)
+                 for k, v in here.items() if k in there]
+        motion.append(float(np.median(moves)) if moves else 0.0)
+    return _motion_sampling_weights(motion, bins)
 
 
 def _to_input(frame: np.ndarray):
@@ -734,12 +758,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                   flush=True)
     if not pairs:
         raise SystemExit("no usable pairs: each movie needs NN/, NN_ST/SEG and NN_GT/TRA")
-    weights = pair_sampling_weights(np.stack([p.labels_t for p in pairs]
-                                             + [pairs[-1].labels_t1])) \
-        if len({p.labels_t.shape for p in pairs}) == 1 else None
-    if weights is not None:
-        weights = weights[:len(pairs)]
-        weights = weights / weights.sum()
+    weights = _training_pair_sampling_weights(pairs)
     base = models.CellposeModel(pretrained_model=args.base,
                                 gpu=args.device.startswith("cuda"))
     net = TimeflowsNet(CellposeSamFeatures(base.net))
@@ -751,6 +770,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
                    "max_pairs_per_sequence": args.max_pairs,
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
+                   "sampling": {"strategy": "inverse_frequency_displacement_bins",
+                                "bins": 5, "weights": weights.tolist()},
                    "final_loss": losses[-1] if losses else None}, handle, indent=2)
     print(f"saved {args.out} ({len(pairs)} pairs, final loss {losses[-1]:.4f})")
     return 0
