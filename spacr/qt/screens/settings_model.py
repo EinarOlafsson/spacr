@@ -244,6 +244,9 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         return set_analyze_invasion_defaults(settings={})
     if app_key == "replication":
         return set_analyze_replication_defaults(settings={})
+    if app_key == 'host_pathogen':
+        from spacr.host_pathogen import default_settings
+        return default_settings()
     if app_key == "analyze_plaques":
         return get_analyze_plaque_settings(settings={})
     if app_key in ("annotate", "make_masks"):
@@ -1515,6 +1518,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Assay Output", ("cmap", "save")),
         ("Runtime & Reliability", ("verbose",)),
+    ),
+    'host_pathogen': (
+        ('Assay Inputs', ('src', 'hp_vacuole_table', 'hp_vacuole_prefix')),
+        ('Marker Recruitment', ('hp_reference_table', 'hp_reference_prefix',
+                                'hp_marker_channels', 'hp_marker_thresholds')),
+        ('Parasite Counts', ('hp_parasite_table', 'hp_parasite_parent', 'hp_count_column')),
+        ('Assay Output', ('save',)),
     ),
 }
 
@@ -3398,6 +3408,7 @@ def _has_a_flow_section(key: str) -> bool:
     return key in SETTINGS_WITH_A_FLOW_SECTION
 
 _APP_API_MODULE = {
+    'host_pathogen': 'host_pathogen',
     "cell_montage": "cell_montage",
     "feature_dict": "feature_dict",
     "barcode_qc": "sequencing_qc",

@@ -6482,3 +6482,22 @@ def _set_organelle_defaults(settings):
 
 from . import illumination as _illumination  # noqa: E402,F401
 from . import ops_settings as _ops_settings  # noqa: E402,F401
+
+expected_types.update({
+    'hp_vacuole_table': str, 'hp_vacuole_prefix': str,
+    'hp_reference_table': str, 'hp_reference_prefix': str,
+    'hp_marker_channels': list, 'hp_marker_thresholds': dict,
+    'hp_parasite_table': str, 'hp_parasite_parent': str, 'hp_count_column': str,
+})
+tooltips.update({
+    'hp_vacuole_table': '(str) - Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.',
+    'hp_vacuole_prefix': '(str) - Prefix of the vacuole intensity columns, for example pathogen_channel_0_mean_intensity. Default pathogen. API: spacr.host_pathogen.summarize_tables.',
+    'hp_reference_table': '(str) - Per-host reference compartment table; object_label must identify the host cell. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.',
+    'hp_reference_prefix': '(str) - Prefix of reference-channel mean intensities. Missing or nonpositive reference values yield unknown ratios, never infinity or negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.',
+    'hp_marker_channels': '(list) - Zero-based intensity channels whose vacuole-to-host-reference ratios are reported. Default [0]. API: spacr.host_pathogen.summarize_tables.',
+    'hp_marker_thresholds': '(dict) - Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.',
+    'hp_parasite_table': '(str) - Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.',
+    'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
+    'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
+})
+categories['Host–Pathogen Analysis'] = [key for key in expected_types if key.startswith('hp_')]

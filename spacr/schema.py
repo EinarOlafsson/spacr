@@ -2019,7 +2019,7 @@ class ObjectTableSchema:
         return (
             f'{self.object_type}_{self.object_type}',
             f'{self.object_type}_cell_id',
-        )
+        ) + (('pathogen_id',) if self.object_type in ORGANELLE_ROLES else ())
 
     @property
     def optional_columns(self) -> Tuple[str, ...]:

@@ -58,6 +58,7 @@
     "trellis",
     "analyze_plaques",
     "recruitment",
+    "host_pathogen",
     "invasion",
     "replication",
     "train_cellpose",
@@ -1071,6 +1072,39 @@
         "produces": [],
         "summary": "reads the measurements database"
       }
+    },
+    "host_pathogen": {
+      "name": "Host–Pathogen Analysis",
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
+      "api_module": "spacr.host_pathogen",
+      "lesson": null,
+      "inputs": [
+        "measurements"
+      ],
+      "outputs": [
+        "assay_results"
+      ],
+      "declared_ports": {
+        "key": "host_pathogen",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the measurements this analysis reads"
+          }
+        ],
+        "produces": [],
+        "summary": "reads the measurements database"
+      },
+      "guidance": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
     },
     "invasion": {
       "name": "Invasion Assay",
@@ -2096,6 +2130,13 @@
           ]
         },
         {
+          "module": "host_pathogen",
+          "after": [
+            "measure"
+          ],
+          "action": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+        },
+        {
           "module": "invasion",
           "action": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
           "after": [
@@ -2889,6 +2930,14 @@
         "labels"
       ],
       "handoff": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+    },
+    {
+      "from": "measure",
+      "to": "host_pathogen",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
     }
   ]
 }

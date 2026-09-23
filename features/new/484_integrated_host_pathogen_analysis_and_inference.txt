@@ -1,6 +1,7 @@
 484 — INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
 ===================================================
-Status: IN PROGRESS. User request, 2026-09-23. Runtime implementation lane.
+Status: IMPLEMENTED, 2026-09-23. Optional assay bundles explicitly skipped.
+The user-owned whole-vacuole classifier remains labelled coming soon.
 
 Requested work, in implementation order:
 1. Fix recruitment auxiliary ratios so every output retains its channel;
@@ -85,3 +86,23 @@ The forthcoming whole-vacuole deep-learning classifier is labelled coming soon
 and refuses execution before data access. No predictions or weights invented.
 Both available paths return replication_method. Existing direct-count tests,
 route preservation and unavailable-method no-I/O checks pass.
+
+2026-09-23 — PART4 COMPLETE: UNIFIED HOST–PATHOGEN ANALYSIS
+New alpha Toxoplasma submodule and spacr-run host_pathogen entry join host,
+vacuole, reference and optional parasite tables by source/plate/well/field/time
+and object identity. Outputs preserve uninfected measured hosts, per-vacuole
+channel ratios/joint marker states, explicit parasite counts, infection rates,
+replication distributions and orphan objects. Missing counts or invalid
+references stay unknown; no fabricated zero measurements or calibrated model.
+Measure must use uninfected=True to retain the full host denominator. Native
+Measure now stores optional pathogen_id and role-prefixed overlap fraction
+for organelle objects; majority overlap is required, ambiguous parents stay NULL.
+Existing Recruitment remains available; legacy feature parity is not asserted.
+Validation: 40 focused analysis, Qt-registration and workflow-contract checks
+passed, plus an actual Measure-to-SQLite parent-link persistence regression.
+A real two-source database test verifies separate identities, output CSVs and
+exact settings. No biological benchmark or GPU inference is claimed.
+
+PART6 SKIPPED AS AUTHORIZED: current model catalogue has weights and per-model
+settings but no validated recruitment-assay bundle with staining/threshold
+metadata. Creating and calibrating such a bundle is not a simple wiring change.

@@ -50,6 +50,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns.
 * :ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls.
 * :ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.
+* :ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.
 
 :doc:`API reference </api/spacr/measure/index>`.
 

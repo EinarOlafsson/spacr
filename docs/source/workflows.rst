@@ -92,6 +92,7 @@ Choose the assay that matches the experiment. Recruitment, invasion and replicat
 #. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure and collect the compartment or staining measurements needed by your assay.
 #. :ref:`Recruitment <workflow-module-recruitment>`: For a recruitment question, open Recruitment and inspect compartment intensity ratios.
+#. :ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.
 #. :ref:`Invasion Assay <workflow-module-invasion>`: Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.
 #. :ref:`Replication Assay <workflow-module-replication>`: Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.
 #. :ref:`Plaque Assay <workflow-module-analyze_plaques>`: For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.
@@ -285,6 +286,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns.
 * :ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls.
 * :ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.
+* :ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.
 
 :doc:`API reference </api/spacr/measure/index>`.
 
@@ -2445,4 +2447,31 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
   Relevant tables, depending on the route: ``simulations``.
 
 :doc:`API reference </api/spacr/sim/index>`.
+
+.. _workflow-module-host_pathogen:
+
+Host–Pathogen Analysis
+~~~~~~~~~~~~~~~~~~~~~~
+
+Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.
+
+**Open:** Toxoplasma → Host–Pathogen Analysis.
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.
+  Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``.
+  Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``.
+
+**Outputs**
+
+* **Assay results** — Assay-specific result tables and figures in the configured destination, preserving well and condition identities.
+
+**Before this module**
+
+* :ref:`Measure <workflow-module-measure>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.
+
+:doc:`API reference </api/spacr/host_pathogen/index>`.
 

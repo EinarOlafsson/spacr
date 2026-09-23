@@ -13925,3 +13925,54 @@ count behavior is preserved. Timelapse now places inherited pre-Mask Image
 Quality settings in a named category, matching Mask. New Host–Pathogen code
 is in progress with separate vacuole/host denominators and unknown measurements;
 no claim that it already replaces all Recruitment functionality.
+
+2026-09-23 — IMPLEMENTATION HANDOFF:484 UNIFIED HOST–PATHOGEN MODULE
+New alpha Host–Pathogen Analysis under Toxoplasma, alongside Recruitment;
+headless spacr-run host_pathogen, entry spacr.host_pathogen.analyze_host_pathogen.
+Settings/defaults are in that module; hp_* types/tooltips/categories registered.
+Inputs: cell table including uninfected hosts, one-object-per-vacuole table
+(default pathogen), reference table (default cytoplasm), marker channels and
+per-channel ratio thresholds. Optional parasite table with explicit parent IDs
+or a supplied count column. Never both. No automatic threshold calibration or
+trained recruitment/whole-vacuole classifier is implied. Unspecified counts
+remain missing. Do not use individual-parasite masks as the vacuole table.
+Outputs results/host_pathogen: vacuoles.csv, cells.csv, wells.csv,
+marker_states.csv, replication_distribution.csv, orphan_parasites.csv and exact
+settings.json. Database path separates sources; plate/row/column/field/time
+identities and individual host/vacuole IDs remain distinct. Unlinked vacuoles
+and invalid/zero host reference intensities yield unknown marker states.
+Joint marker fractions include unknown vacuoles; count fractions use only
+vacuoles with counts. Infection fractions refer to retained measured host cells:
+Measure must retain uninfected cells (uninfected=True) for the intended full
+host denominator; previously discarded cells cannot be recovered here.
+Measure additionally records pathogen_id/pathogen_overlap_fraction on organelle
+objects. A parent must cover strictly more than half of the child; ambiguous
+or outside links remain NULL. Select the appropriate parasite/object table
+only when that mask class represents individual parasites. Existing Recruitment
+remains available; no claim of complete legacy feature parity.
+Updated module_workflows.json and regenerated English workflow API/lesson
+contracts in this checkout to keep runtime map validation consistent. Please
+refresh source-bound APIs, new GUI strings and affected translated lesson
+reviews. No translated catalogs, media or other checkout files were edited.
+Catalogue review found model weights and per-model settings, but no validated
+recruitment-assay bundle with staining/threshold metadata. Skipping that optional
+extension as the user allowed; assembling/calibrating one is not a simple wire-up.
+
+484 follow-up: the persisted overlap feature is role-prefixed, e.g.
+organelle_pathogen_overlap_fraction, while pathogen_id is optional identifier
+metadata on every organelle role. Actual Measure-to-SQLite persistence passes.
+The helper's returned frame uses the generic pathogen_overlap_fraction name.
+40 focused analysis/registration/workflow-contract checks passed; expanded
+schema and zoom regressions are running separately. 484 is moved to new, with
+optional bundles explicitly skipped and the user-owned classifier unavailable.
+
+2026-09-23 — GITHUB ISSUE OWNERSHIP
+User explicitly asks to read all issues, fix them, comment and close after
+verification. Implementation lane is auditing all 103 issues and discussions
+(9 open at start). I will own runtime fixes and issue updates, starting #133,
+#125/#126/#128 and #127. #130 overlaps your onboarding/API/tutorial work; please
+record remaining work and release availability here so its closure is accurate.
+Do not assume #130 is resolved solely because the nightly workflow map exists.
+#131 depends on institutional signing credentials; the ticket was submitted.
+Final scoped verification: 751 tests passed across Host–Pathogen analysis,
+object-table schema, real Qt settings registration and pointer-anchored zoom.

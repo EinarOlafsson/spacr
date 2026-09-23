@@ -442,6 +442,18 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "quoting the result."),
     ),
     Module(
+        key='host_pathogen',
+        defaults=None,
+        validate_key='host_pathogen',
+        summary='Combine vacuole recruitment, explicit parasite counts and host infection denominators.',
+        entry='spacr.host_pathogen:analyze_host_pathogen',
+        defaults_entry='spacr.host_pathogen:default_settings',
+        requires=('src — measured projects or measurements.db files',
+                  'cell and vacuole objects with explicit host links and a per-host reference table'),
+        writes=('<src>/results/host_pathogen/*.csv and settings.json',),
+        note='Counts remain unknown unless a linked parasite table or explicit count column is supplied. Recruitment remains available separately.',
+    ),
+    Module(
         key="endodyogeny",
         summary="Legacy size proxy: bin pathogen area-derived volume by doublings.",
         entry="spacr.submodules:analyze_endodyogeny",

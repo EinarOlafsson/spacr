@@ -25,7 +25,7 @@ from ..widgets.organism_diagram import OrganismDiagram
 
 _IMAGES = Path(__file__).resolve().parents[2] / "resources" / "images"
 APP_KEY = "toxoplasma"
-FOLDED_APPS = ("analyze_plaques", "recruitment", "invasion", "replication")
+FOLDED_APPS = ("analyze_plaques", "recruitment", "invasion", "replication", 'host_pathogen')
 
 
 class OrganismScreen(QWidget):

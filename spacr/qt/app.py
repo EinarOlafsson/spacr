@@ -785,7 +785,7 @@ SECTIONS = _LiveSections()
 #: pipeline that names one still resolves it. What changed is what Home
 #: OFFERS, not what exists.
 TILELESS_APPS = frozenset({
-    "analyze_plaques", "recruitment", "invasion", "replication",
+    "analyze_plaques", "recruitment", "invasion", "replication", 'host_pathogen',
     "feature_dict",
     "run_history",
     "pipeline_graph",
@@ -1065,6 +1065,7 @@ _BUILTIN_APPS = [
     ("candida", "Candida spp.", "Image-analysis modules for Candida species", SECTION_ASSAYS),
     ("analyze_plaques", "Plaque Assay",  "Quantify plaque assay measurements",                          SECTION_ASSAYS),
     ("recruitment",    "Recruitment",    "Quantify molecular recruitment measurements",                 SECTION_ASSAYS),
+    ('host_pathogen', 'Host–Pathogen Analysis', 'Link vacuole recruitment and replication to host infection measurements', SECTION_ASSAYS),
     ("invasion",       "Invasion Assay", "Quantify attached and invaded parasites using two-colour differential staining and calculate invasion efficiency per well", SECTION_ASSAYS),
     ("replication",    "Replication Assay", "Quantify parasites per vacuole and calculate replication rates by condition", SECTION_ASSAYS),
 ]
@@ -1111,7 +1112,10 @@ APP_STAGE = {
 }
 
 for _row in _BUILTIN_APPS:
-    if _row[0] in {"toxoplasma", "plasmodium", "candida"}:
+    if _row[0] == 'host_pathogen':
+        register_app(*_row, stage=STAGE_ALPHA, api_module='host_pathogen',
+                     entry='spacr.host_pathogen:analyze_host_pathogen')
+    elif _row[0] in {"toxoplasma", "plasmodium", "candida"}:
         register_app(
             *_row,
             factory=LazyScreenFactory("spacr.qt.screens.organism_screen", "OrganismScreen"),

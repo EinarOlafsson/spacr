@@ -43,7 +43,7 @@
     },
     {
       "visual": "module_measure",
-      "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Input data: Images and label masks; Label masks. Output data: Measured objects; Object crops. Mask to Measure: Use the same project and the correct image/mask channel indices. Measure to Annotate: Save or stream crops with stable object identities. Measure to Classify: Choose the image or tabular family to match your input. Make Masks to Measure: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Measure to Image UMAP: Choose feature columns and inspect representative crops. Measure to Embeddings: Retain encoder and channel-policy provenance. Measure to Gate Editor: Use the actual measured feature definitions and units. Measure to QC: Review available checks and missing evidence. Measure to Recruitment: Require the intended compartment intensities and identities. Measure to Invasion Assay: Require two-colour stain measurements and appropriate baseline controls. Measure to Replication Assay: Require explicit parasite-to-vacuole identities. Measure to Endodyogeny size proxy: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Input data: Images and label masks; Label masks. Output data: Measured objects; Object crops. Mask to Measure: Use the same project and the correct image/mask channel indices. Measure to Annotate: Save or stream crops with stable object identities. Measure to Classify: Choose the image or tabular family to match your input. Make Masks to Measure: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Measure to Image UMAP: Choose feature columns and inspect representative crops. Measure to Embeddings: Retain encoder and channel-policy provenance. Measure to Gate Editor: Use the actual measured feature definitions and units. Measure to QC: Review available checks and missing evidence. Measure to Recruitment: Require the intended compartment intensities and identities. Measure to Invasion Assay: Require two-colour stain measurements and appropriate baseline controls. Measure to Replication Assay: Require explicit parasite-to-vacuole identities. Measure to Endodyogeny size proxy: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient. Measure to Host–Pathogen Analysis: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",
@@ -132,6 +132,14 @@
       "related_lessons": [
         "08_measure",
         "25_recruitment"
+      ]
+    },
+    {
+      "visual": "module_host_pathogen",
+      "narration": "Open Toxoplasma from Home, then choose Host–Pathogen Analysis. Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown. Input data: Measured objects. Output data: Assay results. Measure to Host–Pathogen Analysis: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
       ]
     },
     {

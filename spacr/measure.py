@@ -1613,6 +1613,14 @@ def _intensity_measurements(
             parent_link['cell_id'] = parent_link['cell_id'].astype(float).replace(0.0, np.nan)
             dfs[idx].append(parent_link.reset_index(drop=True))
 
+    if settings.get('pathogen_mask_dim') is not None:
+        from .host_pathogen import vacuole_links
+        for idx, (role, child_mask) in enumerate(organelle_masks.items(), start=3):
+            if np.max(child_mask) != 0:
+                links = vacuole_links(child_mask, pathogen_mask).rename(
+                    columns={'pathogen_overlap_fraction': f'{role}_pathogen_overlap_fraction'})
+                dfs[idx].append(links)
+
     if calculate_correlation:
         if channel_arrays.shape[-1] >= 2:
             for i in range(channel_arrays.shape[-1]):

@@ -88,6 +88,7 @@ class Problem:
 
 
 APP_FUNCTIONS: Dict[str, str] = {
+    'host_pathogen': 'spacr.host_pathogen.analyze_host_pathogen',
     "mask": "spacr.core.preprocess_generate_masks",
     "timelapse": "spacr.core.preprocess_generate_masks_timelapse",
     "motility": "spacr.timelapse.automated_motility_assay",
@@ -148,7 +149,7 @@ try:
 except Exception:
     pass
 
-DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
+DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment", 'host_pathogen',
                      "activation", "classify", "classify_merged",
                      "invasion", "replication", "endodyogeny"})
 
