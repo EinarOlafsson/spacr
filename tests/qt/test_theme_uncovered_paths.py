@@ -6,13 +6,10 @@ covers three groups: the contrast and hue solvers, which must return a
 defensible number even when no colour satisfies the rules; the styling
 helpers, which must survive a widget whose C++ half has already gone; and
 ``ensure_widget_qss_applied``, which is called at import time and has to end
-in a plain ``False`` and an untouched application whatever is missing --
-including ``PySide6.QtWidgets`` itself, under the packaging smoke checks and
-the documentation build.
+in a plain ``False`` and an untouched application when no screen root is
+supplied. Theme registration must likewise leave existing windows alone.
 """
 from __future__ import annotations
-
-import builtins
 
 import pytest
 
@@ -35,29 +32,22 @@ def styled_app(qapp):
     qapp.setStyleSheet(before)
 
 
-@pytest.fixture
-def no_qt_widgets(monkeypatch):
-    """Make ``import PySide6.QtWidgets`` fail, and nothing else."""
-    real_import = builtins.__import__
+def test_without_a_screen_root_the_sheet_is_left_alone(styled_app, monkeypatch):
+    """No root returns before even querying the application's state."""
+    from types import SimpleNamespace
 
-    def guarded(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "PySide6.QtWidgets":
-            raise ImportError("no module named 'PySide6.QtWidgets'")
-        return real_import(name, globals, locals, fromlist, level)
+    def unexpected_instance():
+        pytest.fail("a call without a root must not query QApplication")
 
-    monkeypatch.setattr(builtins, "__import__", guarded)
-
-
-def test_without_the_qt_widgets_module_the_sheet_is_left_alone(
-        styled_app, no_qt_widgets):
-    """No Qt to ask for the application means nothing to restyle."""
-    assert theme.ensure_widget_qss_applied("SomeBlock") is False
+    with monkeypatch.context() as patch:
+        patch.setattr(theme, "QApplication",
+                      SimpleNamespace(instance=unexpected_instance))
+        assert theme.ensure_widget_qss_applied("SomeBlock") is False
     assert styled_app.styleSheet() == "QWidget { color: red; }"
 
 
-def test_registering_a_block_without_qt_widgets_still_returns_the_block(
-        styled_app, no_qt_widgets):
-    """Registration is an import-time act; it must survive a headless one."""
+def test_registering_a_block_leaves_the_application_sheet_alone(styled_app):
+    """Import-time registration must not re-polish existing windows."""
     name = "ChromeHeadlessRegistrationBlock"
 
     def block(palette, opacity=None):

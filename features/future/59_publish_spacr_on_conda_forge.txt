@@ -3,11 +3,12 @@ PUBLISH spaCR ON CONDA-FORGE
 ================================================================================
 
 Status:    DONE. spaCR IS ON CONDA-FORGE AND HAS BEEN SINCE 2026-08-27.
-           VERIFIED 2026-09-14 -- see the section at the foot of this file.
+           VERIFIED 2026-09-23 -- version 1.5.0.8 is published; see the foot.
            `conda install -c conda-forge spacr` works today and the package
            tracks PyPI without anybody doing anything.
 
-           2026-09-19: the in-repo mirror recipe now names 1.5.0.8. Its
+           Historical 2026-09-19 check, superseded by the 2026-09-23 check:
+           the in-repo mirror recipe now names 1.5.0.8. Its
            sha256 was checked two ways, and the two agree. The third way,
            the feedstock's own recipe, has no 1.5.0.8 to compare against
            yet. The feedstock, which is what conda-forge builds from, still
@@ -320,3 +321,49 @@ pytorch/torchvision/numba/llvmlite pins, and a `python_min` host pin. One
 more difference is new here: the sdist's Requires-Python is <3.16, while
 both recipes say <3.15. That is recorded, not changed. The mirror's pins are
 not what conda-forge builds.
+
+--------------------------------------------------------------------------------
+2026-09-23 — VERIFIED: 1.5.0.8 IS PUBLISHED, BOT QUEUE NOTE SUPERSEDED
+--------------------------------------------------------------------------------
+
+Feedstock PR #3, [bot-automerge] spacr v1.5.0.8, merged 2026-09-19 at
+21:29:12 UTC as 504e94927828c13d14d2ad7a6c791cb6b74db977:
+https://github.com/conda-forge/spacr-feedstock/pull/3
+The upstream recipe now agrees with the mirror's 1.5.0.8 version and source
+SHA-256 273f87f6c62400f642d169d329c7a4a6745c2511c5217a441339ba8495ffe17b.
+The third source-hash comparison outstanding above is therefore complete.
+
+Anaconda's package API reports the main-label artifact
+noarch/spacr-1.5.0.8-pyh5ded981_0.conda, uploaded 2026-09-19 21:31:52 UTC.
+Downloaded all 27,515,505 bytes and independently hashed them:
+3bd473fa99bdd0549251888a777a1ee938c2606fbc2a1d613fc83058ec445496.
+The digest agrees with the registry. Reading info/index.json inside the
+actual package confirms name spacr, version 1.5.0.8, build pyh5ded981_0,
+noarch python. This is package publication/integrity verification, not a
+fresh environment installation or a GPU/platform compatibility test.
+
+conda-forge/README.md now describes the published install path and automatic
+feedstock releases. Its stale one-time onboarding instructions are removed.
+The mirror remains a reference: upstream still has tensorboard-2.20.patch
+and different pins/build details, and must not be overwritten with it.
+No feedstock mutation, retry request, release or upload was performed.
+Machine-readable evidence: features/data/59_conda_publication_2026-09-23.json.
+
+The full packaging check then found the next release's mirror drift:
+nightly and the published PyPI release are 1.5.0.9, while the mirror still
+said 1.5.0.8. Downloaded the 44,306,446-byte 1.5.0.9 source archive from
+PyPI's files host (the shorthand pypi.org redirect returned HTTP 503).
+Its downloaded SHA-256 agrees with PyPI metadata:
+af79aee13a3fd7a0d2e55b0a0e1068a6f77c12b16cb9605863c9ee0dbd5ef152.
+PKG-INFO confirms 1.5.0.9 and the archive contains LICENSE. Updated the
+mirror's version/hash only. No 1.5.0.9 feedstock PR exists at this check;
+1.5.0.8 remains the published conda package, not a claim that 1.5.0.9 is there.
+The check's misleading failure message now distinguishes the reference
+mirror from the independently maintained feedstock; its assertion is intact.
+
+CITATION.cff also still held 1.5.0.8's DOI beneath a 1.5.0.9 version field.
+Verified Zenodo record 22890536: v1.5.0.9, published 2026-09-22, concept
+21343316, repository/PyPI related identifiers matching spaCR. Updated both
+version-DOI fields to 10.5281/zenodo.22890536 and their release description.
+The concept DOI is unchanged. Packaging installation prose no longer tells
+a maintainer to repeat the already-completed conda onboarding.

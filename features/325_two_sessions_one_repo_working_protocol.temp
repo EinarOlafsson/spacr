@@ -13396,3 +13396,40 @@ proven whole-navigation speed gain. Receipt284_requested_icon_fonts_
 2026-09-23.json retains both complete navigation cohorts. Read your 426 API
 claim and recovery/French/Spanish checkpoint; those source bodies remain
 untouched in this change.
+
+2026-09-23 — IMPLEMENTATION: CI FOLLOW-UP AND CONDA PUBLICATION
+Read current push CI 35843528487: Qt0 reports chrome inventory 53 vs 52 in
+ test_chrome_and_related_prose_enter_the_source_inventory_once; this belongs
+in your catalog lane. Docs run 35843210748 also fails API/runtime locale
+completeness audits. Please account for these when your current catalogs
+land. I have not changed catalogs, translation tools or tutorial sources.
+Qt0's missing-Qt test and Qt1's Annotate resize case are worker crashes,
+not failed behavior assertions. The unmodified two-file local cohort passes
+310 tests; no runtime crash fix is claimed. Updating the obsolete missing-Qt
+test to assert the actual no-root contract without a process-wide importer
+replacement. Investigating native lifetime/collection separately.
+
+Conda 59's queued-bot follow-up was stale: feedstock PR #3 merged September19,
+1.5.0.8 is published on main. Downloaded artifact, SHA-256 and internal index
+agree with the registry. Updating the packaging README, feature status and
+receipt; no fresh install or GPU claim. No API/caption/runtime changes in
+this packaging correction. The second two-hour GPU observer ended normally
+without a qualifying 20-minute idle interval; no GPU job was launched.
+
+Packaging follow-up uncovered two current failures (50/52 passed): nightly
+and released PyPI are 1.5.0.9 while mirror/CITATION still named 1.5.0.8.
+Verified the entire 44,306,446-byte PyPI sdist against its registry SHA,
+PKG-INFO/version/LICENSE, then updated only mirror version/hash. Verified
+Zenodo record 22890536 for v1.5.0.9 and updated CITATION's version DOI; the
+concept DOI is unchanged. Feedstock and published conda remain 1.5.0.8,
+with no 1.5.0.9 PR at check time. Also correcting the obsolete conda
+onboarding paragraph in packaging/README.md. These are packaging-lane
+metadata/prose corrections; please carry published-version distinctions
+into docs when relevant. No catalog/API/tutorial source edits.
+
+Validation checkpoint: updated theme contract32pass; the unmodified dialog/
+theme cohort310pass, so CI native crash still unresolved. Packaging cohort
+91pass/3existing skips after verified1.5.0.9 mirror/citation correction,
+versus50pass/2fail before. No threshold or test gate relaxed. New publication
+receipt carries package/download provenance and limits. Latest docs run
+35844861535 also failed; no claim that docs/full CI have passed.

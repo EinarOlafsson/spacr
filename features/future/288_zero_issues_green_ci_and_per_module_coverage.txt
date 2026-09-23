@@ -4842,3 +4842,29 @@ unchanged 1-line/2-branch gap. No baseline/gate/exemption change. Real audit
 compares 36 training pairs and independently rechecks the prior evaluation's
 42 inputs/14 annotation frames. Receipt426_ctc_annotation_supervision_
 2026-09-23.json. This does not claim whole-tree CI or model accuracy gains.
+
+2026-09-23 — CI triage and current theme test contract
+Run35843528487 Qt0 lost its worker during the missing-Qt theme test; Qt1
+segfaulted in the Annotate settings size sweep, during garbage collection
+under the dialog event filter. These are native worker crashes, not failed
+size/theme assertions. The unmodified two-file cohort passes310 tests
+locally in75.76s (one existing pynvml warning), so no native crash fix is
+claimed. The Annotate/collection failure remains open for CI reproduction.
+
+The theme test globally replaced builtins.__import__ to simulate unavailable
+PySide6.QtWidgets. Current ensure_widget_qss_applied uses a module-bound
+QApplication and returns immediately when root is None; registration also
+never reapplies the application sheet. The import blocker therefore tested
+neither current behavior, while affecting every live Qt callback in the
+process. Removed it. The revised test checks that no-root returns False
+without even querying QApplication, using a scoped module-local substitute;
+the registration test still verifies the stylesheet remains unchanged.
+32 theme tests pass in4.05s. No runtime code, test gate or assertion was
+weakened to hide the native crashes. Qt0 also reports the catalog inventory
+53vs52 mismatch; handed that to the documentation lane rather than editing
+its catalog work.
+
+The packaging cohort exposed current mirror/CITATION drift after1.5.0.9:
+50pass/2fail before,91pass/3existing skips across four relevant files after
+verified metadata corrections (see59/304). The three skips concern entry
+points the mirror does not declare. Full CI remains open, not green.

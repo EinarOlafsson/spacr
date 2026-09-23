@@ -170,3 +170,12 @@ the DOIs are minted and cited. 1.5.0.5 itself was never archived and cannot
 be; the release path the title names is established and has archived a newer
 version. The PolyForm licence lines near the top of this file are stale since
 the relicence to BSD 3-Clause (1d199a0b8, 2026-08-31).
+
+2026-09-23 — Release 1.5.0.9 citation refresh. Zenodo record 22890536 is
+published for v1.5.0.9 (2026-09-22), under concept 21343316. CITATION.cff's
+version had advanced but both version-DOI fields still named 1.5.0.8's
+22797833. Both now use 10.5281/zenodo.22890536 and the description names
+1.5.0.9. The concept DOI and released date are unchanged. Verified from the
+record API, its version/concept and spaCR repository/PyPI links. Receipt:
+features/data/59_conda_publication_2026-09-23.json. Existing packaging checks
+pass after the citation and mirror corrections; no new release was made.

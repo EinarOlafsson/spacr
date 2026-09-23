@@ -167,12 +167,13 @@ older release's version DOI for the concept DOI in the README.
 
 ## Conda-forge releases
 
-The prepared recipe and bot configuration live in `../conda-forge`. Unlike
-PyPI, conda-forge requires a one-time reviewed pull request to
-`conda-forge/staged-recipes`; a source-repository workflow cannot bypass that
-review. Follow `../conda-forge/README.md` once. After the recipe is accepted,
-the conda-forge bot detects each new PyPI version, tests its update PR, and
-automerges passing version-only updates. No Anaconda token is stored here.
+spaCR is already published on conda-forge. The authoritative recipe and bot
+configuration live in
+[`conda-forge/spacr-feedstock`](https://github.com/conda-forge/spacr-feedstock);
+`../conda-forge` holds a reference mirror and installation notes. The bot
+detects each new PyPI version, tests its update PR, and automerges passing
+version-only updates. Publication can lag PyPI. No Anaconda token is stored
+here, and changes to the mirror do not trigger a feedstock release.
 
 Linux installs the small Qt/OpenGL runtime libraries through apt, dnf, zypper,
 or pacman when available. macOS packages may be signed by setting
