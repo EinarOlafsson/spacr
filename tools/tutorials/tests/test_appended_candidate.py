@@ -10,7 +10,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_appended_candidate import (append_catalogs, append_javascript_catalog,
                                      copy_preserved_web,
-                                     require_baseline_receipt, require_no_new_route_gaps)
+                                     require_baseline_receipt, require_no_new_route_gaps,
+                                     update_catalogs)
 from audit_staged_catalogs import CATALOGS
 
 
@@ -61,6 +62,41 @@ def test_missing_translations_do_not_block_but_remain_registered(sources):
         assert result[name]['lessons'][:-1] == before[name]['lessons']
         assert result[name]['lessons'][-1]['scenes'] == new['scenes']
         assert result[name]['lessons'][-1]['narration_voices'] == voices[new['id']]
+
+
+def test_mixed_release_preserves_unselected_lesson_and_updates_both_catalog_formats(sources):
+    published, new, _ = sources
+    for catalog in published.values():
+        catalog['lessons'].append(deepcopy(new))
+    before = deepcopy(published)
+    fresh = {**new, 'scenes': [{'narration': 'Practical current steps'}]}
+    extra = {**new, 'id': '03_extra', 'number': 3}
+    voices = {row['id']: {'en': ['af_heart']} for row in (fresh, extra)}
+    result, compatibility = update_catalogs(published, [extra, fresh], voices, {}, [fresh['id']])
+    assert published == before
+    assert len(compatibility) == 26
+    for catalog in result.values():
+        assert [row['id'] for row in catalog['lessons']] == ['01_existing', '02_new', '03_extra']
+        assert catalog['lessons'][0] == before['lessons_en.json']['lessons'][0]
+        assert catalog['lessons'][1]['scenes'] == fresh['scenes']
+        assert catalog['lessons'][2]['scenes'] == extra['scenes']
+    javascript = deepcopy(before['lessons_en.json'])
+    javascript['lessons'][0]['historical_only'] = 'Keep this field'
+    javascript = append_javascript_catalog(javascript, result['lessons_en.json'], 1)
+    javascript = append_javascript_catalog(javascript, result['lessons_en.json'], 1,
+                                           replacements=[fresh['id']])
+    assert javascript['lessons'][0]['historical_only'] == 'Keep this field'
+    assert javascript['lessons'][1]['scenes'] == fresh['scenes']
+    assert javascript['lessons'][2]['scenes'] == extra['scenes']
+
+
+@pytest.mark.parametrize('refresh', [['02_new'], ['01_existing', '01_existing'], ['99_unknown']])
+def test_mixed_release_rejects_refreshes_outside_baseline_or_duplicate_selection(sources, refresh):
+    published, new, voices = sources
+    before = deepcopy(published)
+    with pytest.raises(ValueError):
+        update_catalogs(published, [new], voices, {}, refresh)
+    assert published == before
 
 
 def test_source_bound_review_wins_and_stale_review_falls_back(sources):

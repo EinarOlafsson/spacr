@@ -102,6 +102,25 @@ def verify_tracks(stage, lesson, catalogs):
     return declared, records
 
 
+def update_catalogs(published, lessons, voices, reviews, refresh_ids):
+    """Append new lessons and refresh selected existing lessons in one release."""
+    identities = [lesson['id'] for lesson in lessons]
+    if (not identities or len(identities) != len(set(identities))
+            or len(refresh_ids) != len(set(refresh_ids))
+            or set(refresh_ids) - set(identities)):
+        raise ValueError('Select unique lessons and a valid refresh subset')
+    baseline_ids = {row['id'] for row in published['lessons_en.json']['lessons']}
+    if set(refresh_ids) - baseline_ids:
+        raise ValueError('Refresh only lessons from the published baseline')
+    result, compatibility = deepcopy(published), []
+    for replace in (False, True):
+        selected = [lesson for lesson in lessons if (lesson['id'] in refresh_ids) == replace]
+        if selected:
+            result, records = append_catalogs(result, selected, voices, reviews, replace=replace)
+            compatibility.extend(records)
+    return result, compatibility
+
+
 def append_javascript_catalog(published, english, count, *, replacements=()):
     """Retain historical JavaScript objects independently of JSON catalogs."""
     previous = published['lessons']
@@ -169,9 +188,13 @@ def copy_preserved_web(published, baseline, root, manifest, *, replacements=()):
     return records
 
 
-def build(stage, baseline, identities, *, replace=False):
+def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
     """Create a new private candidate; never upload or modify the published tree."""
     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
+    if replace and refresh_ids:
+        raise ValueError('Use either replace-existing or a refresh subset')
+    refresh_ids = list(identities) if replace else list(refresh_ids)
+    identities = list(identities) if replace else [*identities, *refresh_ids]
     validate(baseline, include_hosted_media=True, require_browser=True)
     previous = read(baseline / 'release-manifest.json')
     receipt = read(baseline / 'publication-receipt.json')
@@ -200,20 +223,20 @@ def build(stage, baseline, identities, *, replace=False):
             if path.exists():
                 reviews[lesson['id'], language] = read(path)
     planned = {lesson['id']: {'en': ['af_heart']} for lesson in lessons}
-    provisional, _ = append_catalogs(catalogs, lessons, planned, reviews, replace=replace)
+    provisional, _ = update_catalogs(catalogs, lessons, planned, reviews, refresh_ids)
     checks, voices = {}, {}
     for lesson in lessons:
         identity = lesson['id']
         voices[identity], checks[identity] = verify_tracks(stage, lesson, provisional)
         print(identity, len(checks[identity]), 'current audio tracks verified', flush=True)
-    catalogs, compatibility = append_catalogs(catalogs, lessons, voices, reviews, replace=replace)
+    catalogs, compatibility = update_catalogs(catalogs, lessons, voices, reviews, refresh_ids)
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
     records = copy_preserved_web(published, baseline, root, previous,
-                                 replacements=identities if replace else ())
+                                 replacements=refresh_ids)
     web_checks = []
     for record in previous['files']:
         if record['path'].startswith('media_host/'):
-            if replace and Path(record['path']).parts[1] in identities:
+            if Path(record['path']).parts[1] in refresh_ids:
                 continue
             copy_checked(baseline / record['path'], root / record['path'], records, root, record['sha256'])
     for lesson in lessons:
@@ -238,9 +261,13 @@ def build(stage, baseline, identities, *, replace=False):
                                browser_report_sha256=digest(browser_path)))
     for name, catalog in catalogs.items():
         write(root / 'web/catalog' / name, catalog)
-    js_catalog = append_javascript_catalog(
-        parse_javascript((published / 'lesson_catalog.js').read_text()),
-        catalogs['lessons_en.json'], len(lessons), replacements=identities if replace else ())
+    js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text())
+    appended = [identity for identity in identities if identity not in refresh_ids]
+    if appended:
+        js_catalog = append_javascript_catalog(js_catalog, catalogs['lessons_en.json'], len(appended))
+    if refresh_ids:
+        js_catalog = append_javascript_catalog(js_catalog, catalogs['lessons_en.json'],
+                                               len(refresh_ids), replacements=refresh_ids)
     nav = navigation(catalogs['lessons_en.json'])
     require_no_new_route_gaps(previous_navigation, nav)
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
@@ -271,8 +298,8 @@ def build(stage, baseline, identities, *, replace=False):
                   files=sorted(records, key=lambda record: record['path']), web_checks=web_checks,
                   baseline_manifest_sha256=digest(baseline / 'release-manifest.json'),
                   preserved_lessons=len(english)-len(lessons),
-                  appended_lessons=[] if replace else identities,
-                  refreshed_lessons=identities if replace else [],
+                  appended_lessons=appended,
+                  refreshed_lessons=refresh_ids,
                   outstanding_module_tutorials=nav['missing_tutorials'],
                   new_lesson_tracks=checks, translation_incompatibilities=compatibility,
                   all_workflows_demonstrated=False, native_speaker_signoff=False,
@@ -290,5 +317,8 @@ if __name__ == '__main__':
     parser.add_argument('--lesson', action='append', required=True)
     parser.add_argument('--replace-existing', action='store_true',
                         help='Refresh only the selected existing lessons; keep all other lesson media and prose')
+    parser.add_argument('--refresh-lesson', action='append', default=[],
+                        help='Refresh an existing lesson alongside the new lessons being appended')
     args = parser.parse_args()
-    build(args.stage, args.baseline, args.lesson, replace=args.replace_existing)
+    build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
+          refresh_ids=args.refresh_lesson)
