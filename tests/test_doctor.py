@@ -125,6 +125,8 @@ def ctx(tmp_path):
 def _fake_gpu_capabilities(monkeypatch):
     """Resolve task evidence only against the diagnostic's fake torch."""
     from spacr import accelerator
+    for key in ('CUDA_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES', 'SPACR_DEVICE'):
+        monkeypatch.delenv(key, raising=False)
 
     original_import = doctor._import_torch
 
@@ -1164,7 +1166,7 @@ def test_gpu_check_fails_when_the_driver_is_missing_entirely(ctx, monkeypatch):
 
     monkeypatch.setattr(
         accelerator, "capabilities",
-        lambda: (("Segmentation (Cellpose)", False, "CPU only"),),
+        lambda **kwargs: (("Segmentation (Cellpose)", False, "CPU only"),),
     )
     monkeypatch.setattr(
         doctor,
@@ -1177,7 +1179,7 @@ def test_gpu_check_fails_when_the_driver_is_missing_entirely(ctx, monkeypatch):
     assert "no NVIDIA driver is answering" in row.message
     assert "nvidia-driver" in row.fix
     assert row.details == (
-        "RuntimeError: no driver",
+        "CUDA initialization skipped (--no-gpu-probe).",
         "Segmentation (Cellpose): CPU — CPU only",
     )
 
@@ -1188,7 +1190,7 @@ def test_gpu_check_fails_on_a_driver_runtime_mismatch(ctx, monkeypatch):
 
     monkeypatch.setattr(
         accelerator, "capabilities",
-        lambda: (("Live backdrop and spaceout", True, "GPU shader"),),
+        lambda **kwargs: (("Live backdrop and spaceout", True, "GPU shader"),),
     )
     monkeypatch.setattr(doctor, "_import_torch", lambda: _fake_torch(available=False))
     monkeypatch.setattr(doctor, "_nvidia_driver", lambda: "470.0")
@@ -1196,7 +1198,8 @@ def test_gpu_check_fails_on_a_driver_runtime_mismatch(ctx, monkeypatch):
     assert row.status == FAIL
     assert "driver / runtime mismatch" in row.message
     assert "--force-reinstall torch" in row.fix
-    assert row.details == ("Live backdrop and spaceout: GPU — GPU shader",)
+    assert row.details == ("CUDA initialization skipped (--no-gpu-probe).",
+                           "Live backdrop and spaceout: GPU — GPU shader")
 
 
 @pytest.mark.usefixtures("_fake_gpu_capabilities")
@@ -1234,6 +1237,7 @@ def test_gpu_check_says_when_the_probe_was_skipped(ctx, monkeypatch):
 
 @pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_survives_an_unnameable_device(ctx, monkeypatch):
+    ctx.probe_gpu = True
     monkeypatch.setattr(
         doctor,
         "_import_torch",

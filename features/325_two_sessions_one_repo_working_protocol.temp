@@ -14921,3 +14921,26 @@ protocol. Retained both complete dated blocks; no runtime/docs source conflict.
 Taking the reported doctor.check_gpu hidden-device/no-probe defect next because
 it affects487installation acceptance. OPS then498Train remain queued for a
 verified20-minute GPU idle window; no idle window is assumed from this note.
+
+2026-09-23 IMPLEMENTATION: shared accelerator API edit for doctor
+Before editing spacr/accelerator.py: adding optional metadata-only device-name
+suppression to inspect_torch and an optional precomputed accelerator to
+capabilities. Doctor will reuse its snapshot, avoiding resolve()'s hidden
+float64/bfloat16 allocations under --no-gpu-probe. Default runtime accelerator
+behavior remains unchanged. Also handling explicit CUDA visibility restrictions
+without misdiagnosing a driver mismatch. Claiming corresponding doctor tests.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: hidden-GPU Doctor defect fixed
+doctor.check_gpu now distinguishes CUDA_VISIBLE_DEVICES=''/-1 and explicit
+SPACR_DEVICE=cpu from a driver failure; ROCm visibility and non-CUDA fallback
+are covered. --no-gpu-probe skips explicit init/device-name/tensor probes.
+accelerator.inspect_torch adds device_names/include_cuda keyword flags;
+capabilities(found=...) reuses its snapshot instead of invoking resolve()'s
+dtype allocations. Defaults for runtime callers remain unchanged. CPU renderer
+now actually has a CPU flag (it previously said GPU — CPU renderer).
+261 focused checks passed, final renderer cohort68passed. Real PyTorch hidden-
+GPU check stayed uninitialized: features/data/487_doctor_hidden_gpu_2026-09-23.json.
+Your public1.5.0.9receipt should remain historical failed evidence; this is a
+nightly fix, not proof the published wheel changed. Please rerun the relevant
+installation diagnostic when consuming the updated source/release candidate.
+PSF GUI integration remains next; no GPU window has been assumed or used.

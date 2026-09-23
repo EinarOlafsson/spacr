@@ -177,7 +177,7 @@ def _forced() -> Optional[str]:
     return wanted or None
 
 
-def _cuda_or_rocm(torch) -> Optional[Accelerator]:
+def _cuda_or_rocm(torch, *, device_names=True) -> Optional[Accelerator]:
     """NVIDIA, or AMD-on-Linux, both of which dispatch to ``cuda``."""
     try:
         if not torch.cuda.is_available():
@@ -187,7 +187,7 @@ def _cuda_or_rocm(torch) -> Optional[Accelerator]:
     version_module = getattr(torch, "version", None)
     hip = getattr(version_module, "hip", None)
     try:
-        name = torch.cuda.get_device_name(0)
+        name = torch.cuda.get_device_name(0) if device_names else "GPU"
     except Exception:                                        # noqa: BLE001
         name = "GPU"
     if hip:
@@ -322,7 +322,7 @@ def _metal_gpu_name() -> str:
     return "Metal GPU"
 
 
-def _xpu(torch) -> Optional[Accelerator]:
+def _xpu(torch, *, device_names=True) -> Optional[Accelerator]:
     """Intel Arc / Xe, on a torch built with XPU or with IPEX loaded."""
     xpu = getattr(torch, "xpu", None)
     if xpu is None:
@@ -333,7 +333,7 @@ def _xpu(torch) -> Optional[Accelerator]:
     except Exception:                                        # noqa: BLE001
         return None
     try:
-        name = xpu.get_device_name(0)
+        name = xpu.get_device_name(0) if device_names else "Intel GPU"
     except Exception:                                        # noqa: BLE001
         name = "Intel GPU"
     return Accelerator(kind="xpu", device="xpu", label=f"{name} (Intel XPU)",
@@ -374,7 +374,7 @@ def neural_engines() -> Tuple[str, ...]:
     return tuple(found)
 
 
-def inspect_torch(torch) -> Accelerator:
+def inspect_torch(torch, *, device_names=True, include_cuda=True) -> Accelerator:
     """Resolve against a SPECIFIC torch module, without touching the cache.
 
     For callers that already hold a torch handle and must be answered about
@@ -383,10 +383,18 @@ def inspect_torch(torch) -> Accelerator:
     stand-in, and a cached answer about the real machine would defeat that
     entirely. Same probes and same order as :func:`resolve`, so the two
     cannot drift.
+
+    :param torch: torch module whose availability metadata should be inspected.
+    :param device_names: False avoids CUDA/XPU property queries that can
+        initialize their runtime. Availability queries still run.
+    :param include_cuda: False skips CUDA/ROCm entirely, for a process whose
+        environment deliberately hides those devices. Other backends remain
+        eligible. This function does not allocate dtype-probe tensors.
+    :returns: accelerator described by the supplied torch module.
     """
     found = None
-    for probe in (lambda: _cuda_or_rocm(torch), lambda: _mps(torch),
-                  lambda: _xpu(torch), _directml):
+    for probe in (lambda: _cuda_or_rocm(torch, device_names=device_names) if include_cuda else None,
+                  lambda: _mps(torch), lambda: _xpu(torch, device_names=device_names), _directml):
         try:
             found = probe()
         except Exception:                                    # noqa: BLE001
@@ -698,7 +706,7 @@ def empty_cache(torch_module=None) -> str:
     return made
 
 
-def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
+def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, str], ...]:
     """``(task, accelerated, detail)`` for what this machine can actually do.
 
     WHAT THE SETUP SCREEN IS FOR. "Compatible GPU" on its own answers a
@@ -712,9 +720,15 @@ def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
     Ordered by how much the acceleration is worth: segmentation on the CPU
     took 444 s for one 256x256 image on the machine this was written on,
     and 3.2 s on its Radeon.
+
+    :param found: optional existing accelerator snapshot. Providing it avoids
+        another resolution and any dtype-probe allocations, as required by
+        the doctor's metadata-only check.
+    :returns: task, accelerated flag and explanation for each capability.
     """
-    found = resolve()
+    found = resolve() if found is None else found
     gpu = found.is_gpu
+    display_gpu = _opengl_likely()
     rows = [
         ("Segmentation (Cellpose)", gpu,
          "on the GPU — minutes per image on a CPU" if gpu
@@ -723,8 +737,8 @@ def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
          "on the GPU" if gpu else "CPU only — slow but works"),
         ("Model inference / classification", gpu,
          "on the GPU" if gpu else "CPU only"),
-        ("Live backdrop and spaceout", True,
-         "GPU shader" if _opengl_likely() else "CPU renderer"),
+        ("Live backdrop and spaceout", display_gpu,
+         "GPU shader" if display_gpu else "CPU renderer"),
         ("UMAP / t-SNE / clustering", found.is_cuda,
          "on the GPU via cuML" if found.is_cuda
          else "CPU — cuML is built for CUDA only"),
