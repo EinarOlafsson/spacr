@@ -34,6 +34,7 @@
     "19_train_cellpose",
     "20_cellpose_masks",
     "21_model_compare",
+    "23_agreement",
     "28_training_runs",
     "41_classify",
     "76_ops"
@@ -49,30 +50,21 @@
   "fresh_capture_completed": [
     "18_motility"
   ],
+  "live_verified_commit": "6efebef9c81d3db53d27f16b148a3d4ddc2cbe5d",
+  "live_catalog_sha256": "3d210b304f801a74665d7fddda143ca7d0a0fc188237df0be8451fe082d8e7a8",
   "narration_and_caption_refresh_required": [
-    "01_pypi_github",
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
-    "05_home",
     "06_api",
-    "07_mask",
-    "08_measure",
-    "09_annotate",
-    "10_classify_cv",
-    "11_classify_ml",
-    "12_map_barcodes",
-    "13_regression",
     "14_make_masks",
-    "15_image_umap",
     "16_activation",
     "17_timelapse",
-    "18_motility",
     "19_train_cellpose",
     "20_cellpose_masks",
     "21_model_compare",
+    "23_agreement",
     "28_training_runs",
-    "41_classify",
     "76_ops"
   ],
   "rows": [
@@ -81,7 +73,7 @@
       "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
       "scene_count": 8,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [
         {
           "field": "scenes[4].narration",
@@ -103,14 +95,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "02_conda_install",
       "english_sha256": "70777f35eb490577823324653b0995324654a76cef065b6385edb80ef9584eb9",
       "scene_count": 8,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -127,6 +120,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -134,7 +128,7 @@
       "english_sha256": "0f755b354cf2ffe14f5d1a0bcff3c65342a26fe3ac7353378f67d9d9dfa581fe",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -151,6 +145,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -158,7 +153,7 @@
       "english_sha256": "822df4ec164b2722f1fd63969ca0b5e97ae4daee1982587c0aae88bf548af8ef",
       "scene_count": 10,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -175,6 +170,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -182,7 +178,7 @@
       "english_sha256": "1951ba4770cc4d55563ed2a4a702b5f3cf96d94ec67032f311f2516ef1bb7d22",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -199,14 +195,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "06_api",
       "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
       "scene_count": 6,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -223,6 +220,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -230,7 +228,7 @@
       "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
       "scene_count": 12,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -247,14 +245,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "08_measure",
       "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -271,14 +270,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "09_annotate",
       "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
       "scene_count": 20,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -295,14 +295,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "10_classify_cv",
       "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -319,14 +320,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "11_classify_ml",
       "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
       "scene_count": 10,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -343,26 +345,28 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "12_map_barcodes",
       "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
       "scene_count": 12,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "12_map_barcodes.reviewed"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "13_regression",
       "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
       "scene_count": 15,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -379,14 +383,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "14_make_masks",
       "english_sha256": "d06e718407f7f40e0ad31d3fc8c40c39220637341e983d953fc234714851c330",
       "scene_count": 27,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -403,6 +408,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -410,7 +416,7 @@
       "english_sha256": "7bac1430804e1ef0a549c246acc0af1c62b3992281f9cf5213013b4f800890e9",
       "scene_count": 15,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -427,14 +433,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "16_activation",
       "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
       "scene_count": 12,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -451,6 +458,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -458,7 +466,7 @@
       "english_sha256": "7dfcbd1b67b1763a639b950eb034224b23d4a57d8e94683aed87313d350b264c",
       "scene_count": 12,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -475,6 +483,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -482,7 +491,7 @@
       "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -499,14 +508,15 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "19_train_cellpose",
       "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -523,6 +533,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -530,7 +541,7 @@
       "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -547,6 +558,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -554,7 +566,7 @@
       "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
       "scene_count": 6,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -571,6 +583,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -610,41 +623,32 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
       "lesson": "23_agreement",
-      "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+      "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
       "scene_count": 10,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "scenes[5].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[5].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[7].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[9].narration",
-          "reason": "authoring_or_test_details"
-        }
+      "source_revised": true,
+      "manual_review": "source rewrite; media publication pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -680,6 +684,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -727,6 +732,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -766,6 +772,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -797,6 +804,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -804,7 +812,7 @@
       "english_sha256": "5c420444e0e59e63e7705c7883bf7775ea09c5bc991288a08248c0d267d2c54c",
       "scene_count": 17,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -821,6 +829,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -868,6 +877,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -907,6 +917,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -942,6 +953,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -969,6 +981,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -979,6 +992,7 @@
       "manual_review": "pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -989,6 +1003,7 @@
       "manual_review": "pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1016,6 +1031,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1051,6 +1067,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1086,6 +1103,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1105,6 +1123,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1140,6 +1159,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1175,6 +1195,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1182,7 +1203,7 @@
       "english_sha256": "5b39387350fde1fe2b622ffe6160d4e301eef74ccdb0f41045f95219d0ee7b69",
       "scene_count": 11,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1199,7 +1220,8 @@
         "sv",
         "zh-CN"
       ],
-      "published_rewrite": false
+      "prepared_rewrite": true,
+      "published_rewrite": true
     },
     {
       "lesson": "42_curate",
@@ -1226,6 +1248,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1261,6 +1284,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1292,6 +1316,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1323,6 +1348,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1366,6 +1392,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1397,6 +1424,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1424,6 +1452,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1451,6 +1480,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1482,6 +1512,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1509,6 +1540,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1540,6 +1572,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1567,6 +1600,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1594,6 +1628,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1625,6 +1660,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1668,6 +1704,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1691,6 +1728,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1730,6 +1768,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1757,6 +1796,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1784,6 +1824,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1835,6 +1876,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1858,6 +1900,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1893,6 +1936,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1936,6 +1980,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -1971,6 +2016,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2010,6 +2056,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2041,6 +2088,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2076,6 +2124,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2107,6 +2156,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2138,6 +2188,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2148,6 +2199,7 @@
       "manual_review": "pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2175,6 +2227,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2202,6 +2255,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2225,6 +2279,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2244,6 +2299,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2251,7 +2307,7 @@
       "english_sha256": "436b24b9cccc501d7a502078777a8e694b8196b703e47dc4acbeac52941495cb",
       "scene_count": 12,
       "source_revised": true,
-      "manual_review": "source rewrite; media alignment pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -2268,6 +2324,7 @@
         "sv",
         "zh-CN"
       ],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2291,6 +2348,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2306,6 +2364,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2357,6 +2416,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2380,6 +2440,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
@@ -2399,6 +2460,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
       "published_rewrite": false
     }
   ]

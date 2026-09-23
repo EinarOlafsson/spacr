@@ -1,7 +1,7 @@
 {
   "lesson": "23_agreement",
-  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
-  "scope": "Visual-only spotlights on measured native 3840x2160 frames. Narration and source image pixels are unchanged; the icon-only Annotator Agreement entry must be clearly located.",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
+  "scope": "Existing measured native 3840x2160 scene spotlights retained for the current practical narration; source image pixels unchanged.",
   "scenes": {
     "02_agreement_fold": [
       3749,
@@ -33,11 +33,11 @@
       3458,
       770
     ],
-  "08_confusion_matrix": [
-    624,
-    850,
-    3188,
-    170
+    "08_confusion_matrix": [
+      624,
+      850,
+      3188,
+      170
     ],
     "09_disagreement_crop_1": [
       354,
