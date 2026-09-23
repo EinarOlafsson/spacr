@@ -27,7 +27,7 @@ _SELFTEST = (
     "import json, importlib.metadata; from PyQt6 import QtWidgets; "
     "from starplast import paths; from starplast.app import main; "
     "ok, message = paths.check(); assert ok, message; "
-    "print(json.dumps({'ok': True, 'version': importlib.metadata.version('starplast-core')}))"
+    "print(json.dumps({'ok': True, 'version': importlib.metadata.version('starplast')}))"
 )
 
 

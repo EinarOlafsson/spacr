@@ -272,3 +272,27 @@ def test_completed_install_between_initial_check_and_lock_is_not_rebuilt(tmp_pat
                                     preflight=lambda *args: pytest.fail('already installed')) == tmp_path/'starplast'
     assert service.is_installed(tmp_path)
     assert not (tmp_path/'starplast.lock').exists()
+
+
+def test_selftest_reads_the_single_starplast_distribution(monkeypatch, capsys):
+    """Installing Starplast succeeds without metadata from an auxiliary package."""
+    import importlib.metadata
+    from types import ModuleType
+    package = ModuleType("starplast")
+    paths = ModuleType("starplast.paths")
+    paths.check = lambda: (True, "ready")
+    package.paths = paths
+    app = ModuleType("starplast.app")
+    app.main = lambda: None
+    qt = ModuleType("PyQt6")
+    qt.QtWidgets = ModuleType("PyQt6.QtWidgets")
+    for name, module in {"starplast": package, "starplast.paths": paths,
+                         "starplast.app": app, "PyQt6": qt}.items():
+        monkeypatch.setitem(sys.modules, name, module)
+    def version(name):
+        if name != "starplast":
+            raise importlib.metadata.PackageNotFoundError(name)
+        return "0.42.0"
+    monkeypatch.setattr(importlib.metadata, "version", version)
+    exec(service._SELFTEST, {})
+    assert json.loads(capsys.readouterr().out) == {"ok": True, "version": "0.42.0"}
