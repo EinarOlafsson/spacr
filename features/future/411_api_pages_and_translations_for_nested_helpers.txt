@@ -1729,3 +1729,20 @@ passes; the complete locale catalog remains unpublished pending the rest of
 its review. Drafts finished for German/Swedish/Spanish; French is running CPU.
 Tutorial capture/translations/narration, full locale audits/browser acceptance
 and the nested-helper rollout remain open. No native-speaker sign-off.
+
+2026-09-23 — CODEX: DETECTION PRECISION AND WORKER DOCUMENTATION
+The Make Masks guide now explains the asynchronous toolbar, discarded stale
+results, synchronous Python method and CPU float32 inference policy without
+claiming prediction parity across devices. Four changed public docstrings are
+refreshed in the English manifest; no symbol added/removed (11,402 total).
+Help search is regenerated. The full Sphinx -W build passes and all 17 guide
+links resolve. Three new detection captions have source-bound reviews in nine
+languages (27 records), with actual formatted tr() and both full review stores
+verified. The UI inventory now contains 5,016 sources. Existing reviewed labels
+and protected identifiers were also compiled into 113 catalog positions.
+Another 115 German API records cover 98 new short passages; two already
+reviewed passages keep their existing records. Reconstruction reviews total
+778 records. Full API/locale publication is still outstanding. The named
+API/Help/runtime checks report 59 passed and eight remaining catalog failures,
+which the receipt lists explicitly; no CI-complete claim.
+Receipt: features/data/411_object_detection_docs_2026-09-23.json.

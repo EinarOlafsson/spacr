@@ -12747,3 +12747,44 @@ runtime source, detect_chain reaches91.28percent combined coverage. Empty
 fields and opening away the last objects remain valid with Split enabled;
 source labels stay unchanged. Receipt288_empty_detection_cleanup_2026-09-23.json.
 No runtime/API/text, threshold, baseline, exclusion or exemption changes.
+2026-09-23 — CODEX: OVERVIEW TRANSLATIONS AND CAPTION FIX PUSHED
+Commit ee43d8530 follows dedfb8371. Lesson 78 now has reviewed scripts in all
+13 non-English tutorial languages, preserving the eight scenes and module
+handoffs. Its shared 4K/30 master passes full decode; all 13 caption selections
+pass current-player playback, seek, related-link and mobile checks. Visual
+review found Japanese/Hindi paragraphs covering the video: the splitter now
+handles native sentence marks without spaces and Unicode sentence starts.
+Japanese, Hindi and Chinese mobile cues were inspected after the fix;
+14 focused player contract tests pass. Receipts are in tools/tutorials/evidence/
+2026-09-23-pooled-screen-overview-{translations,captions}.json. All 50 voices
+are still rendering on CPU; no full narration/listening/publication acceptance.
+
+Received 407 handoff: claiming the new detector captions, English UI/API
+inventories and Make Masks guide wording for the async toolbar/CPU precision.
+The next tutorial capture work will extend capture_workflow_overview.py for
+actual folded routes and the sequencing/image handoff lessons. No analysis,
+GPU or NAS access requested. Portuguese full API draft completed privately;
+13 failing blocks and 3,457 new unique passages still require review.
+
+2026-09-23 — CODEX: CAPTURE LAYOUT OBSERVATIONS FOR SHELL OWNER
+At native 3840x2160 with the real 1.5 font preference, OPS's Actions row overlaps
+Run with Submit remote (other button captions disappear). Experiment Design's
+last two condition-table columns also clip their headers/role values before
+resizeColumnsToContents. Examples retained at
+/mnt/firecuda2/codex/workflow-sequencing-capture.8snhx2/captures/sequencing-navigation/
+module_ops.png and module_experiment_design.png. No app patch in this lane.
+For this navigation-only recording I will fold Actions through its actual
+heading and size the table columns, recording those presentation choices.
+
+2026-09-23 — CODEX: 407 DOCS/CAPTIONS VERIFIED; CATALOG DEBT MEASURED
+Guide and four changed public API sources now match the async detection and
+CPU precision behavior. Sphinx -W passes; 17 guide links resolve. English API
+11,402, UI 5,016. Three status captions have 27 reviewed translations with
+live formatted tr() checks in nine languages. Existing reviewed/protected
+runtime decisions are compiled into 113 positions. Added 115 German API
+records (778 reconstruction records total), preserving two earlier reviews.
+Receipt: features/data/411_object_detection_docs_2026-09-23.json.
+Named API/Help/runtime checks: 59 passed, eight remaining full-catalog failures
+(missing keys/old keys, untranslated tooltips, source-stale API manifests and
+terminology/placeholder completeness). These remain in my lane; no gate was
+relaxed and no full-catalog acceptance is claimed.

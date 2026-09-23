@@ -1033,6 +1033,18 @@
       "source_sha256": "97c0012f4de027652435a4e0afc41444bb502287bbd3c44f2e9de9f4cb32c049",
       "text": "Max-project a field's planes, the way the ingest already does.\n\n``io._rename_and_organize_image_files`` reduces every z-stack to\n``np.max`` over its planes, per field and per channel, before anything\nreaches ``stack/``. This is the preview's copy of that, so what the user\nis looking at is what masking will actually run on.\n\nPlanes are folded one at a time rather than stacked: a 60-plane field at\n2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview\nis on the GUI thread.\n\n:param paths: plane paths in acquisition order; one path is returned\n    unchanged, so a flat 2-D field costs nothing.\n:raises FileNotFoundError: if no path can be read."
     },
+    "9d393915f1383bdfe4049d9a552ced48151733ee190ff73c2a311275447d1664": {
+      "source_blocks_sha256": [
+        "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
+        "7f20bb964cdb7ee52d2e7c61062db7715729d574f2a3551a5c0f8b0afc185f08",
+        "c6766e19bf10c2d003b32599982c04242cafc635a7ebe1a0db2c372cd29cd0d1",
+        "73b303233ebbcac7c2202876eb3bf24cb010bd634e48cc2f57b799a1c9939991",
+        "bb1b928d7d9847478938762fccb868e05d9b36f1490d299bb1618ff936b782e1",
+        "a911e70676995448ffbff8b4a8626916d20976f420e17ed149d54c305b5c544a"
+      ],
+      "source_sha256": "9d393915f1383bdfe4049d9a552ced48151733ee190ff73c2a311275447d1664",
+      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\ntorch and cellpose are imported here and nowhere else in this module.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
+    },
     "9d769113de4fdfac10df36fdc3fefe6f1e53d17b2929c37d02a373fca6d7001f": {
       "source_blocks_sha256": [
         "a995cc28881e18120a5482e15be97e8209c8703b5eb2bdc0eebd529d35069821",
@@ -1232,6 +1244,18 @@
       "source_sha256": "bcce2b6934e655e0f56d27f5030386ca3f83cb01a809f45da95075ceb93a4bbd",
       "text": "Work out the whole import and write nothing.\n\nFive things happen here, in order, and every one of them can only\nproduce a report:\n\n1. **Images** are scanned and planned by :mod:`spacr.convert` — the\n   Yokogawa naming, the well assignment and the ``conversion_map.csv``\n   come from there, unchanged.\n2. **Masks** are scanned the same way and paired to image fields. A\n   mask with no image and an image with no mask are both listed by\n   path in :attr:`ImportPlan.masks`.\n3. **Their table** is read and, when ``column_maps`` is not given,\n   :func:`infer_column_map` proposes one. A proposal is not an\n   application: it is what you save, edit and hand back.\n4. **Columns are resolved** — collisions with spaCR names settled, unit\n   conversions computed or refused.\n5. **The join is verified** against the label images: every count in\n   :class:`JoinReport` is real, not assumed.\n\n:param images: folder of their image files.\n:param masks: folder (taken as ``cell``), or ``{object_type: folder}``.\n:param measurements: their table, or a path to it.\n:param layout: source layout for :func:`spacr.convert.scan`.\n:param z_handling: :data:`spacr.convert.Z_MAX` by default, because a\n    merged array holds one plane per channel; keeping every z would\n    produce fields spaCR cannot merge, and the plan says so.\n:param mask_layout: layout for the mask folders; defaults to ``layout``.\n:param mask_suffixes: tokens stripped from mask filenames before\n    matching (:data:`MASK_SUFFIXES` by default).\n:param measurement_object: which object type their table measures;\n    defaults to the first mask type given.\n:param image_key: their column naming the image. Inferred when None.\n:param label_key: their column holding the object label. Inferred when\n    None.\n:param column_maps: the **reviewed** mapping. When None, an inferred\n    proposal is used and the plan says loudly that it is a proposal.\n:param um_per_px: micrometres per pixel. None means unknown, and any\n    column needing it is reported uncalibrated rather than scaled by 1.\n:param on_conflict: ``'refuse'`` (default) or ``'rename'``.\n:param allow_spacr_targets: opt in to writing foreign values into\n    spaCR's own column names.\n:param verify_labels: read the masks to check the join. On by default.\n:returns: an :class:`ImportPlan`.\n:raises ConfigurationError: for an unreadable input or an unknown\n    option — a setup mistake, not a per-item failure."
     },
+    "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c": {
+      "source_blocks_sha256": [
+        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
+        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
+        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
+        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
+      ],
+      "source_sha256": "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c",
+      "text": "Everything ``CellposeModel`` needs to land on this machine's GPU.\n\nTHREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced\ntogether rather than spelled out at six call sites:\n\n* ``gpu`` -- cellpose branches on this BEFORE it looks at ``device``,\n  so a device without the flag still takes the CPU path.\n* ``device`` -- from the one resolver, so cellpose and spaCR cannot\n  disagree about the same machine.\n* ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default\n  and Metal on torch 2.2 has no bfloat16, so the default is a\n  ``TypeError: BFloat16 is not supported on MPS`` at construction.\n  Measured on the reporting iMac; float32 weights work there and cost\n  VRAM, which is the right trade for a card that otherwise sits idle.\n\nCallers that pass ``device=None`` on purpose -- letting cellpose\nresolve it -- should take ``gpu`` and ``use_bfloat16`` from here and\ndrop ``device``."
+    },
     "bef2ecf1029a8e6f30efb86443a7ebfb1c1549645c7c8305d4afd60051cca98f": {
       "source_blocks_sha256": [
         "836d3388a53598e50416b6ab8726ffa11c40708abe6a68ebe08eef6fd58de3a6",
@@ -1294,6 +1318,14 @@
       ],
       "source_sha256": "c237fd3639e51fb1cc0cbad74d854a3195a3756543bacaaf1e735dde3d197cb7",
       "text": "Persist one token from :func:`theme_choices`."
+    },
+    "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c": {
+      "source_blocks_sha256": [
+        "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
+        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+      ],
+      "source_sha256": "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c",
+      "text": "What to pass cellpose as ``gpu=``.\n\nCellpose does its own device resolution and already knows about MPS --\n``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it\ncannot do is guess, so it must be TOLD there is a GPU. Passing\n``torch.cuda.is_available()`` here is what pinned every Mac to the CPU:\ncellpose branches on this flag before it looks at ``device`` at all."
     },
     "c4c5de7b7b4f2c1468b7708ac196d0864d045fc0865f66939e71302ccd7ff90d": {
       "source_blocks_sha256": [

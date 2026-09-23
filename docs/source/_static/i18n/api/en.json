@@ -199,22 +199,22 @@
     "spacr.accelerator.cellpose_gpu": {
       "source_blocks_sha256": [
         "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
-        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+        "afe087464bfad63c02c73d1ef7064c3c7a07c59dee6a07e681f52ce136361a82"
       ],
-      "source_sha256": "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c",
-      "text": "What to pass cellpose as ``gpu=``.\n\nCellpose does its own device resolution and already knows about MPS --\n``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it\ncannot do is guess, so it must be TOLD there is a GPU. Passing\n``torch.cuda.is_available()`` here is what pinned every Mac to the CPU:\ncellpose branches on this flag before it looks at ``device`` at all."
+      "source_sha256": "0cda6043cb6f422aee7e6c69f8b5dc60133cad15e3c840a690c8115b379882af",
+      "text": "What to pass cellpose as ``gpu=``.\n\nCellpose does its own device resolution and already knows about MPS --\n``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it\ncannot do is guess, so it must be TOLD there is a GPU. Passing\n``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit\ndevice is supplied. An explicit Cellpose device takes precedence."
     },
     "spacr.accelerator.cellpose_kwargs": {
       "source_blocks_sha256": [
-        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
         "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
-        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
-        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
-        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "7cfd07e7b613a1836695b882521af8b8ba687c879af109b5b6996fd40d0b8cdd",
+        "66585f86b3a5591511b8be63bbb587246267c8b479fc9694285b9055a12417f4",
+        "01e3269686bf0c8c620ad49a202b0c33f9cbb40bc7d0c0c40db10cda2bdfc42d",
         "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
       ],
-      "source_sha256": "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c",
-      "text": "Everything ``CellposeModel`` needs to land on this machine's GPU.\n\nTHREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced\ntogether rather than spelled out at six call sites:\n\n* ``gpu`` -- cellpose branches on this BEFORE it looks at ``device``,\n  so a device without the flag still takes the CPU path.\n* ``device`` -- from the one resolver, so cellpose and spaCR cannot\n  disagree about the same machine.\n* ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default\n  and Metal on torch 2.2 has no bfloat16, so the default is a\n  ``TypeError: BFloat16 is not supported on MPS`` at construction.\n  Measured on the reporting iMac; float32 weights work there and cost\n  VRAM, which is the right trade for a card that otherwise sits idle.\n\nCallers that pass ``device=None`` on purpose -- letting cellpose\nresolve it -- should take ``gpu`` and ``use_bfloat16`` from here and\ndrop ``device``."
+      "source_sha256": "5dfaa51a0be09153c8352383fd2fa24c4e95236fe06104e1bd11761ead38feba",
+      "text": "Consistent device and weight precision for ``CellposeModel`` inference.\n\nTHREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced\ntogether rather than spelled out at six call sites:\n\n* ``gpu`` -- controls Cellpose's selection when no explicit device is\n  supplied, including callers that deliberately drop ``device`` below.\n* ``device`` -- from the one resolver, so cellpose and spaCR cannot\n  disagree about the same machine; an explicit device takes precedence.\n* ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default\n  and Metal on torch 2.2 has no bfloat16, so the default is a\n  ``TypeError: BFloat16 is not supported on MPS`` at construction.\n  Measured on the reporting iMac; float32 weights work there and cost\n  VRAM, which is the right trade for a card that otherwise sits idle.\n  CPU inference also uses float32: bfloat16 support does not imply\n  native arithmetic, and emulation can be substantially slower. This\n  matches Make Masks; float32 arithmetic need not produce identical\n  predictions to bfloat16.\n\nCallers that pass ``device=None`` on purpose -- letting cellpose\nresolve it -- should take ``gpu`` and ``use_bfloat16`` from here and\ndrop ``device``."
     },
     "spacr.accelerator.describe": {
       "source_blocks_sha256": [
@@ -27296,13 +27296,13 @@
       "source_blocks_sha256": [
         "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
         "7f20bb964cdb7ee52d2e7c61062db7715729d574f2a3551a5c0f8b0afc185f08",
-        "c6766e19bf10c2d003b32599982c04242cafc635a7ebe1a0db2c372cd29cd0d1",
+        "e79e7de054afc600e189c6c6de74f506da646ab7ca42e76bfe60f29484db3d15",
         "73b303233ebbcac7c2202876eb3bf24cb010bd634e48cc2f57b799a1c9939991",
         "bb1b928d7d9847478938762fccb868e05d9b36f1490d299bb1618ff936b782e1",
         "a911e70676995448ffbff8b4a8626916d20976f420e17ed149d54c305b5c544a"
       ],
-      "source_sha256": "9d393915f1383bdfe4049d9a552ced48151733ee190ff73c2a311275447d1664",
-      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\ntorch and cellpose are imported here and nowhere else in this module.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
+      "source_sha256": "8a9431f4448b8da892a7a0f989801ce51628f20ca417c58a141a718a1edbe852",
+      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\nModel and device dependencies are loaded on demand for this call.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
     },
     "spacr.model_zoo": {
       "source_blocks_sha256": [
@@ -56783,11 +56783,11 @@
       "source_blocks_sha256": [
         "07a3daf21dadb2008e150b3b67939f3fe57ce3f96e1789da7527168705a26fee",
         "47f0dbfb0621e6ea3d2950edee1cefb8948eebc86d292edd15548be74c375af9",
-        "66794e60cc76595e4a1e612e6f0336b6605b847bc1bf2dd0e8f3faa4b6d421f6",
+        "1ef86842ff5c7dbb8fb82d761511f8448f2aa5511444fb3cbeaa234d4a8e1460",
         "a7be57c3a4c0281dfe6aca7ec8e60d73471887c5d364630320970e786766c8d1"
       ],
-      "source_sha256": "fd988699e1cd8b6c8b380dc8a598b9d5a4a0580c7e56934ebd86fb6e3e5f6797",
-      "text": "Segment the open field with the chosen model; objects found.\n\nThe two panes are filled BEFORE the mask is touched, and they are\nfilled even when the run found nothing at all. A run that returns\nan empty mask is exactly the run whose probability map you need to\nsee: it says whether the network found nothing, or found plenty\nand the threshold threw it away.\n\nThe run blocks this screen while it is going. Cellpose on a GPU\nanswers in about a second on one field, and moving it to a thread\nwould mean a second worker on a screen that already drains one on\nclose; the button is disabled and the cursor says wait instead.\n\nWith Invert on the model is given the INVERTED field\n(:meth:`_detector_image`), and the status\nline and the ledger entry both say so."
+      "source_sha256": "4ce97f38724126f3668bd51dd0d7c1beb2032959e78a93670f0c95cb5a001134",
+      "text": "Segment the open field with the chosen model; objects found.\n\nThe two panes are filled BEFORE the mask is touched, and they are\nfilled even when the run found nothing at all. A run that returns\nan empty mask is exactly the run whose probability map you need to\nsee: it says whether the network found nothing, or found plenty\nand the threshold threw it away.\n\nThis programmatic method is synchronous and returns the object\ncount. The toolbar uses a background worker instead, taking a\nsnapshot and discarding results after field changes or mask edits.\nIf toolbar detection is already running, this method returns zero\nwithout starting a second run.\n\nWith Invert on the model is given the INVERTED field\n(:meth:`_detector_image`), and the status\nline and the ledger entry both say so."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.save_curated_mask": {
       "source_blocks_sha256": [

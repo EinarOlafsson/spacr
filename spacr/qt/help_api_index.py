@@ -27,7 +27,7 @@ API_ENTRIES = (
     ('spacr.accelerator.autocast_device_type', 'The string for ``torch.autocast(device_type=...)``, or None.'),
     ('spacr.accelerator.capabilities', '``(task, accelerated, detail)`` for what this machine can actually do.'),
     ('spacr.accelerator.cellpose_gpu', 'What to pass cellpose as ``gpu=``.'),
-    ('spacr.accelerator.cellpose_kwargs', "Everything ``CellposeModel`` needs to land on this machine's GPU."),
+    ('spacr.accelerator.cellpose_kwargs', 'Consistent device and weight precision for ``CellposeModel`` inference.'),
     ('spacr.accelerator.describe', 'One line for a log or a console: what was found and whether it runs.'),
     ('spacr.accelerator.device_string', 'The resolved device as a string, e.g. ``"cuda:0"``, ``"mps"``.'),
     ('spacr.accelerator.empty_cache', 'Hand the driver back whatever this backend caches. Never raises.'),

@@ -144,6 +144,20 @@ corresponding whole-image detection action. Only applicable method controls
 are shown. Model methods require their model or backend; the Model Zoo
 indicates installation and download state.
 
+The **Object detection** toolbar action runs model loading, inference and
+postprocessing in a worker so the window remains responsive. It captures the
+current input and settings when started. If you switch fields or change the
+image or mask before it finishes, the result is discarded; run detection again
+on the intended field. Closing the window does not wait for that result.
+The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose`
+remains synchronous and returns zero if another detection is already running.
+
+CPU Cellpose inference uses float32 weights through the shared device policy.
+Supported GPU precision depends on the backend and device. Different precision
+can produce different predictions, so inspect the masks instead of assuming
+identical output across devices. This inference policy does not change training
+precision. See :func:`spacr.accelerator.cellpose_kwargs`.
+
 .. list-table::
    :header-rows: 1
    :widths: 27 73
