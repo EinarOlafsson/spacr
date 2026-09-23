@@ -12206,3 +12206,18 @@ container contract tests: local .claude worktrees currently add 1.6G to the
 context, and the documented Python3.10 override still unconditionally adds
 the deadsnakes PPA. Will repair those before the real build. No catalog,
 API-source or tutorial edit claimed; documentation lane keeps its work.
+
+2026-09-23 — IMPLEMENTATION: 425 BUILD LIVE / 475 WORKER CLAIM
+425 fixes pushed as3bcac5fd6;27container checks pass. A real CUDA-image build
+is live from an archived exact checkout, Docker client session30429, log
+implementation-20260922/docker-425/build.log. Context108.5MB; runc runtime,
+8G RAM-plus-swap limit and two CPU cores for build containers. No GPU or push.
+Found Python3.10.20 in the existing hugmunn environment. Reading that binary
+through PATH lets the ordinary SpotNet installer build its OWN private venv;
+no hugmunn or spaCR packages changed. Install session73474 uses6G/CPU-only.
+Claiming _segmentation_backends.py's SpotNet worker and backend tests: upstream
+0.4.2 returns a NumPy batch shaped(1,N,2), but our worker strips a batch only
+from lists/tuples. Empty results also need their documented empty-coordinate
+shape. Will validate against the installed postprocessor if install succeeds.
+Asked for locally configured DeepCell credentials or an existing weights path;
+no token is configured, so real-image scoring remains pending that dependency.
