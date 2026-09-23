@@ -15342,3 +15342,25 @@ Native macOS rerun35930844907PASSED; Linux/Windows35930460120also passed.
 The1.5.1.0wheel/sdist built and both passed strict twine rendering checks.
 No new signing claim: native artifacts remain unsigned without U-M credentials.
 Candidate full-suite35931077655and compatibility35931156957are still in progress.
+
+2026-09-23 RELEASE INTEGRATION: required test fixtures must survive main promotion
+Found unconditional reads of features/data in runtime_i18n_syntax, Make Masks
+inversion help, section headings, external captions and merged plaque transfer
+tests. Since main excludes features/, these contracts lose their required data.
+Claiming only their fixture paths plus five copied dated JSON records under
+tests/data/release_contracts and an sdist manifest entry. Original dated audit
+receipts remain in features for historical links. Future review cohort updates
+must update the canonical test fixture as well. No translation assertion is
+weakened or skipped. Current broad caption run40passed/18registered report-only
+xfails is diagnostic only: docs snapshot advanced while it was running.
+The focused fixture run found an outdated inversion-help assertion: the control
+now contains linked HTML help, so equality with bare prose fails in nine locales.
+The test now checks the complete translated prose in Qt-rendered plain text AND
+requires the API hyperlink; warning/control-name/normalization assertions remain.
+No production translation or reporting policy was changed.
+Validation: the other four fixture-dependent cohorts passed14checks; the updated
+inversion-help plus linked-help cohort passed12checks. The full previous rendered
+caption diagnostic passed40with18registered translation incompatibilities.
+Native Linux/Windows and macOS installer acceptance is green; U-M access remains
+explicitly nonblocking. Freezing the release candidate after this fixture fix;
+please keep optional new tutorial/media work on nightly while its CI finishes.

@@ -434,7 +434,7 @@ def test_several_sizes_are_merged_by_the_modules_own_merge():
 def test_the_merged_run_record_adds_up():
     """The 2026-09-21 record: 640 and 1280 reproduce the earlier totals, and
     the merged boxes split exactly into the kept 640 boxes and the new ones."""
-    record = json.loads((ROOT / "features" / "data" /
+    record = json.loads((ROOT / "tests/data/release_contracts" /
                          "424_detector_transfer_merged_2026-09-21.json").read_text())
     totals = record["totals"]
     assert totals["v2_boxes"] == {"640": 148, "1280": 194, "merged": 206}

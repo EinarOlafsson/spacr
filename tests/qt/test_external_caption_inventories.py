@@ -30,7 +30,7 @@ def test_reachable_svg_descriptions_are_catalogued(builder, qtbot, app_key):
 
 
 def test_installer_phase_sources_match_the_handoff(builder):
-    receipt = json.loads((ROOT / "features/data/474_starplast_integration_2026-09-22.json").read_text())
+    receipt = json.loads((ROOT / "tests/data/release_contracts/474_starplast_integration_2026-09-22.json").read_text())
     sources = builder._starplast_progress_sources()
     assert sources == set(receipt["dynamic_progress_labels"])
     assert len(sources) == 7

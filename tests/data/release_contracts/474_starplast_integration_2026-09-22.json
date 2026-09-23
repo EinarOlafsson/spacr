@@ -1,0 +1,169 @@
+{
+  "item": 474,
+  "date": "2026-09-22",
+  "tests_passed": 48,
+  "full_third_party_install_run": false,
+  "reviewed_renders": [
+    "starplast-first-tile.png",
+    "starplast-install-dialog.png"
+  ],
+  "api_inventory": [
+    {
+      "name": "spacr._starplast.apps_root",
+      "file": "spacr/_starplast.py",
+      "signature": "root=None",
+      "description": "Return the external-application folder without creating it.\n\n:param root: explicit folder, otherwise ``SPACR_APPS_DIR`` or ``~/.spacr/apps``.\n:returns: absolute application root."
+    },
+    {
+      "name": "spacr._starplast.default_source",
+      "file": "spacr/_starplast.py",
+      "signature": "",
+      "description": "Prefer an explicit source or a sibling Starplast checkout, then GitHub.\n\n:returns: ``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL."
+    },
+    {
+      "name": "spacr._starplast._record",
+      "file": "spacr/_starplast.py",
+      "signature": "env: Path",
+      "description": "Read only a valid spaCR-owned Starplast environment record."
+    },
+    {
+      "name": "spacr._starplast.is_installed",
+      "file": "spacr/_starplast.py",
+      "signature": "root=None",
+      "description": "Whether an owned environment has passed the import and bundled-data checks.\n\n:param root: external-application folder.\n:returns: true only with a completed record and environment interpreter."
+    },
+    {
+      "name": "spacr._starplast.process_environment",
+      "file": "spacr/_starplast.py",
+      "signature": "env: Path",
+      "description": "Isolate Python, pip and Qt plugin lookup from the running spaCR process.\n\n:param env: Starplast's virtual environment.\n:returns: subprocess variables retaining desktop display and user settings."
+    },
+    {
+      "name": "spacr._starplast._claim",
+      "file": "spacr/_starplast.py",
+      "signature": "root: Path",
+      "description": "Claim the install, refusing concurrent work and retaining live locks."
+    },
+    {
+      "name": "spacr._starplast.install_starplast",
+      "file": "spacr/_starplast.py",
+      "signature": "source=None, *, root=None, progress=None, cancel=None, runner=None, preflight=None",
+      "description": "Build an isolated environment, install Starplast and check its bundled data.\n\nLocal Git sources are archived from committed HEAD into temporary storage;\npip never writes build files into the original checkout. A failed install\nremoves only the environment created here, and retains ``starplast-install.log``.\n\n:param source: local Git checkout or pip repository URL; default_source otherwise.\n:param root: external-application folder.\n:param progress: callback ``(step, steps, text)``; called off the GUI thread.\n:param cancel: threading.Event; cancels commands and their descendants.\n:param runner: optional subprocess-runner substitute for focused tests.\n:param preflight: optional interpreter-preflight substitute for focused tests.\n:returns: completed environment path.\n:raises RuntimeError: installation failed, was cancelled, or folder is unowned."
+    },
+    {
+      "name": "spacr._starplast.launch_starplast",
+      "file": "spacr/_starplast.py",
+      "signature": "*, root=None, popen=None",
+      "description": "Start Starplast as a separate process, logging output beside its environment.\n\n:param root: external-application folder.\n:param popen: optional subprocess.Popen substitute for focused tests.\n:returns: child process, which the UI monitors for launch errors.\n:raises RuntimeError: no completed environment exists."
+    },
+    {
+      "name": "spacr.qt.starplast._InstallThread",
+      "file": "spacr/qt/starplast.py",
+      "signature": null,
+      "description": "Run the cancellable installer without importing PyQt6 into spaCR."
+    },
+    {
+      "name": "spacr.qt.starplast._InstallThread.__init__",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self, source, root, job, parent",
+      "description": "Keep the selected source and outcome until the thread has finished."
+    },
+    {
+      "name": "spacr.qt.starplast._InstallThread.run",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self",
+      "description": "Store an outcome; Qt's finished signal delivers it after the thread exits."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog",
+      "file": "spacr/qt/starplast.py",
+      "signature": null,
+      "description": "Explain the alpha app and download size before installing in its own environment.\n\n:param parent: owning organism page.\n:param root: optional external-application root.\n:param job: optional installer substitute for tests."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog.__init__",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self, parent=None, *, root=None, job=None",
+      "description": "Build the consent and progress controls; opening the dialog installs nothing."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog._choose_source",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self",
+      "description": "Select a local Starplast Git checkout without changing any files."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog.start",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self",
+      "description": "Start the install after the explicit button press, keeping Qt responsive."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog._progress",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self, step, total, text",
+      "description": "Display command output as plain text while retaining a bounded history."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog._finished",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self",
+      "description": "Offer retry after failure or close once installation/cancellation ends."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog.reject",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self",
+      "description": "Cancel active subprocesses and defer closing until the worker has ended."
+    },
+    {
+      "name": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+      "file": "spacr/qt/starplast.py",
+      "signature": "self, event",
+      "description": "Keep the dialog alive until its installer thread has stopped."
+    },
+    {
+      "name": "spacr.qt.starplast.open_starplast",
+      "file": "spacr/qt/starplast.py",
+      "signature": "parent=None, *, root=None",
+      "description": "Offer installation once, then launch the independent Starplast application.\n\n:param parent: organism page requesting the launch.\n:param root: optional external-application folder.\n:returns: child process, or None if cancelled or launch failed."
+    },
+    {
+      "name": "spacr.qt.starplast.open_starplast.check",
+      "file": "spacr/qt/starplast.py",
+      "signature": "",
+      "description": "Reap the detached child and show failures without closing Starplast on spaCR exit."
+    }
+  ],
+  "runtime_captions": [
+    "Cancel",
+    "Cancelling Starplast installation…",
+    "Choose Starplast checkout",
+    "Choose checkout…",
+    "Close",
+    "Install Starplast (alpha)",
+    "Install and open",
+    "Ready to install when you choose Install and open.",
+    "Starplast could not open",
+    "Starplast exited with code {code}. See {path} for details.",
+    "Starplast installation cancelled.",
+    "Starplast installation failed. Review the details and try again.",
+    "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: Linux x86_64 dependencies include approximately 2 GB of CUDA wheels, plus the application, bundled data and other dependencies. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+    "Starplast is installed.",
+    "Starplast source",
+    "Try again"
+  ],
+  "dynamic_progress_labels": [
+    "Checking Python, network and free disk space",
+    "Snapshot committed Starplast source",
+    "Create Starplast environment",
+    "Install pip",
+    "Install Starplast and dependencies",
+    "Check Starplast and bundled data",
+    "Starplast is installed"
+  ],
+  "new_tile_description": "Explore the Toxoplasma knowledge map in a separate alpha application.",
+  "environment": "~/.spacr/apps/starplast",
+  "source_override": "SPACR_STARPLAST_SOURCE",
+  "root_override": "SPACR_APPS_DIR"
+}
