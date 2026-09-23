@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "synthetic": true,
+  "source_database_sha256": "8f722b58a3d64e72f50c6a600558eb1ef53c36a0777fb013cce909e7d62d420d",
+  "archive_sha256": "5fc90661358498e13658293b3f5c06ebe3f0eae4f1896a86ac98179e0a1cb7d4",
+  "archive_bytes": 60585,
+  "parasite_rows": 1800,
+  "database_bytes_unchanged": true,
+  "settings_source_replaced_with_portable_placeholder": true,
+  "stain_baseline_setting_current": true
+}
