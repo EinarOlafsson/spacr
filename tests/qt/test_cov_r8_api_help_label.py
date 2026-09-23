@@ -153,9 +153,9 @@ class TestTheHoverAffordances:
         lbl = label(app_key="mask")
         assert lbl.toolTipDuration() == -1
 
-    def test_the_cursor_says_there_is_something_to_read(self, label):
+    def test_hover_help_preserves_the_native_arrow_cursor(self, label):
         lbl = label(app_key="mask")
-        assert lbl.cursor().shape() == Qt.WhatsThisCursor
+        assert lbl.cursor().shape() == Qt.ArrowCursor
 
     def test_the_hover_filter_is_installed_once_however_often_it_refreshes(
             self, label, monkeypatch):
