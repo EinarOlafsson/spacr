@@ -13153,3 +13153,35 @@ is in the preceding handoff; please include it in translations and explain
 forced/fallback CPU precision in API guidance. Signatures/settings unchanged.
 GPU observer still live but no20minute qualification; latest GitHub checks
 queued. Full module-capture completion from your lane has been read.
+
+2026-09-23 — IMPLEMENTATION: NORMALIZED ARCHIVE RECOVERY CLAIM
+Auditing io.py resume checks on real local archive fixtures. Two suspected
+holes: preprocessing-off checks ignore earlier .damaged archives on a second
+run; a valid ZIP directory with a short data.npy payload passes the header-only
+check. Claiming these private function bodies and a new recovery test file.
+No API prose/catalog edits, GPU use or NAS access. Will reproduce before fix.
+
+Archive recovery reproduced10failures in14initial cases: valid ZIPs with
+short data.npy payloads, image/name count mismatches, and second-run loss of
+quarantine refusal. First corrected cohort37passes. Expanded cohort adds
+real TIFF preprocessing/rebuild with intact-archive byte preservation,
+object-pixel refusal, legacy object-name handling and filename-vector shape.
+Private io.py methods only; no public signature/settings/caption change.
+API guidance to update: _inspect_normalized_archive checks declared numeric
+pixel byte extent and one filename per batch field without materializing
+pixel arrays; this is not a full pixel CRC scan. _check_archives_without_
+preprocessing retains earlier quarantine errors until a valid same-name
+replacement exists or readable archives cover every existing stack field.
+Legacy object-name archives cannot establish that coverage proof. Both
+methods retain damaged evidence and never delete it to make a rerun pass.
+
+2026-09-23 — IMPLEMENTATION: ARCHIVE RECOVERY VERIFIED
+110distinct checks pass:100normalization/recovery checks plus10additional
+file-boundary cases.31new cases total. Real preprocessing repairs short-pixel
+and missing-filename archives, preserves every valid archive byte and the
+quarantine bytes, and restores all four fields. Both modified functions
+reach100percent branch/statement coverage (65statements32branches combined),
+not a whole-io.py ratchet claim. Receipt288_normalized_archive_recovery_
+2026-09-23.json. No signature/settings/catalog change; please update the two
+private method descriptions and interrupted-run tutorial guidance as outlined
+above. No full-pixel CRC claim, GPU execution, NAS access or model download.

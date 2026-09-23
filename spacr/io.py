@@ -2588,6 +2588,7 @@ def _inspect_normalized_archive(path):
         not read without unpickling. ``planes`` is the length of the last axis
         of ``data``, or ``None`` when it is damaged.
     """
+    import math
     import zipfile
     import zlib
     from numpy.lib import format as npy_format
@@ -2610,9 +2611,14 @@ def _inspect_normalized_archive(path):
                             'the file', None, None)
             with archive.open('data.npy') as member:
                 if npy_format.read_magic(member) == (1, 0):
-                    shape = npy_format.read_array_header_1_0(member)[0]
+                    shape, _, dtype = npy_format.read_array_header_1_0(member)
                 else:
-                    shape = npy_format.read_array_header_2_0(member)[0]
+                    shape, _, dtype = npy_format.read_array_header_2_0(member)
+                if dtype.hasobject:
+                    return False, 'data.npy requires unpickling', None, None
+                expected = member.tell() + math.prod(shape) * dtype.itemsize
+                if members['data.npy'].file_size < expected:
+                    return False, 'truncated: data.npy pixels are incomplete', None, None
             planes = int(shape[-1]) if shape else None
             with archive.open('filenames.npy') as member:
                 try:
@@ -2621,6 +2627,8 @@ def _inspect_normalized_archive(path):
                     if 'allow_pickle' not in str(exc):
                         raise
                     return True, 'done', None, planes
+            if not shape or names.ndim != 1 or names.size != shape[0]:
+                return False, 'filenames count does not match data.npy fields', None, None
     except zipfile.BadZipFile as exc:
         return False, f'not a complete zip archive ({exc})', None, None
     except (OSError, ValueError, EOFError, KeyError, zlib.error) as exc:
@@ -2767,9 +2775,13 @@ def _check_archives_without_preprocessing(src):
     masks_path = os.path.join(src, 'masks')
     stack_path = os.path.join(src, 'stack')
     checked = _check_normalized_archives(masks_path)
-    damaged = checked['damaged']
+    stack_fields = _stack_field_stems(stack_path)
+    earlier = set(checked['earlier']) - set(checked['archives'])
+    if (stack_fields and not checked['unlisted']
+            and stack_fields <= checked['covered']):
+        earlier.clear()
+    damaged = sorted({name for name, _ in checked['damaged']} | earlier)
     if damaged:
-        stack_fields = _stack_field_stems(stack_path)
         raw = (_raw_image_names(src) or
                _raw_image_names(os.path.join(src, 'orig')) or
                _channel_folders(src))
@@ -2790,18 +2802,17 @@ def _check_archives_without_preprocessing(src):
         raise FileNotFoundError(
             f'{len(damaged)} normalised archive(s) in {masks_path} were '
             f'damaged by an earlier run '
-            f'({_name_list(name for name, _ in damaged)}) and have been set '
+            f'({_name_list(damaged)}) and have been set '
             f'aside as <name>.damaged. preprocess is off, so they are not '
             f'built again.{way_out}')
     if not checked['unlisted']:
-        missing = _stack_field_stems(stack_path) - checked['covered']
+        missing = stack_fields - checked['covered']
         if missing and checked['archives']:
             print(f'{len(missing)} field(s) in stack/ are in no archive in '
                   f'{masks_path}: {_name_list(sorted(missing))}. preprocess '
                   f'is off, so they are not normalised and get no masks; '
                   f'turn preprocess on to add them.')
-    return [name for name in checked['archives']
-            if name not in dict(damaged)]
+    return checked['archives']
 
 
 def _next_archive_index(masks_path):
