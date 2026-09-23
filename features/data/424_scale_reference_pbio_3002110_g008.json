@@ -1,0 +1,75 @@
+{
+  "figure": "Kelsen et al. (2023), PLOS Biology, Figure 8A",
+  "doi": "10.1371/journal.pbio.3002110",
+  "figure_url": "https://journals.plos.org/plosbiology/article/figure?id=10.1371/journal.pbio.3002110.g008",
+  "png_url": "https://journals.plos.org/plosbiology/article/file?id=10.1371/journal.pbio.3002110.g008&type=large",
+  "tiff_url": "https://journals.plos.org/plosbiology/article/figure/image?download=&id=10.1371/journal.pbio.3002110.g008&size=original",
+  "licence": "CC BY; copyright 2023 Kelsen et al., as stated on the article page",
+  "licence_source": "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3002110",
+  "accepted_file_sha256": [
+    "5014f526c898bd437734c1595530eb07426298d933f0707c5283bd009e29ec5d",
+    "4257fae295ea6cd97d1335ab08090ad5225e3f87f5f9c7db85fad635abf6f813"
+  ],
+  "shape": [
+    1376,
+    1556,
+    3
+  ],
+  "scale_caption": "Plaque fields show an 11.3 mm square; scale bar = 2 mm.",
+  "caption_is_paraphrase": true,
+  "published_crop_width_mm": 11.3,
+  "published_bar_mm": 2,
+  "crop_boxes_xyxy": [
+    [
+      202,
+      2,
+      535,
+      334
+    ],
+    [
+      543,
+      2,
+      873,
+      334
+    ],
+    [
+      881,
+      2,
+      1210,
+      334
+    ],
+    [
+      1218,
+      2,
+      1551,
+      334
+    ],
+    [
+      202,
+      342,
+      535,
+      675
+    ],
+    [
+      543,
+      342,
+      873,
+      675
+    ],
+    [
+      881,
+      342,
+      1210,
+      675
+    ],
+    [
+      1218,
+      342,
+      1551,
+      675
+    ]
+  ],
+  "crop_box_origin": "Assistant visual inspection of the published figure; boxes isolate the scale reader and are not human-curated detector ground truth",
+  "retrieved": "2026-09-23",
+  "original_png_tiff_pixels_identical": true
+}

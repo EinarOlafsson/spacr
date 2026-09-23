@@ -1,0 +1,623 @@
+{
+  "feature": 424,
+  "date": "2026-09-23",
+  "base_commit": "0e34cdb06212162d0e79a4710fb940177c23dfbd",
+  "source_sha256": {
+    "spacr/plaque_papers.py": "9659b73cbe94c735fed54d71e42c52d40f7e502a6dda063cbd91970bc808dbe6",
+    "tools/evaluate_plaque_scale_reference.py": "a0c5526fb940aa10f5c2fb696628d8dc9822ce30b17180d01bfc89906c2bed41",
+    "tests/test_plaque_shared_legend_scale.py": "beaa0d3c30e116a4cd6867f1af79ef7c0f423ec8748edf67cbd9414c4b22adc2"
+  },
+  "reproduction": [
+    "Actual real OCR/scale run: one of eight supplied regions calibrated, seven in pixels",
+    "9 failed, 3 passed in initial grid-order/own-bar tests",
+    "1 failed, 2 passed in donor-conflict check before guard; overlapping subset, not additive"
+  ],
+  "validation": {
+    "focused": "73 passed, 1 skipped in 5.20s",
+    "skip": "Existing real-PDF test requires optional pdfplumber absent from host interpreter; no new skip",
+    "actual_reader": "Existing isolated papers environment; real RapidOCR; CPU, 4 GiB/no swap, private HOME/config, CUDA hidden",
+    "output_guards": [
+      {
+        "output": "/mnt/firecuda2/Claude/implementation-20260922/plaque-scale-424/pbio.3002110.g008.png",
+        "exit_code": 2,
+        "unchanged": true
+      },
+      {
+        "output": "/mnt/firecuda2/Claude/repo/spacr/features/data/424_scale_reference_pbio_3002110_g008.json",
+        "exit_code": 2,
+        "unchanged": true
+      }
+    ],
+    "fatal_ruff": "passed",
+    "diff_check": "passed"
+  },
+  "before": {
+    "calibrated_regions": 1,
+    "regions": 8,
+    "scales": [
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": null,
+        "source": "none",
+        "detail": "sizes in pixels",
+        "magnification": ""
+      },
+      {
+        "px_per_mm": 28.5,
+        "source": "scale bar, length from legend",
+        "detail": "'scale bar = 2 mm': bar = 57 px",
+        "magnification": ""
+      }
+    ],
+    "bars": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      [
+        1483,
+        659,
+        1540,
+        664
+      ]
+    ],
+    "ocr_words": 32
+  },
+  "after": {
+    "reference": {
+      "figure": "Kelsen et al. (2023), PLOS Biology, Figure 8A",
+      "doi": "10.1371/journal.pbio.3002110",
+      "figure_url": "https://journals.plos.org/plosbiology/article/figure?id=10.1371/journal.pbio.3002110.g008",
+      "png_url": "https://journals.plos.org/plosbiology/article/file?id=10.1371/journal.pbio.3002110.g008&type=large",
+      "tiff_url": "https://journals.plos.org/plosbiology/article/figure/image?download=&id=10.1371/journal.pbio.3002110.g008&size=original",
+      "licence": "CC BY; copyright 2023 Kelsen et al., as stated on the article page",
+      "licence_source": "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3002110",
+      "accepted_file_sha256": [
+        "5014f526c898bd437734c1595530eb07426298d933f0707c5283bd009e29ec5d",
+        "4257fae295ea6cd97d1335ab08090ad5225e3f87f5f9c7db85fad635abf6f813"
+      ],
+      "shape": [
+        1376,
+        1556,
+        3
+      ],
+      "scale_caption": "Plaque fields show an 11.3 mm square; scale bar = 2 mm.",
+      "caption_is_paraphrase": true,
+      "published_crop_width_mm": 11.3,
+      "published_bar_mm": 2,
+      "crop_boxes_xyxy": [
+        [
+          202,
+          2,
+          535,
+          334
+        ],
+        [
+          543,
+          2,
+          873,
+          334
+        ],
+        [
+          881,
+          2,
+          1210,
+          334
+        ],
+        [
+          1218,
+          2,
+          1551,
+          334
+        ],
+        [
+          202,
+          342,
+          535,
+          675
+        ],
+        [
+          543,
+          342,
+          873,
+          675
+        ],
+        [
+          881,
+          342,
+          1210,
+          675
+        ],
+        [
+          1218,
+          342,
+          1551,
+          675
+        ]
+      ],
+      "crop_box_origin": "Assistant visual inspection of the published figure; boxes isolate the scale reader and are not human-curated detector ground truth",
+      "retrieved": "2026-09-23",
+      "original_png_tiff_pixels_identical": true
+    },
+    "image_sha256": "5014f526c898bd437734c1595530eb07426298d933f0707c5283bd009e29ec5d",
+    "reader_environment": "/mnt/wd4tb/spacr_testdata/backends_sandbox/papers",
+    "source_sha256": "9659b73cbe94c735fed54d71e42c52d40f7e502a6dda063cbd91970bc808dbe6",
+    "seconds": 5.058995932980906,
+    "words": [
+      {
+        "text": "A",
+        "x0": 2.0,
+        "y0": 0.0,
+        "x1": 55.0,
+        "y1": 63.0,
+        "confidence": 0.9976636171340942
+      },
+      {
+        "text": "WT",
+        "x0": 113.0,
+        "y0": 147.0,
+        "x1": 187.0,
+        "y1": 188.0,
+        "confidence": 0.9981419742107391
+      },
+      {
+        "text": "T130A",
+        "x0": 49.0,
+        "y0": 484.0,
+        "x1": 185.0,
+        "y1": 527.0,
+        "confidence": 0.9983426809310914
+      },
+      {
+        "text": "KNX-002 (\u03bcM):",
+        "x0": 55.0,
+        "y0": 692.0,
+        "x1": 315.0,
+        "y1": 734.0,
+        "confidence": 0.96379809654676
+      },
+      {
+        "text": "80",
+        "x0": 1359.0,
+        "y0": 693.0,
+        "x1": 1408.0,
+        "y1": 733.0,
+        "confidence": 0.9999042749404907
+      },
+      {
+        "text": "20",
+        "x0": 667.0,
+        "y0": 694.0,
+        "x1": 713.0,
+        "y1": 731.0,
+        "confidence": 0.9998835027217865
+      },
+      {
+        "text": "40",
+        "x0": 1021.0,
+        "y0": 694.0,
+        "x1": 1068.0,
+        "y1": 731.0,
+        "confidence": 0.9998667538166046
+      },
+      {
+        "text": "Average Plaque Area (mm2)",
+        "x0": 854.0,
+        "y0": 813.0,
+        "x1": 915.0,
+        "y1": 1313.0,
+        "confidence": 0.991996796131134
+      },
+      {
+        "text": "125",
+        "x0": 168.0,
+        "y0": 827.0,
+        "x1": 229.0,
+        "y1": 861.0,
+        "confidence": 0.9998841285705566
+      },
+      {
+        "text": "B",
+        "x0": 4.0,
+        "y0": 834.0,
+        "x1": 52.0,
+        "y1": 897.0,
+        "confidence": 0.9994396567344666
+      },
+      {
+        "text": "0.4",
+        "x0": 922.0,
+        "y0": 840.0,
+        "x1": 976.0,
+        "y1": 873.0,
+        "confidence": 0.9999675750732422
+      },
+      {
+        "text": "p=0.004",
+        "x0": 403.0,
+        "y0": 857.0,
+        "x1": 524.0,
+        "y1": 889.0,
+        "confidence": 0.997810925756182
+      },
+      {
+        "text": "Number of plaques",
+        "x0": 110.0,
+        "y0": 882.0,
+        "x1": 151.0,
+        "y1": 1256.0,
+        "confidence": 0.9959732574575088
+      },
+      {
+        "text": "WT",
+        "x0": 680.0,
+        "y0": 889.0,
+        "x1": 733.0,
+        "y1": 919.0,
+        "confidence": 0.9981273114681244
+      },
+      {
+        "text": "100",
+        "x0": 168.0,
+        "y0": 920.0,
+        "x1": 230.0,
+        "y1": 953.0,
+        "confidence": 0.9995993177096049
+      },
+      {
+        "text": "T130A",
+        "x0": 679.0,
+        "y0": 937.0,
+        "x1": 776.0,
+        "y1": 965.0,
+        "confidence": 0.9983494639396667
+      },
+      {
+        "text": "0.3",
+        "x0": 923.0,
+        "y0": 950.0,
+        "x1": 976.0,
+        "y1": 985.0,
+        "confidence": 0.9998628497123718
+      },
+      {
+        "text": "75",
+        "x0": 186.0,
+        "y0": 1013.0,
+        "x1": 231.0,
+        "y1": 1049.0,
+        "confidence": 0.9999421238899231
+      },
+      {
+        "text": "0.2",
+        "x0": 922.0,
+        "y0": 1062.0,
+        "x1": 977.0,
+        "y1": 1097.0,
+        "confidence": 0.9999418258666992
+      },
+      {
+        "text": "50",
+        "x0": 188.0,
+        "y0": 1106.0,
+        "x1": 228.0,
+        "y1": 1140.0,
+        "confidence": 0.9998908638954163
+      },
+      {
+        "text": "0.1",
+        "x0": 922.0,
+        "y0": 1174.0,
+        "x1": 976.0,
+        "y1": 1207.0,
+        "confidence": 0.9998930096626282
+      },
+      {
+        "text": "25",
+        "x0": 186.0,
+        "y0": 1198.0,
+        "x1": 230.0,
+        "y1": 1234.0,
+        "confidence": 0.9999564290046692
+      },
+      {
+        "text": "0.0",
+        "x0": 920.0,
+        "y0": 1284.0,
+        "x1": 976.0,
+        "y1": 1320.0,
+        "confidence": 0.9997396270434061
+      },
+      {
+        "text": "0",
+        "x0": 198.0,
+        "y0": 1286.0,
+        "x1": 216.0,
+        "y1": 1305.0,
+        "confidence": 0.9816154837608337
+      },
+      {
+        "text": "KNX-002 (\u03bcM): 0",
+        "x0": 40.0,
+        "y0": 1335.0,
+        "x1": 341.0,
+        "y1": 1373.0,
+        "confidence": 0.9784745057423909
+      },
+      {
+        "text": "20",
+        "x0": 438.0,
+        "y0": 1336.0,
+        "x1": 488.0,
+        "y1": 1375.0,
+        "confidence": 0.9998592436313629
+      },
+      {
+        "text": "40",
+        "x0": 575.0,
+        "y0": 1336.0,
+        "x1": 623.0,
+        "y1": 1375.0,
+        "confidence": 0.9999128580093384
+      },
+      {
+        "text": "80",
+        "x0": 709.0,
+        "y0": 1336.0,
+        "x1": 758.0,
+        "y1": 1375.0,
+        "confidence": 0.9998069703578949
+      },
+      {
+        "text": "20",
+        "x0": 1183.0,
+        "y0": 1336.0,
+        "x1": 1233.0,
+        "y1": 1375.0,
+        "confidence": 0.999860018491745
+      },
+      {
+        "text": "40",
+        "x0": 1323.0,
+        "y0": 1336.0,
+        "x1": 1370.0,
+        "y1": 1375.0,
+        "confidence": 0.9999040365219116
+      },
+      {
+        "text": "80",
+        "x0": 1461.0,
+        "y0": 1337.0,
+        "x1": 1507.0,
+        "y1": 1375.0,
+        "confidence": 0.999834805727005
+      },
+      {
+        "text": "0",
+        "x0": 1063.0,
+        "y0": 1343.0,
+        "x1": 1083.0,
+        "y1": 1369.0,
+        "confidence": 0.9014426469802856
+      }
+    ],
+    "regions": [
+      {
+        "region": {
+          "x0": 202,
+          "y0": 2,
+          "x1": 535,
+          "y1": 334,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.68421052631579,
+        "relative_crop_width_difference": 0.034000931532370604
+      },
+      {
+        "region": {
+          "x0": 543,
+          "y0": 2,
+          "x1": 873,
+          "y1": 334,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.578947368421053,
+        "relative_crop_width_difference": 0.024685607824871836
+      },
+      {
+        "region": {
+          "x0": 881,
+          "y0": 2,
+          "x1": 1210,
+          "y1": 334,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.543859649122806,
+        "relative_crop_width_difference": 0.0215804999223721
+      },
+      {
+        "region": {
+          "x0": 1218,
+          "y0": 2,
+          "x1": 1551,
+          "y1": 334,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.68421052631579,
+        "relative_crop_width_difference": 0.034000931532370604
+      },
+      {
+        "region": {
+          "x0": 202,
+          "y0": 342,
+          "x1": 535,
+          "y1": 675,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.68421052631579,
+        "relative_crop_width_difference": 0.034000931532370604
+      },
+      {
+        "region": {
+          "x0": 543,
+          "y0": 342,
+          "x1": 873,
+          "y1": 675,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.578947368421053,
+        "relative_crop_width_difference": 0.024685607824871836
+      },
+      {
+        "region": {
+          "x0": 881,
+          "y0": 342,
+          "x1": 1210,
+          "y1": 675,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, same panel",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": null,
+        "inferred_crop_width_mm": 11.543859649122806,
+        "relative_crop_width_difference": 0.0215804999223721
+      },
+      {
+        "region": {
+          "x0": 1218,
+          "y0": 342,
+          "x1": 1551,
+          "y1": 675,
+          "confidence": 1.0,
+          "sizes": []
+        },
+        "scale": {
+          "px_per_mm": 28.5,
+          "source": "scale bar, length from legend",
+          "detail": "'scale bar = 2 mm': bar = 57 px",
+          "magnification": ""
+        },
+        "detected_unlabelled_bar": [
+          1483,
+          659,
+          1540,
+          664
+        ],
+        "inferred_crop_width_mm": 11.68421052631579,
+        "relative_crop_width_difference": 0.034000931532370604
+      }
+    ],
+    "calibrated_regions": 8,
+    "limitations": [
+      "Crop boxes are supplied, not predicted by a detector",
+      "One published figure; no corpus-wide accuracy claim",
+      "No plaque segmentation or biological comparison"
+    ]
+  },
+  "changes": [
+    "Resolve all own scale bars, including legend-described bars, before sharing with matching neighbors",
+    "An image retains its own ruler ahead of a neighbor calibration",
+    "Conflicting donor calibrations leave other crops in pixel units, with explicit provenance detail"
+  ],
+  "reproduction_command": "SPACR_BACKENDS_DIR=<installed-backends-root> CUDA_VISIBLE_DEVICES='' PYTHONPATH=. tools/run_capped.sh 4G python tools/evaluate_plaque_scale_reference.py --image <downloaded-pbio.3002110.g008.png> --reference features/data/424_scale_reference_pbio_3002110_g008.json --output <private-output.json>",
+  "limitations": [
+    "One published figure, conditional on assistant-inspected crop boxes; no automated detector or segmentation accuracy claim",
+    "The inferred crop widths differ from the published 11.3 mm by +2.16 to +3.40 percent; no correction was fitted to the figure",
+    "Scale-sharing still relies on geometric grid and crop-size compatibility; an image without a ruler stays in pixels if donor scales disagree",
+    "No independent human region-count review or lawn-strip review was performed",
+    "Duplicate-hash threshold calibration, crop-figure corpus, and remaining figure-reading acceptance remain open",
+    "API priority prose update has been handed to documentation lane"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/plaque-scale-424"
+}

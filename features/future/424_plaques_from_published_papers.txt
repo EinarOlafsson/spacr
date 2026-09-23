@@ -1127,3 +1127,32 @@ STILL NOT DONE, honestly:
   * the similar-hash duplicate threshold (4 bits) is set, not measured;
   * Europe PMC JATS figures have no text layer, so those still OCR;
   * "strong" on Fig 6 of the PDF route is "medium" and nobody has said why.
+
+2026-09-23 — REAL PUBLISHED SCALE BAR VERIFIED; GRID SHARING FIXED
+Kelsen et al.2023, PLOS Biology DOI10.1371/journal.pbio.3002110 Fig8A
+(CC BY) states a2mm ruler and11.3mm-square plaque crops. Original PNG and
+TIFF pixels are identical; both source hashes are pinned in
+data/424_scale_reference_pbio_3002110_g008.json. Eight crop boxes were supplied
+from assistant visual inspection to isolate scale reading; these are not
+human-curated detector ground truth. Real installed RapidOCR read32words.
+
+Before: the real57px white bar calibrated only its own crop; seven remained
+in pixels because legend-described bars were discovered after peer sharing.
+The resolver now discovers all own rulers first, then shares them across
+matching grid crops. Own rulers take precedence. Conflicting donor scales
+leave other crops in pixels and state why, rather than choosing the first.
+After:8/8crops use28.5px/mm, with the original bar-bearing crop and seven
+shared-scale sources distinguished. Inferred widths11.54–11.68mm differ
+from the published11.3mm by2.16–3.40percent. This discrepancy is recorded,
+not fitted away; this single figure does not establish corpus accuracy.
+
+Reproducible CPU driver: tools/evaluate_plaque_scale_reference.py. It checks
+source hashes and dimensions, reads actual OCR, records every word/region/
+calibration and refuses to overwrite image/reference inputs. Receipt:
+data/424_real_scale_bar_2026-09-23.json.73focused checks pass;1preexisting
+optional real-PDF test is skipped because host pdfplumber is absent. No GPU
+work, model download or NAS access. API priority prose handoff sent.
+
+This supersedes the old statement that no real bar was checked. Independent
+human lawn-strip/region-count review, crop-specific corpus, duplicate-threshold
+calibration and the other acceptance limitations remain open.

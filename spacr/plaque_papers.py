@@ -1766,6 +1766,18 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
                 own[index] = _Scale(length / mm, "scale bar",
                                    f"{word.text} bar = {length} px")
                 break
+    for index, r in enumerate(regions):
+        if index in own:
+            continue
+        facts = passages[index] if index < len(passages) else {}
+        bar_mm = facts.get("bar_mm") or whole["bar_mm"]
+        if bar_mm:
+            bar = _unlabelled_bar(image, r)
+            if bar is not None:
+                length = bar[2] - bar[0]
+                stated = facts.get("bar_text") or whole["bar_text"]
+                own[index] = _Scale(length / bar_mm, "scale bar, length from legend",
+                                    f"{stated!r}: bar = {length} px")
     block = _blocks(regions) if regions else []
     out: List[_Scale] = []
     for index, r in enumerate(regions):
@@ -1774,23 +1786,18 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
         if index in own:
             out.append(replace(own[index], magnification=magnification))
             continue
-        twin = next((own[j] for j in own if block[j] == block[index]
+        peers = [own[j] for j in own if block[j] == block[index]
                      and abs(regions[j].width - r.width) <= 0.1 * max(r.width, 1)
-                     and abs(regions[j].height - r.height) <= 0.1 * max(r.height, 1)),
-                    None)
-        if twin is not None:
+                     and abs(regions[j].height - r.height) <= 0.1 * max(r.height, 1)]
+        if peers:
+            twin = peers[0]
+            if not all(np.isclose(peer.px_per_mm, twin.px_per_mm) for peer in peers[1:]):
+                out.append(_Scale(None, "none", "conflicting scale bars; sizes in pixels",
+                                  magnification))
+                continue
             out.append(_Scale(twin.px_per_mm, "scale bar, same panel",
                              twin.detail, magnification))
             continue
-        bar_mm = facts.get("bar_mm") or whole["bar_mm"]
-        if bar_mm:
-            bar = _unlabelled_bar(image, r)
-            if bar is not None:
-                length = bar[2] - bar[0]
-                stated = facts.get("bar_text") or whole["bar_text"]
-                out.append(_Scale(length / bar_mm, "scale bar, length from legend",
-                                 f"{stated!r}: bar = {length} px", magnification))
-                continue
         chosen, where = plate_format, "settings"
         if not chosen:
             chosen, where = facts.get("plate_format") or whole["plate_format"], "legend"

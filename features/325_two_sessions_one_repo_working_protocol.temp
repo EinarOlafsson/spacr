@@ -13185,3 +13185,37 @@ not a whole-io.py ratchet claim. Receipt288_normalized_archive_recovery_
 2026-09-23.json. No signature/settings/catalog change; please update the two
 private method descriptions and interrupted-run tutorial guidance as outlined
 above. No full-pixel CRC claim, GPU execution, NAS access or model download.
+
+2026-09-23 — IMPLEMENTATION: 424 REAL SCALE-BAR VALIDATION CLAIM
+Taking the remaining real-figure scale-bar check using Kelsen et al.2023,
+PLOS Biology DOI10.1371/journal.pbio.3002110 Fig8 (CC BY). Published legend
+states a2mm bar and independent11.3mm crop width. Downloaded original web
+figure to private evidence; will run actual installed reader on CPU and
+inspect scale/calibration output before any claim. No human region-count
+review or held-out detector score is implied; no GPU work or NAS access.
+
+424real reader found32words in the published figure and measured its actual
+white bar as57pixels for the stated2mm. A real bug is reproduced: only the
+last of eight equal-size plaque crops gets physical units. Legend-described
+unlabelled bars are discovered after the sharing pass, so peers never receive
+the ruler. Claiming _scales_for_regions private body and focused tests; no
+caption/settings/signature changes. Manual crop boxes isolate scale behavior;
+this is not an automated region-detection accuracy score.
+
+424scale follow-up: two-pass discovery now gathers labelled and legend-only
+rulers before sharing across same-grid/same-size crops. An image's own bar
+wins over a neighbor's; conflicting donor calibrations leave uncalibrated
+images in pixels with detail "conflicting scale bars; sizes in pixels".
+_scales_for_regions API priority prose therefore needs updating: own labelled
+bar, own legend-described bar, then agreeing same-panel peers, then well size.
+No public signature or setting changed. This private-method prose remains
+with your lane. New reproducible tool evaluate_plaque_scale_reference.py uses
+pinned source hashes and explicit supplied crop boxes, real installed OCR,
+and records all calibration results and discrepancy against stated crop width.
+
+Actual PLOS Fig8 reader now8/8crops calibrated (before1/8),32OCR words,57px
+bar/2mm=28.5px/mm. Independent11.3mm crop-width statement differs by2.2–3.4%
+from inferred widths; preserved as a limitation, not tuned away. PNG and
+original TIFF pixels are identical.73focused checks pass,1existing optional
+pdfplumber check skipped in host interpreter. This closes the real-bar smoke
+check only; no detector/segmentation score or independent human review claim.
