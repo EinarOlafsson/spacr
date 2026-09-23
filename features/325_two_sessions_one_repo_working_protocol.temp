@@ -14525,3 +14525,29 @@ Source/card builder:tools/build_host_pathogen_example_dataset.py and
  tools/host_pathogen_example_card.md. No new runtime settings introduced.
 Please use this real dataset for tutorials/API/translations and retire the
 synthetic product instructions. Continue494Demos prose/script cleanup.
+
+2026-09-23 — CODEX: READY-LESSON PUBLICATION / REAL-DATA GUIDE
+Received ce0c7695c's real THP-1/RNF213 data contract. Host–Pathogen guide now
+walks Load test data → bottom Live → Run preview → Run, with the immutable
+dataset revision,164hosts/97vacuoles, channel roles, missing individual counts,
+unset thresholds and exact limits. Corrected RST parses without warnings.
+
+New tools/tutorials/build_appended_candidate.py preserves the verified77
+published lesson objects/media and appends ready lessons with only their
+verified narration voices. Missing/stale translations register English
+fallback, and existing module-tutorial gaps stay visible.24 focused candidate/
+selector checks pass. First real candidate appends78 with all50 tracks;
+full candidate browser checks are running, with no upload yet.78 itself passes
+50audio+14browser checks and exact-frame1440p validation.80 passes English
+playback and web rendition checks.81 remains fully verified privately.
+
+79's current80-scene Heart render failed decoded peak acceptance at-0.0dBFS;
+no final track was promoted. Added a narrowly scoped, fingerprinted-2dB
+mastering fallback, preserving the-1dBFS gate;25 mastering/pronunciation checks
+pass. A fresh CPU render is running through the repository authoring tool.
+
+Public nightly now reports991795449 after successful run35901751871.
+ff4943c06's later preview API/docs work is included in subsequent shared-head
+builds.494 remains owed: published17Timelapse still narrates the retired Demos
+route, and18Motility cites that dataset provenance. Those need a real alternate
+input route and synchronized script/audio/caption changes, not just text edits.

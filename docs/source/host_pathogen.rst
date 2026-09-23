@@ -5,10 +5,45 @@ From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**.
 This alpha module combines vacuole-level marker recruitment with host and well
 summaries. Existing :doc:`Recruitment <recruitment>` remains available.
 
+Try the real microscopy test data
+----------------------------------------
+
+#. Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select
+   **Load test data…**. The download is approximately 114 MB.
+#. Enable **Live** beside the bottom action controls, then select
+   **Run preview**. Choose either measured field and select vacuoles in the
+   image or table to inspect their host links and marker ratios.
+#. Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask.
+   Leave the mask-plane selectors on **Auto**; the dataset includes the plane
+   manifest. These display choices do not change the analysis channels.
+#. Select **Run** to analyze both fields. Compare the results with the supplied
+   ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``.
+
+The `Host–Pathogen dataset
+<https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_
+contains two acquired THP-1/RNF213 fields, four intensity channels and prepared
+automatic masks. Its measurements cover 164 host cells, 189 nuclei,
+97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired
+intensity planes are unchanged; the masks underwent Measure's normal
+parent/child reconciliation so the distributed outlines match measured objects.
+The dataset card and ``example_manifest.json`` describe the source fields,
+preparation and checks. These masks are not manually validated ground truth.
+
+The supplied settings compare vacuole RNF213 means with their associated host
+cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios
+are available, while positive/negative marker states remain unknown until you
+choose suitable control-calibrated thresholds. Individual-parasite counts are
+not supplied, so replication remains ``not_measured``. This small sample does
+not establish biological differences between its control conditions.
+
+The command-line download is ``spacr-download host_pathogen``. The prepared
+measurements let you use this example directly; your own image project needs
+the Mask and Measure preparation described below.
+
 Inspect one field before running
 --------------------------------
 
-After selecting a measured project in **Source**, enable **Live preview**.
+After selecting a measured project in **Source**, enable the bottom **Live** control.
 The preview uses the current form settings and the same analysis
 functions as a full run. Select **Run preview** for the initial calculation.
 While the panel remains visible, later settings changes refresh that preview.
