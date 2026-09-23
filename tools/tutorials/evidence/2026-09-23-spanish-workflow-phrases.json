@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "language": "es",
+  "phrase_count": 238,
+  "phrase_bank_sha256": "a84c97163cc24d7435344b68b6821441ad374fda2b64a2374b28b9442e4e5956",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "gui_publication": {
+    "language": "es",
+    "review_records": 211,
+    "map_ui_sources": 215,
+    "newly_fresh": 209,
+    "values_changed": 210,
+    "catalog_sha256": "f03c1b90a35f22b99fe215d87abf8636ca83b1e6954742ce34a1117008e8dcee",
+    "review_sha256": "6a28e3c4815cef40ffdeb38ba3060a02b134ca14b885dd69b1423ed11c209762",
+    "unrelated_entries_preserved": true
+  },
+  "live_tr_sources": 215,
+  "ui_current": 4626,
+  "ui_sources": 5017,
+  "ui_current_percent": 92.2,
+  "english_ui_and_api_manifests_current": true,
+  "full_spanish_runtime_and_api_review_loaders": true,
+  "tutorials": [
+    {
+      "lesson": "78_spacr_screens",
+      "scenes": 8,
+      "review_sha256": "848803fa72ef7eacd8836afee264080634a9477046e80012c5cbb387a1fdf20c",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "scenes": 79,
+      "review_sha256": "571633152b2a5be5b81776b46b9d2d12f7d5855808569b8c6928fa1157a720dd",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "scenes": 18,
+      "review_sha256": "6ac1bebff0bd5fd7fae79055768d1a5e6a79fa3a3814792cbf59dcf725f67504",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "scenes": 11,
+      "review_sha256": "867bfdfca729c9a3ba173e20c0a96cacb24e04811f2cef5890528c92013e304c",
+      "staged_translation_current": true
+    }
+  ],
+  "unrelated_staged_lessons_preserved": true,
+  "tests": {
+    "preview_help_translation_and_promotion": 102,
+    "literal_boundary": 7
+  },
+  "native_speaker_signoff": false,
+  "listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "The other10 shared phrase languages, including6 GUI locales",
+    "Complete video,voice,caption and browser matrix",
+    "Listening acceptance and complete-set publication"
+  ]
+}

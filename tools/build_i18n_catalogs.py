@@ -5203,7 +5203,8 @@ def _syntax_preserved(
         # ``CSVs`` -> ``CSV-filer``).  Preserve the acronym itself exactly and
         # normalize only this explicit reviewed set; product names in general
         # retain the strict byte-for-byte contract.
-        for plural, singular in (("CSVs", "CSV"), ("PNGs", "PNG"), ("UMAPs", "UMAP")):
+        for plural, singular in (("CSVs", "CSV"), ("PNGs", "PNG"),
+                                 ("TIFFs", "TIFF"), ("UMAPs", "UMAP")):
             count = products.pop(plural, 0)
             if count:
                 products[singular] += count

@@ -6863,6 +6863,7 @@ UI = {
     'measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.': 'measurements/measurements.db; die Objekttabellen hängen von den aktivierten Masken für cell, nucleus, pathogen und Organellen ab.',
     'merged/*.npy in the project; channels and integer label planes share each field array.': 'merged/*.npy im Projekt; Kanäle und ganzzahlige Labelebenen liegen gemeinsam im Array jedes Bildfelds.',
     'src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.': 'src/<YYMMDD>/<name>/simulations.db; die Simulationsreihe hängt Zusammenfassungszeilen an simulations an und schreibt optional Diagramme. Dies sind synthetische Leistungsschätzungen, keine gemessenen experimentellen Treffer.',
+    '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.': '{model} ist ein Cellpose 3-Checkpoint und kann nicht von Cellpose 4 geladen werden. Wählen Sie für diese Vorschau einen mit Cellpose 4 kompatiblen Checkpoint.',
 }
 
 MODULE_SUMMARIES = {
@@ -13850,4 +13851,5 @@ SOURCE_HASHES = {
     ('UI', 'measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.'): '5c642be9ad3e3f8cbc8fbac46351f33eecc6313cdb7527491571ec72e0eee4e5',
     ('UI', 'merged/*.npy in the project; channels and integer label planes share each field array.'): 'dd31724bc9249a234a1d470a40044ced540a2f1a45f87f971fa0130c34fd22e8',
     ('UI', 'src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.'): 'db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c',
+    ('UI', '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.'): '6641509e13ed273dff5260063c789c03e95cefd48358db39b42fd8328dff53dd',
 }

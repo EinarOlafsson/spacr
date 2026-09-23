@@ -129947,16 +129947,18 @@
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
       ],
-      "source_sha256": "315663779ea36f4e2dbe26e434024fea0649876f49cfefbc76cf11e3ca1d2a6a",
-      "text": "Að byggja Cellpose myndavél með Live View segmentum.\n\n``model_type=`` er samþykkt-og-IGNORED með Cellpose 4 - það logs \"ei notað í v4.0.1+\" og droppar það, yfirgefið ``pretrained_model`` á þörfinu ``cpsam``. Að fara með val notandinn því segmented með ``cpsam`` hvað sem þeir taka, þar á meðal athygli sem þeir hafa bara þjálfað í spaCR eigin Train Cellpose móddur. :func:`spacr.utils._resolve_cellpose_pretrained` er það sem vinnufluð notar: það karts föður-SAM nafna á ``cpsam`` og segir svo einu sinni, og endurheimtir leið óbreytt þegar nafnið er smá-tunned athyglis.\n\nCellpose og torch eru veitt inn í samtalinu, þannig að að innleiðing fyrirmyndarmódula er kallt - eins og prófseturinn gerir - þurfa engin CUDA-gætur stack.\n\n:param model_name: nafnið á myndavélinu eða stefnu sem notandinn hefur valið.\n:param gpu: Vinsamlegast er að velja tæki: ``None`` spyr torch.\n:returns: a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "27ebb95286c0721ad43537e6547a9f9b5bb360291b8a87c954b54df973bc2fcb",
+      "text": "Býr til Cellpose-líkanið sem lifandi sýn notar til að skipta myndum í svæði.\n\nCellpose 4 tekur við ``model_type=`` en hunsar gildið: það skráir \"not used in v4.0.1+\" og sleppir gildinu, þannig að ``pretrained_model`` heldur sjálfgefna gildinu ``cpsam``. Þegar val notandans var sent í þessari breytu fór svæðaskipting því fram með ``cpsam`` óháð valinu, jafnvel þótt valinn væri vistunarpunktur sem hafði rétt áður verið þjálfaður í eigin Train Cellpose-einingu spaCR. Verkflæðið notar :func:`spacr.utils._resolve_cellpose_pretrained`: fallið tengir eldri líkananöfn frá því fyrir SAM við ``cpsam`` og tilkynnir það einu sinni; þegar nafnið vísar á fínstilltan vistunarpunkt skilar það slóðinni óbreyttri.\n\nCellpose og torch eru flutt inn innan kallsins. Því þarf ekki hugbúnaðarumhverfi með CUDA-stuðningi til að flytja forskoðunareiningu inn í fyrsta sinn, eins og prófasafnið gerir.\n\nForskoðun á CPU stillir ``use_bfloat16=False``, bæði þegar ``gpu=False`` er valið sérstaklega og þegar skipt er yfir á CPU vegna þess að greining á hraðli mistókst. Ef Cellpose 4 hafnar Cellpose 3-vistunarpunkti er sérstök samhæfnitilkynning fyrir forskoðun kölluð fram og upphaflega undantekningin varðveitt sem orsök hennar.\n\n:param model_name: líkananafnið eða slóð vistunarpunktsins sem notandinn valdi.\n:param gpu: þvingar fram val á tæki; ``None`` leitar til torch.\n:returns: a ``cellpose.models.CellposeModel``.",
       "translation_source_blocks_sha256": [
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "472b8b4e45187f2ec5eecd988cda5497a89dd95441e0f61a25bc680395810979",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"

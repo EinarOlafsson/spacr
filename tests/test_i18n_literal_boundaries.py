@@ -26,6 +26,13 @@ def test_actual_dictionary_parameter_type_stays_literal():
     assert not _syntax_preserved(source, "Wörterbuch: iterierbar Zu prüfende Werte.")
 
 
+def test_tiff_file_plural_keeps_format_without_imposing_english_grammar():
+    assert _syntax_preserved('Import TIFFs.', 'Importez des fichiers TIFF.')
+    assert not _syntax_preserved('Import TIFFs.', 'Importez des fichiers PNG.')
+    assert not _syntax_preserved("Choose 'TIFFs'.", "Choisissez 'TIFF'.")
+    assert not _syntax_preserved('Open data.TIFFs.', 'Ouvrez data.TIFF.')
+
+
 def test_korean_particle_may_follow_an_exact_quoted_literal():
     source = "Use 'load_images' or 'stream_images'."
     translated = "'load_images'로 읽고 'stream_images'에서 자릅니다."

@@ -1795,3 +1795,19 @@ parameter declaration. Six boundary checks plus the existing numpydoc test
 pass; actual dictionary: iterable declarations and identifiers stay protected.
 Receipt: tools/tutorials/evidence/2026-09-23-german-workflow-phrases.json.
 Remaining languages, API backlog and full locale acceptance remain open.
+
+2026-09-23 — CODEX: PREVIEW/RECOVERY PROSE AND FRENCH/SPANISH MAPS
+Updated preview_cellpose_model and three private recovery/scale descriptions
+without changing runtime ASTs. CPU preview precision, checkpoint compatibility,
+persistent archive quarantine and own/peer scale priorities now appear in
+Make Masks, checkpoint/resume and Plaque Assay guidance. Sphinx -W passes;
+64generated internal API/workflow links resolve. The preview API entry now has
+six newly reviewed prose blocks plus its preserved return-type fragment in
+all nine languages; the new compatibility caption has nine translations.
+English UI/API manifests and generated Help indexing are current.102focused
+checks pass; full runtime/API review loaders and actual formatted tr pass in
+all nine locales. Receipt411_preview_and_recovery_docs_2026-09-23.json.
+French and Spanish shared workflow banks each add209fresh GUI sources and
+97tutorial scenes, reaching4626/5017(92.2percent)GUI source freshness. Separate
+script receipts preserve exact source/map and generated structure evidence.
+No full-catalog linguistic acceptance or native-speaker sign-off is claimed.

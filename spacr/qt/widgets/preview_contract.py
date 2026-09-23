@@ -155,6 +155,12 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     Cellpose and torch are imported inside the call, so importing a preview
     module cold — as the test suite does — needs no CUDA-capable stack.
 
+    CPU previews set ``use_bfloat16=False``, including an explicit
+    ``gpu=False`` choice and the CPU fallback when accelerator detection
+    fails. A Cellpose 3 checkpoint rejected by Cellpose 4 raises a
+    preview-specific compatibility message while retaining the original
+    exception as its cause.
+
     :param model_name: the model name or checkpoint path the user picked.
     :param gpu: force the device choice; ``None`` asks torch.
     :returns: a ``cellpose.models.CellposeModel``.

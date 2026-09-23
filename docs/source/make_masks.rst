@@ -166,6 +166,11 @@ Supported GPU precision depends on the backend and device. Different precision
 can produce different predictions, so inspect the masks instead of assuming
 identical output across devices. This inference policy does not change training
 precision. See :func:`spacr.accelerator.cellpose_kwargs`.
+Live Cellpose previews also use float32 when explicitly forced to CPU or when
+accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by
+Cellpose 4 produces a preview-specific compatibility message; choose a
+checkpoint supported by the installed preview runtime. See
+:func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`.
 
 .. list-table::
    :header-rows: 1

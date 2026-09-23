@@ -67,6 +67,13 @@ reported scale and its source before comparing physical areas between images.
 A detector box or an automatically read condition is a proposal to inspect,
 not evidence that the experimental identity or calibration is correct.
 
+For a figure crop, its own labeled scale bar takes priority, followed by its
+own unlabeled bar whose length is stated in the legend. A crop without its
+own bar can share an agreeing calibration from similarly sized crops in the
+same grid. Conflicting peer bars leave that crop in pixels with a conflict
+note. Whole-well calibration is a later fallback when the plate format is
+known; stated magnification alone does not calibrate a rescaled figure.
+
 Changing selections while a preview runs
 ----------------------------------------
 

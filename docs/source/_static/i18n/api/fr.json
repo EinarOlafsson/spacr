@@ -129947,16 +129947,18 @@
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
       ],
-      "source_sha256": "315663779ea36f4e2dbe26e434024fea0649876f49cfefbc76cf11e3ca1d2a6a",
-      "text": "Construisez le modèle Cellpose avec des segments de vue en direct.\n\n``model_type=`` est accepté-et-IGNORED par Cellpose 4 — il enregistre \"non utilisé dans v4.0.1+\" et le dépose, laissant ``pretrained_model`` à sa valeur par défaut ``cpsam``. Le choix de l'utilisateur y est donc segmenté avec ``cpsam`` tout ce qu'il a choisi, y compris un point de contrôle qu'ils venaient de former dans le module Train Cellpose de spaCR. :func:`spacr.utils._resolve_cellpose_pretrained` est ce que le workflow utilise: il mastille les noms pré-SAM hérités sur ``cpsam`` et le dit une fois, et retourne un chemin inchangé lorsque le nom est un point d'accès fin.\n\nCellpose et torch sont importés à l'intérieur de l'appel, de sorte que l'importation d'un module d'aperçu froid — comme la suite de test le fait — n'a pas besoin d'une pile compatible avec CUDA.\n\n:param model_name: le nom du modèle ou le chemin de contrôle choisi par l'utilisateur.\n:param gpu: force le choix de l'appareil; ``None`` demande torch.\n:returns: a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "27ebb95286c0721ad43537e6547a9f9b5bb360291b8a87c954b54df973bc2fcb",
+      "text": "Construit le modèle Cellpose utilisé pour la segmentation dans la vue en direct.\n\nCellpose 4 accepte ``model_type=`` mais ignore sa valeur : il journalise \"not used in v4.0.1+\" puis l'écarte, laissant ``pretrained_model`` à sa valeur par défaut ``cpsam``. Y transmettre le choix de l'utilisateur entraînait donc une segmentation avec ``cpsam`` quel que soit ce choix, y compris un point de contrôle venant d'être entraîné dans le module Train Cellpose de spaCR. Le flux de travail utilise :func:`spacr.utils._resolve_cellpose_pretrained` : cette fonction associe les anciens noms de modèles antérieurs à SAM à ``cpsam`` et le signale une fois ; si le nom désigne un point de contrôle affiné par entraînement supplémentaire, elle renvoie le chemin inchangé.\n\nCellpose et torch sont importés à l'intérieur de l'appel. La première importation d'un module d'aperçu, comme dans la suite de tests, ne nécessite donc pas d'environnement logiciel compatible avec CUDA.\n\nLes aperçus sur CPU définissent ``use_bfloat16=False``, aussi bien lorsque ``gpu=False`` est choisi explicitement que lors du repli sur CPU si la détection d'un accélérateur échoue. Si Cellpose 4 rejette un point de contrôle Cellpose 3, un message de compatibilité propre à l'aperçu est déclenché, tout en conservant l'exception d'origine comme cause.\n\n:param model_name: le nom du modèle ou le chemin du point de contrôle choisi par l'utilisateur.\n:param gpu: impose le choix du périphérique ; ``None`` interroge torch.\n:returns: a ``cellpose.models.CellposeModel``.",
       "translation_source_blocks_sha256": [
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "472b8b4e45187f2ec5eecd988cda5497a89dd95441e0f61a25bc680395810979",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"

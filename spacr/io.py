@@ -2577,9 +2577,12 @@ def _inspect_normalized_archive(path):
 
     ``numpy.savez_compressed`` writes the zip directory last, so an archive
     cut short by a killed run has none and does not open. Beyond that, every
-    member's recorded extent has to fit inside the file, ``data.npy`` has to
-    begin with a readable array header, and ``filenames.npy``, which is
-    small, is read.
+    member's recorded extent has to fit inside the file. ``data.npy`` needs
+    a readable numeric-array header and enough declared bytes for its shape
+    and dtype; object-valued pixels are refused. The small ``filenames.npy``
+    array is read and must contain one filename per batch field. Legacy
+    object-valued filenames are not unpickled and cannot establish field
+    coverage. Pixel arrays are not materialized or fully CRC-scanned.
 
     :param path: the ``.npz`` archive.
     :returns: ``(ok, reason, fields, planes)``. ``reason`` is ``'done'`` when
@@ -2767,6 +2770,11 @@ def _check_archives_without_preprocessing(src):
     names it and says what to do, rather than with the
     :class:`zipfile.BadZipFile` the segmenter would raise on it. Fields of
     ``stack/`` that no whole archive lists are reported, not normalised.
+
+    Earlier quarantines continue to raise on subsequent runs until a valid
+    same-name replacement exists, or readable archives cover every existing
+    stack field. Legacy archives with unreadable object-valued filenames
+    cannot establish that coverage. Quarantined evidence is retained.
 
     :param src: the plate folder holding ``masks/``.
     :returns: the names of the whole archives.

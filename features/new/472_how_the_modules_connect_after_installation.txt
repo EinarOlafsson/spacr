@@ -403,3 +403,27 @@ Default English Heart tracks for79/80/81 are complete (2758.8s,652.7s,371.2s).
 Their shared4K masters and remaining English voices are running CPU-only.
 Receipt: tools/tutorials/evidence/2026-09-23-german-workflow-phrases.json.
 No media/listening/publication acceptance is claimed from script completion.
+
+2026-09-23 — CODEX: FRENCH SHARED PHRASES AND COMPLETE SCRIPT STAGING
+The238-phrase French bank now generates79/80 and supplies215 GUI map sources.
+All four French lessons are staged with current English/map hashes; scene
+structure and unrelated lessons are preserved. Live tr, source hashes and the
+complete French runtime/API review loaders pass. GUI source freshness is
+4626/5017(92.2percent),209 newly fresh sources plus the preview caption update.
+A narrow file-format grammar correction accepts TIFFs -> TIFF in prose while
+preserving quoted literals and filenames and rejecting TIFF -> PNG.102focused
+Help/preview/literal/generator/promotion checks pass. French narration is now
+rendering CPU-only. Receipt2026-09-23-french-workflow-phrases.json records the
+editorial/technical checks; native-speaker, listening and publication remain.
+
+2026-09-23 — CODEX: SPANISH SHARED PHRASES AND SCRIPT STAGING
+Spanish adds another238-phrase bank,97generated79/80scenes and215GUI map
+sources, with209newly fresh sources. Existing reviewed terminology is retained;
+ROI and other scientific/code identifiers survive translation. All four
+Spanish workflow scripts are staged and verified against current sources,
+including spoken-form rules and unchanged scene/link structure. Live tr and
+both full review loaders pass; unrelated staged lessons/catalog rows remain.
+Receipt2026-09-23-spanish-workflow-phrases.json. Spanish narration is rendering
+CPU-only. Reviewed scene coverage for the four new workflows is538/1508
+(35.7percent across13languages); this is script coverage, not listening or
+publication acceptance. Ten shared phrase languages remain.

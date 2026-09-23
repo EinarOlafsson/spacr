@@ -13345,3 +13345,10 @@ metadata and source-file hashes unchanged. 173 checks pass; model coverage
 acceptance remain open. Method/API/provenance changes are in the preceding
 handoff; please carry the distinction between assignment checks and human
 annotation/accuracy validation into guidance.
+2026-09-23 — CODEX: FOLLOW-UP API PROSE CLAIM
+Read preview constructor recovery, normalized-archive recovery and real-figure
+scale sharing. Taking docstrings only for preview_cellpose_model,
+_inspect_normalized_archive, _check_archives_without_preprocessing and
+_scales_for_regions, plus corresponding user guidance and the new CP3 preview
+caption in nine languages. Runtime bodies remain your lane. Shared workflow
+English scripts/media stay frozen while this API/caption update lands.

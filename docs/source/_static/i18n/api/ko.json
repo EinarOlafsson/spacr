@@ -129947,16 +129947,18 @@
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
       ],
-      "source_sha256": "315663779ea36f4e2dbe26e434024fea0649876f49cfefbc76cf11e3ca1d2a6a",
-      "text": "Cellpose 모델을 라이브 보기 세그먼트로 만드십시오.\n\n``model_type=`` 받아들여지고 무시되는 것은 Cellpose 4 — 그것은 \"v4.0.1+에서 사용되지 않음\"을 기록하고 그것을 떨어 뜨리며 ``pretrained_model`` 그녀의 경우에 ``cpsam`` 사용자의 선택을 통과하여 따라서 분할된 사용자와 함께 ``cpsam`` 그들이 선택한 무엇이든, 그들이 방금 훈련 한 체크 포인트를 포함하여 spaCR 자신의 열차 Cellpose 모듈 :func:`spacr.utils._resolve_cellpose_pretrained` 그것은 작업 흐름이 사용하는 것입니다 : 그것은 유산을 지도합니다.SAM 이름 위에 ``cpsam`` 그리고 한 번 그렇게 말하고, 이름이 깔끔한 체크 포인트가 될 때 변함없는 길을 돌려줍니다.\n\nCellpose 그리고 torch 통화 내부에 수입되어 있으므로 프리뷰 모듈을 수입하는 것은 차가운 - 테스트 스위트와 마찬가지로 - 필요하지 않습니다. CUDA 용량 스테이크\n\n:param model_name: 모델 이름 또는 사용자가 선택한 체크 포인트 경로.\n:param gpu: 장치 선택을 강요; ``None`` 질문하기 torch.\n:returns: a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "27ebb95286c0721ad43537e6547a9f9b5bb360291b8a87c954b54df973bc2fcb",
+      "text": "실시간 보기에서 분할에 사용할 Cellpose 모델을 생성합니다.\n\nCellpose 4는 ``model_type=``을 받아들이지만 값을 무시합니다. \"not used in v4.0.1+\"를 기록하고 값을 버리므로 ``pretrained_model``은 기본값인 ``cpsam``으로 유지됩니다. 따라서 사용자의 선택을 이 인수로 전달하면 무엇을 선택했든 ``cpsam``으로 분할했으며, spaCR의 Train Cellpose 모듈에서 방금 학습한 체크포인트를 선택한 경우도 마찬가지였습니다. 워크플로는 :func:`spacr.utils._resolve_cellpose_pretrained`를 사용합니다. 이 함수는 SAM 이전의 기존 모델 이름을 ``cpsam``에 대응시키고 한 번 알립니다. 이름이 미세 조정된 체크포인트를 가리키면 경로를 변경하지 않고 반환합니다.\n\nCellpose와 torch는 호출 내부에서 가져옵니다. 따라서 테스트 모음에서처럼 미리보기 모듈을 처음 가져올 때 CUDA를 지원하는 소프트웨어 환경이 필요하지 않습니다.\n\nCPU 미리보기는 ``use_bfloat16=False``를 설정합니다. 이는 ``gpu=False``를 명시적으로 선택한 경우와 가속기 감지가 실패하여 CPU로 전환한 경우 모두에 적용됩니다. Cellpose 4가 Cellpose 3 체크포인트를 거부하면 미리보기용 호환성 메시지를 발생시키며 원래 예외를 원인으로 보존합니다.\n\n:param model_name: 사용자가 선택한 모델 이름 또는 체크포인트 경로입니다.\n:param gpu: 장치 선택을 강제합니다. ``None``이면 torch에 확인합니다.\n:returns: a ``cellpose.models.CellposeModel``.",
       "translation_source_blocks_sha256": [
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "472b8b4e45187f2ec5eecd988cda5497a89dd95441e0f61a25bc680395810979",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"

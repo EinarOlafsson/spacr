@@ -129948,16 +129948,18 @@
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"
       ],
-      "source_sha256": "315663779ea36f4e2dbe26e434024fea0649876f49cfefbc76cf11e3ca1d2a6a",
-      "text": "创建 Cellpose 模型与现场视图部分。\n\n``model_type=`` 被接受和拒绝 Cellpose 第4章 它会 \"未在 v4.0.1+ 中使用,并将其放下 ``pretrained_model`` 在他的 ``cpsam`` 默认:通过用户的选择,因此分区与 ``cpsam`` 无论他们选择什么,包括他们刚刚训练的检查点。 spaCR 自己的火车 Cellpose 模块。 :func:`spacr.utils._resolve_cellpose_pretrained` 是工作流所使用的:它地图的遗产预...SAM 名称上 ``cpsam`` 又这样说一遍,又返回一条不变的路,当名称是精致的检查点时。\n\nCellpose 和 torch 被进口到呼叫中,因此进口一个预览模块冷 - 正如测试套件所做的那样 - 不需要 CUDA 可用的插槽。\n\n:param model_name: 模型名称或用户选择的检查点路径。\n:param gpu: 强迫设备选择; ``None`` 要求 torch。\n:returns: a ``cellpose.models.CellposeModel``.",
+      "source_sha256": "27ebb95286c0721ad43537e6547a9f9b5bb360291b8a87c954b54df973bc2fcb",
+      "text": "构建实时视图用于分割的 Cellpose 模型。\n\nCellpose 4 接受 ``model_type=``，但会忽略其值：它记录 \"not used in v4.0.1+\" 后丢弃该值，使 ``pretrained_model`` 保持默认值 ``cpsam``。因此，将用户的选择传入该参数时，无论用户选择什么，分割都会使用 ``cpsam``，即使用户选择的是刚在 spaCR 自带的 Train Cellpose 模块中训练的检查点。工作流使用 :func:`spacr.utils._resolve_cellpose_pretrained`：它将 SAM 之前的旧模型名称映射到 ``cpsam``，并只提示一次；如果名称指向微调后的检查点，则原样返回路径。\n\nCellpose 和 torch 在调用内部才导入，因此像测试套件那样首次导入预览模块时，不需要支持 CUDA 的软件环境。\n\nCPU 预览设置 ``use_bfloat16=False``，包括显式选择 ``gpu=False`` 的情况，以及加速器检测失败后回退到 CPU 的情况。若 Cellpose 4 拒绝 Cellpose 3 检查点，则会抛出预览专用的兼容性消息，并保留原始异常作为原因。\n\n:param model_name: 用户选择的模型名称或检查点路径。\n:param gpu: 强制指定设备；``None`` 表示询问 torch。\n:returns: a ``cellpose.models.CellposeModel``.",
       "translation_source_blocks_sha256": [
         "4e29846e03db089ef2348f19ef4c229013bf35360f734553fd9881c6ac17aa57",
         "472b8b4e45187f2ec5eecd988cda5497a89dd95441e0f61a25bc680395810979",
         "0b5f4d5db8063e57f79ccf42c2f8394b7f941432c3835be5fb18f35a868483f6",
+        "7b14a94327616de267f58d1091f5b7818b87fe572f1ea93dc439e6718f3c1f49",
         "526a0c4c406c74a40ac13c314fdb6231035d60cc6980c519657a0cd46891b54c",
         "39b5b2ac3de739a16c7ff3d3d1a3667a2d8131815fcc6dab4d73e7b188ec4e70",
         "0ff64510b3ac5bae372e162b7ae29a738cb75aaa26a2d0184681a2fca71eafdd"

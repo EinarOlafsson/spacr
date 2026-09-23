@@ -1719,10 +1719,10 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
 
     1. a scale bar in or directly under the image, its length read from the
        label beside it (``1 mm``);
-    2. a scale bar on another image of the same grid and the same size -- a
-       figure prints one bar per panel of identically scaled crops;
-    3. a scale bar inside the image with no label, when the panel's legend
+    2. a scale bar inside the image with no label, when the panel's legend
        passage (or the legend) states its length (``_Scale bar, 500 µm``);
+    3. agreeing scale bars on other images of the same grid and approximately
+       the same size, discovered from either labels or legend passages;
     4. a whole well (a nearly square box) of a plate format the settings
        give, or else that the legend names (``6-well plates``) -- the same
        ruler the plate pipeline uses.
@@ -1731,6 +1731,9 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
     stated magnification is recorded on every image of the panel but never
     used: a printed figure has been rescaled since the picture was taken.
     More than one plate format in a legend is not guessed between.
+    Conflicting peer calibrations leave an image without its own bar in
+    pixels, with a conflict note; they do not fall through to well-size
+    calibration. An image's own bar takes priority over peer bars.
 
     :param image: the figure, ``H x W x 3``.
     :param regions: its plaque images.

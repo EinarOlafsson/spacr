@@ -6485,6 +6485,7 @@ UI = {
     'Stop threshold': 'Stöðvunarþröskuldur',
     'Text detection': 'Textagreining',
     'Probability cut-off': 'Líkindaþröskuldur',
+    '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.': '{model} er Cellpose 3-vistunarpunktur og Cellpose 4 getur ekki hlaðið honum inn. Veldu vistunarpunkt sem er samhæfur við Cellpose 4 fyrir þessa forskoðun.',
 }
 
 MODULE_SUMMARIES = {
@@ -13094,4 +13095,5 @@ SOURCE_HASHES = {
     ('UI', 'Stop threshold'): '893538846ce0eac6581de411cae65adc328a6c50405b1973a451f40188906fa9',
     ('UI', 'Text detection'): 'cb9ef963c1d8542263cb338d22acde267dc38df40735949c602c2dee855cf1e3',
     ('UI', 'Probability cut-off'): 'fe0117282ac09c31808db26b853d0ab47a7e3c1fda9580685bd2c97cee78919d',
+    ('UI', '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.'): '6641509e13ed273dff5260063c789c03e95cefd48358db39b42fd8328dff53dd',
 }
