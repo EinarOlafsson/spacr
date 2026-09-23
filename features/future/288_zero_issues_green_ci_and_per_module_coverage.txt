@@ -4977,3 +4977,20 @@ checks2.37s (224distinct total). The stdlib helper also runs on realPython3.8.20
 315stdlibnames, core/extension modules included and scientific extras rejected.
 This is not a new fullPython3.9 matrix result. No runtime change. Receipt:
 data/288_older_python_test_contracts_2026-09-23.json.
+
+2026-09-23 — SECONDARY CONTROLS HAVE HELP; SEARCH ALPHA MEASURED
+Three MakeMasks controls were silent: primary class, secondary class and
+secondary hole filling. Their tr()-wrapped help now explains class metadata,
+distinct output roles, unchanged primary masks and hole filling before area
+filtering while preserving other labels. No segmentation behavior changed.
+
+The old search-popup pixel test expected an opaque surface despite the later
+explicit80percent requirement. It now measures the real popup over red,
+green andblue backdrops against0.8surface+0.2background, retaining the tight
+pixel tolerance. All three rendered cases pass; runtimealpha is unchanged.
+Before17pass/3fail24.42s. After20pass/2translationfail26.81s, plus78secondary
+selector/lifecycle/ID-preservation checks19.55s. The two translation gates
+remain enabled: three new help strings lack catalog rows, and two previously
+translated enhancement captions remain in the pending list. Exact strings
+sent to the docs lane. Receipt288_secondary_help_and_search_alpha_2026-09-23.
+FullCI and translated-help acceptance remain open.

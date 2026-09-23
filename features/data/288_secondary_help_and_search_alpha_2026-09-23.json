@@ -1,0 +1,51 @@
+{
+  "feature": 288,
+  "related_features": [
+    476,
+    481,
+    482
+  ],
+  "date": "2026-09-23",
+  "scope": "Explain three secondary controls and measure the requested search-popup alpha.",
+  "changes": [
+    "Primary class help explains relationship metadata and unchanged source masks.",
+    "Secondary class help explains distinct output class metadata and separate growth controls.",
+    "Hole-fill help describes enclosed background, processing before area filtering and preserved neighbouring labels.",
+    "Popup test composites the real results frame over red/green/blue backdrops and expects80percent theme surface plus20percent background, retaining tight pixel tolerance."
+  ],
+  "validation": {
+    "before": {
+      "passed": 17,
+      "failed": 3,
+      "seconds": 24.42
+    },
+    "after_help_and_alpha": {
+      "passed": 20,
+      "failed": 2,
+      "seconds": 26.81,
+      "failures": [
+        "Three new help strings need exact rows in nine catalogs.",
+        "Existing translated enhancement captions remain in the pending-translation test list."
+      ]
+    },
+    "secondary_lifecycle_and_engine": {
+      "passed": 78,
+      "seconds": 19.55
+    }
+  },
+  "source_sha256": {
+    "spacr/qt/screens/make_masks.py": "02553897e9b342bcb9461b27a9a626ef8dba231737583a1444909c478544e7dc",
+    "spacr/qt/widgets/primary_mask_selector.py": "0b2d723b7483a062712f166b6937bf44448a9a1a3a89999db1cfae5bbba3dc84",
+    "tests/qt/test_the_search_results_have_a_background_of_their_own.py": "b8226c4b6537130012d45b1b041aa68e95c2037722e1ba45a476672ee2dee697"
+  },
+  "evidence_sha256": {
+    "help-alpha-before.log": "f63b470231937b5fa677e6a2606a97f1efb6ef1aa1411ff5f752e59e8f2b3ff6",
+    "help-alpha-after.log": "df7e23aeedde1f3d3f64e340053d33424b4fd421c7799c2c9d478efdd4c69f4f",
+    "secondary-help-lifecycle.log": "18ae4145235754867940650dd72bf975c3ce16ebd53c6ca770e87fb949d09a0c"
+  },
+  "limits": [
+    "Translation gates remain enabled and red until the docs lane supplies/reconciles the rows.",
+    "No new segmentation accuracy or full-suite acceptance claim.",
+    "Popup runtime opacity was already80percent; this corrects the outdated opaque-pixel assertion."
+  ]
+}

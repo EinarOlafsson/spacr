@@ -74,6 +74,12 @@ class PrimaryMaskSelector(QWidget):
                 box.addItem(caption, value)
             box.setEditable(True)
         self.secondary_class.setCurrentIndex(1)
+        self.primary_class.setToolTip(tr(
+            'Object type represented by the primary masks. Choose a class or enter a custom name. '
+            'This labels the saved relationship; it does not resegment the source mask.'))
+        self.secondary_class.setToolTip(tr(
+            'Object type assigned to the grown masks. Choose a class or enter a custom name '
+            'different from the primary class. Growth is controlled by the other settings.'))
         form.addRow(tr('Primary object class'), self.primary_class)
         form.addRow(tr('Secondary object class'), self.secondary_class)
         self.path = QLineEdit()

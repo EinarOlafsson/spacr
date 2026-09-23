@@ -63,17 +63,28 @@ def field_with_results(window, qtbot):
     return found
 
 
-def test_the_results_frame_paints_the_themes_surface_and_not_nothing(
-        window, field_with_results):
-    """A pixel inside the popup is the theme's surface, opaque."""
+@pytest.mark.parametrize('under', ['#ff0000', '#00ff00', '#0000ff'])
+def test_the_results_frame_composites_its_requested_eighty_percent_surface(
+        window, field_with_results, qtbot, under):
+    """Measure 80% surface plus 20% background over three known backdrops."""
+    from PySide6.QtWidgets import QWidget
     from spacr.qt.preferences import resolve_effective_theme
     from spacr.qt.theme import palette_for
 
     popup = field_with_results.popup()
+    backdrop = QWidget(window)
+    qtbot.addWidget(backdrop)
+    backdrop.setGeometry(popup.geometry())
+    backdrop.setStyleSheet(f'background-color: {under};')
+    backdrop.show()
+    popup.raise_()
     here = popup.mapTo(window, popup.rect().center())
     painted = _window_pixel(window, here)
 
-    expected = QColor(palette_for(resolve_effective_theme())["surface_hi"])
+    surface = QColor(palette_for(resolve_effective_theme())["surface_hi"])
+    background = QColor(under)
+    expected = QColor(*[round(0.8 * foreground + 0.2 * behind) for foreground, behind in
+                        zip(surface.getRgb()[:3], background.getRgb()[:3])])
     assert painted.alpha() == 255
     for got, want, band in ((painted.red(), expected.red(), "red"),
                             (painted.green(), expected.green(), "green"),

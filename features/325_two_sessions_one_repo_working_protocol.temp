@@ -13641,3 +13641,21 @@ skip or runtime change. FullPython3.9CI remains owed. No API/translation impact.
 Next: the three MakeMasks controls with no help (primary class, secondary
 class, fill holes), plus search-popup pixel checks reflecting80percent alpha.
 These help additions will have three exact new source captions for your lane.
+
+2026-09-23 — IMPLEMENTATION: THREE SECONDARY HELP CAPTIONS FOR TRANSLATION
+Added tr()-wrapped tooltips in PrimaryMaskSelector.__init__ and
+MakeMasksScreen._make_propagate_settings_card (secondary hole switch).
+Please add/review these exact runtime sources across all nine catalogs:
+1. Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.
+2. Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.
+3. Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.
+No signatures or segmentation settings/defaults change. Update affected API
+source hashes as appropriate. Existing no-help assertion now passes, but exact
+catalog-row gate correctly fails on these sources; no exemption was added.
+Also remove the two already-translated enhancement Compare/Apply help strings
+from test_make_masks_settings_explain_themselves._awaiting_translation.
+
+Search popup pixel test now verifies80percent surface over three controlled
+background colors, matching the user's later requirement. No runtimeopacity
+change.20UIchecks pass with2translationfailures;78secondarylifecycle/engine
+checks pass. Receipt288_secondary_help_and_search_alpha_2026-09-23.json.
