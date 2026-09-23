@@ -2,12 +2,15 @@
 SAMCELL, TRAINED ON LIVECELL, FOR TIMELAPSE
 ================================================================================
 
-Status:    BUILT 2026-09-15 in 14b459a18 -- SAMCell behind the same
-           `segmentation_backend` setting as 404 (one backend mechanism, as
-           this file required); install with pip install "spacr[samcell]".
-           Its setting tooltip is over the 600-character cap and is being
-           shortened with its nine translations. Filed FUTURE 2026-09-14; APPROVED FOR BUILD by the maintainer the
-           same day: "implement both, both are available on pypi".
+Status:    INTEGRATED; real isolated CPU install and pretrained synthetic
+           inference verified2026-09-23. Install through the Model Zoo into
+           SAMCell's own environment, not spaCR's environment. The isolated
+           installer now includes the plotting dependency imported by
+           SAMCell1.2.0 and keeps both model caches inside that environment.
+           The held-out modality-matched comparison against Cellpose remains
+           open; integration checks are not accuracy scorecards. Originally
+           built2026-09-15 in14b459a18, approved2026-09-14 by the maintainer:
+           "implement both, both are available on pypi".
 Requested: 2026-09-14, verbatim -- "we shuld also support SAMCell-LIVECell
            especislly for timelapse", and then the source, verbatim --
            "this is the samcell i mean https://github.com/saahilsanganeriya/SAMCell"
@@ -93,3 +96,44 @@ number measured on fluorescence data does not test it.
 
 The held-out set is being labelled for the purpose (see 370); the integration
 can land before it, the RECOMMENDATION cannot.
+
+2026-09-23 — REAL ISOLATED INSTALL, CACHE REPAIR AND PHASE-CONTRAST SMOKE
+The ordinary Model Zoo installer was exercised in a private backend root.
+Its first self-test failed because SAMCell1.2.0 imports matplotlib.pyplot
+from utils.py unconditionally, while its wheel declares matplotlib only in
+training/evaluation extras. The failed environment was removed normally.
+The backend requirements now include matplotlib>=3.3.0. Reinstall succeeds:
+Python3.12.4, SAMCell1.2.0, Torch2.14.0+cpu, NumPy2.5.3, Transformers5.17.0,
+Hugging Face Hub1.32.0, Matplotlib3.11.2. pip check is clean. No package was
+installed into spaCR's own environment.
+
+Both model downloads now belong to that environment: TORCH_HOME points at
+<env>/torch, HF_HOME at<env>/huggingface. HF hub/assets/xet overrides and
+SAMCell's inherited legacy Transformers/modules cache overrides are removed.
+A fresh-process before/after probe using real Torch2.6.0, Transformers4.48.3
+and Hub0.36.2 resolves six cache paths: every old path escapes into the
+inherited shared locations, every new path stays within the environment.
+Unrelated backend variables and the parent's environment are unchanged.
+
+Actual pretrained inference then ran through spaCR's isolated worker with
+model downloads disabled, using copies of the existing local generalist
+and SAM backbone weights. The original shared caches were not changed.
+The synthetic256x256nine-object field yields nine labels in42.3seconds;
+host Python does not import samcell. This is a smoke, not accuracy evidence.
+
+The ordinary generate_cellpose_masks_sam path also ran three consecutive
+fixed256x256center crops of CTC PhC-U373 sequence01, frames000–002. It used
+segmentation_backend=samcell and timelapse_mode=iou, saved all three uint16
+masks, an input movie and the track CSV. Objects/frame:5,4,4;13track rows,
+six track IDs, three spanning all three frames. Total123.8seconds on CPU.
+Input file hashes are unchanged. This verifies a short real phase-contrast
+segmentation-to-tracking path; it does not evaluate a whole movie, reference
+tracking accuracy, split/merge rates or superiority to Cellpose.
+
+The install had a6GiB cap and inference8GiB, both with swap disabled and
+two compute threads. Initial backend tests:220passed, two optional
+in-process checks skipped; final isolated-backend tests after the dependency
+addition:118passed. Fatal Ruff checks pass. Exact versions, source hashes,
+cache paths, mask outputs, track evidence and limitations are recorded in
+features/data/405_isolated_install_cache_and_phase_smoke_2026-09-23.json.
+The modality-matched held-out scorecard and recommendation remain OPEN.

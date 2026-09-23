@@ -408,12 +408,12 @@ def test_dinocells_checkpoint_is_downloaded_inside_its_own_environment():
     environ = SB._worker_env("dinocell", "/b/dinocell")
     assert environ["HF_HOME"] == os.path.join("/b/dinocell", "huggingface")
     assert "HF_HOME" not in SB._worker_env("cellpose3", "/b/cellpose3")
-    assert "HF_HOME" not in SB._worker_env("samcell", "/b/samcell")
     assert "CELLPOSE_LOCAL_MODELS_PATH" not in environ
 
 
+@pytest.mark.parametrize("backend", ["dinocell", "samcell"])
 def test_a_relocated_hugging_face_cache_does_not_win_over_the_environment(
-        monkeypatch):
+        monkeypatch, backend):
     """``HF_HOME`` is not the last word, which is the half the first fix
     missed.
 
@@ -429,12 +429,43 @@ def test_a_relocated_hugging_face_cache_does_not_win_over_the_environment(
     """
     for variable in SB._HF_CACHE_VARIABLES:
         monkeypatch.setenv(variable, "/mnt/elsewhere/hf")
-    environ = SB._worker_env("dinocell", "/b/dinocell")
-    assert environ["HF_HOME"] == os.path.join("/b/dinocell", "huggingface")
+    env = os.path.join("/b", backend)
+    environ = SB._worker_env(backend, env)
+    assert environ["HF_HOME"] == os.path.join(env, "huggingface")
     left = sorted(v for v in SB._HF_CACHE_VARIABLES if v in environ)
     assert not left, (
-        f"{left} survive into DINOCell's worker environment and override "
+        f"{left} survive into {backend}'s worker environment and override "
         f"HF_HOME, so its checkpoint lands outside the environment again")
+
+
+def test_samcells_two_model_caches_belong_to_its_environment(monkeypatch, tmp_path):
+    """Both SAMCell downloads must disappear with the isolated environment."""
+    inherited = {
+        "TORCH_HOME": str(tmp_path / "shared-torch"),
+        "HF_HOME": str(tmp_path / "shared-hf"),
+        "TRANSFORMERS_CACHE": str(tmp_path / "shared-transformers"),
+        "PYTORCH_TRANSFORMERS_CACHE": str(tmp_path / "older-transformers"),
+        "PYTORCH_PRETRAINED_BERT_CACHE": str(tmp_path / "oldest-transformers"),
+        "HF_MODULES_CACHE": str(tmp_path / "shared-modules"),
+    }
+    for key, value in inherited.items():
+        monkeypatch.setenv(key, value)
+    env = str(tmp_path / "backends" / "samcell")
+    worker = SB._worker_env("samcell", env)
+    assert worker["TORCH_HOME"] == os.path.join(env, "torch")
+    assert worker["HF_HOME"] == os.path.join(env, "huggingface")
+    assert not set(inherited).difference({"TORCH_HOME", "HF_HOME"}) & worker.keys()
+    assert all(os.environ[key] == value for key, value in inherited.items())
+    unrelated = SB._worker_env("cellpose3", str(tmp_path / "cellpose3"))
+    assert all(unrelated[key] == value for key, value in inherited.items())
+
+
+def test_samcell_installs_its_unconditionally_imported_plotting_dependency():
+    """SAMCell 1.2.0 imports pyplot but declares it only in optional extras."""
+    steps = SB._install_plan(SB._SPECS["samcell"], "/b/samcell", ("/p",))
+    dependencies = next(step.argv for step in steps if step.label == "Install SAMCell")
+    assert "matplotlib>=3.3.0" in dependencies
+    assert "samcell==1.2.0" in dependencies
 
 
 def test_every_module_an_adapter_imports_is_in_its_self_test():

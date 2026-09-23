@@ -316,7 +316,8 @@ _SPECS = {
     _SAMCELL: _BackendSpec(
         name=_SAMCELL, label="SAMCell", module="samcell",
         probe=("samcell.model", "samcell.pipeline"),
-        distribution="samcell", requirements=("samcell==1.2.0",),
+        distribution="samcell",
+        requirements=("samcell==1.2.0", "matplotlib>=3.3.0"),
         torch=("torch",), python=((3, 9), (3, 14)), licence="MIT",
         licence_note=(
             "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It "
@@ -985,6 +986,11 @@ def _worker_env(name, env):
     preflight's free-space check -- which measures the backends folder --
     the check that matters.
 
+    SAMCell has two downloads: its fine-tuned checkpoint uses Torch's hub
+    cache, and its SAM backbone uses Transformers and Hugging Face. Both
+    are scoped to the environment; legacy Transformers cache overrides
+    must be removed alongside the Hugging Face overrides.
+
     Setting ``HF_HOME`` is necessary and not sufficient. :func:`_clean_env`
     forwards the rest of the inherited environment, and every variable in
     :data:`_HF_CACHE_VARIABLES` overrides the path ``HF_HOME`` would give,
@@ -995,10 +1001,15 @@ def _worker_env(name, env):
     environ = _clean_env(env)
     if name == _CELLPOSE3:
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
-    elif name == _DINOCELL:
+    elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
         for variable in _HF_CACHE_VARIABLES:
             environ.pop(variable, None)
+        if name == _SAMCELL:
+            environ["TORCH_HOME"] = os.path.join(env, "torch")
+            for variable in ("TRANSFORMERS_CACHE", "PYTORCH_TRANSFORMERS_CACHE",
+                             "PYTORCH_PRETRAINED_BERT_CACHE", "HF_MODULES_CACHE"):
+                environ.pop(variable, None)
     return environ
 
 
