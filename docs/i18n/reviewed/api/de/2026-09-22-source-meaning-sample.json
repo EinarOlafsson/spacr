@@ -50,7 +50,9 @@
       "source": "Start a sample project of the kind you have, from the Home screen.",
       "context": "Start a sample project of the kind you have, from the Home application view.",
       "source_sha256": "1ffdd049dbae1bb0b8e9ab612eec6d8f62c4a3d5ac31b114620f3bca351224a7",
-      "translation": "Starten Sie über die Home-Ansicht ein Beispielprojekt des passenden Typs."
+      "translation": "Starten Sie über die Home-Ansicht ein Beispielprojekt des passenden Typs.",
+      "retired": true,
+      "retired_reason": "2026-09-22: sample-project module introduction rewritten for the current shared map. Original source and translation preserved; replacement reviewed in 2026-09-22-api-prose-cleanup.json."
     },
     {
       "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#1",

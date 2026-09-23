@@ -1,0 +1,272 @@
+{
+  "api_symbols": [
+    "spacr.qt.detect_chain",
+    "spacr.qt.detect_chain.background_surface",
+    "spacr.qt.preferences.sound_is_offered",
+    "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel",
+    "spacr.qt.widgets.sample_project",
+    "spacr.timeflows_model.ctc_pairs"
+  ],
+  "archived_review_records": 1,
+  "executable_ast_unchanged": true,
+  "full_catalog_acceptance": false,
+  "help_search_summaries_current": true,
+  "languages": [
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "sv",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "de",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "es",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "zh_CN",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "pt",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "hi",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "ko",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "is",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "all_review_loaders": true,
+      "documents": 6,
+      "language": "fr",
+      "review_blocks": 31,
+      "unrelated_catalog_rows_unchanged": true
+    }
+  ],
+  "public_api_count": 11365,
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
+  "schema": 1,
+  "source_commit": "29fc345459ecca5734227b0e8e48fb93ef4c7385",
+  "source_files": {
+    "spacr/qt/detect_chain.py": "831087faa4e5e1971e3dcc4f96859e4f42e5f778157e13721d0213b94aee04d9",
+    "spacr/qt/preferences.py": "e4dc9ec18cca0236817b15358513e1a9fda584d2c4fe809a50ae2b4ab40c4c36",
+    "spacr/qt/screens/gate_editor.py": "f2fe6451a018eddb0e43739768d44a25c0c1e16c2304509c2d7500d56d96da09",
+    "spacr/qt/widgets/sample_project.py": "7d415f2c38b66de66d96bc6262b0ef766952e030915044b7d0175820635290c0",
+    "spacr/timeflows_model.py": "43b9631fccfd1bb5ef1fa740e557e96d472ab644b4b14536c5720e25e236a7b4"
+  },
+  "total_review_blocks": 279,
+  "validation": {
+    "sphinx_warnings_as_errors": true,
+    "focused_api_checks_passed": 103,
+    "workflow_checks_passed": 24,
+    "prose_hygiene_checks_passed": 42,
+    "complete_catalog_browser": "FAIL: existing missing/stale locale rows trigger English fallback; not waived.",
+    "scoped_render": {
+      "anchors": [
+        {
+          "symbol": "spacr.qt.detect_chain",
+          "page": "api/spacr/qt/detect_chain/index.html",
+          "anchor": "module-spacr.qt.detect_chain"
+        },
+        {
+          "symbol": "spacr.qt.detect_chain.background_surface",
+          "page": "api/spacr/qt/detect_chain/index.html",
+          "anchor": "spacr.qt.detect_chain.background_surface"
+        },
+        {
+          "symbol": "spacr.qt.preferences.sound_is_offered",
+          "page": "api/spacr/qt/preferences/index.html",
+          "anchor": "spacr.qt.preferences.sound_is_offered"
+        },
+        {
+          "symbol": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel",
+          "page": "api/spacr/qt/screens/gate_editor/index.html",
+          "anchor": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel"
+        },
+        {
+          "symbol": "spacr.qt.widgets.sample_project",
+          "page": "api/spacr/qt/widgets/sample_project/index.html",
+          "anchor": "module-spacr.qt.widgets.sample_project"
+        },
+        {
+          "symbol": "spacr.timeflows_model.ctc_pairs",
+          "page": "api/spacr/timeflows_model/index.html",
+          "anchor": "spacr.timeflows_model.ctc_pairs"
+        }
+      ],
+      "served_locale_entries": 54,
+      "scoped_browser_panels": 54,
+      "browser_uses_full_committed_catalogs": false,
+      "scoped_fixture_uses_exact_committed_records": true,
+      "api_only_workflow_links": 3,
+      "full_catalog_browser_acceptance": false
+    }
+  },
+  "browser_count_change": {
+    "baseline": "1d5a80f78b88759d4b5272e3b5bb1c75c7c31ec2",
+    "old_count": 11338,
+    "new_count": 11365,
+    "added": [
+      "spacr._starplast",
+      "spacr._starplast.REPOSITORY",
+      "spacr._starplast.apps_root",
+      "spacr._starplast.default_source",
+      "spacr._starplast.install_starplast",
+      "spacr._starplast.is_installed",
+      "spacr._starplast.launch_starplast",
+      "spacr._starplast.process_environment",
+      "spacr.qt.starplast",
+      "spacr.qt.starplast.StarplastInstallDialog",
+      "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+      "spacr.qt.starplast.StarplastInstallDialog.reject",
+      "spacr.qt.starplast.StarplastInstallDialog.start",
+      "spacr.qt.starplast.open_starplast",
+      "spacr.qt.widgets.image_ruler",
+      "spacr.qt.widgets.image_ruler.ImageRuler",
+      "spacr.qt.widgets.image_ruler.ImageRuler.clear",
+      "spacr.qt.widgets.image_ruler.ImageRuler.handle",
+      "spacr.qt.widgets.image_ruler.ImageRuler.label",
+      "spacr.qt.widgets.image_ruler.ImageRuler.length",
+      "spacr.qt.widgets.image_ruler.ImageRuler.paint",
+      "spacr.qt.widgets.image_ruler.ImageRuler.set_active",
+      "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram.resizeEvent"
+    ],
+    "removed": [],
+    "subtraction_restores_old_inventory": true
+  },
+  "catalog_census": {
+    "schema": 1,
+    "source_commit": "29fc345459ecca5734227b0e8e48fb93ef4c7385",
+    "scope": "Current working tree after organism captions, API-only workflows and API prose refresh; structural/source-hash census only, not linguistic or browser acceptance.",
+    "api_sources": 11365,
+    "external_ui_sources": 4715,
+    "languages": [
+      {
+        "language": "sv",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 445,
+        "ui_extra": 11
+      },
+      {
+        "language": "de",
+        "api_missing": 725,
+        "api_stale": 125,
+        "api_extra": 2,
+        "api_current_source_hash": 10515,
+        "ui_missing": 445,
+        "ui_extra": 11
+      },
+      {
+        "language": "es",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 445,
+        "ui_extra": 11
+      },
+      {
+        "language": "zh_CN",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 427,
+        "ui_extra": 11
+      },
+      {
+        "language": "pt",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 445,
+        "ui_extra": 11
+      },
+      {
+        "language": "hi",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 658,
+        "ui_extra": 43
+      },
+      {
+        "language": "ko",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 606,
+        "ui_extra": 43
+      },
+      {
+        "language": "is",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 658,
+        "ui_extra": 43
+      },
+      {
+        "language": "fr",
+        "api_missing": 780,
+        "api_stale": 143,
+        "api_extra": 2,
+        "api_current_source_hash": 10442,
+        "ui_missing": 445,
+        "ui_extra": 11
+      }
+    ]
+  },
+  "log_sha256": {
+    "prose-cleanup-api-tests.log": "6c57cda289903f27469043490b4a1ef34cc766ae156290916bfa62a3320ce19b",
+    "prose-cleanup-full-catalog-browser.log": "6dcbbc4bf6f786568d58c2cfe9d43ea6854fd7ecb988c46b462a16633b88ad30",
+    "prose-cleanup-sphinx.log": "d84064d02bdc0aab77134eb6c22958c6c9c34a2d230e865934f3d96a03501311",
+    "prose-cleanup-api-verification.log": "cb662e2bf43840f4c71b92c27a017d405dc168ccce1dd94d1b477bd7f82bb199",
+    "prose-cleanup-render-verification.log": "23013556dfb58a94bcaf5314cf3a53029dd73742f9f8ce21d7c9d8cf4046ae21"
+  },
+  "remaining": "Full API catalogs still have missing/stale entries and cannot pass global browser parity. Nested helpers, 34 long organism passages, complete references and tutorial media/release remain open. New upstream 483/476 APIs will require another source inventory after rebase."
+}

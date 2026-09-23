@@ -1654,3 +1654,15 @@ stale, plus two obsolete symbols per catalog. This is source binding evidence,
 not linguistic acceptance. Receipts:411_external_app_api_2026-09-22.json,
 411_stable_layout_api_2026-09-22.json and
 411_catalog_census_after_headings_2026-09-22.json under features/data/.
+
+2026-09-23 — CODEX: PUBLIC PROSE CLEANUP AND BROWSER PARITY AUDIT
+Six changed public documents now have54 source-bound locale records and279
+reviewed blocks. English/Help sources are current for this batch;103focused
+API checks, Sphinx-W and six built anchors pass. Two module introductions are
+clearer, with unchanged executable AST. The complete-catalog browser test
+still FAILS on missing/stale older rows; its strict global parity means a
+partially repaired locale falls back to English. No completion claim or
+exemption. Browser symbol pin now11365, proved by27additions/0removals since
+1d5a80f78; exact identities and scoped rendered evidence are in
+features/data/411_api_prose_cleanup_2026-09-22.json. Full catalog reconstruction
+and nested-helper rollout remain open; new483/476sources await integration.

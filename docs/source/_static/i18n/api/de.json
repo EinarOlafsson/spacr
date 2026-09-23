@@ -63772,6 +63772,50 @@
         "450d041bbbd8c4ac967155068554c11a4dfd8a5327490c8b4fe8e0d32bf41526"
       ]
     },
+    "spacr.qt.detect_chain": {
+      "source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+        "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+        "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
+      ],
+      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
+      "text": "Optionale Bildverbesserung vor der Erkennung und anschließende Bereinigung der Objektlabels.\n\nIn Make Masks aktiviert „Anwenden“ die konfigurierte Kette für Erkennung und Anzeige; „Vergleichen“ zeigt eine Vorschau, ohne sie zu aktivieren. Die Verarbeitung verwendet Kopien: Dateien auf dem Datenträger und die beim Zeigen mit der Maus angezeigten Originalwerte bleiben unverändert.\n\n:data:`CHAIN_ORDER` legt die Reihenfolge fest::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nDie optionale Perzentilstreckung gehört zu Make Masks und liegt außerhalb von :class:`Chain`. Ihre Grenzen werden am gesamten Bildfeld bestimmt, bevor eine Lupenregion ausgeschnitten wird; das Verschieben des Kastens ändert daher die Perzentilgrenzen nicht.\n\nDie Hintergrundsubtraktion erfolgt vor der Entrauschung. Entrauschung vor der Kontrastanpassung verhindert eine Verstärkung des Rauschens; Kontrastanpassung vor dem Schärfen verhindert das Strecken seiner Halos. Morphologie erfolgt vor dem Aufteilen, da sie die Verbindung von Pixeln verändert. :func:`prepare` führt Hintergrundkorrektur, Entrauschung, Kontrastanpassung und Schärfung aus; :func:`finish` führt nach dem gewählten Detektor Morphologie und Aufteilung aus.\n\nDeaktivierte Schritte geben ihre Eingabe unverändert zurück. :func:`heavy_steps` ermittelt aktivierte Schritte, für die ein Fortschrittshinweis sinnvoll ist; nichtlokale Mittelwertbildung kann bei einem Bildfeld von 2.000 px Minuten dauern. Ganzbildläufe behalten Fortschrittsanzeige und Abbrechen-Steuerung. Die Auswahl einer Hintergrundmethode aktiviert keine Entrauschung.\n\nDie Mask-Pipeline besitzt eine eigene Vorverarbeitung. :func:`spacr.object._preprocess_batch` wendet mit ``organelle_rolling_ball`` und ``organelle_clahe`` zuerst Rolling Ball und dann CLAHE auf Organellen-Batches an. Die Mask-Einstellungen ``remove_background``, ``background`` und ``signal_to_noise`` wenden dagegen kanalweise Intensitätsuntergrenzen an. Diese Kette in Make Masks konfiguriert keinen dieser beiden Wege.\n\nDie Bildverbesserung verändert die zur Kuratierung vorgeschlagenen Objekte. Auf verbesserten Bildern trainierte Modelle benötigen bei der Inferenz eine entsprechende Vorverarbeitung; dieses Modul konfiguriert weder Training noch Inferenz.",
+      "translation_source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "b5b6f7f372749ddaf4e1bcb6be17517f0371ecd8866fb0607290761191241e9f",
+        "a8959f71850fca57fe251a14717b90ba4c6b3ac3ff53565652377925f9324e73",
+        "54c9b22855c5c41e6563d4a28b5371038e8d069b478796aa3911da40e2e57707"
+      ]
+    },
+    "spacr.qt.detect_chain.background_surface": {
+      "source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
+      ],
+      "source_sha256": "18f3c26fde78b43287b0feb206e108c9a311554005e65cb31c4280061cd8f885",
+      "text": "Der langsam veränderliche Hintergrund unter ``image``, in der Größe von ``image``.\n\nDen Hintergrund auf einer mit :attr:`Chain.background_scale` verkleinerten Kopie schätzen und die Fläche anschließend auf die Eingabegröße skalieren. Der Radius schrumpft mit dem Bild, um seine relative Ausdehnung zu erhalten. So wird langsam veränderliche Beleuchtung angenähert, während Pixelzahl und Nachbarschaftsgröße sinken.\n\nBei Skalierung 1.0 wird ``rolling_ball`` oder ``white_tophat`` in voller Auflösung aufgerufen und das exakte Ergebnis zurückgegeben. Kleinere Bilder verwenden ebenfalls die volle Auflösung, wenn das Verkleinern :data:`MIN_BACKGROUND_SIDE` unterschreiten würde. Die Schätzung in voller Auflösung kann langsam sein: Bei einem von uint16 nach float32 konvertierten Bildfeld von 1.994 px betrugen die CPU-Zeiten für Rolling Ball 0.3 s bei Radius 5, 0.9 s bei 10, 4.1 s bei 25 und 14.5 s bei 50. Mit Standardradius 50 und Skalierung 0.5 benötigte dasselbe Bildfeld etwa eine Sekunde. Die Zeiten hängen von Hardware und Bild ab; Aufrufer sollten dies außerhalb des GUI-Threads ausführen.\n\n:param image: Das Bildfeld oder die Region als Gleitkommazahlen.\n:param chain: Die Kette mit Hintergrundmethode, Radius und Skalierung.\n:returns: Der Hintergrund mit derselben Form wie ``image``; Nullen, wenn die Kette keinen Hintergrund subtrahiert.",
+      "translation_source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "5aa40f6c7124c591d1ec09c21194feaa7e81d26a71691e044376c48d5acd885f",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
+      ]
+    },
     "spacr.qt.dialogs": {
       "source_blocks_sha256": [
         "65331a05d7e0bac26e79bdc2640b1e94265c26972b8002ec008a8b5c749c255f",
@@ -73634,6 +73678,22 @@
         "b0610695ce3d521debc78edce188bbba9de1fbe531bb45a9fe341ddc70fc8414"
       ]
     },
+    "spacr.qt.preferences.sound_is_offered": {
+      "source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
+      ],
+      "source_sha256": "c06ca102736b683ae5ea877b7237022540f30afb9d24c134728c236853d60ec8",
+      "text": "Ob dieser Prozess Ton überhaupt anbietet: nur im spaceout-Modus.\n\nIm normalen spaCR bleibt Ton ausgeschaltet und der zugehörige Einstellungsreiter verborgen. Spaceout gilt nur für den jeweiligen Prozess (:func:`spacr.qt.theme.enable_spaceout`, ausschließlich vom ``spaceout``-Starter aufgerufen); der Zustand wird daher aktuell abgefragt und nie gespeichert.\n\nImportiert :mod:`spacr.qt.theme` nicht: Ein Prozess ohne diesen Import kann spaceout nicht aktiviert haben, und diese Abfrage erfolgt auch auf Ausführungspfaden, die ohne QtGui bleiben müssen.\n\n:returns: ``True`` im spaceout-Modus, ``False`` im normalen spaCR.",
+      "translation_source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
+      ]
+    },
     "spacr.qt.preferences.spacr_mode_for_level": {
       "source_blocks_sha256": [
         "2461c67aa1cc5c6e1d670be485e49e8128d941c653f479203887eba55320cf6b",
@@ -81724,6 +81784,22 @@
       "translation_source_blocks_sha256": [
         "378e7dd5d1d7b6e6cc0c0a8cda74aed2a2c7ddda7917955831405b8e8b38d7de",
         "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
+      ]
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel": {
+      "source_blocks_sha256": [
+        "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
+        "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
+      ],
+      "source_sha256": "0651e4ed8fbfd09e47956db18d0910244475ec988c5b0f460016f4b3d85bac8d",
+      "text": "Die Seite „Filter / Suche“ an Diagramm und Gate-Tabelle ausrichten.\n\nDie Einstellungen über dem Diagramm teilen sich eine Zeile. Die Reiter des rechten Bereichs liegen auf gleicher Höhe mit dieser Zeile, und beide darunterliegenden Container beginnen auf derselben Höhe. Die Zeile ist die eigene Werkzeugzeile des Diagrammbereichs; Tabellen-Chips und X-/Y-/Z-Auswahlfelder befinden sich dort, sodass die Reiter bereits ausgerichtet sind. Nur der Beginn der Container unter ihren Zeilen unterscheidet sich. Die Reiterseite wird um diesen jeweils gemessenen Unterschied nach unten verschoben und folgt so zusätzlicher Zeilenhöhe, etwa durch die darunterliegenden 3D-Ebenen-Steuerungen.\n\nEine festgelegte Höhe der Reiterleiste verschiebt die darunterliegende Seite nicht: QTabWidget platziert die Seite anhand des Größenvorschlags der Leiste. Daher wird der Versatz der Seite selbst gesetzt.\n\n:returns: Der auf die Seite angewandte Versatz in Pixeln.",
+      "translation_source_blocks_sha256": [
+        "c6d7cd5791676de33f2f87202508cf59982f07f0897e6ab9c6cfbd43c39f6724",
+        "b030c1fb13895cc8187c0ed86d79d91a7dd73600c0a0d4f9136b9e2a5c7d6844",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
       ]
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates": {
@@ -133182,6 +133258,20 @@
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a"
       ]
     },
+    "spacr.qt.widgets.sample_project": {
+      "source_blocks_sha256": [
+        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ],
+      "source_sha256": "7b15385c921097a0e3b591bb3b6d000e1f039db2580a27378ae1e7387fedb524",
+      "text": "Ein Beispielprojekt für den gewählten Experimenttyp von Home aus öffnen.\n\nDer Dialog öffnet das erste Modul des gewählten Ablaufs mit bereitgestellten Beispieldaten und Einstellungen. Eine Schaltfläche für die Schrittanleitung in der Statusleiste hält den Ablauf nach dem Öffnen des Beispiels verfügbar.\n\nDie Abläufe stammen aus ``spacr/resources/module_workflows.json``, das auch Tutorials, Schrittanleitungen und API-Seiten verwenden. Fehlt die mitgelieferte Übersicht, stehen drei Ersatzabläufe bereit.",
+      "translation_source_blocks_sha256": [
+        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ]
+    },
     "spacr.qt.widgets.sample_project.start_example": {
       "source_blocks_sha256": [
         "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
@@ -155726,6 +155816,26 @@
         "c9196885e8b0db48db15ee681fa0647c1b5fe15da513adacf9af9301e6b94b77",
         "c91a57c95fc0f830ea2677e94998d14523598f9c3c3210b0f9d700918e1e0c83",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs": {
+      "source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+      ],
+      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
+      "text": "Trainingspaare aus aufeinanderfolgenden Frames eines Cell-Tracking-Challenge-Films.\n\nFrames aus ``<movie>/<seq>/t*.tif``, vollständige Masken aus der Silver-Segmentierung ``<movie>/<seq>_ST/SEG/man_seg*.tif``, anhand der Tracking-Markierungen ``<movie>/<seq>_GT/TRA/man_track*.tif`` neu beschriftet (:func:`track_masks_from_ctc`). Fehlt einem Frame einer dieser drei Bestandteile, wird er übersprungen; ein Paar entsteht nur aus zwei aufeinanderfolgenden Frame-Nummern.\n\n:param movie: Der Filmordner (z. B. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` oder ``'02'``.\n:param max_pairs: Höchstens so viele Paare, gleichmäßig über den Film verteilt und vor dem Lesen einer Datei ausgewählt. Diese Grenze beschränkt die aus langen Filmen geladenen Frames; das Laden ganzer Sammlungen kann mehrere zehn Gigabyte Arbeitsspeicher erfordern.\n:returns: Die Paare in zeitlicher Reihenfolge.",
+      "translation_source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
       ]
     },
     "spacr.timelapse": {

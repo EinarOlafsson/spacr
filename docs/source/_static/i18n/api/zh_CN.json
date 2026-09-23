@@ -62831,6 +62831,50 @@
         "450d041bbbd8c4ac967155068554c11a4dfd8a5327490c8b4fe8e0d32bf41526"
       ]
     },
+    "spacr.qt.detect_chain": {
+      "source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+        "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+        "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
+      ],
+      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
+      "text": "检测前可选的图像增强，以及检测后的对象标签清理。\n\n在 Make Masks 中，“应用”启用配置的处理链，用于检测和显示；“比较”仅预览该配置，不启用处理链。处理使用副本：磁盘文件和悬停读数显示的原始值均保持不变。\n\n:data:`CHAIN_ORDER` 固定处理顺序::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\n可选的百分位拉伸属于 Make Masks，不在 :class:`Chain` 内。其阈值在裁剪放大镜区域前根据整个视野计算，因此移动选框不会重新定义百分位阈值。\n\n先扣除背景，再去噪。去噪先于对比度调整，以免放大噪声；对比度调整先于锐化，以免拉伸锐化产生的光晕。形态学处理先于分割拆分，因为它会改变像素的连通关系。:func:`prepare` 执行背景处理、去噪、对比度调整和锐化；:func:`finish` 在所选检测器之后执行形态学处理和拆分。\n\n禁用的步骤原样返回输入。:func:`heavy_steps` 标识需要进度警告的已启用步骤；非局部均值在 2,000 px 视野上可能耗时数分钟。整图运行保留进度和取消控件。选择背景方法不会启用去噪。\n\nMask 流程使用独立的预处理。:func:`spacr.object._preprocess_batch` 通过 ``organelle_rolling_ball`` 和 ``organelle_clahe`` 对细胞器图像批次先应用滚球算法，再应用 CLAHE。Mask 设置 ``remove_background``、``background`` 和 ``signal_to_noise`` 则按通道应用强度下限。此 Make Masks 处理链不配置这两种流程。\n\n图像增强会改变供人工审核的候选对象。使用增强图像训练的模型在推理时需要匹配的预处理；此模块不配置训练或推理流程。",
+      "translation_source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "b5b6f7f372749ddaf4e1bcb6be17517f0371ecd8866fb0607290761191241e9f",
+        "a8959f71850fca57fe251a14717b90ba4c6b3ac3ff53565652377925f9324e73",
+        "54c9b22855c5c41e6563d4a28b5371038e8d069b478796aa3911da40e2e57707"
+      ]
+    },
+    "spacr.qt.detect_chain.background_surface": {
+      "source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
+      ],
+      "source_sha256": "18f3c26fde78b43287b0feb206e108c9a311554005e65cb31c4280061cd8f885",
+      "text": "``image`` 下方缓慢变化的背景，尺寸与 ``image`` 相同。\n\n在按 :attr:`Chain.background_scale` 缩小的副本上估计背景，再将曲面调整为输入形状。半径随图像一起缩小，以保持相对作用范围。这样可近似缓慢变化的照明，同时减少像素数量和邻域大小。\n\n当缩放系数为 1.0 时，以完整分辨率调用 ``rolling_ball`` 或 ``white_tophat``，并返回其精确结果。若缩小后会低于 :data:`MIN_BACKGROUND_SIDE`，较小的图像也使用完整分辨率。完整分辨率估计可能较慢：在一个从 uint16 转换为 float32 的 1,994 px 视野上，CPU 滚球算法在半径 5、10、25、50 时分别耗时 0.3 s、0.9 s、4.1 s、14.5 s。使用默认半径 50 和缩放系数 0.5 时，同一视野约耗时一秒。耗时取决于硬件和图像；调用方应在 GUI 线程之外运行此操作。\n\n:param image: 视野或区域，使用浮点数。\n:param chain: 处理链，提供背景方法、半径和缩放系数。\n:returns: 背景，形状与 ``image`` 相同；若处理链不扣除背景，则为全零。",
+      "translation_source_blocks_sha256": [
+        "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "5aa40f6c7124c591d1ec09c21194feaa7e81d26a71691e044376c48d5acd885f",
+        "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+        "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+        "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
+      ]
+    },
     "spacr.qt.dialogs": {
       "source_blocks_sha256": [
         "65331a05d7e0bac26e79bdc2640b1e94265c26972b8002ec008a8b5c749c255f",
@@ -72693,6 +72737,22 @@
         "b0610695ce3d521debc78edce188bbba9de1fbe531bb45a9fe341ddc70fc8414"
       ]
     },
+    "spacr.qt.preferences.sound_is_offered": {
+      "source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
+      ],
+      "source_sha256": "c06ca102736b683ae5ea877b7237022540f30afb9d24c134728c236853d60ec8",
+      "text": "此进程是否提供声音：仅在 spaceout 模式下提供。\n\n普通 spaCR 关闭声音并隐藏声音偏好设置选项卡。Spaceout 状态仅属于当前进程（:func:`spacr.qt.theme.enable_spaceout` 仅由 ``spaceout`` 启动器调用），因此每次读取当前状态，且从不保存。\n\n不导入 :mod:`spacr.qt.theme`：未导入该模块的进程不可能启用 spaceout，而此查询也用于必须保持不依赖 QtGui 的执行路径。\n\n:returns: spaceout 模式下为 ``True``，普通 spaCR 中为 ``False``。",
+      "translation_source_blocks_sha256": [
+        "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+        "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+        "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
+      ]
+    },
     "spacr.qt.preferences.spacr_mode_for_level": {
       "source_blocks_sha256": [
         "2461c67aa1cc5c6e1d670be485e49e8128d941c653f479203887eba55320cf6b",
@@ -80783,6 +80843,22 @@
       "translation_source_blocks_sha256": [
         "378e7dd5d1d7b6e6cc0c0a8cda74aed2a2c7ddda7917955831405b8e8b38d7de",
         "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
+      ]
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel": {
+      "source_blocks_sha256": [
+        "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
+        "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
+      ],
+      "source_sha256": "0651e4ed8fbfd09e47956db18d0910244475ec988c5b0f460016f4b3d85bac8d",
+      "text": "将“筛选 / 搜索”页面与图表和门控表对齐。\n\n图表上方的设置共用一行。右侧面板的选项卡与该行平齐，两侧下方的容器也从同一高度开始。这一行是图表面板自己的工具行，表格选择标签和 X / Y / Z 选择器已移至其中，因此选项卡本身已对齐；差异在于各容器在其行下方的起始位置。每次测量该差值，并将选项卡页面向下移动相应距离，因此当工具行增加高度（例如下方出现三维平面控件）时，页面也会随之调整。\n\n为选项卡栏设置固定高度不会移动下方页面：QTabWidget 根据选项卡栏的建议尺寸放置页面。因此需要设置页面自身的偏移量。\n\n:returns: 应用于页面的偏移量，以像素为单位。",
+      "translation_source_blocks_sha256": [
+        "c6d7cd5791676de33f2f87202508cf59982f07f0897e6ab9c6cfbd43c39f6724",
+        "b030c1fb13895cc8187c0ed86d79d91a7dd73600c0a0d4f9136b9e2a5c7d6844",
+        "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+        "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
       ]
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates": {
@@ -132241,6 +132317,20 @@
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a"
       ]
     },
+    "spacr.qt.widgets.sample_project": {
+      "source_blocks_sha256": [
+        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ],
+      "source_sha256": "7b15385c921097a0e3b591bb3b6d000e1f039db2580a27378ae1e7387fedb524",
+      "text": "从主页打开所选实验类型的示例项目。\n\n对话框打开所选流程的第一个模块，并提供示例数据和设置。示例打开后，仍可通过状态栏中的操作指南按钮查看该流程。\n\n流程来自 ``spacr/resources/module_workflows.json``，与教程、操作指南和 API 页面共用。若随软件提供的映射文件缺失，则提供三条备用流程。",
+      "translation_source_blocks_sha256": [
+        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ]
+    },
     "spacr.qt.widgets.sample_project.start_example": {
       "source_blocks_sha256": [
         "a2aa1959e5aebb2d21b2730343e42819251175868b1b6275291c327b77b3a713",
@@ -154785,6 +154875,26 @@
         "c9196885e8b0db48db15ee681fa0647c1b5fe15da513adacf9af9301e6b94b77",
         "c91a57c95fc0f830ea2677e94998d14523598f9c3c3210b0f9d700918e1e0c83",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.timeflows_model.ctc_pairs": {
+      "source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
+      ],
+      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
+      "text": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。\n\n帧来自 ``<movie>/<seq>/t*.tif``；完整掩膜来自银标准分割 ``<movie>/<seq>_ST/SEG/man_seg*.tif``，并根据跟踪标记 ``<movie>/<seq>_GT/TRA/man_track*.tif`` 重新标注（:func:`track_masks_from_ctc`）。任一帧若缺少这三项中的任何一项，就会被跳过；只有帧编号连续的两帧才能组成一对。\n\n:param movie: 序列文件夹（例如 ``.../ctc_dic_hela_timelapse``）。\n:param sequence: ``'01'`` 或 ``'02'``。\n:param max_pairs: 最多返回此数量的帧对，沿序列均匀分布，并在读取任何文件前选定。设置该限制可约束从长序列加载的帧数；加载整个集合可能需要数十 GB 内存。\n:returns: 按时间顺序排列的帧对。",
+      "translation_source_blocks_sha256": [
+        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+        "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
       ]
     },
     "spacr.timelapse": {

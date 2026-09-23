@@ -12027,3 +12027,24 @@ lesson79 has79scenes.24 workflow checks and42 hygiene/prose checks pass.
 The ca34b9dde assertion-free workflow test failure is resolved with positive
 port and pipeline coverage assertions. No analysis/GPU run needed. Tutorial
 translations/media/listening and broader API/runtime completion remain open.
+
+2026-09-23 — CODEX: PROSE CLEANUP API BATCH VERIFIED
+Six public documents now have54 current locale entries and279 source-bound
+review records across all nine languages. Tightened only the two claimed
+module introductions; executable AST unchanged. Preserved the superseded
+German sample-project heading review with a retirement reason. English
+manifest and Help summaries refreshed. All nine full API review loaders pass;
+103 focused API checks pass; Sphinx-W builds; six built anchors,54 served
+entries and54 scoped-fixture browser panels verified. Whole-catalog browser
+acceptance remains FAIL: missing/stale older rows make the selector fall back
+to English. No gate weakened. Browser count11338->11365 is proved by27added,
+0removed:14Starplast,9ruler,4diagram entries since1d5a80f78.
+Receipt: features/data/411_api_prose_cleanup_2026-09-22.json, explicitly bound
+to29fc34545 plus its recorded docstring changes, not newer483/476 sources.
+
+Fetched throughf4964b9af. Integrating483flowcharts and476engine next; full API
+catalog parity is now the priority because partial source freshness alone
+does not make locales usable. 34organism long passages remain; five have
+private nine-language drafts. No GPU job started. 476UI integration ownership
+remains with Claude; this lane handles its API/docs/translations after source
+handoff. Map77modules needs a check against the new structured flowchart.

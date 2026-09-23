@@ -1,0 +1,224 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Optional image enhancement before detection and label cleanup afterward.",
+      "label": "spacr.qt.detect_chain#0",
+      "source": "Optional image enhancement before detection and label cleanup afterward.",
+      "source_sha256": "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+      "translation": "Valfrjáls myndbæting fyrir greiningu og hreinsun hlutamerkinga á eftir."
+    },
+    {
+      "context": "In Make Masks, Apply enables the configured chain for detection and display; Compare previews it without enabling it. Processing uses copies: files on disk and the original values reported by the hover readout remain unchanged.",
+      "label": "spacr.qt.detect_chain#1",
+      "source": "In Make Masks, Apply enables the configured chain for detection and display; Compare previews it without enabling it. Processing uses copies: files on disk and the original values reported by the hover readout remain unchanged.",
+      "source_sha256": "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+      "translation": "Í Make Masks virkjar Nota stillta keðju fyrir greiningu og birtingu; Bera saman forskoðar hana án þess að virkja hana. Unnið er með afrit: skrár á diski og upprunaleg gildi sem birtast undir músarbendli haldast óbreytt."
+    },
+    {
+      "context": ":data:`CHAIN_ORDER` fixes the sequence",
+      "label": "spacr.qt.detect_chain#2",
+      "source": ":data:`CHAIN_ORDER` fixes the sequence",
+      "source_sha256": "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+      "translation": ":data:`CHAIN_ORDER` ákvarðar röðina"
+    },
+    {
+      "context": "The optional percentile stretch belongs to Make Masks, outside :class:`Chain`. Its levels come from the whole field before a magnifier region is cropped, so moving the box does not redefine the percentile levels.",
+      "label": "spacr.qt.detect_chain#3",
+      "source": "The optional percentile stretch belongs to Make Masks, outside :class:`Chain`. Its levels come from the whole field before a magnifier region is cropped, so moving the box does not redefine the percentile levels.",
+      "source_sha256": "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+      "translation": "Valfrjáls teygja eftir hundraðshlutamörkum tilheyrir Make Masks, utan :class:`Chain`. Mörkin eru reiknuð úr öllu myndsviðinu áður en svæði stækkunarglersins er skorið út, svo færsla kassans endurskilgreinir þau ekki."
+    },
+    {
+      "context": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "label": "spacr.qt.detect_chain#4",
+      "source": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+      "translation": "Frádráttur bakgrunns kemur á undan suðminnkun. Suðminnkun kemur á undan birtuskilum til að forðast mögnun suðs; birtuskil koma á undan skerpingu til að forðast að teygja geislabauga hennar. Formfræðilegar aðgerðir koma á undan skiptingu því þær breyta því hvaða mynddílar tengjast. :func:`prepare` keyrir bakgrunnsleiðréttingu, suðminnkun, birtuskil og skerpingu; :func:`finish` keyrir formfræðilegar aðgerðir og skiptingu á eftir valinni greiningaraðferð."
+    },
+    {
+      "context": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px microscope field of view. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",
+      "label": "spacr.qt.detect_chain#5",
+      "source": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px field. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",
+      "source_sha256": "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+      "translation": "Óvirk skref skila inntakinu óbreyttu. :func:`heavy_steps` finnur virk skref sem réttlæta viðvörun um vinnslutíma; meðaltöl utan nærsvæðis geta tekið mínútur á 2.000 px myndsviði. Keyrslur á heilli mynd halda framvindubirtingu og Hætta við. Val á bakgrunnsaðferð virkjar ekki suðminnkun."
+    },
+    {
+      "context": "The Mask workflow has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-image data channel intensity floors. This Make Masks chain configures neither route.",
+      "label": "spacr.qt.detect_chain#6",
+      "source": "The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-channel intensity floors. This Make Masks chain configures neither route.",
+      "source_sha256": "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+      "translation": "Mask-vinnslukeðjan hefur sérstaka forvinnslu. :func:`spacr.object._preprocess_batch` beitir rúllandi kúlu og síðan CLAHE á runur frumulíffæra með ``organelle_rolling_ball`` og ``organelle_clahe``. Mask-stillingarnar ``remove_background``, ``background`` og ``signal_to_noise`` beita hins vegar neðri styrkleikamörkum fyrir hverja rás. Þessi Make Masks-keðja stillir hvoruga þessara leiða."
+    },
+    {
+      "context": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference workflow.",
+      "label": "spacr.qt.detect_chain#7",
+      "source": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference pipeline.",
+      "source_sha256": "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87",
+      "translation": "Myndbæting breytir hlutunum sem lagðir eru til yfirferðar. Líkön sem eru þjálfuð á bættum myndum þurfa samsvarandi forvinnslu við ályktun; þessi eining stillir hvorki þjálfunar- né ályktunarferlið."
+    },
+    {
+      "context": "The slowly varying background under ``image``, at ``image``'s size.",
+      "label": "spacr.qt.detect_chain.background_surface#0",
+      "source": "The slowly varying background under ``image``, at ``image``'s size.",
+      "source_sha256": "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
+      "translation": "Bakgrunnurinn sem breytist hægt undir ``image``, í stærð ``image``."
+    },
+    {
+      "context": "Estimate the background on a smaller copy at :attr:`Chain.background_scale`, then resize the surface to the input shape. The radius shrinks with the image to preserve its relative extent. This approximates slowly varying illumination while reducing both the pixel count and neighbourhood size.",
+      "label": "spacr.qt.detect_chain.background_surface#1",
+      "source": "Estimate the background on a smaller copy at :attr:`Chain.background_scale`, then resize the surface to the input shape. The radius shrinks with the image to preserve its relative extent. This approximates slowly varying illumination while reducing both the pixel count and neighbourhood size.",
+      "source_sha256": "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+      "translation": "Meta bakgrunninn á smækkuðu afriti samkvæmt :attr:`Chain.background_scale` og breyta síðan stærð yfirborðsins að lögun inntaksins. Radíusinn minnkar með myndinni til að halda hlutfallslegri útbreiðslu sinni. Þetta nálgar lýsingu sem breytist hægt um leið og mynddílum fækkar og grenndin minnkar."
+    },
+    {
+      "context": "At scale 1.0, call ``rolling_ball`` or ``white_tophat`` at full resolution and return its exact result. Smaller images also use full resolution when downsampling would cross :data:`MIN_BACKGROUND_SIDE`. Full-resolution estimation can be slow: on a 1,994 px uint16 microscope field of view converted to float32, CPU rolling-ball timings were 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50. At the default radius 50 and scale 0.5, the same microscope field of view took about a second. Timings depend on the hardware and image; callers should run this outside the main GUI execution path.",
+      "label": "spacr.qt.detect_chain.background_surface#2",
+      "source": "At scale 1.0, call ``rolling_ball`` or ``white_tophat`` at full resolution and return its exact result. Smaller images also use full resolution when downsampling would cross :data:`MIN_BACKGROUND_SIDE`. Full-resolution estimation can be slow: on a 1,994 px uint16 field converted to float32, CPU rolling-ball timings were 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50. At the default radius 50 and scale 0.5, the same field took about a second. Timings depend on the hardware and image; callers should run this outside the GUI thread.",
+      "source_sha256": "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
+      "translation": "Við kvarða 1.0 er ``rolling_ball`` eða ``white_tophat`` kallað með fullri upplausn og nákvæmri niðurstöðu skilað. Minni myndir nota einnig fulla upplausn ef smækkun færi niður fyrir :data:`MIN_BACKGROUND_SIDE`. Mat í fullri upplausn getur verið hægt: á 1.994 px uint16-myndsviði breyttu í float32 tók rúllandi kúla á CPU 0.3 s við radíus 5, 0.9 s við 10, 4.1 s við 25 og 14.5 s við 50. Með sjálfgefnum radíus 50 og kvarða 0.5 tók sama svið um eina sekúndu. Tíminn fer eftir vélbúnaði og mynd; kalla ætti þetta utan þráðar notendaviðmótsins (GUI)."
+    },
+    {
+      "context": "the field or region, as float.",
+      "label": "spacr.qt.detect_chain.background_surface#3",
+      "source": "the field or region, as float.",
+      "source_sha256": "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
+      "translation": "Myndsviðið eða svæðið, sem fleytitölur."
+    },
+    {
+      "context": "the chain, for its background method, radius and scale.",
+      "label": "spacr.qt.detect_chain.background_surface#4",
+      "source": "the chain, for its background method, radius and scale.",
+      "source_sha256": "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
+      "translation": "Keðjan, með bakgrunnsaðferð, radíus og kvarða."
+    },
+    {
+      "context": "the background, the same shape as ``image``; zeros when the chain subtracts no background.",
+      "label": "spacr.qt.detect_chain.background_surface#5",
+      "source": "the background, the same shape as ``image``; zeros when the chain subtracts no background.",
+      "source_sha256": "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206",
+      "translation": "Bakgrunnurinn, með sömu lögun og ``image``; núll þegar keðjan dregur engan bakgrunn frá."
+    },
+    {
+      "context": "Whether this process offers sound at all: only in spaceout mode.",
+      "label": "spacr.qt.preferences.sound_is_offered#0",
+      "source": "Whether this process offers sound at all: only in spaceout mode.",
+      "source_sha256": "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
+      "translation": "Hvort þetta ferli bjóði yfirleitt upp á hljóð: aðeins í spaceout-ham."
+    },
+    {
+      "context": "Ordinary spaCR leaves sound off and hides its preferences tab. Spaceout is process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by the ``spaceout`` launcher), so this is read live and never stored.",
+      "label": "spacr.qt.preferences.sound_is_offered#1",
+      "source": "Ordinary spaCR leaves sound off and hides its preferences tab. Spaceout is process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by the ``spaceout`` launcher), so this is read live and never stored.",
+      "source_sha256": "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
+      "translation": "Venjulegt spaCR hefur slökkt á hljóði og felur stillingaflipa þess. Spaceout er staðbundið við ferlið (:func:`spacr.qt.theme.enable_spaceout`, aðeins kallað af ``spaceout``-ræsiforritinu), svo staðan er lesin jafnóðum og aldrei vistuð."
+    },
+    {
+      "context": "Does not import :mod:`spacr.qt.theme`: a process that has not imported it cannot have enabled spaceout, and this is asked on paths that must stay free of QtGui.",
+      "label": "spacr.qt.preferences.sound_is_offered#2",
+      "source": "Does not import :mod:`spacr.qt.theme`: a process that has not imported it cannot have enabled spaceout, and this is asked on paths that must stay free of QtGui.",
+      "source_sha256": "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
+      "translation": "Flytur ekki inn :mod:`spacr.qt.theme`: ferli sem hefur ekki flutt það inn getur ekki hafa virkjað spaceout, og þessi fyrirspurn kemur á keyrsluleiðum sem verða að vera án QtGui."
+    },
+    {
+      "context": "``True`` in spaceout mode, ``False`` in ordinary spaCR.",
+      "label": "spacr.qt.preferences.sound_is_offered#3",
+      "source": "``True`` in spaceout mode, ``False`` in ordinary spaCR.",
+      "source_sha256": "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521",
+      "translation": "``True`` í spaceout-ham, ``False`` í venjulegu spaCR."
+    },
+    {
+      "context": "Line the Filter / Search page up with the graph and data-selection boundary table.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#0",
+      "source": "Line the Filter / Search page up with the graph and gate table.",
+      "source_sha256": "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
+      "translation": "Jafna síðu Síu / Leitar við línuritið og gates-töfluna."
+    },
+    {
+      "context": "Settings above the graph share one row. The tabs of the panel on the right sit level with that row, and the containers under both start at the same height. The row is the graph panel's own tool row -- the table chips and the X / Y / Z pickers were moved into it -- so the tabs already start level with it; what differs is where each container begins below its row. The tab page is moved down by that difference, measured each time, so whatever the row gains (the 3D image layer controls under it) the page follows.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#1",
+      "source": "Settings above the graph share one row. The tabs of the panel on the right sit level with that row, and the containers under both start at the same height. The row is the graph panel's own tool row -- the table chips and the X / Y / Z pickers were moved into it -- so the tabs already start level with it; what differs is where each container begins below its row. The tab page is moved down by that difference, measured each time, so whatever the row gains (the 3D plane controls under it) the page follows.",
+      "source_sha256": "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
+      "translation": "Stillingarnar fyrir ofan línuritið deila einni röð. Fliparnir á hægri spjaldinu eru í sömu hæð og röðin og ílátin undir báðum byrja í sömu hæð. Röðin er eigin verkfæraröð línuritsins; töfluval og X / Y / Z-val hafa verið færð þangað, svo fliparnir eru þegar í sömu hæð. Munurinn er hvar hvort ílát byrjar undir sinni röð. Flipasíðan er færð niður um þennan mun, sem er mældur í hvert sinn, svo hún fylgir aukinni hæð raðarinnar, til dæmis frá stjórntækjum þrívíddarplansins undir henni."
+    },
+    {
+      "context": "A tab bar given a fixed height does not move the page under it -- QTabWidget places the page from the bar's size hint -- so the page's own offset is what is set.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#2",
+      "source": "A tab bar given a fixed height does not move the page under it -- QTabWidget places the page from the bar's size hint -- so the page's own offset is what is set.",
+      "source_sha256": "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
+      "translation": "Föst hæð flipastiku færir ekki síðuna undir henni: QTabWidget staðsetur síðuna eftir stærðartillögu stikunnar. Því er hliðrun síðunnar sjálfrar stillt."
+    },
+    {
+      "context": "the offset applied to the page, in pixels.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel#3",
+      "source": "the offset applied to the page, in pixels.",
+      "source_sha256": "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb",
+      "translation": "Hliðrunin sem er beitt á síðuna, í mynddílum."
+    },
+    {
+      "context": "Open an example project from Home for the chosen experiment type.",
+      "label": "spacr.qt.widgets.sample_project#0",
+      "source": "Open an example project from Home for the chosen experiment type.",
+      "source_sha256": "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+      "translation": "Opna dæmiverkefni frá upphafsskjánum fyrir valda tegund tilraunar."
+    },
+    {
+      "context": "The dialog opens the first module in the selected pathway with example data and settings supplied. A status-bar walkthrough button keeps the route available after the example opens.",
+      "label": "spacr.qt.widgets.sample_project#1",
+      "source": "The dialog opens the first module in the selected pathway with example data and settings supplied. A status-bar walkthrough button keeps the route available after the example opens.",
+      "source_sha256": "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+      "translation": "Glugginn opnar fyrstu eininguna á valinni leið með dæmigögnum og stillingum. Leiðsagnarhnappur á stöðustikunni heldur leiðinni aðgengilegri eftir að dæmið opnast."
+    },
+    {
+      "context": "Pathways come from ``spacr/resources/module_workflows.json``, shared with tutorials, walkthroughs and API pages. Three fallback pathways are available if the bundled map is missing.",
+      "label": "spacr.qt.widgets.sample_project#2",
+      "source": "Pathways come from ``spacr/resources/module_workflows.json``, shared with tutorials, walkthroughs and API pages. Three fallback pathways are available if the bundled map is missing.",
+      "source_sha256": "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da",
+      "translation": "Leiðirnar koma úr ``spacr/resources/module_workflows.json``, sem kennsluefni, leiðsagnir og API-síður deila. Þrjár varaleiðir eru tiltækar ef meðfylgjandi kort vantar."
+    },
+    {
+      "context": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "label": "spacr.timeflows_model.ctc_pairs#0",
+      "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
+      "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
+      "translation": "Þjálfunarpör úr samliggjandi römmum einnar Cell Tracking Challenge-myndraðar."
+    },
+    {
+      "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",
+      "label": "spacr.timeflows_model.ctc_pairs#1",
+      "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",
+      "source_sha256": "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
+      "translation": "Rammar úr ``<movie>/<seq>/t*.tif`` og heilar grímur úr silfurviðmiðunarhlutuninni ``<movie>/<seq>_ST/SEG/man_seg*.tif``, endurmerktar með rakningarmerkjum úr ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Ramma er sleppt ef eitthvað af þessum þremur vantar og par er aðeins myndað úr tveimur samliggjandi rammanúmerum."
+    },
+    {
+      "context": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "label": "spacr.timeflows_model.ctc_pairs#2",
+      "source": "the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).",
+      "source_sha256": "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
+      "translation": "Mappa myndraðarinnar (t.d. ``.../ctc_dic_hela_timelapse``)."
+    },
+    {
+      "context": "``'01'`` or ``'02'``.",
+      "label": "spacr.timeflows_model.ctc_pairs#3",
+      "source": "``'01'`` or ``'02'``.",
+      "source_sha256": "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
+      "translation": "``'01'`` eða ``'02'``."
+    },
+    {
+      "context": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "label": "spacr.timeflows_model.ctc_pairs#4",
+      "source": "at most this many pairs, spaced evenly through the movie and chosen before any file is read. Set this limit to bound the frames loaded from long movies; loading entire collections can require tens of gigabytes of memory.",
+      "source_sha256": "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+      "translation": "Í mesta lagi svo mörg pör, jafnt dreifð um myndröðina og valin áður en nokkur skrá er lesin. Stilltu þessi mörk til að takmarka ramma sem hlaðast úr löngum myndröðum; heildarsöfn geta þurft tugi gígabæta af minni."
+    },
+    {
+      "context": "the pairs, in time order.",
+      "label": "spacr.timeflows_model.ctc_pairs#5",
+      "source": "the pairs, in time order.",
+      "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
+      "translation": "Pörin, í tímaröð."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against current API sources: enhancement order and scope, background scale and timings, process-local sound, panel alignment, sample pathways and CTC sampling before I/O. No native-speaker sign-off.",
+  "schema": 1
+}

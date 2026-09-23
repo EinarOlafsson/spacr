@@ -1,15 +1,12 @@
 """Explore pipeline flowcharts and optionally start an example from Home.
 
-Choose an experiment type and open the first module in its pathway with
-example data and settings already supplied.
+The dialog opens the first module in the selected pathway with example data
+and settings supplied. A status-bar walkthrough button keeps the route
+available after the example opens.
 
-THE PATHWAYS COME FROM THE SHARED MAP when it is there:
-``spacr/resources/module_workflows.json``, shared by the tutorials,
-walkthroughs and API pages, so what
-this dialog offers and what the tutorials teach cannot drift apart. Until that
-file exists the three fallback pathways below are used.
-The selected route remains available from a walkthrough
-button in the status bar after its example opens.
+Pathways come from ``spacr/resources/module_workflows.json``, shared with
+tutorials, walkthroughs and API pages. Three fallback pathways are available
+if the bundled map is missing.
 """
 from __future__ import annotations
 

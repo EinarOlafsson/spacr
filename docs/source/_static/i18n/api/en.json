@@ -40693,23 +40693,17 @@
     },
     "spacr.qt.detect_chain": {
       "source_blocks_sha256": [
-        "d0358d435f8634b0a8d4c8b79a0d42cee56feb0c7f27ceba0c18860da753bafd",
-        "d6dcf743790fb2688ca6975699f2d88d672c8d0cb4bd299e529526e25f23be9d",
-        "06cf43874d457ca50e814e50d8d0129f7e145545b1845b4eb7ebcb8725063fb1",
-        "b994f4b0200c649b43f80665502e6354839951c1e76963a4c491fa62b560970c",
-        "c4abbac7544f948c62fe45b3b11a36ec0c55dde136accd0280eea9bcf2025552",
-        "710e67b70b82da2f242e299639d3e1d14dea8d73d1cb1767f8e1a15e53322613",
-        "42b8c46a966016416ee2c545ecfbec7ea4fc6c3a88504a241c7329e5d4273777",
-        "7a4beeca873f5d01cdad0ed0d34862b3967aa5501584609311653b6e9a7ae70c",
-        "33c023cfb3947d179a836b756a33ff2395eef2b11f20dc8bb9d62e9250409b44",
-        "4fd0768e60053d027ee8a4568daa52a4a0d62edbd4436b9d708f82662740dc1d",
-        "6f4519a7a85d6b8ee820a69b580717517b28b04d37db9b58e6feb60b6f271b14",
-        "f5d41744c18fb6a2306c555fb08bdd4bc832f93987581c457505fb34db00f222",
-        "a87f23ae76db79a2e111e4f1b181a681e92240bbf62e2ec1859539c5f78c7bfe",
-        "1fb8e34bb75905d2c3e665743efc3696544e710004b842fdaa74b7b58a773bfc"
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+        "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+        "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
       ],
-      "source_sha256": "ef1b96cc60cc79149696e17c8ad23ecfbe17c3f4f7bff50f0440b9d441592ee0",
-      "text": "What is done to a field BEFORE and AFTER a detector looks at it.\n\nMake Masks detects on the image as it was loaded. A curator whose objects\nare faint, whose field is lit unevenly, or whose puncta sit on grainy\nbackground has no way to say \"look at it like this instead\" short of\nediting the data, and editing the data would make every mask depend on the\ncontrast it was drawn at.\n\nThis module is that sentence, as a chain of optional steps that the\nDETECTOR reads and the magnifier can show. Nothing here touches the array\non disk or the array the hover readout reports: a chain is applied to a\ncopy on its way into a detector and to a copy on its way onto the screen.\n\nTHE ORDER IS FIXED AND IS NOT A PREFERENCE.\n:data:`CHAIN_ORDER` is the whole of it::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nand each stage is there rather than somewhere else for a reason:\n\n* THE PERCENTILE STRETCH IS FIRST AND IS NOT IN :class:`Chain`. It is Make\n  Masks' own \"detect on the normalized image\" switch, and it is a\n  WHOLE-FIELD judgement: its two levels are percentiles of the field. A\n  stretch measured inside the magnifier's 64 px box would be a different\n  stretch in every box, so it is taken once on the field, before the box is\n  cut, and the rest of the chain runs on what it produced. That is also why\n  moving it into this module would be wrong: one array is stretched, many\n  boxes are cut from it.\n* BACKGROUND BEFORE DENOISE, because a rolling ball fitted to a noisy\n  surface follows the noise, and subtracting that surface leaves the noise\n  behind twice.\n* DENOISE BEFORE CONTRAST, because gamma, CLAHE and histogram equalisation\n  all amplify whatever is in the dim end of the histogram, and on a raw\n  field most of what is down there is noise. Denoising afterwards has to\n  undo an amplification instead of preventing it.\n* CONTRAST BEFORE SHARPEN, because an unsharp mask's amount is relative to\n  the local contrast it finds; run it first and the contrast step then\n  stretches its halos along with everything else.\n* MORPHOLOGY BEFORE SPLIT, because opening and closing change which pixels\n  are connected and the split is a question about connected pieces. Closing\n  a gap and then splitting is \"join these two fragments, then cut the\n  result where it has two centres\"; the reverse order cuts fragments that\n  the closing was about to join.\n\n:func:`prepare` is the first four stages and :func:`finish` is the last\ntwo. Between them is whichever detector the Mode box named, which is why\nthe chain is offered to every mode and not only to Otsu.\n\nWHAT A STEP COSTS. :func:`heavy_steps` names the switched-on steps that are\nslow enough to say so before they run -- non-local means above all, which\nis minutes on a 2,000 px field and is the reason the whole-image run keeps\nitem 407's progress and Cancel. A STEP NOBODY ASKED FOR COSTS THE MOST:\n:func:`_denoise` used to reach non-local means whenever ``denoise`` was\n``\"none\"``, so merely choosing a background ran it over the whole field\nfrom a mouse-move. That was the \"rolling ball crashes the program right\naway\" of 2026-09-22 and it is why every step now returns its input\nuntouched when it is off, rather than falling through to a default.\n\nWHAT THIS IS NOT, AND WHAT IT IS NEXT TO.\n:func:`spacr.object._preprocess_batch` is the mask pipeline's own\npre-processing for organelles: a rolling ball and CLAHE, in that order,\nover a batch of fields, driven by ``organelle_rolling_ball`` and\n``organelle_clahe``. Two of this module's ten steps are that pair, and\nthey mean the same thing. They are written here rather than called there\nbecause that function takes an ``(N, H, W)`` batch and a pipeline settings\ndict, and because splitting one chain across two modules -- rolling ball\nand CLAHE from the pipeline, top-hat, denoise, gamma, equalisation,\nsharpen, morphology and split from here -- would leave nowhere that the\nORDER is stated, which is the one thing about a chain that has to be\nstated in one place.\n:mod:`spacr.settings`' Mask background settings (``remove_background``,\n``background``, ``signal_to_noise``) are a different operation again: a\nfloor applied per channel to the pixels a mask RUN segments, not a surface\nfitted and subtracted for one curator's look at one field.\n\nWITHIN MAKE MASKS ONLY. A chain changes how objects are FOUND for a\ncurator to accept or reject; it does not change a pixel on disk and it is\nnot wired into the Mask module's own pre-processing. Whether it should be\n-- so that a model trained on masks curated over an enhanced image sees\nthe same input at inference -- is a question for the maintainer, and item\n473 says to ask before answering it."
+      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
+      "text": "Optional image enhancement before detection and label cleanup afterward.\n\nIn Make Masks, Apply enables the configured chain for detection and display;\nCompare previews it without enabling it. Processing uses copies: files on disk\nand the original values reported by the hover readout remain unchanged.\n\n:data:`CHAIN_ORDER` fixes the sequence::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nThe optional percentile stretch belongs to Make Masks, outside :class:`Chain`.\nIts levels come from the whole field before a magnifier region is cropped, so\nmoving the box does not redefine the percentile levels.\n\nBackground subtraction precedes denoising. Denoising precedes contrast to\navoid amplifying noise; contrast precedes sharpening to avoid stretching its\nhalos. Morphology precedes splitting because it changes which pixels are\nconnected. :func:`prepare` runs background, denoise, contrast and sharpen;\n:func:`finish` runs morphology and split after the selected detector.\n\nDisabled steps return their input unchanged. :func:`heavy_steps` identifies\nenabled steps that warrant a progress warning; non-local means can take\nminutes on a 2,000 px field. Whole-image runs retain progress and Cancel\ncontrols. Selecting a background method does not enable denoising.\n\nThe Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch`\napplies rolling ball then CLAHE to organelle batches using\n``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings\n``remove_background``, ``background`` and ``signal_to_noise`` instead apply\nper-channel intensity floors. This Make Masks chain configures neither route.\n\nEnhancement changes the objects proposed for curation. Models trained on\nenhanced images require matching preprocessing at inference; this module does\nnot configure the training or inference pipeline."
     },
     "spacr.qt.detect_chain.Chain": {
       "source_blocks_sha256": [
@@ -40739,15 +40733,14 @@
     "spacr.qt.detect_chain.background_surface": {
       "source_blocks_sha256": [
         "2d5a004bf6bb7f94ecfa85181c356cb73daabcd1636b4cdabfe34ddf916ca2c2",
-        "a37628ab2c748c3c182b0195dc554db9c6ae63caf8828cff01b9455d76517657",
-        "418c426980d398718cfb3b78e26725a7d0549adcf5dc7959e1bf559131607e91",
-        "436361f4c3e902360e6ffed21245cf274d93c6f509961701bd0fb3bb090f6ba9",
+        "3faab1d8dcc8ed5a91d20c61ed91ee11da18c9fc28f0af4423a76e4bf832775b",
+        "72ad8075732384ec1b219f3a78f38f44003b1e851c00d4d0d9d9799195ed3284",
         "55e47d450ee25d8b08b25e37b9a981a7f2cd3e8b478416b7c591b1e06ddae237",
         "9e7428e542d0c62813fe912ee3fc681a0e5a0c56656b3f3a5c75a071663fab2f",
         "0a35002f2d9037254261d6def684f3a6b277881d2a05cb735d433d54eadf5206"
       ],
-      "source_sha256": "d94ad262acf0e41ba20dde1d0350fc0b4822e985eaaa15d0c677cc910db0fc87",
-      "text": "The slowly varying background under ``image``, at ``image``'s size.\n\nA ROLLING BALL ON A FULL FIELD IS NOT INTERACTIVE, and that is what\nthis function exists for. Measured 2026-09-22 on one 1,994 px toxo\nfield (uint16, as float32), CPU: ``skimage.restoration.rolling_ball``\ntook 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50 --\nthe default radius. Fourteen seconds is not a crash, but it arrived on\nthe GUI thread, from a mouse-move, and a window that stops answering\nfor fourteen seconds is a window a person force-quits. It was reported\nas \"the rolling ball crashes the program right away\".\n\nSO THE BACKGROUND IS ESTIMATED ON A SMALLER COPY, at\n:attr:`Chain.background_scale`, and the surface is scaled back up. That\nis sound rather than a corner cut: a background is by definition what\nvaries SLOWLY across the field, so it is the one thing in the image\nthat survives being looked at on a smaller copy. The radius shrinks\nwith the image, so the ball is the same ball relative to the picture.\nCost falls with the pixels AND with the radius, so it falls fast: at\nthe default 0.5 the same field takes about a second.\n\n1.0 IS AN ESCAPE HATCH AND IS EXACT. At a scale of 1.0 this calls\n``rolling_ball`` (or ``white_tophat``) on the full field with the full\nradius and returns precisely what scikit-image returns, for anyone who\nwants the exact answer and will wait for it.\n\n:param image: the field or region, as float.\n:param chain: the chain, for its background method, radius and scale.\n:returns: the background, the same shape as ``image``; zeros when the\n    chain subtracts no background."
+      "source_sha256": "18f3c26fde78b43287b0feb206e108c9a311554005e65cb31c4280061cd8f885",
+      "text": "The slowly varying background under ``image``, at ``image``'s size.\n\nEstimate the background on a smaller copy at\n:attr:`Chain.background_scale`, then resize the surface to the input\nshape. The radius shrinks with the image to preserve its relative\nextent. This approximates slowly varying illumination while reducing\nboth the pixel count and neighbourhood size.\n\nAt scale 1.0, call ``rolling_ball`` or ``white_tophat`` at full\nresolution and return its exact result. Smaller images also use full\nresolution when downsampling would cross :data:`MIN_BACKGROUND_SIDE`.\nFull-resolution estimation can be slow: on a 1,994 px uint16 field\nconverted to float32, CPU rolling-ball timings were 0.3 s at radius 5,\n0.9 s at 10, 4.1 s at 25 and 14.5 s at 50. At the default radius 50\nand scale 0.5, the same field took about a second. Timings depend on\nthe hardware and image; callers should run this outside the GUI thread.\n\n:param image: the field or region, as float.\n:param chain: the chain, for its background method, radius and scale.\n:returns: the background, the same shape as ``image``; zeros when the\n    chain subtracts no background."
     },
     "spacr.qt.detect_chain.describe": {
       "source_blocks_sha256": [
@@ -49020,12 +49013,12 @@
     "spacr.qt.preferences.sound_is_offered": {
       "source_blocks_sha256": [
         "0a6e8ea162bb3497b026d992e8c3ad66b3307dd0ba9cc5e99aed3044af1c7ca1",
-        "1b45f8ac0d75cadaf197d709e7579baa20720ef039992ab8dc1739c28f54010f",
+        "7f37ff94e7c00821460e0f5335596ec713aa270e6f273a7da5c4410dc0c43411",
         "93a94ab5089164acaee3388f11cac49f80e778cdc023382ee1b49660c78b7165",
         "ca7871d7736f61d38c72878b109a811984b8fa9d28c8405f91776175a8119521"
       ],
-      "source_sha256": "7b752d1c85bef2d134085b688230c8801531b239a9e75f40683237eb21f37475",
-      "text": "Whether this process offers sound at all: only in spaceout mode.\n\nMaintainer, 2026-09-21: \"transfer the sound tab in preferences to only\nbe visible in spaceout mode. in normal spacr sound should be off by\ndefault and there should be no sound tab in preferences.\" Spaceout is\nprocess-local (:func:`spacr.qt.theme.enable_spaceout`, called only by\nthe ``spaceout`` launcher), so this is read live and never stored.\n\nDoes not import :mod:`spacr.qt.theme`: a process that has not imported\nit cannot have enabled spaceout, and this is asked on paths that must\nstay free of QtGui.\n\n:returns: ``True`` in spaceout mode, ``False`` in ordinary spaCR."
+      "source_sha256": "c06ca102736b683ae5ea877b7237022540f30afb9d24c134728c236853d60ec8",
+      "text": "Whether this process offers sound at all: only in spaceout mode.\n\nOrdinary spaCR leaves sound off and hides its preferences tab. Spaceout is\nprocess-local (:func:`spacr.qt.theme.enable_spaceout`, called only by\nthe ``spaceout`` launcher), so this is read live and never stored.\n\nDoes not import :mod:`spacr.qt.theme`: a process that has not imported\nit cannot have enabled spaceout, and this is asked on paths that must\nstay free of QtGui.\n\n:returns: ``True`` in spaceout mode, ``False`` in ordinary spaCR."
     },
     "spacr.qt.preferences.spacr_mode_for_level": {
       "source_blocks_sha256": [
@@ -54747,12 +54740,12 @@
     "spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel": {
       "source_blocks_sha256": [
         "4ed2c71b7d8974c4cf3781deaadeb65c4c583eca7a722abb2856a88972bf32d5",
-        "912a959fd3627bde96b90870076a78bafd3bdbe3f1918c32d2095884bce3f402",
+        "504998cceb99d7017f8dc7e5facd4bdbf5c83483d737218f457147c5b3848c54",
         "38db2f9b5ae729a599e094e5ec8a754d5a101a27254e9924baab2a3b50b71953",
         "7bc347c462f9382493570e98e683919fcf91c6d1ed84e15338914cea33aa5bfb"
       ],
-      "source_sha256": "e967bd5f96b18fc724063b46c0561f641f96746ad762b0fd09d7e6da7de642c3",
-      "text": "Line the Filter / Search page up with the graph and gate table.\n\nThe maintainer, 2026-09-21: every setting above the graph is ONE row,\nthe tabs of the panel on the right sit level with that row, and the\ncontainers under both start at the same height. The row is the graph\npanel's own tool row -- the table chips and the X / Y / Z pickers\nwere moved into it -- so the tabs already start level with it; what\ndiffers is where each container begins below its row. The tab page\nis moved down by that difference, measured each time, so whatever\nthe row gains (the 3D plane controls under it) the page follows.\n\nA tab bar given a fixed height does not move the page under it --\nQTabWidget places the page from the bar's size hint -- so the page's\nown offset is what is set.\n\n:returns: the offset applied to the page, in pixels."
+      "source_sha256": "0651e4ed8fbfd09e47956db18d0910244475ec988c5b0f460016f4b3d85bac8d",
+      "text": "Line the Filter / Search page up with the graph and gate table.\n\nSettings above the graph share one row. The tabs of the panel on\nthe right sit level with that row, and the\ncontainers under both start at the same height. The row is the graph\npanel's own tool row -- the table chips and the X / Y / Z pickers\nwere moved into it -- so the tabs already start level with it; what\ndiffers is where each container begins below its row. The tab page\nis moved down by that difference, measured each time, so whatever\nthe row gains (the 3D plane controls under it) the page follows.\n\nA tab bar given a fixed height does not move the page under it --\nQTabWidget places the page from the bar's size hint -- so the page's\nown offset is what is set.\n\n:returns: the offset applied to the page, in pixels."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates": {
       "source_blocks_sha256": [
@@ -90924,12 +90917,12 @@
     },
     "spacr.qt.widgets.sample_project": {
       "source_blocks_sha256": [
-        "1ffdd049dbae1bb0b8e9ab612eec6d8f62c4a3d5ac31b114620f3bca351224a7",
-        "07daacb626661c6cf1e8db309e1f98776a2c218aecc46b43f16998280447434c",
-        "6a92d2dbc72c89073b2f3cb40f58edff2ca52c2bca4bf774fbfc632da2babde0"
+        "fb182bed674b4f4d6efb9b77eaf71feb2048fdf754c64c53e34a2b910322e839",
+        "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
+        "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
       ],
-      "source_sha256": "df33d306ee95160337e00ae3df0df6a3ae461876436f624203e693406efbcce3",
-      "text": "Start a sample project of the kind you have, from the Home screen.\n\nGitHub #130, 2026-09-22: \"I would like to open a sample project that is\nsimilar to a project I may have and see the platform in action.\" Home shows\nevery module and says nothing about which one to press first; this asks what\nkind of experiment the person has and starts it -- the first module of that\npathway, opened with its example data already downloaded and its settings\nfilled in.\n\nTHE PATHWAYS COME FROM THE SHARED MAP when it is there:\n``spacr/resources/module_workflows.json``, the one source of truth item 472\nbuilds for the tutorials, the walkthroughs and the API pages alike, so what\nthis dialog offers and what the tutorials teach cannot drift apart. Until that\nfile exists the three pathways below are used, which are the ones the\nmaintainer named. The selected route remains available from a walkthrough\nbutton in the status bar after its example opens."
+      "source_sha256": "7b15385c921097a0e3b591bb3b6d000e1f039db2580a27378ae1e7387fedb524",
+      "text": "Open an example project from Home for the chosen experiment type.\n\nThe dialog opens the first module in the selected pathway with example data\nand settings supplied. A status-bar walkthrough button keeps the route\navailable after the example opens.\n\nPathways come from ``spacr/resources/module_workflows.json``, shared with\ntutorials, walkthroughs and API pages. Three fallback pathways are available\nif the bundled map is missing."
     },
     "spacr.qt.widgets.sample_project.SampleProjectDialog": {
       "source_blocks_sha256": [
@@ -105478,11 +105471,11 @@
         "8ee78a7fd0b591e78fe87abf1636ad13ed4b8199210275e3c56c75cbeb62ed67",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
-        "2078cabdf7b4f0035dd692a4f68ad159bca28b0aadc3c73c964113c269fc7778",
+        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
         "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077"
       ],
-      "source_sha256": "b34038d042410ed411c009ffdeb268fb932bacbd0ce68b6af6a74af73dae112d",
-      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen BEFORE any file is read. Measured 2026-09-22: six\n    movies read whole do not fit in 48 GB -- the HSC and MuSC movies alone\n    are about 3,000 frames -- so a training run takes a sample of each.\n:returns: the pairs, in time order."
+      "source_sha256": "a3f82ca9fd283618a5a0a42541359610923c488c3fb4322d22dae0da80515110",
+      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:returns: the pairs, in time order."
     },
     "spacr.timeflows_model.link_by_timeflows": {
       "source_blocks_sha256": [

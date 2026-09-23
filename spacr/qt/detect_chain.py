@@ -1,76 +1,38 @@
-"""What is done to a field BEFORE and AFTER a detector looks at it.
+"""Optional image enhancement before detection and label cleanup afterward.
 
-Make Masks can apply optional enhancement steps to help find faint objects,
-unevenly illuminated structures, and puncta on noisy backgrounds. The Apply
-control enables the configured chain for detection and image display;
-Compare previews that configuration without enabling it. Nothing here touches the array
-on disk or the array the hover readout reports: a chain is applied to a
-copy on its way into a detector and to a copy on its way onto the screen.
+In Make Masks, Apply enables the configured chain for detection and display;
+Compare previews it without enabling it. Processing uses copies: files on disk
+and the original values reported by the hover readout remain unchanged.
 
-THE ORDER IS FIXED AND IS NOT A PREFERENCE.
-:data:`CHAIN_ORDER` is the whole of it::
+:data:`CHAIN_ORDER` fixes the sequence::
 
     percentile stretch -> background -> denoise -> contrast -> sharpen
         -> detect -> morphology -> split
 
-and each stage is there rather than somewhere else for a reason:
+The optional percentile stretch belongs to Make Masks, outside :class:`Chain`.
+Its levels come from the whole field before a magnifier region is cropped, so
+moving the box does not redefine the percentile levels.
 
-* THE PERCENTILE STRETCH IS FIRST AND IS NOT IN :class:`Chain`. It is Make
-  Masks' own "detect on the normalized image" switch, and it is a
-  WHOLE-FIELD judgement: its two levels are percentiles of the field. A
-  stretch measured inside the magnifier's 64 px box would be a different
-  stretch in every box, so it is taken once on the field, before the box is
-  cut, and the rest of the chain runs on what it produced. That is also why
-  moving it into this module would be wrong: one array is stretched, many
-  boxes are cut from it.
-* BACKGROUND BEFORE DENOISE, because a rolling ball fitted to a noisy
-  surface follows the noise, and subtracting that surface leaves the noise
-  behind twice.
-* DENOISE BEFORE CONTRAST, because gamma, CLAHE and histogram equalisation
-  all amplify whatever is in the dim end of the histogram, and on a raw
-  field most of what is down there is noise. Denoising afterwards has to
-  undo an amplification instead of preventing it.
-* CONTRAST BEFORE SHARPEN, because an unsharp mask's amount is relative to
-  the local contrast it finds; run it first and the contrast step then
-  stretches its halos along with everything else.
-* MORPHOLOGY BEFORE SPLIT, because opening and closing change which pixels
-  are connected and the split is a question about connected pieces. Closing
-  a gap and then splitting is "join these two fragments, then cut the
-  result where it has two centres"; the reverse order cuts fragments that
-  the closing was about to join.
+Background subtraction precedes denoising. Denoising precedes contrast to
+avoid amplifying noise; contrast precedes sharpening to avoid stretching its
+halos. Morphology precedes splitting because it changes which pixels are
+connected. :func:`prepare` runs background, denoise, contrast and sharpen;
+:func:`finish` runs morphology and split after the selected detector.
 
-:func:`prepare` is the first four stages and :func:`finish` is the last
-two. Between them is whichever detector the Mode box named, which is why
-the chain is offered to every mode and not only to Otsu.
+Disabled steps return their input unchanged. :func:`heavy_steps` identifies
+enabled steps that warrant a progress warning; non-local means can take
+minutes on a 2,000 px field. Whole-image runs retain progress and Cancel
+controls. Selecting a background method does not enable denoising.
 
-WHAT A STEP COSTS. :func:`heavy_steps` names the switched-on steps that are
-slow enough to say so before they run -- non-local means above all, which
-is minutes on a 2,000 px field and is the reason the whole-image run keeps
-its progress and Cancel controls. Every disabled step returns its input
-untouched; selecting a background method does not enable denoising.
+The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch`
+applies rolling ball then CLAHE to organelle batches using
+``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings
+``remove_background``, ``background`` and ``signal_to_noise`` instead apply
+per-channel intensity floors. This Make Masks chain configures neither route.
 
-WHAT THIS IS NOT, AND WHAT IT IS NEXT TO.
-:func:`spacr.object._preprocess_batch` is the mask pipeline's own
-pre-processing for organelles: a rolling ball and CLAHE, in that order,
-over a batch of fields, driven by ``organelle_rolling_ball`` and
-``organelle_clahe``. Two of this module's ten steps are that pair, and
-they mean the same thing. They are written here rather than called there
-because that function takes an ``(N, H, W)`` batch and a pipeline settings
-dict, and because splitting one chain across two modules -- rolling ball
-and CLAHE from the pipeline, top-hat, denoise, gamma, equalisation,
-sharpen, morphology and split from here -- would leave nowhere that the
-ORDER is stated, which is the one thing about a chain that has to be
-stated in one place.
-:mod:`spacr.settings`' Mask background settings (``remove_background``,
-``background``, ``signal_to_noise``) are a different operation again: a
-floor applied per channel to the pixels a mask RUN segments, not a surface
-fitted and subtracted for one curator's look at one field.
-
-WITHIN MAKE MASKS ONLY. A chain changes how objects are FOUND for a
-curator to accept or reject; it does not change a pixel on disk and it is
-not wired into the Mask module's own pre-processing. Models trained on
-enhanced images require consistent preprocessing at inference; this module
-does not configure that training or inference pipeline.
+Enhancement changes the objects proposed for curation. Models trained on
+enhanced images require matching preprocessing at inference; this module does
+not configure the training or inference pipeline.
 """
 from __future__ import annotations
 
