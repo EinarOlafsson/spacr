@@ -13,14 +13,27 @@
   ],
   "source_lessons": 81,
   "manually_rewritten": [
+    "01_pypi_github",
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "05_home",
     "09_annotate",
     "41_classify",
     "76_ops"
   ],
   "new_capture_required": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
     "76_ops"
   ],
   "narration_and_caption_refresh_required": [
+    "01_pypi_github",
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "05_home",
     "09_annotate",
     "41_classify",
     "76_ops"
@@ -28,140 +41,112 @@
   "rows": [
     {
       "lesson": "01_pypi_github",
-      "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+      "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
       "scene_count": 8,
-      "source_revised": false,
-      "manual_review": "pending",
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
       "automated_review_flags": [
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
         {
           "field": "scenes[4].narration",
           "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[5].narration",
-          "reason": "negative_framing_to_review"
         }
       ],
-      "incompatible_translation_reviews": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
       "published_rewrite": false
     },
     {
       "lesson": "02_conda_install",
-      "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+      "english_sha256": "70777f35eb490577823324653b0995324654a76cef065b6385edb80ef9584eb9",
       "scene_count": 8,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {
       "lesson": "03_pip_install",
-      "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+      "english_sha256": "0f755b354cf2ffe14f5d1a0bcff3c65342a26fe3ac7353378f67d9d9dfa581fe",
       "scene_count": 11,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[5].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {
       "lesson": "04_platform_installers",
-      "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+      "english_sha256": "822df4ec164b2722f1fd63969ca0b5e97ae4daee1982587c0aae88bf548af8ef",
       "scene_count": 10,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[0].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[1].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[4].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[5].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[7].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {
       "lesson": "05_home",
-      "english_sha256": "76b9fd80e889f7d54211d265d87e81b64ed0ce00f10f2bbb7539b7dabd65200a",
+      "english_sha256": "1951ba4770cc4d55563ed2a4a702b5f3cf96d94ec67032f311f2516ef1bb7d22",
       "scene_count": 11,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        }
-      ],
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
         "de",
