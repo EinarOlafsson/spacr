@@ -4777,3 +4777,16 @@ label_capacity_2026-09-23.json. This is not a full ratchet-pass claim. The
 broader unchanged-source baseline also found an old test requiring Recrop
 last, superseded by477's Ruler. That alignment and remaining boundaries are
 next; no baseline, floor, gate or exemption has changed.
+
+2026-09-23 — MASK ENGINE RECOVERY AND RATCHET VERIFIED
+825 bounded engine/editor checks pass in279.23s.32new backend boundary
+cases verify corrupt-image fallback, identity preservation, preprocessing,
+threshold rejection/polarity and propagation without usable seeds. The old
+Recrop-last test now opens a real field and activates Recrop and Ruler.
+Fresh mask_engine coverage:1340/1346statements,497/506branches,99.19percent
+combined. Six uncovered statements and nine branches fit the unchanged
+11/11baseline; exclusions and no-cover count remain0. Receipt288_mask_engine_
+recovery_2026-09-23.json records source hash and exact gaps. The narrower
+pre-save-fix baseline was92.08percent; this is not a controlled32-test delta.
+No runtime change after396save fix71f442565, nor gate/baseline change.
+Whole-tree CI and the other historical module ratchets remain open.

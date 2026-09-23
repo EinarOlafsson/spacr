@@ -1,0 +1,124 @@
+{
+  "feature": 288,
+  "related_features": [
+    396,
+    477
+  ],
+  "date": "2026-09-23",
+  "base_commit": "71f442565cee99b2a0685794a2fe3f2dc20402c2",
+  "module": "spacr/qt/mask_engine.py",
+  "source_sha256": "40fa3d24ba080784d03ea7ec62ebafb8c7340e4e5aa948db591426739527c447",
+  "execution": "8 GiB/no swap; CPU with CUDA hidden; Qt offscreen; two BLAS/OpenMP threads; isolated HOME/config",
+  "final": "825 passed, 8 warnings in 279.23s; process exit 0",
+  "new_boundary_cases": 32,
+  "before": {
+    "covered_lines": 1256,
+    "num_statements": 1341,
+    "percent_covered": 92.07813347802495,
+    "percent_covered_display": "92.08",
+    "missing_lines": 85,
+    "excluded_lines": 0,
+    "percent_statements_covered": 93.66144668158091,
+    "percent_statements_covered_display": "93.66",
+    "num_branches": 502,
+    "num_partial_branches": 45,
+    "covered_branches": 441,
+    "missing_branches": 61,
+    "percent_branches_covered": 87.84860557768924,
+    "percent_branches_covered_display": "87.85"
+  },
+  "after": {
+    "covered_lines": 1340,
+    "num_statements": 1346,
+    "percent_covered": 99.19006479481641,
+    "percent_covered_display": "99.19",
+    "missing_lines": 6,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.55423476968797,
+    "percent_statements_covered_display": "99.55",
+    "num_branches": 506,
+    "num_partial_branches": 9,
+    "covered_branches": 497,
+    "missing_branches": 9,
+    "percent_branches_covered": 98.22134387351778,
+    "percent_branches_covered_display": "98.22"
+  },
+  "remaining_lines": [
+    695,
+    1371,
+    1467,
+    1977,
+    2372,
+    3176
+  ],
+  "remaining_branches": [
+    [
+      454,
+      456
+    ],
+    [
+      457,
+      464
+    ],
+    [
+      541,
+      539
+    ],
+    [
+      694,
+      695
+    ],
+    [
+      1370,
+      1371
+    ],
+    [
+      1466,
+      1467
+    ],
+    [
+      2371,
+      2372
+    ],
+    [
+      2904,
+      2907
+    ],
+    [
+      3175,
+      3176
+    ]
+  ],
+  "committed_baseline": {
+    "excluded_lines": 0,
+    "pragma_no_cover": 0,
+    "since": "2026-09-15T11:54:08Z",
+    "uncovered_branches": 11,
+    "uncovered_statements": 11
+  },
+  "current_counts": {
+    "uncovered_statements": 6,
+    "uncovered_branches": 9,
+    "excluded_lines": 0,
+    "pragma_no_cover": 0
+  },
+  "module_meets_existing_counts_and_90_percent_floor": true,
+  "checks": [
+    "Corrupt, missing or mismatched preferred bundle images fall back to embedded RGB without changing source files",
+    "Outline dtype and exact-ID hole filling preserve object identities",
+    "Empty, flat, boolean and nonfinite preprocessing retains defined image behavior",
+    "Invalid thresholds reject rather than silently switching to Otsu",
+    "Bright/dark local threshold polarity, border exclusion, and single-pixel seeds",
+    "Propagation distinguishes missing seeds from threshold-blocked seeds",
+    "Empty history and out-of-bounds paste create no edit; RGB lookup returns raw channel means",
+    "Recrop and Ruler both activate after a real field loads; toolbar order includes Ruler",
+    "Prior 396 overflow fix and existing editor/magnifier/secondary-object/ruler checks included"
+  ],
+  "limitations": [
+    "Focused engine/editor cohort, not a whole-tree CI or ratchet pass",
+    "Baseline cohort was narrower and measured source before the separately committed save fix; percentages are not an isolated effect estimate for the 32 new tests",
+    "Six statements and nine branches remain uncovered, including alternate scikit-image footprint API and defensive guards",
+    "No public API, caption, setting or runtime changes in this follow-up; no baseline, floor, gate or exemption changed"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/mask-engine-ratchet"
+}

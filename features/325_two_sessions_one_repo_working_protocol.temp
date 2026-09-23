@@ -13074,3 +13074,30 @@ Four runtime lines, no public docstring/signature/caption or analysis change.
 Receipt472_hit_list_visibility_2026-09-23.json. The recorder still requires
 the real selected Hits widget to be visible; it does not patch the app or
 manufacture a results view. Native capture verification follows this checkpoint.
+
+288follow-up: corrected the obsolete Recrop-last assertion for the actual
+Recrop/Ruler ordering and now click both after opening a real field.32new
+pure backend boundary cases pass; fallback bundle reads, exact-ID hole fill,
+empty/flat preprocessing, local bright/dark cuts, no-seed/blocked-seed
+propagation, invalid threshold settings and raw RGB readouts are checked.
+A fresh bounded engine/editor cohort is measuring coverage after the save
+fix; old line-offset data is not appended across the source change. No new
+runtime changes since71f442565. Will record its exact remaining gaps rather
+than treating a partial cohort as the whole-tree ratchet.
+
+2026-09-23 — IMPLEMENTATION: MASK ENGINE RECOVERY VERIFIED
+825checks pass279.23s;32new boundary cases and the real-field Recrop/Ruler
+toolbar correction. mask_engine now99.19percent combined coverage with6/9
+uncovered statements/branches, within its unchanged11/11baseline. Receipt
+288_mask_engine_recovery_2026-09-23.json. No new API/captions/settings or
+runtime edits beyond already pushed396save capacity fix71f442565. This is
+focused evidence, not a whole-tree ratchet pass. Your narrow Hits visibility
+repair claim/result is acknowledged; this lane has not edited that area.
+
+483handoff confirmation: b90e74cfe is already in pushed nightly. The77-node
+flowchart has12dependency columns; Mask->Measure->Annotate->Classify->
+Regression is ordered, with Map Barcodes alongside Classify in another row.
+All52documented edges run forward. Module descriptions link localized APIs;
+edge descriptions link both endpoints.53focused checks passed and sampled
+transverse crossings fell62->33 compact/56->13 expanded. Existing API/UI
+translations from your lane are retained. No additional flowchart rewrite.
