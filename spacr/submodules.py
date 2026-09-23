@@ -1159,6 +1159,16 @@ def analyze_recruitment(settings):
 
 
 
+def _plaque_well_diameter(filename, settings):
+    """Return detected mean box extent even when physical calibration is unknown."""
+    from .plaque import Well
+
+    geometry = (settings.get('_well_geometry') or {}).get(filename)
+    if not geometry:
+        return None
+    return Well(**{k: geometry[k] for k in ('x0', 'y0', 'x1', 'y1')}).diameter_px
+
+
 def _plaque_scale_for(filename, settings):
     """The pixels-per-mm for one segmented image, or ``None``.
 
@@ -1172,8 +1182,15 @@ def _plaque_scale_for(filename, settings):
     is honest. Inventing a default plate format would fill those columns with
     confident numbers that are wrong by whatever the real plate was.
     """
-    from .plaque import Well, scale_from_well
+    from .plaque import Well, PlaqueScale, scale_from_well
+    from .plaque_papers import calibration_number
 
+    manual = calibration_number(settings.get("plaque_pixels_per_um"), name="plaque_pixels_per_um")
+    if manual is not None:
+        diameter = _plaque_well_diameter(filename, settings)
+        return PlaqueScale(manual * 1000, diameter,
+                           diameter / (manual * 1000) if diameter is not None else None,
+                           "manual settings")
     geometry = (settings.get('_well_geometry') or {}).get(filename)
     if not geometry:
         return None
@@ -1525,15 +1542,23 @@ def analyze_plaques(settings):
 
             scale = _plaque_scale_for(filename, settings)
             px_per_mm = scale.px_per_mm if scale else None
-            well_px = scale.well_diameter_px if scale else None
+            well_px = _plaque_well_diameter(filename, settings)
+            from .plaque_papers import calibration_number
+            hours = calibration_number(settings.get('plaque_formation_hours'), name='plaque_formation_hours', allow_zero=True)
+            calibration = dict(well_diameter_px=well_px,
+                               well_diameter_method='mean detected bounding-box extent' if well_px is not None else None,
+                               pixels_per_um=px_per_mm / 1000 if px_per_mm else None,
+                               formation_hours=hours,
+                               formation_time_source='settings' if hours is not None else 'unknown',
+                               scale_source=scale.source if scale else 'unknown')
             mm2 = (lambda a: scale.area_mm2(a)) if scale else (lambda a: None)
 
-            summary_data.append({'file': filename, 'object_count': object_count,
+            summary_data.append({**calibration, 'file': filename, 'object_count': object_count,
                                  'average_size': average_size,
                                  'well_diameter_px': well_px,
                                  'px_per_mm': px_per_mm,
                                  'average_size_mm2': mm2(average_size)})
-            stats_data.append({'file': filename, 'plaque_count': object_count,
+            stats_data.append({**calibration, 'file': filename, 'plaque_count': object_count,
                                'average_size': average_size,
                                'std_dev_size': std_dev_size,
                                'well_diameter_px': well_px,
@@ -1541,11 +1566,11 @@ def analyze_plaques(settings):
                                'average_size_mm2': mm2(average_size),
                                'std_dev_size_mm2': mm2(std_dev_size)})
             for size in sizes:
-                details_data.append({'file': filename, 'plaque_size': size,
+                details_data.append({**calibration, 'file': filename, 'plaque_size': size,
                                      'plaque_size_mm2': mm2(size)})
             median = float(np.median(sizes)) if sizes else 0.0
             per_image.append({
-                'file': filename, 'plaque_count': object_count,
+                **calibration, 'file': filename, 'plaque_count': object_count,
                 'mean_area_px': average_size, 'median_area_px': median,
                 'std_area_px': std_dev_size,
                 'total_area_px': float(np.sum(sizes)) if sizes else 0.0,
@@ -1556,7 +1581,7 @@ def analyze_plaques(settings):
                 'plaque_model': settings.get('plaque_model')})
             for region in regions:
                 per_plaque.append({
-                    'file': filename, 'plaque_id': int(region.label),
+                    **calibration, 'file': filename, 'plaque_id': int(region.label),
                     'area_px': int(region.area),
                     'area_mm2': mm2(region.area),
                     'area_vs_image_median': (float(region.area) / median
@@ -1672,7 +1697,9 @@ def _analyze_plaque_figures(settings, model_path):
         segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
         confidence=float(settings.get('figure_confidence', 0.25)),
         confirm_each=bool(settings.get('confirm_annotations', False)),
-        plate_format=settings.get('plate_format'), read_text=read_text,
+        plate_format=settings.get('plate_format'),
+        pixels_per_um=settings.get("plaque_pixels_per_um"),
+        formation_hours=settings.get("plaque_formation_hours"), read_text=read_text,
         text_options=plaque_papers.text_options_from_settings(settings))
     print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
           f"plaque image(s), {summary['plaques']} plaque(s) -> "

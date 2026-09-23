@@ -1,0 +1,30 @@
+500 — PLAQUE WELL DIAMETER, SCALE AND FORMATION TIME
+===================================================
+Status: implemented; CPU and offscreen regression tests verified 2026-09-23.
+
+Plaque tables retain each detected well's mean bounding-box extent in pixels
+whether or not its physical diameter is known. This is explicitly recorded as
+a box-based diameter estimate; a partial well or field of plaques is not a
+physical ruler merely because a detector drew a box around it.
+
+Scale & Time settings add plaque_pixels_per_um (positive or blank) and
+plaque_formation_hours (nonnegative or blank). Figure preview Wells table has
+editable per-well Pixels per µm and Formation time (hours), plus read-only
+Well diameter (px). Per-well manual values override settings; manual scale
+wins over automatic scale bars and whole-well calibration. Clearing an edit
+restores settings/detected scale without repeating image analysis. Invalid
+input preserves the last value. Sorting preserves annotation identity.
+
+Plaques table repeats the calibration. Figure review CSV keeps manual values
+separate from resolved values and their provenance. SQL regions and
+figure_annotations migrate existing databases and preserve calibration/time.
+Crop-mode summary/stats/details/per_image/per_plaque also carry these fields;
+manual scale can calibrate a crop without claiming its extent is a whole well.
+
+Validation: initial focused cohort 130 passed, one Qt edit-lifetime regression
+found and fixed, one optional pdfplumber skip. Final new calibration cohort
+10 passed. No GPU used. Existing automatic-ruler and figure annotation tests
+were included. Growth/time approximation is separate item 501.
+Final save-path regression cohort: 26 passed after resolved/provenance CSV
+fields were added. Focused calibration tests exercise invalid values,
+per-well precedence, zero time, unit conversion, review reload and SQL schema.

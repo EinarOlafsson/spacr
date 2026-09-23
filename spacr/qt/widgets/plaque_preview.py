@@ -153,22 +153,28 @@ BOX_WAITING = QColor(255, 150, 40)
 BOX_SELECTED = QColor(0, 200, 255)
 
 TABLE_COLUMNS = ("#", "Panel", "Label text", "Legend passage", "Condition",
-                 "Source", "Plaques", "Mean area", "OK")
+                 "Source", "Plaques", "Mean area", "OK", "Well diameter (px)",
+                 "Pixels per µm", "Formation time (hours)")
 CONDITION_COLUMN = 4
 SOURCE_COLUMN = 5
 PLAQUES_COLUMN = 6
 MEAN_AREA_COLUMN = 7
 OK_COLUMN = 8
+WELL_DIAMETER_COLUMN = 9
+PIXELS_PER_UM_COLUMN = 10
+FORMATION_HOURS_COLUMN = 11
 
 PLAQUE_COLUMNS = ("Well", "Panel", "Condition", "Plaque", "Area (px)",
                   "Vs panel median", "Vs well median", "Perimeter (px)",
                   "Equivalent diameter (px)", "Eccentricity", "Solidity",
-                  "Centroid y", "Centroid x", "Area (mm²)", "Scale")
+                  "Centroid y", "Centroid x", "Area (mm²)", "Scale",
+                  "Well diameter (px)", "Pixels per µm", "Formation time (hours)")
 
 PLAQUE_KEYS = ("well", "panel", "condition", "plaque_id", "area_px",
                "area_vs_panel_median", "area_vs_well_median",
                "perimeter_px", "equivalent_diameter_px", "eccentricity",
-               "solidity", "centroid_y", "centroid_x", "area_mm2", "scale")
+               "solidity", "centroid_y", "centroid_x", "area_mm2", "scale",
+               "well_diameter_px", "pixels_per_um", "formation_hours")
 
 #: The colour of a Source cell whose label and legend disagree.
 CONFLICT_COLOUR = QColor(230, 90, 60)
@@ -1927,6 +1933,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._figure: Optional[Dict[str, Any]] = None
         self._annotations: List[Any] = []
         self._scales: List[Any] = []
+        self._automatic_scales: List[Any] = []
         self._caption = ""
         self._missing_entry: Any = None
         self._download = None
@@ -3184,11 +3191,29 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._annotations = annotate_figure(
             result, self._caption, self._folder(),
             confirm=self._confirm.isChecked(), options=self.text_options())
-        self._scales = _figure_scales(result, self._annotations, self._caption,
-                                     self.current_settings().get("plate_format"))
+        from dataclasses import replace
+        self._automatic_scales = _figure_scales(
+            result, [replace(a, pixels_per_um=None) for a in self._annotations],
+            self._caption, self.current_settings().get("plate_format"))
+        self._refresh_calibration_scales()
         self._fill_table()
         self._fill_plaque_table()
         self._redraw_boxes()
+
+    def _refresh_calibration_scales(self) -> None:
+        """Apply editable manual rulers without repeating image analysis."""
+        from ...plaque_papers import _Scale, calibration_number
+
+        global_scale = calibration_number(
+            self.current_settings().get("plaque_pixels_per_um"), name="pixels_per_um")
+        self._scales = []
+        for index, annotation in enumerate(self._annotations):
+            base = self._automatic_scales[index] if index < len(self._automatic_scales) else _Scale()
+            value = annotation.pixels_per_um
+            source = "manual annotation" if value is not None else "settings"
+            value = value if value is not None else global_scale
+            self._scales.append(base if value is None else _Scale(
+                value * 1000, source, f"{value:g} px/µm", base.magnification))
 
     def _redraw_boxes(self) -> None:
         """Draw the figure with each box coloured by its OK tick."""
@@ -3238,6 +3263,21 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                         & ~Qt.ItemIsEditable)
             ok.setCheckState(Qt.Checked if a.approved else Qt.Unchecked)
             self._table.setItem(row, OK_COLUMN, ok)
+            from ...plaque_papers import calibration_values
+            scale = self._scales[row] if row < len(self._scales) else None
+            values = calibration_values(a, scale, self.current_settings().get("plaque_formation_hours"))
+            for column, key in ((WELL_DIAMETER_COLUMN, "well_diameter_px"),
+                                (PIXELS_PER_UM_COLUMN, "pixels_per_um"),
+                                (FORMATION_HOURS_COLUMN, "formation_hours")):
+                value = values[key]
+                item = table_item("" if value is None else f"{value:.8g}")
+                item.setData(Qt.UserRole, row)
+                if column == WELL_DIAMETER_COLUMN:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    item.setToolTip(tr("Mean detected box width and height; verify that the box contains the complete well."))
+                else:
+                    item.setToolTip(tr("Double-click to enter a value for this well. Clear it to use the settings or detected ruler."))
+                self._table.setItem(row, column, item)
         self._table.setSortingEnabled(True)
         if self._selected is not None:
             self._table.selectRow(self._view_row(self._selected))
@@ -3272,6 +3312,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._figure = None
         self._annotations = []
         self._scales = []
+        self._automatic_scales = []
         self._wells = {}
         self._selected = None
         self._batch = []
@@ -3495,6 +3536,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                             **row,
                             "area_mm2": row["area_px"] / ppm ** 2 if ppm else None,
                             "scale": _scale_note(scale)})
+                if a is not None:
+                    from ...plaque_papers import calibration_values
+                    out[-1].update(calibration_values(
+                        a, scale, self.current_settings().get("plaque_formation_hours")))
         return out
 
     def _fill_plaque_table(self) -> None:
@@ -3530,7 +3575,26 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if row >= len(self._annotations):
             return
         a = self._annotations[row]
-        if item.column() == CONDITION_COLUMN:
+        if item.column() in (PIXELS_PER_UM_COLUMN, FORMATION_HOURS_COLUMN):
+            from ...plaque_papers import calibration_number, calibration_values
+            name = "pixels_per_um" if item.column() == PIXELS_PER_UM_COLUMN else "formation_hours"
+            try:
+                value = calibration_number(item.text(), name=name, allow_zero=name == "formation_hours")
+            except ValueError:
+                self.set_preview_status(tr("Enter a finite positive scale, or a nonnegative formation time in hours. Clear the cell to restore its default."))
+                value = calibration_values(a, self._scales[row], self.current_settings().get("plaque_formation_hours"))[name]
+                self._table.blockSignals(True)
+                item.setText("" if value is None else f"{value:.8g}")
+                self._table.blockSignals(False)
+                return
+            setattr(a, name, value)
+            self._refresh_calibration_scales()
+            value = calibration_values(a, self._scales[row], self.current_settings().get("plaque_formation_hours"))[name]
+            self._table.blockSignals(True)
+            item.setText("" if value is None else f"{value:.8g}")
+            self._table.blockSignals(False)
+            self._fill_plaque_table()
+        elif item.column() == CONDITION_COLUMN:
             text = item.text().strip()
             if text and text != a.condition:
                 a.condition, a.source, a.strength = text, "manual", "manual"
@@ -3545,7 +3609,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         result = self._figure
         if result is None:
             return []
-        from ...plaque_papers import _annotation_file_row
+        from ...plaque_papers import _annotation_file_row, calibration_values
 
         name = Path(result["path"]).name
         rows = []
@@ -3556,6 +3620,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 rows.append(_annotation_file_row(
                     name, row + 1, self._annotations[row], condition=text,
                     approved=self._row_ok(row)))
+                scale = self._scales[row] if row < len(self._scales) else None
+                values = calibration_values(self._annotations[row], scale,
+                                            self.current_settings().get("plaque_formation_hours"))
+                rows[-1].update(resolved_pixels_per_um=values["pixels_per_um"],
+                                resolved_formation_hours=values["formation_hours"],
+                                formation_time_source=values["formation_time_source"],
+                                scale_source=getattr(scale, "source", "unknown"))
             else:
                 rows.append({"file": name, "region": row + 1,
                              "condition": text, "approved": self._row_ok(row)})

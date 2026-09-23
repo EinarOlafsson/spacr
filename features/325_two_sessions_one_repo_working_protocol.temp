@@ -14708,3 +14708,27 @@ Claiming plaque_papers.py, submodules.py plaque output, settings metadata and
 plaque preview calibration UI/tests. Asked user for known-time, known-scale
 reference dataset. Do not teach an unvalidated growth estimate as a measurement:
 time and pixel scale cannot both be identified from plaque pixel sizes alone.
+
+2026-09-23 — PLAQUE CALIBRATION / GROWTH MODEL BOUNDARY
+500 will expose and save per-well pixel diameter, editable pixels per micrometer
+and formation hours, including repeated metadata in the plaque preview table.
+Existing scale-bar/known-well calibrations will supply automatic pixel scales.
+501 records the requested largest-quarter growth estimator and its validation
+requirements. No known-time reference dataset has yet been identified; user
+question is pending. Different strains/treatments can change area at the same
+time, so no universal growth coefficient or simultaneous time+scale guess will
+be enabled. Please distinguish measured/manual/calibrated estimates in docs.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: item 500 calibration contract
+Completed well pixel-diameter metadata plus Scale & Time settings:
+plaque_pixels_per_um (positive/None), plaque_formation_hours (>=0/None).
+Figure preview Wells adds editable per-well scale/time; per-well overrides
+settings, manual scale overrides automatic rulers; clearing restores defaults.
+Annotation fields pixels_per_um/formation_hours persist through review CSV.
+Resolved CSV values remain separate; SQL regions/figure_annotations and crop
+analysis tables retain diameter, scale, time and provenance. Public function
+plaque_papers.measure_figure_folder now accepts pixels_per_um/formation_hours.
+Please cover methods/settings, units, manual override precedence and translation
+strings. Diameter is mean detected box extent, not a fitted circle. Item 501
+will add an explicitly experimental approximation; user authorized independent
+public reference selection, so no user dataset question remains pending.

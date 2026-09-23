@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-470 in features/new, 20 in features/future. NEITHER LIST BLOCKS A RELEASE.
+471 in features/new, 21 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -101,6 +101,9 @@ FUTURE FEATURES
 
   493  PARALLEL MULTI-GPU MASK BATCHES
        493_parallel_multi_gpu_mask_batches.txt
+
+  501  VALIDATE PLAQUE GROWTH TIME AND SCALE ESTIMATES
+       501_calibrated_plaque_growth_estimates.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -576,3 +579,4 @@ NEW FEATURES
   497  ROUNDED TRANSLUCENT KEYBOARD INSTRUCTIONS
   498  CELLPOSE 4 TRAINING WORKBENCH
   499  PLAQUE PREVIEW STAYS AT ITS CHOSEN SCALE
+  500  PLAQUE WELL DIAMETER, SCALE AND FORMATION TIME
