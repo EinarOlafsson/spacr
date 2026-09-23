@@ -891,3 +891,15 @@ in a settled actual3840x2160MainWindow at150percent font. Its buttons fit and
 have disjoint rectangles inside their row. No AppScreen change or claim of
 resolving the native-capture observation. No cross-platform acceptance claim.
 Receipt:471_experiment_design_readable_conditions_2026-09-23.json.
+
+2026-09-23 — PREVIEW RESET RESTORES INHERITED FONT SIZES
+A live parent-style change exposed stale Qt fonts:30px inherited text at50%
+correctly drew15px, but returning to100% cleared the preview override while
+leaving15px text. Reproduced with a fresh child panel, including a5s wait.
+PreviewScaler now repolishes the subtree when removing that temporary sheet;
+native QWidget geometry/repaint calls handle list views too. The label returns
+to30px, parent styling is unchanged and the preview has no retained local sheet.
+43focused checks pass, including Measure thumbnails and UMAP figure scaling,
+live hooks/save failures, Keep/Revert recovery and no-drift splitters/spacers.
+Receipt288_scale_recovery_2026-09-23.json. No new settings, captions or API
+signature. Native desktop/cross-platform/performance claims remain separate.

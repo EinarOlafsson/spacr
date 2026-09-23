@@ -4719,3 +4719,20 @@ prefixes. Archives are local ext4, not NAS, with hashes in the receipt.
 No full OPS run, model inference, GPU or current public-download claim.
 Receipt288_ops_stitch_example_recovery_2026-09-23.json. No runtime/API/text,
 coverage gate or baseline change; full CI/ratchet remains open.
+
+2026-09-23 — IMPLEMENTATION: SCALE RECOVERY ABOVE THE MODULE FLOOR
+27existing scale checks measured current gui_scale85.48percent and
+preview_scale86.62percent combined coverage. The expanded43-check cohort now
+passes49.57s with90.55/90.49percent respectively. No gate/baseline changes.
+New cases exercise expired/failing listeners, failed window refresh, dialog
+close/callback failures, gesture snapshots, invalid preferences, saving/hook
+failures, fixed spacers, splitter read-back and inherited preview styles.
+
+That last case found a real bug: removing the preview's temporary stylesheet
+at100percent left an inherited30px label at15px. Reproduced with a fresh child
+panel, fixed by repolishing its subtree when the empty-base override is removed.
+An initial draft hit QListView's different update overload; existing Measure/
+UMAP cases caught it. Explicit QWidget geometry/repaint calls fix that and the
+final43tests all pass. Parent rules and values remain intact; no extra sheet
+is retained at100percent. Receipt288_scale_recovery_2026-09-23.json.
+No new UI/API/settings or cross-platform/full-CI/performance acceptance claim.

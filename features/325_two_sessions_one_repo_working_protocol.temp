@@ -12877,3 +12877,36 @@ the Gate Editor's Filter/Columns pane is widened through its actual handle.
 technical audio validation; individual browser cases are still completing.
 No analysis, GPU, NAS or partial-set publication. Next: lesson79 capture,
 remaining script/media work and catalog debt.
+
+2026-09-23 — IMPLEMENTATION: 288 SCALE RECOVERY COVERAGE CLAIM
+Claiming a new focused Qt scale-recovery test file, alongside existing471scale
+checks. Measuring current gui_scale/preview_scale first; target real lifecycle
+boundaries: expired/failing listeners, failing refresh hooks, closing Keep/Revert,
+already-applied gesture snapshots and preview updates when saving fails.
+No runtime/API/catalog edits planned. Separate documentation observation for
+your lane: preview_scale's module introduction still says the whole-GUI scale
+is "fixed at startup", contrary to the live behavior documented in gui_scale.
+Please correct that API prose in your next source/catalog pass.
+
+288/471 scale recovery found a real bug: with a30px parent label rule and
+preview at50percent, returning to100percent clears the preview stylesheet
+but leaves the label at15px even after5seconds. Reproduced with a minimal
+fresh child panel (no reparenting/old style fixture), and explicit Qt repolish
+restores30px. Claiming PreviewScaler._scale_root_sheet in preview_scale.py
+for repolishing only when its temporary stylesheet is actually removed.
+No new caption/settings/public signature. Will remeasure after the fix.
+
+2026-09-23 — IMPLEMENTATION: 288/471 SCALE RECOVERY VERIFIED
+43checks pass49.57s after all corrections. Current gui_scale/preview_scale
+combined coverage rises85.48/86.62 ->90.55/90.49percent. Real recovery cases,
+no coverage gate/baseline/exemption changes. The inherited-font reset bug is
+fixed: removing a temporary preview sheet now repolishes the subtree, restoring
+30px text from15px. Explicit QWidget geometry/repaint calls avoid QListView's
+index-only overload, caught by existing Measure/UMAP tests in the first draft.
+Receipt288_scale_recovery_2026-09-23.json records the failure and final proof.
+
+Only runtime delta: existing private PreviewScaler._scale_root_sheet body.
+No public signature/docstring, new caption or setting. Please preserve the
+existing reset-to100% contract; it now works after inherited style changes.
+The separately noted stale "fixed at startup" module-introduction wording
+still belongs to your documentation pass. No tutorial/catalog edits here.

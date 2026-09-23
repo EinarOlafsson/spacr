@@ -475,6 +475,13 @@ class PreviewScaler(QObject):
         if abs(factor - 1.0) < 1e-9:
             if root.property(_P_SHEET_SET) is not None and current != base:
                 root.setStyleSheet(base)
+                if not base:
+                    for widget in [root] + root.findChildren(QWidget):
+                        style = widget.style()
+                        style.unpolish(widget)
+                        style.polish(widget)
+                        QWidget.updateGeometry(widget)
+                        QWidget.update(widget)
             _forget(root, _P_SHEET_BASE, _P_SHEET_SET)
             self._root_sheet_key = None
             return
