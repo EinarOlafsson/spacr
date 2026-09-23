@@ -11513,3 +11513,22 @@ MainWindow and1100x700 paired preview reviewed. Levels is pushed9be2d3d72.
 Full CI35807838039 remains in progress at older6006a0608: lint/integration/
 network/NAS/GPU/slow jobs passed; some coverage/Qt shards failed and still
 need follow-up. GPU observer reports nonzero utilization; no analysis started.
+
+2026-09-22 — IMPLEMENTATION:479 WAND FOLLOW-UP / SIX REQUESTS COMPLETE
+Supersedes the earlier raw-only manual-Wand note: Apply now also gives Wand
+the READY enhanced picture, in source-dtype intensity units. Relative tolerance
+uses that picture's range; absolute tolerance retains those intensity units.
+_MaskCanvas.wand_source() returns None while pending/failed and explains why;
+effective_wand_tolerance gains optional source. Pending/failed clicks create
+no mask/history edit. Enhancement errors now reach the status line, and stale
+worker completions cannot strand reapplication. Ledger includes input_kind,
+invert, normalization_percentiles and only preprocessing provenance; manual
+Wand does not run detector postprocessing (morphology/split). New tr strings:
+Image enhancement failed: {error}; Image enhancement is updating. Try the
+Wand again when it finishes. No new persistent settings or catalog edits.
+126 tests pass;71 enhancement/method checks pass after provenance additions.
+477 ruler pushed9dc137011. All477–482 headers now say implemented, with
+verification and semantic limits retained. Consolidated receipt:
+features/data/477_482_mask_editor_tools_2026-09-22.json. Runtime source claims
+released after this commit; tutorial/API prose, translations and recording
+remain your lane. Broad feature goal and older CI failures remain open.

@@ -735,6 +735,7 @@ class _MaskCanvas(QLabel):
         self.enhance_display: bool = False
         self._enhanced_cache: Optional[tuple] = None
         self._enhanced_picture: Optional[tuple] = None
+        self._enhance_failure = None
         #: The whole-field enhanced picture is built OFF THIS THREAD; see
         #: :meth:`enhanced_picture`. ``_enhance_asked`` is the
         #: ``(base, chain)`` a request is already out for, so a repaint
@@ -841,6 +842,7 @@ class _MaskCanvas(QLabel):
         self._inverted = self._inverted_of = None
         self._detection_cache = None
         self._enhanced_cache = self._enhanced_picture = None
+        self._enhance_failure = None
         self._enhance_asked = None
         self._lookup = self._lookup_mask = self._lookup_image = None
         self.readout = None
@@ -990,6 +992,9 @@ class _MaskCanvas(QLabel):
         cached = self._enhanced_picture
         if cached is not None and cached[0] is base and cached[1] == chain:
             return cached[2]
+        failure = self._enhance_failure
+        if failure is not None and failure[0] is base and failure[1] == chain:
+            return base
         self._ask_for_enhanced(base, chain)
         return base
 
@@ -1005,6 +1010,7 @@ class _MaskCanvas(QLabel):
         if asked is not None and asked[0] is base and asked[1] == chain:
             return
         self._enhance_asked = (base, chain)
+        self._enhance_failure = None
         if self._enhance_worker is None:
             self._enhance_worker = _NewestRequestWorker(
                 _enhanced_picture_for, self._enhanced_done,
@@ -1013,18 +1019,33 @@ class _MaskCanvas(QLabel):
             _EnhanceRequest(key=(id(base), chain), image=base, chain=chain))
 
     def _enhanced_done(self, request, result, error) -> None:
-        """Hand a finished picture to the GUI thread. ON THE WORKER THREAD."""
-        if error is not None or result is None:
+        """Deliver the finished picture or exception to Qt from the worker."""
+        if error is not None:
             LOG.warning("the enhanced picture could not be built",
                         exc_info=error)
+        if error is None and result is None:
             return
-        self.enhanced_ready.emit((request.image, request.chain, result))
+        try:
+            self.enhanced_ready.emit((request.image, request.chain,
+                                     error if error is not None else result))
+        except RuntimeError:
+            pass
 
     def _take_enhanced(self, payload) -> None:
         """Keep a finished enhanced picture and draw it, on the GUI thread."""
+        from ..i18n import tr
+
         base, chain, picture = payload
-        if self.detection_base() is not base:
+        asked = self._enhance_asked
+        if asked is not None and asked[0] is base and asked[1] == chain:
+            self._enhance_asked = None
+        if self.detection_base() is not base or self.enhance_chain != chain:
             return
+        if isinstance(picture, Exception):
+            self._enhance_failure = (base, chain, str(picture))
+            self.status.emit(tr('Image enhancement failed: {error}', error=str(picture)))
+            return
+        self._enhance_failure = None
         self._enhanced_picture = (base, chain, picture)
         if self.enhance_display:
             self.refresh()
@@ -1219,7 +1240,7 @@ class _MaskCanvas(QLabel):
         self.zoom_at(anchor[0], anchor[1], factor)
         event.accept()
 
-    def effective_wand_tolerance(self) -> float:
+    def effective_wand_tolerance(self, source=None) -> float:
         """The tolerance the wand will actually flood with, right now.
 
         Relative by default: a percentage of this image's own intensity
@@ -1227,10 +1248,44 @@ class _MaskCanvas(QLabel):
         data. Switching ``wand_relative`` off restores a plain absolute
         value for the case where somebody knows the exact grey-level
         distance they want.
+
+        :param source: optional applied picture; defaults to loaded pixels.
         """
-        if self.wand_relative and self.image is not None:
-            return engine.relative_tolerance(self.image, self.wand_tol_pct)
+        source = self.image if source is None else source
+        if self.wand_relative and source is not None:
+            return engine.relative_tolerance(source, self.wand_tol_pct)
         return float(self.wand_tolerance)
+
+    def wand_source(self):
+        """Return original pixels with Apply off, or the ready applied picture.
+
+        The applied picture keeps the source dtype's intensity units, so
+        absolute Wand tolerances retain those units. Relative tolerances
+        follow its new intensity range. While enhancement is pending or
+        failed, return None and explain why; no raw-pixel flood substitutes
+        for an applied enhancement. Post-detection morphology and splitting
+        remain detector operations, not manual Wand edits.
+        """
+        from ..i18n import tr
+
+        if not self.enhance_display:
+            return self.image
+        base = self.detection_base()
+        chain = self.enhance_chain or detect_chain.NO_CHAIN
+        if base is None:
+            return None
+        if not detect_chain.pre_active(chain):
+            return base
+        cached = self._enhanced_picture
+        if cached is not None and cached[0] is base and cached[1] == chain:
+            return cached[2]
+        failure = self._enhance_failure
+        if failure is not None and failure[0] is base and failure[1] == chain:
+            self.status.emit(tr('Image enhancement failed: {error}', error=failure[2]))
+            return None
+        self._ask_for_enhanced(base, chain)
+        self.status.emit(tr('Image enhancement is updating. Try the Wand again when it finishes.'))
+        return None
 
     def wand_rescue_settings(self) -> dict:
         """The rescue settings, keyed as :mod:`spacr.qt.wand_rescue` wants.
@@ -1806,6 +1861,12 @@ class _MaskCanvas(QLabel):
             self.update()
             return
 
+        wand_input = None
+        if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
+            wand_input = self.wand_source()
+            if wand_input is None:
+                return
+
         self._emit_stroke_start()
 
         if self.mode == MODE_ERASE_OBJECT:
@@ -1817,9 +1878,9 @@ class _MaskCanvas(QLabel):
 
         if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
             action = "add" if self.mode == MODE_WAND_ADD else "erase"
-            tolerance = self.effective_wand_tolerance()
+            tolerance = self.effective_wand_tolerance(wand_input)
             self.mask, report = wand_rescue.magic_wand(
-                self.image, self.mask, pt[0], pt[1],
+                wand_input, self.mask, pt[0], pt[1],
                 tolerance, self.wand_max_pixels, action=action,
                 **self.wand_rescue_settings(),
             )
@@ -1828,6 +1889,14 @@ class _MaskCanvas(QLabel):
                 kind="wand", target=(255 if action == "add" else 0),
                 action=action, tolerance=round(float(tolerance), 3),
                 relative=bool(self.wand_relative), **report,
+                input_kind='enhanced_picture' if self.enhance_display else 'as_loaded',
+                invert=bool(self.enhance_display and self.invert_display),
+                normalization_percentiles=([float(self.norm_lo), float(self.norm_hi)]
+                    if self.enhance_display and self.detect_on_normalized else None),
+                **detect_chain.provenance(
+                    self.enhance_chain._replace(morphology='none', split=False)
+                    if self.enhance_display else detect_chain.NO_CHAIN,
+                    percentile_stretch=self.enhance_display and self.detect_on_normalized),
             )
             return
 
@@ -10080,6 +10149,8 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         self._canvas.enhance_display = bool(on)
+        if on:
+            self._canvas._enhance_failure = None
         self._on_chain_changed()
         self._magnifier.refresh_view()
         self._status_label.setText(

@@ -104,3 +104,86 @@ def test_clear_all_objects_keeps_image_and_is_one_undoable_edit(screen, monkeypa
     np.testing.assert_array_equal(screen._canvas.mask, mask)
     screen._on_redo()
     assert not screen._canvas.mask.any()
+
+
+def _wand_click(screen):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    screen._set_mode(mm.MODE_WAND_ADD)
+    canvas = screen._canvas
+    canvas.wand_trim_runaway = False
+    canvas.wand_intensity_border = False
+    canvas.wand_gradient_taper = False
+    canvas.wand_max_pixels = 128*128
+    canvas.wand_tol_pct = 2
+    point = canvas._image_to_canvas(64.5, 64.5)
+    QTest.mouseClick(canvas, Qt.LeftButton, pos=point)
+
+
+def test_wand_uses_applied_pixels_and_toggling_off_restores_raw_flood(screen, qtbot):
+    original = screen._canvas.image.copy()
+    screen._enh_gamma.setValue(0.5)
+    screen._btn_apply.click()
+    canvas = screen._canvas
+    qtbot.waitUntil(lambda: canvas._enhanced_picture is not None)
+    _wand_click(screen)
+    enhanced_mask = canvas.mask.copy()
+    assert enhanced_mask.any()
+    assert screen._log.edits[-1].detail['enhancement']['gamma'] == 0.5
+    screen._on_undo()
+    assert not canvas.mask.any()
+    screen._btn_apply.click()
+    _wand_click(screen)
+    assert canvas.mask.any()
+    assert not np.array_equal(canvas.mask, enhanced_mask)
+    np.testing.assert_array_equal(canvas.image, original)
+
+
+def test_wand_waits_without_editing_and_reapply_survives_an_obsolete_result(screen, qtbot, monkeypatch):
+    import threading
+    gate, started = threading.Event(), threading.Event()
+    real = mm._enhanced_picture_for
+    def slow(request):
+        started.set()
+        assert gate.wait(10)
+        return real(request)
+    monkeypatch.setattr(mm, '_enhanced_picture_for', slow)
+    screen._enh_gamma.setValue(0.5)
+    screen._btn_apply.click()
+    canvas = screen._canvas
+    try:
+        qtbot.waitUntil(started.is_set)
+        count = len(screen._log.edits)
+        _wand_click(screen)
+        assert not canvas.mask.any() and len(screen._log.edits) == count
+        assert not canvas._stroke_in_progress
+        assert 'updating' in screen._status_label.text()
+        screen._btn_apply.click()
+    finally:
+        gate.set()
+    qtbot.waitUntil(lambda: canvas._enhance_asked is None)
+    assert canvas._enhanced_picture is None
+    screen._btn_apply.click()
+    qtbot.waitUntil(lambda: canvas._enhanced_picture is not None)
+    _wand_click(screen)
+    assert canvas.mask.any()
+
+
+def test_failed_enhancement_blocks_wand_and_corrected_settings_retry(screen, qtbot, monkeypatch):
+    real = mm._enhanced_picture_for
+    def fails_once(request):
+        if request.chain.gamma == 0.5:
+            raise ValueError('controlled enhancement failure')
+        return real(request)
+    monkeypatch.setattr(mm, '_enhanced_picture_for', fails_once)
+    screen._enh_gamma.setValue(0.5)
+    screen._btn_apply.click()
+    canvas = screen._canvas
+    qtbot.waitUntil(lambda: canvas._enhance_failure is not None)
+    _wand_click(screen)
+    assert not canvas.mask.any() and not canvas._stroke_in_progress
+    assert 'controlled enhancement failure' in screen._status_label.text()
+    screen._enh_gamma.setValue(0.6)
+    qtbot.waitUntil(lambda: canvas._enhanced_picture is not None)
+    _wand_click(screen)
+    assert canvas.mask.any() and canvas._enhance_failure is None

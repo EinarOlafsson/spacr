@@ -1,6 +1,6 @@
 MAKE MASKS LEVELS WITH AN INTERACTIVE HISTOGRAM
 
-Status: OPEN — requested 2026-09-22.
+Status: IMPLEMENTED — validated 2026-09-22; see verification notes below.
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 
 REQUEST

@@ -1,6 +1,6 @@
 APPLY IMAGE ENHANCEMENT BEFORE DRAWING MASKS
 
-Status: OPEN — requested 2026-09-22.
+Status: IMPLEMENTED — validated 2026-09-22; see verification notes below.
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 
 REQUEST
@@ -19,3 +19,15 @@ chain, protecting previews against obsolete worker results. Manual wand
 flooding still uses original pixel intensities, as before; this is a separate
 manual editing tool. 209 focused checks pass, including provenance and
 histogram consistency. Reviewed the loaded-field rendering.
+
+2026-09-22 — WAND FOLLOW-UP: supersedes the manual-Wand exception above.
+Wand now reads the ready applied picture when Apply is on, with relative
+intensity tolerance recalculated on it and absolute tolerance in the source
+dtype's units. Pending/failed enhancement cannot silently flood original
+pixels and creates no edit/history step. Failed work is reported; corrected
+settings or reapplying can retry. Obsolete worker results cannot strand a
+later Apply request. Ledger records input kind, inversion, normalization and
+only the preprocessing steps used; detector morphology/splitting are not
+claimed as manual Wand operations.126 focused checks pass;71 enhancement/
+method checks pass after provenance additions. Original pixels stay intact.
+Receipt for477–482: features/data/477_482_mask_editor_tools_2026-09-22.json.
