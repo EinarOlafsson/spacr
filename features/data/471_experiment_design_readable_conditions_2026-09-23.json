@@ -1,0 +1,54 @@
+{
+  "feature": 471,
+  "related_features": [
+    350,
+    472
+  ],
+  "date": "2026-09-23",
+  "base_commit": "8abf6ef4e",
+  "report": "Tutorial lane native3840x2160 capture at font scale1.5 reported Experiment Design header/role clipping and possible OPS action overlap. Original captures inspected read-only.",
+  "reproduction": {
+    "replicates_column_before": 100,
+    "header_required_at_font_scale": {
+      "1.0": 113,
+      "1.5": 159,
+      "2.0": 198
+    },
+    "role_after_header_resize_only_at_1_5": {
+      "actual_width": 183,
+      "preferred_width": 199,
+      "actual_height": 22,
+      "preferred_height": 40
+    },
+    "cause": "Default 100px columns plus table-item padding subtracting16px horizontally and8px vertically from embedded dropdowns."
+  },
+  "change": "Replicates/Role columns and rows resize to contents. A column-specific delegate places role dropdowns in the whole cell, retaining their own padding. Condition names retain stretch width.",
+  "after": {
+    "role_at_1_5": {
+      "actual_width": 199,
+      "preferred_width": 199,
+      "actual_height": 41,
+      "preferred_height": 40
+    },
+    "tests": "39 passed in18.39s,8GiB/no-swap/offscreen CPU; includes scales1/1.5/2, live font changes, added rows, unchanged condition values, existing design/export/interaction behavior and actual MainWindow folded OPS navigation.",
+    "visual": "table-after.png inspected: complete Replicates header and all role captions."
+  },
+  "ops": "No overlap, clipped button or out-of-row geometry reproduced after settling actual folded OPS in a3840x2160 MainWindow at font1.5. No AppScreen runtime change or claim of resolving the reported native capture issue.",
+  "api_delta": "New private experiment_design._RoleDelegate and updateEditorGeometry; no public signature/docstring or UI text changed.",
+  "limitations": [
+    "Offscreen Linux checks, not macOS/Windows or physical desktop acceptance.",
+    "No data download, analysis, GPU job or recorder change."
+  ],
+  "source_sha256": {
+    "spacr/qt/screens/experiment_design.py": "29d2c0852a40ea47a6c25783b241ed1ce4e2e64297ce1908deeb224857a426c7",
+    "tests/qt/test_capture_layout_at_large_fonts.py": "19412ff958db387cc3716b8d3b2c1601a4a89379dd78b790c427e565278b7b44"
+  },
+  "evidence_sha256": {
+    "before.log": "a9845ac57a8b894f5111eb65f2aa2364549b63fece2e15ca031444c94e682aeb",
+    "after.log": "d5be6f3f7b4592bca6156dd80f1876ec616a5c6d5493280b90bf311be1a88f7d",
+    "after-delegate.log": "5fa658f1457dad9d406fae0a8dc18487be8d16607b01f1899479c0fef2c4963c",
+    "final.log": "dc1e51bb392100b5a8d30950e402e9a535ca86a5743c02aa29951a633a61657a",
+    "geometry-after.log": "019eeb1b71d069de3dffef5056e71c12778ad663c3454056044411b65b929df0",
+    "table-after.png": "d88abea0af161f3be87120b0961685232d8b3fef51661d2518db05441317cb6e"
+  }
+}

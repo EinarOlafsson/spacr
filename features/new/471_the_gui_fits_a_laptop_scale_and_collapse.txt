@@ -874,3 +874,20 @@ System496px, Actions558px within579px runtime area. New real-window checks
 cover1366x600 and1366x768, no sibling overlap, scrolling to both ends,
 reopening Console, folding/reopening Figures and deferred construction.
 Receipt: features/data/471_regression_figures_fit_2026-09-22.json.
+
+2026-09-23 — EXPERIMENT DESIGN CONDITION TABLE AT LARGE FONTS
+The tutorial lane's native4K capture exposed clipped Replicates/Role columns.
+Reproduced at100/150/200percent font: columns stayed100px while the Replicates
+header wanted113/159/198px. Content sizing alone fixed headers but Qt's table
+item padding still removed16px width and8px height from embedded role boxes.
+Columns1/2 and rows now size to contents; a role-column delegate uses the whole
+cell, retaining each dropdown's own padding. Condition names retain stretch.
+At150percent the role box is199x41px against a199x40hint; the rendered table
+shows complete headers and role values.39checks pass18.39s including live font
+changes, added conditions, unchanged values and existing design/export behavior.
+
+A separate OPS action-row overlap reported in the capture did NOT reproduce
+in a settled actual3840x2160MainWindow at150percent font. Its buttons fit and
+have disjoint rectangles inside their row. No AppScreen change or claim of
+resolving the native-capture observation. No cross-platform acceptance claim.
+Receipt:471_experiment_design_readable_conditions_2026-09-23.json.

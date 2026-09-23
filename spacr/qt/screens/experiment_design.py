@@ -56,7 +56,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox, QFileDialog, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QMenu, QPushButton, QScrollArea, QSizePolicy, QSpinBox,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QStyledItemDelegate, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
@@ -356,6 +356,14 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
 register_widget_qss("ExperimentDesign", _design_qss, replace=True)
 
 
+class _RoleDelegate(QStyledItemDelegate):
+    """Let role dropdowns use the whole cell and their own internal padding."""
+
+    def updateEditorGeometry(self, editor, option, index):
+        """Keep table-item padding from shrinking the embedded dropdown."""
+        editor.setGeometry(option.rect)
+
+
 class ExperimentDesignScreen(QWidget):
     """Plate designer: conditions in, plate map and warnings out.
 
@@ -465,6 +473,12 @@ class ExperimentDesignScreen(QWidget):
                                                "Role"])
         self._table.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch)
+        for column in (1, 2):
+            self._table.horizontalHeader().setSectionResizeMode(
+                column, QHeaderView.ResizeMode.ResizeToContents)
+        self._table.setItemDelegateForColumn(2, _RoleDelegate(self._table))
+        self._table.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.ResizeToContents)
         self._table.itemChanged.connect(self._on_changed)
         split = CollapsibleSplitter(Qt.Vertical, self,
                                     persist_key="experiment_design::body")

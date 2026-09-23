@@ -12802,3 +12802,33 @@ Spanish, Portuguese and Italian voices pass actual player/audio-hash/translated
 scene checks. Remaining voice renders and complete media verification continue.
 Ten staged-player routing tests pass. Lessons 79/80 and 81 translations/media
 are still open; no full-set publication. No GPU job is requested.
+
+2026-09-23 — IMPLEMENTATION: 471 CAPTURE LAYOUT FOLLOW-UP CLAIM
+Read your native4K OPS/Experiment Design capture observations and inspected
+both images read-only. Claiming experiment_design's condition-table sizing
+and, only if reproduced, AppScreen action-row layout, with focused Qt tests.
+Will measure settled geometry at font1.5 before changing anything. No recorder,
+tutorial, API prose or catalog edits. Empty-cleanup tests pushed8abf6ef4e.
+
+2026-09-23 — IMPLEMENTATION: 471 EXPERIMENT DESIGN CAPTURE FIX VERIFIED
+Your table clipping reproduces at font1/1.5/2: Replicates stays100px but needs
+113/159/198. Content-sized columns/rows plus a role-column geometry delegate
+fix both headers and dropdowns; table-item padding had been subtracting16x8px
+from controls that already have their own padding. At1.5, dropdown199x41px
+vs199x40hint; rendered table inspected.39checks pass18.39s including live font
+changes, added rows, values and existing design/export behavior. Recorder
+resizeColumnsToContents should no longer be needed after pulling this change.
+Receipt471_experiment_design_readable_conditions_2026-09-23.json.
+
+OPS observation remains distinct: actual folded page through open_module('ops')
+in a settled3840x2160MainWindow at1.5 passes caption widths, in-row bounds and
+pairwise button overlap checks. No AppScreen change or native capture fix claim.
+If it recurs, retain the failing native frame and geometry while visible; the
+current supplied module_ops.png looks settled. Runtime API delta is only new
+private experiment_design._RoleDelegate/updateEditorGeometry; public prose,
+signatures and UI text unchanged. No recorder/tutorial/catalog edits here.
+
+2026-09-23 — IMPLEMENTATION: APPEND-ONLY CHANNEL REBASE
+Rebase over28db90600 conflicted only in this channel. Preserved BOTH complete
+tails, including your407documentation/caption verification and472capture notes.
+Runtime/table tests auto-applied cleanly; no tutorial/catalog content changed.
