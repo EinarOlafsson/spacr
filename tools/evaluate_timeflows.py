@@ -15,6 +15,8 @@ random-label chance: position and assignment already supply useful priors.
 Checkpoint metadata must name its training movies; evaluation refuses those
 movies, including aliases. No weights are downloaded. Outputs go to a new
 directory; summary.json is written only after every selected pair completes.
+Precision defaults to the checkpoint encoder dtype. Explicit float32 expands
+its saved values exactly but changes arithmetic, so scores need not be identical.
 """
 from __future__ import annotations
 
@@ -188,18 +190,25 @@ def summarise(rows):
                 for density in ('zero', 'one_to_three', 'at_least_four')}}
 
 
-def checkpoint_predictors(checkpoint, device, seed):
+def checkpoint_predictors(checkpoint, device, seed, precision='checkpoint'):
     """Load a complete checkpoint locally and create trained/random-head controls."""
     import torch
     from cellpose.vit import CPSAM
 
+    if precision not in ('checkpoint', 'float32'):
+        raise ValueError('Precision must be checkpoint or float32')
     torch.set_num_threads(2)
     state = torch.load(checkpoint, map_location='cpu', weights_only=True)
     ps = int(state['up.weight'].shape[-1])
-    dtype = state['encoder.encoder.patch_embed.proj.weight'].dtype
+    checkpoint_dtype = state['encoder.encoder.patch_embed.proj.weight'].dtype
+    dtype = torch.float32 if precision == 'float32' else checkpoint_dtype
     encoder = CPSAM(ps=ps, dtype=dtype).to(dtype=dtype)
     net = tm.TimeflowsNet(tm.CellposeSamFeatures(encoder))
     net.load_state_dict(state, strict=True)
+    dtypes = {'requested': precision, 'checkpoint_encoder': str(checkpoint_dtype),
+              'effective_encoder': str(encoder.encoder.patch_embed.proj.weight.dtype),
+              'checkpoint_floating_dtypes': sorted({str(value.dtype) for value in state.values() if value.is_floating_point()}),
+              'effective_floating_dtypes': sorted({str(value.dtype) for value in net.state_dict().values() if value.is_floating_point()})}
     del state
     trained = {name: value.detach().clone() for name, value in net.state_dict().items()
                if name.startswith(('head.', 'up.'))}
@@ -222,6 +231,7 @@ def checkpoint_predictors(checkpoint, device, seed):
             if random_head:
                 net.load_state_dict(trained, strict=False)
 
+    predict.precision = dtypes
     return predict
 
 
@@ -251,6 +261,8 @@ def main(argv=None):
     parser.add_argument('--pairs-per-gap', type=int, default=3, help='Evenly spaced pairs per sequence and gap; 0 evaluates all')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
+    parser.add_argument('--precision', choices=['checkpoint', 'float32'], default='checkpoint',
+                        help='Encoder arithmetic: saved dtype, or float32 (often faster on CPUs without native bfloat16)')
     parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args(argv)
     if args.pairs_per_gap < 0 or any(gap < 1 for gap in args.gaps):
@@ -266,6 +278,7 @@ def main(argv=None):
            'checkpoint_metadata': provenance, 'metadata_sha256': digest(metadata),
            'movie': str(args.movie.resolve()), 'data_kind': args.data_kind,
            'segmentation_source': args.segmentation, 'device': args.device, 'seed': args.seed,
+           'requested_precision': args.precision,
            'selected_pairs': len(selections), 'pairs_per_gap': args.pairs_per_gap,
            'gaps_frames': args.gaps,
            'software': {name: version(name) for name in ('numpy', 'scipy', 'torch', 'cellpose', 'tifffile')},
@@ -274,7 +287,9 @@ def main(argv=None):
            'holdout_check': 'Resolved movie paths and aliases; not a content comparison against all training images.',
            'controls': 'IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.'}
     (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n')
-    predict = checkpoint_predictors(args.checkpoint, args.device, args.seed)
+    predict = checkpoint_predictors(args.checkpoint, args.device, args.seed, args.precision)
+    run['precision'] = predict.precision
+    (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n')
     rows, stationary_rows = [], []
     started = time.perf_counter()
     with (args.out / 'pairs.jsonl').open('x') as handle:

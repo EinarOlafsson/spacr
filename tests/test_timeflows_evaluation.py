@@ -132,22 +132,27 @@ def test_real_cli_writes_only_complete_reports_with_explicit_scope(tmp_path, mon
     checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}))
     before = {path: evaluate.digest(path) for path in movie.rglob('*.tif')}
 
-    def factory(path, device, seed):
+    def factory(path, device, seed, precision):
         assert path == checkpoint and device == 'cpu'
+        assert precision == 'float32'
 
         def predict(a, b, random_head=False):
             return {'vector': np.zeros((2,) + a.shape), 'successor': np.ones(a.shape)}
+        predict.precision = {'requested': precision, 'effective_encoder': 'torch.float32'}
         return predict
 
     monkeypatch.setattr(evaluate, 'checkpoint_predictors', factory)
     out = tmp_path / 'result'
     argv = ['--checkpoint', str(checkpoint), '--movie', str(movie), '--sequences', '01',
             '--segmentation', 'GT', '--data-kind', 'synthetic', '--gaps', '1',
-            '--pairs-per-gap', '2', '--out', str(out)]
+            '--pairs-per-gap', '2', '--precision', 'float32', '--out', str(out)]
     assert evaluate.main(argv) == 0
     report = json.loads((out / 'summary.json').read_text())
     assert report['complete'] and report['selected_pairs'] == 2
     assert report['data_kind'] == 'synthetic'
+    assert report['precision']['effective_encoder'] == 'torch.float32'
+    assert report['requested_precision'] == 'float32'
+    assert json.loads((out / 'run.json').read_text())['precision'] == report['precision']
     assert report['results']['overall']['true_successors'] == 4
     assert report['copied_frame_control']['overall']['arms']['trained']['successor_accuracy'] == 1
     assert len((out / 'pairs.jsonl').read_text().splitlines()) == 2
@@ -168,7 +173,8 @@ def test_real_cli_writes_only_complete_reports_with_explicit_scope(tmp_path, mon
 
 
 @pytest.mark.parametrize('dtype_name', ['float32', 'bfloat16'])
-def test_random_head_control_restores_trained_parameters(tmp_path, monkeypatch, dtype_name):
+@pytest.mark.parametrize('precision', ['checkpoint', 'float32'])
+def test_random_head_control_restores_trained_parameters(tmp_path, monkeypatch, dtype_name, precision):
     torch = pytest.importorskip('torch')
 
     class Backbone(torch.nn.Module):
@@ -191,7 +197,20 @@ def test_random_head_control_restores_trained_parameters(tmp_path, monkeypatch, 
     net = tm.TimeflowsNet(Backbone(dtype=dtype).to(dtype=dtype))
     checkpoint = tmp_path / 'tiny.pt'
     torch.save(net.state_dict(), checkpoint)
-    predict = evaluate.checkpoint_predictors(checkpoint, 'cpu', 91)
+    before = evaluate.digest(checkpoint)
+    expected_dtype = torch.float32 if precision == 'float32' else dtype
+    ordinary_predict = tm.predict_pair
+
+    def checked_predict(model, *args, **kwargs):
+        weight = model.encoder.encoder.patch_embed.proj.weight
+        assert weight.dtype == expected_dtype
+        torch.testing.assert_close(weight, net.encoder.encoder.patch_embed.proj.weight.to(expected_dtype), rtol=0, atol=0)
+        return ordinary_predict(model, *args, **kwargs)
+
+    monkeypatch.setattr(tm, 'predict_pair', checked_predict)
+    predict = evaluate.checkpoint_predictors(checkpoint, 'cpu', 91, precision)
+    assert predict.precision['checkpoint_encoder'] == str(dtype)
+    assert predict.precision['effective_encoder'] == str(expected_dtype)
     a = np.ones((16, 16), np.float32)
     first = predict(a, a)
     random = predict(a, a, random_head=True)
@@ -199,3 +218,4 @@ def test_random_head_control_restores_trained_parameters(tmp_path, monkeypatch, 
     assert not np.allclose(first['vector'], random['vector'])
     for key in first:
         np.testing.assert_allclose(first[key], restored[key])
+    assert evaluate.digest(checkpoint) == before

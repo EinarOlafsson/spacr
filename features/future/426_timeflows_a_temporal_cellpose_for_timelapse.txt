@@ -476,3 +476,26 @@ handle; summary.json appears only after all nine pairs finish. The contract
 and candidate-QC receipt is426_stratified_evaluator_contract_2026-09-23.json.
 The evaluator measures linking GIVEN supplied masks. End-to-end segmentation
 and whole-movie tracking acceptance remain separate requirements.
+
+2026-09-23 — EXPLICIT CPU EVALUATION PRECISION
+The preceding run27511/PID3803647 was deliberately stopped with SIGTERM;
+terminal exit143 confirmed, zero completed pairs, incomplete output preserved.
+The cause was measured rather than inferred from an observation timeout:
+on this Ryzen5950X, two-thread1024-square matmul takes1.71–1.80seconds in
+bfloat16 versus0.012–0.026seconds in float32. This is an arithmetic probe,
+not a model inference benchmark or accuracy comparison.
+
+The evaluator now accepts --precision checkpoint (unchanged default) or
+--precision float32. Float32 expands the checkpoint's quantized parameter
+values exactly but changes arithmetic, so identical predictions/scores are
+not assumed. Reports record requested precision, saved encoder dtype,
+effective encoder dtype and saved/effective floating dtype sets.27focused
+tests pass, including exact parameter values, unmodified checkpoint hashes,
+both encoder dtypes, both precision choices and random-head restoration.
+
+Replacement run34317/PID3826949 evaluates the same nine whole-frame pairs
+with float32 on CPU under8GiB/no-swap/two-thread limits. Output directory:
+/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/sim-v1-evaluation-float32
+Receipt426_explicit_evaluation_precision_2026-09-23.json. No score is claimed
+before completion; follow this handle, not the deliberately terminated one.
+No training, checkpoint edit, runtime model or GUI/default tracking change.
