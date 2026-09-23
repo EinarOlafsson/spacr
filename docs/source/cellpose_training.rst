@@ -1,5 +1,5 @@
 Train a Cellpose model
-=====================
+======================
 
 Use your corrected image masks to fine-tune Cellpose-SAM, then apply the saved
 model to another image folder. From **Home → Tools → Make Masks**, open

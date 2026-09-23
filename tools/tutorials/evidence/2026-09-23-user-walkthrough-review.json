@@ -19,6 +19,7 @@
     "04_platform_installers",
     "05_home",
     "09_annotate",
+    "19_train_cellpose",
     "41_classify",
     "76_ops"
   ],
@@ -26,6 +27,7 @@
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
+    "19_train_cellpose",
     "76_ops"
   ],
   "narration_and_caption_refresh_required": [
@@ -35,6 +37,7 @@
     "04_platform_installers",
     "05_home",
     "09_annotate",
+    "19_train_cellpose",
     "41_classify",
     "76_ops"
   ],
@@ -644,29 +647,26 @@
     },
     {
       "lesson": "19_train_cellpose",
-      "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+      "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
       "scene_count": 11,
-      "source_revised": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[5].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[9].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "source_revised": true,
+      "manual_review": "source rewrite; media alignment pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "published_rewrite": false
     },
     {
