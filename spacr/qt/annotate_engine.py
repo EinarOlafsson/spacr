@@ -1061,11 +1061,14 @@ def fetch_filtered_paths(
 
     Rows come from a merge of png_list with the measurement tables (via
     spacr.io._read_and_join_tables) — same code path as the Tk app —
-    filtered on png_path substring when `image_type` is given.
+    filtered with the same bound SQL image-type expression as normal browsing.
+    NOT, AND, OR, parentheses and SQLite LIKE semantics apply equally when
+    measurement thresholds are enabled. Invalid expressions raise ValueError.
     Callers paginate the returned list themselves.
     """
     if not os.path.isfile(db_path) or not measurements or not thresholds:
         return []
+    where, params = parse_image_type(image_type)
     from spacr.io import _read_and_join_tables, _read_db
     df = _read_and_join_tables(db_path)
     if "png_path" not in df.columns:
@@ -1099,8 +1102,14 @@ def fetch_filtered_paths(
     if "png_path" not in df.columns:
         return []
     df = df.dropna(subset=["png_path"])
-    if image_type:
-        df = df[df["png_path"].str.contains(image_type)]
+    if where:
+        quoted_table = str(table).replace('"', '""')
+        with contextlib.closing(
+            connect_database(db_path, readonly=True, timeout=30)
+        ) as conn:
+            paths = {row[0] for row in conn.execute(
+                f'SELECT png_path FROM "{quoted_table}" WHERE {where}', params)}
+        df = df[df["png_path"].isin(paths)]
     # It was marked `# pragma: no cover` and counted as an uncoverable
     return df[["png_path", annotation_column]].values.tolist()
 

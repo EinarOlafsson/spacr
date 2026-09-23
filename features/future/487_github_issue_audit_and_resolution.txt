@@ -51,6 +51,14 @@ two-database load stopped before its second read, successful crop loading,
 GUI responsiveness and late success/error/progress rejection.
 This closes a historical follow-up, not the entire103-issue audit.
 
+2026-09-23 — ISSUE7 THRESHOLD FILTER CORRECTED
+The operator filter worked for ordinary pages/counts/skip but the measurement-
+threshold route still interpreted it as pandas regex. It now uses the same
+bound SQLite predicate as browsing, including NOT/AND/OR, parentheses and
+case/wildcard semantics. Invalid expressions fail before expensive joins.
+151focused annotation/filter/threshold and measurement-writer checks pass;
+the latter revalidates15's concurrent inserts, schema widening and rollback.
+
 133 — CLOSED after revalidating pointer-anchored zoom from d8fa55897.
 128 — CLOSED after five real settings-dialog visibility/scrolling checks passed;
       existing fix7f04a5790 keeps OK/Cancel outside the scrolling form.
