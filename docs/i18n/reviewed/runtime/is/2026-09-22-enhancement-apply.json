@@ -14,13 +14,6 @@
       "source_sha256": "a708558d209a80906514190313b8f3c3f12d834045ce9e0d005f5047f435ed3d",
       "table": "ui",
       "translation": "Hreinsa alla hluti"
-    },
-    {
-      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
-      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
-      "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
-      "table": "ui",
-      "translation": "Forskoðar stilltar endurbætur við hlið myndarinnar án endurbóta, fyrir reit stækkunarglersins ef hann er til staðar en annars fyrir allt myndsviðið, svo hægt sé að meta hvert skref keðjunnar út frá áhrifum þess."
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review against explicit Apply/Compare behavior in 479–481; no native-speaker sign-off",

@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "scope": "Preserve translations for removed source keys outside the active review set; current source keys and changed-source records are retained.",
+  "retired_records": [
+    {
+      "file": "docs/i18n/reviewed/runtime/de/2026-09-22-enhancement-apply.json",
+      "language": "de",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "Zeigt die konfigurierten Verbesserungen neben dem unveränderten Bild als Vorschau: für den Lupenausschnitt, sofern vorhanden, andernfalls für das gesamte Bildfeld. So lässt sich jeder Schritt der Verarbeitungskette anhand seiner Wirkung beurteilen."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/es/2026-09-22-enhancement-apply.json",
+      "language": "es",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "Muestra una vista previa de las mejoras configuradas junto a la imagen sin mejorar: del área de la lupa, si existe, o del campo completo en caso contrario, para evaluar cada paso de la cadena observando su efecto."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/fr/2026-09-22-enhancement-apply.json",
+      "language": "fr",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "Affiche un aperçu des améliorations configurées à côté de l’image sans amélioration, pour la zone de la loupe si elle existe, sinon pour le champ entier, afin d’évaluer l’effet de chaque étape de la chaîne."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/hi/2026-09-22-enhancement-apply.json",
+      "language": "hi",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "कॉन्फ़िगर किए गए सुधारों का पूर्वावलोकन बिना सुधार वाली छवि के साथ दिखाता है। यदि आवर्धक का क्षेत्र मौजूद है तो उसका, अन्यथा पूरे दृश्य-क्षेत्र का पूर्वावलोकन दिखता है, ताकि श्रृंखला के हर चरण के प्रभाव को देखकर उसका मूल्यांकन किया जा सके।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/is/2026-09-22-enhancement-apply.json",
+      "language": "is",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "Forskoðar stilltar endurbætur við hlið myndarinnar án endurbóta, fyrir reit stækkunarglersins ef hann er til staðar en annars fyrir allt myndsviðið, svo hægt sé að meta hvert skref keðjunnar út frá áhrifum þess."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/ko/2026-09-22-enhancement-apply.json",
+      "language": "ko",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "설정된 보정의 미리보기를 보정하지 않은 이미지 옆에 표시합니다. 돋보기 영역이 있으면 해당 영역을, 없으면 전체 시야를 표시하므로 처리 체인의 각 단계가 미친 효과를 확인하며 평가할 수 있습니다."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/pt/2026-09-22-enhancement-apply.json",
+      "language": "pt",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "Mostra uma prévia das melhorias configuradas ao lado da imagem sem melhorias, para a área da lupa quando houver uma, ou para o campo inteiro caso contrário, permitindo avaliar o efeito de cada etapa da cadeia."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-09-22-enhancement-apply.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "Förhandsvisa de konfigurerade förbättringarna bredvid den oförbättrade bilden, för förstoringsglasets ruta om den finns och annars för hela bildfältet, så att varje steg i kedjan kan bedömas utifrån sin effekt."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-format-repairs.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Legend saved to {path}; conditions proposed again.",
+        "source": "Legend saved to {path}; conditions proposed again.",
+        "source_sha256": "45b6d593a2ab88a487925e158e7d9b827567e447edeb2e6f1c35f5e82e9f5d99",
+        "translation": "图注已保存到 {path}，已重新提出条件建议。"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-enhancement-apply.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
+        "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
+        "table": "ui",
+        "translation": "将配置的增强效果与未经增强的图像并排预览：如果存在放大镜区域，则预览该区域，否则预览整个视野，以便根据实际效果评估处理链的每个步骤。"
+      }
+    }
+  ]
+}

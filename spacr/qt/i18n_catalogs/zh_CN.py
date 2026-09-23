@@ -6936,6 +6936,17 @@ UI = {
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': '按住 {key} 并滚动鼠标滚轮可缩放。拖动空白区域可平移视图。点击“适应窗口”可显示整个图。',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': '实线箭头：已说明的数据传递。虚线箭头：数据类型匹配，但仍需检查兼容性。',
     'Save template': '保存模板',
+    'An annotation or legend save is already in progress.': '正在保存标注或图例。',
+    'Discard this preview. A model call already running finishes in the background before another preview can start.': '放弃此预览。正在运行的模型调用会先在后台完成，然后才能开始下一次预览。',
+    'Estimate scale / time (experimental)': '估算比例尺 / 时间（实验性）',
+    'Experimental suggestion; measured values are retained. See the reference and assumptions below.': '实验性建议；保留实测值。请参阅下方的参考数据和假设。',
+    'Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.': '正在准备增强图像…取消会关闭此对比；正在运行的滤镜会在后台完成。',
+    'Saving review…': '正在保存审核结果…',
+    'The image or enhancement settings changed. Choose Compare again.': '图像或增强设置已更改。请重新选择“对比”。',
+    'The previous preview is still finishing. Run preview will be available when it exits.': '上一次预览仍在结束中。待其退出后，即可运行预览。',
+    'Updating conditions with the new text settings…': '正在使用新的文本设置更新实验条件…',
+    'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page': '根据面积最大的25%空斑推测缺失值。假定其生长符合RH/HFF对照；保留现有测量值。API: spacr.plaque_growth.estimate_page',
+    "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.": '将配置的图像增强结果与未增强图像并排预览：有放大镜选框时预览该区域，否则预览整个视野，以便观察各处理步骤的效果。处理在后台运行。取消会关闭对比；正在运行的滤镜会完成，但不显示其结果。与检测时相同，先对整个视野进行归一化，再裁剪。',
 }
 
 MODULE_SUMMARIES = {
@@ -13995,4 +14006,15 @@ SOURCE_HASHES = {
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
     ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
+    ('UI', 'An annotation or legend save is already in progress.'): 'd4299c22caf1a431e84aa5805537eabda3886582ed26ffc84e33c71f1e574897',
+    ('UI', 'Discard this preview. A model call already running finishes in the background before another preview can start.'): '2d6ecca1a19ef9b68d4b16b75ec9f7be6f20436bb6442e2769ca9a25066737d0',
+    ('UI', 'Estimate scale / time (experimental)'): '09e96cf331da1d5835e1b91b7fd5285f4c087ab263e8d0e09f7d6134a48fe989',
+    ('UI', 'Experimental suggestion; measured values are retained. See the reference and assumptions below.'): '95af9d7a28567c2703266c1a1abe077815d2f2556ccd512fe8afc0ceb9ecace2',
+    ('UI', 'Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.'): '66668744c88856c7147d3c1dbe8993f3d16349bf70ef4439ba81dc948a0c309e',
+    ('UI', 'Saving review…'): 'ecccc3f1f8dd1bea9674ca24d4157c2eb4112dafe505b99088ad210d14178557',
+    ('UI', 'The image or enhancement settings changed. Choose Compare again.'): '285e73dd77995589e407786245fce666c995bf350b58a1a3148fccd3f1da7192',
+    ('UI', 'The previous preview is still finishing. Run preview will be available when it exits.'): '63ea86dc036b431a6b1e235df29739496b3ecbcb2db1b45a8d85a29e498d27fa',
+    ('UI', 'Updating conditions with the new text settings…'): '7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237',
+    ('UI', 'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page'): '447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3',
+    ('UI', "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection."): '77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0',
 }

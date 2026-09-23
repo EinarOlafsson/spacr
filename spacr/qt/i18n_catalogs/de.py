@@ -6916,6 +6916,17 @@ UI = {
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': 'Halten Sie {key} gedrückt und drehen Sie das Mausrad zum Zoomen. Ziehen Sie eine freie Fläche, um die Ansicht zu verschieben. Einpassen zeigt die gesamte Übersicht.',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': 'Durchgezogene Pfeile: dokumentierte Datenübergaben. Gestrichelte Pfeile: passende Datentypen, deren Kompatibilität geprüft werden muss.',
     'Save template': 'Vorlage speichern',
+    'An annotation or legend save is already in progress.': 'Anmerkungen oder eine Bildlegende werden bereits gespeichert.',
+    'Discard this preview. A model call already running finishes in the background before another preview can start.': 'Diese Vorschau verwerfen. Ein laufender Modellaufruf wird im Hintergrund abgeschlossen, bevor eine weitere Vorschau starten kann.',
+    'Estimate scale / time (experimental)': 'Maßstab / Zeit schätzen (experimentell)',
+    'Experimental suggestion; measured values are retained. See the reference and assumptions below.': 'Experimenteller Vorschlag; gemessene Werte bleiben erhalten. Siehe Referenz und Annahmen unten.',
+    'Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.': 'Verbessertes Bild wird vorbereitet… Abbrechen schließt diesen Vergleich; ein laufender Filter wird im Hintergrund abgeschlossen.',
+    'Saving review…': 'Überprüfung wird gespeichert…',
+    'The image or enhancement settings changed. Choose Compare again.': 'Das Bild oder die Einstellungen zur Bildverbesserung haben sich geändert. Wählen Sie erneut Vergleichen.',
+    'The previous preview is still finishing. Run preview will be available when it exits.': 'Die vorherige Vorschau wird noch abgeschlossen. Vorschau starten ist verfügbar, sobald sie beendet ist.',
+    'Updating conditions with the new text settings…': 'Versuchsbedingungen werden mit den neuen Texteinstellungen aktualisiert…',
+    'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page': 'Fehlende Werte anhand der größten 25% der Plaques vorschlagen. Es wird das Wachstum der RH/HFF-Kontrolle angenommen; vorhandene Messwerte bleiben erhalten. API: spacr.plaque_growth.estimate_page',
+    "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.": 'Die eingestellten Bildverbesserungen neben dem unveränderten Bild anzeigen: für den Lupenausschnitt, falls vorhanden, andernfalls für das gesamte Bildfeld. So lässt sich die Wirkung jedes Verarbeitungsschritts visuell beurteilen. Die Verarbeitung läuft im Hintergrund. Abbrechen schließt den Vergleich; ein laufender Filter wird beendet, ohne sein Ergebnis anzuzeigen. Wie bei der Erkennung wird das gesamte Bildfeld vor dem Zuschneiden normalisiert.',
 }
 
 MODULE_SUMMARIES = {
@@ -13956,4 +13967,15 @@ SOURCE_HASHES = {
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
     ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
+    ('UI', 'An annotation or legend save is already in progress.'): 'd4299c22caf1a431e84aa5805537eabda3886582ed26ffc84e33c71f1e574897',
+    ('UI', 'Discard this preview. A model call already running finishes in the background before another preview can start.'): '2d6ecca1a19ef9b68d4b16b75ec9f7be6f20436bb6442e2769ca9a25066737d0',
+    ('UI', 'Estimate scale / time (experimental)'): '09e96cf331da1d5835e1b91b7fd5285f4c087ab263e8d0e09f7d6134a48fe989',
+    ('UI', 'Experimental suggestion; measured values are retained. See the reference and assumptions below.'): '95af9d7a28567c2703266c1a1abe077815d2f2556ccd512fe8afc0ceb9ecace2',
+    ('UI', 'Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.'): '66668744c88856c7147d3c1dbe8993f3d16349bf70ef4439ba81dc948a0c309e',
+    ('UI', 'Saving review…'): 'ecccc3f1f8dd1bea9674ca24d4157c2eb4112dafe505b99088ad210d14178557',
+    ('UI', 'The image or enhancement settings changed. Choose Compare again.'): '285e73dd77995589e407786245fce666c995bf350b58a1a3148fccd3f1da7192',
+    ('UI', 'The previous preview is still finishing. Run preview will be available when it exits.'): '63ea86dc036b431a6b1e235df29739496b3ecbcb2db1b45a8d85a29e498d27fa',
+    ('UI', 'Updating conditions with the new text settings…'): '7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237',
+    ('UI', 'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page'): '447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3',
+    ('UI', "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection."): '77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0',
 }

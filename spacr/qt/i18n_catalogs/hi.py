@@ -6747,6 +6747,17 @@ UI = {
     'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': 'ज़ूम करने के लिए {key} दबाए रखें और माउस का पहिया घुमाएँ। दृश्य को खिसकाने के लिए खाली जगह पर खींचें। ‘पूरा दिखाएँ’ से पूरा मानचित्र दिखता है।',
     'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': 'सतत रेखा वाले तीर: दस्तावेज़ों में वर्णित डेटा हस्तांतरण। खंडित रेखा वाले तीर: मेल खाते डेटा प्रकार, जिनकी संगतता जाँचना आवश्यक है।',
     'Save template': 'टेम्पलेट सहेजें',
+    'An annotation or legend save is already in progress.': 'टिप्पणियाँ या चित्र विवरण पहले से सहेजे जा रहे हैं।',
+    'Discard this preview. A model call already running finishes in the background before another preview can start.': 'यह पूर्वावलोकन छोड़ दें। अगला पूर्वावलोकन शुरू होने से पहले चल रहा मॉडल कॉल पृष्ठभूमि में पूरा होगा।',
+    'Estimate scale / time (experimental)': 'पैमाने / समय का अनुमान लगाएँ (प्रायोगिक)',
+    'Experimental suggestion; measured values are retained. See the reference and assumptions below.': 'प्रायोगिक सुझाव; मापे गए मान सुरक्षित रहते हैं। नीचे संदर्भ और मान्यताएँ देखें।',
+    'Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.': 'संवर्धित छवि तैयार की जा रही है… रद्द करें से यह तुलना बंद हो जाती है; चल रहा फ़िल्टर पृष्ठभूमि में पूरा होता है।',
+    'Saving review…': 'समीक्षा सहेजी जा रही है…',
+    'The image or enhancement settings changed. Choose Compare again.': 'छवि या संवर्धन सेटिंग बदल गई हैं। फिर से तुलना करें चुनें।',
+    'The previous preview is still finishing. Run preview will be available when it exits.': 'पिछला पूर्वावलोकन अभी समाप्त हो रहा है। उसके बंद होने पर पूर्वावलोकन चलाएँ उपलब्ध होगा।',
+    'Updating conditions with the new text settings…': 'नई पाठ सेटिंग के साथ प्रायोगिक स्थितियाँ अपडेट की जा रही हैं…',
+    'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page': 'सबसे बड़े 25% प्लाक से अनुपलब्ध मानों का सुझाव दें। RH/HFF नियंत्रण जैसी वृद्धि मानी जाती है; मौजूदा माप सुरक्षित रहते हैं। API: spacr.plaque_growth.estimate_page',
+    "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.": 'कॉन्फ़िगर किए गए संवर्धनों का पूर्वावलोकन मूल असंवर्धित छवि के साथ दिखाएँ। आवर्धक का बॉक्स उपलब्ध होने पर उसका क्षेत्र, अन्यथा पूरा दृश्य क्षेत्र दिखाया जाता है, ताकि हर चरण का प्रभाव देखकर आँका जा सके। प्रसंस्करण पृष्ठभूमि में चलता है। रद्द करें से तुलना बंद हो जाती है; चल रहा फ़िल्टर अपना परिणाम दिखाए बिना पूरा होता है। पहचान प्रक्रिया की तरह, काटने से पहले पूरे दृश्य क्षेत्र का सामान्यीकरण किया जाता है।',
 }
 
 MODULE_SUMMARIES = {
@@ -13618,4 +13629,15 @@ SOURCE_HASHES = {
     ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
     ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
     ('UI', 'Save template'): '47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba',
+    ('UI', 'An annotation or legend save is already in progress.'): 'd4299c22caf1a431e84aa5805537eabda3886582ed26ffc84e33c71f1e574897',
+    ('UI', 'Discard this preview. A model call already running finishes in the background before another preview can start.'): '2d6ecca1a19ef9b68d4b16b75ec9f7be6f20436bb6442e2769ca9a25066737d0',
+    ('UI', 'Estimate scale / time (experimental)'): '09e96cf331da1d5835e1b91b7fd5285f4c087ab263e8d0e09f7d6134a48fe989',
+    ('UI', 'Experimental suggestion; measured values are retained. See the reference and assumptions below.'): '95af9d7a28567c2703266c1a1abe077815d2f2556ccd512fe8afc0ceb9ecace2',
+    ('UI', 'Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.'): '66668744c88856c7147d3c1dbe8993f3d16349bf70ef4439ba81dc948a0c309e',
+    ('UI', 'Saving review…'): 'ecccc3f1f8dd1bea9674ca24d4157c2eb4112dafe505b99088ad210d14178557',
+    ('UI', 'The image or enhancement settings changed. Choose Compare again.'): '285e73dd77995589e407786245fce666c995bf350b58a1a3148fccd3f1da7192',
+    ('UI', 'The previous preview is still finishing. Run preview will be available when it exits.'): '63ea86dc036b431a6b1e235df29739496b3ecbcb2db1b45a8d85a29e498d27fa',
+    ('UI', 'Updating conditions with the new text settings…'): '7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237',
+    ('UI', 'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page'): '447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3',
+    ('UI', "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection."): '77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0',
 }

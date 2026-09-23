@@ -14,13 +14,6 @@
       "source_sha256": "a708558d209a80906514190313b8f3c3f12d834045ce9e0d005f5047f435ed3d",
       "table": "ui",
       "translation": "सभी ऑब्जेक्ट साफ़ करें"
-    },
-    {
-      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
-      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did.",
-      "source_sha256": "500ebda7400e68b844ed2efdb50f47ba843739c23c8331f26fb11196704b2463",
-      "table": "ui",
-      "translation": "कॉन्फ़िगर किए गए सुधारों का पूर्वावलोकन बिना सुधार वाली छवि के साथ दिखाता है। यदि आवर्धक का क्षेत्र मौजूद है तो उसका, अन्यथा पूरे दृश्य-क्षेत्र का पूर्वावलोकन दिखता है, ताकि श्रृंखला के हर चरण के प्रभाव को देखकर उसका मूल्यांकन किया जा सके।"
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review against explicit Apply/Compare behavior in 479–481; no native-speaker sign-off",

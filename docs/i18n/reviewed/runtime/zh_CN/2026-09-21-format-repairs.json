@@ -74,13 +74,6 @@
     },
     {
       "table": "ui",
-      "key": "Legend saved to {path}; conditions proposed again.",
-      "source": "Legend saved to {path}; conditions proposed again.",
-      "source_sha256": "45b6d593a2ab88a487925e158e7d9b827567e447edeb2e6f1c35f5e82e9f5d99",
-      "translation": "图注已保存到 {path}，已重新提出条件建议。"
-    },
-    {
-      "table": "ui",
       "key": "Loading preview from {path}…",
       "source": "Loading preview from {path}…",
       "source_sha256": "58e81fac77039aa6251fca9a783a1e7ad61dc1ff6f71088c6b26e937dab7b89c",
