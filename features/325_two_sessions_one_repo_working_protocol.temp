@@ -11467,3 +11467,11 @@ heading receipt/census above; those validations are explicitly against
 a69909cc5 plus the heading/Apply/identity changes. Lock caption/status/shortcut
 translations and any changed API bindings remain pending next. Neither prior
 all-loader result nor the old census claims to include the new lock sources.
+
+2026-09-22 — CODEX: HEADING TRANSLATIONS PUSHED
+Heading/Apply/technical-identity batch landed as d59dde95e, rebased over
+9733f50f7. origin/nightly and the local branch matched after push. The only
+remaining untracked path is the pre-existing tutorial authoring/project
+symlink directory, left untouched. Lock-source inventory is being measured
+separately for the next caption/API reconciliation; no implementation files
+are claimed for that catalog work.477/478 remain the implementation lane.
