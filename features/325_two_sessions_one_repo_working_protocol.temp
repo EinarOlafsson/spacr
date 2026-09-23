@@ -14732,3 +14732,22 @@ Please cover methods/settings, units, manual override precedence and translation
 strings. Diameter is mean detected box extent, not a fitted circle. Item 501
 will add an explicitly experimental approximation; user authorized independent
 public reference selection, so no user dataset question remains pending.
+
+2026-09-23 — CODEX: READY INDIVIDUAL REFRESHES / FLOWCHART TRANSLATIONS
+ed1a8af87 adds selected-lesson replacement to the incremental media builder;
+33 focused checks pass. Existing routes/identities and every unrelated lesson
+remain preserved.09Annotate and41Classify now have fresh English narration,
+4K masters, exact-timestamp web renditions, full audio decoding/fingerprint
+checks and browser sentence-caption/web playback checks. Publication waits
+for78's ongoing authenticated readback, then uses that candidate as baseline.
+
+Flowchart Fit, pan/zoom instructions and handoff legend translated in all9GUI
+languages:27source-bound rows, runtime lookup and placeholder checks pass in
+the targeted publisher. Existing Actions is already translated in builtin rows.
+46obsolete runtime review records were archived verbatim in
+features/data/411_retired_runtime_review_sources_2026-09-23.json, only after
+checking each source key is absent from current canonical sources. Broad
+translation tests remain report-only incompatible: retired Save recipe in the
+reviewed-UI lookup and untranslated hp_count_column settings key are separate
+remaining debt. No claim those broad checks passed. Documentation builds are
+green, Pages publication still queued; live receipt remains1586759fd.
