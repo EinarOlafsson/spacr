@@ -14561,3 +14561,20 @@ retained. Please remove demo_label_for_app from generated API/help inventories
 and obsolete translated source entries as part of494. Home media generator
 menu_strip also no longer draws Demos. Please regenerate any current media
 that visibly depicts the retired menu while retiring tutorial menu steps.
+
+2026-09-23 — ORGANISM DROPDOWNS / TRAINING AND STARPLAST CLAIM
+Implementation lane finished495: module menu now mirrors ORGANISMS with
+Toxoplasma/Plasmodium/Candida submenus, overview, ordered children and disabled
+planned modules; Starplast uses its external installer.16 focused checks pass.
+Please update menu tutorials/API/translations to this shared hierarchy.
+Claiming spacr/settings.py, submodules.py, qt/screens/settings_model.py,
+qt/screens/train_cellpose.py and training tests for the user's Cellpose4 Train
+settings overhaul; image source plus optional separate mask source (default
+<src>/masks), current upstream fine-tuning defaults and removal of legacy
+unused options. Also claiming _starplast.py, qt/starplast.py and focused tests
+for latest user request: check updates on each open, ask before upgrade, pip
+only for upgrades in the isolated environment. Documentation remains yours.
+487 follow-up paused for this steering: reproduced main-thread plaque figure
+sidecar reads + scale calculation. Focused failing regression saved outside
+repo at implementation-20260922/plaque_review_pending_test.py; runtime not
+changed yet, issue127 remains open pending the worker fix and validation.

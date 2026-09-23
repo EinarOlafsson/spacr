@@ -3023,11 +3023,16 @@ class MainWindow(QMainWindow):
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
         from .widgets.fold_strip import folded_modules
+        from .organisms import ORGANISMS
 
         folded = folded_children()
         catalogue = folded_modules()
+        organism_children = {entry[0] for guide in ORGANISMS.values()
+                             for entry in guide['modules'] if entry[0]}
+        self._organism_menus = {}
         for section in SECTION_ORDER:
-            members = [row for row in APPS if row[3] == section]
+            members = sorted((row for row in APPS if row[3] == section
+                              and row[0] not in organism_children), key=tile_sort_key)
             if not members:
                 continue
             submenu = QMenu(section, self)
@@ -3042,7 +3047,30 @@ class MainWindow(QMainWindow):
                 act.triggered.connect(
                     lambda checked=False, k=key: self._on_nav_selected(k))
                 kids = folded.get(key, ())
-                if not kids:
+                if key in ORGANISMS:
+                    host_menu = QMenu(name, self)
+                    host_menu.setProperty("moduleAppKey", key)
+                    host_menu.setProperty("moduleNameSource", name)
+                    submenu.addMenu(host_menu)
+                    self._organism_menus[key] = host_menu
+                    host_menu.addAction(act)
+                    host_menu.addSeparator()
+                    for child, title, summary, _icon in ORGANISMS[key]['modules']:
+                        child_action = QAction(tr(title), self)
+                        child_action.setToolTip(tr(summary))
+                        child_action.setStatusTip(tr(summary))
+                        if child:
+                            child_action.setProperty("moduleAppKey", child)
+                            child_action.setProperty("moduleNameSource", title)
+                            child_action.setProperty("moduleSummarySource", summary)
+                            child_action.triggered.connect(
+                                lambda checked=False, k=child: self._open_organism_module(k))
+                            self._app_actions[child] = child_action
+                        else:
+                            child_action.setText(tr("{name} — Coming soon", name=tr(title)))
+                            child_action.setEnabled(False)
+                        host_menu.addAction(child_action)
+                elif not kids:
                     submenu.addAction(act)
                 else:
                     host_menu = QMenu(name, self)
@@ -3648,10 +3676,24 @@ class MainWindow(QMainWindow):
             LOG.exception("Could not apply the selected UI language")
 
 
+    def _open_organism_module(self, key: str) -> None:
+        """Open an organism assay or its separate Starplast application.
+
+        :param key: a module route from the organism catalogue.
+        """
+        if key == 'starplast':
+            from .starplast import open_starplast
+
+            open_starplast(self)
+        else:
+            self.open_module(key)
+
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
-            action.setVisible(app_is_visible(key))
+            action.setVisible(key == 'starplast' or app_is_visible(key))
+        for key, menu in getattr(self, '_organism_menus', {}).items():
+            menu.menuAction().setVisible(app_is_visible(key))
 
     def _rebuild_startup_page(self):
         """Recreate the Home page (e.g. after a font-scale change)."""
