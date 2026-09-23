@@ -14661,3 +14661,15 @@ pass. Resuming against the SAME uploaded commit with4workers; no duplicate
 upload. It will only tag/write its receipt after complete successful readback.
 Later Pages publication must retain0f651f706's learning order: the frozen78
 candidate was built before that change. Do not overwrite the new navigation.
+
+2026-09-23 — CODEX: COMMIT RECEIPTS / ENGLISH MEDIA IN PROGRESS
+Walkthrough sources and494scripts landed d74269937; Starplast API/UI refresh
+landed afe3175c2; authenticated rate-limit-aware readback landed471eecb43.
+After receiving keyboard/flowchart changes, refreshed their English sources:
+API count remains11483, UI5141. Latest public site reports1586759fd; learning
+order0f651f706 is in the next shared-head publication, not yet confirmed live.
+09Annotate and41Classify new English tracks both pass full decoding and
+current-source fingerprint checks. Their private stage is
+/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage.
+78's resumed readback is progressing;79's successful new English narration
+has a fresh4Kvisual master rendering. No public media replacement claimed.

@@ -62847,10 +62847,10 @@
     },
     "spacr.qt.shortcuts.ShortcutOverlay.paintEvent": {
       "source_blocks_sha256": [
-        "2d65096b1845f1ae059002ab68b0149714afd325e570ea1a9d0e7646956e5dd2"
+        "8f839dd8a25652b644862ee52d3d06b2bbfa4d00aa010029a5eba0f20751f6f9"
       ],
-      "source_sha256": "2d65096b1845f1ae059002ab68b0149714afd325e570ea1a9d0e7646956e5dd2",
-      "text": "Dim whatever is behind the card."
+      "source_sha256": "8f839dd8a25652b644862ee52d3d06b2bbfa4d00aa010029a5eba0f20751f6f9",
+      "text": "Leave the main window visible around the translucent shortcut card."
     },
     "spacr.qt.shortcuts.ShortcutOverlay.resizeEvent": {
       "source_blocks_sha256": [

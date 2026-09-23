@@ -297,6 +297,13 @@
       "source_sha256": "2bf9a0caca9d71b13e2ee88b2a235d72eea6b38084598ebb7e86ed755314bde8",
       "text": "Where an OPS run's tables live, and the gate that says the objects exist.\n\nThe storage contract has two halves. In ``measurements.db``, which is\nauthoritative: ``ops_geometry``, ``ops_objects``, ``ops_reads`` and\n``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads``\nand ``ops_barcodes``, written in the same step with their row counts\nasserted equal, so the sidecar cannot drift from the authority unnoticed.\n\nSQLITE IS THE AUTHORITY AND PARQUET IS A CACHE, which is a decision and not a\ndetail. The two can disagree, so one of them has to be right by definition --\notherwise a reader that picked the faster one would sometimes be reading\nyesterday's numbers with no way to tell. :func:`write_table` writes both in\none call and asserts the counts match before either is visible as complete;\n:func:`read_table` prefers the cache and falls back without complaining,\nbecause a missing cache is a performance question and not a correctness one.\n\nREADINESS IS A GATE, NOT A STEP. No sequencing or phenotype channel is read\nuntil ``ops_objects`` is on disk and its row count checked.\n:func:`objects_ready` is that sentence, and it returns a REASON when the\nanswer is no -- a gate that only says \"not yet\" makes the operator guess\nwhich half failed.\n\nOther measurement tables use the same object ids, so later steps need no\nspecial case. The numbering is deterministic for that reason: those ids join\ntables written at different times."
     },
+    "2d65096b1845f1ae059002ab68b0149714afd325e570ea1a9d0e7646956e5dd2": {
+      "source_blocks_sha256": [
+        "2d65096b1845f1ae059002ab68b0149714afd325e570ea1a9d0e7646956e5dd2"
+      ],
+      "source_sha256": "2d65096b1845f1ae059002ab68b0149714afd325e570ea1a9d0e7646956e5dd2",
+      "text": "Dim whatever is behind the card."
+    },
     "2dd19deff1c0a04d048741ada97f67f57ef80bf987ad958d5c8d87a688502f5e": {
       "source_blocks_sha256": [
         "f600cc2fe7525f0e7e0ecab51af90da6ec1f6afe497c36ea78ec1167fa625cec",
