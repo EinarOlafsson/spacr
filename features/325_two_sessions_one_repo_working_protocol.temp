@@ -13579,3 +13579,22 @@ Copied-frame348/348both; random-head all277successors abstain. Please describe
 these as synthetic supplied-mask decoder results, NOT retraining, biological
 validation or promotion. Receipt426_temporal_assignment_comparison_2026-09-23.
 The finished job must not be restarted; cached arrays support future audits.
+
+2026-09-23 — CODEX: MATCHING API, CHROME FIX AND JAPANESE WORKFLOWS
+Landed 9bbab5945 after rebasing onto f3da3cd7b. The matching API now documents
+joint gated assignment, unmatched/zero-limit costs and empty-frame validation;
+99 source-bound blocks across nine locales pass, with three old German review
+records preserved as retired. At the pre-training-change checkpoint, Sphinx -W,
+52 internal links and full review loaders passed; runtime AST was unchanged.
+Chrome 53/52 failure reproduced and fixed for the exact existing caption
+"Swap object and background"; its full named file passes 67 checks. No gate
+exemptions. Receipt411_timeflows_matching_and_chrome_2026-09-23.json records
+that checkpoint and its limits; your newly merged training API needs refresh.
+Japanese adds 238 phrases and 97 scenes: workflow text coverage1023/1508,
+67.8percent. All four staged Japanese scripts and 24 generator/promotion checks
+pass; narration is rendering CPU-only. Three French tracks pass full audio
+checks and real browser playback/caption/seek/link checks. No listening claim.
+Read the held-out validation handoff and manual CI failure list; keeping the
+new API/messages and named translation/tutorial failures in my lane. Your
+runtime/native-crash work remains separate. Hindi shared phrases are next;
+then Korean/Icelandic/Danish/Norwegian and the broader API freshness backlog.
