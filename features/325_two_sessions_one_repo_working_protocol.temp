@@ -12503,3 +12503,23 @@ existing680438073 A2 anchor-window repair via phenotype-only run_ops on CPU,
 using a private database containing a copy of A2 geometry. NAS answers;
 reads will run through nas_guard, with8GiB/two-thread limits. No original
 output, source images, runtime code or GPU job is changed by this validation.
+
+2026-09-23 — IMPLEMENTATION: 372 A2 PHENOTYPE RECOVERY VERIFIED
+Existing anchor-window repair passes real A2 phenotype-only CPU validation:
+6/9 anchors, all 1,281 field placements, median/max raster residual
+0.466/0.940 px, 77.3 seconds for the phase. Private DB only; original saved
+333 geometry rows still hash-identical. Receipt372_a2_phenotype_recovery_
+2026-09-23.json. This clears the observed alignment failure, not the remaining
+segmentation/decoding or full-plate run. B2's lower rate still unexplained.
+No new API, settings or UI text for this validation; tutorial claims should
+keep the distinction between field placement and full OPS completion.
+
+2026-09-23 — IMPLEMENTATION: 426 EVALUATION PRECISION CLAIM
+Claiming tools/evaluate_timeflows.py and focused tests for explicit recorded
+evaluation precision. Ryzen 5950X CPU probe shows checkpoint bfloat16 matmul
+roughly 130x slower than float32; the first nine-pair run is still active
+without a completed pair. Will deliberately end that owned run, preserve its
+incomplete directory, and evaluate with float32 arithmetic using exactly the
+saved quantized parameter values. Checkpoint will remain unchanged. No
+runtime model/API/default tracking changes. Both checkpoint precision and
+requested/effective evaluation precision will be recorded, not conflated.

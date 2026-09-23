@@ -5999,3 +5999,24 @@ THE FULL-PLATE RUN WAS STARTED AND DID NOT FINISH. It reached well A1's decode
 1281/1281 phenotype fields) before the session that launched it ended and took
 the process with it. Nothing is wrong with the run; it needs restarting, and
 its results file was never written.
+
+2026-09-23 — LOCAL PLATE RECOVERY AND A2 ALIGNMENT FIX VALIDATED
+The later local run at /mnt/wd4tb/spacr_testdata/ops_plate_run completed A1
+and A3, failed A2 phenotype alignment (2 of 18 anchors), then stopped after
+starting B1. No original plate process remains. This supersedes the earlier
+claim that no results file exists; it does not establish a complete plate.
+
+The anchor-window correction in 680438073 now passes a CPU phenotype-only
+run on A2's real NAS images using a private copy of its 333 saved geometry
+rows. Six of nine attempted anchors place all 1,281 phenotype fields; median
+raster residual 0.466 px, maximum 0.940 px, no fields off the stitch. 1,277
+image tiles were found and 1,281 placements written (placement count is not
+an assertion that every source image exists). Phenotype phase 77.3 seconds,
+reported peak RSS 0.93 GB, with 8 GiB/no-swap/two-thread limits and no GPU.
+The original plate output was untouched; its source geometry hash is still
+identical. Receipt: data/372_a2_phenotype_recovery_2026-09-23.json.
+
+A2 segmentation/decoding and the remaining full-plate run are still owed.
+The detailed historical B2 outputs were not found in the inspected local
+trees; its lower aggregate exact-match rate remains unexplained. Future B2
+investigation needs retained per-read evidence rather than a guessed cause.

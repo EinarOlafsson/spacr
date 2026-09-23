@@ -1,0 +1,161 @@
+{
+  "success": true,
+  "result": {
+    "db": "/mnt/firecuda2/Claude/implementation-20260922/ops-372-a2/measurements.db",
+    "plate": "20200202_6W-LaC024A",
+    "wells": {
+      "A2": {
+        "reference_cycle": 1,
+        "cycles": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "phenotype": {
+          "fields": 1281,
+          "tiles_found": 1277,
+          "anchors_tried": 9,
+          "anchors_used": 6,
+          "anchors": [
+            {
+              "site": 640,
+              "inliers": 159,
+              "residual_px": 1.393,
+              "scale": 0.24968,
+              "degrees": 0.017,
+              "points": 258,
+              "centre_y": 13414.47,
+              "centre_x": 13440.91,
+              "raster_residual_px": 0.394
+            },
+            {
+              "site": 1156,
+              "inliers": 188,
+              "residual_px": 1.378,
+              "scale": 0.24981,
+              "degrees": -0.01,
+              "points": 257,
+              "centre_y": 13350.11,
+              "centre_x": 22313.3,
+              "raster_residual_px": 0.94
+            },
+            {
+              "site": 816,
+              "inliers": 160,
+              "residual_px": 1.468,
+              "scale": 0.25082,
+              "degrees": 0.022,
+              "points": 294,
+              "centre_y": 21631.08,
+              "centre_x": 16034.17,
+              "raster_residual_px": 0.505
+            },
+            {
+              "site": 790,
+              "inliers": 138,
+              "residual_px": 1.805,
+              "scale": 0.25102,
+              "degrees": 0.003,
+              "points": 281,
+              "centre_y": 5160.48,
+              "centre_x": 15918.67,
+              "raster_residual_px": 0.536
+            },
+            {
+              "site": 3,
+              "inliers": 152,
+              "residual_px": 1.715,
+              "scale": 0.24968,
+              "degrees": 0.026,
+              "points": 241,
+              "centre_y": 13505.89,
+              "centre_x": 763.52,
+              "raster_residual_px": 0.426
+            },
+            {
+              "site": 1222,
+              "inliers": 226,
+              "residual_px": 1.432,
+              "scale": 0.24984,
+              "degrees": 0.009,
+              "points": 282,
+              "centre_y": 20942.75,
+              "centre_x": 23635.26,
+              "raster_residual_px": 0.042
+            }
+          ],
+          "anchor_residual_px": {
+            "median": 0.466,
+            "max": 0.94
+          },
+          "expected_scale": 0.25,
+          "raster": {
+            "origin": [
+              26187.84,
+              848.64
+            ],
+            "column_step": [
+              -8.97,
+              1267.55
+            ],
+            "row_step": [
+              1267.01,
+              8.95
+            ]
+          },
+          "fields_mapped": 1281,
+          "fields_off_the_stitch": 0,
+          "sbs_tiles_used": 331,
+          "ops_phenotype_rows": 1281,
+          "unreadable": [],
+          "seconds": 77.3
+        },
+        "seconds": 77.8,
+        "peak_rss_gb": 0.93
+      }
+    }
+  },
+  "seconds": 110.28746567000053,
+  "pid": 3815154,
+  "source_database": "/mnt/wd4tb/spacr_testdata/ops_plate_run/measurements.db",
+  "geometry_rows": 333,
+  "geometry_sha256": "ade19fdf383a90da1fc526a59975a01cba2340ff340703cf8334f1fe26152451",
+  "settings": {
+    "genotype_source": "/nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A/sequencing/images/input",
+    "phenotype_source": "/nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A/phenotype/images/input",
+    "dst_root": "/mnt/firecuda2/Claude/implementation-20260922/ops-372-a2",
+    "plate": "20200202_6W-LaC024A",
+    "ops_gpu": false,
+    "n_workers": 2,
+    "ops_store_reads": false
+  },
+  "scope": "CPU phenotype alignment only, using copied saved A2 geometry; no segmentation or decoding.",
+  "validation_date": "2026-09-23",
+  "implementation_commit": "680438073",
+  "validation_checkout": "18fd17665",
+  "process_exit_code": 0,
+  "private_database_counts": {
+    "ops_geometry": 333,
+    "ops_phenotype": 1281
+  },
+  "source_geometry_unchanged": true,
+  "limits": {
+    "memory_bytes": 8589934592,
+    "swap_bytes": 0,
+    "threads": 2,
+    "gpu": false
+  },
+  "limitations": [
+    "Phenotype alignment only; no A2 segmentation or decoding.",
+    "Does not explain B2 library-exact rate; detailed historical B2 outputs were not found.",
+    "Original plate output was not changed."
+  ]
+}
