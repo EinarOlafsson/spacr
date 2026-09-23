@@ -645,91 +645,74 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask: filtros en vivo, una ejecución real y exportación verificada de superposiciones",
+      "title": "Mask: segment images and inspect the results",
       "series": 1,
       "app_key": "mask",
-      "section": "Módulos principales",
-      "description": "Use el ejemplo real descargable, compare área y diámetro en vivo, ejecute dos campos con Plot activado y recupere una superposición mediante un paso explícito en Python.",
+      "section": "Core",
+      "description": "Load microscope images, choose segmentation settings, preview objects and save masks for measurement.",
       "objectives": [
-        "Encontrar Mask en Home y sus controles integrados Live, Time, 3D y OPS.",
-        "Comprobar metadatos y canales antes de segmentar.",
-        "Distinguir filtrado reversible y nueva inferencia con otro parámetro.",
-        "Inspeccionar resultados reales, conservar el aviso de superposición parcial y exportar ambos arrays explícitamente.",
-        "Separar limitaciones de QC, datos originales y una pregunta AI no enviada de la validación científica."
+        "Load the microscopy example and identify its intensity channels.",
+        "Compare model settings and object-size filters in Live preview.",
+        "Run segmentation, inspect overlays and find the merged outputs."
       ],
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Use la descarga real de Mask y conserve identidades de canales y metadatos. La vista previa Live se grabó en 1.5.0.7 con los ajustes del ejemplo en una copia nueva y solo se reutiliza mientras live_preview.py y preview_contract.py sigan idénticos byte a byte a esa grabación: los arrays verifican 105→52→105 con área mínima 510 y 36 tras diámetro 30→60. El nuevo lote de dos campos es otro ejemplo, no una comparación directa: Plot=True, test_images=2, batch_size=2, n_jobs=2, diámetros 30/30/15 y umbrales de flujo 0.4 para los tres objetos. El 100 del archivo desactiva el filtrado y no se recomienda como predeterminado. El bucle nativo AÚN falla con .spacr_plane_layout.json: falta una de dos superposiciones aunque diga Finished. No borre el metadato ni active pickle. El helper usa spacr.plot.plot_image_mask_overlay solo con .npy regulares; exige cuatro canales y máscaras célula/núcleo/patógeno en 4/5/6. Escribe PNG opacos en una carpeta nueva, sin modificar arrays ni reparar la GUI. Sus hashes coinciden con el diario nativo. Etiquetas finales: 25/19/8 y 52/50/58; QC del primer campo avisa near_empty_field. QC celular precede al ajuste de máscaras. Se comprobaron 95,424,864 valores RGB de paneles y 7,952,072 píxeles de cobertura combinada, no exactitud biológica. Se conservan fallos y pruebas transparentes, sin presentarlos como completos. Sin petición AI, entrenamiento, aprobación ni publicación. API: spacr.core.preprocess_generate_masks y spacr.plot.plot_image_mask_overlay. OPS es una página aparte que se abre desde la fila de acciones de Mask y tiene su propia lección; esta lección no lo ejecuta.",
+      "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Abra Mask desde Home. Es un módulo principal; su fila de acciones contiene los interruptores Live, Time, tridimensional y OPS. Time y OPS tienen cada uno su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente.",
+          "narration": "From Home, open Mask. Use this module to outline cells, nuclei and pathogens in microscope images. This walkthrough processes two-dimensional images. The Time, three-dimensional and OPS workflows have their own tutorials.",
           "related_lessons": [
             "05_home",
             "17_timelapse",
             "76_ops"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Mask desde Home. Es un módulo principal; su fila de acciones contiene los interruptores Live, Time, tridimensional y OPS. Time y OPS tienen cada uno su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente."
+          "hold_after": 0.7
         },
         {
           "visual": "native_02_download",
-          "narration": "Pulse Load test data y espere a que termine la descarga del ejemplo real de microscopía. Conserve la estructura de carpetas y las imágenes originales. Grabamos una copia privada nueva para evitar resultados de ejecuciones anteriores. Para sus datos, compruebe metadatos de nombres y canales antes de copiar ajustes.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse Load test data y espere a que termine la descarga del ejemplo real de microscopía. Conserve la estructura de carpetas y las imágenes originales. Grabamos una copia privada nueva para evitar resultados de ejecuciones anteriores. Para sus datos, compruebe metadatos de nombres y canales antes de copiar ajustes."
+          "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
+          "hold_after": 0.7
         },
         {
           "visual": "native_03_data_ready",
-          "narration": "Aquí la intensidad nuclear es el canal cero, la celular el uno y la del patógeno el dos. El ejemplo también contiene el canal tres. Son identidades de canales de intensidad, no índices de planos de máscaras en el resultado combinado. Compruebe las imágenes y conserve los metadatos de disposición al mover resultados.",
-          "hold_after": 0.7,
-          "speech_text": "Aquí la intensidad nuclear es el canal cero, la celular el uno y la del patógeno el dos. El ejemplo también contiene el canal tres. Son identidades de canales de intensidad, no índices de planos de máscaras en el resultado combinado. Compruebe las imágenes y conserve los metadatos de disposición al mover resultados."
+          "narration": "Check the channel assignments against the images. In this example, nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. Channel three is an additional intensity image. Choose only the object types present in your experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. Esta vista previa usa un campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote.",
-          "hold_after": 0.7,
-          "speech_text": "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. Esta vista previa usa un campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote."
+          "narration": "Turn on Live and select a field. Inspect the image and proposed masks together before running the full folder. Try several fields that represent the range of image quality in your experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_settings",
-          "narration": "Abra Live settings y examine los controles celulares. Aquí se usa el modelo CPSAM instalado; las opciones disponibles dependen de su instalación. Ejecute la vista previa antes de interpretar contornos. Diámetro y filtros son operaciones distintas; ni el nombre del modelo ni una máscara vistosa garantizan exactitud.",
-          "hold_after": 0.7,
-          "speech_text": "Abra Live settings y examine los controles celulares. Aquí se usa el modelo CPSAM instalado; las opciones disponibles dependen de su instalación. Ejecute la vista previa antes de interpretar contornos. Diámetro y filtros son operaciones distintas; ni el nombre del modelo ni una máscara vistosa garantizan exactitud."
+          "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter and run the preview. Compare the outlines with the image, paying attention to missed objects and objects joined together.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "El resultado inicial tiene ciento cinco etiquetas celulares. Al elevar el área mínima a quinientos diez píxeles quedan cincuenta y dos visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo.",
-          "hold_after": 0.7,
-          "speech_text": "El resultado inicial tiene ciento cinco etiquetas celulares. Al elevar el área mínima a quinientos diez píxeles quedan cincuenta y dos visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo."
-        },
-        {
-          "visual": "preview_10_filters_restored",
-          "narration": "Restaure el límite de área original y regresan las ciento cinco etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro.",
-          "hold_after": 0.7,
-          "speech_text": "Restaure el límite de área original y regresan las ciento cinco etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro."
+          "narration": "Use the minimum-area filter to hide objects smaller than the chosen number of pixels. Increasing it removes small labels from the preview. This filter updates an existing mask result, so you can compare size cutoffs quickly.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce treinta y seis etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales.",
-          "hold_after": 0.7,
-          "speech_text": "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce treinta y seis etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales."
+          "narration": "Change diameter when the model is splitting or joining objects at the wrong scale, then run the preview again. Check the boundaries as well as the object count. Restore the settings you want to use before moving to the batch run.",
+          "hold_after": 0.7
         },
         {
           "visual": "native_20_batch_settings",
-          "narration": "Para el lote separado, use dos imágenes de prueba y deje Plot activado. Aquí los tres umbrales de flujo son explícitamente cero coma cuatro. La descarga indicaba cien, que desactiva el filtrado de flujo; no lo recomendamos como predeterminado. Revise los mensajes de dispositivo y procesamiento de la consola en lugar de suponer cómo se ejecutó.",
-          "hold_after": 0.7,
-          "speech_text": "Para el lote separado, use dos imágenes de prueba y deje Plot activado. Aquí los tres umbrales de flujo son explícitamente cero coma cuatro. La descarga indicaba cien, que desactiva el filtrado de flujo; no lo recomendamos como predeterminado. Revise los mensajes de dispositivo y procesamiento de la consola en lugar de suponer cómo se ejecutó."
+          "narration": "For a small first run, select two test images, keep Plot on, and review the cell, nucleus and pathogen flow thresholds. Here they are zero point four. Check the output and original-image retention settings, then click Run.",
+          "hold_after": 0.7
         },
         {
           "visual": "native_23_batch_finished",
-          "narration": "Lea toda la consola. Aunque el proceso diga Finished, el registro de superposiciones indica que falta una de dos: intentó cargar el JSON de disposición como imagen. Los arrays de máscaras combinados existen, pero el trazado nativo no está completo. Conserve la advertencia; no lo trate silenciosamente como éxito.",
-          "hold_after": 0.7,
-          "speech_text": "Lea toda la consola. Aunque el proceso diga Finished, el registro de superposiciones indica que falta una de dos: intentó cargar el JSON de disposición como imagen. Los arrays de máscaras combinados existen, pero el trazado nativo no está completo. Conserve la advertencia; no lo trate silenciosamente como éxito."
+          "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
+          "hold_after": 0.7
         },
         {
           "visual": "command_01_explicit_numeric_inputs",
-          "narration": "La solución alternativa es un paso externo explícito. Conserve el JSON: describe planos de intensidad y máscaras, no es una imagen. Nunca active pickle para silenciar este error. Descargue y examine el helper enlazado; use la carpeta merged de esta ejecución concreta, no resultados antiguos.",
+          "narration": "If an overlay export is missing, the linked plotting helper can export the saved arrays separately. Extract the helper and choose this run’s merged folder. Keep the layout file in place; the helper uses it to check the intensity and mask planes.",
           "focus": [
             190,
             80,
@@ -739,189 +722,127 @@
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "La solución alternativa es un paso externo explícito. Conserve el JSON: describe planos de intensidad y máscaras, no es una imagen. Nunca active pickle para silenciar este error. Descargue y examine el helper enlazado; use la carpeta merged de esta ejecución concreta, no resultados antiguos."
+          "hold_after": 0.7
         },
         {
           "visual": "command_02_explicit_plotting_api",
-          "narration": "Ejecute el helper con la fuente merged y un destino nuevo. Llama a la API real de trazado para cada array numérico y guarda ambas superposiciones. Rechaza otra disposición de planos o una carpeta de salida existente. Evita el escaneo defectuoso para esta exportación; no repara el bucle de trazado de la aplicación.",
+          "narration": "Run the helper with the merged folder as its source and a new output folder as its destination. It saves a separate overlay for each image array. Open the saved PNG files to inspect the results.",
           "focus": [
             190,
             80,
             3450,
             1000
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ejecute el helper con la fuente merged y un destino nuevo. Llama a la API real de trazado para cada array numérico y guarda ambas superposiciones. Rechaza otra disposición de planos o una carpeta de salida existente. Evita el escaneo defectuoso para esta exportación; no repara el bucle de trazado de la aplicación."
-        },
-        {
-          "visual": "viewer_09_saved_plate1_E01_17_1",
-          "narration": "Estos gráficos guardados se muestran en un visor externo, no se insertaron en spaCR. El primer campo tiene veinticinco etiquetas celulares, diecinueve nucleares y ocho de patógeno tras el ajuste. Su QC aún advierte que ocho objetos no bastan para las comprobaciones de tamaño por campo. Una imagen legible no elimina esa limitación.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Estos gráficos guardados se muestran en un visor externo, no se insertaron en espáquer. El primer campo tiene veinticinco etiquetas celulares, diecinueve nucleares y ocho de patógeno tras el ajuste. Su QC aún advierte que ocho objetos no bastan para las comprobaciones de tamaño por campo. Una imagen legible no elimina esa limitación."
+          "hold_after": 0.7
         },
         {
           "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "El segundo campo tiene cincuenta y dos etiquetas celulares, cincuenta nucleares y cincuenta y ocho de patógeno. Los cuatro primeros paneles muestran canales de intensidad y contornos; el último combina las máscaras. La normalización por percentiles aquí es solo visual. Los arrays originales no cambian, y estos recuentos no miden exactitud frente a una referencia.",
+          "narration": "Review the outlines on each intensity channel and the combined mask view. Check small objects, touching cells and missed regions. Keep the input images, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
           "focus": [
             200,
             680,
             3440,
             880
           ],
-          "hold_after": 0.7,
-          "speech_text": "El segundo campo tiene cincuenta y dos etiquetas celulares, cincuenta nucleares y cincuenta y ocho de patógeno. Los cuatro primeros paneles muestran canales de intensidad y contornos; el último combina las máscaras. La normalización por percentiles aquí es solo visual. Los arrays originales no cambian, y estos recuentos no miden exactitud frente a una referencia."
-        },
-        {
-          "visual": "command_03_verified_saved_overlays",
-          "narration": "Conserve las comprobaciones, el diario original, los ajustes y los archivos QC juntos. Verificamos independientemente los arrays de los paneles, la cobertura combinada y los hashes originales intactos. El QC celular se registró antes del ajuste de máscaras y sus recuentos pueden diferir de los finales. Revise la segmentación antes de pasar a Measure.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Conserve las comprobaciones, el diario original, los ajustes y los archivos QC juntos. Verificamos independientemente los arrays de los paneles, la cobertura combinada y los hashes originales intactos. El QC celular se registró antes del ajuste de máscaras y sus recuentos pueden diferir de los finales. Revise la segmentación antes de pasar a Measure."
-        },
-        {
-          "visual": "viewer_30_ai_unsent_question",
-          "narration": "El control opcional spaCR AI de la consola puede ayudar a hablar de ajustes, pero esta pregunta no se ha enviado ni se muestra respuesta de un proveedor. Contraste cualquier consejo con archivos y avisos reales. La canalización Python y la API de trazado usan los mismos contratos de datos; las lecciones enlazadas cubren Measure y Time.",
-          "related_lessons": [
-            "06_api",
-            "08_measure",
-            "17_timelapse"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "El control opcional espáquer AI de la consola puede ayudar a hablar de ajustes, pero esta pregunta no se ha enviado ni se muestra respuesta de un proveedor. Contraste cualquier consejo con archivos y avisos reales. La canalización Python y la API de trazado usan los mismos contratos de datos; las lecciones enlazadas cubren Measure y Time."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure: vistas en vivo, mediciones reales y resultados guardados",
+      "title": "Measure: extract object features and crops",
       "series": 1,
       "app_key": "measure",
-      "section": "Módulos principales",
-      "description": "Use los dieciséis campos descargables para inspeccionar campos y canales en vivo, restaurar los ajustes de recortes sin normalizar, leer las advertencias de calidad y verificar una ejecución con Plot.",
+      "section": "Core",
+      "description": "Load images with masks, inspect objects, choose crop settings and save measurements for annotation and classification.",
       "objectives": [
-        "Cargar el ejemplo actual y distinguir canales de intensidad de planos de máscaras.",
-        "Inspeccionar campos y canales en vivo, distinguir el selector de vista de los ajustes compartidos y restaurar la normalización antes del lote.",
-        "Ejecutar el ejemplo completo, revisar figuras y consola reales y localizar base de datos e imágenes.",
-        "Encontrar Illumination, AnnData Export y Motility anidados y reconocer los límites de AI y de la advertencia de resultados obsoletos."
+        "Identify intensity channels and mask planes in the example.",
+        "Inspect fields and choose saved-crop normalization deliberately.",
+        "Run Measure and locate the database, object crops and figures."
       ],
-      "prerequisite": "Home/Core → Measure → Load test data. Se miden dieciséis matrices uint16 de 1994x1994: intensidades 0–3 y máscaras de células/núcleos/patógenos 4/5/6. Antes del primer Live, active Normalize en el formulario principal; el contraste inicial usa percentiles 1/99. No pulse Run así. El canal cero solo cambia la vista, pero Normalize también afecta a los recortes guardados. Desactive Live y Normalize antes del lote. E02_1_1 muestra 27 candidatos y E02_9_1, 15; cambiar de canal conserva identidades, áreas y categorías, y All channels restaura los píxeles originales. Las matrices coinciden byte a byte con las del lote. El diálogo Crop settings es demasiado alto: no presentamos sus controles inaccesibles como utilizables. QC señala 3 fallos y 16 advertencias entre 156 registros de objeto/campo de las máscaras descargadas de 52 campos, no solo los 16 campos fusionados medidos. No son datos certificados como limpios. Ejecución completa: Plot, save_measurements y save_png activados; Test mode y normalize desactivados; un proceso; recortes RGB de 224x224. Sin calibración de vóxel, las áreas son píxeles cuadrados. Se comprobaron 5409 valores de área/intensidad y cinco fusiones respaldadas por las máscaras originales, no todos los rasgos ni la exactitud biológica. Resultados: 601 células y recortes, 622 núcleos, 373 objetos patógenos, 48 figuras guardadas y 47 en la cola GUI. Los metadatos hash_inputs y _intensity_rescale_plan explican esta advertencia de resultados obsoletos; no se certifican otras advertencias ni el traspaso automático. Otro diagnóstico Test mode registró la ruta incorrecta de la base; aquí se verifica el modo normal. API: spacr.measure.measure_crop. Consulte Illumination, Motility y AnnData Export por separado; AnnData enseña una alternativa mediante API, no una GUI reparada. No se envía ninguna pregunta AI ni se demuestra una respuesta. Sin aprobación humana de escucha ni publicación.",
+      "prerequisite": "Use the merged outputs from Mask, or choose Load test data in Measure. The example supplies sixteen fields with intensity planes 0–3 and cell, nucleus and pathogen masks in planes 4, 5 and 6.",
       "scenes": [
         {
           "visual": "preview_01_module",
-          "narration": "Abra Measure en los módulos Core. Convierte matrices de imágenes y máscaras existentes en mediciones y recortes; no crea una nueva segmentación. Illumination, AnnData Export y Motility son flujos anidados en este módulo principal. Sus lecciones separadas se agrupan bajo Measure en la navegación de tutoriales.",
+          "narration": "From Home, open Measure. Start with images that already have object masks. Measure extracts features such as area and intensity, pairs related objects, and can save individual object crops for Annotate and Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
             "18_motility",
             "59_anndata_export"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Measure en los módulos Core. Convierte matrices de imágenes y máscaras existentes en mediciones y recortes; no crea una nueva segmentación. Illumination, AnnData Export y Motility son flujos anidados en este módulo principal. Sus lecciones separadas se agrupan bajo Measure en la navegación de tutoriales."
+          "hold_after": 0.7
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Elija Load test data y espere a que termine la carga real. La descarga incluye dieciséis campos combinados. Compruebe la carpeta fuente y el mapeo: intensidades en canales cero a tres, máscara celular cuatro, nuclear cinco y de patógenos seis. Las etiquetas de máscara no son mediciones de intensidad.",
-          "hold_after": 0.7,
-          "speech_text": "Elija Load test data y espere a que termine la carga real. La descarga incluye dieciséis campos combinados. Compruebe la carpeta fuente y el mapeo: intensidades en canales cero a tres, máscara celular cuatro, nuclear cinco y de patógenos seis. Las etiquetas de máscara no son mediciones de intensidad."
+          "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_04_preview_normalization_setup",
-          "narration": "Antes de abrir Live por primera vez, busque Normalize en los ajustes principales y actívelo. Esto permite ver la previsualización, pues los recortes originales de dieciséis bits se ven oscuros. También es un ajuste de los recortes guardados, no solo de visualización. No pulse Run; primero lo restauraremos.",
-          "hold_after": 0.7,
-          "speech_text": "Antes de abrir Live por primera vez, busque Normalize en los ajustes principales y actívelo. Esto permite ver la previsualización, pues los recortes originales de dieciséis bits se ven oscuros. También es un ajuste de los recortes guardados, no solo de visualización. No pulse Run; primero lo restauraremos."
+          "narration": "To inspect these sixteen-bit example crops, turn Normalize on before opening Live. This makes the preview easier to see. Remember that this main setting also affects saved crops; we will switch it off before this batch run.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_all_channels",
-          "narration": "Active Live y pegue la ruta de la matriz fusionada del campo E cero dos, uno, uno. La cuadrícula muestra veintisiete candidatos agrupados según relaciones entre máscaras; desplácese para examinar las categorías restantes. Estas etiquetas no son anotaciones biológicas revisadas independientemente, y los candidatos visibles no garantizan el número final de células medidas.",
-          "hold_after": 0.7,
-          "speech_text": "Active Live y pegue la ruta de la matriz fusionada del campo E cero dos, uno, uno. La cuadrícula muestra veintisiete candidatos agrupados según relaciones entre máscaras; desplácese para examinar las categorías restantes. Estas etiquetas no son anotaciones biológicas revisadas independientemente, y los candidatos visibles no garantizan el número final de células medidas."
+          "narration": "Turn on Live and choose a field. Inspect the object crops and their mask relationships. Scroll through the categories and enlarge the preview if needed to see the boundaries clearly.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_06_live_channel_zero",
-          "narration": "Elija el canal cero en el selector de canal mostrado. Los mismos veintisiete objetos aparecen en escala de grises, sin cambiar etiquetas, áreas ni categorías. A diferencia de Normalize en el formulario principal, este selector solo cambia la vista previa. Vuelva a All channels para restaurar los píxeles en color sin modificar los ajustes del lote.",
-          "hold_after": 0.7,
-          "speech_text": "Elija el canal cero en el selector de canal mostrado. Los mismos veintisiete objetos aparecen en escala de grises, sin cambiar etiquetas, áreas ni categorías. A diferencia de Normalize en el formulario principal, este selector solo cambia la vista previa. Vuelva a All channels para restaurar los píxeles en color sin modificar los ajustes del lote."
+          "narration": "Use the displayed-channel selector to inspect one intensity channel at a time. Channel zero shows a grayscale view; All channels restores the combined view. This selector changes the preview without changing the labels or batch channel mapping.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Use el selector de campo para abrir E cero dos, nueve, uno. Aquí aparecen quince candidatos: examine más de un campo antes de confiar en una imagen atractiva. Lea también el aviso rojo de calidad de segmentación. Sus máscaras señaladas pertenecen al conjunto descargado más amplio; una previsualización correcta no resuelve las advertencias ni certifica datos limpios.",
-          "hold_after": 0.7,
-          "speech_text": "Use el selector de campo para abrir E cero dos, nueve, uno. Aquí aparecen quince candidatos: examine más de un campo antes de confiar en una imagen atractiva. Lea también el aviso rojo de calidad de segmentación. Sus máscaras señaladas pertenecen al conjunto descargado más amplio; una previsualización correcta no resuelve las advertencias ni certifica datos limpios."
+          "narration": "Choose another field and compare its objects. Review the segmentation-quality banner before measuring the project. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "preview_08_saved_normalization_restored",
-          "narration": "Desactive Live, busque Normalize de nuevo y desactívelo antes de ejecutar. Verificamos que todos los ajustes del lote recuperan sus valores originales y ambas matrices fuente permanecen intactas. La normalización por recorte puede eliminar diferencias de intensidad en los archivos guardados. Conserve las matrices originales; esta lección no utiliza el diálogo Crop settings de tamaño excesivo.",
+          "narration": "Turn Live off and restore Normalize off for this example. Choose normalization deliberately when saving crops: per-crop scaling changes the intensity differences visible to a later image classifier. Keep the original merged arrays for quantitative measurements.",
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Desactive Live, busque Normalize de nuevo y desactívelo antes de ejecutar. Verificamos que todos los ajustes del lote recuperan sus valores originales y ambas matrices fuente permanecen intactas. La normalización por recorte puede eliminar diferencias de intensidad en los archivos guardados. Conserve las matrices originales; esta lección no utiliza el diálogo Crop settings de tamaño excesivo."
+          "hold_after": 0.7
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Mantenga Plot activado, guarde mediciones y recortes y use un trabajador para esta demostración. Test mode está desactivado: se procesan los dieciséis campos en la salida principal del proyecto. En esta versión, una prueba corta usa otra carpeta test; no confunda su base de datos con el resultado completo.",
-          "hold_after": 0.7,
-          "speech_text": "Mantenga Plot activado, guarde mediciones y recortes y use un trabajador para esta demostración. Test mode está desactivado: se procesan los dieciséis campos en la salida principal del proyecto. En esta versión, una prueba corta usa otra carpeta test; no confunda su base de datos con el resultado completo."
+          "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. Use one worker for this example. Leave Test mode off to process all sixteen supplied fields, then click Run.",
+          "hold_after": 0.7
         },
         {
           "visual": "batch_26_measure_console_complete",
-          "narration": "Pulse Run y siga la consola. Compruebe intentos, éxitos y fallos, no solo un mensaje de finalización. Aquí se completaron los dieciséis campos. Las figuras grandes pueden activar un límite explícito de resolución de exportación; lea también esa advertencia. Un cálculo terminado correctamente no certifica la calidad biológica.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse Run y siga la consola. Compruebe intentos, éxitos y fallos, no solo un mensaje de finalización. Aquí se completaron los dieciséis campos. Las figuras grandes pueden activar un límite explícito de resolución de exportación; lea también esa advertencia. Un cálculo terminado correctamente no certifica la calidad biológica."
+          "narration": "Follow the console until the run completes. Check which fields succeeded and inspect any failures before proceeding. Keep the settings saved with this run so you can reproduce the measurements.",
+          "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_00",
-          "narration": "Use la lista de figuras para inspeccionar las vistas reales anteriores y posteriores al filtrado. Arrastre el divisor para darles espacio. Los filtros de tamaño y las fusiones entre padres e hijos pueden cambiar qué etiquetas se miden. Aquí, cinco objetos celulares guardados combinan etiquetas fuente conectadas por una máscara nuclear o de patógeno compartida.",
-          "hold_after": 0.7,
-          "speech_text": "Use la lista de figuras para inspeccionar las vistas reales anteriores y posteriores al filtrado. Arrastre el divisor para darles espacio. Los filtros de tamaño y las fusiones entre padres e hijos pueden cambiar qué etiquetas se miden. Aquí, cinco objetos celulares guardados combinan etiquetas fuente conectadas por una máscara nuclear o de patógeno compartida."
+          "narration": "Use the figure list to compare objects before and after filtering. Size filters and parent-child relationships can change which objects are measured. Drag the divider to give the figures more space and inspect any unexpected changes.",
+          "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_02",
-          "narration": "Revise también la figura de recortes y conserve juntos la base de mediciones y sus rutas de imágenes. Esta ejecución guardó seiscientos un registros celulares y recortes correspondientes. Las comprobaciones independientes de píxeles verificaron área, sumas y medias de cuatro canales, incluidas las fusiones; no validan todas las características ni la corrección biológica de la segmentación.",
+          "narration": "Inspect the crop figure, then locate measurements.db in the measurements folder and the saved object images in the project’s crop output. Keep the database and image paths together. Continue to Annotate to label example objects, or to Classify when you already have labelled training data.",
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Revise también la figura de recortes y conserve juntos la base de mediciones y sus rutas de imágenes. Esta ejecución guardó seiscientos un registros celulares y recortes correspondientes. Las comprobaciones independientes de píxeles verificaron área, sumas y medias de cuatro canales, incluidas las fusiones; no validan todas las características ni la corrección biológica de la segmentación."
-        },
-        {
-          "visual": "batch_24_batch_figure",
-          "narration": "Esta versión todavía puede mostrar una advertencia de resultados obsoletos tras una ejecución correcta con los mismos ajustes visibles. En este ejemplo la rastreamos hasta metadatos añadidos durante la ejecución, pero no hemos corregido la aplicación. Verifique ejecución guardada y ajustes antes de continuar; no descarte otras advertencias ni dé por validado el traspaso automático. Revise también los archivos: la cola de figuras mostró cuarenta y siete de las cuarenta y ocho gráficas guardadas.",
-          "hold_after": 0.7,
-          "speech_text": "Esta versión todavía puede mostrar una advertencia de resultados obsoletos tras una ejecución correcta con los mismos ajustes visibles. En este ejemplo la rastreamos hasta metadatos añadidos durante la ejecución, pero no hemos corregido la aplicación. Verifique ejecución guardada y ajustes antes de continuar; no descarte otras advertencias ni dé por validado el traspaso automático. Revise también los archivos: la cola de figuras mostró cuarenta y siete de las cuarenta y ocho gráficas guardadas."
-        },
-        {
-          "visual": "batch_30_ai_unsent_question",
-          "narration": "La consola ofrece además asistencia opcional de spaCR AI. Aquí activamos el interruptor y preparamos una pregunta sin enviarla: no se demuestra ninguna respuesta ni análisis externo. Considere cualquier respuesta futura un consejo que debe contrastar con ajustes, API y resultados guardados. Para la siguiente tarea, use las lecciones separadas de los flujos anidados.",
-          "related_lessons": [
-            "06_api",
-            "43_illumination",
-            "18_motility",
-            "59_anndata_export"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "La consola ofrece además asistencia opcional de espáquer AI. Aquí activamos el interruptor y preparamos una pregunta sin enviarla: no se demuestra ninguna respuesta ni análisis externo. Considere cualquier respuesta futura un consejo que debe contrastar con ajustes, API y resultados guardados. Para la siguiente tarea, use las lecciones separadas de los flujos anidados."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "09_annotate",
@@ -1112,26 +1033,25 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify: un ejemplo comprobado de visión por computador",
+      "title": "Classify: train an image classifier",
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Módulos principales",
-      "description": "Prepare recortes descargados sin alterar sus píxeles, conserve identidades de pocillo explícitas y examine un modelo pequeño sin exagerar su rendimiento.",
+      "section": "Core",
+      "description": "Prepare labelled image crops, choose the computer-vision family, train a small model and find its predictions.",
       "objectives": [
-        "Encontrar la familia de visión por computador dentro de Classify.",
-        "Preparar una partición existente a partir de anotaciones descargadas sin modificar imágenes ni etiquetas originales.",
-        "Separar pocillos reales, mostrar figuras y distinguir ejecución correcta de predicción útil.",
-        "Localizar modelos, predicciones y herramientas anidadas."
+        "Prepare the downloadable image-classification example.",
+        "Choose the model, image channels and training settings.",
+        "Keep wells separate and inspect saved models and predictions."
       ],
       "example_files": [
         "Classify_existing_split_example.zip"
       ],
-      "prerequisite": "Use Load test data → Load del tutorial Annotate, no Stream. Conserve plate1/measurements/measurements.db y los recortes png. Grabado con spaCR 1.5.0.6. Extraiga el ZIP y ejecute prepare_classify_split.py en el entorno spaCR: --source indica plate1 y --destination una carpeta NUEVA. El ayudante se limita a este ejemplo de cuatro pocillos: ocho etiquetas existentes infected=1 y ocho infected=2 por pocillo, ordenadas de forma determinista antes de entrenar, 64 recortes RGB idénticos byte a byte. Las copias reciben nombres prcfo de la base; el analizador de nombres antiguos NO se corrige. La selección equilibrada NO conserva la prevalencia poblacional. Seleccione la carpeta preparada, Computer Vision (Torch), Generate training dataset desactivado. Ajustes: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=0, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; todas las comprobaciones de fuga activadas. Las 32 imágenes de train se dividen en 16 de entrenamiento y 16 de validación; test contiene 32. Los pocillos no se solapan, pero comparten placa. Todas las predicciones de prueba son clase cero: exactitud=0.5, referencia mayoritaria=0.5, F1 macro=1/3. Se verificaron independientemente las 32 identidades, etiquetas, sumas de probabilidades, exactitud, soporte y F1 macro, no todas las métricas. Salidas: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. No se afirma calidad del modelo, validez biológica ni generalización a nuevos experimentos. No se envió ninguna pregunta AI.",
+      "prerequisite": "Download the measured example through Annotate using Load test data, then Load. Keep its plate1 folder with measurements/measurements.db and the png crops. Download Classify_existing_split_example.zip below and extract the helper. In your spaCR environment, run prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Select the new_split folder in Classify. The helper is for this four-well example; it copies 64 labelled RGB crops into train and test folders.",
       "scenes": [
         {
           "visual": "gui_19_setting_classifier_family",
-          "narration": "Abra Classify desde Home y elija Computer Vision, Torch. La visión por computador aprende de imágenes de objetos; la familia tabular aprende de mediciones guardadas. Ambas pertenecen ahora al mismo módulo principal. Ejecutaremos un pequeño ejemplo de imágenes comprobado, con una preparación alternativa que no repara el analizador de nombres antiguos de la aplicación.",
+          "narration": "From Home, open Classify and choose Computer Vision, Torch. This family learns from labelled object crops and saves a model that can score other crops. Follow the Annotate lesson first to download the example images and their labels.",
           "focus": [
             350,
             190,
@@ -1142,12 +1062,11 @@
             "41_classify",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Classify desde Home y elija Computer Vision, Torch. La visión por computador aprende de imágenes de objetos; la familia tabular aprende de mediciones guardadas. Ambas pertenecen ahora al mismo módulo principal. Ejecutaremos un pequeño ejemplo de imágenes comprobado, con una preparación alternativa que no repara el analizador de nombres antiguos de la aplicación."
+          "hold_after": 0.7
         },
         {
           "visual": "prepare_01_source_example",
-          "narration": "Siga el tutorial enlazado de Annotate para cargar el ejemplo real mediante Load, conservando su base de mediciones y los recortes. El terminal muestra las etiquetas existentes de cuatro pocillos reales. Conservamos esas etiquetas; no son una verdad biológica validada independientemente. El proyecto original permanece intacto durante toda la demostración.",
+          "narration": "In Annotate, choose Load test data, then Load. Keep the plate folder containing measurements and PNG crops. For your own data, start with crops from Measure and assign the classes you want to learn in Annotate.",
           "focus": [
             190,
             80,
@@ -1158,102 +1077,99 @@
             "09_annotate",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Siga el tutorial enlazado de Annotate para cargar el ejemplo real mediante Load, conservando su base de mediciones y los recortes. El terminal muestra las etiquetas existentes de cuatro pocillos reales. Conservamos esas etiquetas; no son una verdad biológica validada independientemente. El proyecto original permanece intacto durante toda la demostración."
+          "hold_after": 0.7
         },
         {
           "visual": "prepare_02_prepare_existing_split",
-          "narration": "Descargue el ayudante y ejecútelo en su entorno spaCR. Source es la carpeta de placa descargada; destination debe ser una carpeta nueva. Copia ocho imágenes de cada una de dos clases existentes por pocillo: sesenta y cuatro en total. La selección es determinista y anterior al entrenamiento, no posterior a observar el rendimiento.",
+          "narration": "Download the linked example ZIP and extract prepare_classify_split.py. Run it in your spaCR environment with source pointing to the example plate folder and destination pointing to a new folder. The helper prepares sixty-four labelled images for this exercise.",
           "focus": [
             190,
             80,
             3450,
             1300
           ],
-          "hold_after": 0.7,
-          "speech_text": "Descargue el ayudante y ejecútelo en su entorno espáquer. Source es la carpeta de placa descargada; destination debe ser una carpeta nueva. Copia ocho imágenes de cada una de dos clases existentes por pocillo: sesenta y cuatro en total. La selección es determinista y anterior al entrenamiento, no posterior a observar el rendimiento."
+          "hold_after": 0.7
         },
         {
           "visual": "prepare_03_exported_manifest",
-          "narration": "Lea el manifiesto antes de continuar. Los nombres de las copias usan identidades canónicas de objetos de la base y cada imagen conserva sus bytes originales. Dos pocillos completos van a entrenamiento y dos a prueba. Este subconjunto didáctico equilibrado cambia la prevalencia de clases; no representa la población original.",
+          "narration": "Open the new folder and its manifest. The train and test directories each contain two class folders. The manifest lists each copied image and its well. Keep whole wells on one side of the split when images from the same well share experimental conditions.",
           "focus": [
             190,
             80,
             3450,
             1300
           ],
-          "hold_after": 0.7,
-          "speech_text": "Lea el manifiesto antes de continuar. Los nombres de las copias usan identidades canónicas de objetos de la base y cada imagen conserva sus bytes originales. Dos pocillos completos van a entrenamiento y dos a prueba. Este subconjunto didáctico equilibrado cambia la prevalencia de clases; no representa la población original."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_18_source_folder_choice",
-          "narration": "En Classify, elija la carpeta del conjunto preparado, no el proyecto original ni una subcarpeta de clase. Contiene directorios train y test, cada uno con dos carpetas de clase. El selector abre ese conjunto existente. No sobrescriba el proyecto fuente ni reutilice un destino con resultados anteriores.",
-          "hold_after": 0.7,
-          "speech_text": "En Classify, elija la carpeta del conjunto preparado, no el proyecto original ni una subcarpeta de clase. Contiene directorios train y test, cada uno con dos carpetas de clase. El selector abre ese conjunto existente. No sobrescriba el proyecto fuente ni reutilice un destino con resultados anteriores."
+          "narration": "Return to Classify and choose the prepared folder as Source. Select the parent containing train and test. Keep that prepared folder for the rest of this lesson so the model and its output files stay together.",
+          "focus": [
+            1439,
+            390,
+            943,
+            1300
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_generate_training_dataset",
-          "narration": "Desactive Generate training dataset porque la partición ya está preparada. Train y Test siguen activados; aplicar el modelo al conjunto completo permanece desactivado. Las carpetas conservan etiquetas uno y dos, mientras que el modelo usa índices cero y uno. Son sistemas de numeración distintos, no contradictorios.",
+          "narration": "Turn Generate training dataset off because the helper has already prepared the split. Enable Train and Test. Leave application to the full dataset off for this first run. The model uses class indices zero and one for the two class folders.",
           "focus": [
             350,
             190,
             1730,
             520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Desactive Generate training dataset porque la partición ya está preparada. Train y Test siguen activados; aplicar el modelo al conjunto completo permanece desactivado. Las carpetas conservan etiquetas uno y dos, mientras que el modelo usa índices cero y uno. Son sistemas de numeración distintos, no contradictorios."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_model_type",
-          "narration": "Elija ResNet18 para este ejemplo acotado: una época, lotes de ocho, tamaño de imagen ciento veintiocho y cero trabajadores de carga. Use los tres canales RGB y desactive pesos preentrenados y aumento de datos. Estos ajustes reducen la demostración; no son una receta recomendada para obtener un clasificador preciso.",
+          "narration": "Choose ResNet18, image size one hundred twenty-eight, all three RGB channels, batch size eight and one epoch. Set loader workers to two, with pretrained weights and augmentation off for this short example. Epochs controls how many times training passes through its input images.",
           "focus": [
             350,
             190,
             1730,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "Elija ResNet18 para este ejemplo acotado: una época, lotes de ocho, tamaño de imagen ciento veintiocho y cero trabajadores de carga. Use los tres canales RGB y desactive pesos preentrenados y aumento de datos. Estos ajustes reducen la demostración; no son una receta recomendada para obtener un clasificador preciso."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_val_split",
-          "narration": "Mantenga la agrupación por pocillo y todas las comprobaciones de fuga activadas. Una fracción de validación de la mitad divide las treinta y dos imágenes de entrenamiento en dieciséis para entrenar y dieciséis para validar, un pocillo completo en cada grupo. Las otras treinta y dos son solo de prueba. Comparten placa: no se valida un experimento independiente.",
+          "narration": "Set validation fraction to one half, keep grouping by well and leave the leakage checks enabled. Validation monitors the model during training; the separate test folder is used for the final assessment. Check the reported well assignments before interpreting the scores.",
           "focus": [
             350,
             190,
             1730,
             900
           ],
-          "hold_after": 0.7,
-          "speech_text": "Mantenga la agrupación por pocillo y todas las comprobaciones de fuga activadas. Una fracción de validación de la mitad divide las treinta y dos imágenes de entrenamiento en dieciséis para entrenar y dieciséis para validar, un pocillo completo en cada grupo. Las otras treinta y dos son solo de prueba. Comparten placa: no se valida un experimento independiente."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_plot",
-          "narration": "Active Plot, borre la búsqueda de ajustes y pulse Run. Observe en la consola la partición resuelta, las comprobaciones de fuga, el entrenamiento y las rutas guardadas. Ambas comprobaciones entre grupos de pocillos pasan en esta ejecución. Un resultado del programa solo tiene sentido si los nombres coinciden con las identidades reales, que verificamos por separado.",
+          "narration": "Turn Plot on, clear the settings search and press Run. Watch the console for dataset loading, the resolved split, training progress and output paths. Wait for training and testing to finish before opening the saved results.",
           "focus": [
             350,
             190,
             1730,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "Active Plot, borre la búsqueda de ajustes y pulse Run. Observe en la consola la partición resuelta, las comprobaciones de fuga, el entrenamiento y las rutas guardadas. Ambas comprobaciones entre grupos de pocillos pasan en esta ejecución. Un resultado del programa solo tiene sentido si los nombres coinciden con las identidades reales, que verificamos por separado."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_24_batch_figure",
-          "narration": "Figures muestra pérdida, exactitud y exactitud de validación por clase. Con una sola época son puntos individuales, no prueba de convergencia. La comprobación independiente de prueba encuentra todas las imágenes predichas como clase cero: cincuenta por ciento de exactitud, igual a la referencia mayoritaria equilibrada. Ejecutarse correctamente no ha producido un clasificador útil.",
+          "narration": "Open Figures to inspect loss and accuracy. One epoch gives a quick first pass. Compare the test results across classes before increasing training time. If predictions favour only one class, review the labels, class balance and input channels before using the model on a larger dataset.",
           "focus": [
             2090,
             180,
             1720,
             1320
           ],
-          "hold_after": 0.7,
-          "speech_text": "Figures muestra pérdida, exactitud y exactitud de validación por clase. Con una sola época son puntos individuales, no prueba de convergencia. La comprobación independiente de prueba encuentra todas las imágenes predichas como clase cero: cincuenta por ciento de exactitud, igual a la referencia mayoritaria equilibrada. Ejecutarse correctamente no ha producido un clasificador útil."
+          "hold_after": 0.7
         },
         {
           "visual": "gui_23_batch_finished",
-          "narration": "Conserve el directorio del modelo con el punto de control, ficha del modelo, comprobaciones de fuga y tablas de resultados. Aquí está bajo model, resnet18, rgb, epochs guion bajo uno. Compare identidades de predicción y etiquetas guardadas, no solo la exactitud. Las imágenes mal clasificadas para revisión son salidas, no nuevas muestras independientes.",
+          "narration": "Open model, resnet18, rgb, epochs underscore one inside the prepared folder. Keep the checkpoint, model card and result tables together. Use the saved predictions to review errors, then continue to Classifier Evaluation or Activation Maps to inspect the model further.",
           "focus": [
             2090,
             180,
@@ -1265,195 +1181,172 @@
             "28_training_runs",
             "16_activation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Conserve el directorio del modelo con el punto de control, ficha del modelo, comprobaciones de fuga y tablas de resultados. Aquí está bajo model, resnet18, rgb, epochs guion bajo uno. Compare identidades de predicción y etiquetas guardadas, no solo la exactitud. Las imágenes mal clasificadas para revisión son salidas, no nuevas muestras independientes."
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "narration": "El control AI permite preguntar sobre ajustes o resultados tras configurar un proveedor. Aquí vemos una pregunta sin enviar, no una respuesta ni un resultado analítico. En Python, classify llama a train_test_model para esta familia. Conserve el manifiesto y verifique los consejos antes de planificar un experimento mayor con validación independiente.",
-          "focus": [
-            2090,
-            950,
-            1720,
-            1130
-          ],
-          "related_lessons": [
-            "06_api",
-            "41_classify",
-            "65_feature_explorer"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "El control AI permite preguntar sobre ajustes o resultados tras configurar un proveedor. Aquí vemos una pregunta sin enviar, no una respuesta ni un resultado analítico. En Python, classify llama a train_test_model para esta familia. Conserve el manifiesto y verifique los consejos antes de planificar un experimento mayor con validación independiente."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify: aprendizaje automático tabular",
+      "title": "Classify: learn from measured features",
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Módulos principales",
-      "description": "Utilice Classify con células medidas descargables, etiquetas de metadatos explícitas, un bosque aleatorio pequeño, la consola real y predicciones guardadas.",
+      "section": "Core",
+      "description": "Load measurements, define classes, train a tabular classifier and inspect object scores and plate summaries.",
       "objectives": [
-        "Elegir la familia tabular y cargar el ejemplo medido desde el selector de datos.",
-        "Definir clases por columna de placa y distinguir la fracción solicitada de los pocillos realmente reservados.",
-        "Examinar figuras, valores sin puntuación y resultados sin confundir la exactitud de una demostración con validación biológica."
+        "Select the tabular family and a measured project.",
+        "Define classes and choose feature channels, model size and held-out wells.",
+        "Find model outputs, object predictions and summary figures."
       ],
-      "prerequisite": "En Classify, elija Load test data y después Load, no Stream. Hay 2.341 objetos en cuatro pocillos; se conservan 2.153 y 188 quedan sin puntuación por falta de datos nucleares. c1 define la clase cero y c2 la clase uno: son columnas de placa, no fenotipos verificados. Configuración: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Iguale test_size=0.1 y test_split=0.1: la normalización actual descarta un valor específico de ML diferente; el defecto está documentado. Se reservan dos pocillos y 1.035 objetos, sin solapamiento de pocillos. La selección de características precede a la partición; la importancia por permutación usa datos de entrenamiento. Exactitud: 0.6202898551; referencia de clase mayoritaria: 0.5632850242. Se comprobaron nueve métricas y 2.153 predicciones guardadas. API: spacr.classify.classify llama a spacr.ml.generate_ml_scores. Salidas: results/random_forest/channel_1; predictions contiene la clase binaria y ml_pred la probabilidad de clase uno. Solo se muestran tres figuras reales, sin afirmar resultados SHAP, calibración, causalidad ni validación biológica. No se envió ninguna pregunta a la IA.",
+      "prerequisite": "Use Load test data in Classify and choose Load, then confirm the downloaded plate folder with Choose source data. For your own project, run Measure first. The example uses columnID values c1 and c2 as two classes; use labels appropriate to your experiment when working with your own data.",
       "scenes": [
         {
           "visual": "19_setting_classifier_family",
-          "narration": "Abra Classify desde Home y elija Tabular Machine Learning como familia del clasificador. Esta es la pantalla unificada de Classify, no una aplicación ML separada. Aprende de mediciones guardadas por objeto. Los ajustes de visión artificial pueden seguir visibles, pero atenuados, porque pertenecen a la otra familia.",
+          "narration": "From Home, open Classify and choose Tabular Machine Learning. This family uses the object measurements saved by Measure. It produces a fitted model and a score for each object with the required measurements.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             650
           ],
           "related_lessons": [
             "41_classify",
             "10_classify_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Classify desde Home y elija Tabular Machine Learning como familia del clasificador. Esta es la pantalla unificada de Classify, no una aplicación ML separada. Aprende de mediciones guardadas por objeto. Los ajustes de visión artificial pueden seguir visibles, pero atenuados, porque pertenecen a la otra familia."
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
-          "narration": "Pulse Load test data y elija Load. Se descarga el ejemplo medido y se preparan sus rutas; Stream es una opción diferente. Para su propio proyecto, complete primero Measure y seleccione la carpeta del proyecto. No suponga que cualquier carpeta de imágenes ya contiene la base de datos de mediciones necesaria.",
+          "narration": "Click Load test data and choose Load. Wait for the measured example to download. For your own data, select the project folder created by Measure, including its measurements database.",
           "focus": [
-            1010,
-            550,
-            1800,
-            1040
+            1663,
+            914,
+            495,
+            365
           ],
           "related_lessons": [
             "08_measure",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Pulse Load test data y elija Load. Se descarga el ejemplo medido y se preparan sus rutas; Stream es una opción diferente. Para su propio proyecto, complete primero Measure y seleccione la carpeta del proyecto. No suponga que cualquier carpeta de imágenes ya contiene la base de datos de mediciones necesaria."
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_source_folder_choice",
+          "narration": "Use Choose source data to confirm the downloaded plate folder. Select the folder containing measurements. This gives the classifier access to the object tables and the metadata used to define classes.",
+          "focus": [
+            1439,
+            390,
+            943,
+            1300
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_classes",
-          "narration": "Utilice la base de metadatos y defina dos Classes mediante columnID: c1 y c2. Aquí son etiquetas de columnas de placa para enseñar el procedimiento, no células sanas y afectadas verificadas independientemente. El entrenamiento por anotaciones requiere etiquetas auténticas de Annotate. Nunca convierta anotaciones ausentes en etiquetas verdaderas inventadas.",
+          "narration": "Choose metadata as the class basis and define two Classes using column I D values c1 and c2. These labels distinguish the two plate columns in the example. To train from your own cell annotations, choose the annotation basis and the label column you created in Annotate.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             1190
           ],
-          "hold_after": 0.7,
-          "speech_text": "Utilice la base de metadatos y defina dos Classes mediante columnID: c1 y c2. Aquí son etiquetas de columnas de placa para enseñar el procedimiento, no células sanas y afectadas verificadas independientemente. El entrenamiento por anotaciones requiere etiquetas auténticas de Annotate. Nunca convierta anotaciones ausentes en etiquetas verdaderas inventadas."
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_channel_of_interest",
-          "narration": "Channel of interest selecciona las características medidas. Utilizamos el canal uno sin atribuirle un significado biológico no verificado. Revise sus ajustes de adquisición y medición antes de elegir un canal para sus datos. Seleccionar aquí un canal de características no vuelve a segmentar ni a medir las imágenes.",
+          "narration": "Set Channel of interest to one for the example. This controls which channel-specific measurement features enter the model. For your own experiment, select the channel that contains the signal relevant to your classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
-          "hold_after": 0.7,
-          "speech_text": "Channel of interest selecciona las características medidas. Utilizamos el canal uno sin atribuirle un significado biológico no verificado. Revise sus ajustes de adquisición y medición antes de elegir un canal para sus datos. Seleccionar aquí un canal de características no vuelve a segmentar ni a medir las imágenes."
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_estimators",
-          "narration": "Elija Random Forest y dieciséis estimadores para esta pequeña demostración, con dos procesos de trabajo. No es una recomendación de modelo optimizado. Dejamos desactivadas la selección supervisada de características y la validación cruzada. Desactivar la validación cruzada no elimina la partición de prueba independiente utilizada en esta ejecución.",
+          "narration": "Choose Random Forest, sixteen estimators and two worker jobs. Estimators controls the number of trees. More trees increase fitting work. Leave feature pruning and cross-validation off for this first pass; you can compare those choices after you have a working baseline.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
-          "hold_after": 0.7,
-          "speech_text": "Elija Random Forest y dieciséis estimadores para esta pequeña demostración, con dos procesos de trabajo. No es una recomendación de modelo optimizado. Dejamos desactivadas la selección supervisada de características y la validación cruzada. Desactivar la validación cruzada no elimina la partición de prueba independiente utilizada en esta ejecución."
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_test_size",
-          "narration": "Establezca el tamaño de prueba en una décima parte y mantenga la agrupación por pocillo. Una fracción solicitada no es un número exacto de objetos: este ejemplo de cuatro pocillos reserva dos completos, aproximadamente el cuarenta y ocho por ciento de los objetos conservados. Ambas clases aparecen en cada lado y ningún pocillo real aparece tanto en entrenamiento como en prueba.",
+          "narration": "Set Test size to one tenth and keep grouping by well. spaCR holds out complete wells, so the final fraction of objects can differ from the requested fraction. Read the resolved split in the console and make sure it suits your experiment.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
-          "hold_after": 0.7,
-          "speech_text": "Establezca el tamaño de prueba en una décima parte y mantenga la agrupación por pocillo. Una fracción solicitada no es un número exacto de objetos: este ejemplo de cuatro pocillos reserva dos completos, aproximadamente el cuarenta y ocho por ciento de los objetos conservados. Ambas clases aparecen en cada lado y ningún pocillo real aparece tanto en entrenamiento como en prueba."
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot",
-          "narration": "Active Plot, borre la búsqueda y pulse Run. La consola registra los ajustes resueltos, el filtrado, la partición y el informe del modelo. Conserve ese registro con los resultados. Una indicación de finalización no demuestra que sus etiquetas, diseño de validación o interpretación biológica fueran adecuados.",
+          "narration": "Enable Plot, clear the search and press Run. The console shows feature filtering, the training and test split, model fitting and the saved output paths. Wait for the run to finish before comparing its scores.",
           "focus": [
-            460,
-            230,
-            3340,
+            350,
+            190,
+            1730,
             1640
           ],
-          "hold_after": 0.7,
-          "speech_text": "Active Plot, borre la búsqueda y pulse Run. La consola registra los ajustes resueltos, el filtrado, la partición y el informe del modelo. Conserve ese registro con los resultados. Una indicación de finalización no demuestra que sus etiquetas, diseño de validación o interpretación biológica fueran adecuados."
+          "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "Esta ejecución puntúa dos mil ciento cincuenta y tres objetos. Ciento ochenta y ocho carecen de datos nucleares coincidentes y quedan sin puntuación, no como negativos. La exactitud de prueba guardada ronda el sesenta y dos por ciento, frente al cincuenta y seis por ciento de la clase mayoritaria. Cuatro pocillos de una placa no demuestran generalización a otro experimento.",
+          "narration": "Find the results under results, random_forest, channel underscore one. The database stores the predicted class in predictions and the class-one probability in ml_pred. Objects missing required measurements can remain unscored; inspect missing values when exporting a summary.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            950,
+            1720,
+            600
           ],
-          "hold_after": 0.7,
-          "speech_text": "Esta ejecución puntúa dos mil ciento cincuenta y tres objetos. Ciento ochenta y ocho carecen de datos nucleares coincidentes y quedan sin puntuación, no como negativos. La exactitud de prueba guardada ronda el sesenta y dos por ciento, frente al cincuenta y seis por ciento de la clase mayoritaria. Cuatro pocillos de una placa no demuestran generalización a otro experimento."
+          "hold_after": 0.7
         },
         {
-          "visual": "24_batch_figure",
-          "narration": "Hay tres figuras: importancia por permutación, importancia de características del bosque y este mapa de calor de la placa. Con Predictions y agrupación por media, el mapa promedia clases predichas binarias, no sus probabilidades. Importancia no significa causalidad; la permutación utiliza datos de entrenamiento. Examine las tablas guardadas antes de sacar conclusiones de una figura colorida.",
+          "visual": "25_ml_figure_02",
+          "narration": "Browse the feature-importance figures and plate heatmap. With Predictions and mean grouping, a well value is the average of its binary predicted classes. Use the saved object scores for detailed review, and compare held-out performance before applying the classifier to another experiment.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hay tres figuras: importancia por permutación, importancia de características del bosque y este mapa de calor de la placa. Con Predictions y agrupación por media, el mapa promedia clases predichas binarias, no sus probabilidades. Importancia no significa causalidad; la permutación utiliza datos de entrenamiento. Examine las tablas guardadas antes de sacar conclusiones de una figura colorida."
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "El interruptor AI permite preguntas sobre el procedimiento con ayuda de un proveedor. Esto es un borrador sin enviar, no una respuesta generada. Guarde los resultados con sus ajustes y verifique cualquier consejo. Las herramientas anidadas tienen requisitos propios: el tutorial Explain usa puntuaciones de visión artificial, no estas salidas ML. La IA no sustituye comprobar etiquetas e identidades de la partición.",
-          "focus": [
-            2140,
-            970,
-            1670,
-            1080
-          ],
-          "related_lessons": [
-            "70_explain_cv",
-            "28_training_runs",
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "El interruptor AI permite preguntas sobre el procedimiento con ayuda de un proveedor. Esto es un borrador sin enviar, no una respuesta generada. Guarde los resultados con sus ajustes y verifique cualquier consejo. Las herramientas anidadas tienen requisitos propios: el tutorial Explain usa puntuaciones de visión artificial, no estas salidas ML. La IA no sustituye comprobar etiquetas e identidades de la partición."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes: búsqueda en directo, referencias verificadas y recuentos reales",
+      "title": "Map Barcodes: from sequencing reads to counts",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Módulos principales",
-      "description": "Descargue una muestra real y acotada de secuenciación, examine los resultados de la búsqueda, aplique explícitamente una propuesta y compruebe los recuentos. Demuestre un conjunto de dos códigos de barras mediante la API de Python actual.",
+      "section": "Core",
+      "description": "Load paired reads and library references, find barcode positions, apply the settings and save guide counts.",
       "objectives": [
-        "Identificar tablas de referencia y orientaciones respaldadas por las lecturas reales.",
-        "Distinguir una propuesta de los ajustes aplicados y de los archivos de referencia orientados correctamente.",
-        "Examinar los recuentos guardados y usar un conjunto explícito sin inventar códigos de barras adicionales."
+        "Download a small paired-read example and select matching reference tables.",
+        "Inspect barcode positions and orientation before applying a proposal.",
+        "Run mapping and inspect count and quality-control outputs."
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly con búsqueda de códigos de barras. Se utiliza SRR33531217 y las tablas primers_3 de columnas y filas del mantenedor, junto con las referencias de guías; no las tablas antiguas incluidas. Obtenga referencias correspondientes a su biblioteca antes de mapear.",
+      "prerequisite": "Choose Load test data in Map Barcodes. The example uses SRR33531217 reads, the matching primers_3 column and row tables, and guide references. Use reference tables matching your own library when processing other reads.",
       "scenes": [
         {
           "visual": "gui_01_module",
@@ -1461,260 +1354,193 @@
           "related_lessons": [
             "47_barcode_qc"
           ],
-          "narration": "Abra Map Barcodes desde Home. Este módulo transforma lecturas de secuenciación en recuentos de códigos de barras identificados por nombre. Barcode QC es su submódulo de control de calidad; su tutorial independiente sigue disponible.",
-          "speech_text": "Abra Map Barcodes desde Home. Este módulo transforma lecturas de secuenciación en recuentos de códigos de barras identificados por nombre. Barcode QC es su submódulo de control de calidad; su tutorial independiente sigue disponible."
+          "narration": "From Home, open Map Barcodes. The inputs are sequencing reads and reference tables that name the barcodes in your library. The output counts each observed combination, ready for sequencing quality control and downstream analysis."
         },
         {
           "visual": "gui_02_archive_bounded_choice",
           "hold_after": 0.7,
-          "narration": "Pulse Load test data y seleccione los dos archivos de lecturas emparejadas de la primera ejecución del archivo público. Limite cada archivo a diez mil lecturas. Así descarga una muestra emparejada real, no el archivo completo de secuenciación.",
-          "speech_text": "Pulse Load test data y seleccione los dos archivos de lecturas emparejadas de la primera ejecución del archivo público. Limite cada archivo a diez mil lecturas. Así descarga una muestra emparejada real, no el archivo completo de secuenciación."
+          "narration": "Click Load test data and select both mates of the first archive run. Limit each file to ten thousand reads for this example, then wait for the paired sample to download."
         },
         {
           "visual": "gui_04_reference_tables",
           "hold_after": 0.7,
-          "narration": "Seleccione tablas de referencia que correspondan a esta biblioteca. Aquí usamos las tablas de columnas y filas primers tres y la tabla de guías correctas, no los valores predeterminados antiguos. Empezamos deliberadamente con una ventana de ciento veinte bases para mostrar cómo la propuesta la cambia.",
-          "speech_text": "Seleccione tablas de referencia que correspondan a esta biblioteca. Aquí usamos las tablas de columnas y filas primers tres y la tabla de guías correctas, no los valores predeterminados antiguos. Empezamos deliberadamente con una ventana de ciento veinte bases para mostrar cómo la propuesta la cambia."
+          "narration": "Select the matching column, row and guide reference tables. Each table pairs barcode names with sequences. Keep those names consistent with the plate layout and guide identifiers used by the rest of your analysis."
         },
         {
           "visual": "gui_06_live_search_progress",
           "hold_after": 0.7,
-          "narration": "Abra Find barcodes e inicie la búsqueda. Los recuentos se actualizan mientras se muestrean lecturas reales de ambos archivos y en ambas orientaciones. El formulario no cambia durante este refinamiento en directo.",
-          "speech_text": "Abra Find barcodes e inicie la búsqueda. Los recuentos se actualizan mientras se muestrean lecturas reales de ambos archivos y en ambas orientaciones. El formulario no cambia durante este refinamiento en directo."
+          "narration": "Open Find barcodes and start the search. The preview samples both mates and checks barcode positions and orientations. Wait for the results before changing the main form."
         },
         {
           "visual": "gui_07_search_verdicts",
           "hold_after": 0.7,
-          "narration": "Compare Observed con By chance y examine la orientación, la posición y el veredicto. La frecuencia de coincidencias por sí sola no confirma un código de barras. La concentración de posiciones y las referencias distintas observadas también informan la búsqueda; lea las explicaciones antes de aplicar cambios.",
-          "speech_text": "Compare Observed con By chance y examine la orientación, la posición y el veredicto. La frecuencia de coincidencias por sí sola no confirma un código de barras. La concentración de posiciones y las referencias distintas observadas también informan la búsqueda; lea las explicaciones antes de aplicar cambios."
+          "narration": "Compare Observed with By chance, then inspect the proposed orientation, offset and verdict for each barcode. Prefer positions supported by many reads and distinct expected references. Open the verdict explanation if the result is uncertain."
+        },
+        {
+          "visual": "gui_07b_guide_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Inspect the guide results for both mates. In this example, read one supports the reverse-complemented guide sequence and read two supports the stored orientation. Use the results for your library and read pair when choosing an orientation."
+        },
+        {
+          "visual": "gui_07c_row_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Check the row barcode as well. Here, read one supports its reverse complement and read two supports the stored sequence. Review column, guide and row together so the complete combination identifies the intended well and guide."
         },
         {
           "visual": "gui_08_coloured_reads",
           "hold_after": 0.7,
-          "narration": "El visor muestra una lectura real por fila. La leyenda identifica los colores de columna, guía, fila y secuencia de anclaje. Las coincidencias coloreadas permiten examinar la evidencia, pero una coincidencia aislada no demuestra que la tabla de referencia sea correcta.",
-          "speech_text": "El visor muestra una lectura real por fila. La leyenda identifica los colores de columna, guía, fila y secuencia de anclaje. Las coincidencias coloreadas permiten examinar la evidencia, pero una coincidencia aislada no demuestra que la tabla de referencia sea correcta."
+          "narration": "Open the read viewer to inspect individual reads. Use the colour legend to find the column, guide, row and anchor segments. Check that the proposed positions agree with the expected library structure."
         },
         {
           "visual": "gui_09_proposed_settings",
           "hold_after": 0.7,
-          "narration": "Revise la propuesta. Para esta muestra, la ventana de extracción tiene ochenta y nueve bases. Solo al pulsar Apply these settings se escribe el cambio propuesto en el formulario. El descubrimiento automático no autoriza a sustituir sus ajustes automáticamente.",
-          "speech_text": "Revise la propuesta. Para esta muestra, la ventana de extracción tiene ochenta y nueve bases. Solo al pulsar Apply these settings se escribe el cambio propuesto en el formulario. El descubrimiento automático no autoriza a sustituir sus ajustes automáticamente."
+          "narration": "Review the proposed extraction settings, then click Apply these settings to copy them into the form. The example uses an extraction window of eighty-nine bases. Check the updated fields before starting the run."
         },
         {
           "visual": "gui_11_oriented_reference_copies",
           "hold_after": 0.7,
-          "narration": "Las notas también indican que las referencias de filas y guías deben estar en orientación de complemento inverso. Apply no crea esos archivos. Seleccione copias de complemento inverso verificadas por separado, conservando todos los nombres originales; mantenga la tabla de columnas en su orientación original.",
-          "speech_text": "Las notas también indican que las referencias de filas y guías deben estar en orientación de complemento inverso. Apply no crea esos archivos. Seleccione copias de complemento inverso verificadas por separado, conservando todos los nombres originales; mantenga la tabla de columnas en su orientación original."
+          "narration": "Follow the orientation notes when selecting your final reference files. For this example, select reverse-complemented copies of the row and guide references and keep the column reference as stored. Preserve every barcode name when preparing those copies."
         },
         {
           "visual": "gui_20_batch_settings",
           "hold_after": 0.7,
-          "narration": "Procese el par descargado con dos procesos de trabajo, bloques de mil y guardado de lecturas anotadas activado. No rellene las asignaciones ausentes. Este mapeo utiliza la CPU; no requiere GPU.",
-          "speech_text": "Procese el par descargado con dos procesos de trabajo, bloques de mil y guardado de lecturas anotadas activado. No rellene las asignaciones ausentes. Este mapeo utiliza la CPU; no requiere GPU."
+          "narration": "Choose the downloaded read pair, two workers and chunks of one thousand reads. Enable annotated-read saving if you want to inspect individual assignments. Click Run; this mapping workflow uses the CPU."
         },
         {
           "visual": "gui_23_batch_finished",
           "hold_after": 0.7,
-          "narration": "La ejecución real extrajo ocho mil seiscientas once ventanas y asignó siete mil seiscientas cincuenta y siete lecturas a cuatro mil noventa y nueve filas de recuentos. Las referencias sin coincidencia o ambiguas permanecen sin asignar. La finalización se comprueba en los archivos guardados, no solo en el mensaje de la consola.",
-          "speech_text": "La ejecución real extrajo ocho mil seiscientas once ventanas y asignó siete mil seiscientas cincuenta y siete lecturas a cuatro mil noventa y nueve filas de recuentos. Las referencias sin coincidencia o ambiguas permanecen sin asignar. La finalización se comprueba en los archivos guardados, no solo en el mensaje de la consola."
-        },
-        {
-          "visual": "api_01_actual_two_barcode_api",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
-          ],
-          "narration": "La API de Python actual admite conjuntos de códigos de barras de cualquier tamaño, aunque este formulario no tiene un editor para ellos. Un segundo cálculo real selecciona solo columna y guía en mil pares de lecturas. Cada entrada requiere un grupo con nombre correspondiente en el patrón. Al omitir la fila, los recuentos son por columna y guía, no por pocillo.",
-          "speech_text": "La API de Python actual admite conjuntos de códigos de barras de cualquier tamaño, aunque este formulario no tiene un editor para ellos. Un segundo cálculo real selecciona solo columna y guía en mil pares de lecturas. Cada entrada requiere un grupo con nombre correspondiente en el patrón. Al omitir la fila, los recuentos son por columna y guía, no por pocillo."
-        },
-        {
-          "visual": "api_02_real_count_figure",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "47_barcode_qc",
-            "13_regression"
-          ],
-          "narration": "Esta figura de verificación en Python muestra la profundidad de lectura del análisis de tres códigos de barras ejecutado en la interfaz. Cada recuento se contrastó independientemente con las lecturas anotadas y los nombres de referencia. Una profundidad desigual es una observación de control de calidad, no un efecto biológico; consulte Barcode QC antes de Regression.",
-          "speech_text": "Esta figura de verificación en Python muestra la profundidad de lectura del análisis de tres códigos de barras ejecutado en la interfaz. Cada recuento se contrastó independientemente con las lecturas anotadas y los nombres de referencia. Una profundidad desigual es una observación de control de calidad, no un efecto biológico; consulte Barcode QC antes de Regression."
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "hold_after": 0.7,
-          "narration": "Los controles de spaCR AI pueden ayudar a explicar una ejecución si configura un proveedor. La grabación muestra una pregunta sin enviar y no contiene respuesta de IA. Compruebe usted mismo las referencias, orientaciones, advertencias y recuentos guardados antes de ampliar el análisis.",
-          "speech_text": "Los controles de espáquer AI pueden ayudar a explicar una ejecución si configura un proveedor. La grabación muestra una pregunta sin enviar y no contiene respuesta de IA. Compruebe usted mismo las referencias, orientaciones, advertencias y recuentos guardados antes de ampliar el análisis."
+          "narration": "When mapping finishes, inspect unique_combinations.csv and the quality-control outputs. The count table links column, row and guide names with read counts. Review unmatched and ambiguous assignments in Barcode QC, then pair these counts with phenotype scores in Regression."
         }
-      ]
+      ],
+      "example_files": [
+        "SRR33531217_barcode_references.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression: un ejemplo real, de las tablas emparejadas a los resultados",
+      "title": "Regression: from paired tables to results",
       "series": 1,
       "app_key": "regression",
-      "section": "Módulos principales",
-      "description": "Cargue el cribado de ejemplo descargable, configure un análisis limitado por permutación de guías, examine la consola y las figuras reales y encuentre las herramientas especializadas ahora integradas en Regression.",
+      "section": "Core",
+      "description": "Pair phenotype scores with guide counts, choose an inference method, run the example and explore guide and gene results.",
       "objectives": [
-        "Cargar cuatro pares de tablas de puntuaciones y recuentos con el control visible de datos de prueba y elegir una carpeta de salida independiente.",
-        "Distinguir método de inferencia, nivel informado y unidad de análisis, y reproducir el ejemplo limitado sin tomar su número de permutaciones como recomendación definitiva.",
-        "Examinar resultados, figuras y límites diagnósticos reales, distinguiendo la inspección interactiva de una vista previa que recalcula el análisis.",
-        "Localizar las herramientas anidadas de Regression, la ayuda opcional de IA y la función de entrada actual de Python."
+        "Load paired score/count tables and choose an output folder.",
+        "Set the inference method, reporting level and analysis unit.",
+        "Run the example and inspect results with the accompanying diagnostics."
       ],
-      "prerequisite": "Abra spaCR y elija Regression en los módulos Core. El ejemplo descarga o reutiliza archivos de puntuaciones y recuentos almacenados en caché. El análisis grabado no necesita base de datos de mediciones, recortes de imágenes, servicio externo de anotación ni suscripción de IA. La breve ejecución por permutación demuestra el flujo de trabajo, no descubrimientos biológicos definitivos.",
+      "prerequisite": "Open Regression and choose Load test data to obtain four paired score/count tables. Use a new output folder. A measurement database is optional for this score-and-count analysis; object-level views require the corresponding measured data and images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Abra Regression desde los módulos Core. Relaciona las puntuaciones fenotípicas con la abundancia de guías y presenta asociaciones según el método de inferencia elegido. Las herramientas de la parte superior ahora pertenecen a este módulo; ya no son mosaicos independientes de Home.",
+          "narration": "From Home, open Regression. This module relates phenotype scores to guide abundance. Start with a score table and a count table for each plate, then choose how to test and report associations.",
           "focus_buttons": "FoldButton",
-          "hold_after": 0.7,
-          "speech_text": "Abra Regression desde los módulos Core. Relaciona las puntuaciones fenotípicas con la abundancia de guías y presenta asociaciones según el método de inferencia elegido. Las herramientas de la parte superior ahora pertenecen a este módulo; ya no son mosaicos independientes de Home."
+          "hold_after": 0.7
         },
         {
-          "visual": "02_cached_load",
-          "narration": "En Input Tables, elija Load test data. La aplicación descarga el cribado de ejemplo o reutiliza archivos verificados en caché; esta grabación usa la caché. La consola informa de cuatro tablas de puntuaciones y cuatro de recuentos, emparejadas por placa.",
-          "hold_after": 0.7,
-          "speech_text": "En Input Tables, elija Load test data. La aplicación descarga el cribado de ejemplo o reutiliza archivos verificados en caché; esta grabación usa la caché. La consola informa de cuatro tablas de puntuaciones y cuatro de recuentos, emparejadas por placa."
+          "visual": "02_download",
+          "narration": "In Input Tables, click Load test data and wait for the example to load. It provides four score tables and four count tables, paired by plate.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_paired_data",
-          "narration": "Revise las cuatro filas emparejadas. Cada placa necesita sus archivos de puntuaciones y recuentos correspondientes; aquí la columna opcional de base de datos de mediciones está vacía. Amplíe el panel de ajustes si es necesario y use una carpeta de salida nueva para no mezclar la demostración con otro análisis.",
-          "hold_after": 0.7,
-          "speech_text": "Revise las cuatro filas emparejadas. Cada placa necesita sus archivos de puntuaciones y recuentos correspondientes; aquí la columna opcional de base de datos de mediciones está vacía. Amplíe el panel de ajustes si es necesario y use una carpeta de salida nueva para no mezclar la demostración con otro análisis."
+          "narration": "Inspect each paired row and check the plate name, score file and count file. Leave the optional measurement-database column empty for this example. Choose a new output folder for the analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_inference",
-          "narration": "Cambie de Essentials a All settings y use la búsqueda para localizar un ajuste por su etiqueta o clave de API. Aquí la inferencia es no paramétrica: pruebas por permutación de guías. No es lo mismo que ajustar todos los predictores juntos en una regresión paramétrica, que requiere un diseño identificable.",
-          "hold_after": 0.7,
-          "speech_text": "Cambie de Essentials a All settings y use la búsqueda para localizar un ajuste por su etiqueta o clave de API. Aquí la inferencia es no paramétrica: pruebas por permutación de guías. No es lo mismo que ajustar todos los predictores juntos en una regresión paramétrica, que requiere un diseño identificable."
+          "narration": "Switch to All settings and use the search box to find Inference. Choose nonparametric for this guide-permutation example. Use a parametric method when your question and design call for fitting predictors together.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_level",
-          "narration": "Level responde a otra pregunta: ¿qué resultados deben presentarse? Elija both para obtener resultados separados de guías y genes. Esa elección no selecciona por sí sola el método de inferencia. Son familias de pruebas distintas: compruebe la familia deseada antes de interpretar la significación ajustada.",
-          "hold_after": 0.7,
-          "speech_text": "Level responde a otra pregunta: ¿qué resultados deben presentarse? Elija both para obtener resultados separados de guías y genes. Esa elección no selecciona por sí sola el método de inferencia. Son familias de pruebas distintas: compruebe la familia deseada antes de interpretar la significación ajustada."
+          "narration": "Level chooses which results to report. Select both to obtain guide-level and gene-level results. Keep these testing families separate when reviewing adjusted significance.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_analysis_unit",
-          "narration": "Use well como unidad de análisis en este ejemplo. El ajuste predefinido cargado aporta la columna de respuesta, transformaciones, controles y exclusiones; revise esas decisiones antes de adaptarlo a su cribado. Un ajuste descargado es un diseño de ejemplo, no una recomendación universal.",
-          "hold_after": 0.7,
-          "speech_text": "Use well como unidad de análisis en este ejemplo. El ajuste predefinido cargado aporta la columna de respuesta, transformaciones, controles y exclusiones; revise esas decisiones antes de adaptarlo a su cribado. Un ajuste descargado es un diseño de ejemplo, no una recomendación universal."
+          "narration": "Choose well as the analysis unit for this example. Review the response column, transformations, controls and excluded wells. Adapt these settings to the design of your own screen before running new data.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_min_wells",
-          "narration": "Fije el soporte mínimo de las guías en dos pocillos para esta ejecución limitada. Es un filtro sobre las guías que se prueban, no una garantía de potencia estadística suficiente. Una guía presente en muy pocos pocillos sigue requiriendo una interpretación cuidadosa.",
-          "hold_after": 0.7,
-          "speech_text": "Fije el soporte mínimo de las guías en dos pocillos para esta ejecución limitada. Es un filtro sobre las guías que se prueban, no una garantía de potencia estadística suficiente. Una guía presente en muy pocos pocillos sigue requiriendo una interpretación cuidadosa."
+          "narration": "Minimum guide support controls how many wells must contain a guide before it is tested. Set it to two to follow this small example. Choose an appropriate support requirement for your experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutations",
-          "narration": "Configure ciento noventa y nueve permutaciones para reproducir la demostración breve. Esto limita el menor valor p empírico posible a cero coma cero cero cinco, posiblemente demasiado grueso tras corregir las pruebas múltiples. Planifique un número adecuado de permutaciones para su experimento real.",
-          "hold_after": 0.7,
-          "speech_text": "Configure ciento noventa y nueve permutaciones para reproducir la demostración breve. Esto limita el menor valor p empírico posible a cero coma cero cero cinco, posiblemente demasiado grueso tras corregir las pruebas múltiples. Planifique un número adecuado de permutaciones para su experimento real."
+          "narration": "Set one hundred and ninety-nine permutations for a quick first run. More permutations give finer empirical p-value resolution and take longer. Choose a larger count when your final analysis requires it.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutation_seed",
-          "narration": "Fije la semilla de permutación en cero para la ejecución mostrada. Conserve los bloques por placa y los términos de ajuste por fila y columna del ejemplo, salvo que su diseño justifique cambiarlos. Una semilla fija favorece la reproducibilidad; no corrige supuestos de intercambiabilidad inválidos.",
-          "hold_after": 0.7,
-          "speech_text": "Fije la semilla de permutación en cero para la ejecución mostrada. Conserve los bloques por placa y los términos de ajuste por fila y columna del ejemplo, salvo que su diseño justifique cambiarlos. Una semilla fija favorece la reproducibilidad; no corrige supuestos de intercambiabilidad inválidos."
-        },
-        {
-          "visual": "19_setting_regression_backend",
-          "narration": "El campo Regression backend no es un interruptor universal de aceleración. Se aplica a estimadores ajustados compatibles; cambiarlo no convierte esta demostración por permutación en una regresión por GPU. Otros módulos de spaCR tienen sus propias opciones de dispositivo: siga los controles y la consola de la operación que realmente se ejecuta.",
-          "hold_after": 0.7,
-          "speech_text": "El campo Regression backend no es un interruptor universal de aceleración. Se aplica a estimadores ajustados compatibles; cambiarlo no convierte esta demostración por permutación en una regresión por GPU. Otros módulos de espáquer tienen sus propias opciones de dispositivo: siga los controles y la consola de la operación que realmente se ejecuta."
+          "narration": "Set the permutation seed to zero to repeat the same randomization. Keep the example’s plate blocks and row and column nuisance terms. For your own data, choose blocks that respect which observations can be exchanged under the experimental design.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_annotation_source",
-          "narration": "Elija none como fuente de anotación en este ejemplo autocontenido. Los resultados estadísticos no requieren consultar anotaciones génicas externas. En su cribado, use anotaciones adecuadas al organismo y al sistema de identificadores, sin suponer que todas las etiquetas de guías podrán resolverse.",
-          "hold_after": 0.7,
-          "speech_text": "Elija none como fuente de anotación en este ejemplo autocontenido. Los resultados estadísticos no requieren consultar anotaciones génicas externas. En su cribado, use anotaciones adecuadas al organismo y al sistema de identificadores, sin suponer que todas las etiquetas de guías podrán resolverse."
+          "narration": "Choose none for Annotation source to run the example without gene-annotation lookup. For another screen, select annotations that match its organism and identifier system.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_batch_running",
-          "narration": "Borre la búsqueda, revise la carpeta de salida y pulse Run. Siga la consola real mientras alinea las entradas, aplica los filtros seleccionados y calcula resultados. Regression produce figuras diagnósticas directamente; esta grabación no tiene un interruptor Plot independiente que deba activarse.",
-          "hold_after": 0.7,
-          "speech_text": "Borre la búsqueda, revise la carpeta de salida y pulse Run. Siga la consola real mientras alinea las entradas, aplica los filtros seleccionados y calcula resultados. Regression produce figuras diagnósticas directamente; esta grabación no tiene un interruptor Plot independiente que deba activarse."
-        },
-        {
-          "visual": "23_batch_finished",
-          "narration": "El ejemplo terminado produjo cuatrocientos treinta y cuatro resultados de guías y trescientos veinticinco de genes, con cinco figuras. Finished indica que el software terminó; no certifica el diseño experimental ni establece descubrimientos biológicos. Lea las advertencias diagnósticas además de la línea de finalización.",
-          "hold_after": 0.7,
-          "speech_text": "El ejemplo terminado produjo cuatrocientos treinta y cuatro resultados de guías y trescientos veinticinco de genes, con cinco figuras. Finished indica que el software terminó; no certifica el diseño experimental ni establece descubrimientos biológicos. Lea las advertencias diagnósticas además de la línea de finalización."
+          "narration": "Clear the search, check the paired inputs and output folder, then click Run. Follow the console as the module aligns the tables, filters guides and calculates the results. Diagnostic figures are generated with the analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_result_runs",
-          "narration": "Runs identifica el análisis guardado y Results muestra la ejecución seleccionada. Confirme la carpeta y los ajustes al comparar ejecuciones. Cambiar un valor del formulario no recalcula el resultado mostrado: ejecute de nuevo el análisis cuando quiera probar una decisión nueva.",
+          "narration": "When the run finishes, open Runs and select the saved analysis. Confirm the folder and settings before comparing it with another run. Rerun the analysis after changing settings if you want new results.",
           "hold_after": 0.7,
           "related_lessons": [
             "73_parameter_sweep"
-          ],
-          "speech_text": "Runs identifica el análisis guardado y Results muestra la ejecución seleccionada. Confirme la carpeta y los ajustes al comparar ejecuciones. Cambiar un valor del formulario no recalcula el resultado mostrado: ejecute de nuevo el análisis cuando quiera probar una decisión nueva."
+          ]
         },
         {
           "visual": "25_result_results",
-          "narration": "Results contiene la tabla de coeficientes y vistas interactivas junto a las figuras generadas. La ejecución contiene setecientas cincuenta y nueve filas entre ambos niveles; esta vista selecciona los cuatrocientos treinta y cuatro resultados de guías. Use Level para elegir la familia de pruebas. Inspeccionar resultados guardados interactivamente no repite la inferencia.",
-          "hold_after": 0.7,
-          "speech_text": "Results contiene la tabla de coeficientes y vistas interactivas junto a las figuras generadas. La ejecución contiene setecientas cincuenta y nueve filas entre ambos niveles; esta vista selecciona los cuatrocientos treinta y cuatro resultados de guías. Use Level para elegir la familia de pruebas. Inspeccionar resultados guardados interactivamente no repite la inferencia."
+          "narration": "Open Results and use Level to switch between guide and gene results. Inspect the result table and interactive views. The saved results_grna.csv and results_gene.csv files contain the corresponding tables for further analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "26_detail_p_values",
-          "narration": "Abra la vista p-values para examinar la distribución de resultados. Interprétela junto con la familia de pruebas seleccionada, la resolución de las permutaciones y los diagnósticos, no como evidencia automática de un efecto. El tutorial Diagnostics explica en detalle los paneles guardados de diseño e inferencia.",
+          "narration": "Open the p-values view and the Diagnostics tool. Review the result distribution together with the permutation resolution, testing family and design warnings. Resolve important diagnostic concerns before interpreting associations.",
           "hold_after": 0.7,
           "related_lessons": [
             "75_regression_diagnostics"
-          ],
-          "speech_text": "Abra la vista p-values para examinar la distribución de resultados. Interprétela junto con la familia de pruebas seleccionada, la resolución de las permutaciones y los diagnósticos, no como evidencia automática de un efecto. El tutorial Diagnostics explica en detalle los paneles guardados de diseño e inferencia."
-        },
-        {
-          "visual": "25_result_measurements",
-          "narration": "Measurements ofrece controles para examinar respuestas de medición adicionales. Este ejemplo no tiene una base de datos de mediciones adjunta: abrir la pestaña no crea una ni ejecuta un barrido de mediciones. Proporcione los datos medidos necesarios antes de usar esas herramientas en su experimento.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "Measurements ofrece controles para examinar respuestas de medición adicionales. Este ejemplo no tiene una base de datos de mediciones adjunta: abrir la pestaña no crea una ni ejecuta un barrido de mediciones. Proporcione los datos medidos necesarios antes de usar esas herramientas en su experimento."
-        },
-        {
-          "visual": "25_result_cells",
-          "narration": "Cells puede conectar resultados seleccionados con los objetos subyacentes cuando hay mediciones e imágenes adecuadas. Aquí la columna de base de datos está vacía, por lo que no hay un montaje celular que mostrar. No confunda una vista de objetos no disponible con un fallo del análisis de puntuaciones y recuentos.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "71_investigate_hit"
-          ],
-          "speech_text": "Cells puede conectar resultados seleccionados con los objetos subyacentes cuando hay mediciones e imágenes adecuadas. Aquí la columna de base de datos está vacía, por lo que no hay un montaje celular que mostrar. No confunda una vista de objetos no disponible con un fallo del análisis de puntuaciones y recuentos."
+          ]
         },
         {
           "visual": "26_detail_coefficients",
-          "narration": "Las herramientas anidadas son Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler y Diagnostics. Pase el puntero por sus iconos para identificarlas. Los tutoriales enlazados explican cada flujo; por ejemplo, el perfilador de predicciones necesita resultados de un modelo ajustado adecuado, que esta ejecución por permutación no proporciona.",
-          "focus_buttons": "FoldButton",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "72_volcano_explorer",
-            "48_hit_list",
-            "49_methods_results",
-            "71_investigate_hit",
-            "53_prediction_profiler",
-            "75_regression_diagnostics"
-          ],
-          "speech_text": "Las herramientas anidadas son Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler y Diagnostics. Pase el puntero por sus iconos para identificarlas. Los tutoriales enlazados explican cada flujo; por ejemplo, el perfilador de predicciones necesita resultados de un modelo ajustado adecuado, que esta ejecución por permutación no proporciona."
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "El control AI activa la ayuda opcional mediante el proveedor configurado en Preferences, dentro de AI. Formule una pregunta concreta sobre los resultados o ajustes y contraste los consejos con los datos. Esta pregunta de ejemplo no se envió: no se contactó con ningún proveedor ni se generó una respuesta para la grabación.",
-          "hold_after": 0.7,
-          "speech_text": "El control AI activa la ayuda opcional mediante el proveedor configurado en Preferences, dentro de AI. Formule una pregunta concreta sobre los resultados o ajustes y contraste los consejos con los datos. Esta pregunta de ejemplo no se envió: no se contactó con ningún proveedor ni se generó una respuesta para la grabación."
-        },
-        {
-          "visual": "26_detail_coefficients",
-          "narration": "Para trabajar con scripts, use la función perform_regression del módulo de aprendizaje automático de spaCR con los ajustes correspondientes y consulte su documentación de API actual. Conserve juntas las tablas de entrada, los ajustes guardados, los resultados y la interpretación diagnóstica. Use Parameter Sweep deliberadamente para comparar y separe la exploración de las decisiones del análisis final.",
+          "narration": "Use the toolbar to open Volcano Explorer, Hit List or Investigate Hit for the next step. Their tutorials show how to inspect selected results. Keep the input tables, saved settings, result files and diagnostic reports together when sharing the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "73_parameter_sweep"
-          ],
-          "speech_text": "Para trabajar con scripts, use la función perform_regression del módulo de aprendizaje automático de espáquer con los ajustes correspondientes y consulte su documentación de API actual. Conserve juntas las tablas de entrada, los ajustes guardados, los resultados y la interpretación diagnóstica. Use Parameter Sweep deliberadamente para comparar y separe la exploración de las decisiones del análisis final."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "14_make_masks",
@@ -1896,146 +1722,108 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "Image UMAP: mediciones reales e inspección interactiva de recortes",
+      "title": "Image UMAP: explore measurements with image crops",
       "series": 1,
       "app_key": "umap",
-      "section": "Resultados y control de calidad",
-      "description": "Crea una proyección acotada a partir de las mediciones del ejemplo descargado, inspecciona recortes reales de forma interactiva y localiza las herramientas de proyección anidadas.",
+      "section": "Tools",
+      "description": "Select measurement tables, build a UMAP embedding and click points to inspect the corresponding objects.",
       "objectives": [
-        "Reutilizar el proyecto descargado y seleccionar sus tablas de mediciones.",
-        "Configurar una proyección pequeña y reproducible e inspeccionar su preprocesamiento y sus resultados.",
-        "Pulsar puntos calculados para examinar sus recortes reales sin cambiar anotaciones.",
-        "Encontrar Image Scatter y PCA anidados, los controles de búsqueda, la aceleración opcional y la asistencia AI."
+        "Load a measured project and choose its feature tables.",
+        "Control neighbourhood size, point spacing and the sampled row count.",
+        "Run the embedding, inspect crops and find saved results."
       ],
-      "prerequisite": "Usa primero Load test data en Annotate para obtener los 2.341 recortes PNG y la base de datos de mediciones. Image UMAP reutiliza ese proyecto; no descarga otro conjunto en esta grabación. El ejemplo utiliza características medidas y CPU, no características de imagen extraídas por una red neuronal.",
+      "prerequisite": "Follow Annotate and choose Load test data, then Load, to obtain the measured example and its image crops. Keep the downloaded plate folder. For your own data, complete Measure with saved crops before opening Image UMAP.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Abre Image UMAP en la sección Tools de la pantalla Home. Sitúa los objetos según sus características medidas y permite examinar los recortes de microscopía correspondientes. Un grupo de puntos próximos en este mapa exploratorio no constituye automáticamente una clase biológica.",
-          "hold_after": 0.7,
-          "speech_text": "Abre Image ú map en la sección Tools de la pantalla Home. Sitúa los objetos según sus características medidas y permite examinar los recortes de microscopía correspondientes. Un grupo de puntos próximos en este mapa exploratorio no constituye automáticamente una clase biológica."
+          "narration": "From Home, open Image UMAP. Use it to explore similarities between measured objects while viewing their image crops. Start with a project containing a measurements database and the crops saved by Measure.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_src",
-          "narration": "Reutiliza el proyecto descargado mediante Load test data en Annotate. Contiene dos mil trescientos cuarenta y un recortes y su base de datos de mediciones. La lección enlazada de Annotate muestra la descarga real; este módulo abre ahora el proyecto existente.",
+          "narration": "Under Source, choose Add project folders and select the example plate folder downloaded through Annotate. Review the available databases, rows and shared columns. You can add more project folders when you want to compare several datasets.",
           "related_lessons": [
             "09_annotate",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Reutiliza el proyecto descargado mediante Load test data en Annotate. Contiene dos mil trescientos cuarenta y un recortes y su base de datos de mediciones. La lección enlazada de Annotate muestra la descarga real; este módulo abre ahora el proyecto existente."
-        },
-        {
-          "visual": "19_setting_src",
-          "narration": "Source utiliza Add project folders. Selecciona la carpeta de la placa, no una imagen individual. El control informa de las bases de datos, las filas y las columnas compartidas antes de combinarlas. Al comparar varios proyectos, examina los patrones asociados a la procedencia antes de interpretar un grupo como biología.",
-          "hold_after": 0.7,
-          "speech_text": "Source utiliza Add project folders. Selecciona la carpeta de la placa, no una imagen individual. El control informa de las bases de datos, las filas y las columnas compartidas antes de combinarlas. Al comparar varios proyectos, examina los patrones asociados a la procedencia antes de interpretar un grupo como biología."
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_tables",
-          "narration": "Elige las tablas de mediciones que definen la pregunta. Este ejemplo usa mediciones de célula, citoplasma, núcleo y patógeno. Revisa los datos ausentes y la eliminación de características correlacionadas. Deja Resnet features desactivado: esta ruta no implementa proyecciones neuronales de recortes sin procesar.",
-          "hold_after": 0.7,
-          "speech_text": "Elige las tablas de mediciones que definen la pregunta. Este ejemplo usa mediciones de célula, citoplasma, núcleo y patógeno. Revisa los datos ausentes y la eliminación de características correlacionadas. Deja Resnet features desactivado: esta ruta no implementa proyecciones neuronales de recortes sin procesar."
+          "narration": "Choose the tables whose features you want to compare. For this example, select cell, cytoplasm, nucleus and pathogen measurements. Leave Resnet features off to use the existing measurements. Review missing-data and correlated-feature settings before running.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_row_limit",
-          "narration": "Fija Row limit en cuatrocientos para una demostración pequeña. Limita los objetos muestreados; no convierte la muestra en representativa de todos los experimentos. Dos trabajadores mantienen acotado el trabajo, y la base de datos original sigue disponible para un análisis mayor.",
-          "hold_after": 0.7,
-          "speech_text": "Fija Row limit en cuatrocientos para una demostración pequeña. Limita los objetos muestreados; no convierte la muestra en representativa de todos los experimentos. Dos trabajadores mantienen acotado el trabajo, y la base de datos original sigue disponible para un análisis mayor."
+          "narration": "Set Row limit to four hundred for a quick first view and use two workers. Row limit controls how many objects enter the embedding. Increase it when you are ready to explore more of the dataset.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Aquí Reduction method selecciona UMAP. El formulario actual también ofrece otros métodos de reducción, con sus propios controles. Una opción de PCA o t-SNE no es intercambiable con una opción de UMAP. En esta demostración solo se calculó UMAP.",
-          "hold_after": 0.7,
-          "speech_text": "Aquí Reduction method selecciona ú map. El formulario actual también ofrece otros métodos de reducción, con sus propios controles. Una opción de PCA o te ese ene e no es intercambiable con una opción de ú map. En esta demostración solo se calculó ú map."
+          "narration": "Choose UMAP as the reduction method. Each point will represent an object using two plotted coordinates. You can explore PCA through its linked tool when you want a linear projection and feature loadings.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_neighbors",
-          "narration": "Usamos quince vecinos y una distancia mínima de cero coma uno. El tamaño del vecindario afecta a la representación de la estructura local; la distancia mínima afecta a cuánto pueden agruparse los puntos. Son opciones de demostración, no parámetros biológicos universalmente óptimos.",
-          "hold_after": 0.7,
-          "speech_text": "Usamos quince vecinos y una distancia mínima de cero coma uno. El tamaño del vecindario afecta a la representación de la estructura local; la distancia mínima afecta a cuánto pueden agruparse los puntos. Son opciones de demostración, no parámetros biológicos universalmente óptimos."
+          "narration": "Set Neighbours to fifteen and Minimum distance to zero point one. Neighbours controls the size of the neighbourhood used to build the map. Minimum distance controls how closely points can pack in the displayed embedding.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_random_seed",
-          "narration": "Mantén la semilla del método de reducción en cuarenta y dos al comparar las mismas entradas. La implementación en CPU con semilla puede utilizar un solo hilo para ser reproducible, aunque se soliciten más trabajadores. Una semilla no hace equivalentes distintas selecciones de características ni distintos motores de cálculo.",
-          "hold_after": 0.7,
-          "speech_text": "Mantén la semilla del método de reducción en cuarenta y dos al comparar las mismas entradas. La implementación en CPU con semilla puede utilizar un solo hilo para ser reproducible, aunque se soliciten más trabajadores. Una semilla no hace equivalentes distintas selecciones de características ni distintos motores de cálculo."
+          "narration": "Set Random seed to forty-two so repeated runs with the same inputs and settings are easier to compare. Save your chosen feature tables and preprocessing settings alongside the seed.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_clustering",
-          "narration": "El agrupamiento es independiente de la reducción de dimensionalidad. Este ejemplo con DBSCAN asigna los cuatrocientos objetos al grupo cero y mantiene desactivada la eliminación de ruido. Esa etiqueta única es una agrupación calculada, no un hallazgo que demuestre que todas las células comparten un fenotipo.",
-          "hold_after": 0.7,
-          "speech_text": "El agrupamiento es independiente de la reducción de dimensionalidad. Este ejemplo con DBSCAN asigna los cuatrocientos objetos al grupo cero y mantiene desactivada la eliminación de ruido. Esa etiqueta única es una agrupación calculada, no un hallazgo que demuestre que todas las células comparten un fenotipo."
+          "narration": "Clustering assigns labels to groups after the embedding is built. This example uses DBSCAN with noise removal off. Inspect the crops within any group before using its label in a later analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot_images",
-          "narration": "Activa conjuntamente las imágenes de los recortes y los puntos. Doce miniaturas pequeñas permiten inspeccionar el mapa estático sin tapar la nube de puntos. Las opciones de visualización ayudan a leer el resultado; no sustituyen la revisión de las características que produjeron su geometría.",
-          "hold_after": 0.7,
-          "speech_text": "Activa conjuntamente las imágenes de los recortes y los puntos. Doce miniaturas pequeñas permiten inspeccionar el mapa estático sin tapar la nube de puntos. Las opciones de visualización ayudan a leer el resultado; no sustituyen la revisión de las características que produjeron su geometría."
+          "narration": "Enable Plot images and Plot points. Use twelve small crop images so the overview remains readable. You can inspect individual objects more closely in the interactive view after fitting.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "Pulsa Run y lee la consola real. Esta ejecución informa de la imputación por la mediana de mediciones ausentes y de una proyección de cuatrocientas filas por dos columnas. Inspecciona esas decisiones de preprocesamiento, no solo la marca Finished. Aquí no se segmentaron imágenes ni se entrenó un clasificador.",
-          "hold_after": 0.7,
-          "speech_text": "Pulsa Run y lee la consola real. Esta ejecución informa de la imputación por la mediana de mediciones ausentes y de una proyección de cuatrocientas filas por dos columnas. Inspecciona esas decisiones de preprocesamiento, no solo la marca Finished. Aquí no se segmentaron imágenes ni se entrenó un clasificador."
+          "narration": "Press Run and watch the console for feature preparation and embedding progress. Wait for the completed result. If you change the input tables or reduction settings, run again to produce a new map.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_batch_figure",
-          "narration": "Inspecciona la figura guardada y la carpeta de resultados. La tabla exportada contiene las filas de mediciones seleccionadas, sus metadatos y las etiquetas de grupo. No supongas que esta versión exporta también a esa tabla las dos coordenadas dibujadas.",
-          "hold_after": 0.7,
-          "speech_text": "Inspecciona la figura guardada y la carpeta de resultados. La tabla exportada contiene las filas de mediciones seleccionadas, sus metadatos y las etiquetas de grupo. No supongas que esta versión exporta también a esa tabla las dos coordenadas dibujadas."
+          "narration": "Inspect the embedding in Figures and open the results folder reported in the console. Keep the saved figure, selected measurement rows, metadata and cluster labels together so you can trace an interesting group back to its objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_interactive_embedding",
-          "narration": "Activa Interactive para explorar el mapa ya calculado. No recalcula en directo una proyección cuando cambian las opciones. Pulsar puntos, ampliar y seleccionar regiones ayuda a examinar el resultado actual; cambiar el análisis sigue requiriendo otra ejecución.",
-          "hold_after": 0.7,
-          "speech_text": "Activa Interactive para explorar el mapa ya calculado. No recalcula en directo una proyección cuando cambian las opciones. Pulsar puntos, ampliar y seleccionar regiones ayuda a examinar el resultado actual; cambiar el análisis sigue requiriendo otra ejecución."
+          "narration": "Enable Interactive to explore the fitted map. Zoom into a region and click its points. The view uses the completed embedding, so you can inspect different objects without fitting it again.",
+          "hold_after": 0.7
         },
         {
           "visual": "26_point_0",
-          "narration": "Pulsa un punto y examina su recorte real a la derecha. La ruta mostrada vincula la imagen con su objeto de origen. Aquí la aplicación real cargó el recorte después de pulsar, sin sustituirlo por una imagen representativa.",
-          "hold_after": 0.7,
-          "speech_text": "Pulsa un punto y examina su recorte real a la derecha. La ruta mostrada vincula la imagen con su objeto de origen. Aquí la aplicación real cargó el recorte después de pulsar, sin sustituirlo por una imagen representativa."
+          "narration": "Click a point to show its crop in the side panel. Use the displayed object path to connect the image to its source record. Compare morphology across nearby points and across distant regions of the map.",
+          "hold_after": 0.7
         },
         {
           "visual": "26_point_200",
-          "narration": "Pulsa otro punto para comparar su morfología. La barra lateral también permite etiquetar una selección y propagar grupos automáticos. Esas acciones escriben anotaciones, a diferencia de mirar un recorte. No las pulsamos y verificamos que la base de datos permaneció intacta.",
-          "hold_after": 0.7,
-          "speech_text": "Pulsa otro punto para comparar su morfología. La barra lateral también permite etiquetar una selección y propagar grupos automáticos. Esas acciones escriben anotaciones, a diferencia de mirar un recorte. No las pulsamos y verificamos que la base de datos permaneció intacta."
+          "narration": "Click another point to compare its crop. The sidebar also provides selection labelling and cluster-label propagation. Those controls save annotations, so choose the intended label and selection before applying them.",
+          "hold_after": 0.7
         },
         {
           "visual": "27_fold_image_scatter",
-          "narration": "Image Scatter y PCA están ahora en la cabecera de Image UMAP. Usa Image Scatter para relaciones directas entre características y PCA para una proyección lineal y sus cargas. Sus lecciones especializadas existentes siguen enlazadas bajo este módulo principal.",
+          "narration": "Open Image Scatter from the Image UMAP header to compare selected features directly, or open PCA for a linear projection. Continue with the linked tutorials for their input settings and saved outputs.",
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "55_image_scatter",
             "60_pca"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Image Scatter y PCA están ahora en la cabecera de Image ú map. Usa Image Scatter para relaciones directas entre características y PCA para una proyección lineal y sus cargas. Sus lecciones especializadas existentes siguen enlazadas bajo este módulo principal."
-        },
-        {
-          "visual": "28_hyperparameter_controls",
-          "narration": "Hyperparameter search abre un panel de comparación independiente. Mantén pequeña cualquier búsqueda e inspecciona las proyecciones resultantes antes de propagar opciones. Esta grabación solo muestra los controles reales; no se inició una búsqueda ni se inventó un resultado seleccionado.",
-          "hold_after": 0.7,
-          "speech_text": "Hyperparameter search abre un panel de comparación independiente. Mantén pequeña cualquier búsqueda e inspecciona las proyecciones resultantes antes de propagar opciones. Esta grabación solo muestra los controles reales; no se inició una búsqueda ni se inventó un resultado seleccionado."
-        },
-        {
-          "visual": "24_batch_figure",
-          "narration": "El control GPU es opcional. Esta grabación utilizó CPU. Los métodos compatibles pueden usar el motor RAPIDS opcional cuando está disponible; es una ruta de aceleración distinta de la selección de dispositivo de Torch. Lee el motor indicado y no prometas coordenadas idénticas entre dispositivos.",
-          "hold_after": 0.7,
-          "speech_text": "El control GPU es opcional. Esta grabación utilizó CPU. Los métodos compatibles pueden usar el motor RAPIDS opcional cuando está disponible; es una ruta de aceleración distinta de la selección de dispositivo de Torch. Lee el motor indicado y no prometas coordenadas idénticas entre dispositivos."
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI activa la asistencia opcional de un proveedor, no la interpretación biológica automática. Esta pregunta no se envió. En scripts, el punto de entrada correspondiente es generate_image_umap en spacr.core; conserva las tablas de entrada, el preprocesamiento y las opciones guardadas junto con la figura obtenida.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "AI activa la asistencia opcional de un proveedor, no la interpretación biológica automática. Esta pregunta no se envió. En scripts, el punto de entrada correspondiente es generate_image_umap en espáquer.core; conserva las tablas de entrada, el preprocesamiento y las opciones guardadas junto con la figura obtenida."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "16_activation",
@@ -2355,212 +2143,87 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "Análisis de motilidad",
+      "title": "Motility assay",
       "series": 2,
       "app_key": "motility",
-      "section": "Módulos principales",
+      "section": "Core",
       "host_app_key": "measure",
-      "description": "Explore filtros en vivo y unidades con trayectorias sintéticas reproducibles en Motility, dentro de Measure.",
+      "description": "Measure movement from tracked objects, inspect track filters, and save per-frame and per-well results.",
       "objectives": [
-        "Encontrar Motility dentro de Measure y cargar el ejemplo exacto.",
-        "Comparar filtros sin releer imágenes ni ejecutar otro modelo.",
-        "Distinguir unidades desconocidas, conversión hipotética y límites de los resultados."
+        "Load a project containing tracked merged arrays.",
+        "Choose mask planes, track filters and acquisition units.",
+        "Run the analysis and find the movement tables and plots."
       ],
       "example_files": [
         "SYNTHETIC_motility_tracks.zip"
       ],
-      "prerequisite": "Extraiga SYNTHETIC_motility_tracks.zip en una carpeta nueva. Son ocho matrices sintéticas con intensidad nuclear 0, celular 1, máscara celular seguida 2 y nuclear 3; no hay patógeno ni calibración adquirida. Use la raíz que contiene merged. En Live: dos canales, plano seguido 2, patógeno -1, ocho fotogramas, longitud mínima 3 y calibración 0/0. Los valores 2 píxeles/µm y 60 segundos/fotograma solo ilustran aritmética. No active Propagate settings. Los PDF tienen marcas de bajo contraste; Screen no lo arregló. No se valida infección ni exactitud biológica. API: spacr.timelapse.automated_motility_assay. AI permanece desactivado.",
+      "prerequisite": "Complete a Timelapse run, or download and extract SYNTHETIC_motility_tracks.zip. Select the folder containing merged. The example has eight frames, nucleus intensity in channel 0, cell intensity in channel 1, tracked cell masks in plane 2 and nucleus masks in plane 3. It has no pathogen mask or physical calibration.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Abra Measure y después su acceso Time para llegar a Motility Assay. Es un módulo anidado, no una tarjeta independiente de Home. Timelapse, dentro de Mask, crea trayectorias; Motility las mide. Si sus imágenes aún no tienen seguimiento, consulte primero la lección Timelapse.",
-          "focus": [
-            3570,
-            1900,
-            220,
-            90
-          ],
+          "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Measure y después su acceso Time para llegar a Motility Assay. Es un módulo anidado, no una tarjeta independiente de Home. Timelapse, dentro de Mask, crea trayectorias; Motility las mide. Si sus imágenes aún no tienen seguimiento, consulte primero la lección Timelapse."
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_setting_src",
-          "narration": "Descargue el ejemplo de matrices con seguimiento enlazado abajo y extráigalo en una carpeta nueva. En Source elija la carpeta que contiene merged. Sus ocho fotogramas contienen dieciséis trayectorias celulares. Seleccione cell, canal nuclear cero y celular uno, sin canal de patógeno.",
-          "focus": [
-            250,
-            305,
-            1185,
-            285
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Descargue el ejemplo de matrices con seguimiento enlazado abajo y extráigalo en una carpeta nueva. En Source elija la carpeta que contiene merged. Sus ocho fotogramas contienen dieciséis trayectorias celulares. Seleccione cell, canal nuclear cero y celular uno, sin canal de patógeno."
-        },
-        {
-          "visual": "03_actual_setting_pixels_per_um",
-          "narration": "En un experimento adquirido, use la escala de píxel y el intervalo reales. Aquí, dos píxeles por micrómetro y sesenta segundos por fotograma son deliberadamente hipotéticos, solo para demostrar aritmética. El formulario del lote exige números; sus valores predeterminados no prueban la calibración de su microscopio.",
-          "focus": [
-            250,
-            600,
-            1185,
-            150
-          ],
-          "hold_after": 0.7,
-          "speech_text": "En un experimento adquirido, use la escala de píxel y el intervalo reales. Aquí, dos píxeles por micrómetro y sesenta segundos por fotograma son deliberadamente hipotéticos, solo para demostrar aritmética. El formulario del lote exige números; sus valores predeterminados no prueban la calibración de su microscopio."
-        },
-        {
-          "visual": "03_actual_setting_infection_intensity_qc_graphs",
-          "narration": "Deje Reuse existing measurements desactivado para esta copia nueva y active los gráficos de control de calidad. No hay canal de patógeno, así que el control de infección está desactivado en esta ejecución. No se prueban clasificadores opcionales ni se establece un efecto de infección con estas trayectorias didácticas.",
-          "focus": [
-            250,
-            810,
-            1185,
-            760
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Deje Reuse existing measurements desactivado para esta copia nueva y active los gráficos de control de calidad. No hay canal de patógeno, así que el control de infección está desactivado en esta ejecución. No se prueban clasificadores opcionales ni se establece un efecto de infección con estas trayectorias didácticas."
-        },
-        {
-          "visual": "05_actual_finished",
-          "narration": "Ejecute el ejemplo pequeño y lea la consola. El lote guarda ciento veintiocho observaciones y un resumen de dieciséis trayectorias por pocillo, además de archivos PDF. Estos no aparecen en la cola de figuras. Esta versión advierte de colores tenues al exportar; inspeccione los archivos antes de usarlos en un informe.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            850
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Ejecute el ejemplo pequeño y lea la consola. El lote guarda ciento veintiocho observaciones y un resumen de dieciséis trayectorias por pocillo, además de archivos PDF. Estos no aparecen en la cola de figuras. Esta versión advierte de colores tenues al exportar; inspeccione los archivos antes de usarlos en un informe."
+          "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_preview",
-          "narration": "Active Live para abrir Motility preview. Contraiga Console y System si restan espacio a los gráficos y elija la misma carpeta extraída. Los ajustes del lote y las métricas de la vista previa son independientes. Deje Propagate settings desactivado para que un filtro temporal no modifique la siguiente ejecución completa.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            550
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Active Live para abrir Motility preview. Contraiga Console y System si restan espacio a los gráficos y elija la misma carpeta extraída. Los ajustes del lote y las métricas de la vista previa son independientes. Deje Propagate settings desactivado para que un filtro temporal no modifique la siguiente ejecución completa."
+          "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_plane_and_unit_settings",
-          "narration": "Establezca dos canales de intensidad, plano de máscara seguido dos y plano de patógeno menos uno, es decir, ninguno. Visualice los ocho fotogramas. Una máscara nuclear no es una máscara de patógeno. Ponga ambos campos de calibración en cero para unidades desconocidas y pulse Run preview.",
-          "focus": [
-            1455,
-            395,
-            2340,
-            300
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Establezca dos canales de intensidad, plano de máscara seguido dos y plano de patógeno menos uno, es decir, ninguno. Visualice los ocho fotogramas. Una máscara nuclear no es una máscara de patógeno. Ponga ambos campos de calibración en cero para unidades desconocidas y pulse Run preview."
+          "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_uncalibrated_preview",
-          "narration": "La vista previa lee ciento veintiocho observaciones y muestra dieciséis trayectorias utilizables con longitud mínima tres. La velocidad media es aproximadamente uno coma cuatro píxeles por fotograma. Sin ambos valores de calibración, no debe describirse como micrómetros por minuto.",
-          "focus": [
-            1455,
-            1600,
-            2340,
-            200
-          ],
-          "hold_after": 0.7,
-          "speech_text": "La vista previa lee ciento veintiocho observaciones y muestra dieciséis trayectorias utilizables con longitud mínima tres. La velocidad media es aproximadamente uno coma cuatro píxeles por fotograma. Sin ambos valores de calibración, no debe describirse como micrómetros por minuto."
-        },
-        {
-          "visual": "11_actual_all_short",
-          "narration": "Suba Min track length a nueve. Cada trayectoria tiene solo ocho fotogramas, así que las dieciséis quedan excluidas del resumen utilizable y la velocidad media no está disponible. No se eliminan las trayectorias ni las imágenes originales. Un resumen vacío no equivale a velocidad cero.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Suba Min track length a nueve. Cada trayectoria tiene solo ocho fotogramas, así que las dieciséis quedan excluidas del resumen utilizable y la velocidad media no está disponible. No se eliminan las trayectorias ni las imágenes originales. Un resumen vacío no equivale a velocidad cero."
+          "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_length_restored",
-          "narration": "Restaure el mínimo a tres. Regresan las dieciséis trayectorias utilizables, la distribución de longitudes y los puntos de velocidad. Estas métricas se recalculan desde observaciones en caché. Cambiar una métrica no repite la segmentación ni demuestra que las identidades del seguimiento original fueran correctas.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Restaure el mínimo a tres. Regresan las dieciséis trayectorias utilizables, la distribución de longitudes y los puntos de velocidad. Estas métricas se recalculan desde observaciones en caché. Cambiar una métrica no repite la segmentación ni demuestra que las identidades del seguimiento original fueran correctas."
+          "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_actual_straightness_filter",
-          "narration": "Active Drop over-straight tracks con umbral cero coma noventa y cinco. La rectitud es el desplazamiento neto dividido por la longitud recorrida. Se excluyen quince trayectorias didácticas casi rectas y queda una. El movimiento recto puede ser real; este filtro no prueba automáticamente deriva ni constituye una recomendación de análisis.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Active Drop over-straight tracks con umbral cero coma noventa y cinco. La rectitud es el desplazamiento neto dividido por la longitud recorrida. Se excluyen quince trayectorias didácticas casi rectas y queda una. El movimiento recto puede ser real; este filtro no prueba automáticamente deriva ni constituye una recomendación de análisis."
-        },
-        {
-          "visual": "14_actual_filter_restored",
-          "narration": "Desactive el filtro y confirme que regresan las dieciséis trayectorias. Compare gráficos y cantidad retenida antes de aceptar una regla de filtrado. Aquí la etiqueta uninfected refleja únicamente la ausencia del plano de patógeno; no es un grupo biológico negativo validado.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Desactive el filtro y confirme que regresan las dieciséis trayectorias. Compare gráficos y cantidad retenida antes de aceptar una regla de filtrado. Aquí la etiqueta uninfected refleja únicamente la ausencia del plano de patógeno; no es un grupo biológico negativo validado."
-        },
-        {
-          "visual": "15_actual_one_unit_unknown",
-          "narration": "Introduzca dos píxeles por micrómetro, pero deje desconocido el intervalo. La vista previa sigue indicando píxeles por fotograma. La escala espacial no aporta el tiempo ausente, y la velocidad de reproducción no es el intervalo de adquisición.",
-          "focus": [
-            3010,
-            400,
-            785,
-            255
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Introduzca dos píxeles por micrómetro, pero deje desconocido el intervalo. La vista previa sigue indicando píxeles por fotograma. La escala espacial no aporta el tiempo ausente, y la velocidad de reproducción no es el intervalo de adquisición."
+          "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_actual_hypothetical_calibration",
-          "narration": "Introduzca ahora sesenta segundos por fotograma. Con ambos valores hipotéticos, la velocidad media pasa de unos uno coma cuatro píxeles por fotograma a cero coma siete micrómetros por minuto. Las identidades no cambian. El gráfico de trayectorias sigue etiquetando el desplazamiento en píxeles; aquí solo cambia la unidad de velocidad.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Introduzca ahora sesenta segundos por fotograma. Con ambos valores hipotéticos, la velocidad media pasa de unos uno coma cuatro píxeles por fotograma a cero coma siete micrómetros por minuto. Las identidades no cambian. El gráfico de trayectorias sigue etiquetando el desplazamiento en píxeles; aquí solo cambia la unidad de velocidad."
+          "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
+          "hold_after": 0.7
         },
         {
-          "visual": "17_actual_unknown_units_restored",
-          "narration": "Devuelva ambos campos de calibración de la vista previa a cero. Regresa exactamente el resumen original en píxeles. Separe este ejercicio aritmético de los metadatos reales y consulte la función del lote en la referencia API. spaCR AI puede explicar ajustes, pero no certificar calibración, infección ni validez científica.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "related_lessons": [
-            "06_api",
-            "17_timelapse",
-            "34_database"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Devuelva ambos campos de calibración de la vista previa a cero. Regresa exactamente el resumen original en píxeles. Separe este ejercicio aritmético de los metadatos reales y consulte la función del lote en la referencia API. espáquer AI puede explicar ajustes, pero no certificar calibración, infección ni validez científica."
+          "visual": "03_actual_setting_pixels_per_um",
+          "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_actual_setting_infection_intensity_qc_graphs",
+          "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_actual_finished",
+          "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "19_train_cellpose",

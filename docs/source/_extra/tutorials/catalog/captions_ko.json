@@ -587,26 +587,24 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask: 실시간 필터, 실제 실행과 검증된 오버레이 내보내기",
+      "title": "Mask: segment images and inspect the results",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "실제 다운로드 예제로 면적과 지름을 비교하고 Plot을 켜서 두 시야를 처리한 뒤 명시적인 Python 단계로 누락된 오버레이를 내보냅니다.",
+      "description": "Load microscope images, choose segmentation settings, preview objects and save masks for measurement.",
       "objectives": [
-        "Home의 Mask와 내부 Live, Time, 3D, OPS 컨트롤을 찾습니다.",
-        "분할 전에 메타데이터와 채널을 확인합니다.",
-        "되돌릴 수 있는 필터와 모델 재실행을 구분합니다.",
-        "실제 결과와 경고를 확인하고 두 배열을 명시적으로 내보냅니다.",
-        "QC 한계, 원본 데이터, 보내지 않은 AI 질문을 과학적 검증과 구분합니다."
+        "Load the microscopy example and identify its intensity channels.",
+        "Compare model settings and object-size filters in Live preview.",
+        "Run segmentation, inspect overlays and find the merged outputs."
       ],
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "실제 Mask 다운로드를 사용하고 채널 식별 정보와 파일명 메타데이터를 보존합니다. Live 미리보기는 1.5.0.7에서 예제에 포함된 설정으로 새 사본에 녹화했으며, live_preview.py와 preview_contract.py가 그 녹화와 바이트 단위로 같을 때만 재사용합니다. 저장된 마스크로 최소 면적 510에서 105→52→105, 지름 30→60 이후 36개를 독립 확인했습니다. 새 두 시야 배치는 별도 예제이며 직접적인 개수 비교가 아닙니다. Plot=True, test_images=2, batch_size=2, n_jobs=2, 지름 30/30/15와 세 흐름 임계값 0.4를 사용합니다. 다운로드 값 100은 흐름 필터를 끄므로 기본 권장값으로 가르치지 않습니다. 기본 오버레이 루프는 여전히 .spacr_plane_layout.json에서 실패해 Finished여도 두 장 중 한 장이 없습니다. 레이아웃을 삭제하거나 pickle 로드를 켜지 마세요. 도우미는 일반 .npy에만 spacr.plot.plot_image_mask_overlay를 호출하며 네 강도 평면과 4/5/6 위치의 세포/핵/병원체 마스크를 요구합니다. 새 폴더에 불투명 배경 PNG를 저장하며 원본 배열이나 GUI를 수정하지 않습니다. 배열 해시는 원래 실행 기록과 일치합니다. 최종 개수는 25/19/8과 52/50/58이고 첫 시야 병원체 QC에는 near_empty_field 경고가 남습니다. 세포 QC는 마스크 조정 전입니다. 95,424,864개 채널 RGB 값과 7,952,072개 합성 전경 픽셀을 독립 확인했으며 생물학적 정확도를 검증한 것은 아닙니다. 이전 실패와 투명 배경 시험은 보존하지만 완료 사례로 제시하지 않습니다. AI 요청, 학습, 과학적 승인, 공개는 없습니다. API는 spacr.core.preprocess_generate_masks와 spacr.plot.plot_image_mask_overlay입니다. OPS는 Mask의 동작 줄에서 여는 별도 페이지이며 전용 수업이 있습니다. 이 수업에서는 실행하지 않습니다.",
+      "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Home에서 Mask를 엽니다. 주 모듈이며 동작 줄에 Live, Time, 삼차원, OPS 스위치가 있습니다. Time과 OPS는 각각 하위 모듈 섹션의 Mask 범주에 별도 튜토리얼로 연결됩니다. 이번 수업은 이차원 예제, 실시간 비교와 그리기 우회 절차를 다루며 자동으로 검증된 분할을 뜻하지 않습니다.",
+          "narration": "From Home, open Mask. Use this module to outline cells, nuclei and pathogens in microscope images. This walkthrough processes two-dimensional images. The Time, three-dimensional and OPS workflows have their own tutorials.",
           "related_lessons": [
             "05_home",
             "17_timelapse",
@@ -616,52 +614,47 @@
         },
         {
           "visual": "native_02_download",
-          "narration": "Load test data를 눌러 실제 현미경 예제 다운로드를 완료합니다. 폴더 구조와 원본 이미지를 보존하세요. 녹화는 새로운 전용 복사본을 사용해 이전 결과가 섞이지 않게 했습니다. 자신의 데이터에 예제 설정을 복사하기 전 파일명 메타데이터와 채널 식별 정보를 확인합니다.",
+          "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
           "hold_after": 0.7
         },
         {
           "visual": "native_03_data_ready",
-          "narration": "여기서 핵 강도는 채널 0, 세포 강도는 채널 1, 병원체 강도는 채널 2입니다. 예제에는 채널 3도 있습니다. 이는 강도 채널의 식별 정보이지 병합 출력의 마스크 평면 번호가 아닙니다. 이미지 자체를 확인하고 결과를 이동할 때 레이아웃 메타데이터를 보존하세요.",
+          "narration": "Check the channel assignments against the images. In this example, nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. Channel three is an additional intensity image. Choose only the object types present in your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Live를 켜고 검사할 시야를 선택합니다. 미리보기에서 큰 실행 전에 이미지와 제안된 마스크를 비교합니다. 이 미리보기의 시야는 뒤에서 보여 줄 배치의 두 시야와 다릅니다. 미리보기 개수는 배치 총개수와 직접 비교할 수 없습니다.",
+          "narration": "Turn on Live and select a field. Inspect the image and proposed masks together before running the full folder. Try several fields that represent the range of image quality in your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_settings",
-          "narration": "Live settings를 열고 세포 컨트롤을 봅니다. 녹화는 설치된 CPSAM 모델을 사용하며 모델 선택지는 설치 환경에 따라 다릅니다. 윤곽을 해석하기 전에 미리보기를 실행하세요. 지름과 필터는 서로 다른 작업입니다. 모델 이름이나 화려한 마스크만으로 정확도를 보장하지 못합니다.",
+          "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter and run the preview. Compare the outlines with the image, paying attention to missed objects and objects joined together.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "초기 결과에는 세포 레이블 105개가 있습니다. 최소 면적을 510픽셀로 높이면 52개가 보입니다. 기존 결과에 적용하는 되돌릴 수 있는 필터입니다. 원시 마스크는 바뀌지 않고 모델도 다시 실행되지 않습니다. 이 값은 시연용이지 생물학적으로 최적인 경계가 아닙니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "preview_10_filters_restored",
-          "narration": "원래 면적 제한으로 복원하면 105개가 모두 돌아옵니다. 필터를 채택하기 전에 어떤 물체가 왜 사라지는지 확인하세요. 작은 물체는 실제일 수도 분할 오류일 수도 있습니다. 제거만으로 판단할 수 없습니다. 원시 결과와 선택한 필터 값을 각각 식별할 수 있게 보존합니다.",
+          "narration": "Use the minimum-area filter to hide objects smaller than the chosen number of pixels. Increasing it removes small labels from the preview. This filter updates an existing mask result, so you can compare size cutoffs quickly.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "지름을 30에서 60픽셀로 바꾸고 재실행하는 것은 표시 필터가 아닌 모델 매개변수 비교입니다. 녹화된 시야에서는 36개 레이블이 나옵니다. 개수뿐 아니라 이미지와 경계를 비교하세요. 개수 감소가 더 좋은 모델을 입증하지 않으며 이 설정은 보편적 권장값이 아닙니다.",
+          "narration": "Change diameter when the model is splitting or joining objects at the wrong scale, then run the preview again. Check the boundaries as well as the object count. Restore the settings you want to use before moving to the batch run.",
           "hold_after": 0.7
         },
         {
           "visual": "native_20_batch_settings",
-          "narration": "별도 배치에는 테스트 이미지 두 장을 사용하고 Plot을 켭니다. 세 흐름 임계값은 모두 명시적으로 0.4입니다. 다운로드 설정의 100은 흐름 필터를 끄므로 기본 권장값으로 제시하지 않습니다. 실행 방식을 추측하지 말고 콘솔의 장치 및 처리 메시지를 읽으세요.",
+          "narration": "For a small first run, select two test images, keep Plot on, and review the cell, nucleus and pathogen flow thresholds. Here they are zero point four. Check the output and original-image retention settings, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "native_23_batch_finished",
-          "narration": "콘솔 전체를 읽으세요. 작업자는 Finished라 하지만 오버레이 기록은 두 장 중 한 장 누락을 보고합니다. 레이아웃 JSON을 이미지로 읽으려 했기 때문입니다. 병합 마스크 배열은 있어도 기본 그리기가 완료된 것은 아닙니다. 경고를 보존하고 조용히 성공으로 취급하지 마세요.",
+          "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
           "hold_after": 0.7
         },
         {
           "visual": "command_01_explicit_numeric_inputs",
-          "narration": "우회 방법은 명시적인 외부 단계입니다. 레이아웃 JSON은 강도와 마스크 평면을 설명하는 파일이지 이미지가 아니므로 보존합니다. 오류를 숨기려고 pickle 로드를 켜지 마세요. 연결된 도우미를 내려받아 확인하고 예전 결과가 아닌 이번 실행의 merged 폴더를 사용하세요.",
+          "narration": "If an overlay export is missing, the linked plotting helper can export the saved arrays separately. Extract the helper and choose this run’s merged folder. Keep the layout file in place; the helper uses it to check the intensity and mask planes.",
           "focus": [
             190,
             80,
@@ -675,7 +668,7 @@
         },
         {
           "visual": "command_02_explicit_plotting_api",
-          "narration": "도우미에 merged 원본과 새 목적지를 지정해 실행합니다. 실제 그리기 API를 수치 배열별로 호출하여 두 오버레이를 저장합니다. 다른 평면 구조나 기존 출력 폴더는 거부합니다. 이 내보내기에서 잘못된 폴더 탐색을 우회할 뿐 앱의 그리기 루프를 고치지는 않습니다.",
+          "narration": "Run the helper with the merged folder as its source and a new output folder as its destination. It saves a separate overlay for each image array. Open the saved PNG files to inspect the results.",
           "focus": [
             190,
             80,
@@ -685,74 +678,42 @@
           "hold_after": 0.7
         },
         {
-          "visual": "viewer_09_saved_plate1_E01_17_1",
-          "narration": "저장된 그림은 외부 이미지 뷰어에 표시되며 spaCR에 삽입한 것이 아닙니다. 첫 시야의 조정 후 레이블은 세포 25개, 핵 19개, 병원체 8개입니다. 병원체 QC는 8개가 시야별 크기 검사에 너무 적다고 계속 경고합니다. 읽기 쉬운 오버레이가 이 한계를 없애지는 않습니다.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
-        },
-        {
           "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "둘째 시야에는 세포 52개, 핵 50개, 병원체 58개가 있습니다. 앞의 네 패널은 강도 채널과 윤곽을, 마지막은 합친 물체 마스크를 보여 줍니다. 여기서 백분위수 정규화는 표시용일 뿐입니다. 원본 배열은 그대로이며 이 개수는 정답 데이터 대비 정확도 지표가 아닙니다.",
+          "narration": "Review the outlines on each intensity channel and the combined mask view. Check small objects, touching cells and missed regions. Keep the input images, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
           "focus": [
             200,
             680,
             3440,
             880
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_verified_saved_overlays",
-          "narration": "출력 검사, 원래 기록, 설정, QC 파일을 함께 보존하세요. 그려진 채널 배열, 합성 전경 범위, 원본 해시 불변을 독립 확인했습니다. 세포 QC는 마스크 조정 전에 기록되어 최종 개수와 다를 수 있습니다. Measure로 가기 전에 분할 품질을 직접 확인하세요.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_30_ai_unsent_question",
-          "narration": "콘솔의 선택적 spaCR AI로 설정을 논의할 수 있지만 이 예제 질문은 전송하지 않았고 제공업체 답변도 없습니다. 모든 조언은 실제 파일과 경고에 비추어 확인하세요. Python 파이프라인과 파일별 그리기 API는 같은 데이터 요건을 따릅니다. 연결된 수업에서 측정과 내부 Time 흐름을 다룹니다.",
-          "related_lessons": [
-            "06_api",
-            "08_measure",
-            "17_timelapse"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure: 실시간 시야 보기, 실제 측정과 저장 결과",
+      "title": "Measure: extract object features and crops",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "다운로드 가능한 16개 시야에서 실시간 시야와 채널을 살펴보고, 비정규화 크롭 설정을 복원하고, 품질 경고를 읽으며 Plot을 켠 실행 결과를 검증합니다.",
+      "description": "Load images with masks, inspect objects, choose crop settings and save measurements for annotation and classification.",
       "objectives": [
-        "현재 예제를 로드하고 강도 채널과 레이블 마스크 평면을 구분하기.",
-        "실시간 시야와 채널을 살피고 표시 선택과 공유 크롭 설정을 구분하며 배치 실행 전에 정규화 설정을 복원하기.",
-        "전체 예제를 실행해 실제 그림·콘솔·데이터베이스·크롭을 확인하기.",
-        "중첩된 Illumination, AnnData Export, Motility와 AI 및 오래된 출력 경고의 한계를 이해하기."
+        "Identify intensity channels and mask planes in the example.",
+        "Inspect fields and choose saved-crop normalization deliberately.",
+        "Run Measure and locate the database, object crops and figures."
       ],
-      "prerequisite": "Home/Core → Measure → Load test data. 측정 대상은 1994x1994 uint16 병합 배열 16개이며 강도 평면 0–3, 세포·핵·병원체 마스크 평면 4/5/6입니다. 처음 Live를 열기 전에 주 설정의 Normalize를 켜면 초기 미리보기 대비에 1/99 백분위수가 적용됩니다. 이 상태에서 Run을 누르지 마세요. 채널 0 선택은 표시만 바꾸지만 Normalize는 저장 크롭에도 관여합니다. 배치 전에 Live와 Normalize를 끕니다. E02_1_1에는 후보 27개, E02_9_1에는 15개가 표시됩니다. 채널 변경은 식별자·면적·범주를 보존하며 All channels는 원래 픽셀을 복원합니다. 미리보기 배열과 검증된 배치 입력은 바이트 단위로 같습니다. Crop settings 대화상자가 너무 높으므로 화면 밖의 컨트롤을 정상 사용 가능한 것으로 가르치지 않습니다. QC는 더 큰 다운로드 집합인 52개 시야의 마스크에서 나온 객체 유형/시야 기록 156개 중 실패 3개와 경고 16개를 표시합니다. 측정한 병합 시야 16개만의 결과가 아니며 데이터에 문제가 없다고 인증하지 않습니다. 전체 실행은 Plot·save_measurements·save_png 켬, Test mode·normalize 끔, 작업 프로세스 하나, 224x224 RGB 크롭을 사용합니다. 복셀 보정이 없어 면적 단위는 제곱픽셀입니다. 면적·강도 값 5409개와 원본 마스크에 근거한 병합 다섯 건을 확인했지만 모든 특징이나 생물학적 정확성을 검증한 것은 아닙니다. 결과는 세포 기록과 크롭 601개, 핵 622개, 병원체 객체 373개, 저장 그림 48개, GUI 큐 47개입니다. 실행 중 추가된 hash_inputs와 _intensity_rescale_plan이 이 오래된 출력 경고를 설명하지만 다른 경고나 자동 전달을 안전하다고 인증하지 않습니다. 별도 Test mode 진단은 잘못된 DB 경로를 등록했으며 본 강의는 일반 모드 실제 결과를 검증합니다. API: spacr.measure.measure_crop. Illumination, Motility, AnnData Export는 별도 강의를 보세요. AnnData는 명시적인 API 우회 방법이며 GUI 수정이 아닙니다. AI 질문을 보내거나 답변을 시연하지 않았고 사람의 청취 승인이나 게시를 주장하지 않습니다.",
+      "prerequisite": "Use the merged outputs from Mask, or choose Load test data in Measure. The example supplies sixteen fields with intensity planes 0–3 and cell, nucleus and pathogen masks in planes 4, 5 and 6.",
       "scenes": [
         {
           "visual": "preview_01_module",
-          "narration": "Core 모듈에서 Measure를 여세요. 기존 이미지 배열과 객체 마스크를 측정값과 크롭으로 바꾸며 새로운 분할은 만들지 않습니다. Illumination, AnnData Export, Motility는 이 주 모듈에 중첩된 작업입니다. 각 작업의 독립 강의는 튜토리얼 탐색에서 Measure 아래에 있습니다.",
+          "narration": "From Home, open Measure. Start with images that already have object masks. Measure extracts features such as area and intensity, pairs related objects, and can save individual object crops for Annotate and Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -763,32 +724,32 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Load test data를 고르고 실제 예제가 로드될 때까지 기다리세요. 다운로드에는 병합된 시야 열여섯 개가 있습니다. 원본 폴더와 채널 매핑을 확인하세요. 강도 채널은0부터3, 세포 마스크4, 핵 마스크5, 병원체 마스크6입니다. 마스크 레이블은 강도 측정값이 아닙니다.",
+          "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_04_preview_normalization_setup",
-          "narration": "Live를 처음 열기 전에 주 설정에서 Normalize를 검색해 켭니다. 원래의 십육 비트 크롭은 어두워 보이므로 미리보기를 알아보기 쉽게 만드는 단계입니다. 하지만 저장 크롭에도 적용되는 설정이지 단순한 표시 취향이 아닙니다. 아직 Run을 누르지 마세요. 먼저 설정을 복원할 것입니다.",
+          "narration": "To inspect these sixteen-bit example crops, turn Normalize on before opening Live. This makes the preview easier to see. Remember that this main setting also affects saved crops; we will switch it off before this batch run.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_all_channels",
-          "narration": "Live를 켜고 시야 이 영 이, 일, 일의 병합 배열 경로를 붙여 넣습니다. 격자에는 마스크 관계별로 묶인 스물일곱 후보가 나타납니다. 나머지 범주는 스크롤해 확인하세요. 이 이름들은 독립적으로 검토된 생물학적 주석이 아니며 표시 후보 수는 최종 측정 세포 수를 보장하지 않습니다.",
+          "narration": "Turn on Live and choose a field. Inspect the object crops and their mask relationships. Scroll through the categories and enlarge the preview if needed to see the boundaries clearly.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_06_live_channel_zero",
-          "narration": "표시 채널 선택기에서 채널 영을 고릅니다. 같은 스물일곱 객체가 회색조로 표시되며 레이블, 면적, 범주는 바뀌지 않습니다. 주 설정의 Normalize와 달리 이 선택기는 미리보기 표시만 바꿉니다. All channels로 돌아가면 배치 설정을 바꾸지 않고 원래 컬러 픽셀이 복원됩니다.",
+          "narration": "Use the displayed-channel selector to inspect one intensity channel at a time. Channel zero shows a grayscale view; All channels restores the combined view. This selector changes the preview without changing the labels or batch channel mapping.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "시야 선택기에서 이 영 이, 구, 일을 엽니다. 이 시야에는 열다섯 후보가 표시됩니다. 보기 좋은 이미지 하나를 믿기 전에 여러 시야를 살펴보세요. 빨간 분할 품질 경고도 읽으세요. 표시된 마스크는 더 큰 다운로드 집합에 속하며 미리보기가 정상 표시되어도 경고가 해결되거나 데이터 품질이 인증된 것은 아닙니다.",
+          "narration": "Choose another field and compare its objects. Review the segmentation-quality banner before measuring the project. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_08_saved_normalization_restored",
-          "narration": "Live를 끄고 Normalize를 다시 검색한 뒤 실행 전에 끕니다. 모든 배치 설정이 원래 값으로 돌아가고 두 원본 배열이 변하지 않았음을 확인했습니다. 크롭별 정규화는 저장 이미지에서 강도 차이를 없앨 수 있습니다. 원본 배열을 보관하세요. 이 강의는 지나치게 큰 Crop settings 대화상자를 사용하지 않습니다.",
+          "narration": "Turn Live off and restore Normalize off for this example. Choose normalization deliberately when saving crops: per-crop scaling changes the intensity differences visible to a later image classifier. Keep the original merged arrays for quantitative measurements.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -796,45 +757,34 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Plot을 켜고 측정값과 크롭을 저장하며 여기서는 작업 프로세스 하나를 사용합니다. Test mode는 꺼져 있어 열여섯 시야 모두를 프로젝트 주 출력에 처리합니다. 이 버전의 짧은 테스트는 별도 test 폴더를 사용하므로 그 데이터베이스를 전체 실행 결과와 혼동하지 마세요.",
+          "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. Use one worker for this example. Leave Test mode off to process all sixteen supplied fields, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_26_measure_console_complete",
-          "narration": "Run을 누르고 콘솔을 확인하세요. 완료 메시지만 보지 말고 시도·성공·실패 수를 살펴봅니다. 여기서는 열여섯 시야 모두 성공했습니다. 큰 그림은 명시적인 내보내기 해상도 제한에 걸릴 수 있으니 그 경고도 읽으세요. 계산 성공이 생물학적 품질 인증은 아닙니다.",
+          "narration": "Follow the console until the run completes. Check which fields succeeded and inspect any failures before proceeding. Keep the settings saved with this run so you can reproduce the measurements.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_00",
-          "narration": "그림 목록에서 실제 필터 전후 화면을 살펴보세요. 구분선을 끌어 그림 공간을 넓힙니다. 크기 필터와 부모·자식 병합은 측정 레이블을 바꿀 수 있습니다. 이 예제의 저장된 세포 객체 다섯 개는 공통 핵 또는 병원체 마스크로 연결된 원본 레이블을 합칩니다.",
+          "narration": "Use the figure list to compare objects before and after filtering. Size filters and parent-child relationships can change which objects are measured. Drag the divider to give the figures more space and inspect any unexpected changes.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_02",
-          "narration": "크롭 그림도 확인하고 측정 데이터베이스와 이미지 경로를 함께 보관하세요. 이번 실행은601개의 세포 기록과 대응 크롭을 저장했습니다. 독립 픽셀 검사로 병합을 포함한 면적과 네 채널의 합계·평균을 확인했지만, 모든 특징이나 분할의 생물학적 정확성을 검증한 것은 아닙니다.",
+          "narration": "Inspect the crop figure, then locate measurements.db in the measurements folder and the saved object images in the project’s crop output. Keep the database and image paths together. Continue to Annotate to label example objects, or to Classify when you already have labelled training data.",
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "batch_24_batch_figure",
-          "narration": "이 버전은 보이는 설정이 그대로이고 실행이 성공해도 오래된 출력 경고를 표시할 수 있습니다. 이 사례는 실행 중 추가된 메타데이터가 원인이지만 앱은 수정하지 않았습니다. 계속하기 전에 실제 저장 실행과 설정을 확인하세요. 다른 경고를 무시하거나 자동 전달이 검증되었다고 가정하지 마세요. 파일도 확인하세요. 이 녹화의 그림 대기열에는 저장된48개 중47개가 표시되었습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_30_ai_unsent_question",
-          "narration": "콘솔은 선택 사항인 spaCR AI 도움도 제공합니다. 여기서는 스위치를 켜고 질문만 준비하며 전송하지 않습니다. 답변이나 외부 분석을 보여준 것은 아닙니다. 나중 답변은 설정·API·저장 결과와 대조할 조언으로 취급하세요. 다음 작업은 중첩된 각 흐름의 별도 강의를 참고하세요.",
-          "related_lessons": [
-            "06_api",
-            "43_illumination",
-            "18_motility",
-            "59_anndata_export"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "09_annotate",
@@ -1025,26 +975,25 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify: 검증한 컴퓨터 비전 예제",
+      "title": "Classify: train an image classifier",
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
       "section": "Core",
-      "description": "다운로드한 자르기 이미지의 원본 바이트와 명확한 웰 식별자를 보존하고 작은 모델의 성능을 과장하지 않고 확인합니다.",
+      "description": "Prepare labelled image crops, choose the computer-vision family, train a small model and find its predictions.",
       "objectives": [
-        "주 모듈 Classify에서 컴퓨터 비전 계열 찾기.",
-        "원본 이미지나 라벨을 바꾸지 않고 기존 주석으로 명시적인 데이터 분할 준비하기.",
-        "실제 웰을 분리하고 그림을 확인하며 실행 성공과 유용한 예측을 구별하기.",
-        "저장 모델, 예측 및 중첩 도구 찾기."
+        "Prepare the downloadable image-classification example.",
+        "Choose the model, image channels and training settings.",
+        "Keep wells separate and inspect saved models and predictions."
       ],
       "example_files": [
         "Classify_existing_split_example.zip"
       ],
-      "prerequisite": "Annotate의 Load test data → Load를 사용하고 Stream은 선택하지 마세요. plate1/measurements/measurements.db와 png 이미지를 보존하세요. 녹화 버전은 spaCR 1.5.0.6입니다. ZIP을 풀고 spaCR 환경에서 prepare_classify_split.py를 실행합니다. --source는 plate1, --destination은 새 폴더입니다. 도우미는 이 네 웰 예제 전용입니다. 웰마다 기존 infected=1과 infected=2 라벨을 각각 8개씩 학습 전에 결정론적으로 선택하여 바이트가 동일한 RGB 이미지 64개를 복사합니다. 복사본 이름은 데이터베이스 prcfo 식별자이며, 기존 파일명 파서는 수정되지 않았습니다. 균형 잡힌 부분집합은 모집단의 클래스 비율을 보존하지 않습니다. 준비한 폴더에서 Computer Vision (Torch)를 선택하고 Generate training dataset을 끕니다. 설정: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=0, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True. 모든 누출 검사를 켭니다. train의 32개는 학습 16개와 검증 16개가 되며 test는 32개입니다. 웰은 분리되지만 같은 플레이트입니다. 테스트 예측은 전부 클래스 0입니다. 정확도=0.5, 다수 클래스 기준=0.5, 매크로 F1=1/3. 32개 식별자, 라벨, 확률 합, 정확도, 클래스별 개수 및 매크로 F1을 독립적으로 확인했으며 모든 지표를 검증한 것은 아닙니다. 출력: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. 모델 유용성, 생물학적 타당성, 새로운 실험에 대한 일반화를 주장하지 않습니다. AI 질문은 전송하지 않았습니다.",
+      "prerequisite": "Download the measured example through Annotate using Load test data, then Load. Keep its plate1 folder with measurements/measurements.db and the png crops. Download Classify_existing_split_example.zip below and extract the helper. In your spaCR environment, run prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Select the new_split folder in Classify. The helper is for this four-well example; it copies 64 labelled RGB crops into train and test folders.",
       "scenes": [
         {
           "visual": "gui_19_setting_classifier_family",
-          "narration": "Home에서 Classify를 열고 Computer Vision, Torch를 선택합니다. 컴퓨터 비전은 객체 이미지에서 학습하고 표 형식 계열은 저장된 측정값에서 학습합니다. 이제 둘 다 같은 주 모듈에 있습니다. 이 작은 검증 예제는 별도의 준비 우회 방법을 쓰며 앱의 기존 파일명 파서를 수정하지 않습니다.",
+          "narration": "From Home, open Classify and choose Computer Vision, Torch. This family learns from labelled object crops and saves a model that can score other crops. Follow the Annotate lesson first to download the example images and their labels.",
           "focus": [
             350,
             190,
@@ -1059,7 +1008,7 @@
         },
         {
           "visual": "prepare_01_source_example",
-          "narration": "연결된 Annotate 튜토리얼에 따라 Load로 실제 예제를 불러오고 측정 데이터베이스와 자르기 이미지를 보존하세요. 터미널은 실제 웰 네 개의 기존 주석 라벨을 보여 줍니다. 라벨은 유지하지만 독립적으로 검증된 생물학적 정답은 아닙니다. 원본 프로젝트는 시연 전체에서 변경되지 않습니다.",
+          "narration": "In Annotate, choose Load test data, then Load. Keep the plate folder containing measurements and PNG crops. For your own data, start with crops from Measure and assign the classes you want to learn in Annotate.",
           "focus": [
             190,
             80,
@@ -1074,7 +1023,7 @@
         },
         {
           "visual": "prepare_02_prepare_existing_split",
-          "narration": "도우미를 다운로드하여 spaCR 환경에서 실행하세요. source는 다운로드한 플레이트 폴더이며 destination은 새 폴더여야 합니다. 웰마다 기존 두 클래스에서 각각 여덟 장씩, 총 예순네 장을 복사합니다. 선택은 결정론적이며 모델 성능을 본 뒤가 아니라 학습 전에 수행됩니다.",
+          "narration": "Download the linked example ZIP and extract prepare_classify_split.py. Run it in your spaCR environment with source pointing to the example plate folder and destination pointing to a new folder. The helper prepares sixty-four labelled images for this exercise.",
           "focus": [
             190,
             80,
@@ -1085,7 +1034,7 @@
         },
         {
           "visual": "prepare_03_exported_manifest",
-          "narration": "계속하기 전에 매니페스트를 읽으세요. 복사본 이름은 데이터베이스의 정규 객체 식별자를 사용하고 모든 이미지의 원본 바이트를 보존합니다. 웰 두 개 전체는 학습 폴더로, 다른 두 개는 테스트로 갑니다. 의도적으로 균형을 맞춘 교육용 부분집합은 클래스 비율을 바꾸므로 원래 모집단을 대표하지 않습니다.",
+          "narration": "Open the new folder and its manifest. The train and test directories each contain two class folders. The manifest lists each copied image and its well. Keep whole wells on one side of the split when images from the same well share experimental conditions.",
           "focus": [
             190,
             80,
@@ -1096,12 +1045,18 @@
         },
         {
           "visual": "gui_18_source_folder_choice",
-          "narration": "Classify에서 준비된 데이터셋 폴더를 선택하세요. 원본 프로젝트나 클래스 하위 폴더가 아닙니다. train과 test 디렉터리가 있고 각각 클래스 폴더 두 개를 포함합니다. 소스 선택기로 이 기존 데이터셋을 엽니다. 원본을 덮어쓰거나 이전 결과가 있는 대상 폴더를 재사용하지 마세요.",
+          "narration": "Return to Classify and choose the prepared folder as Source. Select the parent containing train and test. Keep that prepared folder for the rest of this lesson so the model and its output files stay together.",
+          "focus": [
+            1439,
+            390,
+            943,
+            1300
+          ],
           "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_generate_training_dataset",
-          "narration": "분할이 준비되어 있으므로 Generate training dataset을 끄세요. Train과 Test는 켜고 전체 데이터셋에 모델 적용은 끈 상태로 둡니다. 클래스 폴더는 라벨 일과 이를 보존하지만 모델은 클래스 인덱스 영과 일을 씁니다. 번호 체계가 다를 뿐 모순은 아닙니다.",
+          "narration": "Turn Generate training dataset off because the helper has already prepared the split. Enable Train and Test. Leave application to the full dataset off for this first run. The model uses class indices zero and one for the two class folders.",
           "focus": [
             350,
             190,
@@ -1112,7 +1067,7 @@
         },
         {
           "visual": "gui_19_setting_model_type",
-          "narration": "이 제한된 예제는 ResNet18, 한 에포크, 배치 크기 여덟, 이미지 크기 백이십팔, 로더 작업자 수 영을 사용합니다. RGB 세 채널을 모두 사용하고 사전 학습 가중치와 데이터 증강은 끕니다. 시연을 작게 유지하는 설정이지 정확한 분류기를 위한 권장 방법은 아닙니다.",
+          "narration": "Choose ResNet18, image size one hundred twenty-eight, all three RGB channels, batch size eight and one epoch. Set loader workers to two, with pretrained weights and augmentation off for this short example. Epochs controls how many times training passes through its input images.",
           "focus": [
             350,
             190,
@@ -1123,7 +1078,7 @@
         },
         {
           "visual": "gui_19_setting_val_split",
-          "narration": "웰별 그룹화와 모든 누출 검사를 유지하세요. 검증 비율을 절반으로 하면 train 폴더의 서른두 장이 학습 열여섯 장과 검증 열여섯 장으로 나뉘며 각 그룹은 웰 하나 전체를 사용합니다. 나머지 서른두 장은 테스트 전용입니다. 네 웰이 같은 플레이트에 있으므로 독립 실험 검증은 아닙니다.",
+          "narration": "Set validation fraction to one half, keep grouping by well and leave the leakage checks enabled. Validation monitors the model during training; the separate test folder is used for the final assessment. Check the reported well assignments before interpreting the scores.",
           "focus": [
             350,
             190,
@@ -1134,7 +1089,7 @@
         },
         {
           "visual": "gui_19_setting_plot",
-          "narration": "Plot을 켜고 설정 검색을 지운 다음 Run을 누르세요. 콘솔에서 실제 분할, 누출 감사, 학습과 저장 경로를 확인합니다. 녹화에서는 웰 그룹 경계 검사 두 개가 모두 통과했습니다. 이름이 실제 시료 식별자와 일치해야 소프트웨어 검사에 의미가 있으며, 이 일치도 따로 확인했습니다.",
+          "narration": "Turn Plot on, clear the settings search and press Run. Watch the console for dataset loading, the resolved split, training progress and output paths. Wait for training and testing to finish before opening the saved results.",
           "focus": [
             350,
             190,
@@ -1145,7 +1100,7 @@
         },
         {
           "visual": "gui_24_batch_figure",
-          "narration": "Figures에는 손실, 정확도, 클래스별 검증 정확도가 표시됩니다. 한 에포크뿐이므로 개별 점이며 수렴의 증거가 아닙니다. 독립 테스트 확인 결과 모든 이미지를 클래스 영으로 예측했습니다. 정확도 오십 퍼센트는 균형 잡힌 다수 클래스 기준과 같습니다. 실행 성공이 유용한 분류기를 만들지는 않았습니다.",
+          "narration": "Open Figures to inspect loss and accuracy. One epoch gives a quick first pass. Compare the test results across classes before increasing training time. If predictions favour only one class, review the labels, class balance and input channels before using the model on a larger dataset.",
           "focus": [
             2090,
             180,
@@ -1156,7 +1111,7 @@
         },
         {
           "visual": "gui_23_batch_finished",
-          "narration": "모델 폴더에 체크포인트, 모델 카드, 누출 감사와 결과 표를 함께 보관하세요. 여기서는 model, resnet18, rgb, epochs 밑줄 일 아래에 있습니다. 정확도 숫자만 보지 말고 저장 예측의 식별자와 클래스 라벨을 비교하세요. 검토용으로 복사한 오분류 이미지는 출력이지 추가적인 독립 학습 또는 테스트 시료가 아닙니다.",
+          "narration": "Open model, resnet18, rgb, epochs underscore one inside the prepared folder. Keep the checkpoint, model card and result tables together. Use the saved predictions to review errors, then continue to Classifier Evaluation or Activation Maps to inspect the model further.",
           "focus": [
             2090,
             180,
@@ -1169,49 +1124,38 @@
             "16_activation"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "narration": "제공업체를 설정한 뒤 AI 컨트롤로 설정이나 출력에 대해 질문할 수 있습니다. 여기서는 미전송 질문을 보여 주며 답변이나 분석 결과가 아닙니다. Python에서 classify는 이 계열을 train_test_model로 전달합니다. 분할 매니페스트를 보관하고 더 큰 독립 검증 실험을 계획하기 전에 조언을 확인하세요.",
-          "focus": [
-            2090,
-            950,
-            1720,
-            1130
-          ],
-          "related_lessons": [
-            "06_api",
-            "41_classify",
-            "65_feature_explorer"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify: 표 형식 머신러닝",
+      "title": "Classify: learn from measured features",
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
       "section": "Core",
-      "description": "다운로드 가능한 세포 측정값, 명시적인 메타데이터 레이블, 작은 랜덤 포레스트, 실제 콘솔 출력과 저장된 예측으로 Classify를 사용합니다.",
+      "description": "Load measurements, define classes, train a tabular classifier and inspect object scores and plate summaries.",
       "objectives": [
-        "표 형식 분류기 계열을 선택하고 데이터 선택기에서 측정 예제를 불러옵니다.",
-        "플레이트 열로 클래스를 정의하고 요청한 비율과 실제로 분리된 웰을 구분합니다.",
-        "데모 정확도를 생물학적 검증으로 해석하지 않고 그림, 미평가 객체, 저장 결과를 확인합니다."
+        "Select the tabular family and a measured project.",
+        "Define classes and choose feature channels, model size and held-out wells.",
+        "Find model outputs, object predictions and summary figures."
       ],
-      "prerequisite": "Classify에서 Load test data를 누른 뒤 Stream이 아닌 Load를 선택합니다. 네 웰에 2,341개 객체가 있으며 2,153개가 유지되고, 188개는 대응하는 핵 데이터가 없어 점수가 없습니다. c1은 클래스 0, c2는 클래스 1이며 검증된 표현형이 아닌 플레이트 열입니다. 설정: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. test_size=0.1과 test_split=0.1을 일치시킵니다. 현재 정규화는 다른 ML 전용 값을 버리며 이 결함은 보고되었습니다. 두 웰의 1,035개 객체가 테스트용이고 학습·테스트 간 같은 웰은 없습니다. 특성 필터링은 분할 전에 수행되며 순열 중요도는 학습 데이터를 사용합니다. 정확도 0.6202898551, 다수 클래스 기준 0.5632850242입니다. 지표 9개와 저장 예측 2,153개를 독립적으로 확인했습니다. API: spacr.classify.classify가 spacr.ml.generate_ml_scores를 호출합니다. 출력: results/random_forest/channel_1. predictions는 이진 클래스, ml_pred는 클래스 1의 확률입니다. 실제 그림 세 개만 제시하며 SHAP, 확률 보정, 인과성, 생물학적 검증을 주장하지 않습니다. AI 질문은 보내지 않았습니다.",
+      "prerequisite": "Use Load test data in Classify and choose Load, then confirm the downloaded plate folder with Choose source data. For your own project, run Measure first. The example uses columnID values c1 and c2 as two classes; use labels appropriate to your experiment when working with your own data.",
       "scenes": [
         {
           "visual": "19_setting_classifier_family",
-          "narration": "Home에서 Classify를 열고 분류기 계열로 Tabular Machine Learning을 선택합니다. 별도의 ML 앱이 아니라 통합 Classify 화면입니다. 객체별로 저장된 측정값에서 학습합니다. 컴퓨터 비전 설정은 다른 계열에 속하므로 화면에 남아 있어도 회색으로 비활성화될 수 있습니다.",
+          "narration": "From Home, open Classify and choose Tabular Machine Learning. This family uses the object measurements saved by Measure. It produces a fitted model and a score for each object with the required measurements.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             650
           ],
           "related_lessons": [
@@ -1222,12 +1166,12 @@
         },
         {
           "visual": "02_data_choice_load",
-          "narration": "Load test data를 누르고 Load를 선택합니다. 측정된 예제가 다운로드되고 경로가 준비됩니다. Stream은 다른 경로입니다. 자신의 프로젝트라면 먼저 Measure를 완료한 뒤 프로젝트 폴더를 선택하세요. 아무 이미지 폴더에나 필요한 측정 데이터베이스가 이미 있다고 가정하지 마세요.",
+          "narration": "Click Load test data and choose Load. Wait for the measured example to download. For your own data, select the project folder created by Measure, including its measurements database.",
           "focus": [
-            1010,
-            550,
-            1800,
-            1040
+            1663,
+            914,
+            495,
+            365
           ],
           "related_lessons": [
             "08_measure",
@@ -1236,115 +1180,115 @@
           "hold_after": 0.7
         },
         {
-          "visual": "19_setting_classes",
-          "narration": "메타데이터 기준을 선택하고 columnID의 c1과 c2로 두 Classes를 정의합니다. 여기서는 절차를 가르치기 위한 플레이트 열 레이블이지, 독립적으로 확인한 정상 세포와 영향을 받은 세포가 아닙니다. 주석 기반 학습에는 Annotate의 실제 레이블이 필요합니다. 누락된 주석을 가상의 정답으로 바꾸지 마세요.",
+          "visual": "18_source_folder_choice",
+          "narration": "Use Choose source data to confirm the downloaded plate folder. Select the folder containing measurements. This gives the classifier access to the object tables and the metadata used to define classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            1439,
+            390,
+            943,
+            1300
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "19_setting_classes",
+          "narration": "Choose metadata as the class basis and define two Classes using column I D values c1 and c2. These labels distinguish the two plate columns in the example. To train from your own cell annotations, choose the annotation basis and the label column you created in Annotate.",
+          "focus": [
+            350,
+            190,
+            1730,
             1190
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_channel_of_interest",
-          "narration": "Channel of interest는 측정 특성을 선택합니다. 여기서는 검증하지 않은 생물학적 의미를 부여하지 않고 채널 1을 사용합니다. 자신의 데이터에서 채널을 고르기 전에 촬영과 측정 설정을 확인하세요. 여기서 특성 채널을 선택해도 이미지를 다시 분할하거나 측정하지 않습니다.",
+          "narration": "Set Channel of interest to one for the example. This controls which channel-specific measurement features enter the model. For your own experiment, select the channel that contains the signal relevant to your classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_estimators",
-          "narration": "이 작은 데모에서는 Random Forest, 추정기 16개, 작업자 작업 두 개를 선택합니다. 최적화된 모델의 권장 설정이 아닙니다. 지도 방식 특성 선택과 교차 검증은 끕니다. 교차 검증을 꺼도 이 실행에서 별도로 떼어 놓는 테스트 분할은 사라지지 않습니다.",
+          "narration": "Choose Random Forest, sixteen estimators and two worker jobs. Estimators controls the number of trees. More trees increase fitting work. Leave feature pruning and cross-validation off for this first pass; you can compare those choices after you have a working baseline.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_test_size",
-          "narration": "테스트 크기를 10분의 1로 설정하고 웰별 그룹화를 유지합니다. 요청 비율은 정확한 객체 수가 아닙니다. 이 네 웰 예제는 두 웰 전체를 떼어 놓으며, 유지된 객체의 약 48퍼센트에 해당합니다. 양쪽 모두 두 클래스가 있고 같은 실제 웰이 학습과 테스트 양쪽에 들어가지 않습니다.",
+          "narration": "Set Test size to one tenth and keep grouping by well. spaCR holds out complete wells, so the final fraction of objects can differ from the requested fraction. Read the resolved split in the console and make sure it suits your experiment.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot",
-          "narration": "Plot을 켜고 검색을 지운 다음 Run을 누릅니다. 콘솔은 실제 적용 설정, 필터링, 분할, 모델 보고서를 기록합니다. 이 기록을 결과와 함께 보관하세요. 완료 표시는 레이블, 검증 설계, 생물학적 해석이 적절했다는 증거가 아닙니다.",
+          "narration": "Enable Plot, clear the search and press Run. The console shows feature filtering, the training and test split, model fitting and the saved output paths. Wait for the run to finish before comparing its scores.",
           "focus": [
-            460,
-            230,
-            3340,
+            350,
+            190,
+            1730,
             1640
           ],
           "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "이 실행은 객체 2,153개에 점수를 부여합니다. 188개에는 대응하는 핵 데이터가 없으므로 음성이 아니라 미평가 상태로 남습니다. 저장된 테스트 정확도는 약 62퍼센트이며 다수 클래스 기준은 56퍼센트입니다. 플레이트 하나의 네 웰로 새 실험에 대한 일반화를 입증할 수는 없습니다.",
+          "narration": "Find the results under results, random_forest, channel underscore one. The database stores the predicted class in predictions and the class-one probability in ml_pred. Objects missing required measurements can remain unscored; inspect missing values when exporting a summary.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            950,
+            1720,
+            600
           ],
           "hold_after": 0.7
         },
         {
-          "visual": "24_batch_figure",
-          "narration": "순열 중요도, 트리 특성 중요도, 이 플레이트 히트맵까지 그림 세 개가 있습니다. Predictions와 평균 집계를 쓰면 히트맵은 예측된 이진 클래스의 평균을 보여 주며, 확률의 평균이 아닙니다. 중요도는 인과성이 아니며 순열 계산에는 학습 데이터를 사용합니다. 색깔 있는 그림에서 결론을 내리기 전에 저장된 표를 확인하세요.",
+          "visual": "25_ml_figure_02",
+          "narration": "Browse the feature-importance figures and plate heatmap. With Predictions and mean grouping, a well value is the average of its binary predicted classes. Use the saved object scores for detailed review, and compare held-out performance before applying the classifier to another experiment.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI 토글은 제공업체의 도움을 받아 절차에 관해 질문할 수 있게 합니다. 이것은 보내지 않은 초안이지 생성된 답변이 아닙니다. 결과를 설정과 함께 보관하고 모든 조언을 검증하세요. 하위 도구에는 별도 입력 요건이 있습니다. Explain 튜토리얼은 이 ML 출력이 아니라 컴퓨터 비전 점수를 사용합니다. AI가 레이블과 분할 대상의 식별 확인을 대신하지는 않습니다.",
-          "focus": [
-            2140,
-            970,
-            1670,
-            1080
-          ],
-          "related_lessons": [
-            "70_explain_cv",
-            "28_training_runs",
-            "06_api"
+            2090,
+            190,
+            1720,
+            1200
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes: 실시간 검색, 검증된 참조표와 실제 집계",
+      "title": "Map Barcodes: from sequencing reads to counts",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "주요 모듈",
-      "description": "실제 시퀀싱 데이터의 제한된 표본을 다운로드하고 실시간 검색을 확인한 뒤 제안을 명시적으로 적용하고 집계를 검증합니다. 현재 Python API에서 두 종류의 바코드 세트도 시연합니다.",
+      "section": "Core",
+      "description": "Load paired reads and library references, find barcode positions, apply the settings and save guide counts.",
       "objectives": [
-        "실제 리드가 뒷받침하는 참조표와 방향을 찾습니다.",
-        "검색 제안, 적용된 설정, 올바른 방향의 참조 파일을 구분합니다.",
-        "저장된 집계를 확인하고 바코드를 꾸며내지 않은 명시적 세트를 사용합니다."
+        "Download a small paired-read example and select matching reference tables.",
+        "Inspect barcode positions and orientation before applying a proposal.",
+        "Run mapping and inspect count and quality-control outputs."
       ],
-      "prerequisite": "바코드 검색 기능이 있는 spaCR 1.5.0.7 nightly가 필요합니다. 녹화에서는 다운로드 가능한 SRR33531217과 관리자의 해당 primers_3 열·행 참조표 및 가이드 참조표를 사용하며, 예전 기본 참조표를 사용하지 않습니다. 매핑 전에 자신의 라이브러리에 맞는 참조표를 준비하세요.",
+      "prerequisite": "Choose Load test data in Map Barcodes. The example uses SRR33531217 reads, the matching primers_3 column and row tables, and guide references. Use reference tables matching your own library when processing other reads.",
       "scenes": [
         {
           "visual": "gui_01_module",
@@ -1352,163 +1296,160 @@
           "related_lessons": [
             "47_barcode_qc"
           ],
-          "narration": "Home에서 Map Barcodes를 엽니다. 이 모듈은 시퀀싱 리드를 이름으로 식별된 바코드별 집계로 변환합니다. Barcode QC는 그 아래의 품질 관리 모듈이며, 별도 튜토리얼도 계속 이용할 수 있습니다."
+          "narration": "From Home, open Map Barcodes. The inputs are sequencing reads and reference tables that name the barcodes in your library. The output counts each observed combination, ready for sequencing quality control and downstream analysis."
         },
         {
           "visual": "gui_02_archive_bounded_choice",
           "hold_after": 0.7,
-          "narration": "Load test data를 선택하고 공개 아카이브의 첫 번째 런에서 페어를 이루는 두 파일을 모두 선택합니다. 각 파일을 리드 10,000개로 제한합니다. 이렇게 하면 전체 시퀀싱 아카이브가 아니라 실제 페어드 표본을 다운로드합니다."
+          "narration": "Click Load test data and select both mates of the first archive run. Limit each file to ten thousand reads for this example, then wait for the paired sample to download."
         },
         {
           "visual": "gui_04_reference_tables",
           "hold_after": 0.7,
-          "narration": "이 라이브러리에 맞는 참조표를 선택합니다. 여기서는 예전 기본값 대신 올바른 primers_3 열·행 참조표와 가이드 참조표를 사용합니다. 제안이 설정을 변경하는 모습을 보이려고 의도적으로 윈도 길이를 120개 염기로 시작합니다."
+          "narration": "Select the matching column, row and guide reference tables. Each table pairs barcode names with sequences. Keep those names consistent with the plate layout and guide identifiers used by the rest of your analysis."
         },
         {
           "visual": "gui_06_live_search_progress",
           "hold_after": 0.7,
-          "narration": "Find barcodes를 열고 검색을 시작합니다. 두 파일의 실제 리드를 양방향으로 표본 조사하면서 집계가 갱신됩니다. 이 실시간 갱신 중에 설정 양식은 변경되지 않습니다."
+          "narration": "Open Find barcodes and start the search. The preview samples both mates and checks barcode positions and orientations. Wait for the results before changing the main form."
         },
         {
           "visual": "gui_07_search_verdicts",
           "hold_after": 0.7,
-          "narration": "Observed와 By chance를 비교한 뒤 방향, 위치, 판정을 살펴봅니다. 일치율만으로 바코드의 존재를 확정할 수 없습니다. 일치 위치의 집중도와 관측된 서로 다른 참조 바코드도 판단에 사용됩니다. 적용 전에 판정 설명을 읽으세요."
+          "narration": "Compare Observed with By chance, then inspect the proposed orientation, offset and verdict for each barcode. Prefer positions supported by many reads and distinct expected references. Open the verdict explanation if the result is uncertain."
+        },
+        {
+          "visual": "gui_07b_guide_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Inspect the guide results for both mates. In this example, read one supports the reverse-complemented guide sequence and read two supports the stored orientation. Use the results for your library and read pair when choosing an orientation."
+        },
+        {
+          "visual": "gui_07c_row_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Check the row barcode as well. Here, read one supports its reverse complement and read two supports the stored sequence. Review column, guide and row together so the complete combination identifies the intended well and guide."
         },
         {
           "visual": "gui_08_coloured_reads",
           "hold_after": 0.7,
-          "narration": "리드 뷰어는 한 줄에 실제 리드 하나를 표시합니다. 범례는 열, 가이드, 행, 앵커 서열의 색을 알려줍니다. 색으로 표시된 일치는 근거를 살피는 데 도움이 되지만, 단독 일치 하나가 참조표의 정확성을 증명하지는 않습니다."
+          "narration": "Open the read viewer to inspect individual reads. Use the colour legend to find the column, guide, row and anchor segments. Check that the proposed positions agree with the expected library structure."
         },
         {
           "visual": "gui_09_proposed_settings",
           "hold_after": 0.7,
-          "narration": "제안을 검토합니다. 이 표본의 추출 윈도 길이는 89개 염기입니다. Apply these settings를 눌러야만 제안된 변경이 양식에 기록됩니다. 자동 탐지가 설정을 자동으로 덮어쓸 권한을 뜻하지는 않습니다."
+          "narration": "Review the proposed extraction settings, then click Apply these settings to copy them into the form. The example uses an extraction window of eighty-nine bases. Check the updated fields before starting the run."
         },
         {
           "visual": "gui_11_oriented_reference_copies",
           "hold_after": 0.7,
-          "narration": "설명에는 행과 가이드 참조표가 역상보 방향이어야 한다는 내용도 있습니다. Apply는 해당 파일을 만들지 않습니다. 모든 원래 바코드 이름을 유지한, 별도로 검증된 역상보 사본을 선택하고 열 참조표는 원래 방향으로 둡니다."
+          "narration": "Follow the orientation notes when selecting your final reference files. For this example, select reverse-complemented copies of the row and guide references and keep the column reference as stored. Preserve every barcode name when preparing those copies."
         },
         {
           "visual": "gui_20_batch_settings",
           "hold_after": 0.7,
-          "narration": "다운로드한 페어를 작업 프로세스 두 개와 1,000개 단위의 청크로 처리하고 주석이 붙은 리드 저장을 켭니다. 없는 할당은 결측 상태로 남겨 둡니다. 이 매핑은 CPU를 사용하며 GPU는 필요하지 않습니다."
+          "narration": "Choose the downloaded read pair, two workers and chunks of one thousand reads. Enable annotated-read saving if you want to inspect individual assignments. Click Run; this mapping workflow uses the CPU."
         },
         {
           "visual": "gui_23_batch_finished",
           "hold_after": 0.7,
-          "narration": "실제 실행은 윈도 8,611개를 추출하고 리드 7,657개를 집계표 4,099행에 매핑했습니다. 일치하지 않거나 모호한 참조는 할당되지 않은 채로 남습니다. 완료 여부는 콘솔의 종료 메시지뿐 아니라 저장된 파일로 확인합니다."
-        },
-        {
-          "visual": "api_01_actual_two_barcode_api",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
-          ],
-          "narration": "현재 Python API는 크기에 제한 없는 바코드 세트를 받지만, 이 양식에는 세트 편집기가 없습니다. 여기서는 실제 두 번째 계산에서 리드 1,000쌍에 대해 열과 가이드만 선택합니다. 각 항목에는 패턴의 대응하는 이름 있는 그룹이 필요합니다. 행 식별을 빼면 웰별이 아니라 열과 가이드별 집계가 됩니다."
-        },
-        {
-          "visual": "api_02_real_count_figure",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "47_barcode_qc",
-            "13_regression"
-          ],
-          "narration": "이 Python 검증 그림은 GUI에서 실행한 세 바코드 종류의 결과에 저장된 리드 깊이를 보여줍니다. 모든 집계를 주석이 붙은 리드 및 참조 이름과 독립적으로 대조했습니다. 불균일한 깊이는 품질 관리 관찰이지 생물학적 효과가 아닙니다. 후속 Regression 전에 Barcode QC를 확인하세요."
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "hold_after": 0.7,
-          "narration": "공급자를 설정하면 spaCR AI 기능으로 실행 결과의 설명을 도움받을 수 있습니다. 녹화에는 보내지 않은 질문만 있으며 AI 응답은 없습니다. 규모를 확대하기 전에 참조 식별, 방향, 경고, 저장된 집계를 직접 확인하세요."
+          "narration": "When mapping finishes, inspect unique_combinations.csv and the quality-control outputs. The count table links column, row and guide names with read counts. Review unmatched and ambiguous assignments in Barcode QC, then pair these counts with phenotype scores in Regression."
         }
-      ]
+      ],
+      "example_files": [
+        "SRR33531217_barcode_references.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression: 짝지은 표에서 결과까지 실제 예제로 살펴보기",
+      "title": "Regression: from paired tables to results",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "다운로드할 수 있는 예제 스크리닝 데이터를 불러와 제한된 규모의 가이드 순열 분석을 설정하고, 실제 콘솔과 그림을 확인하며 Regression 안으로 통합된 전문 도구를 찾습니다.",
+      "description": "Pair phenotype scores with guide counts, choose an inference method, run the example and explore guide and gene results.",
       "objectives": [
-        "화면의 테스트 데이터 버튼으로 점수·계수 표 네 쌍을 불러오고 별도 출력 폴더를 선택합니다.",
-        "추론 방법, 결과 수준, 분석 단위를 구분하고, 예제의 순열 횟수를 최종 분석 권장값으로 여기지 않으면서 제한된 실행을 재현합니다.",
-        "실제 결과, 그림, 진단의 한계를 확인하고, 대화형 조회와 분석을 다시 계산하는 실시간 미리보기를 구분합니다.",
-        "Regression의 하위 도구, 선택적인 AI 지원, 현재 Python 진입 함수를 찾습니다."
+        "Load paired score/count tables and choose an output folder.",
+        "Set the inference method, reporting level and analysis unit.",
+        "Run the example and inspect results with the accompanying diagnostics."
       ],
-      "prerequisite": "spaCR를 열고 Core 모듈에서 Regression을 선택하세요. 예제는 점수·계수 파일을 다운로드하거나 캐시를 재사용합니다. 녹화한 분석에는 측정 데이터베이스, 잘라낸 이미지, 외부 주석 서비스, AI 구독이 필요하지 않습니다. 짧은 순열 실행은 작업 흐름을 보여 주며 확정적인 생물학적 발견을 뜻하지 않습니다.",
+      "prerequisite": "Open Regression and choose Load test data to obtain four paired score/count tables. Use a new output folder. A measurement database is optional for this score-and-count analysis; object-level views require the corresponding measured data and images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Core 모듈에서 Regression을 엽니다. 표현형 점수와 가이드의 양을 연결한 뒤, 선택한 추론 방법으로 연관성을 보고합니다. 위쪽 도구는 이제 이 모듈 안에 있으며 Home의 독립 타일이 아닙니다.",
+          "narration": "From Home, open Regression. This module relates phenotype scores to guide abundance. Start with a score table and a count table for each plate, then choose how to test and report associations.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7
         },
         {
-          "visual": "02_cached_load",
-          "narration": "Input Tables에서 Load test data를 선택합니다. 앱은 예제 스크리닝 데이터를 다운로드하거나 검증된 캐시 파일을 재사용합니다. 이 녹화에서는 캐시를 사용합니다. 콘솔에는 플레이트별로 짝지은 점수 표 네 개와 계수 표 네 개가 표시됩니다.",
+          "visual": "02_download",
+          "narration": "In Input Tables, click Load test data and wait for the example to load. It provides four score tables and four count tables, paired by plate.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_paired_data",
-          "narration": "짝지은 네 행을 모두 확인합니다. 각 플레이트에는 서로 맞는 점수·계수 파일이 필요합니다. 선택 항목인 측정 데이터베이스 열은 여기서 비어 있습니다. 필요하면 설정 패널을 넓히고 새 출력 폴더를 사용해 기존 분석과 예제가 섞이지 않게 합니다.",
+          "narration": "Inspect each paired row and check the plate name, score file and count file. Leave the optional measurement-database column empty for this example. Choose a new output folder for the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_inference",
-          "narration": "Essentials에서 All settings로 전환하고 검색창에서 라벨이나 API 키로 설정을 찾습니다. 여기서 inference는 nonparametric, 즉 가이드 순열 검정입니다. 이는 모든 예측 변수를 함께 적합하는 모수적 회귀와 다르며, 모수적 회귀에는 식별 가능한 설계가 필요합니다.",
+          "narration": "Switch to All settings and use the search box to find Inference. Choose nonparametric for this guide-permutation example. Use a parametric method when your question and design call for fitting predictors together.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_level",
-          "narration": "Level은 무엇을 보고할지라는 별도의 질문에 답합니다. 가이드와 유전자 결과를 각각 얻으려면 both를 선택합니다. 이 선택 자체가 추론 방법을 정하지는 않습니다. 두 결과는 서로 다른 검정군이므로 보정된 유의성을 해석하기 전에 원하는 검정군을 확인하세요.",
+          "narration": "Level chooses which results to report. Select both to obtain guide-level and gene-level results. Keep these testing families separate when reviewing adjusted significance.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_analysis_unit",
-          "narration": "이 예제의 분석 단위는 well입니다. 불러온 프리셋이 반응 열, 변환, 대조군, 제외 항목을 지정합니다. 자신의 스크리닝에 적용하기 전에 이러한 가정을 확인하세요. 다운로드한 프리셋은 설계의 한 예이지 모든 실험에 대한 권장안이 아닙니다.",
+          "narration": "Choose well as the analysis unit for this example. Review the response column, transformations, controls and excluded wells. Adapt these settings to the design of your own screen before running new data.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_min_wells",
-          "narration": "이 제한된 실행에서는 가이드의 최소 지지 수를 두 웰로 설정합니다. 이는 검정할 가이드를 거르는 필터이며 충분한 통계적 검정력의 증거는 아닙니다. 아주 적은 웰에만 있는 가이드는 여전히 신중히 해석해야 합니다.",
+          "narration": "Minimum guide support controls how many wells must contain a guide before it is tested. Set it to two to follow this small example. Choose an appropriate support requirement for your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutations",
-          "narration": "짧은 시연을 재현하려면 순열 횟수를 199로 설정합니다. 이때 얻을 수 있는 최소 경험적 p값은 0.005여서 다중 검정 보정 후에는 분해능이 너무 낮을 수 있습니다. 실제 실험에는 적절한 순열 횟수를 계획하세요.",
+          "narration": "Set one hundred and ninety-nine permutations for a quick first run. More permutations give finer empirical p-value resolution and take longer. Choose a larger count when your final analysis requires it.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutation_seed",
-          "narration": "시연의 순열 시드는 0으로 설정합니다. 설계상 변경할 이유가 없다면 예제의 플레이트 블록과 행·열의 교란 요인을 조정하는 항을 유지합니다. 고정 시드는 재현성을 돕지만 잘못된 교환 가능성 가정을 바로잡지는 못합니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "19_setting_regression_backend",
-          "narration": "Regression backend는 모든 작업에 적용되는 가속 스위치가 아닙니다. 지원되는 모델 적합 추정기에 적용되며, 이 필드를 바꾼다고 가이드 순열 시연이 GPU 회귀가 되지는 않습니다. 다른 spaCR 모듈에는 각각 장치 선택이 있으므로 실제 실행 중인 작업의 컨트롤과 콘솔을 확인하세요.",
+          "narration": "Set the permutation seed to zero to repeat the same randomization. Keep the example’s plate blocks and row and column nuisance terms. For your own data, choose blocks that respect which observations can be exchanged under the experimental design.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_annotation_source",
-          "narration": "이 독립적인 예제에서는 주석 출처를 none으로 선택합니다. 통계 결과를 얻는 데 외부 유전자 주석 조회는 필요하지 않습니다. 자신의 스크리닝에서는 생물종과 식별자 체계에 맞는 주석을 사용하고 모든 가이드 이름이 조회될 것이라고 가정하지 마세요.",
+          "narration": "Choose none for Annotation source to run the example without gene-annotation lookup. For another screen, select annotations that match its organism and identifier system.",
           "hold_after": 0.7
         },
         {
           "visual": "21_batch_running",
-          "narration": "검색을 지우고 출력 폴더를 확인한 뒤 Run을 누릅니다. 입력 정렬, 선택한 필터 적용, 결과 계산을 실제 콘솔에서 확인합니다. Regression은 진단 그림을 직접 생성하므로 이 녹화에서 따로 켤 Plot 스위치는 없습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "23_batch_finished",
-          "narration": "완료된 예제는 가이드 결과 434개, 유전자 결과 325개, 그림 다섯 개를 생성했습니다. Finished는 소프트웨어 실행이 끝났다는 뜻이지 실험 설계가 타당하다거나 생물학적 발견이 확립되었다는 뜻은 아닙니다. 완료 문구와 함께 진단 경고도 읽으세요.",
+          "narration": "Clear the search, check the paired inputs and output folder, then click Run. Follow the console as the module aligns the tables, filters guides and calculates the results. Diagnostic figures are generated with the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "25_result_runs",
-          "narration": "Runs는 저장된 분석을 식별하고 Results는 선택한 실행을 표시합니다. 실행을 비교할 때 폴더와 설정을 확인하세요. 양식 값을 바꿔도 보고 있는 결과가 다시 계산되지는 않습니다. 새로운 선택을 시험하려면 분석을 다시 실행하세요.",
+          "narration": "When the run finishes, open Runs and select the saved analysis. Confirm the folder and settings before comparing it with another run. Rerun the analysis after changing settings if you want new results.",
           "hold_after": 0.7,
           "related_lessons": [
             "73_parameter_sweep"
@@ -1516,62 +1457,32 @@
         },
         {
           "visual": "25_result_results",
-          "narration": "Results에는 생성된 그림 옆에 계수 표와 대화형 보기가 있습니다. 실행 전체에는 두 수준을 합해 759행이 있지만, 현재 보기는 가이드 결과 434개를 선택했습니다. Level로 검정군을 고릅니다. 저장된 출력을 대화형으로 살펴보는 것은 추론을 다시 실행하는 일이 아닙니다.",
+          "narration": "Open Results and use Level to switch between guide and gene results. Inspect the result table and interactive views. The saved results_grna.csv and results_gene.csv files contain the corresponding tables for further analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "26_detail_p_values",
-          "narration": "p-values 보기를 열어 결과 분포를 확인합니다. 선택한 검정군, 순열 분해능, 진단과 함께 해석해야 하며 자동으로 효과의 증거로 여겨서는 안 됩니다. 별도 Diagnostics 튜토리얼에서 저장된 설계 및 추론 패널을 자세히 설명합니다.",
+          "narration": "Open the p-values view and the Diagnostics tool. Review the result distribution together with the permutation resolution, testing family and design warnings. Resolve important diagnostic concerns before interpreting associations.",
           "hold_after": 0.7,
           "related_lessons": [
             "75_regression_diagnostics"
           ]
         },
         {
-          "visual": "25_result_measurements",
-          "narration": "Measurements는 추가적인 측정 반응을 살펴보는 컨트롤을 제공합니다. 이 예제에는 측정 데이터베이스가 연결되어 있지 않습니다. 탭을 열기만 해서는 데이터베이스가 생성되거나 측정 항목 스윕이 실행되지 않습니다. 자신의 실험에 사용하기 전에 필요한 측정 데이터를 제공하세요.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "25_result_cells",
-          "narration": "적절한 측정 데이터와 이미지가 있으면 Cells에서 선택한 결과를 원래 객체에 연결할 수 있습니다. 여기서는 데이터베이스 열이 비어 있어 보여 줄 세포 몽타주가 없습니다. 객체 보기를 사용할 수 없는 것과 점수·계수 분석 실패를 혼동하지 마세요.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "71_investigate_hit"
-          ]
-        },
-        {
           "visual": "26_detail_coefficients",
-          "narration": "하위 도구는 Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler, Diagnostics입니다. 아이콘 위에 포인터를 올려 확인하세요. 연결된 튜토리얼이 각각의 작업 흐름을 설명합니다. 예를 들어 예측 프로파일러에는 적절한 적합 모델 출력이 필요하며, 이 순열 실행에서는 제공되지 않습니다.",
-          "focus_buttons": "FoldButton",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "72_volcano_explorer",
-            "48_hit_list",
-            "49_methods_results",
-            "71_investigate_hit",
-            "53_prediction_profiler",
-            "75_regression_diagnostics"
-          ]
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI는 Preferences의 AI에서 설정한 제공자를 통해 선택적인 도움을 켭니다. 결과나 설정에 대해 구체적으로 질문하고 조언을 데이터와 대조하세요. 여기에는 보내지 않은 예시 질문만 있습니다. 녹화 중 제공자에 접속하거나 답변을 생성하지 않았습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "26_detail_coefficients",
-          "narration": "스크립트에서는 spaCR 머신러닝 모듈의 perform_regression 함수에 해당 설정을 전달하고 현재 API 문서를 참고합니다. 입력 표, 저장된 설정, 출력, 진단 해석을 함께 보관하세요. Parameter Sweep을 목적에 맞게 비교에 사용하고 탐색적 선택과 최종 분석 결정을 구분하세요.",
+          "narration": "Use the toolbar to open Volcano Explorer, Hit List or Investigate Hit for the next step. Their tutorials show how to inspect selected results. Keep the input tables, saved settings, result files and diagnostic reports together when sharing the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "73_parameter_sweep"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "14_make_masks",
@@ -1732,27 +1643,26 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "Image UMAP: 실제 측정값과 잘라낸 이미지의 대화형 검사",
+      "title": "Image UMAP: explore measurements with image crops",
       "series": 1,
       "app_key": "umap",
       "section": "Tools",
-      "description": "다운로드한 예제의 측정값으로 작은 임베딩을 만들고, 실제 잘라낸 이미지를 대화형으로 확인하며, 통합된 투영 도구를 찾습니다.",
+      "description": "Select measurement tables, build a UMAP embedding and click points to inspect the corresponding objects.",
       "objectives": [
-        "다운로드한 프로젝트를 재사용하고 측정 테이블을 선택합니다.",
-        "재현 가능한 작은 임베딩을 설정하고 전처리와 출력을 확인합니다.",
-        "계산된 점을 클릭해 주석을 바꾸지 않고 해당 실제 이미지를 확인합니다.",
-        "통합된 Image Scatter와 PCA, 탐색 컨트롤, 선택적 가속 및 AI 지원을 찾습니다."
+        "Load a measured project and choose its feature tables.",
+        "Control neighbourhood size, point spacing and the sampled row count.",
+        "Run the embedding, inspect crops and find saved results."
       ],
-      "prerequisite": "먼저 Annotate의 Load test data로 PNG 이미지 2,341개와 측정 데이터베이스를 받으세요. Image UMAP은 이 프로젝트를 재사용하며, 이 녹화에서는 다른 데이터셋을 다운로드하지 않습니다. 예제는 CPU에서 측정 특징을 사용하며, 신경망이 추출한 이미지 특징은 사용하지 않습니다.",
+      "prerequisite": "Follow Annotate and choose Load test data, then Load, to obtain the measured example and its image crops. Keep the downloaded plate folder. For your own data, complete Measure with saved crops before opening Image UMAP.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home 화면의 Tools에서 Image UMAP을 엽니다. 측정된 특징으로 객체를 배치한 뒤 해당 현미경 이미지를 확인할 수 있습니다. 이 탐색용 지도에서 가까이 모인 점들이 자동으로 생물학적 클래스를 이루는 것은 아닙니다.",
+          "narration": "From Home, open Image UMAP. Use it to explore similarities between measured objects while viewing their image crops. Start with a project containing a measurements database and the crops saved by Measure.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_src",
-          "narration": "Annotate의 Load test data로 받은 프로젝트를 재사용합니다. 잘라낸 이미지 2,341개와 측정 데이터베이스가 들어 있습니다. 실제 다운로드는 연결된 Annotate 강의를 참고하세요. 여기서는 이미 존재하는 프로젝트를 엽니다.",
+          "narration": "Under Source, choose Add project folders and select the example plate folder downloaded through Annotate. Review the available databases, rows and shared columns. You can add more project folders when you want to compare several datasets.",
           "related_lessons": [
             "09_annotate",
             "08_measure"
@@ -1760,99 +1670,81 @@
           "hold_after": 0.7
         },
         {
-          "visual": "19_setting_src",
-          "narration": "Source에서는 Add project folders를 사용합니다. 개별 이미지가 아니라 플레이트 폴더를 선택하세요. 컨트롤은 병합 전에 데이터베이스, 행 수, 공통 열을 보여 줍니다. 여러 프로젝트를 비교할 때는 군집을 생물학적으로 해석하기 전에 데이터 출처에 따른 구조를 살펴보세요.",
-          "hold_after": 0.7
-        },
-        {
           "visual": "19_setting_tables",
-          "narration": "분석 질문에 맞는 측정 테이블을 선택합니다. 이 예제는 세포, 세포질, 핵, 병원체 측정값을 사용합니다. 결측 데이터와 상관된 특징의 제거를 검토하세요. Resnet features는 꺼 두세요. 이 경로에는 원본 이미지 조각의 신경망 임베딩이 구현되지 않았습니다.",
+          "narration": "Choose the tables whose features you want to compare. For this example, select cell, cytoplasm, nucleus and pathogen measurements. Leave Resnet features off to use the existing measurements. Review missing-data and correlated-feature settings before running.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_row_limit",
-          "narration": "작은 시연을 위해 Row limit을 400으로 설정합니다. 이는 표본으로 뽑는 객체 수의 상한일 뿐, 표본이 모든 실험을 대표하게 만들지는 않습니다. 작업자 두 개로 자원을 제한하며, 원본 데이터베이스는 더 큰 분석에 사용할 수 있도록 남겨 둡니다.",
+          "narration": "Set Row limit to four hundred for a quick first view and use two workers. Row limit controls how many objects enter the embedding. Increase it when you are ready to explore more of the dataset.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "여기서는 Reduction method로 UMAP을 선택합니다. 현재 양식에는 고유한 설정을 가진 다른 차원 축소 방법도 있습니다. PCA나 t-SNE 설정을 UMAP 설정과 바꿔 사용할 수는 없습니다. 이 시연에서는 UMAP만 계산했습니다.",
+          "narration": "Choose UMAP as the reduction method. Each point will represent an object using two plotted coordinates. You can explore PCA through its linked tool when you want a linear projection and feature loadings.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_neighbors",
-          "narration": "이웃 수는 15, 최소 거리는 0.1을 사용합니다. 이웃의 크기는 국소 구조 표현에 영향을 주고, 최소 거리는 점이 얼마나 밀집할 수 있는지에 영향을 줍니다. 시연용 선택이며, 모든 생물학적 분석에 최적인 설정은 아닙니다.",
+          "narration": "Set Neighbours to fifteen and Minimum distance to zero point one. Neighbours controls the size of the neighbourhood used to build the map. Minimum distance controls how closely points can pack in the displayed embedding.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_random_seed",
-          "narration": "같은 입력을 비교할 때는 차원 축소기의 시드를 42로 유지하세요. 시드를 지정한 CPU 구현은 작업자를 더 요청해도 재현성을 위해 스레드 하나만 사용할 수 있습니다. 같은 시드가 서로 다른 특징 선택이나 계산 백엔드를 동등하게 만들지는 않습니다.",
+          "narration": "Set Random seed to forty-two so repeated runs with the same inputs and settings are easier to compare. Save your chosen feature tables and preprocessing settings alongside the seed.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_clustering",
-          "narration": "군집화는 차원 축소와 별개입니다. 이 DBSCAN 예제는 객체 400개 모두를 군집 0에 배정하며, 노이즈 제거는 꺼 둡니다. 하나의 라벨은 계산된 그룹일 뿐, 모든 세포가 같은 표현형이라는 발견은 아닙니다.",
+          "narration": "Clustering assigns labels to groups after the embedding is built. This example uses DBSCAN with noise removal off. Inspect the crops within any group before using its label in a later analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot_images",
-          "narration": "잘라낸 이미지와 점을 함께 표시하세요. 작은 이미지 12개를 배치하면 점 구름을 가리지 않고 정적 지도를 검사할 수 있습니다. 표시 옵션은 결과를 읽는 데 도움을 주지만, 그 기하 구조를 만든 특징을 검토하는 일을 대신하지는 않습니다.",
+          "narration": "Enable Plot images and Plot points. Use twelve small crop images so the overview remains readable. You can inspect individual objects more closely in the interactive view after fitting.",
           "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "Run을 누르고 실제 콘솔을 읽으세요. 이 실행은 결측 측정값을 중앙값으로 대치한 과정과 400행 2열의 임베딩을 보고합니다. Finished 표시뿐 아니라 이런 전처리 결정을 확인하세요. 여기서는 이미지 분할이나 분류기 학습을 하지 않았습니다.",
+          "narration": "Press Run and watch the console for feature preparation and embedding progress. Wait for the completed result. If you change the input tables or reduction settings, run again to produce a new map.",
           "hold_after": 0.7
         },
         {
           "visual": "24_batch_figure",
-          "narration": "저장된 임베딩 그림과 결과 폴더를 확인하세요. 내보낸 표에는 선택된 측정 행, 메타데이터, 군집 라벨이 들어 있습니다. 이 버전이 그림에 표시한 두 좌표까지 그 표에 내보낸다고 가정하지 마세요.",
+          "narration": "Inspect the embedding in Figures and open the results folder reported in the console. Keep the saved figure, selected measurement rows, metadata and cluster labels together so you can trace an interesting group back to its objects.",
           "hold_after": 0.7
         },
         {
           "visual": "25_interactive_embedding",
-          "narration": "Interactive를 켜서 이미 계산된 지도를 탐색합니다. 설정이 바뀔 때마다 실시간으로 다시 적합하는 기능이 아닙니다. 점 클릭, 확대, 영역 선택으로 현재 결과를 확인할 수 있지만, 분석을 바꾸려면 다시 실행해야 합니다.",
+          "narration": "Enable Interactive to explore the fitted map. Zoom into a region and click its points. The view uses the completed embedding, so you can inspect different objects without fitting it again.",
           "hold_after": 0.7
         },
         {
           "visual": "26_point_0",
-          "narration": "점을 클릭하고 오른쪽에서 해당 실제 이미지를 확인하세요. 표시된 경로는 이미지를 원본 객체와 연결합니다. 여기서는 클릭 뒤 실제 앱이 대응하는 이미지를 불러왔으며, 대표 이미지로 대체하지 않았습니다.",
+          "narration": "Click a point to show its crop in the side panel. Use the displayed object path to connect the image to its source record. Compare morphology across nearby points and across distant regions of the map.",
           "hold_after": 0.7
         },
         {
           "visual": "26_point_200",
-          "narration": "다른 점을 클릭해 형태를 비교하세요. 사이드바에는 선택 영역 라벨링과 자동 군집 전파도 있습니다. 단순히 이미지를 보는 것과 달리 이런 작업은 주석을 기록합니다. 이 버튼들은 누르지 않았으며 데이터베이스가 바뀌지 않았음을 확인했습니다.",
+          "narration": "Click another point to compare its crop. The sidebar also provides selection labelling and cluster-label propagation. Those controls save annotations, so choose the intended label and selection before applying them.",
           "hold_after": 0.7
         },
         {
           "visual": "27_fold_image_scatter",
-          "narration": "Image Scatter와 PCA는 이제 Image UMAP의 머리글에 있습니다. 특징 사이의 직접적인 관계는 Image Scatter로, 선형 투영과 부하량은 PCA로 확인하세요. 기존 전문 강의는 이 상위 모듈 아래에 계속 연결되어 있습니다.",
+          "narration": "Open Image Scatter from the Image UMAP header to compare selected features directly, or open PCA for a linear projection. Continue with the linked tutorials for their input settings and saved outputs.",
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "55_image_scatter",
             "60_pca"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "28_hyperparameter_controls",
-          "narration": "Hyperparameter search는 별도의 비교 패널을 엽니다. 탐색 규모를 작게 유지하고 설정을 전파하기 전에 결과 배치를 확인하세요. 이 녹화에서는 실제 컨트롤만 보여 줍니다. 탐색을 시작하거나 선택된 결과를 꾸며 내지 않았습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "24_batch_figure",
-          "narration": "GPU 컨트롤은 선택 사항입니다. 이 녹화는 CPU를 사용했습니다. 지원되는 차원 축소기는 사용 가능한 경우 선택적 RAPIDS 백엔드를 쓸 수 있습니다. 이는 Torch의 장치 선택과 다른 가속 경로입니다. 실제 백엔드를 확인하고 장치가 달라도 좌표가 같다고 약속하지 마세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI는 선택적인 제공업체 지원을 켜는 것이지 생물학적 해석을 자동화하는 기능은 아닙니다. 이 질문은 전송하지 않았습니다. 스크립트의 대응 진입점은 spacr.core의 generate_image_umap입니다. 입력 테이블, 전처리, 저장한 설정을 결과 그림과 함께 보관하세요.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "16_activation",
@@ -2144,31 +2036,25 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "운동성 분석",
+      "title": "Motility assay",
       "series": 2,
       "app_key": "motility",
       "section": "Core",
       "host_app_key": "measure",
-      "description": "Measure 안의 Motility에서 재현 가능한 합성 궤적으로 실시간 필터와 단위를 살펴봅니다.",
+      "description": "Measure movement from tracked objects, inspect track filters, and save per-frame and per-well results.",
       "objectives": [
-        "Measure 안에서 Motility를 열고 동일한 추적 배열을 불러옵니다.",
-        "이미지를 다시 읽거나 모델을 재실행하지 않고 필터를 비교합니다.",
-        "미상 단위, 가정에 따른 변환, 감염 라벨과 출력 한계를 구분합니다."
+        "Load a project containing tracked merged arrays.",
+        "Choose mask planes, track filters and acquisition units.",
+        "Run the analysis and find the movement tables and plots."
       ],
       "example_files": [
         "SYNTHETIC_motility_tracks.zip"
       ],
-      "prerequisite": "SYNTHETIC_motility_tracks.zip을 새 폴더에 풉니다. 합성 배열 8개: 핵 강도 0, 세포 강도 1, 추적된 세포 마스크 2, 핵 마스크 3. 병원체 평면이나 실측 보정은 없습니다. merged가 있는 루트를 선택합니다. Live: 강도 채널 2개, 추적 평면 2, 병원체 -1, 8프레임, 최소 길이 3, 보정 0/0. 2픽셀/µm와 60초/프레임은 계산용 가정입니다. Propagate settings는 끕니다. PDF 표시는 대비가 낮고 Screen으로도 해결되지 않았습니다. 감염이나 생물학적 정확도 검증은 아닙니다. API: spacr.timelapse.automated_motility_assay. AI는 꺼 둡니다.",
+      "prerequisite": "Complete a Timelapse run, or download and extract SYNTHETIC_motility_tracks.zip. Select the folder containing merged. The example has eight frames, nucleus intensity in channel 0, cell intensity in channel 1, tracked cell masks in plane 2 and nucleus masks in plane 3. It has no pathogen mask or physical calibration.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Measure를 열고 Time 바로가기로 Motility Assay 탭에 들어갑니다. Home의 독립 타일이 아니라 중첩 모듈입니다. Mask의 Timelapse는 궤적을 만들고 Motility는 이를 측정합니다. 이미지가 아직 추적되지 않았다면 Timelapse 수업을 먼저 보세요.",
-          "focus": [
-            3570,
-            1900,
-            220,
-            90
-          ],
+          "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
@@ -2177,164 +2063,60 @@
         },
         {
           "visual": "03_actual_setting_src",
-          "narration": "아래 링크의 합성 추적 배열 예제를 내려받아 새 폴더에 풉니다. Source에는 merged가 들어 있는 폴더를 지정합니다. 여덟 프레임에 세포 궤적 열여섯 개가 있습니다. cell을 선택하고 핵 채널은 0, 세포 채널은 1, 병원체 채널은 지정하지 않습니다.",
-          "focus": [
-            250,
-            305,
-            1185,
-            285
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_actual_setting_pixels_per_um",
-          "narration": "실제 촬영 실험에는 실제 픽셀 척도와 프레임 간격을 사용하세요. 여기의 마이크로미터당 2픽셀과 프레임당 60초는 계산만 보여 주기 위해 의도적으로 가정한 값입니다. 배치 폼에는 숫자가 필요하지만 기본값이 현미경 보정을 입증하지는 않습니다.",
-          "focus": [
-            250,
-            600,
-            1185,
-            150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_actual_setting_infection_intensity_qc_graphs",
-          "narration": "새 복사본에서는 Reuse existing measurements를 끄고 품질 관리 그래프를 켭니다. 병원체 채널이 없어서 이번 실행의 감염 품질 관리는 비활성입니다. 선택적 감염 분류기는 시험하지 않으며, 교육용 궤적으로 감염 효과를 입증할 수 없습니다.",
-          "focus": [
-            250,
-            810,
-            1185,
-            760
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_actual_finished",
-          "narration": "작은 예제를 실행하고 콘솔을 읽습니다. 배치는 프레임 관측 128개, 궤적 16개의 웰 요약과 PDF 파일을 저장합니다. 이 파일은 그림 대기열에 나오지 않습니다. 이 버전은 내보내기 색이 희미하다고 경고하므로 보고서에 쓰기 전에 파일을 확인하세요.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            850
-          ],
+          "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
           "hold_after": 0.7
         },
         {
           "visual": "07_actual_preview",
-          "narration": "Live를 켜서 Motility preview를 엽니다. 그래프 공간이 좁으면 Console과 System을 접고 같은 압축 해제 폴더를 선택합니다. 미리보기 지표와 배치 설정은 별개입니다. 시험 중에는 Propagate settings를 꺼 임시 필터가 다음 전체 실행을 바꾸지 않게 합니다.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            550
-          ],
+          "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_plane_and_unit_settings",
-          "narration": "강도 채널 수는 2, 추적 마스크 평면은 2, 병원체 마스크 평면은 -1, 즉 없음으로 설정합니다. 여덟 프레임 모두를 봅니다. 핵 마스크는 병원체 마스크가 아닙니다. 두 보정 입력란을 0으로 두어 단위 미상을 표시하고 Run preview를 누릅니다.",
-          "focus": [
-            1455,
-            395,
-            2340,
-            300
-          ],
+          "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_uncalibrated_preview",
-          "narration": "미리보기는 객체 관측 128개를 읽고 최소 길이 3에서 사용 가능한 궤적 16개를 보고합니다. 평균 속도는 프레임당 약 1.4픽셀입니다. 두 보정값이 모두 없으면 이를 분당 마이크로미터로 표현해서는 안 됩니다.",
-          "focus": [
-            1455,
-            1600,
-            2340,
-            200
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_actual_all_short",
-          "narration": "Min track length를 9로 올립니다. 각 궤적은 8프레임뿐이므로 16개 모두 유효 요약에서 제외되고 평균 속도는 사용할 수 없게 됩니다. 원래 궤적이나 이미지가 삭제되지는 않습니다. 빈 요약은 속도가 0이라는 뜻이 아닙니다.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
+          "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_length_restored",
-          "narration": "최솟값을 3으로 복원합니다. 유효 궤적 16개, 길이 분포와 속도 점이 돌아옵니다. 미리보기는 캐시된 관측에서 지표를 다시 계산합니다. 지표 변경은 분할을 다시 실행하지 않으며 원래 추적 식별이 옳았다는 증거도 아닙니다.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
+          "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
           "hold_after": 0.7
         },
         {
           "visual": "13_actual_straightness_filter",
-          "narration": "Drop over-straight tracks를 켜고 임계값을 0.95로 설정합니다. 직선성은 순변위를 경로 길이로 나눈 값입니다. 거의 직선인 교육용 궤적 15개가 제외되어 하나가 남습니다. 직선 운동도 실제일 수 있으므로 이 필터가 드리프트를 자동 입증하거나 권장 분석값을 제시하는 것은 아닙니다.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "14_actual_filter_restored",
-          "narration": "필터를 끄고 궤적 16개가 모두 돌아오는지 확인합니다. 필터 규칙을 채택하기 전에 그래프와 유지된 개수를 비교하세요. 여기서 uninfected는 병원체 평면이 없다는 뜻일 뿐, 검증된 생물학적 음성군이 아닙니다.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "15_actual_one_unit_unknown",
-          "narration": "마이크로미터당 2픽셀을 입력하되 프레임 간격은 미상으로 둡니다. 미리보기는 여전히 프레임당 픽셀을 보고합니다. 공간 척도만으로 빠진 시간을 채울 수 없으며 동영상 재생 속도는 촬영 간격이 아닙니다.",
-          "focus": [
-            3010,
-            400,
-            785,
-            255
-          ],
+          "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "16_actual_hypothetical_calibration",
-          "narration": "이제 프레임당 60초를 입력합니다. 두 가정값을 모두 주면 평균 속도는 프레임당 약 1.4픽셀에서 분당 0.7마이크로미터로 변합니다. 궤적 식별은 바뀌지 않습니다. 궤적 패널의 변위 축은 여전히 픽셀이고, 여기서는 속도 단위만 바뀝니다.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
+          "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
           "hold_after": 0.7
         },
         {
-          "visual": "17_actual_unknown_units_restored",
-          "narration": "미리보기의 두 보정 입력란을 다시 0으로 돌립니다. 원래 픽셀 단위 요약이 정확하게 복원됩니다. 이 계산 연습과 실제 촬영 메타데이터를 구분하고 배치 함수는 API 문서에서 확인하세요. spaCR AI는 설정을 설명할 수 있지만 보정, 감염 상태나 과학적 타당성을 인증할 수는 없습니다.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "related_lessons": [
-            "06_api",
-            "17_timelapse",
-            "34_database"
-          ],
+          "visual": "03_actual_setting_pixels_per_um",
+          "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_actual_setting_infection_intensity_qc_graphs",
+          "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_actual_finished",
+          "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "19_train_cellpose",

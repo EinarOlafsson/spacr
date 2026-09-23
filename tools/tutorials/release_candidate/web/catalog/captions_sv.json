@@ -587,26 +587,24 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask: livefilter, en verklig körning och kontrollerad overlay-export",
+      "title": "Mask: segment images and inspect the results",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Använd de riktiga exempeldata, jämför area och diameter direkt, kör två bildfält med Plot aktiverat och exportera ett saknat overlay med ett tydligt Python-steg.",
+      "description": "Load microscope images, choose segmentation settings, preview objects and save masks for measurement.",
       "objectives": [
-        "Hitta Mask på Home och de inbyggda Live-, Time-, 3D- och OPS-kontrollerna.",
-        "Kontrollera metadata och kanalidentiteter före segmentering.",
-        "Skilj ett reversibelt filter från en ny modellkörning.",
-        "Granska riktiga resultat, behåll varningen och exportera båda arrayerna uttryckligen.",
-        "Skilj QC-begränsningar, originaldata och en oskickad AI-fråga från vetenskaplig validering."
+        "Load the microscopy example and identify its intensity channels.",
+        "Compare model settings and object-size filters in Live preview.",
+        "Run segmentation, inspect overlays and find the merged outputs."
       ],
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Använd den riktiga Mask-nedladdningen och bevara kanalidentiteter och filnamnsmetadata. Live-förhandsvisningen spelades in på 1.5.0.7 med exemplets medföljande inställningar på en ny kopia och återanvänds bara så länge live_preview.py och preview_contract.py är byteidentiska med den inspelningen. Sparade masker återger oberoende 105→52→105 vid minsta area 510 och 36 efter diameter 30→60. Den nya batchen med två bildfält är ett separat exempel, ingen direkt antalsjämförelse: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametrar 30/30/15 och tre flödesgränser 0.4. Arkivvärdet 100 stänger av flödesfiltrering och rekommenderas inte som standard. Den inbyggda overlay-loopen misslyckas FORTFARANDE på .spacr_plane_layout.json: ett av två diagram saknas trots Finished. Radera inte layouten och aktivera inte pickle. Hjälparen anropar spacr.plot.plot_image_mask_overlay bara på vanliga .npy-filer; fyra intensitetsplan samt cell/kärna/patogen på 4/5/6 krävs. Den skriver PNG med ogenomskinlig bakgrund till en ny mapp, utan att ändra källarrayer eller reparera GUI. Källhasharna matchar körjournalen. Slutantal: 25/19/8 och 52/50/58; första bildfältets patogen-QC varnar near_empty_field. Cell-QC sker före maskjustering. 95,424,864 kanal-RGB-värden och 7,952,072 kombinerade förgrundspixlar har kontrollerats oberoende, inte biologisk noggrannhet. Tidigare fel och transparenta diagramförsök bevaras men kallas inte fullständiga. Ingen AI-förfrågan, träning, vetenskapligt godkännande eller publicering. API: spacr.core.preprocess_generate_masks och spacr.plot.plot_image_mask_overlay. OPS är en separat sida som öppnas från åtgärdsraden i Mask och har en egen handledning; den här lektionen kör den inte.",
+      "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Öppna Mask från Home. Det är en huvudmodul; dess åtgärdsrad har reglagen Live, Time, tredimensionell och OPS. Time och OPS har var sin länkad handledning under Mask i undermoduldelen. Lektionen visar ett tvådimensionellt exempel, livejämförelser och en omväg för diagram, inte automatiskt validerad segmentering.",
+          "narration": "From Home, open Mask. Use this module to outline cells, nuclei and pathogens in microscope images. This walkthrough processes two-dimensional images. The Time, three-dimensional and OPS workflows have their own tutorials.",
           "related_lessons": [
             "05_home",
             "17_timelapse",
@@ -616,52 +614,47 @@
         },
         {
           "visual": "native_02_download",
-          "narration": "Klicka på Load test data och vänta på det riktiga mikroskopiexemplet. Bevara mappstruktur och originalbilder. Inspelningen använder en ny privat kopia så att en tidigare körning inte ger gamla resultat. För egna data, kontrollera filnamnsmetadata och kanalidentiteter innan exempelinställningar kopieras.",
+          "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
           "hold_after": 0.7
         },
         {
           "visual": "native_03_data_ready",
-          "narration": "Här är kärnintensitet kanal noll, cellintensitet kanal ett och patogenintensitet kanal två. Exemplet innehåller även kanal tre. Detta anger intensitetskanaler, inte maskplanens nummer i ett sammanfogat resultat. Kontrollera själva bilderna och behåll layoutmetadata när resultaten flyttas.",
+          "narration": "Check the channel assignments against the images. In this example, nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. Channel three is an additional intensity image. Choose only the object types present in your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Aktivera Live och välj ett bildfält. Förhandsvisningen jämför bilden med föreslagna masker före en större körning. Den här förhandsvisningen använder ett annat bildfält än batchens två senare. Ett antal i förhandsvisningen kan inte direkt jämföras med en batchsumma.",
+          "narration": "Turn on Live and select a field. Inspect the image and proposed masks together before running the full folder. Try several fields that represent the range of image quality in your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_settings",
-          "narration": "Öppna Live settings och granska cellkontrollerna. Inspelningen använder den installerade CPSAM-modellen; tillgängliga modeller beror på installationen. Kör förhandsvisningen innan konturer tolkas. Diameter och filtrering är olika åtgärder; varken modellnamnet eller en färgglad mask garanterar noggrannhet.",
+          "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter and run the preview. Compare the outlines with the image, paying attention to missed objects and objects joined together.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "Utgångsresultatet har 105 celletiketter. Minsta area 510 pixlar lämnar 52 synliga. Detta är ett reversibelt filter på befintligt resultat: råmasken är oförändrad och modellen körs inte igen. Tröskeln demonstrerar kontrollen, inte en optimal biologisk gräns.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "preview_10_filters_restored",
-          "narration": "Återställ den ursprungliga areagränsen så återkommer alla 105 etiketter. Granska vilka objekt som försvinner och varför innan ett filter används. Små objekt kan vara äkta eller segmenteringsfel; borttagning avgör inte frågan. Håll råresultat och valda filtervärden åtskilda och identifierbara.",
+          "narration": "Use the minimum-area filter to hide objects smaller than the chosen number of pixels. Increasing it removes small labels from the preview. This filter updates an existing mask result, so you can compare size cutoffs quickly.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Att ändra diameter från 30 till 60 pixlar och köra igen jämför en modellparameter, inte bara ett visningsfilter. Det ger 36 etiketter i det inspelade bildfältet. Jämför gränser med bilden, inte bara antal. Färre etiketter bevisar ingen bättre modell; värdena är inga allmänna rekommendationer.",
+          "narration": "Change diameter when the model is splitting or joining objects at the wrong scale, then run the preview again. Check the boundaries as well as the object count. Restore the settings you want to use before moving to the batch run.",
           "hold_after": 0.7
         },
         {
           "visual": "native_20_batch_settings",
-          "narration": "Använd två testbilder i den separata batchen och behåll Plot aktiverat. Alla tre flödesgränser är uttryckligen 0,4. De hämtade inställningarna hade 100, vilket stänger av flödesfiltrering; det rekommenderas inte som standard. Läs konsolens enhets- och bearbetningsmeddelanden i stället för att anta hur körningen skedde.",
+          "narration": "For a small first run, select two test images, keep Plot on, and review the cell, nucleus and pathogen flow thresholds. Here they are zero point four. Check the output and original-image retention settings, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "native_23_batch_finished",
-          "narration": "Läs hela konsolen. Arbetaren säger Finished, men overlay-listan anger ett av två diagram saknat: layout-JSON försökte läsas som bild. De sammanfogade maskarrayerna finns, men den inbyggda diagramkörningen är ofullständig. Behåll varningen och behandla inte detta tyst som en framgång.",
+          "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
           "hold_after": 0.7
         },
         {
           "visual": "command_01_explicit_numeric_inputs",
-          "narration": "Omvägen är ett uttryckligt externt steg. Behåll layout-JSON: den beskriver intensitets- och maskplan och är ingen bild. Aktivera aldrig pickle-inläsning för att dölja felet. Hämta och granska den länkade hjälparen; använd merged-mappen från just denna körning, inte äldre resultat.",
+          "narration": "If an overlay export is missing, the linked plotting helper can export the saved arrays separately. Extract the helper and choose this run’s merged folder. Keep the layout file in place; the helper uses it to check the intensity and mask planes.",
           "focus": [
             190,
             80,
@@ -675,7 +668,7 @@
         },
         {
           "visual": "command_02_explicit_plotting_api",
-          "narration": "Kör hjälparen med merged-källan och en ny destination. Den anropar det riktiga diagram-API:et separat för varje numerisk array och sparar båda overlays. Annan planlayout eller befintlig utdatamapp avvisas. Detta kringgår felaktig mappskanning för exporten, men reparerar inte programmets diagramloop.",
+          "narration": "Run the helper with the merged folder as its source and a new output folder as its destination. It saves a separate overlay for each image array. Open the saved PNG files to inspect the results.",
           "focus": [
             190,
             80,
@@ -685,74 +678,42 @@
           "hold_after": 0.7
         },
         {
-          "visual": "viewer_09_saved_plate1_E01_17_1",
-          "narration": "Dessa sparade diagram visas i en extern bildvisare, inte infogade i spaCR. Första bildfältet har efter justering 25 cell-, 19 kärn- och 8 patogenetiketter. Patogen-QC varnar fortfarande att åtta objekt är för få för bildfältets storlekskontroller. Ett läsbart overlay tar inte bort begränsningen.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
-        },
-        {
           "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "Andra bildfältet har 52 cell-, 50 kärn- och 58 patogenetiketter. De första fyra panelerna visar intensitetskanaler och konturer; den sista kombinerar objektmaskerna. Percentilnormalisering är här bara för visning. Källarrayerna är oförändrade, och antalen mäter inte noggrannhet mot ett facit.",
+          "narration": "Review the outlines on each intensity channel and the combined mask view. Check small objects, touching cells and missed regions. Keep the input images, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
           "focus": [
             200,
             680,
             3440,
             880
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_verified_saved_overlays",
-          "narration": "Bevara utdatakontroller, originaljournal, inställningar och QC-filer tillsammans. Vi kontrollerade oberoende kanalarrayerna som ritades, kombinerad förgrundstäckning och oförändrade källhashar. Cell-QC registrerades före maskjustering, så antalen behöver inte motsvara slutresultatet. Granska segmenteringskvaliteten själv innan Measure.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_30_ai_unsent_question",
-          "narration": "Konsolens valfria spaCR AI kan hjälpa till att diskutera inställningar, men exempelfrågan är oskickad och inget leverantörssvar visas. Kontrollera råd mot verkliga filer och varningar. Python-pipelinen och diagram-API:et följer samma datakrav; de länkade lektionerna täcker mätning och det inbyggda Time-flödet.",
-          "related_lessons": [
-            "06_api",
-            "08_measure",
-            "17_timelapse"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure: livevisning, faktiska mätningar och sparade resultat",
+      "title": "Measure: extract object features and crops",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Använd de sexton nedladdningsbara bildfälten för att granska livefält och kanaler, återställa råa utsnittsinställningar, läsa kvalitetsvarningar och kontrollera en körning med Plot.",
+      "description": "Load images with masks, inspect objects, choose crop settings and save measurements for annotation and classification.",
       "objectives": [
-        "Ladda exemplet och skilj intensitetskanaler från maskplan.",
-        "Granska fält och kanaler live, skilj visningsvalet från gemensamma utsnittsinställningar och återställ normaliseringen före körningen.",
-        "Kör hela exemplet, granska verkliga figurer och konsol och hitta databas och utsnitt.",
-        "Hitta underordnade verktyg och förstå begränsningar hos AI och varningen för inaktuella resultat."
+        "Identify intensity channels and mask planes in the example.",
+        "Inspect fields and choose saved-crop normalization deliberately.",
+        "Run Measure and locate the database, object crops and figures."
       ],
-      "prerequisite": "Home/Core → Measure → Load test data. Den uppmätta delmängden är sexton 1994x1994 uint16-arrayer: intensiteter 0–3 och cell-/kärn-/patogenmasker 4/5/6. Slå på huvudinställningen Normalize före första Live; startkontrasten använder percentiler 1/99. Tryck inte Run i det läget. Kanal noll ändrar bara visningen, men Normalize gäller också sparade utsnitt. Stäng av Live och Normalize före körningen. E02_1_1 visar 27 kandidater och E02_9_1 visar 15. Kanalbyten bevarar identitet, area och kategori; All channels återställer originalpixlarna. Förhandsvisningens och körningens arrayer är identiska byte för byte. Crop settings är för hög; oåtkomliga reglage framställs inte som användbara. QC flaggar 3 fel och 16 varningar bland 156 objekttyp-/fältposter från masker i 52 nedladdade fält, inte bara de 16 sammanslagna fält som mäts. Data är inte certifierade som felfria. Full körning: Plot, save_measurements och save_png på; Test mode och normalize av; en arbetsprocess; RGB-utsnitt 224x224. Utan voxelkalibrering är arean kvadratpixlar. Kontrollerat: 5409 area-/intensitetsvärden och fem källstödda sammanslagningar, inte alla egenskaper eller biologisk riktighet. Resultat: 601 celler och utsnitt, 622 kärnor, 373 patogenobjekt, 48 sparade figurer, 47 i GUI-kön. hash_inputs och _intensity_rescale_plan förklarar denna varning om inaktuella resultat; andra varningar och automatisk överlämning är inte godkända som säkra. En separat test-mode-körning registrerade fel databasväg; här kontrolleras normalläge. API: spacr.measure.measure_crop. Se Illumination, Motility och AnnData Export separat; AnnData visar en uttrycklig API-omväg, inte en reparerad GUI. Ingen AI-fråga skickad eller något svar demonstrerat, inget mänskligt lyssningsgodkännande eller publicering.",
+      "prerequisite": "Use the merged outputs from Mask, or choose Load test data in Measure. The example supplies sixteen fields with intensity planes 0–3 and cell, nucleus and pathogen masks in planes 4, 5 and 6.",
       "scenes": [
         {
           "visual": "preview_01_module",
-          "narration": "Öppna Measure under Core. Det omvandlar befintliga bildarrayer och objektmasker till mätningar och utsnitt; det skapar ingen ny segmentering. Illumination, AnnData Export och Motility är underordnade arbetsflöden i huvudmodulen. Deras egna lektioner finns under Measure i tutorialnavigeringen.",
+          "narration": "From Home, open Measure. Start with images that already have object masks. Measure extracts features such as area and intensity, pairs related objects, and can save individual object crops for Annotate and Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -763,32 +724,32 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Välj Load test data och vänta tills den verkliga inläsningen är klar. Nedladdningen ger sexton sammansatta bildfält. Kontrollera källmapp och kanalmappning: intensiteter noll till tre, cellmask fyra, kärnmask fem och patogenmask sex. Masketiketter är inte intensitetsmätningar.",
+          "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_04_preview_normalization_setup",
-          "narration": "Innan du öppnar Live första gången, sök efter Normalize i huvudinställningarna och slå på det. Det gör förhandsvisningen läsbar eftersom de råa sextonbitarsutsnitten ser mörka ut. Detta gäller också sparade utsnitt, inte bara visningen. Tryck inte Run; vi återställer inställningen först.",
+          "narration": "To inspect these sixteen-bit example crops, turn Normalize on before opening Live. This makes the preview easier to see. Remember that this main setting also affects saved crops; we will switch it off before this batch run.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_all_channels",
-          "narration": "Slå på Live och klistra in sökvägen till den sammanslagna arrayen för fält E noll två, ett, ett. Rutnätet visar tjugosju kandidater grupperade efter maskernas relationer; rulla för att granska övriga kategorier. Namnen är inte oberoende granskade biologiska annoteringar, och kandidatantalet garanterar inte det slutliga antalet uppmätta celler.",
+          "narration": "Turn on Live and choose a field. Inspect the object crops and their mask relationships. Scroll through the categories and enlarge the preview if needed to see the boundaries clearly.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_06_live_channel_zero",
-          "narration": "Välj kanal noll i väljaren för visad kanal. Samma tjugosju objekt visas i gråskala; etiketter, areor och kategorier är oförändrade. Till skillnad från huvudinställningen Normalize ändrar denna väljare bara förhandsvisningen. Gå tillbaka till All channels för att återställa färgpixlarna utan att ändra körningsinställningarna.",
+          "narration": "Use the displayed-channel selector to inspect one intensity channel at a time. Channel zero shows a grayscale view; All channels restores the combined view. This selector changes the preview without changing the labels or batch channel mapping.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Öppna E noll två, nio, ett med fältväljaren. Fältet visar femton kandidater: granska flera fält innan du litar på en vacker bild. Läs också den röda varningen om segmenteringskvalitet. De flaggade maskerna kommer från den större nedladdningen; en fungerande förhandsvisning löser inte varningarna och certifierar inte felfria data.",
+          "narration": "Choose another field and compare its objects. Review the segmentation-quality banner before measuring the project. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_08_saved_normalization_restored",
-          "narration": "Stäng av Live, sök efter Normalize igen och stäng av det före körningen. Vi har kontrollerat att alla körningsinställningar återgår till originalvärdena och att båda källarrayerna är oförändrade. Normalisering per utsnitt kan ta bort intensitetsskillnader från sparade bilder. Behåll originalarrayerna; lektionen använder inte den överstora dialogen Crop settings.",
+          "narration": "Turn Live off and restore Normalize off for this example. Choose normalization deliberately when saving crops: per-crop scaling changes the intensity differences visible to a later image classifier. Keep the original merged arrays for quantitative measurements.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -796,45 +757,34 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Behåll Plot på, spara mätningar och utsnitt och använd en arbetsprocess här. Test mode är av: Alla sexton fält behandlas till projektets huvudresultat. Ett kort test använder en separat test-mapp i den här versionen; förväxla inte databasen där med hela körningens resultat.",
+          "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. Use one worker for this example. Leave Test mode off to process all sixteen supplied fields, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_26_measure_console_complete",
-          "narration": "Tryck Run och följ konsolen. Kontrollera försök, lyckade fält och fel, inte bara ett färdigmeddelande. Här lyckades alla sexton fält. Stora figurer kan utlösa en uttrycklig gräns för exportupplösning; läs även den varningen. En lyckad beräkning är inget biologiskt kvalitetsintyg.",
+          "narration": "Follow the console until the run completes. Check which fields succeeded and inspect any failures before proceeding. Keep the settings saved with this run so you can reproduce the measurements.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_00",
-          "narration": "Granska de verkliga vyerna före och efter filtrering i figurlistan. Dra avdelaren för att ge figurerna plats. Storleksfilter och förälder-barn-sammanslagningar kan ändra vilka etiketter som mäts. Här förenar fem sparade cellobjekt källetiketter som binds ihop av en gemensam kärn- eller patogenmask.",
+          "narration": "Use the figure list to compare objects before and after filtering. Size filters and parent-child relationships can change which objects are measured. Drag the divider to give the figures more space and inspect any unexpected changes.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_02",
-          "narration": "Granska även utsnittsfiguren och behåll mätdatabas och bildsökvägar tillsammans. Körningen sparade sexhundraen cellposter och motsvarande utsnitt. Oberoende pixelkontroller bekräftade area samt summor och medelvärden för fyra kanaler inklusive sammanslagningarna; inte varje egenskap eller segmenteringens biologiska riktighet.",
+          "narration": "Inspect the crop figure, then locate measurements.db in the measurements folder and the saved object images in the project’s crop output. Keep the database and image paths together. Continue to Annotate to label example objects, or to Classify when you already have labelled training data.",
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "batch_24_batch_figure",
-          "narration": "Den här versionen kan fortfarande varna för inaktuella resultat efter lyckad körning utan ändrade synliga inställningar. Vi spårade exemplet till runtime-metadata men har inte rättat programmet. Kontrollera sparad körning och inställningar innan du fortsätter; avfärda inte andra varningar och förutsätt inte validerad automatisk överlämning. Kontrollera också filerna: kön visade fyrtiosju av de fyrtioåtta sparade figurerna.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_30_ai_unsent_question",
-          "narration": "Konsolen erbjuder också valfri spaCR AI-hjälp. Här aktiverar vi reglaget och förbereder en fråga utan att skicka den; inget svar eller extern analys demonstreras. Betrakta senare svar som råd att kontrollera mot inställningar, API och sparade resultat. Använd de egna lektionerna om underordnade arbetsflöden för nästa uppgift.",
-          "related_lessons": [
-            "06_api",
-            "43_illumination",
-            "18_motility",
-            "59_anndata_export"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "09_annotate",
@@ -1025,26 +975,25 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify: ett kontrollerat exempel med datorseende",
+      "title": "Classify: train an image classifier",
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
       "section": "Core",
-      "description": "Förbered oförändrade nedladdade bildutsnitt med tydliga brunnsidentiteter och granska en liten modell utan att överdriva dess prestanda.",
+      "description": "Prepare labelled image crops, choose the computer-vision family, train a small model and find its predictions.",
       "objectives": [
-        "Hitta datorseendefamiljen i huvudmodulen Classify.",
-        "Förbered en befintlig uppdelning från nedladdade annoteringar utan att ändra originalbilder eller etiketter.",
-        "Håll verkliga brunnar åtskilda, visa figurer och skilj lyckad körning från användbar prediktion.",
-        "Hitta sparade modeller, prediktioner och underverktyg."
+        "Prepare the downloadable image-classification example.",
+        "Choose the model, image channels and training settings.",
+        "Keep wells separate and inspect saved models and predictions."
       ],
       "example_files": [
         "Classify_existing_split_example.zip"
       ],
-      "prerequisite": "Annotate: Load test data → Load, inte Stream. Behåll plate1/measurements/measurements.db och png-utsnitten. Inspelningen använder spaCR 1.5.0.6. Packa upp ZIP och kör prepare_classify_split.py i spaCR-miljön: --source är plate1, --destination en NY mapp. Hjälpskriptet gäller endast detta fyrbrunnsexempel: åtta befintliga infected=1 och åtta infected=2 per brunn, deterministiskt urval före träning, 64 byteidentiska RGB-utsnitt. Kopiorna får databasens prcfo-namn; tolkningen av gamla filnamn är INTE reparerad. Det balanserade urvalet bevarar INTE populationens klassfördelning. Välj den förberedda mappen, Computer Vision (Torch), Generate training dataset av. Inställningar: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=0, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; samtliga läckagekontroller på. train innehåller 32 bilder som blir 16 tränings- och 16 valideringsbilder; test innehåller 32. Skilda brunnar, samma platta. Alla testprediktioner är klass noll: träffsäkerhet=0.5, majoritetsbaslinje=0.5, makro-F1=1/3. Samtliga 32 identiteter, etiketter, sannolikhetssummor, träffsäkerhet, klassantal och makro-F1 har kontrollerats oberoende, inte alla mått. Utdata: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. Inget påstående om användbar modell, biologisk giltighet eller generalisering till nya försök. Ingen AI-fråga skickad.",
+      "prerequisite": "Download the measured example through Annotate using Load test data, then Load. Keep its plate1 folder with measurements/measurements.db and the png crops. Download Classify_existing_split_example.zip below and extract the helper. In your spaCR environment, run prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Select the new_split folder in Classify. The helper is for this four-well example; it copies 64 labelled RGB crops into train and test folders.",
       "scenes": [
         {
           "visual": "gui_19_setting_classifier_family",
-          "narration": "Öppna Classify från Home och välj Computer Vision, Torch. Datorseende lär sig från objektbilder; den tabulära familjen använder sparade mätvärden. Båda ingår nu i samma huvudmodul. Detta lilla, kontrollerade exempel använder en separat förberedelselösning som inte reparerar appens tolkning av gamla filnamn.",
+          "narration": "From Home, open Classify and choose Computer Vision, Torch. This family learns from labelled object crops and saves a model that can score other crops. Follow the Annotate lesson first to download the example images and their labels.",
           "focus": [
             350,
             190,
@@ -1059,7 +1008,7 @@
         },
         {
           "visual": "prepare_01_source_example",
-          "narration": "Följ den länkade Annotate-lektionen och läs in det verkliga exemplet med Load. Behåll mätdatabasen och bildutsnitten. Terminalen visar befintliga annoteringar från fyra verkliga brunnar. Vi bevarar etiketterna, men de är inte oberoende validerad biologisk sanning. Källprojektet förblir oförändrat genom hela demonstrationen.",
+          "narration": "In Annotate, choose Load test data, then Load. Keep the plate folder containing measurements and PNG crops. For your own data, start with crops from Measure and assign the classes you want to learn in Annotate.",
           "focus": [
             190,
             80,
@@ -1074,7 +1023,7 @@
         },
         {
           "visual": "prepare_02_prepare_existing_split",
-          "narration": "Ladda ned hjälpskriptet och kör det i spaCR-miljön. Source är den nedladdade plattmappen; destination måste vara en ny mapp. Åtta bilder från vardera av två befintliga klasser kopieras per brunn: sextiofyra totalt. Urvalet är deterministiskt och sker före träning, inte efter att modellens prestanda har granskats.",
+          "narration": "Download the linked example ZIP and extract prepare_classify_split.py. Run it in your spaCR environment with source pointing to the example plate folder and destination pointing to a new folder. The helper prepares sixty-four labelled images for this exercise.",
           "focus": [
             190,
             80,
@@ -1085,7 +1034,7 @@
         },
         {
           "visual": "prepare_03_exported_manifest",
-          "narration": "Läs manifestet innan du fortsätter. Kopiornas namn använder databasens kanoniska objektidentiteter och varje bild behåller sina ursprungliga byte. Två hela brunnar går till träningsmappen och två till test. Detta medvetet balanserade undervisningsurval ändrar klassfördelningen; det representerar inte den ursprungliga populationen.",
+          "narration": "Open the new folder and its manifest. The train and test directories each contain two class folders. The manifest lists each copied image and its well. Keep whole wells on one side of the split when images from the same well share experimental conditions.",
           "focus": [
             190,
             80,
@@ -1096,12 +1045,18 @@
         },
         {
           "visual": "gui_18_source_folder_choice",
-          "narration": "Välj den förberedda datamappen i Classify, inte originalprojektet eller en klassundermapp. Den innehåller train och test, med två klassmappar i vardera. Källväljaren öppnar detta befintliga dataset. Skriv inte över källprojektet och återanvänd inte en målmapp som innehåller tidigare resultat.",
+          "narration": "Return to Classify and choose the prepared folder as Source. Select the parent containing train and test. Keep that prepared folder for the rest of this lesson so the model and its output files stay together.",
+          "focus": [
+            1439,
+            390,
+            943,
+            1300
+          ],
           "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_generate_training_dataset",
-          "narration": "Stäng av Generate training dataset eftersom uppdelningen redan är förberedd. Train och Test förblir på; tillämpning på hela datasetet är av. Klassmapparna bevarar etiketterna ett och två, medan modellen använder index noll och ett. Det är olika numreringar, inte en motsägelse.",
+          "narration": "Turn Generate training dataset off because the helper has already prepared the split. Enable Train and Test. Leave application to the full dataset off for this first run. The model uses class indices zero and one for the two class folders.",
           "focus": [
             350,
             190,
@@ -1112,7 +1067,7 @@
         },
         {
           "visual": "gui_19_setting_model_type",
-          "narration": "Välj ResNet18 för detta begränsade exempel: en epok, grupper om åtta bilder, bildstorlek hundratjugoåtta och noll inläsningsprocesser. Använd alla tre RGB-kanaler utan förtränade vikter eller dataaugmentering. Inställningarna håller demonstrationen liten; de är inte ett rekommenderat recept för en träffsäker klassificerare.",
+          "narration": "Choose ResNet18, image size one hundred twenty-eight, all three RGB channels, batch size eight and one epoch. Set loader workers to two, with pretrained weights and augmentation off for this short example. Epochs controls how many times training passes through its input images.",
           "focus": [
             350,
             190,
@@ -1123,7 +1078,7 @@
         },
         {
           "visual": "gui_19_setting_val_split",
-          "narration": "Behåll gruppering efter brunn och alla läckagekontroller. En valideringsandel på hälften delar träningsmappens trettiotvå bilder i sexton för träning och sexton för validering, en hel brunn vardera. De andra trettiotvå används endast för test. Alla fyra delar platta: detta är inte validering i ett oberoende experiment.",
+          "narration": "Set validation fraction to one half, keep grouping by well and leave the leakage checks enabled. Validation monitors the model during training; the separate test folder is used for the final assessment. Check the reported well assignments before interpreting the scores.",
           "focus": [
             350,
             190,
@@ -1134,7 +1089,7 @@
         },
         {
           "visual": "gui_19_setting_plot",
-          "narration": "Slå på Plot, rensa inställningssökningen och tryck Run. Följ verklig uppdelning, läckagegranskning, träning och sparade sökvägar i konsolen. Båda brunnsbaserade gränskontrollerna godkänns här. Ett programvarutest är meningsfullt bara om namnen stämmer med verkliga providentiteter; det har vi kontrollerat separat.",
+          "narration": "Turn Plot on, clear the settings search and press Run. Watch the console for dataset loading, the resolved split, training progress and output paths. Wait for training and testing to finish before opening the saved results.",
           "focus": [
             350,
             190,
@@ -1145,7 +1100,7 @@
         },
         {
           "visual": "gui_24_batch_figure",
-          "narration": "Figures visar förlust, träffsäkerhet och valideringsträffsäkerhet per klass. Med en enda epok är det enskilda punkter, inte bevis för konvergens. Vår separata testkontroll finner alla bilder predikterade som klass noll: femtio procents träffsäkerhet, exakt den balanserade majoritetsbaslinjen. En lyckad körning gav ingen användbar klassificerare.",
+          "narration": "Open Figures to inspect loss and accuracy. One epoch gives a quick first pass. Compare the test results across classes before increasing training time. If predictions favour only one class, review the labels, class balance and input channels before using the model on a larger dataset.",
           "focus": [
             2090,
             180,
@@ -1156,7 +1111,7 @@
         },
         {
           "visual": "gui_23_batch_finished",
-          "narration": "Behåll modellmappen med kontrollpunkt, modellkort, läckagegranskningar och resultattabeller. Här ligger den under model, resnet18, rgb, epochs understreck ett. Jämför sparade prediktionsidentiteter och etiketter, inte bara träffsäkerhet. Felklassificerade bilder som kopierats för granskning är utdata, inte fler oberoende tränings- eller testprover.",
+          "narration": "Open model, resnet18, rgb, epochs underscore one inside the prepared folder. Keep the checkpoint, model card and result tables together. Use the saved predictions to review errors, then continue to Classifier Evaluation or Activation Maps to inspect the model further.",
           "focus": [
             2090,
             180,
@@ -1169,49 +1124,38 @@
             "16_activation"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "narration": "AI-kontrollen kan användas för frågor om inställningar eller utdata när en leverantör har konfigurerats. Detta är en oskickad fråga, inte ett svar eller analysresultat. I Python skickar classify denna familj vidare till train_test_model. Behåll manifestet och kontrollera råd före ett större, oberoende validerat experiment.",
-          "focus": [
-            2090,
-            950,
-            1720,
-            1130
-          ],
-          "related_lessons": [
-            "06_api",
-            "41_classify",
-            "65_feature_explorer"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify: maskininlärning med tabelldata",
+      "title": "Classify: learn from measured features",
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
       "section": "Core",
-      "description": "Använd Classify med nedladdningsbara cellmätningar, tydliga metadataetiketter, en liten random forest, riktig konsolutmatning och sparade prediktioner.",
+      "description": "Load measurements, define classes, train a tabular classifier and inspect object scores and plate summaries.",
       "objectives": [
-        "Välj den tabulära familjen och läs in det uppmätta exemplet via dataväljaren.",
-        "Definiera klasser efter plattkolumn och skilj önskad andel från faktiskt undanhållna brunnar.",
-        "Granska figurer, saknade poäng och resultat utan att likställa demonstrationsnoggrannhet med biologisk validering."
+        "Select the tabular family and a measured project.",
+        "Define classes and choose feature channels, model size and held-out wells.",
+        "Find model outputs, object predictions and summary figures."
       ],
-      "prerequisite": "Välj Load test data och därefter Load i Classify, inte Stream. Exemplet har 2 341 objekt i fyra brunnar; 2 153 behålls och 188 saknar poäng eftersom motsvarande kärndata saknas. c1 är klass noll och c2 klass ett: plattkolumner, inte verifierade fenotyper. Inställningar: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Låt test_size=0.1 stämma med test_split=0.1: nuvarande normalisering tar bort ett avvikande ML-värde; felet är rapporterat. Två brunnar och 1 035 objekt hålls undan, utan gemensamma brunnar mellan träning och test. Egenskapsfiltrering sker före uppdelningen; permutationsbetydelse använder träningsdata. Noggrannhet: 0.6202898551; majoritetsklassens referens: 0.5632850242. Nio mått och 2 153 sparade prediktioner har kontrollerats oberoende. API: spacr.classify.classify anropar spacr.ml.generate_ml_scores. Utdata: results/random_forest/channel_1; predictions är den binära klassen, ml_pred sannolikheten för klass ett. Endast tre verkliga figurer visas; inga påståenden om SHAP, kalibrering, orsakssamband eller biologisk validering. Ingen AI-fråga skickades.",
+      "prerequisite": "Use Load test data in Classify and choose Load, then confirm the downloaded plate folder with Choose source data. For your own project, run Measure first. The example uses columnID values c1 and c2 as two classes; use labels appropriate to your experiment when working with your own data.",
       "scenes": [
         {
           "visual": "19_setting_classifier_family",
-          "narration": "Öppna Classify från Home och välj Tabular Machine Learning som klassificerarfamilj. Detta är den sammanslagna Classify-vyn, inte en separat ML-app. Den lär sig från sparade mätningar per objekt. Inställningar för datorseende kan fortfarande visas men vara nedtonade, eftersom de tillhör den andra familjen.",
+          "narration": "From Home, open Classify and choose Tabular Machine Learning. This family uses the object measurements saved by Measure. It produces a fitted model and a score for each object with the required measurements.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             650
           ],
           "related_lessons": [
@@ -1222,12 +1166,12 @@
         },
         {
           "visual": "02_data_choice_load",
-          "narration": "Klicka på Load test data och välj Load. Det uppmätta exemplet laddas ned och dess sökvägar förbereds; Stream är en annan väg. För ditt eget projekt ska du först slutföra Measure och välja projektmappen. Anta inte att en godtycklig bildmapp redan innehåller den mätdatabas som behövs.",
+          "narration": "Click Load test data and choose Load. Wait for the measured example to download. For your own data, select the project folder created by Measure, including its measurements database.",
           "focus": [
-            1010,
-            550,
-            1800,
-            1040
+            1663,
+            914,
+            495,
+            365
           ],
           "related_lessons": [
             "08_measure",
@@ -1236,115 +1180,115 @@
           "hold_after": 0.7
         },
         {
-          "visual": "19_setting_classes",
-          "narration": "Använd metadata som grund och definiera två Classes från columnID: c1 och c2. Här är de etiketter för plattkolumner för att lära ut arbetsflödet, inte oberoende bekräftade friska och påverkade celler. Träning utifrån annoteringar kräver äkta etiketter från Annotate. Gör aldrig saknade annoteringar till påhittade facitetiketter.",
+          "visual": "18_source_folder_choice",
+          "narration": "Use Choose source data to confirm the downloaded plate folder. Select the folder containing measurements. This gives the classifier access to the object tables and the metadata used to define classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            1439,
+            390,
+            943,
+            1300
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "19_setting_classes",
+          "narration": "Choose metadata as the class basis and define two Classes using column I D values c1 and c2. These labels distinguish the two plate columns in the example. To train from your own cell annotations, choose the annotation basis and the label column you created in Annotate.",
+          "focus": [
+            350,
+            190,
+            1730,
             1190
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_channel_of_interest",
-          "narration": "Channel of interest väljer de uppmätta egenskaperna. Vi använder kanal ett utan att ge den en obekräftad biologisk betydelse. Kontrollera inställningarna för bildinsamling och mätning innan du väljer kanal för egna data. Att välja en egenskapskanal här segmenterar eller mäter inte bilderna igen.",
+          "narration": "Set Channel of interest to one for the example. This controls which channel-specific measurement features enter the model. For your own experiment, select the channel that contains the signal relevant to your classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_estimators",
-          "narration": "Välj Random Forest och sexton estimatorer för denna lilla demonstration, med två arbetsprocesser. Det är ingen rekommendation av en optimerad modell. Vi lämnar övervakat egenskapsurval och korsvalidering avstängda. Avstängd korsvalidering tar inte bort den separata testmängd som hålls undan i denna körning.",
+          "narration": "Choose Random Forest, sixteen estimators and two worker jobs. Estimators controls the number of trees. More trees increase fitting work. Leave feature pruning and cross-validation off for this first pass; you can compare those choices after you have a working baseline.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_test_size",
-          "narration": "Sätt teststorleken till en tiondel och behåll gruppering per brunn. En önskad andel är inte ett exakt antal objekt: detta exempel med fyra brunnar håller undan två hela brunnar, ungefär fyrtioåtta procent av de behållna objekten. Båda klasserna finns på vardera sidan och ingen faktisk brunn finns i både träning och test.",
+          "narration": "Set Test size to one tenth and keep grouping by well. spaCR holds out complete wells, so the final fraction of objects can differ from the requested fraction. Read the resolved split in the console and make sure it suits your experiment.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot",
-          "narration": "Aktivera Plot, rensa sökningen och tryck på Run. Konsolen registrerar de upplösta inställningarna, filtreringen, uppdelningen och modellrapporten. Spara loggen med resultaten. En klarmarkering visar inte att etiketterna, valideringsupplägget eller den biologiska tolkningen var lämpliga.",
+          "narration": "Enable Plot, clear the search and press Run. The console shows feature filtering, the training and test split, model fitting and the saved output paths. Wait for the run to finish before comparing its scores.",
           "focus": [
-            460,
-            230,
-            3340,
+            350,
+            190,
+            1730,
             1640
           ],
           "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "Denna körning ger poäng till två tusen etthundrafemtiotre objekt. Etthundraåttioåtta saknar motsvarande kärndata och förblir utan poäng, inte negativa. Den sparade testnoggrannheten är omkring sextiotvå procent, jämfört med femtiosex procent för majoritetsklassen. Fyra brunnar på en platta visar inte generalisering till ett nytt experiment.",
+          "narration": "Find the results under results, random_forest, channel underscore one. The database stores the predicted class in predictions and the class-one probability in ml_pred. Objects missing required measurements can remain unscored; inspect missing values when exporting a summary.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            950,
+            1720,
+            600
           ],
           "hold_after": 0.7
         },
         {
-          "visual": "24_batch_figure",
-          "narration": "Tre figurer finns: permutationsbetydelse, trädens egenskapsbetydelse och denna värmekarta över plattan. Med Predictions och medelvärdesgruppering visar kartan medelvärdet av binära predikterade klasser, inte deras sannolikheter. Betydelse är inte orsakssamband; permutation använder träningsdata. Granska de sparade tabellerna innan du drar slutsatser av en färgglad figur.",
+          "visual": "25_ml_figure_02",
+          "narration": "Browse the feature-importance figures and plate heatmap. With Predictions and mean grouping, a well value is the average of its binary predicted classes. Use the saved object scores for detailed review, and compare held-out performance before applying the classifier to another experiment.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI-reglaget möjliggör frågor om arbetsflödet med hjälp av en leverantör. Detta är ett oskickat utkast, inte ett genererat svar. Spara resultaten med inställningarna och kontrollera alla råd. Underverktygen har egna indatakrav: Explain-handledningen använder datorseendepoäng, inte dessa ML-utdata. AI ersätter inte kontroll av etiketter och identiteter i uppdelningen.",
-          "focus": [
-            2140,
-            970,
-            1670,
-            1080
-          ],
-          "related_lessons": [
-            "70_explain_cv",
-            "28_training_runs",
-            "06_api"
+            2090,
+            190,
+            1720,
+            1200
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes: livesökning, verifierade referenser och verkliga antal",
+      "title": "Map Barcodes: from sequencing reads to counts",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Huvudmoduler",
-      "description": "Hämta ett begränsat verkligt sekvenseringsprov, granska livesökningen, tillämpa ett förslag uttryckligen och verifiera antalen. Visa en uppsättning med två streckkodstyper via det aktuella Python-API:et.",
+      "section": "Core",
+      "description": "Load paired reads and library references, find barcode positions, apply the settings and save guide counts.",
       "objectives": [
-        "Hitta referenstabeller och orienteringar som stöds av verkliga läsningar.",
-        "Skilja sökförslag från tillämpade inställningar och korrekt orienterade referensfiler.",
-        "Granska sparade antal och använda en uttrycklig uppsättning utan påhittade extra streckkoder."
+        "Download a small paired-read example and select matching reference tables.",
+        "Inspect barcode positions and orientation before applying a proposal.",
+        "Run mapping and inspect count and quality-control outputs."
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly med streckkodssökning. Inspelningen använder SRR33531217 och förvaltarens matchande primers_3-tabeller för kolumner och rader samt guidereferenser, inte de äldre medföljande tabellerna. Skaffa referenser som passar ditt bibliotek före mappning.",
+      "prerequisite": "Choose Load test data in Map Barcodes. The example uses SRR33531217 reads, the matching primers_3 column and row tables, and guide references. Use reference tables matching your own library when processing other reads.",
       "scenes": [
         {
           "visual": "gui_01_module",
@@ -1352,163 +1296,160 @@
           "related_lessons": [
             "47_barcode_qc"
           ],
-          "narration": "Öppna Map Barcodes från Home. Modulen omvandlar sekvenseringsläsningar till antal för namngivna streckkoder. Barcode QC är dess underordnade kvalitetskontrollmodul; den separata handledningen finns kvar."
+          "narration": "From Home, open Map Barcodes. The inputs are sequencing reads and reference tables that name the barcodes in your library. The output counts each observed combination, ready for sequencing quality control and downstream analysis."
         },
         {
           "visual": "gui_02_archive_bounded_choice",
           "hold_after": 0.7,
-          "narration": "Välj Load test data och båda filerna i läsparet för arkivets första körning. Begränsa varje fil till 10 000 läsningar. Då hämtas ett verkligt parat delprov, inte hela sekvenseringsarkivet."
+          "narration": "Click Load test data and select both mates of the first archive run. Limit each file to ten thousand reads for this example, then wait for the paired sample to download."
         },
         {
           "visual": "gui_04_reference_tables",
           "hold_after": 0.7,
-          "narration": "Välj referenstabeller som hör till biblioteket. Här används rätt primers_3-tabeller för kolumner och rader samt guidetabellen, inte de äldre standardtabellerna. Vi börjar avsiktligt med en fönsterlängd på 120 baser för att visa hur förslaget ändrar den."
+          "narration": "Select the matching column, row and guide reference tables. Each table pairs barcode names with sequences. Keep those names consistent with the plate layout and guide identifiers used by the rest of your analysis."
         },
         {
           "visual": "gui_06_live_search_progress",
           "hold_after": 0.7,
-          "narration": "Öppna Find barcodes och starta sökningen. Antalen uppdateras medan verkliga läsningar från båda filerna undersöks i båda orienteringarna. Inställningsformuläret ändras inte under denna löpande förfining."
+          "narration": "Open Find barcodes and start the search. The preview samples both mates and checks barcode positions and orientations. Wait for the results before changing the main form."
         },
         {
           "visual": "gui_07_search_verdicts",
           "hold_after": 0.7,
-          "narration": "Jämför Observed med By chance och granska orientering, position och bedömning. En träfffrekvens räcker inte för att fastställa en streckkod. Även hur koncentrerade träffarnas positioner är och vilka olika referenser som observeras påverkar sökningen; läs förklaringarna innan du tillämpar något."
+          "narration": "Compare Observed with By chance, then inspect the proposed orientation, offset and verdict for each barcode. Prefer positions supported by many reads and distinct expected references. Open the verdict explanation if the result is uncertain."
+        },
+        {
+          "visual": "gui_07b_guide_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Inspect the guide results for both mates. In this example, read one supports the reverse-complemented guide sequence and read two supports the stored orientation. Use the results for your library and read pair when choosing an orientation."
+        },
+        {
+          "visual": "gui_07c_row_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Check the row barcode as well. Here, read one supports its reverse complement and read two supports the stored sequence. Review column, guide and row together so the complete combination identifies the intended well and guide."
         },
         {
           "visual": "gui_08_coloured_reads",
           "hold_after": 0.7,
-          "narration": "Läsvyn visar en verklig läsning per rad. Teckenförklaringen anger färgerna för kolumn, guide, rad och ankare. Färgade träffar hjälper dig att granska underlaget, men en enstaka träff bevisar inte att referenstabellen är rätt."
+          "narration": "Open the read viewer to inspect individual reads. Use the colour legend to find the column, guide, row and anchor segments. Check that the proposed positions agree with the expected library structure."
         },
         {
           "visual": "gui_09_proposed_settings",
           "hold_after": 0.7,
-          "narration": "Granska förslaget. För detta prov är extraktionsfönstret 89 baser långt. Först när du trycker på Apply these settings skrivs ändringen in i formuläret. Automatisk upptäckt ger inte automatiskt tillstånd att ersätta inställningarna."
+          "narration": "Review the proposed extraction settings, then click Apply these settings to copy them into the form. The example uses an extraction window of eighty-nine bases. Check the updated fields before starting the run."
         },
         {
           "visual": "gui_11_oriented_reference_copies",
           "hold_after": 0.7,
-          "narration": "Anmärkningarna kräver också omvänt komplementära referenser för rader och guider. Apply skapar inte dessa filer. Välj separat verifierade omvänt komplementära kopior som bevarar alla ursprungliga streckkodsnamn; behåll kolumntabellen i dess ursprungliga orientering."
+          "narration": "Follow the orientation notes when selecting your final reference files. For this example, select reverse-complemented copies of the row and guide references and keep the column reference as stored. Preserve every barcode name when preparing those copies."
         },
         {
           "visual": "gui_20_batch_settings",
           "hold_after": 0.7,
-          "narration": "Bearbeta det hämtade paret med två arbetsprocesser, block om 1 000 och lagring av annoterade läsningar aktiverad. Låt saknade tilldelningar förbli saknade. Mappningen använder CPU; GPU behövs inte."
+          "narration": "Choose the downloaded read pair, two workers and chunks of one thousand reads. Enable annotated-read saving if you want to inspect individual assignments. Click Run; this mapping workflow uses the CPU."
         },
         {
           "visual": "gui_23_batch_finished",
           "hold_after": 0.7,
-          "narration": "Den verkliga körningen extraherade 8 611 fönster och tilldelade 7 657 läsningar till 4 099 rader med antal. Referenser utan träff eller med tvetydighet förblir otilldelade. Slutförandet kontrolleras mot sparade filer, inte bara konsolens meddelande."
-        },
-        {
-          "visual": "api_01_actual_two_barcode_api",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
-          ],
-          "narration": "Det aktuella Python-API:et accepterar streckkodsuppsättningar av valfri storlek, men detta formulär saknar en uppsättningsredigerare. En andra verklig beräkning väljer endast kolumn och guide från 1 000 läspar. Varje post kräver en motsvarande namngiven grupp i mönstret. Utan radidentitet gäller antalen kolumn och guide, inte brunn."
-        },
-        {
-          "visual": "api_02_real_count_figure",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "47_barcode_qc",
-            "13_regression"
-          ],
-          "narration": "Denna verifieringsfigur i Python visar läsdjupet från den sparade GUI-körningen med tre streckkodstyper. Varje antal har stämts av oberoende mot annoterade läsningar och referensnamn. Ojämnt djup är en kvalitetskontrollobservation, inte en biologisk effekt; granska Barcode QC före efterföljande Regression."
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "hold_after": 0.7,
-          "narration": "spaCR AI kan hjälpa till att förklara en körning när du har konfigurerat en leverantör. Inspelningen visar en oskickad fråga och innehåller inget AI-svar. Kontrollera själv referensidentitet, orientering, varningar och sparade antal innan du skalar upp."
+          "narration": "When mapping finishes, inspect unique_combinations.csv and the quality-control outputs. The count table links column, row and guide names with read counts. Review unmatched and ambiguous assignments in Barcode QC, then pair these counts with phenotype scores in Regression."
         }
-      ]
+      ],
+      "example_files": [
+        "SRR33531217_barcode_references.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression: ett riktigt exempel från parade tabeller till resultat",
+      "title": "Regression: from paired tables to results",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Läs in det nedladdningsbara screeningexemplet, konfigurera en begränsad guide-permutationsanalys, granska den verkliga konsolen och figurerna och hitta specialverktygen som nu ligger inuti Regression.",
+      "description": "Pair phenotype scores with guide counts, choose an inference method, run the example and explore guide and gene results.",
       "objectives": [
-        "Läs in fyra par med poäng- och räknetabeller via den synliga testdataknappen och välj en separat utdatamapp.",
-        "Skilj mellan inferensmetod, resultatnivå och analysenhet och återskapa det begränsade exemplet utan att behandla antalet permutationer som en rekommendation för slutanalysen.",
-        "Granska verkliga resultat, figurer och diagnostiska begränsningar; skilj interaktiv granskning från en direkt omberäkning av analysen.",
-        "Hitta Regressions inbyggda verktyg, valfri AI-hjälp och aktuell Python-ingång."
+        "Load paired score/count tables and choose an output folder.",
+        "Set the inference method, reporting level and analysis unit.",
+        "Run the example and inspect results with the accompanying diagnostics."
       ],
-      "prerequisite": "Öppna spaCR och välj Regression bland Core-modulerna. Exemplet hämtar poäng- och räknefiler eller återanvänder cacheminnet. Den inspelade analysen kräver ingen mätdatabas, bildutsnitt, extern annoteringstjänst eller AI-prenumeration. Den korta permutationskörningen visar arbetsflödet, inte fastställda biologiska fynd.",
+      "prerequisite": "Open Regression and choose Load test data to obtain four paired score/count tables. Use a new output folder. A measurement database is optional for this score-and-count analysis; object-level views require the corresponding measured data and images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öppna Regression bland Core-modulerna. Modulen kopplar fenotyppoäng till guideförekomst och rapporterar samband med den inferensmetod du väljer. Verktygen längst upp hör nu hemma i modulen; de är inte längre separata rutor på Home.",
+          "narration": "From Home, open Regression. This module relates phenotype scores to guide abundance. Start with a score table and a count table for each plate, then choose how to test and report associations.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7
         },
         {
-          "visual": "02_cached_load",
-          "narration": "Välj Load test data under Input Tables. Programmet hämtar screeningexemplet eller återanvänder verifierade cachefiler; inspelningen använder cacheminnet. Konsolen rapporterar fyra poängtabeller och fyra räknetabeller, parade efter platta.",
+          "visual": "02_download",
+          "narration": "In Input Tables, click Load test data and wait for the example to load. It provides four score tables and four count tables, paired by plate.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_paired_data",
-          "narration": "Granska alla fyra parade rader. Varje platta behöver sina matchande poäng- och räknefiler; den valfria kolumnen för mätdatabas är tom här. Bredda inställningspanelen vid behov och använd en ny utdatamapp så att demonstrationen inte blandas med en befintlig analys.",
+          "narration": "Inspect each paired row and check the plate name, score file and count file. Leave the optional measurement-database column empty for this example. Choose a new output folder for the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_inference",
-          "narration": "Byt från Essentials till All settings och sök efter en inställning med dess etikett eller API-nyckel. Här är inference nonparametric: permutationstestning av guider. Det skiljer sig från parametrisk regression som anpassar alla prediktorer samtidigt och kräver en identifierbar design.",
+          "narration": "Switch to All settings and use the search box to find Inference. Choose nonparametric for this guide-permutation example. Use a parametric method when your question and design call for fitting predictors together.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_level",
-          "narration": "Level besvarar en annan fråga: Vad ska rapporteras? Välj both för separata guide- och genresultat. Det valet bestämmer inte inferensmetoden. Guide- och genresultat är olika testfamiljer, så kontrollera avsedd familj innan du tolkar justerad signifikans.",
+          "narration": "Level chooses which results to report. Select both to obtain guide-level and gene-level results. Keep these testing families separate when reviewing adjusted significance.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_analysis_unit",
-          "narration": "Använd well som analysenhet i exemplet. Den inlästa förinställningen anger responskolumn, transformationer, kontroller och uteslutningar. Granska antagandena innan du anpassar arbetsflödet till din egen screening. En nedladdad förinställning är en exempeldesign, inte en allmän rekommendation.",
+          "narration": "Choose well as the analysis unit for this example. Review the response column, transformations, controls and excluded wells. Adapt these settings to the design of your own screen before running new data.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_min_wells",
-          "narration": "Sätt det minsta stödet för en guide till två brunnar i denna begränsade körning. Det filtrerar vilka guider som testas, men bevisar inte tillräcklig statistisk styrka. En guide som förekommer i mycket få brunnar måste fortfarande tolkas försiktigt.",
+          "narration": "Minimum guide support controls how many wells must contain a guide before it is tested. Set it to two to follow this small example. Choose an appropriate support requirement for your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutations",
-          "narration": "Välj 199 permutationer för att återskapa den korta demonstrationen. Det begränsar det minsta möjliga empiriska p-värdet till 0,005, vilket kan vara för grovt efter korrigering för multipla tester. Planera ett lämpligt antal permutationer för ditt verkliga försök.",
+          "narration": "Set one hundred and ninety-nine permutations for a quick first run. More permutations give finer empirical p-value resolution and take longer. Choose a larger count when your final analysis requires it.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutation_seed",
-          "narration": "Sätt permutationsfröet till noll för körningen som visas. Behåll exemplets plattblock och rad- och kolumntermer för störvariation, om inte din design motiverar ändringar. Ett fast frö stöder reproducerbarhet men rättar inte ogiltiga antaganden om utbytbarhet.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "19_setting_regression_backend",
-          "narration": "Regression backend är ingen universell accelerationsknapp. Fältet gäller stödda estimatorer som anpassar modeller; en ändring gör inte denna guide-permutationsdemonstration till GPU-regression. Andra spaCR-moduler har egna enhetsval. Följ kontrollerna och konsolen för den operation som faktiskt körs.",
+          "narration": "Set the permutation seed to zero to repeat the same randomization. Keep the example’s plate blocks and row and column nuisance terms. For your own data, choose blocks that respect which observations can be exchanged under the experimental design.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_annotation_source",
-          "narration": "Välj none som annoteringskälla i detta fristående exempel. De statistiska resultaten kräver ingen extern sökning efter genannoteringar. Använd annoteringar som passar organismen och identifiersystemet i din egen screening, i stället för att anta att varje guidebeteckning går att slå upp.",
+          "narration": "Choose none for Annotation source to run the example without gene-annotation lookup. For another screen, select annotations that match its organism and identifier system.",
           "hold_after": 0.7
         },
         {
           "visual": "21_batch_running",
-          "narration": "Rensa sökningen, kontrollera utdatamappen och tryck Run. Följ den verkliga konsolen när indata samordnas, valda filter används och resultaten beräknas. Regression skapar diagnostiska figurer direkt; för denna inspelning finns ingen separat Plot-knapp att slå på.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "23_batch_finished",
-          "narration": "Det färdiga exemplet gav 434 guideresultat, 325 genresultat och fem figurer. Finished betyder att programmet är klart; det godkänner inte försöksdesignen eller fastställer biologiska fynd. Läs även de diagnostiska varningarna, inte bara slutmeddelandet.",
+          "narration": "Clear the search, check the paired inputs and output folder, then click Run. Follow the console as the module aligns the tables, filters guides and calculates the results. Diagnostic figures are generated with the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "25_result_runs",
-          "narration": "Runs identifierar den sparade analysen; Results visar den valda körningen. Kontrollera mapp och inställningar när du jämför körningar. En ändring i formuläret räknar inte om resultatet som visas. Kör analysen igen när du vill testa ett nytt val.",
+          "narration": "When the run finishes, open Runs and select the saved analysis. Confirm the folder and settings before comparing it with another run. Rerun the analysis after changing settings if you want new results.",
           "hold_after": 0.7,
           "related_lessons": [
             "73_parameter_sweep"
@@ -1516,62 +1457,32 @@
         },
         {
           "visual": "25_result_results",
-          "narration": "Results innehåller koefficienttabellen och interaktiva vyer bredvid de skapade figurerna. Körningen har totalt 759 rader på båda nivåerna; den här vyn väljer de 434 guideresultaten. Använd Level för att välja testfamilj. Interaktiv granskning av sparade resultat kör inte inferensen på nytt.",
+          "narration": "Open Results and use Level to switch between guide and gene results. Inspect the result table and interactive views. The saved results_grna.csv and results_gene.csv files contain the corresponding tables for further analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "26_detail_p_values",
-          "narration": "Öppna p-values för att granska resultatfördelningen. Tolka den tillsammans med vald testfamilj, permutationsupplösning och diagnostik, inte som automatiskt bevis på en effekt. Den separata Diagnostics-handledningen förklarar de sparade design- och inferenspanelerna i detalj.",
+          "narration": "Open the p-values view and the Diagnostics tool. Review the result distribution together with the permutation resolution, testing family and design warnings. Resolve important diagnostic concerns before interpreting associations.",
           "hold_after": 0.7,
           "related_lessons": [
             "75_regression_diagnostics"
           ]
         },
         {
-          "visual": "25_result_measurements",
-          "narration": "Measurements har kontroller för ytterligare uppmätta responsvariabler. Exemplet saknar ansluten mätdatabas. Att öppna fliken skapar ingen databas och gör ingen svepning över mätvariabler. Tillhandahåll nödvändiga mätdata innan du använder verktygen i ditt eget försök.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "25_result_cells",
-          "narration": "Cells kan koppla valda resultat till underliggande objekt när lämpliga mätdata och bilder finns. Här är databaskolumnen tom, så det finns inget cellmontage att visa. Blanda inte ihop en otillgänglig objektvy med en misslyckad poäng- och räkneanalys.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "71_investigate_hit"
-          ]
-        },
-        {
           "visual": "26_detail_coefficients",
-          "narration": "De inbyggda verktygen är Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler och Diagnostics. Håll pekaren över ikonerna för att identifiera dem. De länkade handledningarna beskriver varje arbetsflöde. En prediktionsprofil behöver exempelvis lämpliga resultat från en anpassad modell, vilket denna permutationskörning inte ger.",
-          "focus_buttons": "FoldButton",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "72_volcano_explorer",
-            "48_hit_list",
-            "49_methods_results",
-            "71_investigate_hit",
-            "53_prediction_profiler",
-            "75_regression_diagnostics"
-          ]
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI aktiverar valfri hjälp via leverantören som ställts in i Preferences under AI. Ställ en konkret fråga om resultat eller inställningar och jämför råden med data. Här visas en osänd exempelfråga: Ingen leverantör kontaktades och inget svar genererades för inspelningen.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "26_detail_coefficients",
-          "narration": "För skript använder du perform_regression i spaCRs maskininlärningsmodul med motsvarande inställningar och läser den aktuella API-dokumentationen. Spara indatatabeller, inställningar, utdata och diagnostisk tolkning tillsammans. Använd Parameter Sweep medvetet för jämförelser och håll utforskande val åtskilda från beslut om slutanalysen.",
+          "narration": "Use the toolbar to open Volcano Explorer, Hit List or Investigate Hit for the next step. Their tutorials show how to inspect selected results. Keep the input tables, saved settings, result files and diagnostic reports together when sharing the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "73_parameter_sweep"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "14_make_masks",
@@ -1732,27 +1643,26 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "Image UMAP: verkliga mätningar och interaktiv granskning av bildutsnitt",
+      "title": "Image UMAP: explore measurements with image crops",
       "series": 1,
       "app_key": "umap",
       "section": "Tools",
-      "description": "Skapa en begränsad inbäddning från det nedladdade exemplets mätningar, granska verkliga bildutsnitt interaktivt och hitta de inbyggda projektionsverktygen.",
+      "description": "Select measurement tables, build a UMAP embedding and click points to inspect the corresponding objects.",
       "objectives": [
-        "Återanvända det nedladdade projektet och välja dess mättabeller.",
-        "Konfigurera en liten reproducerbar inbäddning och granska förbehandling och resultat.",
-        "Klicka på beräknade punkter för att se deras verkliga bildutsnitt utan att ändra annoteringar.",
-        "Hitta de inbyggda Image Scatter och PCA, sökkontroller, valfri acceleration och AI-hjälp."
+        "Load a measured project and choose its feature tables.",
+        "Control neighbourhood size, point spacing and the sampled row count.",
+        "Run the embedding, inspect crops and find saved results."
       ],
-      "prerequisite": "Använd först Load test data i Annotate för att hämta de 2 341 PNG-utsnitten och mätdatabasen. Image UMAP återanvänder projektet; ingen annan datamängd laddas ned i den här inspelningen. Exemplet använder uppmätta egenskaper på CPU, inte bildegenskaper framtagna av ett neuralt nätverk.",
+      "prerequisite": "Follow Annotate and choose Load test data, then Load, to obtain the measured example and its image crops. Keep the downloaded plate folder. For your own data, complete Measure with saved crops before opening Image UMAP.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öppna Image UMAP från Tools på Home-skärmen. Modulen placerar objekt efter deras uppmätta egenskaper och låter dig granska motsvarande mikroskopiutsnitt. En grupp närliggande punkter på denna utforskande karta är inte automatiskt en biologisk klass.",
+          "narration": "From Home, open Image UMAP. Use it to explore similarities between measured objects while viewing their image crops. Start with a project containing a measurements database and the crops saved by Measure.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_src",
-          "narration": "Återanvänd projektet som laddades ned via Load test data i Annotate. Det innehåller två tusen tre hundra fyrtioen bildutsnitt och deras mätdatabas. Den länkade Annotate-lektionen visar den verkliga nedladdningen; den här modulen öppnar nu det befintliga projektet.",
+          "narration": "Under Source, choose Add project folders and select the example plate folder downloaded through Annotate. Review the available databases, rows and shared columns. You can add more project folders when you want to compare several datasets.",
           "related_lessons": [
             "09_annotate",
             "08_measure"
@@ -1760,99 +1670,81 @@
           "hold_after": 0.7
         },
         {
-          "visual": "19_setting_src",
-          "narration": "Source använder Add project folders. Välj plattans mapp, inte en enskild bild. Kontrollen visar databaser, rader och gemensamma kolumner före sammanslagningen. När flera projekt jämförs bör du granska struktur kopplad till datakällan innan ett kluster tolkas biologiskt.",
-          "hold_after": 0.7
-        },
-        {
           "visual": "19_setting_tables",
-          "narration": "Välj de mättabeller som definierar frågan. Exemplet använder mätningar av cell, cytoplasma, kärna och patogen. Granska saknade data och borttagning av korrelerade egenskaper. Låt Resnet features vara avstängt: denna arbetsgång implementerar inte neurala inbäddningar av råa bildutsnitt.",
+          "narration": "Choose the tables whose features you want to compare. For this example, select cell, cytoplasm, nucleus and pathogen measurements. Leave Resnet features off to use the existing measurements. Review missing-data and correlated-feature settings before running.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_row_limit",
-          "narration": "Sätt Row limit till fyrahundra för en liten demonstration. Det begränsar antalet samplade objekt, men gör inte urvalet representativt för alla experiment. Två arbetsprocesser begränsar resursanvändningen, och originaldatabasen finns kvar för en större analys.",
+          "narration": "Set Row limit to four hundred for a quick first view and use two workers. Row limit controls how many objects enter the embedding. Increase it when you are ready to explore more of the dataset.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Reduction method väljer UMAP här. Det aktuella formuläret erbjuder även andra reduktionsmetoder med egna kontroller. En PCA- eller t-SNE-inställning kan inte bytas mot en UMAP-inställning. Endast UMAP beräknades i den här demonstrationen.",
+          "narration": "Choose UMAP as the reduction method. Each point will represent an object using two plotted coordinates. You can explore PCA through its linked tool when you want a linear projection and feature loadings.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_neighbors",
-          "narration": "Vi använder femton grannar och ett minimiavstånd på noll komma ett. Grannskapets storlek påverkar hur lokal struktur representeras; minimiavståndet påverkar hur tätt punkterna kan samlas. Detta är demonstrationsval, inte universellt optimala biologiska inställningar.",
+          "narration": "Set Neighbours to fifteen and Minimum distance to zero point one. Neighbours controls the size of the neighbourhood used to build the map. Minimum distance controls how closely points can pack in the displayed embedding.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_random_seed",
-          "narration": "Behåll reduktionsmetodens slumpfrö på fyrtiotvå när samma indata jämförs. CPU-implementeringen med fast frö kan använda en enda tråd för reproducerbarhet även om fler arbetsprocesser begärs. Ett frö gör inte olika egenskapsurval eller beräkningsmotorer likvärdiga.",
+          "narration": "Set Random seed to forty-two so repeated runs with the same inputs and settings are easier to compare. Save your chosen feature tables and preprocessing settings alongside the seed.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_clustering",
-          "narration": "Klustring är skild från dimensionsreduktion. Detta DBSCAN-exempel tilldelar alla fyrahundra objekt kluster noll, och vi låter brusreduceringen vara avstängd. Den enda etiketten är en beräknad gruppering, inte ett fynd som visar att alla celler har samma fenotyp.",
+          "narration": "Clustering assigns labels to groups after the embedding is built. This example uses DBSCAN with noise removal off. Inspect the crops within any group before using its label in a later analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot_images",
-          "narration": "Visa bildutsnitt och punkter tillsammans. Tolv små bildsymboler gör den statiska kartan möjlig att granska utan att dölja punktmolnet. Visningsval hjälper dig att läsa resultatet; de ersätter inte granskningen av egenskaperna som skapade geometrin.",
+          "narration": "Enable Plot images and Plot points. Use twelve small crop images so the overview remains readable. You can inspect individual objects more closely in the interactive view after fitting.",
           "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "Tryck Run och läs den verkliga konsolen. Körningen rapporterar medianimputering av saknade mätvärden och en inbäddning med fyrahundra rader och två kolumner. Granska dessa förbehandlingsbeslut, inte bara markeringen Finished. Här utfördes ingen bildsegmentering eller träning av en klassificerare.",
+          "narration": "Press Run and watch the console for feature preparation and embedding progress. Wait for the completed result. If you change the input tables or reduction settings, run again to produce a new map.",
           "hold_after": 0.7
         },
         {
           "visual": "24_batch_figure",
-          "narration": "Granska den sparade inbäddningsfiguren och resultatmappen. Den exporterade tabellen innehåller valda mätrader, metadata och klusteretiketter. Anta inte att den här versionen också exporterar de två ritade koordinaterna till den tabellen.",
+          "narration": "Inspect the embedding in Figures and open the results folder reported in the console. Keep the saved figure, selected measurement rows, metadata and cluster labels together so you can trace an interesting group back to its objects.",
           "hold_after": 0.7
         },
         {
           "visual": "25_interactive_embedding",
-          "narration": "Slå på Interactive för att utforska den redan beräknade kartan. Det är ingen löpande omberäkning när inställningar ändras. Punktklick, zoomning och områdesval hjälper dig att granska det aktuella resultatet; en ändrad analys kräver fortfarande en ny körning.",
+          "narration": "Enable Interactive to explore the fitted map. Zoom into a region and click its points. The view uses the completed embedding, so you can inspect different objects without fitting it again.",
           "hold_after": 0.7
         },
         {
           "visual": "26_point_0",
-          "narration": "Klicka på en punkt och granska dess verkliga bildutsnitt till höger. Sökvägen som visas kopplar bilden till ursprungsobjektet. Här laddade det riktiga programmet motsvarande utsnitt efter klicket, utan att ersätta det med en representativ bild.",
+          "narration": "Click a point to show its crop in the side panel. Use the displayed object path to connect the image to its source record. Compare morphology across nearby points and across distant regions of the map.",
           "hold_after": 0.7
         },
         {
           "visual": "26_point_200",
-          "narration": "Klicka på en annan punkt för att jämföra morfologin. Sidopanelen erbjuder också etikettering av ett urval och överföring av automatiska kluster. De åtgärderna skriver annoteringar, till skillnad från att bara visa ett utsnitt. Vi använde dem inte och kontrollerade att databasen var oförändrad.",
+          "narration": "Click another point to compare its crop. The sidebar also provides selection labelling and cluster-label propagation. Those controls save annotations, so choose the intended label and selection before applying them.",
           "hold_after": 0.7
         },
         {
           "visual": "27_fold_image_scatter",
-          "narration": "Image Scatter och PCA finns nu i Image UMAPs överkant. Använd Image Scatter för direkta samband mellan egenskaper och PCA för en linjär projektion och dess laddningar. De befintliga speciallektionerna är fortfarande länkade under denna överordnade modul.",
+          "narration": "Open Image Scatter from the Image UMAP header to compare selected features directly, or open PCA for a linear projection. Continue with the linked tutorials for their input settings and saved outputs.",
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "55_image_scatter",
             "60_pca"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "28_hyperparameter_controls",
-          "narration": "Hyperparameter search öppnar en separat jämförelsepanel. Håll sökningar små och granska de resulterande kartorna innan inställningar överförs. Inspelningen visar bara de verkliga kontrollerna; ingen sökning startades och inget valt resultat hittades på.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "24_batch_figure",
-          "narration": "GPU-kontrollen är valfri. Den här inspelningen använde CPU. Reduktionsmetoder som stöds kan använda den valfria RAPIDS-motorn när den finns tillgänglig; det är en annan accelerationsväg än Torchs enhetsval. Läs vilken motor som rapporteras och utlova inte identiska koordinater på olika enheter.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI aktiverar valfri hjälp från en leverantör, inte automatisk biologisk tolkning. Frågan skickades inte. I skript är motsvarande ingång generate_image_umap i spacr.core; behåll indatatabeller, förbehandling och sparade inställningar tillsammans med resultatfiguren.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "16_activation",
@@ -2144,31 +2036,25 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "Motilitetsanalys",
+      "title": "Motility assay",
       "series": 2,
       "app_key": "motility",
       "section": "Core",
       "host_app_key": "measure",
-      "description": "Utforska livefilter och enheter med reproducerbara syntetiska spår i Measure > Motility.",
+      "description": "Measure movement from tracked objects, inspect track filters, and save per-frame and per-well results.",
       "objectives": [
-        "Hitta Motility i Measure och läs in exakt samma exempelarrayer.",
-        "Jämför filter utan att läsa om bilder eller köra modeller igen.",
-        "Skilj okända enheter, hypotetisk omräkning och resultatbegränsningar åt."
+        "Load a project containing tracked merged arrays.",
+        "Choose mask planes, track filters and acquisition units.",
+        "Run the analysis and find the movement tables and plots."
       ],
       "example_files": [
         "SYNTHETIC_motility_tracks.zip"
       ],
-      "prerequisite": "Packa upp SYNTHETIC_motility_tracks.zip i en ny mapp. Åtta syntetiska arrayer: kärnintensitet 0, cellintensitet 1, spårad cellmask 2, kärnmask 3. Inget patogenplan eller uppmätt kalibrering. Välj roten med merged. Live: två intensitetskanaler, spårplan 2, patogen -1, åtta bilder, minsta längd 3, kalibrering 0/0. 2 pixlar/µm och 60 sekunder/bild är endast hypotetiska räknevärden. Propagate settings av. PDF-markeringar har låg kontrast; Screen löste inte problemet. Ingen biologisk eller infektionsvalidering. API: spacr.timelapse.automated_motility_assay. AI av.",
+      "prerequisite": "Complete a Timelapse run, or download and extract SYNTHETIC_motility_tracks.zip. Select the folder containing merged. The example has eight frames, nucleus intensity in channel 0, cell intensity in channel 1, tracked cell masks in plane 2 and nucleus masks in plane 3. It has no pathogen mask or physical calibration.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Öppna Measure och använd genvägen Time till fliken Motility Assay. Detta är en undermodul, inte en egen Home-ruta. Timelapse i Mask skapar spår; Motility mäter dem. Se först Timelapse-lektionen om bilderna ännu inte har spårats.",
-          "focus": [
-            3570,
-            1900,
-            220,
-            90
-          ],
+          "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
@@ -2177,164 +2063,60 @@
         },
         {
           "visual": "03_actual_setting_src",
-          "narration": "Hämta det syntetiska exemplet med spårade arrayer nedan och packa upp i en ny mapp. Ange mappen med merged som Source. Åtta bilder innehåller sexton cellspår. Välj cell, kärnkanal noll och cellkanal ett, utan patogenkanal.",
-          "focus": [
-            250,
-            305,
-            1185,
-            285
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_actual_setting_pixels_per_um",
-          "narration": "Använd verklig pixelskala och bildintervall för ett insamlat experiment. Här är två pixlar per mikrometer och sextio sekunder per bild avsiktligt hypotetiska och visar bara beräkningen. Batchformuläret kräver tal; standardvärden bevisar inte mikroskopets kalibrering.",
-          "focus": [
-            250,
-            600,
-            1185,
-            150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_actual_setting_infection_intensity_qc_graphs",
-          "narration": "Låt Reuse existing measurements vara av för den nya kopian och aktivera kvalitetskontrollgrafer. Utan patogenkanal är infektionskontrollen av i denna körning. Valfria klassificerare testas inte och undervisningsspåren kan inte visa någon infektionseffekt.",
-          "focus": [
-            250,
-            810,
-            1185,
-            760
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_actual_finished",
-          "narration": "Kör det lilla exemplet och läs konsolen. Batchen sparar 128 observationer, en brunnssammanfattning för sexton spår och PDF-filer. Filerna visas inte i figurkön. Versionen varnar för bleka exportfärger; granska filerna före användning i rapporter.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            850
-          ],
+          "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
           "hold_after": 0.7
         },
         {
           "visual": "07_actual_preview",
-          "narration": "Aktivera Live för att öppna Motility preview. Fäll ihop Console och System om de tar plats från graferna och välj samma uppackade mapp. Förhandsvisningens mått och batchinställningar är separata. Låt Propagate settings vara av under försök så att tillfälliga filter inte ändrar nästa fullständiga körning.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            550
-          ],
+          "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_plane_and_unit_settings",
-          "narration": "Ange två intensitetskanaler, spårat maskplan två och patogenmaskplan minus ett, alltså inget. Visa alla åtta bilder. En kärnmask är inte en patogenmask. Sätt båda kalibreringsfälten till noll för okända enheter och klicka på Run preview.",
-          "focus": [
-            1455,
-            395,
-            2340,
-            300
-          ],
+          "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_uncalibrated_preview",
-          "narration": "Förhandsvisningen läser 128 objektobservationer och visar sexton användbara spår vid minsta längd tre. Medelhastigheten är ungefär 1,4 pixlar per bild. Utan båda kalibreringsvärdena får den inte beskrivas som mikrometer per minut.",
-          "focus": [
-            1455,
-            1600,
-            2340,
-            200
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_actual_all_short",
-          "narration": "Höj Min track length till nio. Varje spår har bara åtta bilder; alla sexton utesluts ur den användbara sammanfattningen och medelhastigheten blir otillgänglig. Ursprungliga spår och bilder raderas inte. En tom sammanfattning innebär inte hastighet noll.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
+          "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_length_restored",
-          "narration": "Återställ minimum till tre. Sexton användbara spår, längdfördelningen och hastighetspunkterna återkommer. Måtten räknas om från cachade observationer. En ändring kör inte segmenteringen igen och bevisar inte att den ursprungliga spårningens identiteter var rätt.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
+          "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
           "hold_after": 0.7
         },
         {
           "visual": "13_actual_straightness_filter",
-          "narration": "Aktivera Drop over-straight tracks med tröskel 0,95. Rakhet är nettoförflyttningen delad med banlängden. Femton nästan raka undervisningsspår utesluts, ett återstår. Rak rörelse kan vara verklig; filtret bevisar inte automatiskt drift och är ingen analysrekommendation.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "14_actual_filter_restored",
-          "narration": "Stäng av filtret och kontrollera att alla sexton spår återkommer. Jämför grafer och antalet kvarvarande spår innan en filterregel godtas. uninfected avspeglar här bara avsaknaden av patogenplan, inte en validerad biologisk negativgrupp.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "15_actual_one_unit_unknown",
-          "narration": "Ange två pixlar per mikrometer men lämna bildintervallet okänt. Förhandsvisningen visar fortfarande pixlar per bild. En rumslig skala tillför inte saknad tid och videons uppspelningshastighet är inte bildtagningsintervallet.",
-          "focus": [
-            3010,
-            400,
-            785,
-            255
-          ],
+          "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "16_actual_hypothetical_calibration",
-          "narration": "Ange nu sextio sekunder per bild. Med båda hypotetiska värdena ändras medelhastigheten från ungefär 1,4 pixlar per bild till 0,7 mikrometer per minut. Identiteterna ändras inte. Spårgrafen anger fortfarande förflyttning i pixlar; här ändras endast hastighetsenheten.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
+          "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
           "hold_after": 0.7
         },
         {
-          "visual": "17_actual_unknown_units_restored",
-          "narration": "Återställ båda kalibreringsfälten i förhandsvisningen till noll. Den ursprungliga pixelsammanfattningen återkommer exakt. Skilj räkneövningen från verkliga insamlingsmetadata och läs om batchfunktionen i API-referensen. spaCR AI kan förklara inställningar men inte certifiera kalibrering, infektionsstatus eller vetenskaplig giltighet.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "related_lessons": [
-            "06_api",
-            "17_timelapse",
-            "34_database"
-          ],
+          "visual": "03_actual_setting_pixels_per_um",
+          "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_actual_setting_infection_intensity_qc_graphs",
+          "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_actual_finished",
+          "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "19_train_cellpose",

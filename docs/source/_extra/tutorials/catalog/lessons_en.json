@@ -608,26 +608,24 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask: live filters, a real run and verified overlay export",
+      "title": "Mask: segment images and inspect the results",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Use the real downloadable microscopy example, test live area and diameter changes, run two fields with Plot enabled, and recover a missing overlay through an explicit Python plotting workaround.",
+      "description": "Load microscope images, choose segmentation settings, preview objects and save masks for measurement.",
       "objectives": [
-        "Find Mask on Home and its nested Live, Time, 3D and OPS controls.",
-        "Check source metadata and channel identities before testing segmentation.",
-        "Distinguish a reversible display filter from a model-parameter rerun.",
-        "Inspect genuine batch output, preserve the partial-overlay warning and export both arrays explicitly.",
-        "Keep QC limitations, original data and an unsent AI question distinct from scientific validation."
+        "Load the microscopy example and identify its intensity channels.",
+        "Compare model settings and object-size filters in Live preview.",
+        "Run segmentation, inspect overlays and find the merged outputs."
       ],
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Use the actual Mask download, retaining known channel identities and filename metadata. The live preview was recorded on 1.5.0.7 from the shipped example settings on a fresh copy, and is reused only while live_preview.py and preview_contract.py stay byte-identical to that recording; its saved masks independently reproduce 105→52→105 at minimum area 510 and 36 after diameter 30→60. The new two-field batch is a separate example, not a direct count benchmark: Plot=True, test_images=2, batch_size=2, n_jobs=2, diameters 30/30/15 and explicit cell/nucleus/pathogen flow thresholds 0.4. Archive value 100 disables flow filtering and is not taught as recommended. The native overlay loop STILL fails on .spacr_plane_layout.json: one of two overlays is missing despite Finished. Do not delete the layout or enable pickle loading. The linked helper calls spacr.plot.plot_image_mask_overlay on regular .npy files only, requiring four intensity planes followed by cell/nucleus/pathogen at 4/5/6. It writes a new opaque-background PNG folder, never changes source arrays, and does not fix the GUI loop. Both source array hashes match the native run journal. Final labels are 25/19/8 and 52/50/58; first-field pathogen QC warns near_empty_field. Cell QC precedes mask adjustment. Independent checks cover 95,424,864 channel RGB array values and 7,952,072 combined-foreground pixels, not biological accuracy. Previous failed runs and transparent-plot probes are preserved but not presented as complete. No AI request, training, scientific approval or publication. API: spacr.core.preprocess_generate_masks and spacr.plot.plot_image_mask_overlay. OPS is a separate page opened from Mask's action row and has its own lesson; this lesson does not run it.",
+      "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Open Mask from Home. It is a main module; its action row holds the Live, Time, three-dimensional and OPS switches. Time and OPS each have their own linked tutorial under Mask in the submodule section. This lesson covers a two-dimensional example, live comparisons and a plotting workaround, not an automatically validated segmentation.",
+          "narration": "From Home, open Mask. Use this module to outline cells, nuclei and pathogens in microscope images. This walkthrough processes two-dimensional images. The Time, three-dimensional and OPS workflows have their own tutorials.",
           "related_lessons": [
             "05_home",
             "17_timelapse",
@@ -637,52 +635,47 @@
         },
         {
           "visual": "native_02_download",
-          "narration": "Click Load test data and let the real microscopy example finish downloading. Keep its folder structure and original images. The recording uses a fresh private copy, so a previous run cannot supply stale results. For your own data, confirm the filename metadata and channel identities before copying any example settings.",
+          "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
           "hold_after": 0.7
         },
         {
           "visual": "native_03_data_ready",
-          "narration": "Here nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. The example also contains channel three. These are intensity-channel identities, not the mask-plane numbers in a merged output. Check the images themselves and retain the layout metadata when moving results.",
+          "narration": "Check the channel assignments against the images. In this example, nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. Channel three is an additional intensity image. Choose only the object types present in your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Turn on Live and select a field for inspection. Preview is where you compare the image with the proposed masks before a larger run. This preview uses a different field from the two batch fields shown later. A displayed preview count is not directly comparable with a batch total.",
+          "narration": "Turn on Live and select a field. Inspect the image and proposed masks together before running the full folder. Try several fields that represent the range of image quality in your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_settings",
-          "narration": "Open Live settings and inspect the cell controls. This recording uses the installed CPSAM model; available model choices depend on your installation. Run the preview before interpreting its outlines. Diameter and filtering controls are different operations, and neither the selected model name nor a colourful mask guarantees accuracy.",
+          "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter and run the preview. Compare the outlines with the image, paying attention to missed objects and objects joined together.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "The baseline contains one hundred five cell labels. Raising minimum area to five hundred ten pixels leaves fifty-two visible labels. This is a reversible filter of the existing result: the raw mask stays unchanged and the model is not rerun. The threshold is a demonstration, not an optimal biological cutoff.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "preview_10_filters_restored",
-          "narration": "Restore the original area limit and all one hundred five labels return. Inspect which objects disappear and why before adopting a filter. Small objects may be genuine objects or segmentation errors; removing them does not itself answer that question. Keep the raw result and the chosen filter values separately identifiable.",
+          "narration": "Use the minimum-area filter to hide objects smaller than the chosen number of pixels. Increasing it removes small labels from the preview. This filter updates an existing mask result, so you can compare size cutoffs quickly.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Changing diameter from thirty to sixty pixels and running again is a model-parameter comparison, not just a display filter. This produces thirty-six labels in the recorded field. Compare boundaries with the image, not only the count. Fewer labels do not establish a better model, and these settings are not a universal recommendation.",
+          "narration": "Change diameter when the model is splitting or joining objects at the wrong scale, then run the preview again. Check the boundaries as well as the object count. Restore the settings you want to use before moving to the batch run.",
           "hold_after": 0.7
         },
         {
           "visual": "native_20_batch_settings",
-          "narration": "For the separate batch, use two test images and keep Plot enabled. Here all three flow thresholds are explicitly zero point four. The downloaded settings had one hundred, which disables flow filtering; we do not recommend that value by default. Review the console's device and processing messages instead of assuming how the run executed.",
+          "narration": "For a small first run, select two test images, keep Plot on, and review the cell, nucleus and pathogen flow thresholds. Here they are zero point four. Check the output and original-image retention settings, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "native_23_batch_finished",
-          "narration": "Read the whole console. Although the worker says Finished, the overlay ledger reports one of two plots missing: it tried to load the layout JSON as an image. The merged mask arrays exist, but this is not a complete native plotting run. Keep the warning and do not silently treat it as success.",
+          "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
           "hold_after": 0.7
         },
         {
           "visual": "command_01_explicit_numeric_inputs",
-          "narration": "The workaround is an explicit external step. Keep the layout JSON: it describes the intensity and mask planes and is not an image. Never enable pickle loading to silence this error. Download the linked helper, inspect it, and use the merged folder belonging to this particular run, not an older result directory.",
+          "narration": "If an overlay export is missing, the linked plotting helper can export the saved arrays separately. Extract the helper and choose this run’s merged folder. Keep the layout file in place; the helper uses it to check the intensity and mask planes.",
           "focus": [
             190,
             80,
@@ -696,7 +689,7 @@
         },
         {
           "visual": "command_02_explicit_plotting_api",
-          "narration": "Run the helper with the merged source and a new destination. It calls the real plotting API separately for each numeric array and saves both overlays. It refuses a different plane layout or an existing output folder. This bypasses the faulty directory scan for this export; it does not repair the application's plotting loop.",
+          "narration": "Run the helper with the merged folder as its source and a new output folder as its destination. It saves a separate overlay for each image array. Open the saved PNG files to inspect the results.",
           "focus": [
             190,
             80,
@@ -706,74 +699,42 @@
           "hold_after": 0.7
         },
         {
-          "visual": "viewer_09_saved_plate1_E01_17_1",
-          "narration": "These are the saved plots in an external image viewer, not figures inserted into spaCR. The first field has twenty-five cell, nineteen nucleus and eight pathogen labels after adjustment. Its pathogen QC still warns that eight objects are too few for the per-field size checks. A readable overlay does not remove that limitation.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
-        },
-        {
           "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "The second field has fifty-two cell, fifty nucleus and fifty-eight pathogen labels. The first four panels show the recorded intensity channels and their outlines; the last combines the object masks. Percentile normalization here is for display only. The source arrays are unchanged, and these label counts are not ground-truth accuracy measurements.",
+          "narration": "Review the outlines on each intensity channel and the combined mask view. Check small objects, touching cells and missed regions. Keep the input images, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
           "focus": [
             200,
             680,
             3440,
             880
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_verified_saved_overlays",
-          "narration": "Keep the output checks, original journal, settings and QC files together. We independently checked the plotted channel arrays, combined foreground coverage and unchanged source hashes. Cell QC was recorded before cell-mask adjustment, so its counts need not equal the final merged counts. Inspect segmentation quality yourself before continuing to Measure.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "related_lessons": [
-            "08_measure",
-            "54_qc_dashboard"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_30_ai_unsent_question",
-          "narration": "The console's optional spaCR AI control can help you discuss settings, but this example question is unsent and no provider answer is shown. Verify any advice against the real files and warnings. The Python pipeline and per-file plotting API follow the same data contracts; the linked lessons cover measurement and the nested time workflow.",
-          "related_lessons": [
-            "06_api",
-            "08_measure",
-            "17_timelapse"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure: live field views, real measurements and saved outputs",
+      "title": "Measure: extract object features and crops",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Use the downloadable sixteen-field example to inspect live fields and channels, restore raw-crop settings, read quality warnings, run with Plot enabled and verify saved measurements.",
+      "description": "Load images with masks, inspect objects, choose crop settings and save measurements for annotation and classification.",
       "objectives": [
-        "Load the current Measure example and distinguish intensity channels from label-mask planes.",
-        "Inspect fields and channels live, distinguish the view selector from shared crop settings, and restore normalization before the batch.",
-        "Run the full example, inspect real figures and console output, and locate verified measurements and crop files.",
-        "Find the nested Illumination, AnnData Export and Motility workflows and understand the limits of the AI console and stale-output warning."
+        "Identify intensity channels and mask planes in the example.",
+        "Inspect fields and choose saved-crop normalization deliberately.",
+        "Run Measure and locate the database, object crops and figures."
       ],
-      "prerequisite": "Open Measure from Home/Core and use Load test data. The measured subset is sixteen 1994x1994 merged uint16 arrays: intensity planes 0–3 and mask planes 4/5/6 for cells/nuclei/pathogen objects. Before the first Live preview, enable the main Normalize toggle; the panel initializes contrast at percentiles 1/99. Do not Run with that toggle on. Channel zero is a view-only choice, but the main Normalize setting also concerns saved crops. Turn Live off and restore Normalize off before running. The preview shows 27 objects in E02_1_1 and 15 in E02_9_1; channel changes preserve labels, areas and categories, and restoring All channels restores the original pixels. Preview and batch source arrays are byte-identical. Crop settings is oversized in this build; inaccessible normalization/propagation/filter-dialog scenes are deliberately not taught as usable. The background QC banner flags 3 failures and 16 warnings across 156 object-field records from the larger 52-field mask download, not just the 16 merged fields measured here. The data are illustrative, not certified clean. The full run uses Plot on, Test mode off, one worker, save_measurements/save_png on, normalize off and RGB224x224 cell crops. With no voxel calibration, areas are pixels squared. Independent checks cover 5409 area/intensity values including five source-supported label merges, not every feature or biological correctness. Outputs: 601 cell records/crops, 622 nuclei, 373 pathogen objects, 48 saved plots (47 in the GUI queue). Runtime-added hash_inputs and _intensity_rescale_plan cause this run's stale-output warning; arbitrary warnings and automatic handoff are not certified safe. A separate test-mode run registered the wrong database path; this lesson uses verified normal-mode outputs. API: spacr.measure.measure_crop. See Illumination, Motility and AnnData Export separately; AnnData teaches an explicit API workaround, not a repaired GUI. No AI question is sent, no response is demonstrated, and no human listening approval or publication is claimed.",
+      "prerequisite": "Use the merged outputs from Mask, or choose Load test data in Measure. The example supplies sixteen fields with intensity planes 0–3 and cell, nucleus and pathogen masks in planes 4, 5 and 6.",
       "scenes": [
         {
           "visual": "preview_01_module",
-          "narration": "Open Measure from the Core modules. It turns existing image arrays and object masks into measurements and crops; it does not create a new segmentation. Illumination, AnnData Export and Motility are nested workflows under this main module. Their separate lessons belong under Measure in the tutorial navigation.",
+          "narration": "From Home, open Measure. Start with images that already have object masks. Measure extracts features such as area and intensity, pairs related objects, and can save individual object crops for Annotate and Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -784,32 +745,32 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Choose Load test data and wait for the actual example to finish loading. This download supplies sixteen merged fields. Check the source folder and channel mapping: intensity channels zero to three, cell mask four, nucleus mask five, and pathogen mask six. Mask labels are not intensity measurements.",
+          "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_04_preview_normalization_setup",
-          "narration": "Before opening Live for the first time, search for Normalize in the main settings and turn it on. This initializes a readable preview because the raw sixteen-bit crops look dark. This is also a saved-crop setting, not just a display preference. Do not press Run; we will restore it first.",
+          "narration": "To inspect these sixteen-bit example crops, turn Normalize on before opening Live. This makes the preview easier to see. Remember that this main setting also affects saved crops; we will switch it off before this batch run.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_05_live_all_channels",
-          "narration": "Switch Live on and paste the merged-array path for field E zero two, one, one. The grid shows twenty-seven candidates, grouped by mask relationships; scroll to inspect the remaining categories. These labels are not independently reviewed biological annotations, and displayed candidates are not a promise of the final measured-cell count.",
+          "narration": "Turn on Live and choose a field. Inspect the object crops and their mask relationships. Scroll through the categories and enlarge the preview if needed to see the boundaries clearly.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_06_live_channel_zero",
-          "narration": "Choose channel zero in the displayed-channel selector. The same twenty-seven objects now appear in grayscale; their labels, areas and categories are unchanged. Unlike the main Normalize setting, this selector changes only the preview view. Return to All channels to restore the original color pixels without changing the batch settings.",
+          "narration": "Use the displayed-channel selector to inspect one intensity channel at a time. Channel zero shows a grayscale view; All channels restores the combined view. This selector changes the preview without changing the labels or batch channel mapping.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Use the field selector to open E zero two, nine, one. This field has fifteen displayed candidates: inspect more than one field before trusting an attractive image. Also read the red segmentation-quality banner. Its flagged masks come from the larger downloaded set; successful preview rendering does not resolve those warnings or certify clean data.",
+          "narration": "Choose another field and compare its objects. Review the segmentation-quality banner before measuring the project. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_08_saved_normalization_restored",
-          "narration": "Turn Live off, search for Normalize again, and switch it off before running. We verified that all batch settings return to their original values and both source arrays remain unchanged. Per-crop normalization can remove intensity differences from saved images. Keep the original arrays; this lesson does not use the oversized Crop settings dialog.",
+          "narration": "Turn Live off and restore Normalize off for this example. Choose normalization deliberately when saving crops: per-crop scaling changes the intensity differences visible to a later image classifier. Keep the original merged arrays for quantitative measurements.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -817,45 +778,34 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Keep Plot enabled, save measurements and crops, and use one worker for this demonstration. Test mode is off: this run processes all sixteen example fields into the main project output. A short test uses a separate test folder in this build, so do not confuse its database with the full-run result.",
+          "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. Use one worker for this example. Leave Test mode off to process all sixteen supplied fields, then click Run.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_26_measure_console_complete",
-          "narration": "Press Run and follow the console. Check the attempted, succeeded and failed counts, not merely the presence of a finished message. Here all sixteen fields succeeded. Large plots can trigger an explicit export-resolution limit; read that warning as well. A successfully completed computation is not a biological quality certificate.",
+          "narration": "Follow the console until the run completes. Check which fields succeeded and inspect any failures before proceeding. Keep the settings saved with this run so you can reproduce the measurements.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_00",
-          "narration": "Use the figure list to inspect the actual before-filtering and after-filtering views. Drag the divider to give the figures more room. Size filters and parent-child merging can change which labels are measured. In this example, five saved cell objects combine source labels connected by a shared nucleus or pathogen mask.",
+          "narration": "Use the figure list to compare objects before and after filtering. Size filters and parent-child relationships can change which objects are measured. Drag the divider to give the figures more space and inspect any unexpected changes.",
           "hold_after": 0.7
         },
         {
           "visual": "batch_25_measure_figure_02",
-          "narration": "Inspect the crop figure too, then keep the measurements database and its image paths together. This run saved six hundred one cell records and matching crops. Independent pixel checks verified area and four-channel intensity sums and means, including those merges; this does not validate every feature or the segmentation's biological correctness.",
+          "narration": "Inspect the crop figure, then locate measurements.db in the measurements folder and the saved object images in the project’s crop output. Keep the database and image paths together. Continue to Annotate to label example objects, or to Classify when you already have labelled training data.",
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "batch_24_batch_figure",
-          "narration": "This build can still display a stale-output warning after a successful run with unchanged visible settings. We traced this example to runtime-added metadata, but have not fixed the application. Verify the actual saved run and settings before continuing; do not dismiss other warnings or assume that automatic handoff has been validated. Also check the files: this recording's figure queue showed forty-seven of forty-eight saved plots.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_30_ai_unsent_question",
-          "narration": "The console also offers optional spaCR AI assistance. Here we enable the toggle and prepare a question without sending it, so no answer or external analysis is demonstrated. Treat any later response as advice to verify against the settings, API and saved results. Use the separate nested-workflow lessons for the next task.",
-          "related_lessons": [
-            "06_api",
-            "43_illumination",
-            "18_motility",
-            "59_anndata_export"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "09_annotate",
@@ -1046,26 +996,25 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify: a checked computer-vision example",
+      "title": "Classify: train an image classifier",
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
       "section": "Core",
-      "description": "Prepare unchanged downloaded crops with explicit well identities, run the current computer-vision family, and inspect a deliberately small model without overstating its performance.",
+      "description": "Prepare labelled image crops, choose the computer-vision family, train a small model and find its predictions.",
       "objectives": [
-        "Find the computer-vision family inside the main Classify module.",
-        "Prepare an explicit existing split from downloaded annotations without modifying source images or labels.",
-        "Keep actual wells separate, show training figures and distinguish workflow completion from useful prediction.",
-        "Locate saved models, predictions and related nested workflows."
+        "Prepare the downloadable image-classification example.",
+        "Choose the model, image channels and training settings.",
+        "Keep wells separate and inspect saved models and predictions."
       ],
       "example_files": [
         "Classify_existing_split_example.zip"
       ],
-      "prerequisite": "Use the Annotate lesson's Load test data download, not Stream, retaining plate1/measurements/measurements.db and its png crops. This recording uses spaCR 1.5.0.6. Download the helper ZIP and run prepare_classify_split.py in the spaCR environment with --source pointing to plate1 and --destination to a NEW folder. The helper is deliberately restricted to this four-well example: eight existing infected=1 and eight infected=2 labels per well, deterministically ranked before fitting, 64 byte-identical RGB crops. It gives copied files canonical database prcfo names; the original legacy filename parser is NOT fixed. The balanced subset does NOT preserve population prevalence. Select that prepared folder in Classify, Computer Vision (Torch), with Generate training dataset OFF. Native settings: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=0, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; all leakage guards remain enabled. The prepared train folder has 32 crops split into 16 train and 16 validation; test has 32. Actual well sets are disjoint but share one plate. This tiny run predicts class zero for all test crops: accuracy=0.5, majority accuracy=0.5, macro F1=1/3. All 32 prediction identities, labels and probability sums, accuracy, support and macro F1 were independently checked; not every reported metric was validated. Outputs are under model/resnet18/rgb/epochs_1. API: spacr.classify.classify dispatches to spacr.deep_spacr.train_test_model. No model quality, biological validation, new-experiment generalization or submitted AI answer is claimed.",
+      "prerequisite": "Download the measured example through Annotate using Load test data, then Load. Keep its plate1 folder with measurements/measurements.db and the png crops. Download Classify_existing_split_example.zip below and extract the helper. In your spaCR environment, run prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Select the new_split folder in Classify. The helper is for this four-well example; it copies 64 labelled RGB crops into train and test folders.",
       "scenes": [
         {
           "visual": "gui_19_setting_classifier_family",
-          "narration": "Open Classify from Home and choose Computer Vision, Torch. Computer vision learns from object images; the tabular family learns from saved measurements. Both now belong to the same main module. This lesson runs a small, checked image example, with a separate preparation workaround that does not repair the application's legacy filename parser.",
+          "narration": "From Home, open Classify and choose Computer Vision, Torch. This family learns from labelled object crops and saves a model that can score other crops. Follow the Annotate lesson first to download the example images and their labels.",
           "focus": [
             350,
             190,
@@ -1080,7 +1029,7 @@
         },
         {
           "visual": "prepare_01_source_example",
-          "narration": "Follow Annotate's linked tutorial to Load the real example, keeping its measurements database and image crops. The terminal lists the existing annotation labels across four actual wells. We preserve those labels; they are not independently validated biological truth. The source project remains unchanged throughout this demonstration.",
+          "narration": "In Annotate, choose Load test data, then Load. Keep the plate folder containing measurements and PNG crops. For your own data, start with crops from Measure and assign the classes you want to learn in Annotate.",
           "focus": [
             190,
             80,
@@ -1095,7 +1044,7 @@
         },
         {
           "visual": "prepare_02_prepare_existing_split",
-          "narration": "Download the helper and run it in your spaCR environment. Source is the downloaded plate folder; destination must be a new folder. It copies eight images from each of two existing classes in each well: sixty-four images total. Selection is deterministic and happens before training, not after looking at model performance.",
+          "narration": "Download the linked example ZIP and extract prepare_classify_split.py. Run it in your spaCR environment with source pointing to the example plate folder and destination pointing to a new folder. The helper prepares sixty-four labelled images for this exercise.",
           "focus": [
             190,
             80,
@@ -1106,7 +1055,7 @@
         },
         {
           "visual": "prepare_03_exported_manifest",
-          "narration": "Read the manifest before continuing. Copied filenames use the database's canonical object identities, and every image retains its original bytes. Two whole wells go into the training folder and two into test. This explicitly balanced teaching subset changes the class prevalence; it is not a representative estimate of the original population.",
+          "narration": "Open the new folder and its manifest. The train and test directories each contain two class folders. The manifest lists each copied image and its well. Keep whole wells on one side of the split when images from the same well share experimental conditions.",
           "focus": [
             190,
             80,
@@ -1117,12 +1066,18 @@
         },
         {
           "visual": "gui_18_source_folder_choice",
-          "narration": "In Classify, choose the prepared dataset folder, not the original project or one class subfolder. It contains train and test directories, each with two class folders. The source chooser opens that existing dataset. Do not overwrite the source project or reuse a destination containing results from an earlier run.",
+          "narration": "Return to Classify and choose the prepared folder as Source. Select the parent containing train and test. Keep that prepared folder for the rest of this lesson so the model and its output files stay together.",
+          "focus": [
+            1439,
+            390,
+            943,
+            1300
+          ],
           "hold_after": 0.7
         },
         {
           "visual": "gui_19_setting_generate_training_dataset",
-          "narration": "Turn Generate training dataset off because the split is already prepared. Train and Test remain on; applying the model to a full dataset stays off. The prepared class folders preserve labels one and two, while the model uses class indices zero and one. Those numbering systems are different, not contradictory.",
+          "narration": "Turn Generate training dataset off because the helper has already prepared the split. Enable Train and Test. Leave application to the full dataset off for this first run. The model uses class indices zero and one for the two class folders.",
           "focus": [
             350,
             190,
@@ -1133,7 +1088,7 @@
         },
         {
           "visual": "gui_19_setting_model_type",
-          "narration": "Choose ResNet18 for this bounded example: one epoch, batches of eight, image size one hundred twenty-eight, and zero loader workers. Use all three RGB channels and leave pretrained weights and augmentation off. These settings make the demonstration small; they are not a recommended recipe for an accurate classifier.",
+          "narration": "Choose ResNet18, image size one hundred twenty-eight, all three RGB channels, batch size eight and one epoch. Set loader workers to two, with pretrained weights and augmentation off for this short example. Epochs controls how many times training passes through its input images.",
           "focus": [
             350,
             190,
@@ -1144,7 +1099,7 @@
         },
         {
           "visual": "gui_19_setting_val_split",
-          "narration": "Keep grouping by well and every leakage check enabled. A validation fraction of one half splits the thirty-two training-folder images into sixteen training and sixteen validation images, with one whole well each. The other thirty-two images remain test-only. All four wells share one plate, so this is not an independent-experiment validation.",
+          "narration": "Set validation fraction to one half, keep grouping by well and leave the leakage checks enabled. Validation monitors the model during training; the separate test folder is used for the final assessment. Check the reported well assignments before interpreting the scores.",
           "focus": [
             350,
             190,
@@ -1155,7 +1110,7 @@
         },
         {
           "visual": "gui_19_setting_plot",
-          "narration": "Turn Plot on, clear the settings search, and press Run. Watch the console for the resolved split, leakage audits, training and saved paths. Both well-grouped boundary checks pass in this recorded run. A software pass only has meaning when the names agree with the actual sample identities, which we checked separately.",
+          "narration": "Turn Plot on, clear the settings search and press Run. Watch the console for dataset loading, the resolved split, training progress and output paths. Wait for training and testing to finish before opening the saved results.",
           "focus": [
             350,
             190,
@@ -1166,7 +1121,7 @@
         },
         {
           "visual": "gui_24_batch_figure",
-          "narration": "The Figures panel shows loss, accuracy and per-class validation accuracy. With only one epoch, these are individual points, not evidence of convergence. Our separate test check finds every image predicted as class zero: fifty percent accuracy, exactly the balanced majority baseline. Successful execution has not produced a useful classifier.",
+          "narration": "Open Figures to inspect loss and accuracy. One epoch gives a quick first pass. Compare the test results across classes before increasing training time. If predictions favour only one class, review the labels, class balance and input channels before using the model on a larger dataset.",
           "focus": [
             2090,
             180,
@@ -1177,7 +1132,7 @@
         },
         {
           "visual": "gui_23_batch_finished",
-          "narration": "Keep the model directory with its checkpoint, model card, leakage audits and result tables. Here it is under model, resnet18, rgb, epochs underscore one. Compare saved prediction identities and class labels, not just an accuracy number. Misclassified review images are outputs, not additional independent training or test samples.",
+          "narration": "Open model, resnet18, rgb, epochs underscore one inside the prepared folder. Keep the checkpoint, model card and result tables together. Use the saved predictions to review errors, then continue to Classifier Evaluation or Activation Maps to inspect the model further.",
           "focus": [
             2090,
             180,
@@ -1190,49 +1145,38 @@
             "16_activation"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "narration": "The AI control can help you ask about settings or outputs after you configure a provider. This is an unsent question, not an answer or an analysis result. In Python, classify dispatches to train_test_model for this family. Keep the split manifest and verify advice before planning a larger, independently validated experiment.",
-          "focus": [
-            2090,
-            950,
-            1720,
-            1130
-          ],
-          "related_lessons": [
-            "06_api",
-            "41_classify",
-            "65_feature_explorer"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify: tabular machine learning",
+      "title": "Classify: learn from measured features",
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
       "section": "Core",
-      "description": "Use the merged Classify screen with downloadable measured cells, explicit metadata labels, a bounded random forest, real console output and saved predictions.",
+      "description": "Load measurements, define classes, train a tabular classifier and inspect object scores and plate summaries.",
       "objectives": [
-        "Choose the tabular family and load the measured example through the native data chooser.",
-        "Define plate-column classes and distinguish the requested split from actual held-out wells.",
-        "Inspect plots, missing scores and model outputs without treating demonstration accuracy as biological validation."
+        "Select the tabular family and a measured project.",
+        "Define classes and choose feature channels, model size and held-out wells.",
+        "Find model outputs, object predictions and summary figures."
       ],
-      "prerequisite": "Use Load test data in Classify and choose Load, not Stream. The example has 2,341 cell/crop identities across four wells. The recorded ML join retains 2,153 objects and excludes 188 lacking nucleus rows. Classes are columnID=c1 (zero) and c2 (one), not independently verified phenotypes. The native run uses random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False and plot=True. Match test_size=0.1 to the merged test_split=0.1: the current normalization otherwise discards the ML-specific request; this defect is reported, not hidden. Actual holdout: two of four wells, 1,035 of 2,153 objects, with no database well overlap. Feature filtering precedes splitting and permutation importance uses training data; these are not independently validated feature discoveries. Nine saved metric values and all 2,153 database predictions were independently checked. Held-out accuracy is 0.6202898551 versus majority-class accuracy 0.5632850242. API: spacr.classify.classify dispatches to spacr.ml.generate_ml_scores; outputs are under results/random_forest/channel_1. Database predictions holds the binary class and ml_pred the class-one probability. Only three real GUI figures are claimed; no SHAP, calibrated probability, causal effect or biological validation claim. No AI request was submitted.",
+      "prerequisite": "Use Load test data in Classify and choose Load, then confirm the downloaded plate folder with Choose source data. For your own project, run Measure first. The example uses columnID values c1 and c2 as two classes; use labels appropriate to your experiment when working with your own data.",
       "scenes": [
         {
           "visual": "19_setting_classifier_family",
-          "narration": "Open Classify from Home and choose Tabular Machine Learning as the classifier family. This is the merged Classify screen, not a separate ML application. It learns from saved per-object measurements. Computer-vision settings can remain visible but greyed out because they belong to the other family.",
+          "narration": "From Home, open Classify and choose Tabular Machine Learning. This family uses the object measurements saved by Measure. It produces a fitted model and a score for each object with the required measurements.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             650
           ],
           "related_lessons": [
@@ -1243,12 +1187,12 @@
         },
         {
           "visual": "02_data_choice_load",
-          "narration": "Click Load test data and choose Load. This downloads the measured example and prepares its paths; Stream is a different route. For your own project, complete Measure first and select its project folder. Do not assume an arbitrary image folder already contains the required measurement database.",
+          "narration": "Click Load test data and choose Load. Wait for the measured example to download. For your own data, select the project folder created by Measure, including its measurements database.",
           "focus": [
-            1010,
-            550,
-            1800,
-            1040
+            1663,
+            914,
+            495,
+            365
           ],
           "related_lessons": [
             "08_measure",
@@ -1257,115 +1201,115 @@
           "hold_after": 0.7
         },
         {
-          "visual": "19_setting_classes",
-          "narration": "Use the metadata basis and define two Classes from column I D: c1 and c2. Here those are plate-column labels used to teach the workflow, not independently verified healthy and affected cells. Annotation-based training instead needs genuine labels from Annotate. Never turn missing annotations into invented ground truth.",
+          "visual": "18_source_folder_choice",
+          "narration": "Use Choose source data to confirm the downloaded plate folder. Select the folder containing measurements. This gives the classifier access to the object tables and the metadata used to define classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            1439,
+            390,
+            943,
+            1300
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "19_setting_classes",
+          "narration": "Choose metadata as the class basis and define two Classes using column I D values c1 and c2. These labels distinguish the two plate columns in the example. To train from your own cell annotations, choose the annotation basis and the label column you created in Annotate.",
+          "focus": [
+            350,
+            190,
+            1730,
             1190
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_channel_of_interest",
-          "narration": "Channel of interest selects the measurement features. We use channel one without assigning it an unverified biological meaning. Check your acquisition and measurement settings before choosing a channel in your own data. Selecting a feature channel here does not re-segment images or measure them again.",
+          "narration": "Set Channel of interest to one for the example. This controls which channel-specific measurement features enter the model. For your own experiment, select the channel that contains the signal relevant to your classes.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_estimators",
-          "narration": "Choose Random Forest and sixteen estimators for this small demonstration, with two worker jobs. This is not an optimized model recommendation. We leave supervised feature pruning and cross-validation off. Cross-validation being off does not remove the separate held-out test split used by this run.",
+          "narration": "Choose Random Forest, sixteen estimators and two worker jobs. Estimators controls the number of trees. More trees increase fitting work. Leave feature pruning and cross-validation off for this first pass; you can compare those choices after you have a working baseline.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_test_size",
-          "narration": "Set test size to one tenth and keep grouping by well. A requested fraction is not an exact object count: this four-well example holds out two whole wells, about forty-eight percent of its retained objects. Both classes appear on each side, and no actual well appears in both training and test.",
+          "narration": "Set Test size to one tenth and keep grouping by well. spaCR holds out complete wells, so the final fraction of objects can differ from the requested fraction. Read the resolved split in the console and make sure it suits your experiment.",
           "focus": [
-            460,
-            230,
-            1680,
+            350,
+            190,
+            1730,
             820
           ],
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot",
-          "narration": "Turn Plot on, clear the search and press Run. The console records the resolved settings, filtering, split and model report. Keep that record with the results. A finished badge does not establish that your labels, validation design or biological interpretation were appropriate.",
+          "narration": "Enable Plot, clear the search and press Run. The console shows feature filtering, the training and test split, model fitting and the saved output paths. Wait for the run to finish before comparing its scores.",
           "focus": [
-            460,
-            230,
-            3340,
+            350,
+            190,
+            1730,
             1640
           ],
           "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "This run scores two thousand one hundred fifty-three objects. One hundred eighty-eight lack matching nucleus data and remain unscored, not negative. The saved test accuracy is about sixty-two percent, versus fifty-six percent for the majority class. Four wells on one plate do not establish generalization to a new experiment.",
+          "narration": "Find the results under results, random_forest, channel underscore one. The database stores the predicted class in predictions and the class-one probability in ml_pred. Objects missing required measurements can remain unscored; inspect missing values when exporting a summary.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            950,
+            1720,
+            600
           ],
           "hold_after": 0.7
         },
         {
-          "visual": "24_batch_figure",
-          "narration": "Three figures are available: permutation importance, tree feature importance and this plate heatmap. With Predictions and mean grouping, the heatmap averages binary predicted classes, not their probabilities. Importance is not causality; the permutation calculation uses training data. Inspect the saved tables before drawing conclusions from a colourful plot.",
+          "visual": "25_ml_figure_02",
+          "narration": "Browse the feature-importance figures and plate heatmap. With Predictions and mean grouping, a well value is the average of its binary predicted classes. Use the saved object scores for detailed review, and compare held-out performance before applying the classifier to another experiment.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "The AI toggle enables provider-assisted questions about the workflow. This is an unsent draft, not a generated answer. Keep results with their settings and verify any advice. Nested tools have their own input requirements: the Explain tutorial uses computer-vision scores, not these ML outputs. AI does not replace checking labels and split identities.",
-          "focus": [
-            2140,
-            970,
-            1670,
-            1080
-          ],
-          "related_lessons": [
-            "70_explain_cv",
-            "28_training_runs",
-            "06_api"
+            2090,
+            190,
+            1720,
+            1200
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes: live search, verified references and real counts",
+      "title": "Map Barcodes: from sequencing reads to counts",
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
-      "description": "Download a bounded real sequencing example, inspect live barcode findings, apply a proposal explicitly and verify mapped counts. Demonstrate a two-entry barcode set through the current Python API.",
+      "description": "Load paired reads and library references, find barcode positions, apply the settings and save guide counts.",
       "objectives": [
-        "Find reference tables and orientations supported by the real reads.",
-        "Distinguish a search proposal from applied settings and correctly oriented reference files.",
-        "Inspect saved counts and use an explicit barcode set without inventing extra barcodes."
+        "Download a small paired-read example and select matching reference tables.",
+        "Inspect barcode positions and orientation before applying a proposal.",
+        "Run mapping and inspect count and quality-control outputs."
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly with barcode search. The recording uses the downloadable SRR33531217 sample and the maintainer's matching primers_3 column and row tables plus guide references; these are not the older bundled reference tables. Obtain references matching your own library before mapping.",
+      "prerequisite": "Choose Load test data in Map Barcodes. The example uses SRR33531217 reads, the matching primers_3 column and row tables, and guide references. Use reference tables matching your own library when processing other reads.",
       "scenes": [
         {
           "visual": "gui_01_module",
@@ -1373,176 +1317,160 @@
           "related_lessons": [
             "47_barcode_qc"
           ],
-          "narration": "Open Map Barcodes from Home. This module turns sequencing reads into named barcode counts. Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
-          "speech_text": "Open Map Barcodes from Home. This module turns sequencing reads into named barcode counts. Barcode QC is its nested quality-control workflow; its separate lesson remains available."
+          "narration": "From Home, open Map Barcodes. The inputs are sequencing reads and reference tables that name the barcodes in your library. The output counts each observed combination, ready for sequencing quality control and downstream analysis."
         },
         {
           "visual": "gui_02_archive_bounded_choice",
           "hold_after": 0.7,
-          "narration": "Choose Load test data and select both mates of the first archive run. Limit each file to ten thousand reads. This downloads a real paired sample, not the entire sequencing archive.",
-          "speech_text": "Choose Load test data and select both mates of the first archive run. Limit each file to ten thousand reads. This downloads a real paired sample, not the entire sequencing archive."
+          "narration": "Click Load test data and select both mates of the first archive run. Limit each file to ten thousand reads for this example, then wait for the paired sample to download."
         },
         {
           "visual": "gui_04_reference_tables",
           "hold_after": 0.7,
-          "narration": "Choose reference tables that belong to this library. Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults. We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
-          "speech_text": "Choose reference tables that belong to this library. Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults. We deliberately start with a window length of one hundred twenty to show the proposal changing it."
+          "narration": "Select the matching column, row and guide reference tables. Each table pairs barcode names with sequences. Keep those names consistent with the plate layout and guide identifiers used by the rest of your analysis."
         },
         {
           "visual": "gui_06_live_search_progress",
           "hold_after": 0.7,
-          "narration": "Open Find barcodes and start the search. Counts update while real reads are sampled in both mates and both orientations. The form remains unchanged during this live refinement.",
-          "speech_text": "Open Find barcodes and start the search. Counts update while real reads are sampled in both mates and both orientations. The form remains unchanged during this live refinement."
+          "narration": "Open Find barcodes and start the search. The preview samples both mates and checks barcode positions and orientations. Wait for the results before changing the main form."
         },
         {
           "visual": "gui_07_search_verdicts",
           "hold_after": 0.7,
-          "narration": "Compare Observed with By chance, then inspect the orientation, offset and verdict. A match rate alone does not establish a barcode. Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
-          "speech_text": "Compare Observed with By chance, then inspect the orientation, offset and verdict. A match rate alone does not establish a barcode. Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything."
+          "narration": "Compare Observed with By chance, then inspect the proposed orientation, offset and verdict for each barcode. Prefer positions supported by many reads and distinct expected references. Open the verdict explanation if the result is uncertain."
+        },
+        {
+          "visual": "gui_07b_guide_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Inspect the guide results for both mates. In this example, read one supports the reverse-complemented guide sequence and read two supports the stored orientation. Use the results for your library and read pair when choosing an orientation."
+        },
+        {
+          "visual": "gui_07c_row_verdicts",
+          "hold_after": 0.7,
+          "focus": [
+            1000,
+            1210,
+            2820,
+            640
+          ],
+          "narration": "Check the row barcode as well. Here, read one supports its reverse complement and read two supports the stored sequence. Review column, guide and row together so the complete combination identifies the intended well and guide."
         },
         {
           "visual": "gui_08_coloured_reads",
           "hold_after": 0.7,
-          "narration": "The read viewer shows one actual read per row. The legend identifies the column, guide, row and anchor colours. Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
-          "speech_text": "The read viewer shows one actual read per row. The legend identifies the column, guide, row and anchor colours. Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct."
+          "narration": "Open the read viewer to inspect individual reads. Use the colour legend to find the column, guide, row and anchor segments. Check that the proposed positions agree with the expected library structure."
         },
         {
           "visual": "gui_09_proposed_settings",
           "hold_after": 0.7,
-          "narration": "Review the proposal. This sample places the extraction window at eighty-nine bases. Only pressing Apply these settings writes the proposed change into the form. Automatic discovery is not automatic permission to replace your settings.",
-          "speech_text": "Review the proposal. This sample places the extraction window at eighty-nine bases. Only pressing Apply these settings writes the proposed change into the form. Automatic discovery is not automatic permission to replace your settings."
+          "narration": "Review the proposed extraction settings, then click Apply these settings to copy them into the form. The example uses an extraction window of eighty-nine bases. Check the updated fields before starting the run."
         },
         {
           "visual": "gui_11_oriented_reference_copies",
           "hold_after": 0.7,
-          "narration": "The notes also require reverse-complemented row and guide references. Apply does not create those files. Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
-          "speech_text": "The notes also require reverse-complemented row and guide references. Apply does not create those files. Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored."
+          "narration": "Follow the orientation notes when selecting your final reference files. For this example, select reverse-complemented copies of the row and guide references and keep the column reference as stored. Preserve every barcode name when preparing those copies."
         },
         {
           "visual": "gui_20_batch_settings",
           "hold_after": 0.7,
-          "narration": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled. Keep missing assignments missing. This mapping workflow uses the CPU; a GPU is not required.",
-          "speech_text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled. Keep missing assignments missing. This mapping workflow uses the CPU; a GPU is not required."
+          "narration": "Choose the downloaded read pair, two workers and chunks of one thousand reads. Enable annotated-read saving if you want to inspect individual assignments. Click Run; this mapping workflow uses the CPU."
         },
         {
           "visual": "gui_23_batch_finished",
           "hold_after": 0.7,
-          "narration": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows. Unmatched and ambiguous references remain unassigned. Completion is checked against saved files, not just the console's finished message.",
-          "speech_text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows. Unmatched and ambiguous references remain unassigned. Completion is checked against saved files, not just the console's finished message."
-        },
-        {
-          "visual": "api_01_actual_two_barcode_api",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
-          ],
-          "narration": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor. Here a real second calculation selects only column and guide on one thousand paired reads. Every entry needs a matching named pattern group. Omitting row identity produces counts by column and guide, not by well.",
-          "speech_text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor. Here a real second calculation selects only column and guide on one thousand paired reads. Every entry needs a matching named pattern group. Omitting row identity produces counts by column and guide, not by well."
-        },
-        {
-          "visual": "api_02_real_count_figure",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "47_barcode_qc",
-            "13_regression"
-          ],
-          "narration": "This Python verification figure displays read depth from the saved three-barcode GUI run. Every count was independently reconciled with the annotated reads and reference names. Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
-          "speech_text": "This Python verification figure displays read depth from the saved three-barcode GUI run. Every count was independently reconciled with the annotated reads and reference names. Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression."
-        },
-        {
-          "visual": "gui_30_ai_unsent_question",
-          "hold_after": 0.7,
-          "narration": "The spaCR AI controls can help explain a run when you configure a provider. This recording shows an unsent question and contains no AI response. Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
-          "speech_text": "The spacer AI controls can help explain a run when you configure a provider. This recording shows an unsent question and contains no AI response. Check reference identity, orientation, warnings and saved counts yourself before scaling up."
+          "narration": "When mapping finishes, inspect unique_combinations.csv and the quality-control outputs. The count table links column, row and guide names with read counts. Review unmatched and ambiguous assignments in Barcode QC, then pair these counts with phenotype scores in Regression."
         }
-      ]
+      ],
+      "example_files": [
+        "SRR33531217_barcode_references.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression: a real example from paired tables to results",
+      "title": "Regression: from paired tables to results",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Load the downloadable example screen, configure a bounded guide-permutation analysis, inspect its real console and figures, and find the specialist tools now nested inside Regression.",
+      "description": "Pair phenotype scores with guide counts, choose an inference method, run the example and explore guide and gene results.",
       "objectives": [
-        "Load four paired score/count tables through the visible test-data control and choose a separate output folder.",
-        "Distinguish inference method, reported level and analysis unit, and reproduce the bounded example without treating its permutation count as a final-analysis recommendation.",
-        "Inspect real results, figures and diagnostic limitations; distinguish interactive inspection from a live analysis preview.",
-        "Locate Regression's nested tools, optional AI assistance and current Python entry point."
+        "Load paired score/count tables and choose an output folder.",
+        "Set the inference method, reporting level and analysis unit.",
+        "Run the example and inspect results with the accompanying diagnostics."
       ],
-      "prerequisite": "Open spaCR and choose Regression from the Core modules. The example downloads or reuses cached score/count files. No measurement database, image crops, external annotation service or AI subscription is required for the recorded analysis. The short permutation run demonstrates the workflow, not definitive biological discovery.",
+      "prerequisite": "Open Regression and choose Load test data to obtain four paired score/count tables. Use a new output folder. A measurement database is optional for this score-and-count analysis; object-level views require the corresponding measured data and images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Regression from the Core modules. It connects phenotype scores with guide abundance, then reports associations using the inference method you choose. The tools across the top now belong inside this module; they are not separate Home tiles.",
+          "narration": "From Home, open Regression. This module relates phenotype scores to guide abundance. Start with a score table and a count table for each plate, then choose how to test and report associations.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7
         },
         {
-          "visual": "02_cached_load",
-          "narration": "In Input Tables, choose Load test data. The application downloads the example screen or reuses verified cached files; this recording uses the cache. The console reports four score tables and four count tables, paired by plate.",
+          "visual": "02_download",
+          "narration": "In Input Tables, click Load test data and wait for the example to load. It provides four score tables and four count tables, paired by plate.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_paired_data",
-          "narration": "Inspect all four paired rows. Each plate needs its matching score and count file; the optional measurement-database column is empty here. Widen the settings panel if needed, and use a new output directory so this demonstration does not mix with an existing analysis.",
+          "narration": "Inspect each paired row and check the plate name, score file and count file. Leave the optional measurement-database column empty for this example. Choose a new output folder for the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_inference",
-          "narration": "Switch from Essentials to All settings and use the search box to find a setting by its label or API key. Here inference is nonparametric: guide permutation testing. This differs from fitting all predictors together in a parametric regression, which needs an identifiable design.",
+          "narration": "Switch to All settings and use the search box to find Inference. Choose nonparametric for this guide-permutation example. Use a parametric method when your question and design call for fitting predictors together.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_level",
-          "narration": "Level answers a different question: what should be reported? Choose both for separate guide and gene results. That choice does not itself select the inference method. Guide and gene results are different testing families, so inspect the intended family before interpreting adjusted significance.",
+          "narration": "Level chooses which results to report. Select both to obtain guide-level and gene-level results. Keep these testing families separate when reviewing adjusted significance.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_analysis_unit",
-          "narration": "Use well as the analysis unit for this example. The loaded preset supplies the response column, transformations, controls and exclusions; inspect those assumptions before adapting the workflow to your own screen. A downloaded preset is an example design, not a universal recommendation.",
+          "narration": "Choose well as the analysis unit for this example. Review the response column, transformations, controls and excluded wells. Adapt these settings to the design of your own screen before running new data.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_min_wells",
-          "narration": "Set the minimum guide support to two wells for this bounded run. This is a filter on the guides tested, not proof of adequate statistical power. A guide represented in very few wells still needs careful interpretation.",
+          "narration": "Minimum guide support controls how many wells must contain a guide before it is tested. Set it to two to follow this small example. Choose an appropriate support requirement for your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutations",
-          "narration": "Set one hundred and ninety-nine permutations to reproduce the short demonstration. That limits the smallest attainable empirical p-value to zero point zero zero five, which may be too coarse after multiple-testing correction. Plan a suitable permutation count for your real experiment.",
+          "narration": "Set one hundred and ninety-nine permutations for a quick first run. More permutations give finer empirical p-value resolution and take longer. Choose a larger count when your final analysis requires it.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_guide_permutation_seed",
-          "narration": "Set the permutation seed to zero for the demonstrated run. Keep the example's plate blocks and row and column nuisance terms unless your design justifies changing them. A fixed seed supports reproducibility; it does not repair invalid exchangeability assumptions.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "19_setting_regression_backend",
-          "narration": "The Regression backend field is not a universal accelerator switch. It applies to supported fitted estimators; this guide-permutation demonstration does not turn into a GPU regression by changing that field. Other spaCR modules expose their own device choices, so follow the controls and console for the operation actually running.",
+          "narration": "Set the permutation seed to zero to repeat the same randomization. Keep the example’s plate blocks and row and column nuisance terms. For your own data, choose blocks that respect which observations can be exchanged under the experimental design.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_annotation_source",
-          "narration": "Choose none for the annotation source in this self-contained example. The statistical results do not require an external gene-annotation lookup. On your own screen, use annotations appropriate to the organism and identifier system instead of assuming that every guide label will resolve.",
+          "narration": "Choose none for Annotation source to run the example without gene-annotation lookup. For another screen, select annotations that match its organism and identifier system.",
           "hold_after": 0.7
         },
         {
           "visual": "21_batch_running",
-          "narration": "Clear the search, check the output folder, and press Run. Follow the real console as it aligns inputs, applies the selected filters and calculates the results. Regression produces diagnostic figures directly; there is no separate Plot switch to enable for this recording.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "23_batch_finished",
-          "narration": "The completed example produced four hundred and thirty-four guide results and three hundred and twenty-five gene results, with five figures. Finished means the software completed; it does not certify the experimental design or establish biological discoveries. Read the diagnostic warnings as well as the completion line.",
+          "narration": "Clear the search, check the paired inputs and output folder, then click Run. Follow the console as the module aligns the tables, filters guides and calculates the results. Diagnostic figures are generated with the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "25_result_runs",
-          "narration": "Runs identifies the saved analysis; Results displays the selected run. Confirm the folder and settings when comparing runs. Changing a form value does not recompute the result you are looking at: run the analysis again when you intend to test a new choice.",
+          "narration": "When the run finishes, open Runs and select the saved analysis. Confirm the folder and settings before comparing it with another run. Rerun the analysis after changing settings if you want new results.",
           "hold_after": 0.7,
           "related_lessons": [
             "73_parameter_sweep"
@@ -1550,62 +1478,32 @@
         },
         {
           "visual": "25_result_results",
-          "narration": "Results contains the coefficient table and interactive views beside the generated figures. The run contains seven hundred and fifty-nine rows across both levels; this view selects the four hundred and thirty-four guide results. Use Level to choose the testing family. Inspecting saved output interactively does not rerun inference.",
+          "narration": "Open Results and use Level to switch between guide and gene results. Inspect the result table and interactive views. The saved results_grna.csv and results_gene.csv files contain the corresponding tables for further analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "26_detail_p_values",
-          "narration": "Open the p-values view to inspect the result distribution. Interpret it together with the selected testing family, permutation resolution and diagnostics, not as automatic evidence of an effect. The separate Diagnostics tutorial explains the saved design and inference panels in detail.",
+          "narration": "Open the p-values view and the Diagnostics tool. Review the result distribution together with the permutation resolution, testing family and design warnings. Resolve important diagnostic concerns before interpreting associations.",
           "hold_after": 0.7,
           "related_lessons": [
             "75_regression_diagnostics"
           ]
         },
         {
-          "visual": "25_result_measurements",
-          "narration": "Measurements provides the controls for examining additional measurement responses. This example has no measurement database attached, and opening the tab does not create one or perform a measurement sweep. Supply the required measured data before using those tools on your own experiment.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "25_result_cells",
-          "narration": "Cells can connect selected results with underlying objects when suitable measurement data and images are available. Here the database column is empty, so there is no cell montage to show. Do not confuse an unavailable object view with a failed score-and-count analysis.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "71_investigate_hit"
-          ]
-        },
-        {
           "visual": "26_detail_coefficients",
-          "narration": "The nested tools are Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler, and Diagnostics. Hover over their icons to identify them. Their linked tutorials cover each workflow; for example, a prediction profiler needs suitable fitted-model output, which this permutation run does not provide.",
-          "focus_buttons": "FoldButton",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "72_volcano_explorer",
-            "48_hit_list",
-            "49_methods_results",
-            "71_investigate_hit",
-            "53_prediction_profiler",
-            "75_regression_diagnostics"
-          ]
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "The AI control enables optional assistance through the provider configured in Preferences, under AI. Ask a focused question about the output or settings, and review any advice against the data. This is an unsent example question: no provider was contacted and no answer was generated for the recording.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "26_detail_coefficients",
-          "narration": "For scripted work, use the perform_regression function in the spaCR machine-learning module with the corresponding settings, and consult its current API documentation. Keep the input tables, saved settings, outputs and diagnostic interpretation together. Use Parameter Sweep deliberately for comparisons, and keep exploratory choices separate from final analysis decisions.",
+          "narration": "Use the toolbar to open Volcano Explorer, Hit List or Investigate Hit for the next step. Their tutorials show how to inspect selected results. Keep the input tables, saved settings, result files and diagnostic reports together when sharing the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "73_parameter_sweep"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "14_make_masks",
@@ -1766,27 +1664,26 @@
       "id": "15_image_umap",
       "number": 15,
       "slug": "image_umap",
-      "title": "Image UMAP: real measurements and interactive crop inspection",
+      "title": "Image UMAP: explore measurements with image crops",
       "series": 1,
       "app_key": "umap",
       "section": "Tools",
-      "description": "Build a bounded embedding from the downloaded example measurements, inspect real crops interactively and locate the nested projection tools.",
+      "description": "Select measurement tables, build a UMAP embedding and click points to inspect the corresponding objects.",
       "objectives": [
-        "Reuse the downloaded project and select its measurement tables.",
-        "Configure a small reproducible embedding and inspect its preprocessing and outputs.",
-        "Click fitted points to inspect their actual crops without changing annotations.",
-        "Find nested Image Scatter and PCA, search controls, optional acceleration and AI assistance."
+        "Load a measured project and choose its feature tables.",
+        "Control neighbourhood size, point spacing and the sampled row count.",
+        "Run the embedding, inspect crops and find saved results."
       ],
-      "prerequisite": "Use Annotate's Load test data route first to obtain the 2,341 PNG crops and measurements database. Image UMAP reuses that project; it does not download another dataset in this recording. The example uses measured features on CPU, not neural image features.",
+      "prerequisite": "Follow Annotate and choose Load test data, then Load, to obtain the measured example and its image crops. Keep the downloaded plate folder. For your own data, complete Measure with saved crops before opening Image UMAP.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Image UMAP from the Home screen's Tools section. It places objects using their measured features, then lets you inspect the corresponding microscopy crops. A nearby group on this exploratory map is not automatically a biological class.",
+          "narration": "From Home, open Image UMAP. Use it to explore similarities between measured objects while viewing their image crops. Start with a project containing a measurements database and the crops saved by Measure.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_src",
-          "narration": "Reuse the project downloaded through Annotate's Load test data route. It contains two thousand three hundred and forty-one crops and their measurements database. Follow the linked Annotate lesson for the actual download; this module now opens the existing project.",
+          "narration": "Under Source, choose Add project folders and select the example plate folder downloaded through Annotate. Review the available databases, rows and shared columns. You can add more project folders when you want to compare several datasets.",
           "related_lessons": [
             "09_annotate",
             "08_measure"
@@ -1794,99 +1691,81 @@
           "hold_after": 0.7
         },
         {
-          "visual": "19_setting_src",
-          "narration": "Source uses Add project folders. Select the plate folder, not an individual image. The control reports the databases, rows and shared columns before merging. When comparing several projects, inspect source-related structure before interpreting a cluster as biology.",
-          "hold_after": 0.7
-        },
-        {
           "visual": "19_setting_tables",
-          "narration": "Choose the measurement tables that define the question. This example uses cell, cytoplasm, nucleus and pathogen measurements. Review missing data and correlated-feature removal. Leave Resnet features off: raw-crop neural embeddings are not implemented by this route.",
+          "narration": "Choose the tables whose features you want to compare. For this example, select cell, cytoplasm, nucleus and pathogen measurements. Leave Resnet features off to use the existing measurements. Review missing-data and correlated-feature settings before running.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_row_limit",
-          "narration": "Set Row limit to four hundred for a small demonstration. This caps the sampled objects; it does not make the sample representative of every experiment. Two workers keep the job bounded, and the original database remains available for a larger analysis.",
+          "narration": "Set Row limit to four hundred for a quick first view and use two workers. Row limit controls how many objects enter the embedding. Increase it when you are ready to explore more of the dataset.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Reduction method selects UMAP here. The current form also offers other reducers, with their own controls. A PCA or t-SNE setting is not interchangeable with a UMAP setting. Only UMAP was fitted in this demonstration.",
+          "narration": "Choose UMAP as the reduction method. Each point will represent an object using two plotted coordinates. You can explore PCA through its linked tool when you want a linear projection and feature loadings.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_n_neighbors",
-          "narration": "We use fifteen neighbours and a minimum distance of zero point one. Neighbourhood size affects how local structure is represented; minimum distance affects how tightly points can pack. These are demonstration choices, not universally optimal biological settings.",
+          "narration": "Set Neighbours to fifteen and Minimum distance to zero point one. Neighbours controls the size of the neighbourhood used to build the map. Minimum distance controls how closely points can pack in the displayed embedding.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_random_seed",
-          "narration": "Keep the reducer seed at forty-two when comparing the same inputs. The seeded CPU implementation may use one thread for reproducibility even when more workers are requested. A seed does not make different feature selections or different backends equivalent.",
+          "narration": "Set Random seed to forty-two so repeated runs with the same inputs and settings are easier to compare. Save your chosen feature tables and preprocessing settings alongside the seed.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_clustering",
-          "narration": "Clustering is separate from dimensionality reduction. This DBSCAN example assigns all four hundred objects to cluster zero, and we keep noise removal off. That single label is a computed grouping, not a finding that all cells share one phenotype.",
+          "narration": "Clustering assigns labels to groups after the embedding is built. This example uses DBSCAN with noise removal off. Inspect the crops within any group before using its label in a later analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "19_setting_plot_images",
-          "narration": "Enable crop images and points together. Twelve small crop glyphs make the static map inspectable without covering the point cloud. Display choices help you read the result; they do not replace reviewing the features that produced its geometry.",
+          "narration": "Enable Plot images and Plot points. Use twelve small crop images so the overview remains readable. You can inspect individual objects more closely in the interactive view after fitting.",
           "hold_after": 0.7
         },
         {
           "visual": "23_batch_finished",
-          "narration": "Press Run and read the real console. This run reports median imputation of missing measurements and a four-hundred-by-two embedding. Inspect those preprocessing decisions, not just the Finished mark. No image segmentation or classifier training occurred here.",
+          "narration": "Press Run and watch the console for feature preparation and embedding progress. Wait for the completed result. If you change the input tables or reduction settings, run again to produce a new map.",
           "hold_after": 0.7
         },
         {
           "visual": "24_batch_figure",
-          "narration": "Inspect the saved embedding figure and the results folder. The exported table contains the selected measurement rows, metadata and cluster labels. Do not assume that this build also exports the two plotted coordinates into that table.",
+          "narration": "Inspect the embedding in Figures and open the results folder reported in the console. Keep the saved figure, selected measurement rows, metadata and cluster labels together so you can trace an interesting group back to its objects.",
           "hold_after": 0.7
         },
         {
           "visual": "25_interactive_embedding",
-          "narration": "Turn on Interactive to explore the already fitted map. This is not a live refit of changing settings. Clicking points, zooming and selecting regions helps inspect the current result; changing the analysis still requires another run.",
+          "narration": "Enable Interactive to explore the fitted map. Zoom into a region and click its points. The view uses the completed embedding, so you can inspect different objects without fitting it again.",
           "hold_after": 0.7
         },
         {
           "visual": "26_point_0",
-          "narration": "Click a point and inspect its actual crop at the right. The displayed path ties the image to its source object. Here the crop was loaded by the real application after the click, not substituted with a representative image.",
+          "narration": "Click a point to show its crop in the side panel. Use the displayed object path to connect the image to its source record. Compare morphology across nearby points and across distant regions of the map.",
           "hold_after": 0.7
         },
         {
           "visual": "26_point_200",
-          "narration": "Click another point to compare its morphology. The sidebar also offers selection labelling and automatic-cluster propagation. Those actions write annotations, unlike simply viewing a crop. We did not press them, and verified that the database remained unchanged.",
+          "narration": "Click another point to compare its crop. The sidebar also provides selection labelling and cluster-label propagation. Those controls save annotations, so choose the intended label and selection before applying them.",
           "hold_after": 0.7
         },
         {
           "visual": "27_fold_image_scatter",
-          "narration": "Image Scatter and PCA now sit in Image UMAP's header. Use Image Scatter for direct feature relationships and PCA for a linear projection and its loadings. Their existing specialist lessons remain linked under this parent module.",
+          "narration": "Open Image Scatter from the Image UMAP header to compare selected features directly, or open PCA for a linear projection. Continue with the linked tutorials for their input settings and saved outputs.",
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "55_image_scatter",
             "60_pca"
           ],
           "hold_after": 0.7
-        },
-        {
-          "visual": "28_hyperparameter_controls",
-          "narration": "Hyperparameter search opens a separate comparison panel. Keep any search small and inspect the resulting layouts before propagating settings. This recording shows the actual controls only; no search was started and no chosen result was invented.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "24_batch_figure",
-          "narration": "The GPU control is optional. This recording used CPU. Supported reducers can use the optional RAPIDS backend when it is available; that is a different acceleration path from Torch's device selection. Read the reported backend and do not promise identical coordinates across devices.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI enables optional provider assistance, not automatic biological interpretation. This question was not sent. For scripts, the corresponding entry point is generate_image_umap in spacr.core; keep the input tables, preprocessing and saved settings with the resulting figure.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "16_activation",
@@ -2183,26 +2062,20 @@
       "app_key": "motility",
       "section": "Core",
       "host_app_key": "measure",
-      "description": "Use Measure’s nested Motility workflow and reproducible synthetic tracks to explore live filters, unknown units and an explicitly hypothetical calibration.",
+      "description": "Measure movement from tracked objects, inspect track filters, and save per-frame and per-well results.",
       "objectives": [
-        "Find Motility inside Measure and load the exact tracked-array example.",
-        "Compare live length and straightness filters without rereading images or rerunning a model.",
-        "Distinguish pixel velocities, hypothetical unit conversion, infection labels and saved-figure limitations."
+        "Load a project containing tracked merged arrays.",
+        "Choose mask planes, track filters and acquisition units.",
+        "Run the analysis and find the movement tables and plots."
       ],
       "example_files": [
         "SYNTHETIC_motility_tracks.zip"
       ],
-      "prerequisite": "Complete the Timelapse lesson or extract the linked synthetic tracked-array archive into a new folder. These are exact outputs from Help > Demos > Timelapse demo: eight 256-by-256 uint16 arrays with nucleus intensity 0, cell intensity 1, tracked cell masks 2 and nucleus masks 3. Sixteen cell tracks span all eight frames. Masks are computed outputs, not ground truth; there is no pathogen plane or acquired physical calibration. Select the extracted root containing merged, not an ordinary static test plate. The recorded native batch uses cell tracking, channels [0,1], no pathogen channel, reuse_existing_measurements=False, n_jobs=1, displacement 50, straightness filtering off, infection QC scope none, QC graphs on and plot bounds [-30,30]. The batch numeric widgets cannot represent None; 2 pixels/um and 60 seconds/frame are explicitly hypothetical arithmetic inputs, not measured acquisition metadata. The live preview independently uses two intensity channels, tracked plane 2, pathogen plane -1, eight frames and unknown calibration 0/0. Minimum length 3 -> 9 -> 3 retains 16 -> 0 -> 16 usable tracks. Drop over-straight tracks at 0.95 retains one; disabling restores sixteen. A single supplied calibration value leaves px/frame; both hypothetical values change the mean from 1.4001441642 px/frame to 0.7000720821 um/min without changing tracks or the pixel trajectory axes. Independent checks verify all 128 observations, 256 saved centroid coordinates, 256 saved raw channel means, the well summary and every preview state. The batch saves tables and two PDF files but queues no GUI figures. Native PDFs have low-contrast marks; Screen export did not repair them. The tutorial shows genuine readable live plots and discloses this limitation, not a publication-ready PDF. Uninfected here means no supplied pathogen mask, not validated negative infection status. No XGBoost classifier or biological comparison was validated. API entry point: spacr.timelapse.automated_motility_assay. spaCR AI stayed off; no provider request was sent. Technical tutorial validation is not native-speaker/listening approval or release certification.",
+      "prerequisite": "Complete a Timelapse run, or download and extract SYNTHETIC_motility_tracks.zip. Select the folder containing merged. The example has eight frames, nucleus intensity in channel 0, cell intensity in channel 1, tracked cell masks in plane 2 and nucleus masks in plane 3. It has no pathogen mask or physical calibration.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then its Time shortcut to reach the Motility Assay tab. This is a nested module, not a separate Home tile. Timelapse under Mask creates tracks; Motility measures them. Review the Timelapse lesson first if your images are not already tracked.",
-          "focus": [
-            3570,
-            1900,
-            220,
-            90
-          ],
+          "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
@@ -2211,164 +2084,60 @@
         },
         {
           "visual": "03_actual_setting_src",
-          "narration": "Download the synthetic tracked-array example linked below and extract it into a new folder. Set Source to the folder containing merged. Its eight frames contain sixteen cell tracks. Choose cell, nucleus channel zero and cell channel one, with no pathogen channel.",
-          "focus": [
-            250,
-            305,
-            1185,
-            285
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_actual_setting_pixels_per_um",
-          "narration": "For an acquired experiment, use the actual pixel scale and frame interval. Here, two pixels per micrometre and sixty seconds per frame are deliberately hypothetical, solely to demonstrate arithmetic. The batch form requires numbers; its defaults are not evidence of your microscope calibration.",
-          "focus": [
-            250,
-            600,
-            1185,
-            150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_actual_setting_infection_intensity_qc_graphs",
-          "narration": "Leave Reuse existing measurements off for this fresh copy, and enable the quality-control graphs. There is no pathogen channel, so infection quality control is disabled in this run. Optional infection classifiers are not being tested, and these teaching tracks cannot establish an infection effect.",
-          "focus": [
-            250,
-            810,
-            1185,
-            760
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_actual_finished",
-          "narration": "Run the small example and read the console. The batch saves one hundred twenty-eight frame observations and a sixteen-track well summary, plus P D F files. Those files do not appear in the figure queue. This build warns about faint export colours; inspect exports before using them in a report.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            850
-          ],
+          "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
           "hold_after": 0.7
         },
         {
           "visual": "07_actual_preview",
-          "narration": "Enable Live to open Motility preview. Fold Console and System if they crowd the plots, then choose the same extracted plate folder. Preview metrics and batch settings are separate. Leave Propagate settings off while experimenting so a temporary filter does not change the next full run.",
-          "focus": [
-            1440,
-            305,
-            2375,
-            550
-          ],
+          "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_plane_and_unit_settings",
-          "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. A nucleus mask is not a pathogen mask. Set both calibration fields to zero here to represent unknown units, then click Run preview.",
-          "focus": [
-            1455,
-            395,
-            2340,
-            300
-          ],
+          "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_uncalibrated_preview",
-          "narration": "The preview reads one hundred twenty-eight object observations and reports sixteen usable tracks at minimum length three. Mean speed is about one point four pixels per frame. Without both calibration values, it must not be described as micrometres per minute.",
-          "focus": [
-            1455,
-            1600,
-            2340,
-            200
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "11_actual_all_short",
-          "narration": "Raise Min track length to nine. Each track has only eight frames, so all sixteen are excluded from the usable summary and mean speed becomes unavailable. This does not delete the underlying tracks or images. It demonstrates why an empty summary is not a zero speed.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
+          "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_length_restored",
-          "narration": "Restore the minimum to three. Sixteen usable tracks return, along with the length distribution and velocity points. The preview recomputes these metrics from cached observations. Changing a metric here does not rerun segmentation or prove that the original tracking identities were correct.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
+          "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
           "hold_after": 0.7
         },
         {
           "visual": "13_actual_straightness_filter",
-          "narration": "Enable Drop over-straight tracks at a threshold of zero point nine five. Straightness is net displacement divided by path length. Fifteen nearly straight teaching tracks are excluded, leaving one. Straight motion can be genuine; this filter is not an automatic proof of drift or an analysis recommendation.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "14_actual_filter_restored",
-          "narration": "Switch that filter off and confirm all sixteen tracks return. Compare the plots and retained count before accepting any filtering rule. The uninfected label here only reflects the absent pathogen plane; it is not a validated biological negative group.",
-          "focus": [
-            1455,
-            690,
-            2340,
-            1110
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "15_actual_one_unit_unknown",
-          "narration": "Enter two pixels per micrometre but leave the frame interval unknown. The preview still reports pixels per frame. Spatial scale alone cannot supply missing time, and video playback speed is not the acquisition interval.",
-          "focus": [
-            3010,
-            400,
-            785,
-            255
-          ],
+          "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
           "hold_after": 0.7
         },
         {
           "visual": "16_actual_hypothetical_calibration",
-          "narration": "Now enter sixty seconds per frame. With both hypothetical values supplied, mean speed changes from about one point four pixels per frame to zero point seven micrometres per minute. Track identities do not change. The trajectory panel still labels displacement in pixels; only the velocity unit has changed here.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
+          "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
           "hold_after": 0.7
         },
         {
-          "visual": "17_actual_unknown_units_restored",
-          "narration": "Return both preview calibration fields to zero. The original pixel-unit summary returns exactly. Keep this arithmetic exercise separate from real acquisition metadata, and use the API reference for the batch function. spaCR AI can explain settings, but it cannot certify calibration, infection status or scientific validity.",
-          "focus": [
-            1455,
-            405,
-            2340,
-            1390
-          ],
-          "related_lessons": [
-            "06_api",
-            "17_timelapse",
-            "34_database"
-          ],
+          "visual": "03_actual_setting_pixels_per_um",
+          "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_actual_setting_infection_intensity_qc_graphs",
+          "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_actual_finished",
+          "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "19_train_cellpose",
