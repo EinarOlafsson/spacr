@@ -265,7 +265,7 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
-    "ER", "IMC",
+    "ER", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
     "NaN", "PDF", "SAMCell",
@@ -3427,6 +3427,8 @@ _HELPER_CAPTION_RULES: dict[
     # sentence under it (item 417).
     ("screens/make_masks.py", "_settings_category"):
         ("screens/make_masks.py", ((0, "title"), (1, "subtitle"))),
+    ("screens/make_masks.py", "row"):
+        ("screens/make_masks.py", ((1, "caption"), (3, "tip"))),
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("screens/make_masks.py", "say"):
         ("screens/make_masks.py", ((0, "text"),)),
@@ -3434,6 +3436,10 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
     ("screens/methods_export.py", "_set_provenance"):
         ("screens/methods_export.py", ((0, "text"),)),
+    ("screens/organism_screen.py", "_paragraph"):
+        ("screens/organism_screen.py", ((0, "text"),)),
+    ("screens/organism_screen.py", "_link"):
+        ("screens/organism_screen.py", ((0, "label"),)),
     ("screens/pipeline_graph.py", "_set_verdict"):
         ("screens/pipeline_graph.py", ((0, "text"),)),
     ("screens/run_compare.py", "_set_verdict"):

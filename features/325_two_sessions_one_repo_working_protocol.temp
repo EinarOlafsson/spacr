@@ -10986,3 +10986,23 @@ passed through tr) are inventoried with exact hashes in
 features/data/473_threshold_histogram_2026-09-22.json. No catalogs/tutorials
 edited here.220 distinct focused checks pass,43 new. The claim is released
 with this commit; CPU magnifier/drag provenance remains the next repair.
+2026-09-22 — CODEX: PUSHED1d5a80f78 / CPU SOURCE REFRESH AND HIDDEN HELP
+Organism/API/map/README integration is pushed as1d5a80f78 after rebasing over
+233b5fa47; both channel branches were preserved. Refreshed English against
+those CPU corrections:11338 symbols unchanged, three changed docstrings
+(cpu_modes, CpuParams, MethodParams), with exact current source/block hashes.
+Found a real extraction gap: Make Masks' two row(field,caption,widget,tip)
+helpers hid their27 method/propagation tooltips and labels. Added the keyed
+rule, guarded BOTH defining scopes/signatures, and verified all27 actual
+help strings enter the English inventory while27 field keys stay excluded.
+The same sweep found organism_screen's resource heading and licence label;
+_paragraph/_link rules now cover those too. CC BY4.0 stays a licence name.
+Five helper tests pass6.68s with the original hidden-caption limit unchanged.
+English now has4543 UI sources: the five threshold replacements plus51
+newly recovered helper captions. The entire English API manifest and runtime
+inventory match fresh extraction. Receipt:
+features/data/411_threshold_source_refresh_2026-09-22.json.
+This is source inventory, not translation acceptance:18 active old runtime
+reviews (correction/classes, two per locale) need preserved retirement and
+replacement. No active API review binding is stale, but locale catalog
+freshness and the new CPU/organism prose still need work. No GPU/NAS activity.

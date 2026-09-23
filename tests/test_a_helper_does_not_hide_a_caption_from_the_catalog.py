@@ -173,19 +173,27 @@ def test_each_rule_still_names_the_parameter_at_its_position(builder):
         defs = [fn for fn in ast.walk(tree)
                 if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef))
                 and fn.name == helper]
-        if len(defs) != 1:
+        expected_definitions = 1
+        if (defined_in, helper) == ("screens/make_masks.py", "row"):
+            parents = {child: parent for parent in ast.walk(tree)
+                       for child in ast.iter_child_nodes(parent)}
+            assert {parents[fn].name for fn in defs} == {
+                "_build_methods_card", "_build_propagate_card"}
+            expected_definitions = 2
+        if len(defs) != expected_definitions:
             problems.append(f"{caller}:{helper}: {len(defs)} definitions of "
-                            f"{helper} in {defined_in}, expected exactly one")
+                            f"{helper} in {defined_in}, expected {expected_definitions}")
             continue
-        params = [a.arg for a in defs[0].args.posonlyargs + defs[0].args.args]
-        if params and params[0] in {"self", "cls"}:
-            params = params[1:]
-        for position, parameter in pairs:
-            found = params[position] if position < len(params) else None
-            if found != parameter:
-                problems.append(
-                    f"{caller}:{helper}: position {position} is {found!r} in "
-                    f"{defined_in}, the rule expects {parameter!r}")
+        for definition in defs:
+            params = [a.arg for a in definition.args.posonlyargs + definition.args.args]
+            if params and params[0] in {"self", "cls"}:
+                params = params[1:]
+            for position, parameter in pairs:
+                found = params[position] if position < len(params) else None
+                if found != parameter:
+                    problems.append(
+                        f"{caller}:{helper}: position {position} is {found!r} in "
+                        f"{defined_in}:{definition.lineno}, the rule expects {parameter!r}")
     assert not problems, "\n".join(problems)
 
 
@@ -198,3 +206,21 @@ def test_each_rule_is_called_where_it_is_keyed(builder):
                    for node in ast.walk(tree)):
             stale.append(f"{caller}: no call to {helper}")
     assert not stale, "\n".join(stale)
+
+
+def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
+    """Both local row helpers carry prose past a programmatic field key."""
+    tree = ast.parse((QT / "screens/make_masks.py").read_text())
+    calls = [node for node in ast.walk(tree)
+             if isinstance(node, ast.Call) and _call_name(node) == "row"]
+    assert len(calls) == 27
+    reached = set()
+    keys = set()
+    for call in calls:
+        keys.add(ast.literal_eval(call.args[0]))
+        arguments = list(builder._helper_caption_arguments(call, "screens/make_masks.py", "row"))
+        assert arguments == [call.args[1], call.args[3]]
+        reached.update(ast.literal_eval(arg) for arg in arguments)
+    assert not keys & reached
+    assert "Offset" in reached and "Blur first" in reached
+    assert any(text.startswith("Subtracted from the Gaussian-weighted local mean") for text in reached)

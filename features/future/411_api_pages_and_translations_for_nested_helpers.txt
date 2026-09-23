@@ -1627,3 +1627,14 @@ are excluded. Most new organism runtime prose is still untranslated; ER/IMC
 have explicit scientific-abbreviation reviews. Existing full locale catalog
 rejection, the nested-helper rollout and Make Masks reference remain open.
 Receipt: features/data/474_organism_api_and_workflows_2026-09-22.json.
+
+2026-09-22 — CODEX: CPU CORRECTIONS AND LOCAL HELP EXTRACTION
+After233b5fa47, the English manifest contains the current cpu_modes, CpuParams
+and MethodParams descriptions;11338 symbols remain. The missing Make Masks
+row-helper rule now inventories all27 method/propagation tooltips, excluding
+programmatic field keys. Both identical helper signatures are guarded by
+scope. Organism resource-heading/link helpers are also included. Five checks
+pass without raising the hidden-caption limit; complete English inventories
+match fresh extraction (4543 UI sources). Eighteen old correction/classes
+runtime reviews still need source reconciliation. Translations and the full
+reference remain open; see411_threshold_source_refresh_2026-09-22.json.
