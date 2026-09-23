@@ -1746,3 +1746,16 @@ reviewed passages keep their existing records. Reconstruction reviews total
 API/Help/runtime checks report 59 passed and eight remaining catalog failures,
 which the receipt lists explicitly; no CI-complete claim.
 Receipt: features/data/411_object_detection_docs_2026-09-23.json.
+
+2026-09-23 — CODEX: SHORT RUNTIME CONTROLS
+42 source labels now have 275 additional compiled translations across the
+nine GUI languages. Reviews distinguish sound volume, random seeds, image
+fields, morphological shrinking, destination folders and scientific papers.
+Thirteen specific language/source pairs retain the correct scientific word
+that is also used in English; focused boundary tests confirm that Chinese
+copies and longer untranslated English remain rejected. All nine full review
+stores load, source hashes agree and live tr() returns the reviewed captions.
+13 focused tests pass. Receipt: data/411_short_controls_2026-09-23.json.
+The ambiguous Free label and parser-valued plaque placement choices are
+intentionally deferred for targeted fixes. Other catalog debt remains open;
+this is AI-assisted review without native-speaker or full-catalog acceptance.

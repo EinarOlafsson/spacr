@@ -12851,3 +12851,16 @@ pass unpack/plan/index checks: nine placed stitch tiles, two OPS sites across
 11cycles and20,445library prefixes. Receipt288_ops_stitch_example_recovery_
 2026-09-23.json includes archive hashes. No model inference, full OPS run,
 network, GPU, runtime/API/text or coverage-gate changes. No docs action needed.
+2026-09-23 — CODEX: 407 CHECKPOINTS PUSHED; IMAGE WORKFLOW CAPTURE
+The previous docs/API/caption checkpoint is now dd2a2ae3f; sequencing capture
+and staged-player verification landed as 28db90600, rebased through 8abf6ef4e.
+All 24 English lesson-78 tracks now pass full decode, source freshness,
+timing, activity and decoded peak checks. Remaining spoken-language browser
+checks and Chinese renders continue; technical checks are not listening approval.
+
+Claiming the next short runtime-control batch (42 source labels, 275 missing
+positions across nine locales), plus lesson80 capture support in the existing
+recorder. Offline network isolation lets multiple Python-only entries open
+the real local Help dialog without racing the published-site reachability
+probe. No app monkeypatch, analysis, GPU job or NAS access. The capture uses
+SPACR_TUTORIAL_OFFLINE=1 on the neutral-account wrapper.

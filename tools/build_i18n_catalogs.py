@@ -2768,6 +2768,17 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # These scientific labels are also correctly spelt English words in
+    # the listed languages. Keep the actual terminology rather than adding
+    # artificial qualifiers solely to make an exact-copy audit pass.
+    # Other languages still need their ordinary translated targets.
+    "Median": {"sv": "Median", "de": "Median"},
+    "Minimum": {"sv": "Minimum", "de": "Minimum", "fr": "Minimum"},
+    "Diameter": {"sv": "Diameter"},
+    "Plaque": {"de": "Plaque", "fr": "Plaque"},
+    "Detector": {"es": "Detector", "pt": "Detector"},
+    "Voxels": {"pt": "Voxels", "fr": "Voxels"},
+    "Triangle": {"fr": "Triangle"},
     # THE SAME DECISION FOR THE GRID'S "Doses" HEADER, in two locales: the
     # plural of dose is "doses" in French and in Portuguese, so the correct
     # header equals the English and the exact-English gate would refuse it.
