@@ -199,6 +199,7 @@ tutorial_colab.ipynb
 !/docs/source/features.rst
 !/docs/source/make_masks.rst
 !/docs/source/cellpose_training.rst
+!/docs/source/point_spread.rst
 !/docs/source/recruitment.rst
 !/docs/source/image_quality.rst
 !/docs/source/host_pathogen.rst
