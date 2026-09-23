@@ -117,10 +117,11 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self._settings_timer.setInterval(400)
         self._settings_timer.timeout.connect(self._sync_settings)
         self._settings_timer.start()
-        from ..screens.settings_model import attach_api_tooltip
+        from ..screens.settings_model import attach_api_tooltip, retarget_field_tooltips
 
         for widget in (self._field, self._channel, self._run_btn, *self._planes.values()):
             attach_api_tooltip(widget, 'host_pathogen', '', widget.toolTip())
+        retarget_field_tooltips(self)
 
     def apply_settings(self, settings):
         """Replace preview settings; stale results are discarded on a change.

@@ -15427,3 +15427,44 @@ same shard's other failures: shared-reader bypass in host_pathogen_preview.py;
 legacyCellpose model_type test; PSF default text; tooltip labels for HP/Live/
 primary-mask/PSF custom controls. Candidate remains e498dbecc until findings are
 collected; only repair commits will be integrated, optional new media stays out.
+
+2026-09-23 ADDITIONAL RELEASE CI FINDINGS FOR DOCS OWNER
+Coverage4/8 completed with additional docs-owned failures. Logs are
+/tmp/spacr-e498-coverage4.log and /tmp/spacr-e498-coverage8.log. Please include:
+tests/test_readme_presentation.py animation inventory (87 versus86),
+tests/test_conda_publication_docs.py English installation-route prose/count,
+tests/test_documentation_i18n.py GitHub summary 'Make Masks',
+tests/test_the_api_homepage_shows_the_module_structure.py missing Host–Pathogen
+fold and API link, tests/test_tutorial_release_audit.py and
+tests/test_tutorial_catalog_i18n.py current81lesson inventory/routes/navigation
+and seven spoken PyPI translations. Please audit actual current behavior before
+updating stale expectations; do not weaken inventories or translation checks.
+I am taking remaining implementation/test failures: Home inventory after
+Host–Pathogen, pipeline-details font scaling, missing Cellpose4 setting prose,
+OS-cursor assertion, settings fold sizing, merged-classifier group lookup,
+segmentation-QC warning classification and crop provenance sidecar handling.
+I am also stabilizing Make Masks nested-control help keys so retargeting does
+not change API captions. The candidate remains frozen while original CI runs.
+
+2026-09-23 RELEASE CI CLAIMS AND ADDITIONAL DOCS FAILURES
+I am also claiming setup.py to declare the packaging dependency already used
+by updater/Starplast, explicit SQLite timeouts in host_pathogen_preview/example
+and image_quality, raw-reader routing in the new scientific paths, and test
+hygiene/retired crop-fallback expectations. No dependency version upgrade.
+Docs failures from coverage0/5/10 also include installer callback localization
+(test_lock_levels_installer_translations), Hindi test-data help, Host–Pathogen
+registry captions, model_explanation helper caption extraction, Make Masks row
+inventory after secondary growth was added, and shared-versus-app Cellpose help
+(test_cov_w2_6_i18n_catalogs). Logs /tmp/spacr-e498-coverage{0,5,10}.log.
+Twelve new Cellpose4 keys now have generic settings.py descriptions as well as
+the existing app-specific help. Five PSF generic descriptions now state their
+unchanged defaults. New Live picker labels Images/Fields are translated with tr;
+nested Make Masks helper keys are stable dictionary names instead of counters.
+
+2026-09-23 VERIFIED RUNTIME HELP REPAIR
+161shared-reader/PSF/Host–Pathogen/Cellpose helper checks passed, followed by
+54full screen-tooltip/primary-mask/Live-PSF checks. Generic Cellpose descriptions
+also pass type/length/default guards (included in a separate45check run whose
+three remaining failures are unrelated stale cursor/layout/group expectations).
+No raw-reader ceiling or translation policy was changed. Preview queries now
+use the common parameterized query helper and preserve their read-only scope.

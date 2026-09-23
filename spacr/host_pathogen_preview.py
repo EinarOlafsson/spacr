@@ -91,8 +91,8 @@ def preview_field(settings, field, *, planes=None, image_channel=0, row_limit=10
     :returns: real analysis tables, display image/masks and explicit image notes.
         Infection denominators cover this field only, including uninfected hosts.
     """
-    import pandas as pd
     from .host_pathogen import default_settings, summarize_tables
+    from .tabular import _read_query
     from .utils import correct_metadata
 
     config = default_settings(settings)
@@ -111,8 +111,9 @@ def preview_field(settings, field, *, planes=None, image_channel=0, row_limit=10
             if not set(identity) <= columns.keys():
                 raise ValueError(f'{table} lacks field/time identities needed for this preview')
             where = ' AND '.join(f'{_quote(columns[key])} IS ?' for key in identity)
-            frame = pd.read_sql_query(f'SELECT * FROM {_quote(table)} WHERE {where} LIMIT ?',
-                connection, params=[*identity.values(), row_limit + 1])
+            frame = _read_query(connection,
+                f'SELECT * FROM {_quote(table)} WHERE {where} LIMIT ?',
+                params=[*identity.values(), row_limit + 1])
             if len(frame) > row_limit:
                 raise ValueError(f'{table} exceeds the preview limit of {row_limit} objects in one field')
             frames.append(correct_metadata(frame))
