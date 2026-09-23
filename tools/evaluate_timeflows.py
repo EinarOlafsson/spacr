@@ -36,8 +36,11 @@ from spacr import timeflows_model as tm
 
 def digest(path):
     """Hash one input without loading the file into memory."""
+    checksum = hashlib.sha256()
     with Path(path).open('rb') as handle:
-        return hashlib.file_digest(handle, 'sha256').hexdigest()
+        for block in iter(lambda: handle.read(1024 * 1024), b''):
+            checksum.update(block)
+    return checksum.hexdigest()
 
 
 def indexed(folder, prefix):

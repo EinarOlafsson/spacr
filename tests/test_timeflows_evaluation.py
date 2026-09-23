@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
+import io
 import json
 from pathlib import Path
 import sys
@@ -17,6 +19,30 @@ _SPEC = importlib.util.spec_from_file_location(
     'timeflows_evaluator', Path(__file__).resolve().parents[1] / 'tools/evaluate_timeflows.py')
 evaluate = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(evaluate)
+
+
+@pytest.mark.parametrize('size', [0, 3, 2 * 1024 * 1024 + 17])
+def test_digest_streams_files_without_python_311_hashlib_api(tmp_path, monkeypatch, size):
+    data = (b'checkpoint\x00\xff' * (size // 12 + 1))[:size]
+    path = tmp_path / 'weights.pt'
+    path.write_bytes(data)
+    reads = []
+
+    class BoundedReader(io.BytesIO):
+        def read(self, count=-1):
+            assert 0 < count <= 1024 * 1024
+            reads.append(count)
+            return super().read(count)
+
+    real_open = Path.open
+
+    def open_file(candidate, *args, **kwargs):
+        return BoundedReader(data) if candidate == path else real_open(candidate, *args, **kwargs)
+
+    monkeypatch.delattr(hashlib, 'file_digest', raising=False)
+    monkeypatch.setattr(Path, 'open', open_file)
+    assert evaluate.digest(path) == hashlib.sha256(data).hexdigest()
+    assert reads
 
 
 def _labels(moving=0):

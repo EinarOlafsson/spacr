@@ -13623,3 +13623,11 @@ Cellpose constructor stubs, missing MakeMasks control help, search alpha
 pixel assertion, actual UI readout/fold/hover failures and instruction index.
 Do not dispatch duplicate full CI yet; evidence points to concrete remaining
 failures. More native GC investigation and performance evidence remain.
+
+2026-09-23 — IMPLEMENTATION: PYTHON3.9 TIMEFLOWS TOOL FIX
+The evaluator digest helper now streams1MiB blocks instead of calling
+Python3.11-only hashlib.file_digest. Signature/semantics unchanged;45tests
+pass, with3regressions reproduced before. The exact extracted function also
+passes on realPython3.8.20. Fullminimum-dependencyCI acceptance remains open.
+No runtime spacr API or translation changes; previous benchmark provenance
+stays untouched. Taking the remaining old-interpreter test assumptions next.
