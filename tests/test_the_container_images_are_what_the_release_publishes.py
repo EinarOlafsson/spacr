@@ -459,12 +459,46 @@ def test_the_build_context_still_holds_what_pip_install_needs():
         assert required not in patterns, (
             f".dockerignore excludes {required!r}, which `pip install .` reads."
         )
-    # And the four trees that make the difference are excluded.
-    for heavy in ("docs/", "tools/", "tests/", ".git"):
+    # Local agent worktrees contain another checkout and private scratch files.
+    for heavy in ("docs/", "tools/", "tests/", ".git", ".claude/"):
         assert heavy in patterns, (
             f".dockerignore no longer excludes {heavy!r}; the build context "
             f"goes back to 1.2 GB."
         )
+
+
+@pytest.mark.parametrize("version,ppa_calls", [("3.10", 0), ("3.12", 1)])
+def test_cuda_python_override_uses_the_distribution_without_a_ppa(
+        tmp_path, version, ppa_calls):
+    """Execute both apt setup blocks with recording stand-ins for commands."""
+    import shutil
+    import subprocess
+
+    shell = shutil.which("sh")
+    if shell is None:
+        pytest.skip("no POSIX shell on this machine")
+    commands = tmp_path / "commands"
+    commands.mkdir()
+    for name in ("apt-get", "add-apt-repository", "rm"):
+        command = commands / name
+        command.write_text(
+            '#!/bin/sh\nprintf "%s\\n" "${0##*/} $*" >> "$COMMAND_LOG"\n',
+            encoding="utf-8")
+        command.chmod(0o700)
+    blocks = [body for verb, body in _instructions(_dockerfile("cuda"))
+              if verb == "RUN" and "add-apt-repository" in body]
+    assert len(blocks) == 2, "build and runtime need the same interpreter"
+    for number, block in enumerate(blocks):
+        log = tmp_path / f"commands-{number}.log"
+        result = subprocess.run(
+            [shell, "-c", block], check=False, capture_output=True, text=True,
+            env={"PATH": str(commands), "PYTHON_VERSION": version,
+                 "COMMAND_LOG": str(log)})
+        assert result.returncode == 0, result.stderr
+        calls = log.read_text(encoding="utf-8").splitlines()
+        assert calls.count("add-apt-repository -y ppa:deadsnakes/ppa") == ppa_calls
+        assert calls.count("apt-get update") == 1 + ppa_calls
+        assert any(f"python{version}" in call for call in calls)
 
 
 def test_every_shell_step_in_the_workflow_parses(workflow):

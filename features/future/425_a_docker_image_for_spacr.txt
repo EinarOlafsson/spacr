@@ -404,3 +404,14 @@ the workflow has still never run. "WHAT IS LEFT" above is unchanged except
 that its first two points are now reachable: they close on the next release
 rather than on a tag event that could not have arrived. The file stays in
 features/future/ for exactly that reason.
+
+2026-09-23 — LOCAL BUILD CONTEXT AND PYTHON OVERRIDE REPAIRED
+The local .claude tree holds1.6G of nested checkouts and scratch files; it is
+now excluded by .dockerignore. No local worktree is removed. The documented
+PYTHON_VERSION=3.10 option now skips deadsnakes in BOTH CUDA build stages;
+Ubuntu22.04 supplies that interpreter itself. The default3.12 still adds the
+PPA before installing the same interpreter in build and runtime.
+Two shell-execution checks record actual apt command sequences for3.10 and
+3.12 without changing host packages. All27container contract checks pass.
+A capped CPU-only build of the CUDA image is next; that is not GPU validation
+or registry publication. The release/publication requirements remain open.
