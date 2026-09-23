@@ -19256,6 +19256,51 @@
       "source_sha256": "1b773e8cc5e378a5eca24d80de14a45771cf366c5500aee82fe01fde101a31c3",
       "text": "Link each child label only when one vacuole covers most of its pixels.\n\n:param child_mask: integer parasite/object mask, zero background.\n:param vacuole_mask: co-registered integer whole-vacuole mask.\n:returns: label, pathogen_id and pathogen_overlap_fraction columns.\n    A parent must cover strictly more than half the child; ties, outside\n    objects and ambiguous overlaps retain missing parent identities.\n    This geometric link does not assign biological meaning to an object."
     },
+    "spacr.host_pathogen_example": {
+      "source_blocks_sha256": [
+        "6cfba2fa0d72b327517fc9e816c6fcdf62f91bbc654cb753d88b748e649d46db"
+      ],
+      "source_sha256": "6cfba2fa0d72b327517fc9e816c6fcdf62f91bbc654cb753d88b748e649d46db",
+      "text": "Deterministic synthetic Host–Pathogen project with independently known truth."
+    },
+    "spacr.host_pathogen_example.build_example": {
+      "source_blocks_sha256": [
+        "a2672e0cbbe6ffad531adadf664ac89b04d1e260e20ee11a92d402a28575d32c",
+        "837eebd60f2b6d1236a1f178dbf5f252933a2c8e9f5e8b7bd4db2a78c07b963c",
+        "a5781bd9916a9e9d69c7c0e0aa439048d3ff1233de2eb830d76e361a22a7d518",
+        "c33b431312a2bbf922c2baa789d484ce47c3586825560afd4502d8035ccb79ed",
+        "ce0423c9c0e3ab38c731cdf58d4cc55ddebbde3c52d779b6ff8d9486fc174873",
+        "68a974109a047d4a7d0e342e1046193112f7a3041a17ec4eafff6ba2314a15b7",
+        "aa2305660b057f55060ed4f89ace5c66da02c31ffe7583a9179f7a1eee3581e1"
+      ],
+      "source_sha256": "e7893ad466a3671c5af8ff8e666864126545cde018bb051d3b2fab4251f2ba43",
+      "text": "Create a ready-to-run synthetic project, preserving existing user files.\n\n:param destination: new/empty project directory or this complete cached sample.\n:param progress: optional callable receiving completed and total field counts.\n:param cancelled: optional callable; True aborts before the next field/commit.\n:returns: absolute project Path. A complete cached copy is reused unchanged.\n:raises FileExistsError: a nonempty destination is not a complete sample.\n:raises RuntimeError: generation was cancelled; no partial project is published."
+    },
+    "spacr.host_pathogen_example.example_folder": {
+      "source_blocks_sha256": [
+        "df47585f94a2c349dfd7e9972cfd63579333257d0cc3db3da2e87d59da40e088"
+      ],
+      "source_sha256": "df47585f94a2c349dfd7e9972cfd63579333257d0cc3db3da2e87d59da40e088",
+      "text": "Return the private cache directory for the synthetic example."
+    },
+    "spacr.host_pathogen_example.is_present": {
+      "source_blocks_sha256": [
+        "f4ebbbd2adf97b3493e0b6750a728d35335947d676a6c8b17c2a67cdf4c76138",
+        "dd6cd5f56601d84efcaee2fdca9446d90c9774f68a9917788af7600b5f5e4340",
+        "7733e9ad3dbc4ca8c6c138e5268f1b9a4b25bf7e4283930f461e4361640ff741"
+      ],
+      "source_sha256": "998d862b69c09bc5b2748ed05854eb2f8abd5e101b4578d77313ac764762231a",
+      "text": "Recognize a complete generated project without replacing user modifications.\n\n:param folder: candidate synthetic project directory.\n:returns: True when its manifest version, synthetic marker, listed files\n    and nonempty measurement database are present. File contents are not\n    compared with the original recipe, so user edits remain intact."
+    },
+    "spacr.host_pathogen_example.main": {
+      "source_blocks_sha256": [
+        "44e902da78d8eb5deee1c63b0c0eca743dd39b339652a9729c50a112f6091708",
+        "7b1c754a1d4f19b9a38f8c4ad2a9f6f95ce6ccfae3a4b46aa59d16751601d47f",
+        "b0d78d5dd5e7ee0364c6ffcd490848f9295109f1ccef77a19ccbd6c823d4b4c5"
+      ],
+      "source_sha256": "e93795f8e87a952dc38d3d18c500cb83f466bb14d8bd9744dbde4651498226a4",
+      "text": "Build the sample from the command line without requiring Qt or network.\n\n:param argv: optional argument list; None reads the process arguments.\n:returns: zero after printing the generated or reused project directory."
+    },
     "spacr.hyperparam": {
       "source_blocks_sha256": [
         "0a2d94ed7d9f2ea17729bfe0e8560f829d52fc52cc6056256cd8293105899072",

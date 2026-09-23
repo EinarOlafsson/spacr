@@ -5,6 +5,40 @@ From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**.
 This alpha module combines vacuole-level marker recruitment with host and well
 summaries. Existing :doc:`Recruitment <recruitment>` remains available.
 
+Try the synthetic test project
+------------------------------
+
+#. Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis**.
+#. Select **Load test data…**. spaCR generates an offline example and loads
+   its prepared settings. No download, trained model or GPU is needed.
+#. Select **Run**, then compare ``results/host_pathogen`` with the project's
+   independently specified ``expected`` CSV files.
+
+The example contains four drawn fields across two wells, with 24 host cells,
+28 whole vacuoles and 88 individual parasites. Whole vacuoles use the
+``pathogen`` table; individual parasites use ``organelle`` with explicit
+``pathogen_id`` links. The marker channels are 0 and 1, both with illustrative
+ratio thresholds of 2. These thresholds are not calibrated biological cutoffs.
+
+Each well should report 12 hosts, 10 infected hosts, two multiply infected
+hosts, 14 vacuoles, 12 host-linked vacuoles and two orphan parasites. The
+infection fraction is 10/12. Zero or missing host-reference intensities
+produce unknown marker states; unknown does not mean negative. Extracellular
+vacuoles contribute to vacuole summaries without increasing the number of
+infected hosts.
+
+This is generated test data, not acquired microscopy or evidence of model
+accuracy. The project includes the drawn TIFF images and masks, previews,
+measurement tables, settings and expected results. Its prepared measurements
+let you exercise this module directly; an ordinary image project still needs
+the Mask and Measure preparation described below.
+
+For a separate example folder, run
+``python -m spacr.host_pathogen_example --out /path/to/new/project``.
+:func:`spacr.host_pathogen_example.build_example` documents generation and
+reuse: a complete cached example is retained unchanged, and an unrelated
+nonempty destination is refused.
+
 Prepare the counting units
 --------------------------
 

@@ -23,7 +23,13 @@ def example_folder():
 
 
 def is_present(folder):
-    """Recognize a complete generated project without replacing user modifications."""
+    """Recognize a complete generated project without replacing user modifications.
+
+    :param folder: candidate synthetic project directory.
+    :returns: True when its manifest version, synthetic marker, listed files
+        and nonempty measurement database are present. File contents are not
+        compared with the original recipe, so user edits remain intact.
+    """
     folder = Path(folder)
     try:
         record = json.loads((folder / 'example_manifest.json').read_text())
@@ -234,7 +240,11 @@ GUI or `spacr-run host_pathogen --help`. For a custom location use
 
 
 def main(argv=None):
-    """Build the sample from the command line without requiring Qt or network."""
+    """Build the sample from the command line without requiring Qt or network.
+
+    :param argv: optional argument list; None reads the process arguments.
+    :returns: zero after printing the generated or reused project directory.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, default=None)
     args = parser.parse_args(argv)
