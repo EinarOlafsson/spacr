@@ -25343,6 +25343,7 @@
         "054741b350d867667f171fa35a8690542cca56ed7ce2af372ca9196eb11b8377",
         "a37185726b85ad3c914d7ce9d24d7408b1490ec0357f1185c3a195d9453deb2c",
         "6fac3b3c3d6315353854ef93aefd201e216cbbae8b3c2f92dda8874081d9e380",
+        "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
         "fe4e08f552d7009f9e6ad5595de3e7b274d4b59f2d549e847128ae4eaa279d42",
         "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
         "121e02b4a5c9df355979bd9626f103c5ee546174d5b7c85fbedff923a9c08cf3",
@@ -25358,8 +25359,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "e935a5c39e3e6e55b43bb7ff0dbf74d2a2cec7e6880f71bd5cfa4faeeff1f1ce",
-      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
+      "source_sha256": "d18ecf626386634140d8471f3b7dcd378d5e67ab3c4cf566f604d3af3c6452af",
+      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
     },
     "spacr.measure.measure_from_field_table": {
       "source_blocks_sha256": [
@@ -37505,6 +37506,64 @@
       "source_sha256": "799d8c7dd7a2192ba2b0f627b53db68b7ea613dece6fff9888d3f5284cbcb446",
       "text": "Summarise one project. The whole of :mod:`spacr.projects` in one call.\n\n:param root: the project root. It does not have to be a project, and it\n    does not have to be in the registry — that is the point.\n:param registry: an open registry to read through. Omit and the project's\n    own is opened when a file exists; a project with none is summarised\n    anyway, with :attr:`ProjectSummary.known` False.\n:param usage: a :class:`spacr.data_manager.ProjectUsage` already taken for\n    this root, to be reused rather than re-walked. The browser has none;\n    the Data Manager screen, which has just walked the same project, does.\n:param with_next_steps: compute what could run next. Off skips one\n    :func:`spacr.ports.check_ready` per successor, which is the only part\n    of this that globs a second time.\n:returns: a :class:`ProjectSummary`. Never raises for a folder that is\n    missing, unreadable or not a project: \"there is nothing here\" is an\n    answer a browser has to be able to show."
     },
+    "spacr.psf_measurement": {
+      "source_blocks_sha256": [
+        "8298ec8754c8e66e9bd4a2bb7c9c9247f4a70c1cc4b61aa3070963217f7a26fb",
+        "d6d05e84dac69db3b96752d3a14ea48a8e609fcf27912ebd4cb251ba386df7f3"
+      ],
+      "source_sha256": "a3fd3566543f8cf25693f2e7690c6d661cdc532cd018b24e196e9d8f04761644",
+      "text": "Explicit PSF intensity selection and compatibility for quantitative Measure.\n\nPSFs operate after Measure's normal rescaling and preprocessing hooks. Crops\nretain their existing source intensities; quantitative PSF output stays float.\nThe captured plan, rather than a file path reopened per field, reaches workers."
+    },
+    "spacr.psf_measurement.measurement_psf_record": {
+      "source_blocks_sha256": [
+        "f8aea46aa9f67bd22dffcecd9a4f01e9862888d84263ad0e16c5d93faa4db014",
+        "905dfb9834accde12b4e73f3b3131cd9fd182c65dee05d1c13597a48e52fc5b6",
+        "1e3fb303e11c2970af930d1e5fbc11f31b3e9e6fb15d7c071f2254faa39b7477",
+        "ddc60605b4e504952ac92f39f2f3deb052a30e842811ca0de7fce1dbd5f222f8",
+        "a251dfdac969a5ca8ca1122224c8bd427038e3722a2cd647f1def8a5aa001ac4",
+        "65b46a2156f063cacee8edb1bda86f075967c3ff79788b71baf9e87e7e8b3a19"
+      ],
+      "source_sha256": "5a716ea054c5b0567e27fd5380b082a17438bc9cd933c62a9ce8b4a0c95c3796",
+      "text": "Describe the exact intensity stream given to quantitative features.\n\n:param plan: captured processing plan or None for original choice.\n:param image: selected intensities after standard preprocessing, before PSF.\n:param hooks: names of registered standard preprocessing hooks, in order.\n:param channels: original intensity-channel indices in measurement order.\n:returns: JSON-safe field provenance, explicitly distinguishing crop pixels."
+    },
+    "spacr.psf_measurement.measurement_psf_signature": {
+      "source_blocks_sha256": [
+        "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85"
+      ],
+      "source_sha256": "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85",
+      "text": "Return stable JSON configuration, or None for standard intensities."
+    },
+    "spacr.psf_measurement.measurement_resume_settings": {
+      "source_blocks_sha256": [
+        "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
+        "336581a31eb671f6bfe28c85f48d38708014d01238ca74cb5c79f41881913a14",
+        "be572c63aff8cfd1d9607704b5487ee0ae6f0e51e7650e494f6841a618680b05",
+        "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667"
+      ],
+      "source_sha256": "2eed6aed44b87127baca1563158ba668ad6f25e3d742bf5934d64d79a17c76c3",
+      "text": "Compare active PSF behavior rather than dormant form parameters.\n\n:param settings: recorded or current Measure settings.\n:param recorded: keep a recorded kernel identity without reopening its file.\n:returns: fresh settings with inactive PSF knobs removed and one captured\n    material signature. Legacy measurements have the original signature None."
+    },
+    "spacr.psf_measurement.prepare_measurement_psf": {
+      "source_blocks_sha256": [
+        "784f1a0c55d4f637bc9f2613b7ca874cf3560af55044ec9b719b31e0d5e7a18d",
+        "9e81c642fb0f2a429400d81c83865b68e9ac85ca95f2c8f37a6e46589a0a5091",
+        "14bba570e8023b33456ed6c207891fc476a8793b86cc3917aeb69a3af6fd5344",
+        "eb4bda556360c7610a298ee7216bb71e19452f25589ed05fa34da2a43f947cd2"
+      ],
+      "source_sha256": "785ebe834ad6e1f610495f882dce8565694909bbcae95fbddfc49c58a2162f32",
+      "text": "Capture a calibrated kernel only for explicitly processed measurements.\n\n:param settings: PSF settings plus ``psf_measurement_source``: ``original``\n    (default; standard Measure intensities without PSF) or ``processed``.\n    Processed requires convolution/deconvolution and explicit YX or ZYX\n    sampling. Original retains stored PSF parameters without applying them.\n:returns: immutable PSFPlan or None. The caller's settings are unchanged.\n:raises ValueError: for an invalid source, disabled processing when requested,\n    or invalid calibrated kernel settings."
+    },
+    "spacr.psf_measurement.validate_measurement_psf_history": {
+      "source_blocks_sha256": [
+        "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
+        "a1335b87f8f104165b7a0c5916f7a2554d0474f73ac0d2ac3784a5078d38ac92",
+        "d988ebc6184ffafee2ca265ffefb02276a08e79b4b4d59f66324ccf1f8db9a9e",
+        "712e9fae80b9712a6327aeff258c1044b4a256ec279171e21af621151883ed8a",
+        "3d90e9593f4b403295109241dc9ed376a223bdc8cc874458554d87112bf3b125"
+      ],
+      "source_sha256": "e92073909c0927a55640fd5878ec11d98ccf1b3bffbf2724565cc44e2dbd037b",
+      "text": "Refuse to mix incompatible intensity sources even when resume is off.\n\n:param settings: current run settings, before its database snapshot is saved.\n:param db_path: measurement database; absence means a new project.\n:param plan: captured plan for this run.\n:raises ValueError: when existing measurement rows use another PSF identity\n    or cannot be proved to use the requested processed intensities."
+    },
     "spacr.psf_pipeline": {
       "source_blocks_sha256": [
         "31e6889602fbd7e8eba8e47cb0a57235447c2a688f7e0cf5fddbd9407a92cd4d",
@@ -37528,10 +37587,11 @@
       "source_blocks_sha256": [
         "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
         "4ab8a6d54da8592a7ee8542caf64064ef6a86f73a34506cf6c6dc0966b84edae",
+        "68475793678642468153fef54c5092692b3fca2aba3f2e257a6081f1d9c315f2",
         "2df3016acaaf11f6c40f4e2aeb6e9b475ec1c7627795e521a73fe06d157566bb"
       ],
-      "source_sha256": "8fbb0689772774030c48dbadb398c37a5dd55f7322dd4cf30532649135bbff74",
-      "text": "Process one spatial image with an explicit last channel axis.\n\n:param image: YXC or ZYXC intensity array, never a merged label stack.\n:returns: float32 processed intensities without source mutation."
+      "source_sha256": "bd605fc4662836384c7dbce8a475e9a8cb33855c52ec970f6c3d5e0e7e36bea9",
+      "text": "Process one spatial image with an explicit last channel axis.\n\n:param image: YXC or ZYXC intensity array, never a merged label stack.\n:param cancel: optional process-safe event shared with a parent worker.\n:returns: float32 processed intensities without source mutation."
     },
     "spacr.psf_pipeline.PSFPlan.provenance": {
       "source_blocks_sha256": [
@@ -83914,6 +83974,13 @@
       ],
       "source_sha256": "626218833b65c137bf2958f90dd9d6a3d845d0556dec52ad635f6561af4adf9d",
       "text": "Seed the panel from a module's settings, and cache the whole dict\nfor the Pre / Post routes to read from.\n\nThis is the inverse of :meth:`settings_for_propagation` and is\ntested as one — the defect it was written for is that the two spoke\ndifferent vocabularies. The panel emitted ``cell_diameter`` and read\nback ``diameter``, which Mask does not declare, so a Mask screen\nseeded here kept the panel's own hardcoded 30 px, 0.4 flow and 0.0\nprobability while ``cell_channel`` and ``nucleus_channel`` DID land\n— the preview visibly changed and looked seeded, having silently\ndropped exactly the three settings it is opened to check.\n\nEvery field is copied independently. A single unusable value used to\nabort the whole copy through the shared ``except``, so one junk\ndiameter also cost the flow threshold, the channels and the model."
+    },
+    "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview": {
+      "source_blocks_sha256": [
+        "37dba81d21b3b0d094e243b187f1bc71fb46da9d8550f5af464e81278eb721c8"
+      ],
+      "source_sha256": "37dba81d21b3b0d094e243b187f1bc71fb46da9d8550f5af464e81278eb721c8",
+      "text": "Cancel PSF work cooperatively and discard any native inference result."
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.closeEvent": {
       "source_blocks_sha256": [

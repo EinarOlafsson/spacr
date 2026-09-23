@@ -2216,6 +2216,30 @@
       "source_sha256": "e6d4c12b5975fa80129efe2c64cc65e9a51374fc7e65d26c238c1bbf9473a38f",
       "text": "Levels written to the log files. The master switch of the pair.\n\n:returns: the levels the file handler admits.\n\nVERBOSE LOGGING ADDS DEBUG, because otherwise the two settings\ncontradict each other and the one the user did not touch wins.\nWith verbose on, the profile hook emits DEBUG records for calls and\nreturns. Omitting DEBUG from the file handler would incur all of that cost\nwhile discarding the resulting trail.\n\nWhatever verbose means, it cannot mean \"do the work and write none of\nit\". It is not stored into the level preference: the user's own choice\nof levels is left exactly as they set it, and DEBUG goes away again\nwhen they turn verbose off."
     },
+    "e935a5c39e3e6e55b43bb7ff0dbf74d2a2cec7e6880f71bd5cfa4faeeff1f1ce": {
+      "source_blocks_sha256": [
+        "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
+        "054741b350d867667f171fa35a8690542cca56ed7ce2af372ca9196eb11b8377",
+        "a37185726b85ad3c914d7ce9d24d7408b1490ec0357f1185c3a195d9453deb2c",
+        "6fac3b3c3d6315353854ef93aefd201e216cbbae8b3c2f92dda8874081d9e380",
+        "fe4e08f552d7009f9e6ad5595de3e7b274d4b59f2d549e847128ae4eaa279d42",
+        "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
+        "121e02b4a5c9df355979bd9626f103c5ee546174d5b7c85fbedff923a9c08cf3",
+        "9dae1ce06d1b00958325af6264bfc09746420b81c8d0263e0c93d56d85289126",
+        "a366aebece0bc0e3a85069bb6d6f79fe89b076e03d2f5c8fe15b2279c12a18ab",
+        "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
+        "f8b3da5212c4ca703a46301293e46749996b61a879bff1cf971a17f15db56860",
+        "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
+        "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
+        "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
+        "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
+      ],
+      "source_sha256": "e935a5c39e3e6e55b43bb7ff0dbf74d2a2cec7e6880f71bd5cfa4faeeff1f1ce",
+      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
+    },
     "ea819f9daac05d0df1d418c087cfe1330ef18ab4bac03e9a49597285643ed497": {
       "source_blocks_sha256": [
         "7e9a1ded9fb3fd5f0285e73876eed5df6784f1f72e08b464c620d65a5d8c18f2",

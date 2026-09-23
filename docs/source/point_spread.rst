@@ -51,6 +51,50 @@ Keep ``psf/segmentation_application.json`` with the results: it identifies the
 kernel and processing settings. Reusing existing preprocessing requires an
 exact completed match. See :func:`spacr.psf_pipeline.prepare_psf`.
 
+Inspect Mask Live preview
+-------------------------
+
+After setting up the PSF, open **Live** in Mask and choose a representative
+field. The preview applies the selected kernel before background thresholding
+and model normalization. Inspect the mask boundaries and processing details,
+then try another field before running the batch. Raw-intensity object filters
+continue to use the original intensities.
+
+Live preview normalizes the selected field and does not apply the full
+pipeline's illumination correction. A full Mask run may normalize across a
+batch, so review its saved masks as well as the preview. Changing settings
+requires a new detection; processing details describe the accepted result.
+
+Choose the intensities used by Measure
+--------------------------------------
+
+In **Measure**, open **Point Spread Function** and set
+``psf_measurement_source``. Keep ``original`` for the standard measurement
+intensities, including Measure's normal rescaling and preprocessing, without
+additional PSF processing. Choose ``processed`` to measure intensities after
+convolution or deconvolution, then configure ``psf_operation``, the kernel
+source and its calibration.
+
+For a two-dimensional field, enter image sampling and Gaussian widths in
+``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching
+three-dimensional kernel. Volume sampling must agree with Measure's voxel
+calibration or anisotropy settings. A measured kernel must have the same
+sampling as the image. Use a kernel appropriate for every selected intensity
+channel.
+
+Run Measure and inspect the resulting object-feature tables in
+``measurements.db``. PSF processing changes the intensity stream used for
+quantitative features; source files and exported crops retain their usual
+behavior. The ``intensity_rescale`` table records the selected source and PSF
+processing details. Keep the database with the settings and kernel file.
+
+To compare different kernels or original and processed measurements, use
+separate projects or output databases. An existing database cannot mix
+measurements made with different PSF configurations. Restore the recorded
+configuration when resuming a run. See
+:func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings
+contract.
+
 Load the image and PSF
 ----------------------
 

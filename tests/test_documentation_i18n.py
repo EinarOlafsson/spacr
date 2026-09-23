@@ -202,7 +202,7 @@ TOOLS = ROOT / "tools"
 # Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
 # PSF module and metadata-only doctor: 411_psf_doctor_api_2026-09-23.json.
 # Mask PSF integration: 411_psf_integration_api_2026-09-23.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_509
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_516
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
