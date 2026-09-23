@@ -342,10 +342,11 @@ _MODULE_LIST: Tuple[Module, ...] = (
         entry="spacr.ml:perform_regression",
         defaults="get_perform_regression_default_settings",
         validate_key="regression",
-        requires=("score_data — CSV(s) of per-well scores",
-                  "count_data — CSV(s) of per-well sgRNA counts",
+        requires=("paired_data — ordered rows pairing score and sgRNA-count tables",
                   "dependent_variable — the score column to regress"),
         writes=("volcano plots, plate heatmaps, gene phenotype plots, GO reports",),
+        note=("src is an optional output root. Legacy score_data/count_data lists "
+              "are paired by position; new configurations should use paired_data."),
     ),
     Module(
         key="explain_cv",

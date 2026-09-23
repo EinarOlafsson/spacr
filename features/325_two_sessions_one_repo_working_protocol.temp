@@ -15025,3 +15025,15 @@ refresh and add matching PSF tutorial/animation guidance.182focused checks pass;
 real1998x1998image Compare/Apply/detection/Save/sidecar acceptance receipt:
 features/data/490_psf_make_masks_acceptance_2026-09-23.json. No GPU used.
 Mask/Measure integration and calibrated optical acceptance remain pending.
+
+2026-09-23 IMPLEMENTATION: addressing API-walkthrough regression dry-run finding
+Claiming validate.py/cli.py paired-input plan correction before continuing490.
+The plan will show each paired_data score/count row, the actual score column
+and src as an optional output root; legacy positional pairs remain explicit.
+No generic measurements.db input or image-file inventory for Regression.
+Regression dry-run correction complete:112validation/plan checks and40CLI
+checks pass. A real fresh-process CLI invocation shows paired score/count
+paths and score column; src is output only, no measurements.db assumption,
+no output directory created and neither ml nor torch imported. --describe
+regression now teaches paired_data and mentions legacy positional migration.
+Please refresh that CLI walkthrough capture against the pushed source.
