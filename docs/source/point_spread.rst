@@ -7,6 +7,39 @@ Prepare a two-dimensional image or three-dimensional volume and a measured
 PSF sampled at the same pixel or voxel spacing. Supply intensity images;
 keep object-label masks separate.
 
+Use the desktop controls
+------------------------
+
+In **Make Masks**, open the enhancement controls and select **Convolve (blur)**
+or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the
+image pixel height and width in micrometres. Choose **Measured kernel
+(TIFF/NPY)** and load your calibrated two-dimensional PSF, or choose
+**Gaussian approximation** and enter the Y/X full widths at half maximum.
+For a measured kernel, enter its pixel spacing too; it must match the image.
+
+Wait for the kernel to load, then use **Compare** to inspect its effect.
+Set **Deconvolution iterations** when using Richardson–Lucy and choose
+**Apply** to use the result for detection. Start with a modest iteration
+count and inspect noise as well as object boundaries. **Reload** rereads a
+kernel file after you change it. **Off** disables PSF processing.
+
+For a batch in **Mask** or **Timelapse**, open the **Point Spread Function**
+settings category. Set ``psf_operation`` to ``convolve`` or ``deconvolve`` and
+``psf_image_sampling_um`` to your calibrated ``[Y, X]`` pixel spacing.
+For ``psf_source="measured"``, select ``psf_path`` and matching
+``psf_kernel_sampling_um``. For ``psf_source="gaussian"``, supply
+``psf_fwhm_um`` instead. ``psf_iterations`` controls deconvolution work.
+
+Run preprocessing to rebuild the segmentation inputs after changing these
+settings. One kernel is applied independently to each selected segmentation
+channel, after illumination correction and before normalization. Check that
+its calibration is appropriate for all selected channels. The batch operates
+on two-dimensional projected fields; time-series frames are processed
+independently. Original image intensities remain unchanged for measurement.
+Keep ``psf/segmentation_application.json`` with the results: it identifies the
+kernel and processing settings. Reusing existing preprocessing requires an
+exact completed match. See :func:`spacr.psf_pipeline.prepare_psf`.
+
 Load the image and PSF
 ----------------------
 

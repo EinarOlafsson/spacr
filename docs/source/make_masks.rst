@@ -238,7 +238,8 @@ Enhancement before and after detection
 
 **Compare** previews the configured enhancement; **Apply** enables it for
 detection and display. The order is percentile stretch, background
-subtraction, denoise, contrast, sharpen, detection, morphology, then split.
+subtraction, optional point-spread processing, denoise, contrast, sharpen,
+detection, morphology, then split.
 Disabled steps leave their input unchanged. Background estimation radius
 should exceed the structures you want to retain. Denoising and the separate
 Maxima/secondary blur can compound, so check both settings.
@@ -255,6 +256,15 @@ steps are bypassed for paired secondary objects to retain primary IDs.
 Make Masks enhancement is configured separately from the batch Mask
 pipeline; transfer the intended preprocessing explicitly when training or
 running a model elsewhere. See :mod:`spacr.qt.detect_chain`.
+
+For calibrated optical processing, choose **Convolve (blur)** or
+**Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the
+image pixel height and width in micrometres, then choose a measured TIFF/NPY
+kernel with matching spacing or a Gaussian approximation with explicit
+Y/X full widths at half maximum. Use **Reload** after changing a kernel file.
+Compare the result before applying it; more deconvolution iterations can
+amplify noise. The original image intensities stay available for measurement.
+See :doc:`point_spread` for the complete workflow and batch settings.
 
 Grow secondary objects from a primary mask
 ------------------------------------------
