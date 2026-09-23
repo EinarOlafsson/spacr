@@ -856,6 +856,7 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: it just lights a different colour on hover.
 ALPHA_MODULES = {
     "toxoplasma", "plasmodium", "candida",
+    "host_pathogen",
     # `model_zoo` and `model_compare` stood at the front of this line until
     # they became buttons on the Make Masks masthead. A stage is a property
     # of a TILE, so both left with their rows -- the colour their buttons

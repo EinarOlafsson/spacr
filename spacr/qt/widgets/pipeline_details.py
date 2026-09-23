@@ -112,7 +112,7 @@ class PipelineDetails(QScrollArea):
             if stage != max(stages):
                 arrow = QLabel('↓')
                 arrow.setAlignment(Qt.AlignCenter)
-                arrow.setStyleSheet('color: #168cff; background: transparent; font-size: 16px;')
+                arrow.setStyleSheet(f"color: #168cff; background: transparent; font-size: {font_px('body')}px;")
                 layout.addWidget(arrow)
         layout.addStretch()
         self.setWidget(content)

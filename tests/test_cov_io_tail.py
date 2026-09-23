@@ -480,7 +480,8 @@ def test_generate_dataset_sample_given_as_list(ds_src):
     tar = IO.generate_dataset({"src": src, "file_metadata": None,
                                "experiment": "listsample", "sample": [4]})
     with tarfile.open(tar) as t:
-        assert len(t.getnames()) == 4
+        assert len([name for name in t.getnames() if name.endswith('.png')]) == 4
+        assert '.spacr_crop_format.json' in t.getnames()
 
 
 def test_generate_dataset_two_sources_get_combined_name(ds_src):
@@ -493,7 +494,8 @@ def test_generate_dataset_two_sources_get_combined_name(ds_src):
     assert os.path.basename(tar).endswith("_combined_multi.tar")
     assert os.path.dirname(tar) == os.path.join(a, "datasets")
     with tarfile.open(tar) as t:
-        assert len(t.getnames()) == 6
+        assert len([name for name in t.getnames() if name.endswith('.png')]) == 6
+        assert '.spacr_crop_format.json' in t.getnames()
 
 
 def test_generate_dataset_existing_tar_is_not_overwritten(ds_src):
@@ -626,8 +628,8 @@ def _gtd(src, **over):
 
 
 def _class_counts(train_dir, test_dir):
-    return {cls: (len(os.listdir(os.path.join(train_dir, cls))),
-                  len(os.listdir(os.path.join(test_dir, cls))))
+    return {cls: (len(list((Path(train_dir) / cls).glob('*.png'))),
+                  len(list((Path(test_dir) / cls).glob('*.png'))))
             for cls in sorted(os.listdir(train_dir))}
 
 
@@ -885,8 +887,8 @@ def test_generate_training_dataset_repairs_png_paths(tmp_path, rng):
 
     train_dir, test_dir = IO.generate_training_dataset(_gtd(
         src, metadata_rules=[{"name": "all"}], balance_to_smallest=False))
-    n_train = len(os.listdir(os.path.join(train_dir, "all")))
-    n_test = len(os.listdir(os.path.join(test_dir, "all")))
+    n_train = len(list((Path(train_dir) / "all").glob('*.png')))
+    n_test = len(list((Path(test_dir) / "all").glob('*.png')))
     assert n_train + n_test == 30       # the 10 unrepairable rows are gone
 
 

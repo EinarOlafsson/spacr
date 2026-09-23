@@ -95,12 +95,12 @@ def test_histogram_work_is_off_thread_and_closed_requests_do_not_replace_newer_r
     entered, release = threading.Event(), threading.Event()
     original = mm.detect_chain.prepare
     calls = []
-    def slow(image, chain):
+    def slow(image, chain, *, cancel=None):
         calls.append(threading.get_ident())
         if len(calls) == 1:
             entered.set()
             assert release.wait(5)
-        return original(image, chain)
+        return original(image, chain, cancel=cancel)
     monkeypatch.setattr(mm.detect_chain, 'prepare', slow)
     gui_thread = threading.get_ident()
     try:
@@ -146,10 +146,10 @@ def test_wrapped_captions_do_not_overlap_the_histogram_at_minimum_width(screen, 
 def test_pending_preview_keeps_its_image_and_settings_snapshot(screen, qtbot, monkeypatch):
     entered, release = threading.Event(), threading.Event()
     original = mm.detect_chain.prepare
-    def slow(image, chain):
+    def slow(image, chain, *, cancel=None):
         entered.set()
         assert release.wait(5)
-        return original(image, chain)
+        return original(image, chain, cancel=cancel)
     monkeypatch.setattr(mm.detect_chain, 'prepare', slow)
     choose(screen, 'li')
     screen._otsu_smoothing.setValue(0)
@@ -175,10 +175,10 @@ def test_pending_preview_keeps_its_image_and_settings_snapshot(screen, qtbot, mo
 def test_closing_screen_retires_a_running_histogram_without_waiting_for_library_call(screen, qtbot, monkeypatch):
     entered, release = threading.Event(), threading.Event()
     original = mm.detect_chain.prepare
-    def slow(image, chain):
+    def slow(image, chain, *, cancel=None):
         entered.set()
         assert release.wait(5)
-        return original(image, chain)
+        return original(image, chain, cancel=cancel)
     monkeypatch.setattr(mm.detect_chain, 'prepare', slow)
     try:
         screen._on_show_otsu_histogram()

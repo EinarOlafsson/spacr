@@ -3027,6 +3027,7 @@ class MainWindow(QMainWindow):
 
         folded = folded_children()
         catalogue = folded_modules()
+        module_titles = {row[0]: row[1] for row in APPS}
         organism_children = {entry[0] for guide in ORGANISMS.values()
                              for entry in guide['modules'] if entry[0]}
         self._organism_menus = {}
@@ -3056,6 +3057,7 @@ class MainWindow(QMainWindow):
                     host_menu.addAction(act)
                     host_menu.addSeparator()
                     for child, title, summary, _icon in ORGANISMS[key]['modules']:
+                        title = module_titles.get(child, title)
                         child_action = QAction(tr(title), self)
                         child_action.setToolTip(tr(summary))
                         child_action.setStatusTip(tr(summary))

@@ -483,7 +483,8 @@ def test_a_test_mode_mask_run_on_a_macos_volume_completes(
     assert "RUN INCOMPLETE" not in out
     qc_lines = [line for line in out.splitlines()
                 if line.startswith("Segmentation QC (")]
-    assert len(qc_lines) == 3, qc_lines
+    assert [line.split('(', 1)[1].split(')', 1)[0] for line in qc_lines] == [
+        'cell', 'nucleus', 'pathogen', 'cell'], qc_lines
     assert all(" of 1 fields" in line for line in qc_lines), qc_lines
 
     test_dir = plate / "test"

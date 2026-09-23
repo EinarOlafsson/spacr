@@ -101,7 +101,7 @@ class Folder:
         self.last_change_by_user = True
         self._shut = False
         self._alert = ""
-        heading.setCursor(Qt.PointingHandCursor)
+        heading.unsetCursor()
         self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
         heading.installEventFilter(self._filter)

@@ -206,15 +206,14 @@ class ApiHelpLabel(QLabel):
         """Recompose the help and re-arm the hover popup.
 
         The text is kept on the widget as well as in the popup, because that is
-        what the accessibility tree reads out, and the cursor is set to the
-        what's-this shape -- the affordance the dot used to be, saying there is
-        something here to read before the popup appears.
+        what the accessibility tree reads out. Hover help preserves the
+        operating system cursor instead of assigning a special help shape.
         """
         html = self._compose_help()
         self.setProperty("apiTooltipHtml", html)
         self.setToolTip(html)
         self.setToolTipDuration(-1)
-        self.setCursor(Qt.WhatsThisCursor)
+        self.unsetCursor()
         self._install_help_filter()
 
     def _install_help_filter(self) -> None:

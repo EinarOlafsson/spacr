@@ -186,11 +186,13 @@ def test_generated_crop_dataset_writes_split_provenance_and_keeps_wells(
         "_".join(name.split("_")[:2])
         for cls in os.listdir(train)
         for name in os.listdir(os.path.join(train, cls))
+        if name.endswith('.png')
     }
     test_wells = {
         "_".join(name.split("_")[:2])
         for cls in os.listdir(test)
         for name in os.listdir(os.path.join(test, cls))
+        if name.endswith('.png')
     }
     assert not train_wells & test_wells
     provenance = json.loads((root / ".spacr_split.json").read_text())
