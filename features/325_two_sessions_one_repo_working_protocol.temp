@@ -11093,3 +11093,35 @@ https://scikit-image.org/docs/0.23.x/api/skimage.segmentation.html#skimage.segme
 No propagation source or behavior changed in this caption batch. The complete
 reference, other help, organism prose, API rollout and tutorial media remain
 open. No GPU or NAS work.
+
+2026-09-22 — IMPLEMENTATION:474 INTERACTIVE DIAGRAM / STARPLAST CLAIM
+Starting the maintainer follow-up now that provenance is pushed5d20d2c1c.
+Claiming organism_diagram.py, organism_screen.py, organism registry additions,
+isolated Starplast integration and related focused tests. Starplast source
+reference is still53703bafdf0604576a05b589400051a6b09e62ea, read-only. It already
+rotates the apical end upward and uses rendered masks for reliable component
+hit-testing. Current package is starplast-core0.41.0; its source explicitly
+warns of about2GB of CUDA wheels on Linux/x86_64. Installer UI will disclose
+that approximate download plus additional application/data/disk requirements,
+alpha status, and separate environment before the user starts installation.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:474 COMPARTMENT INTERACTIONS READY
+The white-outline upright diagram, multi-checkbox legend, Clear components,
+actual-shape hover/click and dense Home tile layout pass31 focused Qt checks.
+OrganismDiagram.selector is now QListWidget, not QComboBox. New public
+clear_components() resets all selections and hover. Private _CellArtwork
+select accepts a string or iterable; masks/organelle_at/set_hover expose the
+painted geometry and transient state. _diagram_svg no longer accepts the old
+unused selected argument; fills are drawn separately over the original SVG.
+All original SVGs remain byte-identical. Embedded SVG text[property=description]
+is passed through tr dynamically: those UniProt descriptions need inventory
+extraction in addition to literal runtime strings. Three diagram_note values
+now explain multi-selection. New literal captions: Clear components; Hover
+over the cell to identify a compartment. Check several labels to keep them
+highlighted.; These LOPIT classes share one anatomical outline; the diagram
+does not distinguish their protein populations.; The membrane label uses the
+mitochondrial outline; it has no separate shape.
+Starplast tile/install/launch is next and remains claimed. Public PyPI and
+GitHub archive checks returned404; the local checkout exists and authenticated
+Git remote access works. Installer will support a chosen local source so this
+machine does not depend on a public release which is not available yet.

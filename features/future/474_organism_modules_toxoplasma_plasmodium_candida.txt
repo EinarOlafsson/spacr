@@ -196,3 +196,34 @@ Still OPEN: nine-language caption/prose coverage, API/tutorial integration
 owned by the other Codex lane, and maintainer review of the proposed assays.
 This ships the organism directories; it does not implement the twenty future
 assay pipelines. No GPU work or NAS access was required.
+
+2026-09-22 — UPRIGHT INTERACTIVE COMPARTMENTS AND DENSER HOME TILES
+--------------------------------------------------------------------------------
+The maintainer's further request replaces the single-compartment pastel view.
+Toxoplasma and Plasmodium now rotate the original SwissBioPics cell upright,
+with rhoptries above the nucleus, white outlines and a rounded translucent
+black panel. Hover tests the actual rasterized component geometry, with the
+smallest overlapping shape winning. Hover fills the component, colors the
+linked legend and displays its embedded UniProt description. Checkbox labels
+allow multiple persistent components; clicking artwork toggles the matching
+anatomical location, and Clear components resets all labels. Shared hyperLOPIT
+classes remain explicitly distinct labels sharing one anatomical shape.
+Candida uses the same interactions with its original yeast orientation.
+
+The divider is one scaled pixel. The module grid now fits Home's 172-pixel
+minimum tile width instead of a four-column cap and a label-derived width;
+this removes oversized rectangular tiles and excess gaps while retaining the
+same AppTile class, height, width bounds and rounded theme as Home.
+
+Validation:31 focused Qt checks pass, including real rendered rhoptry/nucleus
+geometry, pixel hit testing for both apicomplexans, independent multiple
+selections, Clear components, linked hover descriptions, thin divider and
+packed columns. Actual MainWindow renders reviewed in dark and light themes;
+at1500px the right pane shows five197x124 tiles with4px gaps. Original source
+SVGs and attribution are unchanged. Logs and images are private under
+/mnt/firecuda2/Claude/implementation-20260922/organism-followup/.
+
+Still OPEN in the maintainer follow-up: Starplast as the first Toxoplasma tile,
+its isolated installation and later launch, alpha and size warnings. That
+addition changes Toxoplasma from eight to nine tiles. New caption translation
+and API/workflow integration remain with the other Codex session.

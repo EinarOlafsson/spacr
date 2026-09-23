@@ -162,19 +162,23 @@ def test_diagram_selectors_highlight_real_groups_and_disclose_shared_shapes(qtbo
     qtbot.addWidget(screen)
     diagram = screen._diagram
     baseline = _diagram_svg(diagram.artwork.source)
-    for index in range(1, diagram.selector.count()):
-        location = diagram.selector.itemData(index)
+    for index in range(diagram.selector.count()):
+        item = diagram.selector.item(index)
+        location = item.data(Qt.UserRole)
         assert diagram.artwork.renderer.elementExists(location), location
-        diagram.selector.setCurrentIndex(index)
+        item.setCheckState(Qt.Checked)
         assert location[:2] + "-" + location[2:] in diagram.caption.text()
-        assert _diagram_svg(diagram.artwork.source, location) != baseline
+        assert ("SL0173" if location == "SL0171" else location) in diagram.artwork.selected
+        item.setCheckState(Qt.Unchecked)
     if key == "toxoplasma":
-        diagram.selector.setCurrentIndex(1)
+        diagram.selector.item(0).setCheckState(Qt.Checked)
         assert "rhoptries 1 / rhoptries 2" in diagram.caption.text()
     if key == "plasmodium":
         assert "rhoptries 1" not in diagram.labels
-    diagram.selector.setCurrentIndex(0)
-    assert "Select a label" in diagram.caption.text()
+    for index in range(diagram.selector.count()):
+        diagram.selector.item(index).setCheckState(Qt.Unchecked)
+    assert "Check several labels" in diagram.caption.text()
+    assert _diagram_svg(diagram.artwork.source) == baseline
 
 
 def test_text_expands_and_restores_and_divider_drag_reflows_tiles(qtbot, qt_theme_applied):

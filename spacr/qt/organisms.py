@@ -21,7 +21,8 @@ ORGANISMS = {
         "diagram": "organism_apicomplexa.svg",
         "diagram_note": (
             "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT "
-            "labels. Select a compartment to highlight its UniProt location. "
+            "labels. Hover for a location description, check several compartments "
+            "to keep them highlighted, or use Clear components to reset them. "
             "Several classes share a shape; dense granules use the generic "
             "cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes "
             "and mixed endomembrane vesicles have no matching shape here. "
@@ -97,8 +98,9 @@ ORGANISMS = {
         "diagram": "organism_apicomplexa.svg",
         "diagram_note": (
             "A shared apicomplexan cell plan, using the SwissBioPics artwork "
-            "also used in Starplast. Select a UniProt compartment to highlight "
-            "it. Parasite shape and organelle organization vary by species and "
+            "also used in Starplast. Hover for a UniProt location description "
+            "and check several compartments to keep them highlighted. "
+            "Parasite shape and organelle organization vary by species and "
             "life-cycle stage; this is not a blood-stage reconstruction. "
             "Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium."
         ),
@@ -171,8 +173,9 @@ ORGANISMS = {
         "source": "https://www.cdc.gov/candidiasis/about/index.html",
         "diagram": "organism_yeast.svg",
         "diagram_note": (
-            "A generic budding-yeast cell from SwissBioPics. Select a "
-            "compartment to highlight its UniProt location. This is a cell "
+            "A generic budding-yeast cell from SwissBioPics. Hover for a "
+            "UniProt location description and check several compartments to "
+            "keep them highlighted. This is a cell "
             "schematic, not a Candida species identification or a depiction "
             "of every yeast, pseudohyphal and hyphal form."
         ),

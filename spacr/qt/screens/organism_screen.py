@@ -10,7 +10,6 @@ from html import escape
 from pathlib import Path
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QGraphicsOpacityEffect, QGridLayout, QHBoxLayout, QLabel, QPushButton,
     QScrollArea, QSizePolicy, QSplitter, QVBoxLayout, QWidget,
@@ -64,7 +63,7 @@ class OrganismScreen(QWidget):
         root.addLayout(heading)
         self._splitter = QSplitter(Qt.Horizontal, self)
         self._splitter.setChildrenCollapsible(False)
-        self._splitter.setHandleWidth(scaled_px(10))
+        self._splitter.setHandleWidth(scaled_px(1))
         self._splitter.setAccessibleName(tr("Information and modules divider"))
         root.addWidget(self._splitter, 1)
         self._intro = self._build_intro()
@@ -218,10 +217,7 @@ class OrganismScreen(QWidget):
             return
         available = self._module_scroll.viewport().width()
         spacing = scaled_px(SPACING["xs"])
-        label_width = max(QFontMetrics(tile.font()).horizontalAdvance(tile.text_label)
-                          + scaled_px(40) for tile in self._tiles)
-        target = min(scaled_px(TILE_MAX_W), max(scaled_px(TILE_W), label_width))
-        columns = max(1, min(4, (available + spacing) // (target + spacing)))
+        columns = max(1, (available + spacing) // (scaled_px(TILE_W) + spacing))
         if columns == self._columns:
             return
         self._columns = columns
