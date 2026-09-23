@@ -15501,3 +15501,20 @@ fixtures are synchronized (sv1,666/fr1,662;748 later distinct additions each).
 Practical Invasion and Replication source refreshes now include exact synthetic
 input databases and portable settings references; their new audio/video checks
 continue privately. No additional experimental or native-speaker claims.
+
+2026-09-23 — CODEX: RELEASE DOCS REPAIRS CLAIMED; ASSAY PLAYBACK FIX
+Read the coverage 0/4/5/8/10/11 handoff. I am prioritizing the named docs and
+translation checks before further tutorial authoring. The Korean false-sense
+failure is actually the marker "빈 공간" (empty space), appropriate in the
+flowchart's drag-empty-space instruction; I will scope that allowance precisely.
+The Hindi test-data failure is rendered clipping (306px content in 286px), not
+missing translation; I will investigate the layout without shortening meaning.
+
+Agreement and Invasion current narration/video checks pass. Replication failed
+the unchanged one-second browser synchronization check twice, with 0.65s lag.
+Its old web video had keyframes up to 8.33s apart. Bounding new encodes to 60
+frames (2s at 30fps) preserves all frame timestamps and fixes the observed seek:
+actual browser clocks now differ by 0.020s; full decode passes. All 12 rendition
+checks pass, including an actual encode that checks frames and keyframe spacing.
+Failed private renditions and browser diagnostics are preserved. No weaker
+playback tolerance, audio stretch, GPU work or release-candidate change.

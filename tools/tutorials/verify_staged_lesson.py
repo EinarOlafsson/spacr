@@ -300,11 +300,25 @@ def main():
                 print(json.dumps(diagnostic, indent=2), flush=True)
                 page.screenshot(path=str(output / 'playback-failure.png'))
                 raise
-            page.wait_for_function('''!videoClockCorrectionPending &&
-                !elements.video.seeking && !elements.audio.seeking &&
-                Math.abs(elements.video.currentTime -
-                    videoTimeFromAudio(elements.audio.currentTime)) < .5''',
-                timeout=1000, polling=50)
+            try:
+                page.wait_for_function('''!videoClockCorrectionPending &&
+                    !elements.video.seeking && !elements.audio.seeking &&
+                    Math.abs(elements.video.currentTime -
+                        videoTimeFromAudio(elements.audio.currentTime)) < .5''',
+                    timeout=1000, polling=50)
+            except Exception:
+                diagnostic = page.evaluate('''({
+                    correctionPending: videoClockCorrectionPending,
+                    audio: {time: elements.audio.currentTime, seeking: elements.audio.seeking,
+                        ready: elements.audio.readyState, paused: elements.audio.paused},
+                    video: {time: elements.video.currentTime, seeking: elements.video.seeking,
+                        ready: elements.video.readyState, paused: elements.video.paused},
+                    expectedVideo: videoTimeFromAudio(elements.audio.currentTime),
+                    mediaError: elements.video.error?.message || elements.audio.error?.message || null
+                })''')
+                write(output / 'clock-failure.json', diagnostic)
+                print(json.dumps(diagnostic, indent=2), flush=True)
+                raise
             clock = page.evaluate('({audio: elements.audio.currentTime, video: elements.video.currentTime, expectedVideo: videoTimeFromAudio(elements.audio.currentTime), audioDuration: elements.audio.duration, videoDuration: elements.video.duration, mediaError: elements.video.error?.message || elements.audio.error?.message || null})')
             assert not clock['mediaError'], clock
             assert abs(clock['video'] - clock['expectedVideo']) < 0.5, clock
