@@ -1,0 +1,38 @@
+{
+  "language": "nb",
+  "title": "Sekvenseringsmoduler og hvordan de henger sammen",
+  "section": "Arbeidsflyter",
+  "description": "Koble sekvensering og optiske strekkodearbeidsflyter til fenotypeskårer, regresjon, forsøksplanlegging, styrkeberegninger, dose–responsanalyse og sammenligning av kjøringer.",
+  "scenes": [
+    "Begynn på Home med problemstillingen og typen strekkodedata. Map Barcodes leser sekvenseringsfiler; optisk poolet screening leser registrerte bildesykluser gjennom OPS. Begge trenger en uttrykkelig kobling mellom strekkodeidentitetene og forsøket. Regression kobler sammen kompatible perturbasjonstellinger og fenotypeskårer; den erstatter ikke avkoding av strekkoder. Experiment Design og Power hører til før datainnsamlingen når du planlegger screeningen, mens Dose-Response og Run Compare undersøker egnede resultater etterpå.",
+    "Åpne Map Barcodes fra Home. Oppgi referansene som koder forsøket ditt. Undersøk mappede tellinger og strekkodekvalitet før du kobler guideantall per brønn til fenotypeskårer. Inndata: sekvenseringsavlesninger. Utdata: guideantall per brønn. Map Barcodes til Regression: koble guideantall til fenotypeskårer med konsekvente plate- og brønnnøkler. Map Barcodes til Barcode QC: kontroller mapping og dekning før filtrering av guider.",
+    "Åpne Map Barcodes fra Home, og velg deretter Barcode QC. Undersøk mappingdybde, dekning, kollisjoner og posisjonseffekter før du filtrerer guideantall. Inndata: guideantall per brønn. Utdata: kvalitetskontrollresultater; figurer og tabelleksporter. Map Barcodes til Barcode QC: kontroller mapping og dekning før filtrering av guider.",
+    "Åpne Mask fra Home, og velg deretter OPS. Bruk bilder fra sekvenseringssykluser og justering av fenotypebilder til å avkode strekkoder per cellekjerne. Aggreger eller koble de avkodede identitetene til kompatible fenotypeinndata før Regression; OPS-databasen erstatter ikke direkte en CSV med FASTQ-baserte tellinger. Inndata: mikroskopbilder; justert mosaikk og koordinater. Utdata: optiske strekkodetildelinger. OPS til Regression: koble eller aggreger avkodede objekter uttrykkelig til fenotype- og guideinndata før Regression; dette er ikke en direkte CSV-overføring.",
+    "Åpne Regression fra Home. Sørg for samsvar mellom plate- og brønnidentifikatorene i fenotypedata og guideantall, velg respons og kontroller, og undersøk diagnostikken før du tolker treff. Direkte målte responser støttes også. Inndata: objektklassifiseringsskårer; guideantall per brønn; optiske strekkodetildelinger; målte objekter. Utdata: regresjonsresultater og treff. Classify til Regression: velg den tiltenkte CV- eller ML-skårkolonnen og bevar plate- og brønnidentitetene. Map Barcodes til Regression: koble guideantall til fenotypeskårer med konsekvente plate- og brønnnøkler. OPS til Regression: koble eller aggreger avkodede objekter uttrykkelig til fenotype- og guideinndata før Regression; dette er ikke en direkte CSV-overføring. Regression til Run Compare: sammenlign kompatible lagrede resultatsett og innstillingene deres.",
+    "Åpne Power / Design fra Home. Beregn prøvetakingsbehov ut fra valgte effektstørrelser og variasjon; pilotmålinger kan brukes som valgfritt grunnlag for antakelsene. Inndata: screeningdesign og styrkeberegninger; målte objekter; forsøksoppsett. Utdata: screeningdesign og styrkeberegninger. Experiment Design til Power / Design: bruk forsøksoppsettet til å definere antakelser om prøvetaking, og revider deretter designet.",
+    "Åpne Experiment Design fra Home. Oppgi betingelser, kontroller, replikater og platebegrensninger, og eksporter deretter forsøksoppsettet før datainnsamling. Inndata: screeningdesign og styrkeberegninger. Utdata: forsøksoppsett. Experiment Design til Power / Design: bruk forsøksoppsettet til å definere antakelser om prøvetaking, og revider deretter designet. Experiment Design til Dose–Response: gjennomfør og mål forsøket først, og bevar dose- og betingelsesidentifikatorene.",
+    "Åpne Dose–Response fra Home. Oppgi dose- og responskolonner, kontroller og enheter før kurvetilpasning; denne veien krever ikke sekvensering. Inndata: målte objekter; forsøksoppsett. Utdata: analyseresultater; figurer og tabelleksporter. Experiment Design til Dose–Response: gjennomfør og mål forsøket først, og bevar dose- og betingelsesidentifikatorene.",
+    "Åpne Run Compare fra Home. Sammenlign kompatible lagrede innstillinger, tellinger og trefflister uten å behandle endrede inndata som en kontrollert modellsammenligning. Inndata: kjørehistorikk og artefakter; regresjonsresultater og treff. Utdata: sammenligning av kjøringer og modeller. Regression til Run Compare: sammenlign kompatible lagrede resultatsett og innstillingene deres.",
+    "Bruk parametersveip for simulering av poolede screeninger fra Python gjennom spacr.sim.run_multiple_simulations. Denne arbeidsflyten finnes bare i API-et og har ingen Home-flis eller menyoppføring. Bruk Python-API-et for parametersveip til å undersøke oppgitte antakelser om screeningdesign. Det utvider parameterkombinasjoner, kjører simuleringer i en prosesspool og skriver syntetisk oppsummeringsstatistikk; det returnerer None. Angi en eksplisitt liten max_workers-verdi og et avgrenset parameterrutenett før kjøring. Utdata erstatter ikke målinger eller strekkodetellinger for eksperimentell Regression. Bruk funnene som planleggingsgrunnlag, og dokumenter antakelsene. Undersøk de syntetiske oppsummeringene når du velger planleggingsantakelser; overfør antakelsene manuelt til Power / Design eller Experiment Design. Ingen av verktøyene importerer denne simuleringsdatabasen, og ingen eksporterer rutenettet med simuleringsinnstillinger. Inndata: antakelser for simulering av poolede screeninger. Utdata: syntetiske oppsummeringer av screeningsimuleringer.",
+    "Oppbevar sekvenseringsreferanser og plateoppsett sammen med tellingene, og kontroller koblingen til bildebaserte skårer før du tolker en regresjon. Optiske tildelinger krever sin egen objektkobling og aggregering; de erstatter ikke automatisk en fil med sekvenseringstellinger. Hold planleggingsantakelser, tilpassede effekter og sammenligninger mellom fullførte kjøringer adskilt. De tilknyttede leksjonene og gjennomgangene fra Home viser veien for hver forsøkstype."
+  ],
+  "objectives": [
+    "Velge startmodul ut fra dataene som allerede finnes.",
+    "Identifisere hvilke data hver modul leser og skriver.",
+    "Bruke de tilknyttede modulleksjonene og API-beskrivelsene for neste trinn."
+  ],
+  "prerequisite": "Installer spaCR og åpne Home. Denne leksjonen forklarer navigasjon og dataoverføring; de tilknyttede modulleksjonene gir gjennomarbeidede dataeksempler. Inn- og utdata omfatter betingede alternativer som forklares for hver modul.",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain separate sequencing and optical barcode workflows and their explicit phenotype joins.",
+      "Distinguish prospective design/power assumptions from measured dose responses and completed-run comparisons.",
+      "Keep the simulation API, None return and max_workers literal, bounded CPU process-pool guidance, synthetic output caveat and manual transfer to planning tools.",
+      "Navigation and data-handoff overview only; no claim that the capture executed an experiment."
+    ]
+  }
+}

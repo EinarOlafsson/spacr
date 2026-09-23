@@ -1,0 +1,38 @@
+{
+  "language": "ja",
+  "title": "シーケンシングモジュールとそのつながり",
+  "section": "ワークフロー",
+  "description": "シーケンシングと光学バーコードのワークフローを、表現型スコア、回帰、実験計画、検出力の推定、用量反応解析、実行結果の比較につなげます。",
+  "scenes": [
+    "Home で、研究上の問いとバーコードデータの種類を確認するところから始めます。Map Barcodes はシーケンシングファイルを読み込み、光学プールスクリーニングは OPS を通じて位置合わせ済みの各サイクルの画像を読み込みます。どちらも、バーコードの識別情報と実験との対応を明示する必要があります。Regression は互換性のある摂動のカウントと表現型スコアを関連付けるもので、バーコードのデコードを代替しません。スクリーニングを計画する際、Experiment Design と Power はデータ取得前に使い、Dose-Response と Run Compare は取得後の適切な結果を調べるために使います。",
+    "Home から Map Barcodes を開きます。実験を符号化する参照データを指定します。ウェルごとのガイドカウントと表現型スコアを対応付ける前に、マッピングされたカウントとバーコードの品質管理結果を確認します。入力データ：シーケンシングリード。出力データ：ウェルごとのガイドカウント。Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントと表現型スコアを対応付けます。Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。",
+    "Home から Map Barcodes を開き、Barcode QC を選びます。ガイドカウントをフィルタリングする前に、マッピングの深さ、カバレッジ、衝突、位置による影響を調べます。入力データ：ウェルごとのガイドカウント。出力データ：品質管理結果、図と表のエクスポート。Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。",
+    "Home から Mask を開き、OPS を選びます。シーケンシングサイクルの画像と表現型画像の位置合わせを用いて、核ごとにバーコードをデコードします。Regression に進む前に、デコードした識別情報を集約または結合し、互換性のある表現型入力に対応させます。OPS データベースは、FASTQ 由来のカウント CSV をそのまま置き換えるものではありません。入力データ：顕微鏡画像、位置合わせ済みのモザイクと座標。出力データ：光学バーコードの割り当て。OPS から Regression へ：Regression の前に、デコードしたオブジェクトを表現型とガイドの入力に明示的に結合または集約します。CSV を直接受け渡す手順ではありません。",
+    "Home から Regression を開きます。表現型入力とガイドカウント入力のプレートおよびウェル識別子を一致させ、応答と対照を選び、ヒットを解釈する前に診断結果を確認します。直接測定した応答にも対応しています。入力データ：オブジェクト分類スコア、ウェルごとのガイドカウント、光学バーコードの割り当て、測定済みオブジェクト。出力データ：回帰結果とヒット。Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。Map Barcodes から Regression へ：一貫したプレートとウェルのキーで、ガイドカウントと表現型スコアを対応付けます。OPS から Regression へ：Regression の前に、デコードしたオブジェクトを表現型とガイドの入力に明示的に結合または集約します。CSV を直接受け渡す手順ではありません。Regression から Run Compare へ：互換性のある保存済み結果セットとその設定を比較します。",
+    "Home から Power / Design を開きます。選択した効果量とばらつきから必要なサンプリング量を推定します。予備実験の測定値は、必要に応じて仮定を裏付ける資料として使えます。入力データ：スクリーニング設計と検出力の推定、測定済みオブジェクト、実験配置。出力データ：スクリーニング設計と検出力の推定。Experiment Design から Power / Design へ：実験配置を使ってサンプリングの仮定を定め、設計を見直します。",
+    "Home から Experiment Design を開きます。条件、対照、反復、プレートの制約を入力し、データ取得前に実験配置をエクスポートします。入力データ：スクリーニング設計と検出力の推定。出力データ：実験配置。Experiment Design から Power / Design へ：実験配置を使ってサンプリングの仮定を定め、設計を見直します。Experiment Design から Dose–Response へ：まず実験を実施して測定し、用量と条件の識別情報を保持します。",
+    "Home から Dose–Response を開きます。曲線を当てはめる前に、用量列と応答列、対照、単位を指定します。この経路にシーケンシングは必要ありません。入力データ：測定済みオブジェクト、実験配置。出力データ：アッセイ結果、図と表のエクスポート。Experiment Design から Dose–Response へ：まず実験を実施して測定し、用量と条件の識別情報を保持します。",
+    "Home から Run Compare を開きます。互換性のある保存済みの設定、カウント、ヒットリストを比較します。入力データを変更した場合、それを条件を統制したモデル比較として扱わないでください。入力データ：実行履歴と成果物、回帰結果とヒット。出力データ：実行またはモデルの比較。Regression から Run Compare へ：互換性のある保存済み結果セットとその設定を比較します。",
+    "Python から spacr.sim.run_multiple_simulations を通じて、プールスクリーニングのシミュレーションでパラメータ探索を行います。このワークフローは API 専用で、Home のタイルやメニュー項目はありません。Python のパラメータ探索 API を使い、明示したスクリーニング設計の仮定を検討します。パラメータの組み合わせを展開し、プロセスプールでシミュレーションを実行して、合成データの要約統計量を書き出します。戻り値は None です。実行前に max_workers を明示的に小さな値に設定し、パラメータグリッドの範囲を限定してください。出力は、実験データの Regression に必要な測定値やバーコードカウントを代替しません。仮定を記録し、得られた知見を計画の根拠として使います。計画上の仮定を選ぶ際にシミュレーションの要約を確認し、その仮定を Power / Design または Experiment Design に手動で移します。どちらのツールもこのシミュレーションデータベースを読み込まず、シミュレーション設定のグリッドも書き出しません。入力データ：プールスクリーニングのシミュレーションの仮定。出力データ：合成スクリーニングシミュレーションの要約。",
+    "シーケンシングの参照データとプレート配置をカウントと一緒に保存し、回帰を解釈する前に画像由来のスコアとの結合を確認します。光学的な割り当てには専用のオブジェクト結合と集約が必要で、シーケンシングカウントファイルを自動的にそのまま置き換えることはできません。計画上の仮定、当てはめで得た効果、完了した実行間の比較は、別々の結果として扱います。リンク先のレッスンと Home からの操作ガイドで、実験の種類に応じた経路を確認できます。"
+  ],
+  "objectives": [
+    "手元にあるデータに応じて開始モジュールを選ぶ。",
+    "各モジュールが読み込むデータと書き出すデータを把握する。",
+    "リンクされたモジュールのレッスンとAPIの説明を使って次の手順に進む。"
+  ],
+  "prerequisite": "spaCRをインストールしてHomeを開いてください。このレッスンでは画面の移動とデータの受け渡しを説明します。実際のデータを使った操作例は、リンクされたモジュールのレッスンで扱います。入力と出力には条件によって選ぶ代替経路があり、各モジュールで説明します。",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "review": {
+    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "corrections": [
+      "Retain separate sequencing and optical barcode workflows and their explicit phenotype joins.",
+      "Distinguish prospective design/power assumptions from measured dose responses and completed-run comparisons.",
+      "Keep the simulation API, None return and max_workers literal, bounded CPU process-pool guidance, synthetic output caveat and manual transfer to planning tools.",
+      "Navigation and data-handoff overview only; no claim that the capture executed an experiment."
+    ]
+  }
+}

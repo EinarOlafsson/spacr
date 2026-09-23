@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "required_languages": 13,
+  "reviewed_languages": 13,
+  "reviewed_scenes": 143,
+  "languages": [
+    {
+      "language": "da",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.da.json",
+      "review_sha256": "354050766a0539115980c01ef728e4925a70005d3433550aa5577011ecb42de0",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "de",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.de.json",
+      "review_sha256": "be5061a9e080e36c822d7e4bdfa1f1c046fbd362eec9c987cc135433b7a1ea27",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "es",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.es.json",
+      "review_sha256": "867bfdfca729c9a3ba173e20c0a96cacb24e04811f2cef5890528c92013e304c",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "fr",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.fr.json",
+      "review_sha256": "ed1f2d263f0a8a0024bf184169ef907a72d9e40ff558b997e3c9b9ca18830816",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "hi",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.hi.json",
+      "review_sha256": "4b463fb9ba160f9415b8f087c448c37e88ff1769ee5df080c327bae486d34dda",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "is",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.is.json",
+      "review_sha256": "0baf61a11e31661aca3b3e46495baf4518acd8512696a578366146f5169ed96b",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "it",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.it.json",
+      "review_sha256": "327a951343ec413b02caf83a5c0336083b2f8664ac895d882c4e5a5f74009a5a",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "ja",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.ja.json",
+      "review_sha256": "5670957f35c1e2a13b7a5c6b53ce134bd8e615e577ff1d5bf15d910d7c0afe83",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "ko",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.ko.json",
+      "review_sha256": "49c8788272252f1282a5cf787e5571ac049247da49b98ac034da7518bdc4cc2d",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "nb",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.nb.json",
+      "review_sha256": "ab054beba5b2f72a7b63fa5abfd09a806089f295377bf17feae835ff0c43d990",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "pt-BR",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.pt-BR.json",
+      "review_sha256": "ee1244a6bacff4383c1328e064748362d4fec5347c73008e88c8786baf011c9e",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "sv",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.sv.json",
+      "review_sha256": "4a6f3a71daa0372728ba8e396dadfb1bd95e5618503da203a5bf2d2b73b97449",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    },
+    {
+      "language": "zh-CN",
+      "review": "tools/tutorials/lessons/reviews/81_sequencing_pathways.zh-CN.json",
+      "review_sha256": "b3b5ccaef05615de6a1d52727e5b5b488c1b0d5e49fac550bfbb98f714069b14",
+      "scenes": 11,
+      "source_binding_current": true,
+      "technical_tokens_preserved": true,
+      "isolated_promotion_passed": true
+    }
+  ],
+  "review_type": "AI-assisted source and target editorial review with technical-token, source-hash and structural checks",
+  "production_stage_translations_complete": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Promote into the complete coherent translation catalog after lessons79 and80",
+    "Render all26 non-English voices and verify the full50-voice matrix",
+    "Caption/player and listening checks",
+    "Complete-set publication"
+  ]
+}

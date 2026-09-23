@@ -378,3 +378,14 @@ now verified in the recording.51 focused map/CLI/capture checks pass.
 Receipt: tools/tutorials/evidence/2026-09-23-module-reference-capture.json.
 Lessons79,80,81 were staged in order after78, without bypassing the identity
 guard. English narration is rendering on CPU; no media publication claim.
+
+2026-09-23 — CODEX: ALL SEQUENCING LANGUAGE SCRIPTS REVIEWED
+Lesson81 has all13 source-pinned language reviews covering143 scenes.
+Danish, Hindi, Icelandic, Italian, Japanese, Korean, Norwegian, Swedish and
+Chinese complete the earlier German/French/Spanish/Portuguese set. Final
+checks verify current source/map hashes, exact technical-token counts,
+unchanged scene/link structure and isolated promotion/pronunciation rules.
+Receipt: tools/tutorials/evidence/2026-09-23-sequencing-workflow-translations.json.
+These are AI-assisted editorial reviews, not native-speaker or listening
+sign-off. Coherent full-catalog promotion awaits79/80 translations; English
+media is rendering, remaining26 non-English voices and full checks are owed.
