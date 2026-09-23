@@ -34,6 +34,7 @@ include *.sh
 include *.txt
 include *.yaml
 include requirements.txt
+recursive-include tests/data/release_contracts *.json
 
 # The community files, by name rather than as `include *.md`. A blanket rule
 # would sweep up every scratch note that ever lands at the root; these three

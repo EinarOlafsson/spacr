@@ -85,7 +85,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         assert not added & sources
         sources.update(added)
     assert len(sources) == (261 if language == "sv" else 260)
-    report = json.loads((ROOT / "features/data/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
+    report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
     later_names = {row["name"] for row in report["files"]}

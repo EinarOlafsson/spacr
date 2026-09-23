@@ -1,0 +1,425 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "scope": "Exact reviewed-source cohort reconciliation. Current source binding and translation gates remain mandatory; historical count changes are explained by named cohorts and retired sources.",
+  "languages": {
+    "sv": {
+      "previous_total": 931,
+      "current_total": 1658,
+      "historical_cohort_retired": 9,
+      "older_cohort_retired": 4,
+      "later_distinct_additions": 740,
+      "current_historical_cohort": 261,
+      "files": [
+        {
+          "name": "2026-09-22-enhancement-apply.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "ac5bea19021790589074c9144d1df45c4ed919fdc5812835ceceb780b8630b89"
+        },
+        {
+          "name": "2026-09-22-lock-levels-starplast-controls.json",
+          "records": 73,
+          "sources": 73,
+          "sha256": "f54e545a97e4c4aafcb6bb932766cb520bcb0e459b4fb9499bd7d12ff12e3ffc"
+        },
+        {
+          "name": "2026-09-22-ops-first-pathway.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "06b32fe7ac52194d54e84ff5f69f2c4670aaada17c616cd4a84009e934406a65"
+        },
+        {
+          "name": "2026-09-22-organism-labels.json",
+          "records": 103,
+          "sources": 103,
+          "sha256": "ef6550ca6f5fd76e7859605b519769a15811a9416faea0562592a77bbd69c077"
+        },
+        {
+          "name": "2026-09-22-organism-license-identity.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "7a225144febeee0dd03bb17cb5a55fb28621cfa60712eab04555542854b00548"
+        },
+        {
+          "name": "2026-09-22-propagation-stop.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "8a1ed70170229045b2d4a7f1aecd70c9892e9b0c8d2b553805727eff75b6edae"
+        },
+        {
+          "name": "2026-09-22-section-headings.json",
+          "records": 80,
+          "sources": 80,
+          "sha256": "18b8886a57572634af4674b81c9b316781d6ba38177c40ae19502e58ce3f83e9"
+        },
+        {
+          "name": "2026-09-22-shared-ruler.json",
+          "records": 8,
+          "sources": 8,
+          "sha256": "0aec3bec6e49036553934f445d9209547da9ddd75682041704a96a950dc00a1f"
+        },
+        {
+          "name": "2026-09-22-starplast-installation-size.json",
+          "records": 0,
+          "sources": 0,
+          "sha256": "60d66be05281b527b1090c04a66d26e501443b477bbf7048e024c5773ce565b2"
+        },
+        {
+          "name": "2026-09-22-wand-enhancement-status.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "41ee180f51fc767bce5cd3a3f6a3c7791141d99d060689f0b8b3e56d86c8c922"
+        },
+        {
+          "name": "2026-09-23-backend-installer.json",
+          "records": 45,
+          "sources": 45,
+          "sha256": "67ff63ebd969686783da0092a853e9f1af9b553dc594ea109a4e01489de99986"
+        },
+        {
+          "name": "2026-09-23-data-controls.json",
+          "records": 32,
+          "sources": 32,
+          "sha256": "1d1252525e4018e1ed97b73b04a101545829fcd73f7ba9e067662b10875ba29b"
+        },
+        {
+          "name": "2026-09-23-flowchart-chrome.json",
+          "records": 14,
+          "sources": 14,
+          "sha256": "21d21fc3e38950e700693a7237e907244aa4c1af475f9c31ca8ee1237752f844"
+        },
+        {
+          "name": "2026-09-23-flowchart-controls.json",
+          "records": 3,
+          "sources": 3,
+          "sha256": "cad4a26861dc5c295fb607e6a30e6cc940de48aec8d7630662e014c1c9ae7e36"
+        },
+        {
+          "name": "2026-09-23-host-pathway-actions.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "1abd263bd01c9b8a3317ddafb6625f2b1fd749624cf27d89e7ad720ce932152e"
+        },
+        {
+          "name": "2026-09-23-incoming-captions.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "ca16196c79e173fad4f22451a4e09ab646181778bf55c8280c7cd75480a164a5"
+        },
+        {
+          "name": "2026-09-23-object-detection.json",
+          "records": 3,
+          "sources": 3,
+          "sha256": "a8e8a3647768a15e9e05758d782306d42e81fc57736fd51dd21792148f787d85"
+        },
+        {
+          "name": "2026-09-23-pipeline-descriptions.json",
+          "records": 35,
+          "sources": 35,
+          "sha256": "6f8c1a4c458fb8bbb156f8452b4d83a0645773237577252bb941ccf6044a1693"
+        },
+        {
+          "name": "2026-09-23-pipeline-workflow-phrases.json",
+          "records": 8,
+          "sources": 8,
+          "sha256": "0b2e790b0ab03c36c812d39f20bb94cfb4b6328d907cfd6f23dd71e0563321ca"
+        },
+        {
+          "name": "2026-09-23-preview-compatibility.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "f6283bd7cd86f560b2d8d8afcd2d6c1b68a1f75c76ef10d2935938e6e7b1bc59"
+        },
+        {
+          "name": "2026-09-23-preview-controls.json",
+          "records": 9,
+          "sources": 9,
+          "sha256": "8f17a3c3b8aea552475fe1186287bed7445f50d8d805550428a1233f3616f8ee"
+        },
+        {
+          "name": "2026-09-23-preview-tooltips.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "0c9bd0f01a57472e535ec402828769b9287931123227ad6354918b0cba7f41b8"
+        },
+        {
+          "name": "2026-09-23-psf-controls.json",
+          "records": 27,
+          "sources": 27,
+          "sha256": "b1c028fd7fa03965c10a2de8b25f287506c0f49177d66463d009f97dd9f8ceef"
+        },
+        {
+          "name": "2026-09-23-psf-help.json",
+          "records": 11,
+          "sources": 11,
+          "sha256": "88bcd604980236768385e327cab16f29b74f7df835523f2d799a17ca567159e8"
+        },
+        {
+          "name": "2026-09-23-psf-measure-live.json",
+          "records": 4,
+          "sources": 4,
+          "sha256": "d68dd71ca3455ef7d2db851228cb878b576e4da604c22f3cddd037cf6c438f15"
+        },
+        {
+          "name": "2026-09-23-recruitment-channels.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "910b0634a541630883ae8f97e97868c0262d2714ccfc3947804b8217030c3b63"
+        },
+        {
+          "name": "2026-09-23-registry-controls.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "e0050cc7e2a76e0df05530bedbedae4460aefa2b0957550e27c5abada7d85a1f"
+        },
+        {
+          "name": "2026-09-23-registry-title.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "3e9b0d473861736f86fefa352a4b746e787785eb3e71c8b746726c6db13d7b05"
+        },
+        {
+          "name": "2026-09-23-save-template.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "1a0330d0bd6b067bc92c35ac04f851452f2d6139746f2367ce2166274507abe2"
+        },
+        {
+          "name": "2026-09-23-secondary-control-help.json",
+          "records": 3,
+          "sources": 3,
+          "sha256": "a25fc39c7d4d10514783807afe09b8828ed33bce371f989de08aa5d2b0f669f0"
+        },
+        {
+          "name": "2026-09-23-secondary-objects.json",
+          "records": 38,
+          "sources": 38,
+          "sha256": "16f51e8ad499f50f3bce9a8b5a9a0654c36e4a0bcb2b83f1022b8e999070a107"
+        },
+        {
+          "name": "2026-09-23-short-controls.json",
+          "records": 26,
+          "sources": 26,
+          "sha256": "9093953b68feef12e0a148081fadb29b242d60bdf6b23b65013918d717bd1c7c"
+        },
+        {
+          "name": "2026-09-23-workflow-map-phrases.json",
+          "records": 208,
+          "sources": 208,
+          "sha256": "db64546daf8d27be84b00c043a55148dbbdce61a6e7ce735083108354247055b"
+        }
+      ],
+      "added_sources_sha256": "385e8bbab9484cbef6672ac80e9f35d10d49120189f344a0d71f6f1eaa15745a"
+    },
+    "fr": {
+      "previous_total": 926,
+      "current_total": 1654,
+      "historical_cohort_retired": 9,
+      "older_cohort_retired": 3,
+      "later_distinct_additions": 740,
+      "current_historical_cohort": 260,
+      "files": [
+        {
+          "name": "2026-09-22-enhancement-apply.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "6b89ba4de403243e5d90fbba7a37190873a2f575f02dd8a7140dfa33adff38f5"
+        },
+        {
+          "name": "2026-09-22-lock-levels-starplast-controls.json",
+          "records": 73,
+          "sources": 73,
+          "sha256": "7022193f3f2d917f8691360623c0b821c1a98673daaa9996640ce6f6f77e6358"
+        },
+        {
+          "name": "2026-09-22-ops-first-pathway.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "0b2e540e639f6deefe92cf84e5293cbff2d0ae587deef5866957f62aa92c7f0c"
+        },
+        {
+          "name": "2026-09-22-organism-labels.json",
+          "records": 103,
+          "sources": 103,
+          "sha256": "96c4aabb186fc1808ff53d6ef46f1605b4f6021d9a24d27464267cf21ab3ddb8"
+        },
+        {
+          "name": "2026-09-22-organism-license-identity.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "b85f97cf058ef65a909b1e2e20b779e03596fff14546225883c84bb21b01d4d9"
+        },
+        {
+          "name": "2026-09-22-propagation-stop.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "e478f5327d1060e65fbc10bb52ed0e1e1c81634cf81e2673097adaec76847f20"
+        },
+        {
+          "name": "2026-09-22-section-headings.json",
+          "records": 80,
+          "sources": 80,
+          "sha256": "45f27581d4998a7590ca705bda9d81e819608667319a9a1a6f59dd656142ccb1"
+        },
+        {
+          "name": "2026-09-22-shared-ruler.json",
+          "records": 8,
+          "sources": 8,
+          "sha256": "20d06b7ef78b4c07eca8c319d0e9ecc371907050450d57c5715ba9fae76d6f10"
+        },
+        {
+          "name": "2026-09-22-starplast-installation-size.json",
+          "records": 0,
+          "sources": 0,
+          "sha256": "23b5e9e284de872da6d7ed50c0243663ebfc71c84e86a40cc2298ba9ae2a2812"
+        },
+        {
+          "name": "2026-09-22-wand-enhancement-status.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "acb4ca085068d88b7c00ce33a426692e4bef95125828cca9fe0da86adac93706"
+        },
+        {
+          "name": "2026-09-23-backend-installer.json",
+          "records": 45,
+          "sources": 45,
+          "sha256": "a154838e88a83046e261e43cf3389af057ab85be41f1b5cded2efd5a121e684c"
+        },
+        {
+          "name": "2026-09-23-data-controls.json",
+          "records": 32,
+          "sources": 32,
+          "sha256": "4108177eb5357ccdf74fff98333c6a31fb8bfca5ddbb3faf0575586541c68fe3"
+        },
+        {
+          "name": "2026-09-23-flowchart-chrome.json",
+          "records": 14,
+          "sources": 14,
+          "sha256": "05958ce481ba53e02b417d3f4683ff7977c7913848ae31661972334bc7607c25"
+        },
+        {
+          "name": "2026-09-23-flowchart-controls.json",
+          "records": 3,
+          "sources": 3,
+          "sha256": "979f531a3ba19a9c40994090d2424ee408a3d7baa43d77018886691a7c6f0723"
+        },
+        {
+          "name": "2026-09-23-host-pathway-actions.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "7401b3b30e98c505ada483f64c68215d1daa43e875fa6c55727291de4293fadf"
+        },
+        {
+          "name": "2026-09-23-incoming-captions.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "6fd9ad1316a32e0758ccb7f650482571d9b0a10931d250460bea073492a4ed12"
+        },
+        {
+          "name": "2026-09-23-object-detection.json",
+          "records": 3,
+          "sources": 3,
+          "sha256": "dfae7e0a1f23a5960bfd733b98ae0eabca4a2427197c15ed1685cc6611b3e5aa"
+        },
+        {
+          "name": "2026-09-23-pipeline-descriptions.json",
+          "records": 35,
+          "sources": 35,
+          "sha256": "cc284f43b6689cf55ee6c7ec47731aa71e9f7ff3c8f6805ff867f7373b65c94a"
+        },
+        {
+          "name": "2026-09-23-pipeline-workflow-phrases.json",
+          "records": 8,
+          "sources": 8,
+          "sha256": "bb59bbd6d6de8286017b056bde4fcecbcbb7bddcf49f8140e504690451d6c19a"
+        },
+        {
+          "name": "2026-09-23-preview-compatibility.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "a8ba852257efd7cfdcafa6acaeaf5c27ffc62cb66a5230d22518b145f6f6df60"
+        },
+        {
+          "name": "2026-09-23-preview-controls.json",
+          "records": 9,
+          "sources": 9,
+          "sha256": "b5246565ee8f2914c8cfe4b53fc28239a574251406208bab793903361f24cdb5"
+        },
+        {
+          "name": "2026-09-23-preview-tooltips.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "97d85393ca95753deada01cf0486f0a7e57fc06553b3d0c79bef80dabd76a718"
+        },
+        {
+          "name": "2026-09-23-psf-controls.json",
+          "records": 27,
+          "sources": 27,
+          "sha256": "88638cb37a0e267623b74c0e368c5a758f2bf03364a7d5ffddf7a152232bc856"
+        },
+        {
+          "name": "2026-09-23-psf-help.json",
+          "records": 11,
+          "sources": 11,
+          "sha256": "3034a559535f6219c1043a5e0bdee102bff561d3d2aee0439640c6e9d615a226"
+        },
+        {
+          "name": "2026-09-23-psf-measure-live.json",
+          "records": 4,
+          "sources": 4,
+          "sha256": "d1aa88226e823a4e19519116da5a4696efdd9198a0cebfa7196450687df713d3"
+        },
+        {
+          "name": "2026-09-23-recruitment-channels.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "a77eefd5587d56cb0890efaa989899de4599fe12349b6d509279755beb84880d"
+        },
+        {
+          "name": "2026-09-23-registry-controls.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "237e2d24c765177d9e7677ef43304f5325f82fe77d86784b82faea7ac367cd3a"
+        },
+        {
+          "name": "2026-09-23-registry-title.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "5915af8ad149ff49b3a8160b4ce116a9fc75872e42179ad246c53ea8ed8b9a08"
+        },
+        {
+          "name": "2026-09-23-save-template.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "186b1e6a94d50c45b0fe9d48601d9042125151b9b1e69b22375f35e4e693bec1"
+        },
+        {
+          "name": "2026-09-23-secondary-control-help.json",
+          "records": 3,
+          "sources": 3,
+          "sha256": "7c5c479c569df1afd450b46207286ec5551b4bfa28fabc88695a6854e4848a9d"
+        },
+        {
+          "name": "2026-09-23-secondary-objects.json",
+          "records": 38,
+          "sources": 38,
+          "sha256": "b47458d020e51f5e294ab4b97062c54e12fe420c09927388e870e37370895646"
+        },
+        {
+          "name": "2026-09-23-short-controls.json",
+          "records": 26,
+          "sources": 26,
+          "sha256": "b3051208db90893b34318fe05a0b64d8083b70664a8073b7c9f83270ab1c08ad"
+        },
+        {
+          "name": "2026-09-23-workflow-map-phrases.json",
+          "records": 208,
+          "sources": 208,
+          "sha256": "8be13f999c8c7e96e38fade87927f77e2997ed2cac6cf9c9920749964805757b"
+        }
+      ],
+      "added_sources_sha256": "385e8bbab9484cbef6672ac80e9f35d10d49120189f344a0d71f6f1eaa15745a"
+    }
+  }
+}
