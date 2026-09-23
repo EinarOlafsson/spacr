@@ -12103,3 +12103,17 @@ remain red for missing/stale rows. Receipt411_flowchart_secondary_inventory_
 Fetched your971ae3783/d9db16a59/128eee3ac handoffs; integrating after this batch.
 Full CPU API drafts remain private/unreviewed; current German model needs172
 new decodes after cache/history recovery. No GPU job started.
+
+2026-09-23 — CODEX: REBASED BATCH COMMITS / NEXT DOCS CLAIM
+Rebased through128eee3ac, preserving both channel tails. Commits:
+c51c1383a organism captions;155552784Python-only workflow coverage;
+ad45df508six API prose documents;6f9b31139483chrome and initial476inventory.
+96post-rebase graph/locale/secondary-ID checks pass. These batches retain
+their source-bound receipts; later476sources need a new manifest/inventory.
+The private German reconstruction finished11387documents in374seconds,
+18unresolved blocks; not published. Swedish is next. Manual German hard-tail
+review is under way. Claiming docstrings only in secondary_masks.py (crop/
+validate_destination parameters) and synthetic.py's unformatted API/CLI
+examples, followed by476API/UI bindings and the Make Masks user reference.
+No implementation changes or GPU work claimed. Broader catalogs, helper
+rollout and tutorial releases remain owed.
