@@ -63,6 +63,7 @@ with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = pypi_readme(fh.read())
 
 dependencies = [
+    'packaging>=21.3',
     'numpy>=1.26.4,<3.0',
     'pandas>=2.2.1,<4.0',
     'scipy>=1.12.0,<2.0',

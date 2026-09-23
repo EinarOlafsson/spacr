@@ -6,7 +6,6 @@ import argparse
 import csv
 import json
 import os
-import sqlite3
 import tempfile
 from pathlib import Path
 
@@ -173,9 +172,11 @@ def build_example(destination, *, progress=None, cancelled=None):
             truth.extend(expected)
             if progress:
                 progress(position, 4)
-        with sqlite3.connect(root / 'measurements' / 'measurements.db') as connection:
-            for name, rows in tables.items():
-                pd.DataFrame(rows).to_sql(name, connection, index=False)
+        from .tabular import write_database
+
+        for name, rows in tables.items():
+            write_database(pd.DataFrame(rows), root / 'measurements' / 'measurements.db',
+                           name, if_exists='fail')
         ensure_database_schema(root / 'measurements' / 'measurements.db')
         (root / 'merged' / '.spacr_plane_layout.json').write_text(json.dumps(dict(
             version=1, intensity_channels=[0, 1, 2, 3],

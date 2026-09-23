@@ -64,14 +64,14 @@ def test_trained_checkpoint_is_named_cpsam_not_cyto(tmp_path, monkeypatch, cache
     })
 
     name = seen["train_kwargs"]["model_name"]
-    assert name == "mymodel_cpsam_e20_X16_Y16.CP_model"
+    assert name == "mymodel_cpsam_e20.CP_model"
     assert "_cyto_" not in name
     # It really is the SAM checkpoint being fine-tuned.
     assert seen["model_kwargs"]["pretrained_model"] == (
         str(cached) if cached_stock else "cpsam")
     # The settings snapshot is written under the same name.
     assert (tmp_path / "settings" /
-            "mymodel_cpsam_e20_X16_Y16.CP_model.csv").exists()
+            "mymodel_cpsam_e20.CP_model.csv").exists()
 
 
 def test_checkpoints_written_under_the_old_name_still_resolve(tmp_path):

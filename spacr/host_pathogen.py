@@ -266,11 +266,13 @@ def analyze_host_pathogen(settings=None):
         outputs.append(summarize_tables(*frames, settings=config, source=str(database)))
     result = {key: pd.concat([out[key] for out in outputs], ignore_index=True) for key in outputs[0]}
     if config['save']:
+        from .tabular import write_table
+
         root = databases[0].parent.parent if databases[0].parent.name == 'measurements' else databases[0].parent
         directory = root / 'results' / 'host_pathogen'
         directory.mkdir(parents=True, exist_ok=True)
         for name, frame in result.items():
-            frame.to_csv(directory / f'{name}.csv', index=False)
+            write_table(frame, directory / f'{name}.csv')
         (directory / 'settings.json').write_text(json.dumps(config, indent=2, default=str) + '\n', encoding='utf-8')
         print(f'Host–Pathogen Analysis saved to {directory}')
     return dict(result, settings=config)

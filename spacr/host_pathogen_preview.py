@@ -51,7 +51,7 @@ def preview_fields(settings, *, limit=50):
         if database in seen:
             raise ValueError('The same project database was provided more than once')
         seen.add(database)
-        with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True)) as connection:
+        with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=30)) as connection:
             columns = _columns(connection, 'cell')
             keys = ['plateID', 'rowID', 'columnID', 'fieldID']
             time = _time_column(columns)
@@ -103,7 +103,7 @@ def preview_field(settings, field, *, planes=None, image_channel=0, row_limit=10
     if config['hp_parasite_table']:
         tables.append(config['hp_parasite_table'])
     frames = []
-    with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True)) as connection:
+    with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=30)) as connection:
         connection.execute('BEGIN')
         for table in tables:
             columns = _columns(connection, table)

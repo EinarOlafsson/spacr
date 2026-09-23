@@ -926,6 +926,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         _check_preview_cancel(req)
         result = model.eval(
             image_2d,
+            channel_axis=None,
             diameter=float(req.diameter) or None,
             flow_threshold=float(req.flow_threshold),
             cellprob_threshold=float(req.cellprob),
