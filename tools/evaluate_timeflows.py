@@ -23,14 +23,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 from pathlib import Path
 import time
 
 import numpy as np
 import tifffile
 
-from spacr.timeflows_baseline import link_frames
+from spacr import timeflows_validation
+from spacr.timeflows_validation import score_pair, scramble, summarise
 from spacr import timeflows_model as tm
 
 
@@ -90,72 +90,6 @@ def selected_pairs(movie, sequence, segmentation, gaps, maximum):
 def tracked_masks(segmentation, markers):
     """Use the same strict full-mask/marker assignment as the training reader."""
     return tm._ctc_track_masks(segmentation, markers)
-
-
-def scramble(labels, seed):
-    """Relabel target objects without changing their shapes or positions."""
-    ids = np.unique(labels)
-    ids = ids[ids != 0]
-    mapping = dict(zip(ids.tolist(), np.random.default_rng(seed).permutation(ids).tolist()))
-    result = np.zeros_like(labels)
-    for old, new in mapping.items():
-        result[labels == old] = new
-    return result, mapping
-
-
-def score_pair(labels_t, labels_t1, predictions, seed=0, unknown_successors=()):
-    """Score sources with known outcomes; incomplete next-frame masks are censored."""
-    scrambled, mapping = scramble(labels_t1, seed)
-    here, there = tm.object_centroids(labels_t), tm.object_centroids(labels_t1)
-    links = {name: tm.link_by_timeflows(labels_t, scrambled, prediction)
-             for name, prediction in predictions.items()}
-    links['iou'] = {a: b for a, b, _ in link_frames(labels_t, scrambled)}
-    rows = []
-    for label, (y, x, diameter) in here.items():
-        if label in unknown_successors:
-            continue
-        truth = mapping.get(label)
-        motion = (math.hypot(there[label][0] - y, there[label][1] - x) / max(diameter, 1)
-                  if label in there else None)
-        neighbours = sum(other != label and math.hypot(oy - y, ox - x) <= 5 * diameter
-                         for other, (oy, ox, _) in here.items())
-        row = {'label': label, 'has_successor': truth is not None,
-               'motion_diameters': motion,
-               'motion_bin': ('no_successor' if motion is None else
-                              'below_0.5' if motion < .5 else '0.5_to_1' if motion < 1 else 'at_least_1'),
-               'neighbours_within_5_diameters': neighbours,
-               'density_bin': 'zero' if neighbours == 0 else 'one_to_three' if neighbours <= 3 else 'at_least_four',
-               'truth_target': truth,
-               'predicted_target': {name: found.get(label) for name, found in links.items()},
-               'correct': {name: found.get(label) == truth for name, found in links.items()}}
-        rows.append(row)
-    return rows
-
-
-def summarise(rows):
-    """Aggregate object-weighted results with explicit missing-data denominators."""
-    arms = sorted({arm for row in rows for arm in row['correct']})
-
-    def group(selected):
-        alive = [row for row in selected if row['has_successor']]
-        gone = [row for row in selected if not row['has_successor']]
-        return {'sources': len(selected), 'true_successors': len(alive), 'no_successor': len(gone),
-                'arms': {arm: {
-                    'correct_successor_links': sum(row['correct'][arm] for row in alive),
-                    'successor_accuracy': sum(row['correct'][arm] for row in alive) / len(alive) if alive else None,
-                    'false_links_without_successor': sum(row['predicted_target'][arm] is not None for row in gone),
-                    'abstentions_with_successor': sum(row['predicted_target'][arm] is None for row in alive),
-                } for arm in arms}}
-
-    return {'overall': group(rows),
-            'motion': {key: group([row for row in rows if row['motion_bin'] == key])
-                       for key in ('below_0.5', '0.5_to_1', 'at_least_1', 'no_successor')},
-            'density': {key: group([row for row in rows if row['density_bin'] == key])
-                        for key in ('zero', 'one_to_three', 'at_least_four')},
-            'motion_by_density': {
-                f'{motion}/{density}': group([row for row in rows if row['motion_bin'] == motion and row['density_bin'] == density])
-                for motion in ('below_0.5', '0.5_to_1', 'at_least_1')
-                for density in ('zero', 'one_to_three', 'at_least_four')}}
 
 
 def checkpoint_predictors(checkpoint, device, seed, precision='checkpoint'):
@@ -251,12 +185,8 @@ def main(argv=None):
            'gaps_frames': args.gaps,
            'software': {name: version(name) for name in ('numpy', 'scipy', 'torch', 'cellpose', 'tifffile')},
            'evaluator_sha256': digest(__file__), 'model_code_sha256': digest(tm.__file__),
-           'temporal_assignment': {
-               'policy': 'distance_gate_before_assignment_with_unmatched_choices',
-               'objective': 'minimum_total_distance_plus_unmatched_cost',
-               'min_successor': 0.5, 'max_distance_diameters': 1.0,
-               'unmatched_cost': 'one distance limit, increased by one float64 ULP for an inclusive boundary',
-           },
+           'scoring_code_sha256': digest(timeflows_validation.__file__),
+           'temporal_assignment': timeflows_validation.temporal_assignment_policy(),
            'scope': 'Linking given supplied full segmentation, not end-to-end segmentation/tracking accuracy.',
            'holdout_check': 'Resolved movie paths and aliases; not a content comparison against all training images.',
            'controls': 'IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.'}

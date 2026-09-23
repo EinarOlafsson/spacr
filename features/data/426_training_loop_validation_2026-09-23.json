@@ -1,0 +1,144 @@
+{
+  "feature": 426,
+  "date": "2026-09-23",
+  "scope": "Optional held-out checks inside training; supplied-mask linking only",
+  "api": {
+    "train_timeflows": [
+      "validation_pairs",
+      "validation_every",
+      "on_validation"
+    ],
+    "ctc_pairs": "keyword-only segmentation='ST', accepts GT",
+    "new_module": "spacr.timeflows_validation",
+    "cli": [
+      "--validation-movies",
+      "--validation-segmentation",
+      "--validation-max-pairs",
+      "--validation-every"
+    ]
+  },
+  "behavior": {
+    "cadence": "Initial check, each len(training_pairs) sampled updates by default, and each stage end; explicit positive update interval supported. Weighted sampling epochs need not see every unique pair.",
+    "controls": [
+      "current head",
+      "initial head on current encoder",
+      "IoU",
+      "zero motion",
+      "oracle",
+      "copied frame"
+    ],
+    "strata": [
+      "motion in object diameters",
+      "density",
+      "motion by density"
+    ],
+    "holdout": "Reject resolved movie aliases in CLI and exact canonical float32 three-channel input overlap across either endpoint. No near-duplicate detection.",
+    "state": "Restore module modes, head weights/buffers, CPU and selected CUDA RNG; do not touch optimizer or gradients.",
+    "persistence": "Exclusive JSONL report creation before model construction; flush configuration and checks; completion event only after model and metadata saves.",
+    "provenance": "Input fingerprints, mask source, matching policy/thresholds and model/scoring source hashes. Validation disabled explicitly in metadata for legacy calls."
+  },
+  "validation": {
+    "passed": 230,
+    "warnings": 1,
+    "seconds": 36.54,
+    "new_tests": 30,
+    "training_equivalence": "Five real tiny-Torch optimizer updates with dropout produce identical losses and final state with and without held-out validation.",
+    "cuda_scope": "Routing only mocked, no actual GPU execution.",
+    "coverage": {
+      "spacr/timeflows_model.py": {
+        "summary": {
+          "covered_lines": 495,
+          "num_statements": 496,
+          "percent_covered": 99.54545454545455,
+          "percent_covered_display": "99.55",
+          "missing_lines": 1,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.79838709677419,
+          "percent_statements_covered_display": "99.80",
+          "num_branches": 164,
+          "num_partial_branches": 2,
+          "covered_branches": 162,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.78048780487805,
+          "percent_branches_covered_display": "98.78"
+        },
+        "missing_lines": [
+          1040
+        ],
+        "missing_branches": [
+          [
+            405,
+            407
+          ],
+          [
+            1039,
+            1040
+          ]
+        ]
+      },
+      "spacr/timeflows_validation.py": {
+        "summary": {
+          "covered_lines": 88,
+          "num_statements": 88,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100.00",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100.00",
+          "num_branches": 28,
+          "num_partial_branches": 0,
+          "covered_branches": 28,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100.00"
+        },
+        "missing_lines": [],
+        "missing_branches": []
+      }
+    },
+    "cached_score_compatibility": {
+      "scope": "Scoring refactor only; completed cache records at audit time, no repeat inference or new model-performance claim.",
+      "source_sha256": "35571f8d8e45b934fbfd7900f42d07f596feae98f9397f1e7bc0de3a066cf558",
+      "records": [
+        {
+          "score_call": 0,
+          "kind": "pair",
+          "cache_sha256": "ec64ac0d4be97842c2850a32d827a9b905086c901c7e3008c1be5584badc5b7c",
+          "sources": 30,
+          "rows_exactly_equal": true
+        },
+        {
+          "score_call": 1,
+          "kind": "copied_frame",
+          "cache_sha256": "a45632dee89a5ccc504e1309a6d4cfbec81b96226a672f93a196af2b44c8e78e",
+          "sources": 30,
+          "rows_exactly_equal": true
+        }
+      ]
+    }
+  },
+  "source_sha256": {
+    "spacr/timeflows_model.py": "859e76035299f1e245ee96335ba56672fe02318c4127405e5942e4f3270a3f0b",
+    "spacr/timeflows_validation.py": "35571f8d8e45b934fbfd7900f42d07f596feae98f9397f1e7bc0de3a066cf558",
+    "tools/evaluate_timeflows.py": "fe02b1ab1bf5ade4355f6ccce5d153605c2c3bd7980d8ceee2af20697709b220",
+    "tests/test_timeflows_training_validation.py": "b357ceba5f3cf30a2fa47d4efdb508e62bffdb6c504a109057d4cb83e1fe2455"
+  },
+  "private_evidence": {
+    "loop-validation-final.log": "57c213190cce8e952aa6ab3c925ce45110c1bc85d6c75797db968f4d9587082b",
+    "loop-validation-final-coverage.json": "05a394305d0ded6cb30d8e9496682d2fbcae35e34c38482645552a058e567a60",
+    "loop-validation-scoring-compatibility.json": "dc155059d8567c62a22e2f78fe7a53b4dd32898447ab3a7734128e4693785463"
+  },
+  "limitations": [
+    "No new trained checkpoint, real biological held-out accuracy or model promotion.",
+    "Initial head is not necessarily untrained when resuming a model; its encoder is the current encoder.",
+    "Exact input separation is not biological independence or annotation quality validation.",
+    "Model-own segmentation, whole-movie lineage/stable IDs and corrected production training remain open.",
+    "Live old/new matching comparison uses its already-imported source235ef07ea and is not restarted."
+  ],
+  "rebase_verification": {
+    "runtime_ast_equal_excluding_docstrings": true,
+    "integrated_model_code_sha256": "19499228632b2141a524278c16476568d3a6f3d9e952ec4ee12ebcd1f4db33ed",
+    "reason": "Retained documentation lane trainer crop prose from534896314; tested runtime unchanged."
+  }
+}

@@ -670,3 +670,48 @@ IDs, lineage, calibrated successor decisions, real held-out performance,
 pretraining and corrected training remain open. Gating corrects an assignment
 error; it does not establish that the model's proposed links are biological
 successors.
+
+2026-09-23 — HELD-OUT CHECKS NOW RUN INSIDE TRAINING
+train_timeflows accepts optional validation_pairs, validation_every and
+on_validation. A check runs initially, after each training-pair-count of
+sampled updates by default, and at each stage end; an explicit positive
+interval overrides cadence. An epoch here is len(pairs) sampled updates,
+not a guarantee every unique pair is seen. Existing return values and calls
+without validation remain compatible, with validation disabled explicitly
+in checkpoint metadata. This is partial Step6, not complete acceptance.
+
+The shared timeflows_validation module reports per-object linking, motion/
+density strata and their intersections, current-head/initial-head/IoU/zero-
+motion/oracle arms and copied-frame controls. Initial-head weights run on
+the current encoder and can already be trained if the caller resumes a
+model; no chance-level assumption is made. Checks restore modes, current
+head weights/buffers and CPU/selected-CUDA random state even on failure.
+They do not update an optimizer or parameter gradients.
+
+The CLI adds --validation-movies, --validation-segmentation (GT by default,
+ST explicitly identifies silver masks), --validation-max-pairs (3 per
+sequence; 0 all) and --validation-every. ctc_pairs adds keyword segmentation
+while preserving ST as its training default. Movie aliases and exact input
+matches across either endpoint are rejected before training. Canonical
+float32/channel conversion follows the model. This does not detect near-
+duplicates or establish independent biological movies through the API.
+
+An exclusive .validation.jsonl report is opened before model construction,
+then configuration and every check are flushed. Only a completed save adds
+training_complete. Metadata includes fingerprints, mask source, cadence,
+matching policy and source-code hashes. A failed check leaves a partial log
+without a new checkpoint or completion event; an existing report is preserved.
+
+230 Timeflows checks pass in36.54s with one existing tifffile warning,
+including30new checks. Real tiny-Torch training with dropout gives identical
+losses/weights with and without validation. New scoring module coverage is
+100percent; model495/496 statements,162/164 branches (99.55percent), retaining
+the same1-line/2-branch gap. GPU routing is mocked; no GPU execution claim.
+The first completed real checkpoint cache pair and copied-frame control
+(30objects each) produce exactly identical rows after the scoring refactor.
+Receipt:data/426_training_loop_validation_2026-09-23.json.
+
+These measurements condition on supplied masks. Actual corrected training,
+model-own segmentation, real held-out microscopy, whole-movie stable IDs,
+lineage and promotion remain open. The live nine-pair assignment comparison
+continues with its already-imported235ef07ea code and is not restarted.

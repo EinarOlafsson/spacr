@@ -529,7 +529,10 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
                     full_steps: int = 100, lr_head: float = 1e-3,
                     lr_full: float = 1e-5, weights: Optional[np.ndarray] = None,
                     seed: int = 0, device: str = "cpu",
-                    log: Optional[Callable[[str], None]] = None) -> List[float]:
+                    log: Optional[Callable[[str], None]] = None,
+                    validation_pairs: Optional[Sequence[_Pair]] = None,
+                    validation_every: Optional[int] = None,
+                    on_validation: Optional[Callable[[dict], None]] = None) -> List[float]:
     """Train the time head, then the whole network, on track-labelled pairs.
 
     A two-stage curriculum: the backbone's segmentation is already
@@ -556,17 +559,66 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
     :param seed: the random seed.
     :param device: ``'cpu'`` or ``'cuda'``.
     :param log: ``fn(line)`` for progress.
+    :param validation_pairs: optional held-out full-frame pairs. Exact input
+        overlap with training is rejected before any optimizer update.
+    :param validation_every: updates between held-out checks; defaults to one
+        epoch of ``len(pairs)`` sampled updates. Initial and stage-end checks
+        are always included. Must be positive when supplied.
+    :param on_validation: callback receiving each stratified validation report,
+        including the stage, update count and current training loss. Optional
+        validation never changes the returned loss-list contract.
     :returns: the loss at every step.
     :raises ValueError: no usable supervision remains after 32 sampled crops
         for a step; inspect the full masks and motion relative to the tile.
     """
     torch = _torch()
+    validation_interval = None
+    if validation_pairs is not None:
+        import operator
+
+        from .timeflows_validation import check_pair_holdout
+
+        if not pairs:
+            raise ValueError("Validation requires nonempty training pairs")
+        check_pair_holdout(pairs, validation_pairs)
+        try:
+            validation_interval = len(pairs) if validation_every is None else operator.index(validation_every)
+        except TypeError as exc:
+            raise ValueError("validation_every must be a positive integer") from exc
+        if isinstance(validation_every, bool) or validation_interval < 1:
+            raise ValueError("validation_every must be a positive integer")
+    elif validation_every is not None or on_validation is not None:
+        raise ValueError("Validation options require validation_pairs")
     rng = np.random.default_rng(seed)
     net = net.to(device)
     losses: List[float] = []
     probs = None if weights is None else np.asarray(weights, float) / np.sum(weights)
     backbone_params = [p for n, p in net.named_parameters()
                        if not (n.startswith("head") or n.startswith("up"))]
+    initial_head = ({name: value.detach().clone() for name, value in net.state_dict().items()
+                     if name.startswith(("head.", "up."))}
+                    if validation_interval is not None else None)
+
+    def report_validation(stage, step):
+        """Report one held-out check while preserving the training state."""
+        import json
+
+        from .timeflows_validation import validate_timeflows
+
+        report = validate_timeflows(net, validation_pairs, device=device,
+                                    seed=seed, initial_head=initial_head)
+        report.update(stage=stage, step=step, completed_epochs=step // len(pairs),
+                      epoch_size=len(pairs),
+                      epoch_definition="len(training_pairs) sampled optimizer updates",
+                      training_loss=losses[-1] if losses else None)
+        if on_validation is not None:
+            on_validation(report)
+        if log:
+            log("validation " + json.dumps({key: report[key] for key in
+                 ("stage", "step", "completed_epochs", "training_loss", "results")}, allow_nan=False))
+
+    if validation_interval is not None:
+        report_validation("initial", 0)
 
     def run(steps, params, lr, frozen):
         """Train ``params`` for ``steps`` steps, the backbone frozen or not."""
@@ -594,6 +646,8 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
             losses.append(float(loss.detach().cpu()))
             if log and (step % 50 == 0 or step == steps - 1):
                 log(f"{'head' if frozen else 'full'} step {step}: loss {losses[-1]:.4f}")
+            if validation_interval is not None and ((step + 1) % validation_interval == 0 or step == steps - 1):
+                report_validation("head" if frozen else "full", step + 1)
 
     run(head_steps, net.head_parameters(), lr_head, True)
     if full_steps:
@@ -792,7 +846,7 @@ def _normalise(image: np.ndarray) -> np.ndarray:
 
 
 def ctc_pairs(movie: str, sequence: str = "01",
-              max_pairs: Optional[int] = None) -> List[_Pair]:
+              max_pairs: Optional[int] = None, *, segmentation: str = "ST") -> List[_Pair]:
     """Consecutive-frame training pairs from one Cell Tracking Challenge movie.
 
     Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver
@@ -801,6 +855,7 @@ def ctc_pairs(movie: str, sequence: str = "01",
     (:func:`track_masks_from_ctc`). A frame missing any of the three is
     skipped, and a pair is only formed from two consecutive frame numbers.
     Slice-mask filenames are ignored and duplicate frame numbers are rejected.
+    With ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``.
     A source whose next-frame marker lacks an unambiguous full mask is
     censored for that pair, rather than labelled as a disappearance.
 
@@ -810,6 +865,8 @@ def ctc_pairs(movie: str, sequence: str = "01",
         movie and chosen before any file is read. Set this limit to bound
         the frames loaded from long movies; loading entire collections can
         require tens of gigabytes of memory.
+    :param segmentation: ``'ST'`` for silver masks (the training default), or
+        ``'GT'`` for supplied ground-truth full masks during validation.
     :returns: the pairs, in time order.
     :raises ValueError: sequence/limit, duplicate frame identities or annotation
         arrays are invalid.
@@ -823,6 +880,8 @@ def ctc_pairs(movie: str, sequence: str = "01",
         raise ValueError("CTC sequences must be two-digit directory names")
     if max_pairs is not None and max_pairs < 0:
         raise ValueError("The pair limit must be non-negative")
+    if segmentation not in ("ST", "GT"):
+        raise ValueError("CTC segmentation must be ST or GT")
 
     def indexed(folder, prefix):
         """Map frame number to path for the ``prefix*.tif`` files in ``folder``."""
@@ -840,7 +899,7 @@ def ctc_pairs(movie: str, sequence: str = "01",
         return out
 
     frames = indexed(os.path.join(movie, sequence), "t")
-    segs = indexed(os.path.join(movie, f"{sequence}_ST", "SEG"), "man_seg")
+    segs = indexed(os.path.join(movie, f"{sequence}_{segmentation}", "SEG"), "man_seg")
     tracks = indexed(os.path.join(movie, f"{sequence}_GT", "TRA"), "man_track")
     usable = set(frames) & set(segs) & set(tracks)
     starts = sorted(n for n in usable if n + 1 in usable)
@@ -875,6 +934,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     """
     import argparse
     import json
+    from contextlib import ExitStack
+    from pathlib import Path
 
     import torch
     from cellpose import models
@@ -888,7 +949,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--max-pairs", type=int, default=60,
                         help="pairs per movie sequence, spaced evenly (0 = all)")
+    parser.add_argument("--validation-movies", nargs="+",
+                        help="held-out CTC movies for checks during training")
+    parser.add_argument("--validation-segmentation", choices=("GT", "ST"), default="GT",
+                        help="full-mask source for validation; ST is silver annotation")
+    parser.add_argument("--validation-max-pairs", type=int, default=3,
+                        help="held-out pairs per movie sequence, spaced evenly (0 = all)")
+    parser.add_argument("--validation-every", type=int,
+                        help="sampled updates per check; default is one training-pair-count epoch")
     args = parser.parse_args(argv)
+    if args.validation_every is not None and (not args.validation_movies or args.validation_every < 1):
+        parser.error("--validation-every requires --validation-movies and a positive interval")
+    if args.validation_movies:
+        training_movies = {Path(movie).resolve() for movie in args.movies}
+        if any(Path(movie).resolve() in training_movies for movie in args.validation_movies):
+            parser.error("Validation movies must be separate from training movies, including aliases")
     pairs: List[_Pair] = []
     for movie in args.movies:
         for sequence in ("01", "02"):
@@ -898,16 +973,59 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                   flush=True)
     if not pairs:
         raise SystemExit("no usable pairs: each movie needs NN/, NN_ST/SEG and NN_GT/TRA")
+    validation_pairs = None
+    validation_info = {"enabled": False}
+    if args.validation_movies:
+        import hashlib
+
+        from . import timeflows_validation
+        from .timeflows_validation import check_pair_holdout
+
+        validation_pairs = []
+        for movie in args.validation_movies:
+            for sequence in ("01", "02"):
+                validation_pairs.extend(ctc_pairs(movie, sequence,
+                    max_pairs=args.validation_max_pairs or None,
+                    segmentation=args.validation_segmentation))
+        fingerprints = check_pair_holdout(pairs, validation_pairs)
+        validation_info = {"enabled": True, "movies": args.validation_movies,
+                           "segmentation": args.validation_segmentation,
+                           "pairs": len(validation_pairs),
+                           "interval_updates": args.validation_every or len(pairs),
+                           "epoch_size": len(pairs), "input_fingerprints": fingerprints,
+                           "temporal_assignment": timeflows_validation.temporal_assignment_policy(),
+                           "model_code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                           "scoring_code_sha256": hashlib.sha256(Path(timeflows_validation.__file__).read_bytes()).hexdigest(),
+                           "holdout_check": "resolved movie paths and exact normalized encoder inputs",
+                           "log_path": args.out + ".validation.jsonl",
+                           "scope": "Linking given supplied full masks, not end-to-end tracking"}
     weights = _training_pair_sampling_weights(pairs)
-    base = models.CellposeModel(pretrained_model=args.base,
-                                gpu=args.device.startswith("cuda"))
-    net = TimeflowsNet(CellposeSamFeatures(base.net))
-    losses = train_timeflows(net, pairs, head_steps=args.head_steps,
-                             full_steps=args.full_steps, weights=weights,
-                             device=args.device, log=print)
-    torch.save(net.state_dict(), args.out)
-    with open(args.out + ".json", "w", encoding="utf-8") as handle:
-        json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
+    with ExitStack() as stack:
+        validation_file = (stack.enter_context(open(validation_info["log_path"], "x", encoding="utf-8"))
+                           if validation_pairs is not None else None)
+
+        def record_validation(report):
+            """Flush each check immediately; completion is recorded only after saving."""
+            validation_file.write(json.dumps({"event": "validation", **report}, allow_nan=False) + "\n")
+            validation_file.flush()
+            validation_info["reports"] = validation_info.get("reports", 0) + 1
+
+        if validation_file is not None:
+            validation_file.write(json.dumps({"event": "configuration", **validation_info}) + "\n")
+            validation_file.flush()
+        base = models.CellposeModel(pretrained_model=args.base,
+                                    gpu=args.device.startswith("cuda"))
+        net = TimeflowsNet(CellposeSamFeatures(base.net))
+        validation_kwargs = ({"validation_pairs": validation_pairs,
+                              "validation_every": args.validation_every,
+                              "on_validation": record_validation}
+                             if validation_pairs is not None else {})
+        losses = train_timeflows(net, pairs, head_steps=args.head_steps,
+                                 full_steps=args.full_steps, weights=weights,
+                                 device=args.device, log=print, **validation_kwargs)
+        torch.save(net.state_dict(), args.out)
+        with open(args.out + ".json", "w", encoding="utf-8") as handle:
+            json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
                    "max_pairs_per_sequence": args.max_pairs,
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
                    "sampling": {"strategy": "inverse_frequency_displacement_bins",
@@ -919,8 +1037,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                    "annotation_assignment": {
                        "policy": "one_object_per_track_one_track_per_object",
                        "missing_successor_full_mask": "censor_source_supervision"},
+                   "validation": validation_info,
                    "final_loss": losses[-1] if losses else None}, handle, indent=2)
-    print(f"saved {args.out} ({len(pairs)} pairs, final loss {losses[-1]:.4f})")
+        if validation_file is not None:
+            validation_file.write(json.dumps({"event": "training_complete", "updates": len(losses)}) + "\n")
+    final_loss = f"{losses[-1]:.4f}" if losses else "n/a"
+    print(f"saved {args.out} ({len(pairs)} pairs, final loss {final_loss})")
     return 0
 
 

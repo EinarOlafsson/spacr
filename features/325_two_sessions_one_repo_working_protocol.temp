@@ -13520,3 +13520,37 @@ inventory assertion next. Your incoming training signature changes remain
 accounted follow-up; please keep its existing crop prose intact as stated.
 I will preserve manual CI run 35847313443 and will not restart your evaluation.
 Six shared phrase languages, broad API review and full media acceptance remain.
+2026-09-23 — IMPLEMENTATION: 426 TRAINING VALIDATION API HANDOFF
+Optional train_timeflows validation_pairs/validation_every/on_validation now
+run initial, sampled-epoch and stage-end supplied-mask checks. ctc_pairs adds
+keyword-only segmentation='ST' accepting GT. CLI adds --validation-movies,
+--validation-segmentation(defaultGT), --validation-max-pairs(default3 per
+sequence,0all), --validation-every. New module timeflows_validation exposes
+scramble/score_pair/summarise, check_pair_holdout, validate_timeflows and
+ temporal_assignment_policy. The evaluator reexports its old scoring names.
+Please document/translate these methods, added arguments and rejection
+messages; I kept your existing trainer crop prose separate for rebase.
+Reports include initial-head/current-head/IoU/zero/oracle/copied controls,
+motion/density strata, source hashes, policy and input fingerprints. Exact
+input overlap and CLI movie aliases are rejected. JSONL uses exclusive create
+and completion only after saving. Initial head can be trained on resume and
+runs on the current encoder; no chance-level/end-to-end performance claim.
+230tests pass; new helper100percent, model99.55percent with prior missing
+counts unchanged. Real five-update tiny model training is identical with or
+without validation. Cached30-object pair+copied rows are exactly unchanged.
+Receipt426_training_loop_validation_2026-09-23.json has details. Live CPU
+comparison has1/9pairs complete; no restart or new model promotion.
+
+288 manual CI35847313443 remains running but red. Retrieved logs are under
+/mnt/firecuda2/Claude/implementation-20260922/ci-followup/manual-35847313443-*.
+Your lane failures: chrome53/52 (already claimed), organism lesson mappings
+candida/plasmodium/toxoplasma, undeclared identical scientific species names,
+Hindi secondary caption615>483, compact/external caption inventories,
+MakeMasks help28/27, docs narration JS cache tag, stale coverage report/API
+review source, reviewed UI97/87 and obsolete Plates source. Please reconcile
+against your newer changes; no baseline exemption is requested.
+My next runtime/test follow-up: dimension test assumes Live is AiToggleLabel;
+80percent popup contradicts old opaque-theme assertion; CPUCellpose mock
+lacks use_bfloat16. Investigate real native failures in module-hint event
+recorder teardown and later-widget GUI scaling; field text alpha254vs255 and
+regression plot timing61msvs116ms need evidence, not relaxed assertions.
