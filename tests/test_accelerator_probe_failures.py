@@ -138,7 +138,7 @@ def test_device_questions_and_cellpose_arguments_agree(monkeypatch, kind, gpu, d
     kwargs = acc.cellpose_kwargs()
     assert kwargs['gpu'] is gpu
     assert kwargs['device'] == acc.torch_device()
-    if gpu and not brain:
+    if not gpu or not brain:
         assert kwargs['use_bfloat16'] is False
     else:
         assert 'use_bfloat16' not in kwargs

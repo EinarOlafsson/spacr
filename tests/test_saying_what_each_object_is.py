@@ -348,7 +348,13 @@ def test_invalid_regression_counts_are_rejected(count):
 def test_backend_mask_formats_give_identical_predictions(form):
     mask = _two_cells()
     class Backend:
-        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
             check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
             masks = {'list': [mask], 'stack': mask[None], 'single': mask}[form]
             return masks, None, None
@@ -361,7 +367,13 @@ def test_backend_mask_formats_give_identical_predictions(form):
 
 def test_backend_cannot_silently_return_multiple_fields():
     class Backend:
-        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
             check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
             return [_two_cells(), _two_cells()], None, None
     with pytest.raises(ValueError, match='one mask'):

@@ -1081,22 +1081,18 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
     being passed on to be silently dropped, which is the difference between a
     comparison that explains itself and one that says "no difference".
 
-    torch and cellpose are imported here and nowhere else in this module.
+    Model and device dependencies are loaded on demand for this call.
 
     :param images: 2-D or 3-D arrays, one per field.
     :param config: the model to run.
     :returns: one integer label image per input image.
     """
-    import torch
     from cellpose import models as cp_models
 
-    from .accelerator import torch_device
-
-    device = torch_device()
+    from .accelerator import cellpose_kwargs
     model = cp_models.CellposeModel(
-        gpu=torch.cuda.is_available(),
-        device=device,
         pretrained_model=config.resolved_model,
+        **cellpose_kwargs(),
     )
     batch = [np.asarray(image, dtype=np.float32) for image in images]
     output = model.eval(x=batch, **config.eval_kwargs())

@@ -1,0 +1,61 @@
+{
+  "success": true,
+  "scope": "Actual installed Cellpose constructor and existing stock checkpoint; no inference or GPU.",
+  "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+  "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "checkpoint_unchanged": true,
+  "device": "cpu",
+  "floating_parameter_dtypes": [
+    "torch.float32"
+  ],
+  "kwargs": {
+    "gpu": false,
+    "device": "cpu",
+    "use_bfloat16": false
+  },
+  "seconds": 6.435086585988756,
+  "peak_rss_kib": 3203156,
+  "threads": 2,
+  "feature": 407,
+  "date": "2026-09-23",
+  "base_commit": "791807ee5",
+  "memory_limit_gib": 8,
+  "swap_limit_bytes": 0,
+  "torch_version": "2.6.0",
+  "cellpose_version": "4.2.1.1",
+  "tests": {
+    "focused": "111 passed in 13.62s",
+    "broader_initial": "112 passed, 2 failed in 74.40s",
+    "resolved_failures": [
+      "Apply fixture now controls the shared accelerator seam.",
+      "Two preexisting variadic object-classification Backend.eval doubles now declare the supported signature."
+    ],
+    "affected_final": "72 passed in 31.78s",
+    "precision_final": "8 passed",
+    "overlap": "Batches overlap; counts must not be summed as distinct cases.",
+    "fatal_ruff": "passed",
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "Actual constructor check, no new model inference benchmark or prediction parity claim.",
+    "GPU argument policies are tested using stand-ins; no GPU model execution.",
+    "Training constructors are unchanged.",
+    "Direct API overrides are honored; default CPU policy is float32."
+  ],
+  "source_sha256": {
+    "spacr/accelerator.py": "35cb71bd8b0172f46f5e5da9cc7c5619a4597561619470b3f2124c8d07f3dcaf",
+    "spacr/utils.py": "4f6be3ff91b5548104f1afd5ce65266b811b53b2d463faf37a944f68b3245a1b",
+    "spacr/pipeline_v2.py": "dd1bc12dc2bc4834709f2d844091ff33779c76d1aa2b17761c169cefcc471c35",
+    "spacr/model_compare.py": "6b6ce77602510dd50ab3a834ded846a0cae97d31ff51a8932bbedba9462f3c7c",
+    "spacr/submodules.py": "c7ef67d2c537cf556b5ff356c362474f73c255274b2e2879da40ad55c6203391",
+    "spacr/ops_engine.py": "668def4f3b873bccada1e7d6af50db2a34ad84bf5a9420409e9f2e04fa8acd62",
+    "tests/test_cellpose_inference_precision.py": "e1ca65cd48cef9729c74ac8485021f942fbf3e78c1e9dd932e7142eacbc88d74",
+    "tests/test_saying_what_each_object_is.py": "36f611ac33bd2973be385b05ed2df239d8d39b86a508b0f6b5c25bf8cf9875fd"
+  },
+  "logs": [
+    "/mnt/firecuda2/Claude/implementation-20260922/cellpose-precision-tests.log",
+    "/mnt/firecuda2/Claude/implementation-20260922/cellpose-precision-regressions.log",
+    "/mnt/firecuda2/Claude/implementation-20260922/cellpose-precision-regressions-final.log",
+    "/mnt/firecuda2/Claude/implementation-20260922/cellpose-precision-target-device-tests.log"
+  ]
+}

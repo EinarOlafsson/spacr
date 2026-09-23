@@ -560,8 +560,8 @@ def cellpose_gpu() -> bool:
     Cellpose does its own device resolution and already knows about MPS --
     ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it
     cannot do is guess, so it must be TOLD there is a GPU. Passing
-    ``torch.cuda.is_available()`` here is what pinned every Mac to the CPU:
-    cellpose branches on this flag before it looks at ``device`` at all.
+    ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit
+    device is supplied. An explicit Cellpose device takes precedence.
     """
     return is_gpu()
 
@@ -572,20 +572,24 @@ def supports_bfloat16() -> bool:
 
 
 def cellpose_kwargs() -> dict:
-    """Everything ``CellposeModel`` needs to land on this machine's GPU.
+    """Consistent device and weight precision for ``CellposeModel`` inference.
 
     THREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced
     together rather than spelled out at six call sites:
 
-    * ``gpu`` -- cellpose branches on this BEFORE it looks at ``device``,
-      so a device without the flag still takes the CPU path.
+    * ``gpu`` -- controls Cellpose's selection when no explicit device is
+      supplied, including callers that deliberately drop ``device`` below.
     * ``device`` -- from the one resolver, so cellpose and spaCR cannot
-      disagree about the same machine.
+      disagree about the same machine; an explicit device takes precedence.
     * ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default
       and Metal on torch 2.2 has no bfloat16, so the default is a
       ``TypeError: BFloat16 is not supported on MPS`` at construction.
       Measured on the reporting iMac; float32 weights work there and cost
       VRAM, which is the right trade for a card that otherwise sits idle.
+      CPU inference also uses float32: bfloat16 support does not imply
+      native arithmetic, and emulation can be substantially slower. This
+      matches Make Masks; float32 arithmetic need not produce identical
+      predictions to bfloat16.
 
     Callers that pass ``device=None`` on purpose -- letting cellpose
     resolve it -- should take ``gpu`` and ``use_bfloat16`` from here and
@@ -595,7 +599,7 @@ def cellpose_kwargs() -> dict:
     if accelerator.kind == "mps":
         _keep_cellpose_flows_off_metal()
     kwargs = {"gpu": accelerator.is_gpu, "device": accelerator.torch_device}
-    if accelerator.is_gpu and not accelerator.bfloat16:
+    if not accelerator.is_gpu or not accelerator.bfloat16:
         kwargs["use_bfloat16"] = False
     return kwargs
 

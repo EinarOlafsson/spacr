@@ -903,3 +903,36 @@ stand-ins: this verifies responsiveness and result ownership, not model
 accuracy or a new inference-speed claim. An existing headless-app test mock
 is now scoped to its call so widget teardown still sees the real Qt app.
 Receipt: data/407_object_detection_worker_2026-09-23.json.
+
+2026-09-23 — CPU PIPELINE INFERENCE USES FLOAT32 TOO
+The remaining pipeline precision question above is resolved using the prior
+real-tile timings and the current5950X arithmetic probe. cellpose_kwargs
+now disables bfloat16 for CPU inference as Make Masks already did. Streaming
+masks, Model Compare and Test/Apply Cellpose use that shared constructor
+policy; forced-CPU OPS requests float32 without consulting the accelerator.
+_choose_model honors the actual explicit target: CPU overrides a resolved
+GPU, and an explicit GPU does not inherit a CPU-only precision override.
+Supported GPU defaults, unsupported-bfloat16 GPU fallback, selected weights
+and training constructors retain their respective policies.
+
+Actual installed Cellpose4.2.1.1 loaded the existing local stock cpsam via
+_choose_model: deviceCPU, every floating parameterfloat32, checkpoint SHA-256
+unchanged,6.44seconds including hashing,3.05GiB peak RSS under8GiB/no-swap
+limits. This is a constructor check, not a new inference-speed or accuracy
+benchmark. Float32 arithmetic may change predictions relative to bfloat16.
+
+111initial focused checks pass. A broader114-case batch passed112 and found
+two test issues: Apply mocked the old GPU-only helper, and two existing
+object-classification backend doubles violated the Cellpose signature
+contract. Corrected the fixture seam and expanded both signatures without
+relaxing the contract;72affected checks now pass. The final8precision checks
+also pass, covering real streaming output with a model stand-in, comparison,
+editor, explicit target overrides, OPS and Test/Apply constructors. Training
+checks in the broader batch passed; no training code was changed. Fatal Ruff
+and diff checks pass. Receipt: data/407_cpu_inference_precision_2026-09-23.json.
+
+API signatures unchanged. Updated cellpose_kwargs/cellpose_gpu prose also
+corrects the device-precedence explanation against the installed constructor:
+an explicit device overrides Cellpose's gpu flag. model_compare's lazy-import
+description was refreshed. Source-bound API updates are with the other lane;
+no new GUI caption, setting, checkpoint or hardware-acceptance claim.

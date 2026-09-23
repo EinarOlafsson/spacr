@@ -485,8 +485,10 @@ def test_cellpose_model(settings):
 
     test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
 
+    from .accelerator import cellpose_kwargs
+
     model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model=settings['model_path']
+        pretrained_model=settings['model_path'], **cellpose_kwargs()
     )
 
     batch_size = settings['batch_size']
@@ -672,8 +674,10 @@ def apply_cellpose_model(settings):
     dummy_labels = [image_files[0]] * len(image_files)
     dataset = CellposeLazyDataset(image_files, dummy_labels, settings, randomize=False, augment=False)
 
+    from .accelerator import cellpose_kwargs
+
     model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model=settings['model_path']
+        pretrained_model=settings['model_path'], **cellpose_kwargs()
     )
     batch_size = settings['batch_size']
     measurements = []

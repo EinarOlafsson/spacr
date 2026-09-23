@@ -6407,7 +6407,13 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
 
     kwargs = cellpose_kwargs()
     if device is not None:
+        resolved_cpu = str(kwargs.get("device")).split(":", 1)[0] == "cpu"
         kwargs["device"] = device
+        if str(device).split(":", 1)[0] == "cpu":
+            kwargs.update(gpu=False, use_bfloat16=False)
+        elif resolved_cpu:
+            kwargs["gpu"] = True
+            kwargs.pop("use_bfloat16", None)
     return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
 
 class SelectChannels:

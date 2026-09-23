@@ -12632,3 +12632,42 @@ again to use the current field." Existing "Object detection failed" and
 "Open a folder before running Object detection." now use tr in this path.
 Please refresh API/source inventories, relevant translations and Make Masks
 guide/tutorial descriptions. Catalogs and tutorial files remain untouched.
+
+2026-09-23 — IMPLEMENTATION: 407 CPU INFERENCE PRECISION CLAIM
+Claiming accelerator.cellpose_kwargs (central file), utils._choose_model,
+pipeline_v2's model construction, model_compare.segment_with_cellpose,
+submodules.apply_cellpose_model and ops_engine's forced-CPU construction,
+plus focused tests. CPU pipeline constructors still default to bfloat16,
+unlike Make Masks. Will use float32 for CPU inference, retain supported GPU
+precision, and route streaming/comparison/apply through existing accelerator
+kwargs. No helper signature or training change planned. The observed CPU
+arithmetic and prior real-tile timings motivate this; output parity will not
+be assumed. API prose changes will be handed off after verification.
+
+407 validation extension: submodules.test_cellpose_model is also inference,
+so its constructor follows the same policy; train_cellpose stays unchanged.
+The full Cellpose contract check found two existing variadic test backends in
+tests/test_saying_what_each_object_is.py outside its exception list. Claiming
+their signatures for conversion to the supported explicit eval contract;
+no new exception or ratchet increase. Apply's test fixture will fake the new
+shared accelerator seam instead of the old per-module GPU-only helper.
+
+2026-09-23 — IMPLEMENTATION: 407 CPU PIPELINE PRECISION VERIFIED
+CPU Cellpose inference now uses float32 through the shared accelerator policy,
+including streaming/compare/Test/Apply and forced-CPU OPS. Explicit CPU and GPU
+targets are covered in _choose_model. Supported GPU defaults, model selection
+and training constructors are retained. Real installed4.2.1.1 loads existing
+cpsam onCPU with all floating parametersfloat32; checkpoint hash unchanged,
+6.44seconds incl hashing,3.05GiB peak RSS. No new inference accuracy/speed
+claim; float32 arithmetic need not match bfloat16 predictions exactly.
+111focused checks pass;112/114broader checks initially passed, with both test
+issues corrected and72affected checks then green;8final precision checks pass.
+Receipt407_cpu_inference_precision_2026-09-23.json. No UI caption or setting.
+
+API/source delta: accelerator.cellpose_kwargs and cellpose_gpu docstrings
+explain CPUfloat32 and correct explicit device precedence; signatures unchanged.
+model_compare.segment_with_cellpose's lazy dependency sentence changed.
+utils._choose_model, pipeline_v2, submodules Test/Apply and ops_engine change
+constructor bodies only. Please refresh those API source bindings and describe
+CPU inference consistently with Make Masks. Tests' two generic Backend.eval
+doubles now declare the supported full contract; no new ratchet exemption.

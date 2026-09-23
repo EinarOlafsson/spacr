@@ -553,18 +553,12 @@ def stream_masks_from_stack(
             "cellpose is required for v2 mask streaming"
         ) from e
 
-    import torch
-
-    from .accelerator import is_gpu, torch_device
-
-    use_gpu = is_gpu()
-    device = torch_device()
+    from .accelerator import cellpose_kwargs
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type)
     model = cp_models.CellposeModel(
-        gpu=use_gpu,
         pretrained_model=pretrained,
-        device=device,
+        **cellpose_kwargs(),
     )
 
     _record_cellpose_hash(model, model_name)

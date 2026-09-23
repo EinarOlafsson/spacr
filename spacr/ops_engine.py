@@ -1036,7 +1036,7 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool):
     """
     from cellpose import models
 
-    kwargs: Dict[str, Any] = {"gpu": False}
+    kwargs: Dict[str, Any] = {"gpu": False, "use_bfloat16": False}
     if gpu:
         from .accelerator import cellpose_kwargs
 
