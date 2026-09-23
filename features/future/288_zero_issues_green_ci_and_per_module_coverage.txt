@@ -4687,3 +4687,13 @@ and fixed hover geometry remain green. No new UI text or API contract change.
 Receipt:288_pipeline_overview_recovery_2026-09-23.json. Dotted-module coverage
 again hits the previously isolated native QtCore startup crash; directory-
 scoped instrumentation passes. No upstream crash fix or full CI claim.
+
+2026-09-23 — IMPLEMENTATION: ORGANELLE BRIDGE FULLY MEASURED
+organelle_modes now measures100percent statements and branches (51/51,4/4),
+with69focused checks passing115.60seconds. New tests run an actual tiny CPU
+PyTorch logit model through both supplied-model and saved-checkpoint paths,
+checking probability/minimum-area filtering, empty fields, skeletonization,
+missing-file errors and unchanged input/checkpoint bytes. Method-specific
+ledger data round-trips through JSON. This is an adapter contract test, not
+trained U-Net accuracy. No runtime or coverage gate changes. Receipt:
+288_organelle_model_bridge_2026-09-23.json. Full CI/ratchet remains open.

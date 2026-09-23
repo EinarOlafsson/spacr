@@ -1,0 +1,43 @@
+{
+  "feature": 288,
+  "related_feature": 473,
+  "date": "2026-09-23",
+  "base_commit": "e5a7e949d",
+  "tests": "69 passed in 115.60s",
+  "execution": "8 GiB, no swap, offscreen CPU, isolated home/config, two BLAS/OpenMP threads",
+  "module": "spacr/qt/organelle_modes.py",
+  "coverage": {
+    "covered_lines": 51,
+    "num_statements": 51,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 4,
+    "num_partial_branches": 0,
+    "covered_branches": 4,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "remaining_lines": [],
+  "remaining_branches": [],
+  "validation": [
+    "Real CPU Conv2d logit model runs through the organelle bridge, both supplied directly and saved/loaded from a temporary checkpoint.",
+    "Probability cutoff, minimum area, empty field, skeleton morphology and missing checkpoint are checked.",
+    "Source pixels and saved checkpoint hash are unchanged.",
+    "Method ledger round-trips through JSON with applicable settings only."
+  ],
+  "limits": [
+    "Deterministic contract model, not a trained U-Net or accuracy benchmark.",
+    "No GPU or model download, runtime change, API/text change, baseline/exemption/threshold change, or full-suite claim."
+  ],
+  "report_sha256": "7d42158287b7de151cde8ecffe2913a2e47451b51550132129f35b52064e7e42",
+  "source_sha256": {
+    "spacr/qt/organelle_modes.py": "505e08462ea89334c2dbf46138d12fa1b0c0169663e4104d1b7e1bfa148d5511",
+    "tests/qt/test_organelle_model_bridge.py": "9ca14cf8753f20a7c928d70dc9c66fddbfe381c3d8eac601da6a8b042c7e675e",
+    "tests/qt/test_make_masks_offers_every_detection_method.py": "e6fa3d6aa755c8c1801ac677f60c8510a166d97429d5d58545b35cf81ec8592e"
+  }
+}

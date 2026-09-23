@@ -12718,3 +12718,18 @@ localized API links pass. Receipt288_pipeline_overview_recovery_2026-09-23.json.
 Only runtime delta is workflow_diagram.workflow_map's validation body; no
 signature, docstring or caption changed. Please preserve current API prose.
 No coverage gate/baseline change, downloads, GPU work or full-suite claim.
+
+2026-09-23 — IMPLEMENTATION: 288 ORGANELLE MODEL BRIDGE COVERAGE CLAIM
+Claiming new tests/qt/test_organelle_model_bridge.py for the uncovered U-Net
+bridge and method-specific ledger payloads. Will exercise real CPU PyTorch
+model save/load and inference with a tiny deterministic logit model, threshold/
+size filtering and input preservation. This checks adapter contracts, not
+pretrained U-Net accuracy; no weights download, GPU work or runtime change.
+
+2026-09-23 — IMPLEMENTATION: 288 ORGANELLE BRIDGE VERIFIED
+69checks pass115.60s; organelle_modes reaches100percent statements/branches.
+Real CPU PyTorch model serialization/inference verifies the adapter's supplied/
+checkpoint routes, threshold/size/skeleton behavior, input preservation and
+JSON ledger. The model is a tiny deterministic logit fixture, not pretrained
+accuracy evidence. Receipt288_organelle_model_bridge_2026-09-23.json. No runtime,
+caption, API, model download, GPU, baseline or exemption changes.
