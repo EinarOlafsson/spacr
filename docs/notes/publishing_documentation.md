@@ -1,60 +1,59 @@
-# Publish documentation before every translation is finished
+# Automatic main and nightly documentation
 
-The package release and documentation deployment are separate workflows.
-A `1.5.1.0` version bump does not publish private tutorial recordings.
+Pushing to either `main` or `nightly` starts the **docs** workflow. It pins both
+branch heads, builds each branch's API, guides and committed tutorial player,
+and publishes them together without mixing their content:
 
-## Publish the current English documentation and API
+- Main: https://einarolafsson.github.io/spacr/
+- Nightly preview: https://einarolafsson.github.io/spacr/nightly/
 
-After the intended documentation changes are committed and pushed, run the
-**docs** workflow with `api_language=english` on the chosen branch:
+A local commit becomes public after it is pushed and the build/deployment
+succeeds. No manual documentation dispatch is needed. Include this workflow
+change when merging nightly into main so pushes to main use the same policy.
+A version bump is not required to update documentation; a version increase
+followed by pushing main also triggers the separate package release workflow.
+Three- and four-component numeric versions, including `1.5.1.0`, are supported.
+The documentation version is read from matching `setup.py` and
+`spacr/_version.py` in each checkout, never an older installed distribution.
 
-```sh
-gh workflow run docs.yml --ref nightly -f api_language=english
-```
+## Translation incompatibilities are report-only
 
-An explicit dispatch on `nightly` publishes that exact run's checkout to the
-public GitHub Pages site. It replaces the previous public documentation, so
-choose `main` instead when the site must describe the released application.
-Ordinary `nightly` pushes only build the site.
+Every build refreshes and checks its English manifests. Missing, stale and
+incompatible localized entries are registered in a JSON artifact and in the
+published `translation-compatibility.json`, with the source commit. A locale
+whose API source contracts do not match is omitted from the built payload;
+the browser falls back to English. The source translation is retained in Git
+for repair. Translation completion is never a publication prerequisite.
 
-English mode regenerates the English API and runtime manifests from the exact
-checkout being deployed and audits them against that source. It then builds
-Sphinx with warnings treated as errors and checks the rendered API
-links. API pages display an English-publication notice and do not offer stale
-translations. Existing browser language preferences are preserved for a future
-translated build. This mode does not alter the application's GUI languages.
-The displayed documentation version comes from that checkout's matching
-`setup.py` and `spacr/_version.py`, even when the build environment has an older
-installed distribution.
+Named acceptance tests of the real translation corpus are advisory. They still
+run and retain full failure diagnostics in `.translation-reports/*.json`,
+uploaded by CI. Pytest displays these as report-only expected failures. English
+parametrizations and tests of extraction, formatting, escaping and fallback
+implementation remain required. The allowlist is explicit in
+`tools/pytest_translation_compatibility.py`; it does not waive unrelated tests.
+Strict `--audit` commands remain available as diagnostics for translation work.
+`tools/report_translation_compatibility.py --full-audit --output report.json`
+runs both auditors as report-only checks. An audit error is recorded as an
+error, never labeled compatible.
 
-The default `all` mode still requires every translation catalog to pass its
-strict audit. Automatic `main` builds use that default. Until that complete
-catalog gate passes, use an explicit English docs run after a package release;
-the package version bump alone is insufficient to update the site.
+Sphinx warnings/errors, broken English links and malformed publication inputs
+still fail a build. A failed build leaves the previously deployed site intact.
 
-## What a package release publishes
+## Tutorials follow their branch's committed catalog
 
-The release workflow accepts three- or four-component numeric versions, so
-`1.5.1.0` is supported. Automatic release runs require an actual version
-increase in `setup.py` pushed to `main`; a bump on `nightly` is not a release.
-The manual release workflow also targets `main` and updates the version files
-together. Merge the intended code, documentation and tutorial catalog before
-releasing that version. Package publication has its own build checks and does
-not depend on completion of all documentation translations.
+Each channel uses `docs/source/_extra/tutorials` from its pinned checkout.
+Pushing a ready lesson's catalog, player and media references publishes it on
+nightly; merging that commit into main publishes it on main. Changed narration
+scripts do not automatically create new recordings. Private authoring output
+becomes available only after its verified candidate and media references are
+committed. Missing voices must not be advertised as available.
 
-## Tutorials can be delivered incrementally
+Narration and 4K recordings keep their pinned external media revisions. The
+publisher stores identical local video/poster bytes once under content hashes;
+each channel retains its own lesson mapping. A changed nightly recording cannot
+replace the main recording. Both sites are checked together against the Pages
+size budget. `channels.json` records their exact source commits.
 
-The docs build publishes the tutorial player and catalog already checked into
-`docs/source/_extra/tutorials`, with narration and masters pinned to their media
-revision. A successful docs build does not promote the private authoring stage.
-
-Ready lessons can be prepared as a separate verified candidate while unfinished
-lessons remain unavailable. Check each included lesson's script, video, audio,
-captions, links and browser playback against the same source snapshot before
-promoting it. Missing voices must not be advertised as available. The candidate
-publisher verifies file hashes and browser evidence, uploads a new media
-revision, reads back the uploaded bytes and pins the website to that commit.
-See `tools/tutorials/publish_release_candidate.py` for those separate steps.
-
-Finishing every translation, every voice and all future tutorial improvements
-is not a prerequisite for publishing an independently verified subset.
+Use `tools/tutorials/publish_release_candidate.py` to verify and promote a ready
+media subset. Finishing every translation and voice is not required before
+publishing independently verified lessons.

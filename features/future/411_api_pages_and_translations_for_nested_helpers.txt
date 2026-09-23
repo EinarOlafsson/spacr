@@ -1928,3 +1928,12 @@ Receipt: data/411_english_publication_2026-09-23.json. The opt-in broader helper
 corpus remains separate; complete translations/full CI are not claimed.
 Publication instructions: docs/notes/publishing_documentation.md. A package
 bump alone does not deploy this English mode or promote private video staging.
+
+2026-09-23 — REQUESTED: AUTOMATIC BRANCH PUBLICATION, NONBLOCKING TRANSLATIONS
+Requested: "incompatible translatipns need to be registered but they should
+not block anything"; pushed nightly changes should become user-facing on
+nightly, and a version increment followed by pushing main should publish main.
+This supersedes the strict complete-translation publication gate and the
+manual dispatch that overwrote the main site with nightly content. Keep source
+and build regressions blocking; record translation compatibility separately.
+API, guides and committed tutorial catalogs/media must share the same branch.

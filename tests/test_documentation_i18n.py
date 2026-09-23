@@ -195,7 +195,7 @@ TOOLS = ROOT / "tools"
 # +12 inference/cursor/help/schema entries. English and Help are refreshed;
 # all locale key/hash checks remain strict while translations are completed.
 # +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_449
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_451
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -2938,24 +2938,31 @@ def test_catalog_seed_requires_current_per_entry_source_hash(monkeypatch):
 def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
     tmp_path, monkeypatch, capsys,
 ):
-    """Deleting one localized tooltip must make the release audit red."""
+    """A synthetic missing row is detected independently of real-corpus debt."""
     import build_i18n_catalogs as builder
 
+    sources = {"setting_labels": {}, "setting_tooltips": {
+        "cell_diameter": "Cell diameter in pixels."}, "categories": {},
+        "ui": {}, "module_summaries": {}, "installer": {"language_name": "Svenska"}}
     catalog_dir = tmp_path / "catalogs"
     catalog_dir.mkdir()
-    for language in ("en", "sv"):
-        source = builder.CATALOG_DIR / f"{language}.py"
-        target = catalog_dir / source.name
-        target.write_bytes(source.read_bytes())
-    swedish = catalog_dir / "sv.py"
-    swedish.write_text(
-        swedish.read_text(encoding="utf-8")
-        + '\nSETTING_TOOLTIPS.pop("cell_diameter")\n',
-        encoding="utf-8",
-    )
     monkeypatch.setattr(builder, "CATALOG_DIR", catalog_dir)
-
-    assert builder.audit(builder.canonical_sources(), ["sv"]) == 1
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
+    installer = tmp_path / "packaging/i18n"
+    installer.mkdir(parents=True)
+    (installer / "sv.json").write_text(json.dumps(sources["installer"]))
+    builder.write_english(sources)
+    values = {"SETTING_LABELS": {}, "SETTING_TOOLTIPS": {
+        "cell_diameter": "Celldiameter i pixlar."}, "CATEGORY_HELP": {},
+        "UI": {}, "MODULE_SUMMARIES": {}, "SOURCE_HASHES": builder._source_hashes(sources),
+        "SECONDARY_MODEL": builder.SECONDARY_MODEL, "SECONDARY_LICENSE": builder.SECONDARY_LICENSE}
+    swedish = catalog_dir / "sv.py"
+    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()))
+    assert builder.audit(sources, ["sv"]) == 0
+    with swedish.open("a") as handle:
+        handle.write('\nSETTING_TOOLTIPS.pop("cell_diameter")\n')
+    assert builder.audit(sources, ["sv"]) == 1
     assert "sv/SETTING_TOOLTIPS: 1 missing" in capsys.readouterr().err
 
 
@@ -2990,49 +2997,37 @@ def test_incremental_api_generation_reuses_only_current_nonblank_entries(
     }
 
 
-def test_documentation_api_catalog_inventory_and_hashes_are_current():
-    """Ratcheted guard against undocumented API-catalog source drift.
+@pytest.fixture(scope="module")
+def current_documentation_api_contracts():
+    """Extract immutable source contracts once for all locale comparisons."""
+    import build_documentation_i18n as builder
+    docs = builder.public_docstrings()
+    contracts = {
+        key: (builder._source_hash(source), builder._source_block_hashes(source),
+              builder._translation_source_block_hashes(source))
+        for key, source in docs.items()
+    }
+    return docs, contracts
 
-    IF THIS IS RED, YOU PROBABLY DO NOT NEED TO FIX IT NOW. Both sessions
-    agreed on 2026-09-08 that the API catalogs may be STALE during ordinary
-    work and are rebuilt ONCE, immediately before the version is cut. The
-    rule and its measurement are in 325; the rebuild is a named checklist
-    line in 331, with the per-locale command, because `--repair-api-blocks`
-    writes whole locales and dies of a CUDA OOM if given all nine in one
-    process.
 
-    WHY THE RULE EXISTS: the repair path's cost is a function of the number
-    of LOCALES, not of changed symbols, so one changed docstring costs the
-    same nine-locale rebuild as ten. Measured -- ten symbols cost one
-    rebuild, then a single symbol cost a second identical one.
+@pytest.mark.parametrize("language", ["en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_documentation_api_catalog_inventory_and_hashes_are_current(language, current_documentation_api_contracts):
+    """English freshness is required; localized drift is registered for repair.
 
-    NOT XFAILED, deliberately, though it was asked for and the reasoning was
-    good: an xfail says "expected to fail", and at the moment that matters
-    -- the release -- this test is expected to PASS. Marking it xfail would
-    make the release-time green look like an unexpected pass and put the
-    ratchet the wrong way round for the one run it exists to guard. The
-    reason lives here instead, where a reader who hits the failure is
-    already looking.
+    The maintainer made translation compatibility report-only on 2026-09-23.
+    English has its own parametrization so source regressions stay visible.
     """
     import build_documentation_i18n as builder
 
-    docs = builder.public_docstrings()
+    docs, source_contracts = current_documentation_api_contracts
     assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
     )
     expected = set(docs)
-    source_contracts = {
-        key: (
-            builder._source_hash(source),
-            builder._source_block_hashes(source),
-            builder._translation_source_block_hashes(source),
-        )
-        for key, source in docs.items()
-    }
     api_dir = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
-    for language in ("en", *builder.MODEL_SPECS):
+    for language in (language,):
         payload = json.loads(
             (api_dir / f"{language}.json").read_text(encoding="utf-8")
         )

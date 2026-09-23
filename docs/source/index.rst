@@ -11,9 +11,9 @@ Welcome to spaCR
 .. note::
 
    You are reading the |docs-channel| documentation for spaCR
-   |spacr-version|. Automatic publication follows ``main``. A deliberately
-   published nightly preview may describe features not yet in a release;
-   ordinary nightly builds do not replace the public site.
+   |spacr-version|. The main site follows ``main``. The nightly preview follows
+   ``nightly`` and may describe features not yet in a release. Each branch
+   publishes its own API, guides and committed tutorial catalog automatically.
 
 A Python toolkit for quantifying and visualising phenotypic changes in
 high-throughput microscopy screens. Ships with a modern PySide6 GUI

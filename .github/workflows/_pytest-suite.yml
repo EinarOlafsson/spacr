@@ -264,3 +264,11 @@ jobs:
           path: ${{ runner.temp }}/spacr-memory-telemetry/
           if-no-files-found: warn
           retention-days: 14
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-${{ inputs.suite_name || 'tests' }}
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore

@@ -10,6 +10,8 @@ from importlib import import_module
 from pathlib import Path
 from string import Formatter
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 API_EXACT_TEXT_ALLOWLIST = {
@@ -1034,7 +1036,8 @@ def test_chinese_and_scientific_runtime_terms_are_contextual():
     assert "écran" in fr.UI[resolution].casefold()
 
 
-def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
+@pytest.mark.parametrize("language", ["en", *LANGUAGES])
+def test_api_doc_catalog_is_symbol_keyed_and_source_hashed(language):
     manifest = json.loads((
         ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
     ).read_text(encoding="utf-8"))
@@ -1051,7 +1054,7 @@ def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
             for value in record["source_blocks_sha256"]
         )
         assert record["text"].strip()
-    for language in LANGUAGES:
+    for language in (() if language == "en" else (language,)):
         translated = json.loads((
             ROOT / "docs" / "source" / "_static" / "i18n" / "api"
             / f"{language}.json"

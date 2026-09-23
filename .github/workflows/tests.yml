@@ -172,6 +172,15 @@ jobs:
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
             --batch-size 32 --workers 2 --per-test-timeout 300
 
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
   integration:
     name: Integration
     uses: ./.github/workflows/_pytest-suite.yml
@@ -372,6 +381,15 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
   coverage-combine:
     # Item 288, maintainer decision 2026-09-19: the goal is 90% per module,
     # not 100% -- "if the module would benefit from more than 90% coverage,
@@ -485,6 +503,15 @@ jobs:
           print("all coverage shards passed their selected tests")
           PY
 
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
   quality:
     name: Lint / types / complexity
     runs-on: ubuntu-24.04
@@ -528,6 +555,15 @@ jobs:
             --max-modules B \
             --max-average A \
             "${targets[@]}"
+
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
 
   minimum-dependencies:
     name: Minimum dependencies (ubuntu-24.04, py3.9)
@@ -633,6 +669,15 @@ jobs:
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
             --batch-size 32 --workers 2 --per-test-timeout 300
 
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
   release-gate:
     name: Release gate / zero unexpected failures
     if: always()
@@ -672,3 +717,11 @@ jobs:
               sys.exit("release gate failed: not every blocking job succeeded")
           print("release gate passed: every blocking job succeeded")
           PY
+      - name: Upload translation incompatibilities (report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-incompatibilities-${{ github.run_attempt }}-${{ github.job }}-${{ strategy.job-index }}-tests
+          path: .translation-reports/
+          include-hidden-files: true
+          if-no-files-found: ignore

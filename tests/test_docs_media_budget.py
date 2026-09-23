@@ -583,28 +583,13 @@ def test_the_budget_module_runs_as_a_script():
     assert "OVER" not in report
 
 
-@requires_library
-def test_the_docs_workflow_only_auto_publishes_from_main():
-    """Nightly pushes cannot republish Pages; an explicit dispatch can.
-
-    The push trigger used to run every step on ``nightly`` too, so each
-    nightly push overwrote the public site with unreviewed docs. A deliberate
-    workflow dispatch is allowed only because the same run first audits the
-    exact catalogs and builds the site. Deleting either half is silent.
-    """
-    workflow = (REPO_ROOT / ".github" / "workflows" / "docs.yml")
-    if not workflow.is_file():
-        pytest.skip("no docs workflow in this checkout")
-    text = workflow.read_text()
-    assert text.count("github.ref == 'refs/heads/main'") >= 3, (
-        "every Pages-touching step (configure, upload, deploy) needs the "
-        "automatic main gate")
-    manual_nightly = (
-        "github.event_name == 'workflow_dispatch' && "
-        "github.ref == 'refs/heads/nightly'"
-    )
-    assert text.count(manual_nightly) >= 3, (
-        "the configure, upload and deploy exception must require both an "
-        "explicit dispatch and the nightly ref"
-    )
-    assert "upload-pages-artifact" in text
+def test_docs_workflow_publishes_both_branches_without_overwriting_main():
+    """Both branch builds are required before a combined Pages artifact ships."""
+    workflow = (REPO_ROOT / ".github/workflows/docs.yml").read_text()
+    assert "branches: [main, nightly]" in workflow
+    assert "branch: [main, nightly]" in workflow
+    assert "--main channels/docs-channel-main" in workflow
+    assert "--nightly channels/docs-channel-nightly" in workflow
+    assert "--english-required" in workflow
+    assert "upload-pages-artifact" in workflow
+    assert "needs: build" in workflow
