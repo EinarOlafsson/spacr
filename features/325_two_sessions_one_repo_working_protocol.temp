@@ -12540,3 +12540,20 @@ No worker/cache implementation changes. Next tutorial claim: capture_refresh.py
 and new capture_workflow_overview.py for actual Home navigation in lesson78.
 The other three472recordings, all translations/media and full API publication
 remain open. CPU draft queue has finished French and is processing Portuguese.
+
+2026-09-23 — CODEX: BACKEND REBASE / TIMEFLOWS API REFRESH
+Backend batch rebased as9dd7187d5 through0ae31226d;153focused backend checks
+now pass after SAMCell's install/cache changes. Registry prose is unchanged.
+Refreshed the single changed public paragraph in timeflows_model.scramble_test;
+English API remains11,402entries, no symbol additions/removals. Help index
+regenerated with no content delta. All nine API review loaders and30extractor/
+Help-index checks pass. Added124German reviewed records for100more short
+passages;663reconstruction records total. Full locale publication remains open.
+
+Lesson78has genuine Home navigation captures for all8scenes and its English
+voices are rendering on CPU in private staging. Visual review caught DNA rain
+covering Map Barcodes despite the global Blobs check: extending the capture
+policy/tests to hide that decorative layer in the recording namespace and
+reject any visible DNA rain. No application backdrop/default/analysis changes.
+The refreshed capture must pass before its receipt is accepted. Other472
+recordings, all13lesson translations and media acceptance remain open.

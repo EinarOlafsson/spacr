@@ -105932,7 +105932,7 @@
     "spacr.timeflows_model.scramble_test": {
       "source_blocks_sha256": [
         "02c8458a20509e293f98786494be145f6a84d28c148061aa309b5ec84efab1ea",
-        "5548f4d37e16fc54396ae31fd672d167666f2f1d387546ddc47be3cb4cf1ad16",
+        "b855660468b7bada5c1885ed718550311404f409f145f77871593af9eca07972",
         "e4571991644568f381f3b98b57de0d51c3c548ff172a413512f6b004178a1603",
         "1d1577effff9249f9522d02a3b9cb52bc61cb91de637efa60650e79661733e82",
         "88bbb6d2b36ff67489e5732a79bb3e0e086768eab9f68219016450781d2c0e83",
@@ -105941,8 +105941,8 @@
         "0a5328d8131671f5d0deeb2f7dd2cfe75253a6be8e67d47c425b3fe04d470ab7",
         "2d01ff6512ac281db46938a60c2ada225130268c17d2b824db5e731c1b7f48ad"
       ],
-      "source_sha256": "c01a1d1552016f1cb719317a4ed3516644d3109aa431dbb0bf91432512464371",
-      "text": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.\n\nWith the next frame's ids scrambled, the only way to\nrecover which object is which is to have learned motion. The share of\nobjects linked to their true successor is the score; the plain IoU\nstitcher on the same pair is the reference the model has to beat.\n\n:param labels_t: frame ``t``, track ids.\n:param labels_t1: frame ``t+1``, the same track ids.\n:param predict: ``fn(frame_t, frame_t1) -> prediction``.\n:param frame_t: frame ``t``.\n:param frame_t1: frame ``t+1``.\n:param seed: the shuffle's seed.\n:returns: ``{'model': share, 'iou': share, 'objects': n}``."
+      "source_sha256": "2d8230108e851f9ba79195e3d8fc0c267426b506ed8edf4cbcf0f48a92269c68",
+      "text": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.\n\nScrambling removes the numeric-ID shortcut, but object positions and\noverlap remain informative. A good score alone does not prove learned\nmotion. The share of objects linked to their true successor is the\nscore; the plain IoU stitcher on the same pair is the reference the\nmodel has to beat.\n\n:param labels_t: frame ``t``, track ids.\n:param labels_t1: frame ``t+1``, the same track ids.\n:param predict: ``fn(frame_t, frame_t1) -> prediction``.\n:param frame_t: frame ``t``.\n:param frame_t1: frame ``t+1``.\n:param seed: the shuffle's seed.\n:returns: ``{'model': share, 'iou': share, 'objects': n}``."
     },
     "spacr.timeflows_model.time_targets": {
       "source_blocks_sha256": [
