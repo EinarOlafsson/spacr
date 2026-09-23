@@ -1,0 +1,18 @@
+494 — RETIRE DEMOS IN FAVOR OF TEST DATA AND WALKTHROUGHS
+=======================================================
+Status: runtime menu/banner/first-run changes IMPLEMENTED2026-09-23;
+remaining tutorial/docs/translation references coordinated with their owner.
+
+User requests removal of Demos from Help and all references to that navigation
+destination. Modules now offer Load test data; Home offers Pipeline overviews
+and the matching walkthroughs. Remove menu actions and the source-empty prompt
+that directed users to Demos. First-run tour describes test data/walkthroughs.
+
+Internal synthetic generators are still used by unit tests and recording
+fixtures. Their presence does not make Demos a user-facing product feature.
+The documentation lane must retire the tutorial scripts' obsolete menu steps
+and published instructions/translations. No completion claim for that work yet.
+
+153focused menu, form-registration, preview and registry tests pass;4existing
+non-settings-screen cases skip. Host–Pathogen Live now has the same toggle
+type as other Live controls and stays at the bottom Actions heading.

@@ -55,6 +55,11 @@ def test_registered_preview_is_lazy_and_uses_current_form(qtbot, qt_theme_applie
     qtbot.waitUntil(lambda: getattr(screen, '_registry_preview', None) is not None, timeout=5000)
     screen.apply_settings_dict(config)
     host = screen._registry_preview
+    from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+
+    assert isinstance(host.toggle, AiToggleLabel)
+    assert host.toggle.text() == 'Live'
+    assert screen._actions_heading_row.indexOf(host.toggle) >= 0
     assert not host.panel_is_built()
     host.toggle.setChecked(True)
     panel = host.panel

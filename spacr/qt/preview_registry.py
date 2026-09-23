@@ -418,18 +418,26 @@ def _attach(screen: QWidget, app_key: str,
         install_refresh_button(screen, card, None,
                                panel_getter=lambda: host.panel)
 
-    toggle = QToolButton()
-    toggle.setObjectName("SettingsPreviewToggle")
-    toggle.setText(spec.title)
-    toggle.setCheckable(True)
-    toggle.setCursor(Qt.PointingHandCursor)
+    if app_key == 'host_pathogen':
+        from .widgets.ai_toggle_label import AiToggleLabel
+
+        toggle = AiToggleLabel(screen, text='Live', tooltip=spec.tooltip)
+    else:
+        toggle = QToolButton()
+        toggle.setObjectName("SettingsPreviewToggle")
+        toggle.setText(spec.title)
+        toggle.setCheckable(True)
+        toggle.setCursor(Qt.PointingHandCursor)
     toggle.setToolTip(spec.tooltip or
                       "Show a preview of what these settings produce.")
     toggle.toggled.connect(host.on_toggled)
     host.toggle = toggle
 
     bar = getattr(screen, "_settings_search", None)
-    if bar is not None and hasattr(bar, "add_trailing_widget"):
+    heading = getattr(screen, '_actions_heading_row', None)
+    if app_key == 'host_pathogen' and heading is not None:
+        heading.addWidget(toggle)
+    elif bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
     else:
         toggle.setParent(screen)

@@ -3154,29 +3154,7 @@ class MainWindow(QMainWindow):
         #: a menu entry that says so.
         self._act_all_apps = act_all
 
-        demo_menu = QMenu("&Demos", mb)
-        self._demo_menu = demo_menu
-        self._demo_actions: dict[str, QAction] = {}
-        for app_key, label in DEMO_LABELS.items():
-            act = QAction(label, self)
-            act.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
-            act.triggered.connect(
-                lambda checked=False, k=app_key: self._on_load_demo(k))
-            demo_menu.addAction(act)
-            target = self.DEMO_TARGETS.get(app_key, (app_key, ""))[0]
-            self._demo_actions[app_key] = act
-            act.setVisible(app_is_visible(target))
-        demo_menu.addSeparator()
-        act_e2e = QAction("End-to-end (Mask → Measure → Annotate) real dataset…", self)
-        act_e2e.setStatusTip(
-            "Download the toxo_mito HF demo dataset + settings pack, "
-            "then chain Mask → Measure → Annotate on it.")
-        act_e2e.triggered.connect(self._on_e2e_demo)
-        demo_menu.addAction(act_e2e)
-
         help_menu = mb.addMenu("&Help")
-        help_menu.addMenu(demo_menu)
-        help_menu.addSeparator()
         from .widgets.workflow_diagram import show_spacr_flowchart
 
         act_flowchart = QAction(tr("spaCR flowchart"), self)

@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-464 in features/new, 20 in features/future. NEITHER LIST BLOCKS A RELEASE.
+465 in features/new, 20 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -570,3 +570,4 @@ NEW FEATURES
   486  NATIVE OS CURSOR AND THIN RESIZE EDGE HINTS
   488  PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE
   492  HOST–PATHOGEN LIVE PREVIEW
+  494  RETIRE DEMOS IN FAVOR OF TEST DATA AND WALKTHROUGHS

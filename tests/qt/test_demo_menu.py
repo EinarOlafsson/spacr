@@ -265,9 +265,8 @@ def test_the_classify_demo_actually_opens_its_crops_in_annotate(
             screen._worker.stop(wait=True)
 
 
-def test_demo_menu_has_expected_entries(qtbot, qt_theme_applied):
-    """Menu wiring — every demo is a QAction under &Demos, including the
-    real-dataset end-to-end option."""
+def test_help_has_no_retired_demo_menu(qtbot, qt_theme_applied):
+    """Test data and walkthroughs replace the old menu destination."""
     win = _new_mainwindow(qtbot, qt_theme_applied)
     # Demos moved under Help on 2026-08-23, so the search descends.
     demos_menu = None
@@ -281,12 +280,5 @@ def test_demo_menu_has_expected_entries(qtbot, qt_theme_applied):
             demos_menu = menu
             break
         pending.extend(menu.actions())
-    assert demos_menu is not None, "no &Demos menu found"
-    actions = [a for a in demos_menu.actions() if not a.isSeparator()]
-    labels = {a.text() for a in actions}
-    for expected in ("Mask demo…", "Measure demo…", "Crop demo…",
-                      "Classify demo…", "Timelapse demo…",
-                      "Sequencing demo…"):
-        assert expected in labels
-    # The real-dataset E2E option should be present
-    assert any("End-to-end" in lbl and "Annotate" in lbl for lbl in labels)
+    assert demos_menu is None
+    assert not any('demo' in action.text().lower() for action in win.actions())

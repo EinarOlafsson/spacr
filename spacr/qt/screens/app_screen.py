@@ -5690,19 +5690,10 @@ class AppScreen(QWidget):
             "Point {module} at some data",
             module=tr(APP_TITLES.get(self.app_key, self.app_key)).lower(),
         )
-        try:
-            from ..app import demo_label_for_app
-            demo = demo_label_for_app(self.app_key)
-        except Exception:
-            demo = None
-        offer = (
-            tr("use Demos → {demo} for a synthetic dataset", demo=tr(demo))
-            if demo else tr("pick a dataset from the Demos menu")
-        )
         subtitle = tr(
-            "Drop a folder of images anywhere on this window, or {offer}. "
-            "You can also type a path into the Source field below.",
-            offer=offer,
+            "Drop a folder of images anywhere on this window or type a path "
+            "into the Source field below. Use Load test data when available, "
+            "or open Pipeline overviews on Home to choose a walkthrough."
         )
         card = EmptyState(
             title=title, subtitle=subtitle,

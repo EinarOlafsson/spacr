@@ -3,7 +3,7 @@ First-launch tour — one-time coach-marks over the home screen.
 
 Fires the first time ``spacr`` boots (state stored in QSettings). A
 translucent full-window overlay dims the app; a numbered card walks
-the user through: sidebar → Demos menu → home tiles → hint bar. The
+the user through: sidebar → test data → home tiles → hint bar. The
 user can dismiss at any point via Skip / Esc; the "seen" flag is
 saved on skip OR after the last step so the tour never fires twice
 unless they hit "Reset" in Preferences.
@@ -138,11 +138,11 @@ DEFAULT_TOUR: List[TourStep] = [
         highlight=lambda w: getattr(w, "_sidebar", None),
     ),
     TourStep(
-        title="Demos menu",
-        body="Load a synthetic demo dataset for a selected core workflow "
-             "in one click — no data of your own required. Use it to try "
-             "spaCR before loading an experiment.",
-        highlight=lambda w: find_menu(w, "Demos"),
+        title="Test data and walkthroughs",
+        body="Use Load test data in a module to load its example dataset "
+             "and settings. Pipeline overviews on Home explains the inputs "
+             "and outputs and opens the matching walkthrough.",
+        highlight=None,
     ),
     TourStep(
         title="Drag & drop",

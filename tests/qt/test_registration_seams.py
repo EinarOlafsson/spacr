@@ -1344,19 +1344,9 @@ def test_the_empty_state_names_this_screens_own_demo():
         assert target in keys, f"the {demo_key} demo opens a missing app"
 
 
-@pytest.mark.parametrize("app_key,expected", [
-    ("measure", "Measure demo…"),
-    # Mask, not Timelapse: the timelapse demo lands on Mask now that the
-    # module is a settings category there, and the first demo targeting
-    # Mask is the one its banner names.
-    ("mask", "Mask demo…"),
-    # No demo lands on Image UMAP, so its banner must not name one --
-    # this is the case that used to read "use Demos → Mask demo…".
-    ("umap", None),
-])
-def test_the_empty_state_banner_offers_the_right_demo(
-        qtbot, qt_theme_applied, app_key, expected):
-    """Through the shipped banner, not the lookup it calls."""
+@pytest.mark.parametrize("app_key", ["measure", "mask", "umap"])
+def test_the_empty_state_banner_points_to_test_data_and_walkthroughs(
+        qtbot, qt_theme_applied, app_key):
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen(app_key)
@@ -1365,10 +1355,5 @@ def test_the_empty_state_banner_offers_the_right_demo(
     if banner is None:
         pytest.skip(f"{app_key} has no src field to leave empty")
     text = " ".join(lbl.text() for lbl in banner.findChildren(QLabel))
-    if expected is None:
-        assert "demo…" not in text, (
-            f"{app_key} has no demo but the banner names one: {text!r}")
-        assert "Demos menu" in text
-    else:
-        assert expected in text, (
-            f"the {app_key} banner offers the wrong demo: {text!r}")
+    assert "demo" not in text.lower()
+    assert "Load test data" in text and "Pipeline overviews" in text
