@@ -53,8 +53,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QRectF, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
@@ -999,6 +999,10 @@ class _ZoomView(QGraphicsView):
     def __init__(self, parent=None):
         """Build the view with its own scene and no peer yet."""
         super().__init__(parent)
+        from .image_ruler import ImageRuler
+
+        self.ruler = ImageRuler(self)
+        self.ruler.changed.connect(self.viewport().update)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
         self._pixmap_item: Optional[QGraphicsPixmapItem] = None
@@ -1117,6 +1121,9 @@ class _ZoomView(QGraphicsView):
 
     def mousePressEvent(self, event):        # noqa: N802 (Qt naming)
         """Remember where a press started, to tell a click from a drag."""
+        if self.ruler.handle(event, self._ruler_point):
+            self._press_pos = None
+            return
         self._press_pos = event.position().toPoint()
         super().mousePressEvent(event)
 
@@ -1129,6 +1136,9 @@ class _ZoomView(QGraphicsView):
         zero movement.
         """
         start = getattr(self, "_press_pos", None)
+        if self.ruler.handle(event, self._ruler_point):
+            self._press_pos = None
+            return
         super().mouseReleaseEvent(event)
         if start is None:
             return
@@ -1145,12 +1155,38 @@ class _ZoomView(QGraphicsView):
 
         :param event: the mouse event.
         """
+        if self.ruler.handle(event, self._ruler_point):
+            return
         if self._pixmap_item is not None:
             scene_pt = self.mapToScene(event.position().toPoint())
             x = int(scene_pt.x())
             y = int(scene_pt.y())
             self.hover_pixel.emit(x, y)
         super().mouseMoveEvent(event)
+
+    def _ruler_point(self, point):
+        """Map a viewport point into image pixels, excluding letterboxing.
+
+        :param point: mouse position in viewport coordinates.
+        :returns: image (x, y), or None outside the current image.
+        """
+        if self._pixmap_item is None or self._pixmap_item.pixmap().isNull():
+            return None
+        scene_point = self.mapToScene(point.toPoint())
+        if not self._pixmap_item.boundingRect().contains(scene_point):
+            return None
+        return scene_point.x(), scene_point.y()
+
+    def paintEvent(self, event):
+        """Draw the pixel ruler above the image using the current view transform.
+
+        :param event: Qt viewport paint event.
+        """
+        super().paintEvent(event)
+        if self.ruler.start is not None:
+            painter = QPainter(self.viewport())
+            self.ruler.paint(painter, lambda x, y: self.mapFromScene(QPointF(x, y)))
+            painter.end()
 
 
 
@@ -1929,6 +1965,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._mask_view.setMinimumHeight(160)
         self._src_view.set_peer(self._mask_view)
         self._mask_view.set_peer(self._src_view)
+        self._mask_view.ruler = self._src_view.ruler
+        self._src_view.ruler.changed.connect(self._mask_view.viewport().update)
+        self._ruler_btn = QPushButton(tr("Ruler"), self)
+        self._ruler_btn.setCheckable(True)
+        self._ruler_btn.setToolTip(tr(
+            "Drag a line on either image to measure its length in image pixels. "
+            "Right-click with Ruler selected to clear it. Turn Ruler off to pan."))
+        self._ruler_btn.toggled.connect(self._src_view.ruler.set_active)
+        act.insertWidget(3, self._ruler_btn)
         self._src_view.hover_pixel.connect(self._on_hover)
         self._mask_view.hover_pixel.connect(self._on_hover)
         canvas.addWidget(self._src_view, 1)
@@ -2133,6 +2178,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             if projected is not None:
                 arr = projected
         self.cancel_preview()
+        self._src_view.ruler.clear()
+        self._src_view.ruler.set_spacing()
         self._image = arr
         self._image_path = Path(path)
         self._masks = {}

@@ -6,7 +6,7 @@ time, and its masthead opens the Cellpose workflows that produced them.
 :class:`MakeMasksScreen` loads images and labelled masks from
 ``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.
 
-THE NINE TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
+THE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
 a reader needs before opening the screen:
 
 **Brush** and **Erase** paint and unpaint the active label a pixel at a time.
@@ -36,6 +36,10 @@ already made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused;
 objects the box cuts through are dropped, because an object whose boundary is
 where the mouse was released is not that object; and the labels that survive
 are renumbered from one.
+
+**Ruler** is the tenth. Drag between image pixels to read a length without
+editing labels. Zoom and pan preserve it; right-click with Ruler selected
+clears it. The same ruler is available on the paired live preview canvases.
 
 Each field has a :class:`spacr.curation.CurationLog`, initialized from any
 existing sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and
@@ -327,6 +331,7 @@ MODE_ZOOM = "zoom"
 #: writes and :func:`spacr.qt.mask_engine.retire_recropped_original` for
 #: what happens to the field it was cut out of.
 MODE_RECROP = "recrop"
+MODE_RULER = "ruler"
 
 #: The tools that fill the toolbar row, in the order they appear there:
 #: ``(mode, label, icon key)``. THE ROW IS BUILT FROM THIS TABLE and not
@@ -345,6 +350,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
     (MODE_RECROP,       "Recrop",       "recrop"),
+    (MODE_RULER,        "Ruler",        "measure"),
 ]
 
 
@@ -496,7 +502,7 @@ SHORTCUT_HINTS = (
     ("M", "Live magnifier"),
     ("Magnifier: wheel", "Box zoom"),
     ("Magnifier: Shift + wheel", "Box size"),
-    ("Ctrl+L+right click", "Lock / unlock magnifier region and zoom"),
+    ("Ctrl+L+right click", "Lock / unlock box"),
     ("Magnifier: drag", "Add the objects it passes over"),
     ("Magnifier, whole image: right", "Remove the object under it"),
 )
@@ -688,6 +694,10 @@ class _MaskCanvas(QLabel):
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
+        from ..widgets.image_ruler import ImageRuler
+
+        self.ruler = ImageRuler(self)
+        self.ruler.changed.connect(self.update)
         #: What the corner readout says about the pixel under the mouse, or
         #: None while the mouse is off the image.
         self.readout: Optional[engine.PixelReadout] = None
@@ -824,6 +834,8 @@ class _MaskCanvas(QLabel):
         """
         self.image = image
         self.mask = mask
+        self.ruler.clear()
+        self.ruler.set_spacing()
         self._gesture_points = []
         self.recrop_boxes = []
         self._inverted = self._inverted_of = None
@@ -1265,6 +1277,10 @@ class _MaskCanvas(QLabel):
         self._paint_magnifier()
         self._paint_drag()
         self._paint_readout()
+        if self.ruler.start is not None:
+            painter = QPainter(self)
+            self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
+            painter.end()
 
     def _paint_drag(self) -> None:
         """Draw the outline, cut or rectangle being dragged, if there is one."""
@@ -1706,6 +1722,9 @@ class _MaskCanvas(QLabel):
         if self.mask is None:
             return super().mousePressEvent(event)
 
+        if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
+            return
+
         magnifier = self.magnifier
         if (magnifier is not None and magnifier.enabled
                 and magnifier._lock_key_down
@@ -1827,6 +1846,8 @@ class _MaskCanvas(QLabel):
         """
         if self.mask is None:
             return
+        if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
+            return
         self.update_readout(event.position(),
                             measure=event.buttons() == Qt.NoButton)
         if self._ctrl_click is not None:
@@ -1895,6 +1916,8 @@ class _MaskCanvas(QLabel):
         reason, before the generic stroke end below can close somebody
         else's stroke with it.
         """
+        if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
+            return
         self._schedule_readout()
         if self._ctrl_click is not None:
             if event.button() == self._ctrl_click:
@@ -7144,7 +7167,9 @@ class MakeMasksScreen(QWidget):
 
         self._mode_buttons: dict[str, QPushButton] = {}
         for mode, label, icon_key in tool_row_entries():
-            btn = QPushButton(label)
+            from ..i18n import tr
+
+            btn = QPushButton(tr(label))
             btn.setIcon(iconset.icon(icon_key))
             btn.setCheckable(True)
             btn.setMinimumHeight(32)
@@ -7160,6 +7185,9 @@ class MakeMasksScreen(QWidget):
         self._btn_zoom = self._mode_buttons[MODE_ZOOM]
         self._btn_recrop = self._mode_buttons[MODE_RECROP]
         self._btn_recrop.setToolTip(RECROP_TOOLTIP)
+        self._mode_buttons[MODE_RULER].setToolTip(tr(
+            "Drag a line to measure its length in image pixels. "
+            "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
 
         row.addWidget(Divider(Qt.Vertical))
         self._btn_reset_zoom = QPushButton("Reset zoom")
@@ -8011,11 +8039,20 @@ class MakeMasksScreen(QWidget):
         return True
 
     def _set_mode(self, mode: str):
-        """Switch the canvas between draw, erase and wand.
+        """Select an editing, navigation or measurement tool.
 
         :param mode: the mode's name.
         """
+        from ..i18n import tr
+
         self._canvas.mode = mode
+        self._canvas.ruler.set_active(mode == MODE_RULER)
+        if mode == MODE_RULER:
+            self._btn_magnifier.setChecked(False)
+        row = getattr(self, '_shortcut_rows', {}).get('Right button')
+        if row is not None:
+            row[1].setText(tr('Clear the ruler line') if mode == MODE_RULER
+                           else tr('Sweep away the objects it passes'))
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 
@@ -8745,8 +8782,16 @@ class MakeMasksScreen(QWidget):
         panel = Card("Shortcuts")
         panel.setObjectName("Card")
         panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        body = panel.body_layout
+        content = QWidget()
+        body = QVBoxLayout(content)
+        body.setContentsMargins(0, 0, 0, 0)
         body.setSpacing(SPACING["xs"])
+        self._shortcut_scroll = QScrollArea(panel)
+        self._shortcut_scroll.setWidgetResizable(True)
+        self._shortcut_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._shortcut_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._shortcut_scroll.setWidget(content)
+        panel.body_layout.addWidget(self._shortcut_scroll, 1)
         #: ``keys -> (key label, what it does label)``, so a test can ask the
         #: built panel what it is telling the user rather than re-reading the
         #: table it was built from.
@@ -8763,6 +8808,8 @@ class MakeMasksScreen(QWidget):
             does_label = QLabel(tr(does), panel)
             does_label.setObjectName("Muted")
             does_label.setWordWrap(True)
+            key_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+            does_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
             body.addWidget(key_label)
             body.addWidget(does_label)
             self._shortcut_rows[keys] = (key_label, does_label)
@@ -10946,6 +10993,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if on and self._canvas.ruler.active:
+            self._set_mode(MODE_NONE)
         if on and self._magnifier.scope == "image":
             self._status_label.setText(tr(
                 "Magnifier on: a click adds the object under it and a "

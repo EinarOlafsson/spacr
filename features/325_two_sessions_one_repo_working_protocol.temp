@@ -11492,3 +11492,24 @@ constant-field explanation and the display/detection instructions. No catalogs
 edited.52 tests pass;4 repeated after themed-layout fix; rendering reviewed.
 Magnifier lock is now pushed9733f50f7 after preserving your API log updates.
 477 ruler remains claimed here in make_masks.py and widgets/live_preview.py.
+
+2026-09-22 — IMPLEMENTATION:477 SHARED RULER / API HANDOFF
+New widgets.image_ruler.ImageRuler(QObject): set_active, clear, set_spacing,
+length, label, handle, paint; changed signal. Coordinates/length are image
+pixels; optional set_spacing(x,y,unit) validates finite positive per-axis
+calibration. UI defaults pixels only; no metadata/calibration inference.
+Make Masks has MODE_RULER/TOOL_MODES entry and canvas.ruler. Ruler and live
+magnifier cannot simultaneously own a drag. Preview _ZoomView adds ruler,
+_ruler_point and paintEvent; LivePreviewPanel shares it between both views
+and adds a Ruler action. Fresh fields reset endpoints/calibration; refresh,
+zoom and pan preserve endpoints. No mask/history or persistent-setting edits.
+New tr strings: Ruler, both tooltips, pixel/physical length formats, invalid
+spacing error, Clear the ruler line. Lock shortcut caption shortened to
+Lock / unlock box after visual review. Right-button help follows Ruler mode.
+Shortcuts now scroll so every row remains readable at laptop height. Source
+module introduction now describes ten tools. No catalogs edited.208 focused
+checks pass;68 affected checks pass after the scrolling fix. Actual1366x768
+MainWindow and1100x700 paired preview reviewed. Levels is pushed9be2d3d72.
+Full CI35807838039 remains in progress at older6006a0608: lint/integration/
+network/NAS/GPU/slow jobs passed; some coverage/Qt shards failed and still
+need follow-up. GPU observer reports nonzero utilization; no analysis started.

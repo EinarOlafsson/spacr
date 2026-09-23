@@ -10,3 +10,16 @@ ACCEPTANCE
 Use image coordinates, so zoom/pan do not change the length. Report pixels, and calibrated physical length when valid pixel spacing is available. Drawing a ruler must not edit masks; endpoints and readout remain visible until cleared.
 
 Validate real UI interaction and affected pixel/mask behavior with focused tests.
+
+2026-09-22 — IMPLEMENTED: Ruler joins Make Masks' tool row and the live
+preview action row. Left-drag measures; right-click in Ruler clears. Image
+endpoints and labels survive zoom, pan and display refreshes; opening a field
+clears the ruler/calibration. Paired preview views share the same ruler.
+ImageRuler is reusable, reports pixels by default, and offers explicit
+validated per-axis physical calibration through set_spacing; no calibration
+is inferred from magnification or loaded metadata. Masks/history are untouched.
+Ruler and magnifier gestures are mutually exclusive. The shortcut panel now
+scrolls at laptop height instead of compressing its text; right-button help
+follows the active tool.208 focused checks pass in40.67s;68 affected checks
+pass after the shortcut layout change in13.23s. Reviewed actual MainWindow
+1366x768 and paired preview1100x700 renders, each showing a100px line.
