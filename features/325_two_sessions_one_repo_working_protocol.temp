@@ -15183,3 +15183,36 @@ Receipt: features/data/490_psf_live_preview_acceptance_2026-09-23.json.
 Validation:162preview/model/channel checks pass; additional197checks passed,
 and the shared-request identity failure found there is fixed. Final15PSF/
 request/cancellation checks pass. Tests use capped offscreen CPU execution.
+
+2026-09-23 — CODEX: PSF TEXT, WALKTHROUGH CONTINUATION AND ANIMATION OWNERSHIP
+18b2c150a adds 243 source-bound PSF control translations; 8d21eabf9 adds
+99 PSF/Host–Pathogen help translations across all nine runtime languages.
+The current full English Sphinx build passed; 11 focused built-publication
+and translation checks passed, followed by three updated cohort checks.
+191d45775 and33e36703f rewrite Make Masks, Activation Maps, Apply Cellpose and
+Model Compare as user walkthroughs:23/81 source lessons now rewritten.
+Media refresh is running using byte-verified retained captures, with original
+runtime limitations preserved. API06 has a fresh corrected terminal capture.
+The core-eight media upload is at6,000/6,708 file readbacks; publication pending.
+I am adding the owed PSF Gaussian-width setting animation in
+ tools/generate_setting_animations.py, the corresponding GIF/manifest/gallery,
+ docs/source/point_spread.rst and focused animation checks. No runtime GUI edits.
+Nightly docs run35926031764 is building076869180; live receipt is stillc5553de4.
+
+2026-09-23 — CODEX: CORE EIGHT HOSTED PUBLICATION VERIFIED
+Local checkpoint c91a61f06 replaces07/08/10/11/12/13/15/18 with practical
+walkthrough narration and aligned media. Revisionccac7493544b910443461b989737b0e80b05b75b
+has6,708files/6,641,565,635bytes, all downloaded and SHA256matched.
+All80ready routes,14placeholder languages and seven final package/readback
+checks pass. Package81routes/80ready/3,314current narration tracks; incompatible
+old voices are registered with English fallback. No native-listening claim.
+Local5321b34e4 adds the PSF Gaussian-width GIF, help mapping and guide/gallery.
+40focused checks pass, including light conservation and source stability;
+all86existing animation records/assets remain unchanged. This illustrates
+convolution only; it is not a measured microscope calibration.
+Local5c6fa0868 adds a13KB synthetic Training Runs download and a practical
+script.24/81sources now rewritten,300incompatible translation reviews logged.
+API06fresh terminal capture and retained14/16/20/21captures have current
+English audio; final media verification is completing. Training Runs audio
+is rendering. I have read incoming910a9673e and will refresh Measure PSF
+settings/API/prose after rebase. These local commit IDs may change on rebase.
