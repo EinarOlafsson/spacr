@@ -8386,6 +8386,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.host_pathogen_preview', "Interactive per-vacuole results beside the measured field's image."),
     ('spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel', 'Preview current Host–Pathogen settings on one field without saving.'),
     ('spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.apply_settings', 'Replace preview settings; stale results are discarded on a change.'),
+    ('spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent', 'Cancel pending work when the panel closes.'),
     ('spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async', 'Refresh the field list and preview from the current form and source.'),
     ('spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running', 'Whether the preview runner still owns work whose result is current.'),
     ('spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview', 'Read a bounded field and calculate the same ratios/counts as Run.'),

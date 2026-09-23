@@ -151,6 +151,14 @@
       "source_sha256": "1a89ca82fa9f235baa753ab3016d9bcffdb794e417bde33d87639c64456cdb3a",
       "text": "Replace absolute paths pointing inside ``$HOME`` with ``~/``.\n\nAlso collapses any string that looks like an on-disk ``*.db`` path\ndown to ``<DB>`` so lab / patient / experiment identifiers embedded\nin a filename don't leak, and redacts credential-shaped substrings\nvia :func:`redact_secrets`.\n\n:param s: arbitrary text.\n:returns: text with home-relative paths abbreviated and DB paths +\n    secrets redacted."
     },
+    "1ba6068086983973e318405f5b4395ca4ae555355fc9513ba150d1052b3b5a32": {
+      "source_blocks_sha256": [
+        "d210e8bf20734262ffde5589b2564fb89c7b6e01b3043fa6884b325efa7d2a66",
+        "356056732bc33e024722155d10e4b17cd5a861a7cfcac4b587916cdf1f871f08"
+      ],
+      "source_sha256": "1ba6068086983973e318405f5b4395ca4ae555355fc9513ba150d1052b3b5a32",
+      "text": "Return ALL (png_path, annotation) rows matching every one of the\nmeasurement/threshold/direction triples.\n\nRows come from a merge of png_list with the measurement tables (via\nspacr.io._read_and_join_tables) — same code path as the Tk app —\nfiltered on png_path substring when `image_type` is given.\nCallers paginate the returned list themselves."
+    },
     "1bf87c6cc181f53bc66a6851e9fe7cd5615fc2692f329a9caae2df326d4d5ff3": {
       "source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",

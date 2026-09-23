@@ -14484,3 +14484,15 @@ Current shared-head run35901751871 is queued. Public commit is still67c6a6d8d.
 browser cleanup succeeds.78's50 tracks pass full audio checks and its newly
 rendered master passes English playback.79 capture/narration and80 render
 are running privately. No new media-upload or listening/native review claim.
+
+2026-09-23 — CODEX: PREVIEW API CONTRACT REPAIRS VERIFIED
+Five focused callable/inventory/rendered-prose checks pass. The new panel
+had six required-parameter omissions and no closeEvent docstring; added
+parameter/return prose only in qt/widgets/host_pathogen_preview.py, including
+its constructor options. No runtime changes. Existing2292-omission baseline
+is restored exactly.12 new callables plus montage.load's two optional inputs
+have full source-inventory subtraction proof against7401ce3c5; no missing
+old rows. Receipt: features/data/411_host_preview_montage_api_2026-09-23.json.
+Current English API is11479 after documenting closeEvent, and includes the
+rebased annotation-filter semantics. Source and translated inventories remain
+distinct; this does not claim the translated API rebuild is complete.

@@ -38782,10 +38782,10 @@
     "spacr.qt.annotate_engine.fetch_filtered_paths": {
       "source_blocks_sha256": [
         "d210e8bf20734262ffde5589b2564fb89c7b6e01b3043fa6884b325efa7d2a66",
-        "356056732bc33e024722155d10e4b17cd5a861a7cfcac4b587916cdf1f871f08"
+        "41009a2a7eaef23d850963cdeb8ad3484d1910ffea97fa4bf7c8f2ab086fccfb"
       ],
-      "source_sha256": "1ba6068086983973e318405f5b4395ca4ae555355fc9513ba150d1052b3b5a32",
-      "text": "Return ALL (png_path, annotation) rows matching every one of the\nmeasurement/threshold/direction triples.\n\nRows come from a merge of png_list with the measurement tables (via\nspacr.io._read_and_join_tables) — same code path as the Tk app —\nfiltered on png_path substring when `image_type` is given.\nCallers paginate the returned list themselves."
+      "source_sha256": "28bdd7152026185dd024152f0301e34cd42769545b0096ae846fe30a632bd2e8",
+      "text": "Return ALL (png_path, annotation) rows matching every one of the\nmeasurement/threshold/direction triples.\n\nRows come from a merge of png_list with the measurement tables (via\nspacr.io._read_and_join_tables) — same code path as the Tk app —\nfiltered with the same bound SQL image-type expression as normal browsing.\nNOT, AND, OR, parentheses and SQLite LIKE semantics apply equally when\nmeasurement thresholds are enabled. Invalid expressions raise ValueError.\nCallers paginate the returned list themselves."
     },
     "spacr.qt.annotate_engine.fetch_page": {
       "source_blocks_sha256": [
@@ -83036,24 +83036,38 @@
     "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel": {
       "source_blocks_sha256": [
         "66b9bece301b6467b210b65c4cf32585fb0bba7107799b469059f93e723006be",
-        "882048685d02daaab0b28a0ef42c75ebd93cc7808390fc1c6380da56af627132"
+        "882048685d02daaab0b28a0ef42c75ebd93cc7808390fc1c6380da56af627132",
+        "19f04780ce1354e52df48b52034ec7a38d2d2bbc0eed40279c947b2130f33d11",
+        "e14a59133e8dbad46c3360d82664c3733d3b2d3cbb46b1e5c45a7d8e30512cd3",
+        "3a4f44f417f90947de590b9b016d66bdd6fc1150af750d78c16277bc5ac46660"
       ],
-      "source_sha256": "371d3760ea4e9d8ecad9b69d7934f76d4d5263df5ec0d02139ef098d85ba6a16",
-      "text": "Preview current Host–Pathogen settings on one field without saving.\n\nImage and table selection share vacuole labels. Unknown marker states are\nretained; displayed infection fractions use this field's measured hosts.\nBuild controls without reading images, databases or the settings form."
+      "source_sha256": "4110401223e2d651b29cdc2dd70e81882554b93b692f3dd1f5fae31cfc3530e8",
+      "text": "Preview current Host–Pathogen settings on one field without saving.\n\nImage and table selection share vacuole labels. Unknown marker states are\nretained; displayed infection fractions use this field's measured hosts.\nBuild controls without reading images, databases or the settings form.\n\n:param parent: optional parent widget.\n:param threaded: run preview work on background threads when true.\n:param settings_reader: optional callable returning current form settings."
     },
     "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.apply_settings": {
       "source_blocks_sha256": [
-        "ed6c0ed53222557b79ae3275d8d6c306df5c3f3e56ce948931544da9a9eba652"
+        "ed6c0ed53222557b79ae3275d8d6c306df5c3f3e56ce948931544da9a9eba652",
+        "8ce9cce29560ed10b336a3c9300d0376bfc17413a2787bb6665b4584d74b1f2c"
       ],
-      "source_sha256": "ed6c0ed53222557b79ae3275d8d6c306df5c3f3e56ce948931544da9a9eba652",
-      "text": "Replace preview settings; stale results are discarded on a change."
+      "source_sha256": "3b230f3051b6158ba4853ecf10a39d6e5f51a1f82f4366f6ce1b70a9c9aa6f1e",
+      "text": "Replace preview settings; stale results are discarded on a change.\n\n:param settings: Host–Pathogen settings to copy into the preview."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "0acaf89f44d7093f9a8ca5aa9bcae33356e80399efe6a0a0c2d996f97366a928",
+        "b0ae3d28cad71842fa61073d2aaa22a2c08d102e738db1736380a27c307b7f5a"
+      ],
+      "source_sha256": "8effc910b0b49fd40635fe03c52ebe5cf39e6d5c65082b01ef00cdd0c2981844",
+      "text": "Cancel pending work when the panel closes.\n\n:param event: Qt close event forwarded to the parent implementation."
     },
     "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async": {
       "source_blocks_sha256": [
-        "c8e2e4367fff023db26cf6addb6778105e57bd1b1bf20e6ddd39199e15eba77e"
+        "c8e2e4367fff023db26cf6addb6778105e57bd1b1bf20e6ddd39199e15eba77e",
+        "981ddd0d8e178fe8f47ed37411b117209ef878bedf3d1eea537ab243307dc5a7",
+        "88401d7d6b3e1bd2f61d06b94746d66635d44883f548ed879cd231196156f6d2"
       ],
-      "source_sha256": "c8e2e4367fff023db26cf6addb6778105e57bd1b1bf20e6ddd39199e15eba77e",
-      "text": "Refresh the field list and preview from the current form and source."
+      "source_sha256": "49ef666326093d3008a4648faeea23fcef305fcd4ca172dfd6f4fd62e5dfb2a5",
+      "text": "Refresh the field list and preview from the current form and source.\n\n:param source: project or database source used for the refreshed preview.\n:returns: whether a preview was started or queued."
     },
     "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running": {
       "source_blocks_sha256": [
@@ -83078,17 +83092,23 @@
     },
     "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card": {
       "source_blocks_sha256": [
-        "7dc7af7f44f2cd9f228a690b927bb830731a417803d835c172b78372a294e1c4"
+        "7dc7af7f44f2cd9f228a690b927bb830731a417803d835c172b78372a294e1c4",
+        "858eafc78aa62ceff38c1517c4f568f9751dbffdd73fded3e189140914ce39ab",
+        "d22ccafdcea9c7eb52704938f8a222a059e379c5bc86cd1c37e18db6475c6eb3",
+        "e7c5bf10ff63bffb2ff16fcbe32f33c6beacff0c3248d0abd716693b5373788b"
       ],
-      "source_sha256": "7dc7af7f44f2cd9f228a690b927bb830731a417803d835c172b78372a294e1c4",
-      "text": "Declare a lazily built preview using the shared Live toggle/card."
+      "source_sha256": "28c4b31a080c009ecfce23e23e6597ce7e9800118cc1a7e35dd1bef31181913e",
+      "text": "Declare a lazily built preview using the shared Live toggle/card.\n\n:param host: application screen providing the current settings model.\n:param panel_later: defer panel creation when true.\n:returns: optional preview panel and its containing card."
     },
     "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card": {
       "source_blocks_sha256": [
-        "f8b138c8c42e0dba22c6694d72d78ae1e4b43df754a8ddfa84bd40e324e763c8"
+        "f8b138c8c42e0dba22c6694d72d78ae1e4b43df754a8ddfa84bd40e324e763c8",
+        "858eafc78aa62ceff38c1517c4f568f9751dbffdd73fded3e189140914ce39ab",
+        "be60e0afa1ea3d4e099746ae1de63c86b25ae669a367790d8cad020e3fe6db70",
+        "ebffb570dbc46545b0647a493c94650a1787cab32bdea41e1c66e0d8e0f4b39a"
       ],
-      "source_sha256": "f8b138c8c42e0dba22c6694d72d78ae1e4b43df754a8ddfa84bd40e324e763c8",
-      "text": "Connect the preview to the form so Run preview uses current settings."
+      "source_sha256": "e4ea3c3dd0129a452f66ace1e23544d4b6eab258044bd4f72c0ab3a6bd7a60db",
+      "text": "Connect the preview to the form so Run preview uses current settings.\n\n:param host: application screen providing the current settings model.\n:param card: card whose body receives the new preview panel.\n:returns: the attached preview panel."
     },
     "spacr.qt.widgets.hover_tooltip": {
       "source_blocks_sha256": [

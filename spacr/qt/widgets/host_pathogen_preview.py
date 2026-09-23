@@ -29,7 +29,12 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
     preview_ready = Signal(dict)
 
     def __init__(self, parent=None, *, threaded=True, settings_reader=None):
-        """Build controls without reading images, databases or the settings form."""
+        """Build controls without reading images, databases or the settings form.
+
+        :param parent: optional parent widget.
+        :param threaded: run preview work on background threads when true.
+        :param settings_reader: optional callable returning current form settings.
+        """
         super().__init__(parent)
         self._reader = settings_reader
         self._settings = {}
@@ -118,7 +123,10 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
             attach_api_tooltip(widget, 'host_pathogen', '', widget.toolTip())
 
     def apply_settings(self, settings):
-        """Replace preview settings; stale results are discarded on a change."""
+        """Replace preview settings; stale results are discarded on a change.
+
+        :param settings: Host–Pathogen settings to copy into the preview.
+        """
         values = deepcopy(settings)
         if values != self._settings:
             self.cancel_preview()
@@ -140,7 +148,11 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
             self.run_preview()
 
     def load_source_async(self, source):
-        """Refresh the field list and preview from the current form and source."""
+        """Refresh the field list and preview from the current form and source.
+
+        :param source: project or database source used for the refreshed preview.
+        :returns: whether a preview was started or queued.
+        """
         settings = deepcopy(self._reader() if self._reader else self._settings)
         settings['src'] = source
         self.apply_settings(settings)
@@ -342,6 +354,10 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self._jobs.shutdown()
 
     def closeEvent(self, event):
+        """Cancel pending work when the panel closes.
+
+        :param event: Qt close event forwarded to the parent implementation.
+        """
         self.shutdown()
         super().closeEvent(event)
 
@@ -358,7 +374,12 @@ def _text(value):
 
 
 def build_host_pathogen_preview_card(host, *, panel_later=False):
-    """Declare a lazily built preview using the shared Live toggle/card."""
+    """Declare a lazily built preview using the shared Live toggle/card.
+
+    :param host: application screen providing the current settings model.
+    :param panel_later: defer panel creation when true.
+    :returns: optional preview panel and its containing card.
+    """
     from .card import Card
 
     card = Card(title=tr('Host–Pathogen live preview'))
@@ -367,7 +388,12 @@ def build_host_pathogen_preview_card(host, *, panel_later=False):
 
 
 def fill_host_pathogen_preview_card(host, card):
-    """Connect the preview to the form so Run preview uses current settings."""
+    """Connect the preview to the form so Run preview uses current settings.
+
+    :param host: application screen providing the current settings model.
+    :param card: card whose body receives the new preview panel.
+    :returns: the attached preview panel.
+    """
     panel = HostPathogenPreviewPanel(card, settings_reader=host._settings_model.collect)
     card.body_layout.addWidget(panel)
     return panel
