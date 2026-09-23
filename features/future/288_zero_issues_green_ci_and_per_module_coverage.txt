@@ -5012,3 +5012,16 @@ correctness tests pass. Runtime/player behavior is unchanged. Receipts:
 data/288_reviewed_ui_inventory_2026-09-23.json and
  data/288_player_cache_and_species_identity_2026-09-23.json.
 Other manual-CI failures remain open; this does not claim full CI success.
+
+2026-09-23 — CODEX: SECONDARY HELP AND PIPELINE TRANSLATION CHECKPOINT
+Three primary/secondary-mask help sources now have27source-bound translations.
+The MakeMasks file passes18checks after two already-translated enhancement
+captions leave the pending list. All nine pipeline titles pass translated
+real-dialog checks; their cohort with the generated Help index passes31.
+The source inventory now includes pathway descriptions and external-input
+explanations that were previously omitted. Five regressions reproduce the
+missing descriptions and unchecked external-input contracts; the corrected
+workflow/generator cohort passes55. These are scoped fixes; the full manual
+CI remains red. Source/translation/retirement and rendered-link evidence is
+recorded in411_pipeline_details_and_workflow_refresh_2026-09-23.json. Incoming
+linked-help changes still need post-rebase verification.

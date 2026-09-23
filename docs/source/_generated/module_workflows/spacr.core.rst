@@ -26,6 +26,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Select the saved compatible checkpoint in Mask.
 * :ref:`Import Images <workflow-module-import_images>`: Use imported image planes and identities; image-only imports still need segmentation.
 * :ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings.
+* :ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.
 
 **After this module**
 
@@ -39,7 +40,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Image UMAP
 ~~~~~~~~~~
 
-Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.
+Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.
 
 **Open:** Home → Image UMAP.
 
@@ -58,6 +59,9 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Outputs**
 
 * **Projection and clusters** — Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.
+* **Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.
+  Relevant tables, depending on the route: ``png_list``.
+  Relevant columns, depending on the route: ``prcfo``.
 
 **Before this module**
 
@@ -67,6 +71,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Gate Editor <workflow-module-gate_editor>`: Supply the matching coordinate/feature columns when defining a selection.
+* :ref:`Classify <workflow-module-classify_merged>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.
 
 :doc:`API reference </api/spacr/core/index>`.
 

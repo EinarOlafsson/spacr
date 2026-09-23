@@ -35,6 +35,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 * :ref:`Measure <workflow-module-measure>`: Choose the image or tabular family to match your input.
 * :ref:`Annotate <workflow-module-annotate>`: Keep labelled training and evaluation groups separate.
+* :ref:`Gate Editor <workflow-module-gate_editor>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.
+* :ref:`Image UMAP <workflow-module-umap>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.
 
 **After this module**
 

@@ -204,6 +204,7 @@ def _awaiting_translation(screen) -> set:
     parameters, and the Image enhancement card. The Method, Local k,
     correction, Classes, adaptive Offset and Grow until help have source-bound
     translations in all nine languages and are no longer excluded here.
+    The Apply and Compare enhancement help also have source-bound translations.
     """
     widgets = [screen._btn_otsu]
     widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()

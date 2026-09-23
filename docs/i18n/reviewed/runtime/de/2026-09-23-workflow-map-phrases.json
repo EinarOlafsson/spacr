@@ -294,13 +294,6 @@
     },
     {
       "table": "ui",
-      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
-      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
-      "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
-      "translation": "Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an."
-    },
-    {
-      "table": "ui",
       "key": "Direct Cellpose TIFF masks",
       "source": "Direct Cellpose TIFF masks",
       "source_sha256": "0a9d2574b41101da424810b89ad53c2956fbc0bb9c9a1e7abfca9618b40d171c",
@@ -487,13 +480,6 @@
       "source": "Images and label masks",
       "source_sha256": "ebb7b02d7ccf14f31eeeb38f3ae7e8867e9bb7c7e058279cc2a4723d21b6f7d6",
       "translation": "Bilder und Labelmasken"
-    },
-    {
-      "table": "ui",
-      "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
-      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
-      "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
-      "translation": "Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Format Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf."
     },
     {
       "table": "ui",
@@ -858,13 +844,6 @@
       "source": "Pooled-screen simulation assumptions",
       "source_sha256": "00d2e615348ea4e3cb8f0ea57248680a3e1c4cd2f2d608921130f914c67300b9",
       "translation": "Annahmen für die Simulation gepoolter Screens"
-    },
-    {
-      "table": "ui",
-      "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
-      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
-      "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
-      "translation": "Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp."
     },
     {
       "table": "ui",
@@ -1481,6 +1460,41 @@
       "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
       "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
       "translation": "src/<YYMMDD>/<name>/simulations.db; die Simulationsreihe hängt Zusammenfassungszeilen an simulations an und schreibt optional Diagramme. Dies sind synthetische Leistungsschätzungen, keine gemessenen experimentellen Treffer."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+        "translation": "Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+        "translation": "Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Format Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+        "translation": "Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
     }
   ]
 }

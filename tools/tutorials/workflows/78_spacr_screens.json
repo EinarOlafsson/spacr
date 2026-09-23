@@ -387,10 +387,21 @@
           "after": []
         },
         {
+          "module": "map_barcodes",
+          "action": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
+          "after": []
+        },
+        {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
           "module": "measure",
           "action": "Open Measure with the Mask project and create measurements and object crops.",
           "after": [
-            "mask"
+            "mask",
+            "foreign"
           ]
         },
         {
@@ -401,16 +412,27 @@
           ]
         },
         {
-          "module": "classify_merged",
-          "action": "Open Classify, choose images or measured features, and inspect held-out predictions.",
+          "module": "gate_editor",
+          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
           "after": [
-            "annotate"
+            "measure"
           ]
         },
         {
-          "module": "map_barcodes",
-          "action": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
-          "after": []
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify, choose images or measured features, and inspect held-out predictions.",
+          "after": [
+            "annotate",
+            "gate_editor",
+            "umap"
+          ]
         },
         {
           "module": "regression",
@@ -419,6 +441,43 @@
             "classify_merged",
             "map_barcodes"
           ]
+        }
+      ],
+      "description": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        },
+        {
+          "id": "fastq",
+          "title": "FASTQ: R1/R2, R1 only or R2 only",
+          "artifacts": [
+            "fastq"
+          ],
+          "targets": [
+            "map_barcodes"
+          ],
+          "description": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation."
         }
       ]
     }

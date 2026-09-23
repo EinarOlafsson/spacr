@@ -170,10 +170,12 @@ def test_both_screen_branches_feed_regression_and_labels_feed_classification():
     data = workflow.load()
     steps = {step["module"]: step for step in data["pathways"]["pooled_screen"]["steps"]}
     assert steps["regression"]["after"] == ["classify_merged", "map_barcodes"]
-    assert steps["classify_merged"]["after"] == ["annotate"]
+    assert steps["classify_merged"]["after"] == ["annotate", "gate_editor", "umap"]
     edges = {(edge["from"], edge["to"]): edge for edge in data["connections"]}
     assert edges["mask", "measure"]["artifacts"] == ["merged"]
     assert edges["annotate", "classify_merged"]["artifacts"] == ["labels"]
+    assert edges["gate_editor", "classify_merged"]["artifacts"] == ["labels"]
+    assert edges["umap", "classify_merged"]["artifacts"] == ["labels"]
     assert edges["map_barcodes", "regression"]["artifacts"] == ["barcode_counts"]
     assert "not a direct CSV" in edges["ops", "regression"]["handoff"]
 
@@ -214,3 +216,38 @@ def test_stale_generated_prose_stops_the_docs_build(tmp_path):
 def test_installed_resource_is_declared_for_wheels_and_source_archives():
     assert "resources/module_workflows.json" in (workflow.ROOT / "setup.py").read_text()
     assert "include spacr/resources/module_workflows.json" in (workflow.ROOT / "MANIFEST.in").read_text()
+
+
+def test_pipeline_input_explanations_reach_walkthroughs_and_translation_sources():
+    from tools import build_i18n_catalogs
+
+    data = workflow.load()
+    generated = workflow.outputs(data)[Path("docs/source/workflows.rst")]
+    sources = build_i18n_catalogs._workflow_ui_sources()
+    for route in data["pathways"].values():
+        assert route["description"] in generated
+        assert route["description"] in sources
+        for source in route["inputs"]:
+            assert source["title"] in generated and source["title"] in sources
+            assert source["description"] in generated and source["description"] in sources
+            for target in source["targets"]:
+                assert f"<workflow-module-{target}>" in generated
+    assert "single_direction" in generated
+    assert "Persistent explanation cards" in generated
+
+
+@pytest.mark.parametrize("fault", ["duplicate", "artifact", "target", "description"])
+def test_external_input_contract_rejects_silent_graph_drift(fault):
+    data = copy.deepcopy(workflow.load())
+    route = data["pathways"]["pooled_screen"]
+    source = route["inputs"][0]
+    if fault == "duplicate":
+        route["inputs"].append(copy.deepcopy(source))
+    elif fault == "artifact":
+        source["artifacts"] = ["missing_artifact"]
+    elif fault == "target":
+        source["targets"] = ["missing_module"]
+    else:
+        source["description"] = ""
+    with pytest.raises(ValueError, match="external input"):
+        workflow.validate(data, live=False)

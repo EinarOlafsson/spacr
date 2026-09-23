@@ -1872,3 +1872,24 @@ Runtime AST is unchanged. Full review loaders pass in all nine locales.
 Receipt data/411_timeflows_validation_2026-09-23.json records the evidence and
 remaining whole-catalog freshness debt. The full-catalog browser gate remains
 enabled; this scoped checkpoint does not claim full API or CI acceptance.
+
+2026-09-23 — CODEX: PIPELINE DETAILS, INPUT ROUTES AND PUBLIC EXPORT
+The workflow generator now renders all pathway descriptions and external
+input explanations. The runtime extractor includes those dynamically displayed
+fields; invalid external-input IDs, artifacts, targets and prose are rejected.
+Eight affected API entries have189source-bound blocks across nine locales.
+English inventory is11,425 (+7/-0); all review loaders pass. The source-derived
+callable inventory adds exactly six contracts; subtracting them reproduces
+the previous inventory and signature digest. A rendered-anchor audit found
+pathway_graph missing from sample_project.__all__; exporting the intended API
+fixes its absent Sphinx entry without changing its function body.
+Strict Sphinx -W,545rendered links,eightAPIanchors,55workflow/generator checks,
+31translated-dialog/Help checks and four final signature checks pass. The
+secondary-help cohort passes after translating three controls and removing two
+already-translated captions from its pending list. Thirty obsolete runtime
+review records retain their complete original contents under retired_records.
+Receipt:data/411_pipeline_details_and_workflow_refresh_2026-09-23.json.
+At this pre-follow-up checkpoint, German API freshness is10537/11425(92.2%);
+other locales10464/11425(91.6%). These are source-current entries, not full
+linguistic acceptance. Incoming cursor/linked-help/recruitment/TTA changes
+3ec6c3f85 through e1586eef2 require a subsequent refresh after rebase.

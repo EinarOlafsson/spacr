@@ -1,7 +1,7 @@
 {
   "language": "zh-CN",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "1ddf059e6f9d6a1097030c4639af64f66b7ac137672b81f60bc96cbbefc5e9a9",
+  "english_sha256": "fe2645bfa12309ece95f30b66d12c0bf42bcce3a9b84cf0f36c188d92c0d401a",
   "title": "图像分析模块及其关系",
   "section": "工作流程",
   "description": "选择一条图像分析路径，涵盖分割、测量、标注、分类、投影、门控、图像配准、质量控制和专项实验分析。",
@@ -17,9 +17,9 @@
     "从 Home 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 整理后的训练视野; 标签掩膜. Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
     "从 Home 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 输入数据: 图像和标签掩膜; 标签掩膜. 输出数据: 已测量对象; 对象裁剪图. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Measure 到 QC：检查可用的检查结果和缺失证据。 Measure 到 Recruitment：需要目标区室的强度测量值和标识。 Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。 Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。",
     "从 Home 打开 Annotate。 监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。 输入数据: 已测量对象; 对象裁剪图; 可复用门控. 输出数据: 训练标注. Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。",
-    "从 Home 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。",
-    "从 Home 打开 Image UMAP。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类. Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。",
-    "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控. Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。",
+    "从 Home 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 Gate Editor 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。 Image UMAP 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
+    "从 Home 打开 Image UMAP。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类; 训练标注. Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Image UMAP 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
+    "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控; 训练标注. Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Gate Editor 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
     "从 Home 打开 Align & Stitch。 检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。 输入数据: 显微镜图像. 输出数据: 对齐后的拼接图像和坐标.",
     "从 Home 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 实验分析结果; 标签掩膜. Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
     "从 Home 打开 Toxoplasma，然后选择 Recruitment。 使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Recruitment：需要目标区室的强度测量值和标识。",
@@ -34,8 +34,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
-    "phrase_bank_sha256": "f576a42c9323385850fcb0278004ea15b4d5844c020b57413a473e524b602b8c",
+    "workflow_map_sha256": "367902338ff37d0af55f8e4cde4ab2aed11e335bc8727fe67a4e34f84beb095b",
+    "phrase_bank_sha256": "28b699c091a3f034fa85aed7005ae30e3ebd4c94a48806f84ae7fac1a6ae6d86",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."

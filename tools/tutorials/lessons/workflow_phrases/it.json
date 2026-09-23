@@ -1,10 +1,11 @@
 {
   "schema": 1,
   "language": "it",
-  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "workflow_map_sha256": "367902338ff37d0af55f8e4cde4ab2aed11e335bc8727fe67a4e34f84beb095b",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "pipeline_followup": "2026-09-23: seven new or expanded phrases checked against pipeline input routes and annotation behavior; no native-speaker sign-off."
   },
   "records": [
     {
@@ -243,11 +244,6 @@
       "translation": "Definire il confronto tra classi e controllare il filtraggio."
     },
     {
-      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
-      "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
-      "translation": "Definire gate a soglia o poligonali sulle effettive colonne delle caratteristiche o delle coordinate, quindi applicare il gate salvato a oggetti compatibili."
-    },
-    {
       "source": "Direct Cellpose TIFF masks",
       "source_sha256": "0a9d2574b41101da424810b89ad53c2956fbc0bb9c9a1e7abfca9618b40d171c",
       "translation": "Maschere TIFF dirette di Cellpose"
@@ -411,11 +407,6 @@
       "source": "Images and label masks",
       "source_sha256": "ebb7b02d7ccf14f31eeeb38f3ae7e8867e9bb7c7e058279cc2a4723d21b6f7d6",
       "translation": "Immagini e maschere di etichette"
-    },
-    {
-      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
-      "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
-      "translation": "Importare misure esterne con corrispondenze esplicite di oggetti e colonne, oppure scegliere Import Images, Format Converter o External Masks. Le misure importate non costituiscono una nuova esecuzione di Measure."
     },
     {
       "source": "Imported tables require explicit column and object-identity mappings.",
@@ -716,11 +707,6 @@
       "source": "Pooled-screen simulation assumptions",
       "source_sha256": "00d2e615348ea4e3cb8f0ea57248680a3e1c4cd2f2d608921130f914c67300b9",
       "translation": "Ipotesi della simulazione di screening pooled"
-    },
-    {
-      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
-      "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
-      "translation": "Proiettare caratteristiche misurate o caratteristiche dell'encoder fornite ed esaminare ritagli rappresentativi. Un cluster è un raggruppamento candidato, non un fenotipo convalidato."
     },
     {
       "source": "Project run records, settings, output paths, artifact provenance, status and logs.",
@@ -1196,6 +1182,67 @@
       "source": "{producer} to {consumer}: {handoff}",
       "source_sha256": "97d0b42875008bb316115955e50cdab70e16c39e2b46388613eb56e5f0654a9f",
       "translation": "Da {producer} a {consumer}: {handoff}"
+    },
+    {
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "Definire gate a soglia o poligonali sulle effettive colonne delle caratteristiche o delle coordinate, quindi applicare il gate salvato a oggetti compatibili. Usa Annotate per scrivere le gate visualizzate in una colonna di annotazione; esamina gli oggetti selezionati e scegli etichette binarie o multiclasse."
+    },
+    {
+      "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
+      "translation": "Per importare solo immagini, usa Import Images o Format Converter e indica a Mask il progetto di immagini formattato. Le sole misure esterne non sono un input per la segmentazione."
+    },
+    {
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source_sha256": "a7dfb6c8e1f2c2cc6d0c3f9bc2104039ef4e48812f0803bd7f0a3cbae0aca976",
+      "translation": "Importare misure esterne con corrispondenze esplicite di oggetti e colonne, oppure scegliere Import Images, Format Converter o External Masks. Le misure importate non costituiscono una nuova esecuzione di Measure. Con le immagini sorgenti corrispondenti e maschere intere esterne, Import costruisce gli array uniti del progetto usati da Measure. Scegli il percorso adatto ai file e controlla le identità degli oggetti prima di misurare; le tabelle di caratteristiche importate possono essere usate direttamente se contengono già le misure richieste."
+    },
+    {
+      "source": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source_sha256": "1add3ee9b720d1a8cb1a2bd958ca943479479de99ad8433854e912dc545adaed",
+      "translation": "Importa le immagini corrispondenti e le maschere intere esterne per costruire gli array uniti del progetto, quindi apri Measure su quel progetto. Salta questo passaggio se sono già state importate o calcolate misure compatibili. Non aggiungere misure duplicate a una tabella importata esistente."
+    },
+    {
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source_sha256": "73f0218ad1985f156a3b2d89f339a8294f2362cc568eb237b1c71c1fe269aaf9",
+      "translation": "Proiettare caratteristiche misurate o caratteristiche dell'encoder fornite ed esaminare ritagli rappresentativi. Un cluster è un raggruppamento candidato, non un fenotipo convalidato. Usa il lazo e i controlli di annotazione per scrivere le selezioni verificate in una colonna di annotazione del database di misure corrispondente. Una selezione geometrica da sola non dimostra un fenotipo biologico."
+    },
+    {
+      "source": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source_sha256": "f85a9cc79c3583d7bbd5c3e52ae8a5247479704c29927f597ef10ab0848438c7",
+      "translation": "Scrivi le selezioni di gate verificate in una colonna di annotazione, quindi seleziona la stessa colonna e popolazione di oggetti in Classify. Mantieni gli oggetti di validazione separati dalle etichette di addestramento."
+    },
+    {
+      "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
+      "translation": "Scrivi le selezioni al lazo verificate in una colonna di annotazione del database di oggetti corrispondente, quindi seleziona quella colonna in Classify. Esamina i ritagli e convalida le etichette; i gruppi nello spazio di rappresentazione non costituiscono la verità di riferimento."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+        "translation": "Definire gate a soglia o poligonali sulle effettive colonne delle caratteristiche o delle coordinate, quindi applicare il gate salvato a oggetti compatibili."
+      },
+      "reason": "2026-09-23: pipeline annotation and external-input guidance expanded in c94a48cd7; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+        "translation": "Importare misure esterne con corrispondenze esplicite di oggetti e colonne, oppure scegliere Import Images, Format Converter o External Masks. Le misure importate non costituiscono una nuova esecuzione di Measure."
+      },
+      "reason": "2026-09-23: pipeline annotation and external-input guidance expanded in c94a48cd7; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+        "translation": "Proiettare caratteristiche misurate o caratteristiche dell'encoder fornite ed esaminare ritagli rappresentativi. Un cluster è un raggruppamento candidato, non un fenotipo convalidato."
+      },
+      "reason": "2026-09-23: pipeline annotation and external-input guidance expanded in c94a48cd7; previous translation retained."
     }
   ]
 }

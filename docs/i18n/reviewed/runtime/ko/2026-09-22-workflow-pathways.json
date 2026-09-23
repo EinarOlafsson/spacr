@@ -121,13 +121,6 @@
       "translation": "“홈 (Home)”으로 돌아가 “마스크 (Mask)”를 열고 학습한 체크포인트를 선택하세요. 전체 실행 전에 별도의 시야에서 검증하세요."
     },
     {
-      "key": "A parasite imaging assay",
-      "source": "A parasite imaging assay",
-      "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
-      "table": "ui",
-      "translation": "기생충 이미징 분석"
-    },
-    {
       "key": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source_sha256": "d2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc",
@@ -351,6 +344,19 @@
         "table": "ui",
         "translation": "이어 붙인 이미지 하나만으로 시퀀싱 주기를 대체할 수는 없습니다. OPS 테이블은 회귀 분석 전에 식별자를 기준으로 명시적으로 결합하고 집계해야 합니다. 이 안내는 해당 변환을 자동으로 수행하지 않습니다."
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "key": "A parasite imaging assay",
+        "source": "A parasite imaging assay",
+        "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+        "table": "ui",
+        "translation": "기생충 이미징 분석"
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
     }
   ]
 }

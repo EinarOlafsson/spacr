@@ -5,16 +5,31 @@ Start on Home with the first module for your experiment. Use that module's examp
 
 These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically.
 
+Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step.
+
 .. _workflow-pooled_screen:
 
 A pooled spaCR screen
 ---------------------
 
+Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.
+
+**Choose an input route:**
+
+* **Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`.
+* **Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`.
+* **FASTQ: R1/R2, R1 only or R2 only**: Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation. Continue with :ref:`Map Barcodes <workflow-module-map_barcodes>`.
+
+**Module steps and alternatives:**
+
 #. :ref:`Mask <workflow-module-mask>`: Start on Home and open Mask. Load the example data, check channels and segmentation, then run.
+#. :ref:`Map Barcodes <workflow-module-map_barcodes>`: Return Home and open Map Barcodes for the matching sequencing reads and references.
+#. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops.
 #. :ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels.
+#. :ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
+#. :ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.
 #. :ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions.
-#. :ref:`Map Barcodes <workflow-module-map_barcodes>`: Return Home and open Map Barcodes for the matching sequencing reads and references.
 #. :ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.
 
 .. _workflow-high_content:
@@ -22,7 +37,17 @@ A pooled spaCR screen
 High-content image analysis
 ---------------------------
 
+Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.
+
+**Choose an input route:**
+
+* **Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`.
+* **Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`.
+
+**Module steps and alternatives:**
+
 #. :ref:`Mask <workflow-module-mask>`: Start on Home with Mask and inspect segmentation on representative fields.
+#. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure on the resulting project and quantify objects.
 #. :ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to explore measured phenotypes and inspect crops.
 #. :ref:`Gate Editor <workflow-module-gate_editor>`: Open Gate Editor to define an explicit population filter.
@@ -35,20 +60,41 @@ Other routes for the appropriate question: :ref:`Classify <workflow-module-class
 Train a segmentation model
 --------------------------
 
+Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.
+
+**Choose an input route:**
+
+* **Microscopy images and optional starting masks**: Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set. Continue with :ref:`Make Masks <workflow-module-make_masks>`.
+* **Independent microscopy images**: Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment. Continue with :ref:`Mask <workflow-module-mask>`.
+
+**Module steps and alternatives:**
+
 #. :ref:`Make Masks <workflow-module-make_masks>`: Start on Home with Make Masks and curate matching images and integer label masks.
 #. :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs.
 #. :ref:`Mask <workflow-module-mask>`: Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run.
 
 .. _workflow-parasite_assay:
 
-A parasite imaging assay
-------------------------
+Toxoplasma and parasite imaging assays
+--------------------------------------
+
+Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.
+
+**Choose an input route:**
+
+* **Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`.
+* **Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`.
+* **Plaque images or existing plaque masks**: Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow. Continue with :ref:`Plaque Assay <workflow-module-analyze_plaques>`.
+
+**Module steps and alternatives:**
 
 #. :ref:`Mask <workflow-module-mask>`: Start on Home with Mask and configure the host, parasite and required compartment masks.
+#. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure and collect the compartment or staining measurements needed by your assay.
 #. :ref:`Recruitment <workflow-module-recruitment>`: For a recruitment question, open Recruitment and inspect compartment intensity ratios.
-
-Other routes for the appropriate question: :ref:`Invasion Assay <workflow-module-invasion>`, :ref:`Replication Assay <workflow-module-replication>`, :ref:`Plaque Assay <workflow-module-analyze_plaques>`.
+#. :ref:`Invasion Assay <workflow-module-invasion>`: Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.
+#. :ref:`Replication Assay <workflow-module-replication>`: Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.
+#. :ref:`Plaque Assay <workflow-module-analyze_plaques>`: For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.
 
 Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.
 
@@ -56,6 +102,15 @@ Invasion and Replication read their required measured compartments; Plaque Assay
 
 An optical pooled screen
 ------------------------
+
+Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.
+
+**Choose an input route:**
+
+* **Sequencing cycles and phenotype images**: Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding. Continue with :ref:`OPS <workflow-module-ops>`.
+* **Compatible phenotype responses**: Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff. Continue with :ref:`Regression <workflow-module-regression>`.
+
+**Module steps and alternatives:**
 
 #. :ref:`OPS <workflow-module-ops>`: Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.
 #. :ref:`Regression <workflow-module-regression>`: Join and aggregate decoded object identities with compatible phenotype responses before opening Regression.
@@ -67,6 +122,16 @@ Align & Stitch is optional when your images need tile-geometry inspection or coo
 Import existing data
 --------------------
 
+Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.
+
+**Choose an input route:**
+
+* **Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Import <workflow-module-foreign>`.
+* **Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`.
+* **External measurements and object mappings**: Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features. Continue with :ref:`Import <workflow-module-foreign>`.
+
+**Module steps and alternatives:**
+
 #. :ref:`Import <workflow-module-foreign>`: Start on Home with Import and select the route matching images, external masks or external measurements.
 #. :ref:`Mask <workflow-module-mask>`: For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.
 #. :ref:`Measure <workflow-module-measure>`: Use Measure when features have not already been imported or computed by External Masks.
@@ -76,6 +141,14 @@ Import existing data
 
 Discover phenotypes without labels
 ----------------------------------
+
+Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.
+
+**Choose an input route:**
+
+* **Segmented image project**: Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring. Continue with :ref:`Measure <workflow-module-measure>`.
+
+**Module steps and alternatives:**
 
 #. :ref:`Measure <workflow-module-measure>`: Start on Home with Measure using an already segmented project, or use its example data.
 #. :ref:`Embeddings <workflow-module-embeddings>`: Open Embeddings to encode object images; retain the object IDs and encoder/channel settings.
@@ -88,6 +161,15 @@ Discover phenotypes without labels
 Plan a screen
 -------------
 
+Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.
+
+**Choose an input route:**
+
+* **Conditions, controls and design assumptions**: Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required. Continue with :ref:`Experiment Design <workflow-module-experiment_design>`.
+* **Effect sizes, variability and optional pilot data**: Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort. Continue with :ref:`Power / Design <workflow-module-power>`.
+
+**Module steps and alternatives:**
+
 #. :ref:`Experiment Design <workflow-module-experiment_design>`: Start on Home with Experiment Design; assign conditions, controls, replicates and wells.
 #. :ref:`Power / Design <workflow-module-power>`: Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions.
 
@@ -96,8 +178,18 @@ Plan a screen
 Track live cells
 ----------------
 
+Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.
+
+**Choose an input route:**
+
+* **Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`.
+* **Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`.
+
+**Module steps and alternatives:**
+
 #. :ref:`Mask <workflow-module-mask>`: Start on Home with Mask and point it at an ordered time-series project.
 #. :ref:`Timelapse <workflow-module-timelapse>`: Open the Timelapse action in Mask, configure timing and inspect linked objects.
+#. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure on the tracked project to quantify the objects.
 #. :ref:`Motility Assay <workflow-module-motility>`: Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters.
 
@@ -131,6 +223,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Select the saved compatible checkpoint in Mask.
 * :ref:`Import Images <workflow-module-import_images>`: Use imported image planes and identities; image-only imports still need segmentation.
 * :ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings.
+* :ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.
 
 **After this module**
 
@@ -172,6 +265,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
 * :ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement.
 * :ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities.
+* :ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.
 
 **After this module**
 
@@ -275,6 +369,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 * :ref:`Measure <workflow-module-measure>`: Choose the image or tabular family to match your input.
 * :ref:`Annotate <workflow-module-annotate>`: Keep labelled training and evaluation groups separate.
+* :ref:`Gate Editor <workflow-module-gate_editor>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.
+* :ref:`Image UMAP <workflow-module-umap>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.
 
 **After this module**
 
@@ -427,7 +523,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Import
 ~~~~~~
 
-Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.
+Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.
 
 **Open:** Home → Import.
 
@@ -447,10 +543,14 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Object crops** — data/\*\*/\*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks.
   Relevant tables, depending on the route: ``png_list``.
   Relevant columns, depending on the route: ``png_path``, ``prcfo``.
+* **Images and label masks** — merged/\*.npy in the project; channels and integer label planes share each field array.
+* **Label masks** — masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.
 
 **After this module**
 
 * :ref:`Annotate <workflow-module-annotate>`: Imported tables require explicit column and object-identity mappings.
+* :ref:`Measure <workflow-module-measure>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.
+* :ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.
 
 :doc:`API reference </api/spacr/foreign/index>`.
 
@@ -1133,7 +1233,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Image UMAP
 ~~~~~~~~~~
 
-Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.
+Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.
 
 **Open:** Home → Image UMAP.
 
@@ -1152,6 +1252,9 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Outputs**
 
 * **Projection and clusters** — Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.
+* **Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.
+  Relevant tables, depending on the route: ``png_list``.
+  Relevant columns, depending on the route: ``prcfo``.
 
 **Before this module**
 
@@ -1161,6 +1264,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Gate Editor <workflow-module-gate_editor>`: Supply the matching coordinate/feature columns when defining a selection.
+* :ref:`Classify <workflow-module-classify_merged>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.
 
 :doc:`API reference </api/spacr/core/index>`.
 
@@ -1254,7 +1358,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Gate Editor
 ~~~~~~~~~~~
 
-Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.
+Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
 
 **Open:** Home → Gate Editor.
 
@@ -1270,6 +1374,9 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Outputs**
 
 * **Reusable gates** — Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions.
+* **Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.
+  Relevant tables, depending on the route: ``png_list``.
+  Relevant columns, depending on the route: ``prcfo``.
 
 **Before this module**
 
@@ -1279,6 +1386,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Annotate <workflow-module-annotate>`: Apply compatible gates, then review candidate labels.
+* :ref:`Classify <workflow-module-classify_merged>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.
 
 :doc:`API reference </api/spacr/qt/screens/gate_editor/index>`.
 

@@ -1,0 +1,1211 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "0de61b24d531c5c5e4d073c0a895b6181998487c",
+  "scope": "Pipeline descriptions and external input routes in generated walkthroughs and translation extraction; eight affected API entries in nine locales; source-bound secondary help and shared workflow phrases.",
+  "source_inventory": {
+    "base_commit": "0de61b24d531c5c5e4d073c0a895b6181998487c",
+    "api_before": 11418,
+    "api_after": 11425,
+    "api_added": [
+      "spacr.qt.widgets.pipeline_details",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText",
+      "spacr.qt.widgets.sample_project.pathway_graph",
+      "spacr.qt.widgets.workflow_diagram.diagram_splitter"
+    ],
+    "api_removed": [],
+    "api_changed": [
+      "spacr.qt.widgets.workflow_diagram.details_box"
+    ],
+    "ui_before": 5017,
+    "ui_after": 5059,
+    "ui_added": [
+      "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment.",
+      "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+      "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+      "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow.",
+      "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+      "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "Compatible phenotype responses",
+      "Conditions, controls and design assumptions",
+      "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "Effect sizes, variability and optional pilot data",
+      "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required.",
+      "Existing masks and matching images",
+      "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "External measurements and object mappings",
+      "FASTQ: R1/R2, R1 only or R2 only",
+      "Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.",
+      "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+      "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+      "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+      "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features.",
+      "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring.",
+      "Independent microscopy images",
+      "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff.",
+      "Microscopy images",
+      "Microscopy images and optional starting masks",
+      "Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.",
+      "Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.",
+      "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set.",
+      "Plaque images or existing plaque masks",
+      "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "Segmented image project",
+      "Sequencing cycles and phenotype images",
+      "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort.",
+      "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+      "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding.",
+      "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment.",
+      "Toxoplasma and parasite imaging assays",
+      "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.",
+      "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+    ],
+    "ui_removed": [
+      "A parasite imaging assay",
+      "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+      "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+      "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype."
+    ],
+    "workflow_phrase_count": 242,
+    "workflow_added": [
+      "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+    ],
+    "workflow_removed": [
+      "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+      "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+      "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype."
+    ],
+    "stale_runtime_reviews": [
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "Ein bildbasierter Parasiten-Assay"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Format Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/de/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/is/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "Myndgreiningarpróf á sníkjudýrum"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/ko/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "기생충 이미징 분석"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "Um ensaio de imagem de parasitas"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "Importe medições externas com mapeamentos explícitos de objetos e colunas, ou escolha Import Images, Format Converter ou External Masks. Medições importadas não são uma nova execução de Measure."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "寄生虫成像实验"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "通过明确的对象和列映射导入外部测量数据，或选择 Import Images、Format Converter 或 External Masks。导入测量数据不等于重新运行 Measure。"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "परजीवी इमेजिंग परीक्षण"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "वास्तविक फ़ीचर या निर्देशांक कॉलम पर सीमा या बहुभुज गेट निर्धारित करें, फिर सहेजे गए गेट को संगत वस्तुओं पर लागू करें।"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "स्पष्ट वस्तु और कॉलम मैपिंग के साथ बाहरी मापन आयात करें, या Import Images, Format Converter अथवा External Masks चुनें। आयातित मापन नया Measure रन नहीं हैं।"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "मापे गए फ़ीचर या दिए गए एन्कोडर फ़ीचर का प्रक्षेपण करें और प्रतिनिधि क्रॉप देखें। क्लस्टर संभावित समूह है, सत्यापित फ़ीनोटाइप नहीं।"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "Un essai d’imagerie de parasites"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "Définissez des régions de sélection par seuil ou polygone sur les colonnes réelles de caractéristiques ou de coordonnées, puis appliquez la sélection enregistrée aux objets compatibles."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "Importez des mesures externes avec des correspondances explicites d’objets et de colonnes, ou choisissez Import Images, Format Converter ou External Masks. Les mesures importées ne sont pas une nouvelle exécution de Measure."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "Projetez les caractéristiques mesurées ou celles d’encodeur fournies et examinez des recadrages représentatifs. Un cluster est un regroupement candidat, pas un phénotype validé."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "Un ensayo de imagen de parásitos"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "Defina compuertas por umbral o polígonos en columnas reales de características o coordenadas; después aplique la compuerta guardada a objetos compatibles."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "Importe mediciones externas con correspondencias explícitas de objetos y columnas, o elija Import Images, Format Converter o External Masks. Las mediciones importadas no constituyen una nueva ejecución de Measure."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/es/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "Proyecte características medidas o características del codificador proporcionadas e inspeccione recortes representativos. Un grupo es una agrupación candidata, no un fenotipo validado."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-09-22-workflow-pathways.json",
+        "record": {
+          "key": "A parasite imaging assay",
+          "source": "A parasite imaging assay",
+          "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+          "table": "ui",
+          "translation": "En bildbaserad parasitanalys"
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+          "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+          "translation": "Definiera tröskel- eller polygonbaserade urvalsgrindar på faktiska egenskaps- eller koordinatkolumner och tillämpa sedan den sparade grinden på kompatibla objekt."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+          "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+          "translation": "Importera externa mätningar med uttryckliga objekt- och kolumnmappningar, eller välj Import Images, Format Converter eller External Masks. Importerade mätningar är inte en ny Measure-körning."
+        }
+      },
+      {
+        "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-workflow-map-phrases.json",
+        "record": {
+          "table": "ui",
+          "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+          "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+          "translation": "Projicera uppmätta egenskaper eller tillhandahållna kodaregenskaper och inspektera representativa utsnitt. Ett kluster är en kandidatgruppering, inte en validerad fenotyp."
+        }
+      }
+    ]
+  },
+  "catalog_verification": {
+    "public_api_count": 11425,
+    "prior_surface_by_subtraction": 11418,
+    "source_inventory": {
+      "base_commit": "0de61b24d531c5c5e4d073c0a895b6181998487c",
+      "api_before": 11418,
+      "api_after": 11425,
+      "api_added": [
+        "spacr.qt.widgets.pipeline_details",
+        "spacr.qt.widgets.pipeline_details.PipelineDetails",
+        "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element",
+        "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline",
+        "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText",
+        "spacr.qt.widgets.sample_project.pathway_graph",
+        "spacr.qt.widgets.workflow_diagram.diagram_splitter"
+      ],
+      "api_removed": [],
+      "api_changed": [
+        "spacr.qt.widgets.workflow_diagram.details_box"
+      ],
+      "ui_before": 5017,
+      "ui_after": 5059,
+      "ui_added": [
+        "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment.",
+        "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+        "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+        "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow.",
+        "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+        "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+        "Compatible phenotype responses",
+        "Conditions, controls and design assumptions",
+        "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+        "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+        "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+        "Effect sizes, variability and optional pilot data",
+        "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required.",
+        "Existing masks and matching images",
+        "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+        "External measurements and object mappings",
+        "FASTQ: R1/R2, R1 only or R2 only",
+        "Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.",
+        "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+        "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+        "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+        "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+        "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features.",
+        "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+        "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+        "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring.",
+        "Independent microscopy images",
+        "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff.",
+        "Microscopy images",
+        "Microscopy images and optional starting masks",
+        "Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.",
+        "Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.",
+        "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set.",
+        "Plaque images or existing plaque masks",
+        "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+        "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+        "Segmented image project",
+        "Sequencing cycles and phenotype images",
+        "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort.",
+        "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+        "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding.",
+        "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment.",
+        "Toxoplasma and parasite imaging assays",
+        "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.",
+        "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+        "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+      ],
+      "ui_removed": [
+        "A parasite imaging assay",
+        "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype."
+      ],
+      "workflow_phrase_count": 242,
+      "workflow_added": [
+        "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+        "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+        "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+        "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+        "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+        "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+        "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+      ],
+      "workflow_removed": [
+        "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype."
+      ],
+      "stale_runtime_reviews": [
+        {
+          "path": "docs/i18n/reviewed/runtime/de/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "Ein bildbasierter Parasiten-Assay"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/de/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/de/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Format Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/de/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/is/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "Myndgreiningarpróf á sníkjudýrum"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/ko/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "기생충 이미징 분석"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/pt/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "Um ensaio de imagem de parasitas"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "Importe medições externas com mapeamentos explícitos de objetos e colunas, ou escolha Import Images, Format Converter ou External Masks. Medições importadas não são uma nova execução de Measure."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "寄生虫成像实验"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "通过明确的对象和列映射导入外部测量数据，或选择 Import Images、Format Converter 或 External Masks。导入测量数据不等于重新运行 Measure。"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/hi/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "परजीवी इमेजिंग परीक्षण"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "वास्तविक फ़ीचर या निर्देशांक कॉलम पर सीमा या बहुभुज गेट निर्धारित करें, फिर सहेजे गए गेट को संगत वस्तुओं पर लागू करें।"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "स्पष्ट वस्तु और कॉलम मैपिंग के साथ बाहरी मापन आयात करें, या Import Images, Format Converter अथवा External Masks चुनें। आयातित मापन नया Measure रन नहीं हैं।"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "मापे गए फ़ीचर या दिए गए एन्कोडर फ़ीचर का प्रक्षेपण करें और प्रतिनिधि क्रॉप देखें। क्लस्टर संभावित समूह है, सत्यापित फ़ीनोटाइप नहीं।"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/fr/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "Un essai d’imagerie de parasites"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "Définissez des régions de sélection par seuil ou polygone sur les colonnes réelles de caractéristiques ou de coordonnées, puis appliquez la sélection enregistrée aux objets compatibles."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "Importez des mesures externes avec des correspondances explicites d’objets et de colonnes, ou choisissez Import Images, Format Converter ou External Masks. Les mesures importées ne sont pas une nouvelle exécution de Measure."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "Projetez les caractéristiques mesurées ou celles d’encodeur fournies et examinez des recadrages représentatifs. Un cluster est un regroupement candidat, pas un phénotype validé."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/es/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "Un ensayo de imagen de parásitos"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/es/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "Defina compuertas por umbral o polígonos en columnas reales de características o coordenadas; después aplique la compuerta guardada a objetos compatibles."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/es/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "Importe mediciones externas con correspondencias explícitas de objetos y columnas, o elija Import Images, Format Converter o External Masks. Las mediciones importadas no constituyen una nueva ejecución de Measure."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/es/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "Proyecte características medidas o características del codificador proporcionadas e inspeccione recortes representativos. Un grupo es una agrupación candidata, no un fenotipo validado."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/sv/2026-09-22-workflow-pathways.json",
+          "record": {
+            "key": "A parasite imaging assay",
+            "source": "A parasite imaging assay",
+            "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+            "table": "ui",
+            "translation": "En bildbaserad parasitanalys"
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+            "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+            "translation": "Definiera tröskel- eller polygonbaserade urvalsgrindar på faktiska egenskaps- eller koordinatkolumner och tillämpa sedan den sparade grinden på kompatibla objekt."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+            "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+            "translation": "Importera externa mätningar med uttryckliga objekt- och kolumnmappningar, eller välj Import Images, Format Converter eller External Masks. Importerade mätningar är inte en ny Measure-körning."
+          }
+        },
+        {
+          "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-workflow-map-phrases.json",
+          "record": {
+            "table": "ui",
+            "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+            "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+            "translation": "Projicera uppmätta egenskaper eller tillhandahållna kodaregenskaper och inspektera representativa utsnitt. Ett kluster är en kandidatgruppering, inte en validerad fenotyp."
+          }
+        }
+      ]
+    },
+    "languages": [
+      {
+        "language": "sv",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4625,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "de",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4625,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "es",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4625,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "zh_CN",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4644,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "pt",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4625,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "hi",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4441,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "ko",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4279,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "is",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4235,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "fr",
+        "symbols": 8,
+        "source_bound_blocks": 21,
+        "secondary_help_live_tr": 3,
+        "ui_current": 4625,
+        "ui_total": 5059,
+        "full_api_and_runtime_review_loaders": true
+      }
+    ],
+    "preserved_retired_api_records": 0,
+    "preserved_retired_runtime_records": 30,
+    "english_manifest_current": true,
+    "full_catalog_acceptance": false,
+    "native_speaker_signoff": false
+  },
+  "callable_delta": {
+    "added": [
+      "spacr.qt.widgets.pipeline_details.PipelineDetails",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText",
+      "spacr.qt.widgets.sample_project.pathway_graph",
+      "spacr.qt.widgets.workflow_diagram.diagram_splitter"
+    ],
+    "before": {
+      "callables": 9447,
+      "categories": {
+        "function": 4198,
+        "dataclass_constructor": 503,
+        "constructor": 436,
+        "method": 4086,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9442,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9454,
+      "variant_counts": {
+        "1": 9440,
+        "2": 7
+      },
+      "parameters": 18753,
+      "required_parameters": 9658,
+      "digest": "1fcbb23de376ec58ea74dce19c9635c307d9a3c330a40948443ac09cff654bc5"
+    },
+    "after": {
+      "callables": 9453,
+      "categories": {
+        "function": 4200,
+        "dataclass_constructor": 503,
+        "constructor": 437,
+        "method": 4089,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9448,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9460,
+      "variant_counts": {
+        "1": 9446,
+        "2": 7
+      },
+      "parameters": 18761,
+      "required_parameters": 9664,
+      "digest": "1502c4b5a0975f0204e080e9acbccbe5d36dbee568ba619bd0add0ccc552383d"
+    },
+    "added_rows": {
+      "spacr.qt.widgets.pipeline_details.PipelineDetails": "spacr.qt.widgets.pipeline_details.PipelineDetails\u0000constructor\u0000autoapi\u0000parent\u0000\u0000parent\u00000\u00001\u00000\u00001",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element": "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element\u0000method\u0000autoapi\u0000identifier\u0000identifier\u0000identifier\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline": "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline\u0000method\u0000autoapi\u0000diagram,entry\u0000diagram,entry\u0000diagram,entry\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText": "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.sample_project.pathway_graph": "spacr.qt.widgets.sample_project.pathway_graph\u0000function\u0000autoapi\u0000data,entry,steps\u0000data,entry,steps\u0000data,entry,steps\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.workflow_diagram.diagram_splitter": "spacr.qt.widgets.workflow_diagram.diagram_splitter\u0000function\u0000autoapi\u0000parent\u0000\u0000parent\u00000\u00001\u00000\u00000"
+    }
+  },
+  "checks": {
+    "sphinx": {
+      "result": "build succeeded.",
+      "sha256": "d509bd5b1e765f4b80bee365f4589a4a327a04f18f0875f218a7c010f7a52d7f"
+    },
+    "workflow_contracts": {
+      "result": "55 passed",
+      "sha256": "05b231ea64609c04e359b1d48e437cd8136920d228b608754756e25e69a5b9c7"
+    },
+    "signature_and_secondary_before_last_pin": {
+      "result": "1 failed, 22 passed",
+      "sha256": "6ba3ea91a7d7b5cb04affd1e4992ee5df7058ee93cb86da73e2f1c06becaecd6"
+    },
+    "corrected_callable_inventory": {
+      "result": "1 passed",
+      "sha256": "39bf9ccb22cadcc5023391db8b354ef01e0816e5a98ce9adcd51657357eae2b4"
+    },
+    "export_signature_contracts": {
+      "result": "4 passed",
+      "sha256": "c1f0d1de534c7a13e3cfbf3c1ad4dffb2a745c3f2175c12eb4e8c1d0d9714bfb"
+    },
+    "translated_dialogs_and_help": {
+      "result": "31 passed in 38.41s",
+      "sha256": "430479e49269cd0d9757969d53b69f43c566d15ff3c29cc1ab4e51356a1c9998"
+    }
+  },
+  "rendered_links": 545,
+  "rendered_api_anchors": [
+    {
+      "symbol": "spacr.qt.widgets.pipeline_details",
+      "page": "api/spacr/qt/widgets/pipeline_details/index.html",
+      "anchor": "module-spacr.qt.widgets.pipeline_details"
+    },
+    {
+      "symbol": "spacr.qt.widgets.pipeline_details.PipelineDetails",
+      "page": "api/spacr/qt/widgets/pipeline_details/index.html",
+      "anchor": "spacr.qt.widgets.pipeline_details.PipelineDetails"
+    },
+    {
+      "symbol": "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element",
+      "page": "api/spacr/qt/widgets/pipeline_details/index.html",
+      "anchor": "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element"
+    },
+    {
+      "symbol": "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline",
+      "page": "api/spacr/qt/widgets/pipeline_details/index.html",
+      "anchor": "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline"
+    },
+    {
+      "symbol": "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText",
+      "page": "api/spacr/qt/widgets/pipeline_details/index.html",
+      "anchor": "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText"
+    },
+    {
+      "symbol": "spacr.qt.widgets.sample_project.pathway_graph",
+      "page": "api/spacr/qt/widgets/sample_project/index.html",
+      "anchor": "spacr.qt.widgets.sample_project.pathway_graph"
+    },
+    {
+      "symbol": "spacr.qt.widgets.workflow_diagram.diagram_splitter",
+      "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+      "anchor": "spacr.qt.widgets.workflow_diagram.diagram_splitter"
+    },
+    {
+      "symbol": "spacr.qt.widgets.workflow_diagram.details_box",
+      "page": "api/spacr/qt/widgets/workflow_diagram/index.html",
+      "anchor": "spacr.qt.widgets.workflow_diagram.details_box"
+    }
+  ],
+  "workflow_phrase_banks": [
+    {
+      "language": "de",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "f2e0241f2cddfa92807cd63a36458ab01550dc6344afb1e296047c9748c4190a"
+    },
+    {
+      "language": "fr",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "adaff272b6747e9c06cda78826ca7ea523be122b1d81951161c33f18f2647afb"
+    },
+    {
+      "language": "es",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "0c41c7a65bc137a42397c1125cb6f100e0194dc099aaebb80bee5e807823fe07"
+    },
+    {
+      "language": "pt-BR",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "b7e52055cfa544e601a318c8d119b309be03d56688ded37d51f77ec0b96b7c7a"
+    },
+    {
+      "language": "sv",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "333cf7c18807507eb7410e8600334a5465fab0c0657a74d93c284c8ce2aa2bca"
+    },
+    {
+      "language": "zh-CN",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "555171bf4cbe64212925806ef8a80ae8d1f5a1073a983528f932cb9114c76aa4"
+    },
+    {
+      "language": "hi",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "17da83196252824c10fd9709765de72e9748a0d2bc4a8d644e75606abf85cb19"
+    },
+    {
+      "language": "it",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "2859ddf9466fbcf2689e105a735d13a13631a8cf5a3fbf6c7a732056fa6b8c51"
+    },
+    {
+      "language": "ja",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "81d4dfa83a75a5dd1e2a0f26a439c96bfc97f7bed2f265f67726fedc8a216992"
+    },
+    {
+      "language": "nb",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "73e5ea97e6e673cc74b60da14429bc2750caddd532c8060f4bc2425bce79cf9a"
+    },
+    {
+      "language": "da",
+      "phrases": 242,
+      "generated_scenes": 97,
+      "bank_sha256": "9243afc29ac55c6aafc37a859a5fc22aa03ff191f5aa969dbbf501364e7ecf56"
+    }
+  ],
+  "gui_workflow_records": 58,
+  "secondary_help_records": 27,
+  "ui_freshness": {
+    "de": {
+      "current": 4633,
+      "total": 5059,
+      "percent": 91.6
+    },
+    "fr": {
+      "current": 4633,
+      "total": 5059,
+      "percent": 91.6
+    },
+    "es": {
+      "current": 4633,
+      "total": 5059,
+      "percent": 91.6
+    },
+    "pt": {
+      "current": 4633,
+      "total": 5059,
+      "percent": 91.6
+    },
+    "sv": {
+      "current": 4633,
+      "total": 5059,
+      "percent": 91.6
+    },
+    "zh_CN": {
+      "current": 4652,
+      "total": 5059,
+      "percent": 92.0
+    },
+    "hi": {
+      "current": 4449,
+      "total": 5059,
+      "percent": 87.9
+    },
+    "is": {
+      "current": 4236,
+      "total": 5059,
+      "percent": 83.7
+    },
+    "ko": {
+      "current": 4280,
+      "total": 5059,
+      "percent": 84.6
+    }
+  },
+  "full_catalog_acceptance": false,
+  "full_ci_passed": false,
+  "native_speaker_signoff": false,
+  "media_refreshed": false,
+  "published": false,
+  "remaining": [
+    "Korean and Icelandic shared workflow banks",
+    "Other new pipeline descriptions and external-input captions in all nine GUI locales",
+    "Restage and render changed narration and masters against this map; previous media stage remains frozen",
+    "Whole-catalog API freshness and broader nested-helper rollout",
+    "Listening acceptance and complete-set publication"
+  ],
+  "api_freshness": {
+    "de": {
+      "current": 10537,
+      "total": 11425,
+      "missing": 758,
+      "stale": 130,
+      "percent": 92.2
+    },
+    "fr": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "es": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "pt": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "sv": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "zh_CN": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "hi": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "is": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    },
+    "ko": {
+      "current": 10464,
+      "total": 11425,
+      "missing": 813,
+      "stale": 148,
+      "percent": 91.6
+    }
+  }
+}

@@ -3686,6 +3686,10 @@ def _workflow_ui_sources() -> set[str]:
     for route in workflow["pathways"].values():
         found.add(route["title"])
         found.update(step["action"] for step in route["steps"])
+        if route.get("description"):
+            found.add(route["description"])
+        for source in route.get("inputs", []):
+            found.update((source["title"], source["description"]))
         if route.get("note"):
             found.add(route["note"])
     for module in workflow["modules"].values():

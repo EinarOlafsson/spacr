@@ -121,13 +121,6 @@
       "translation": "Gå tillbaka till «Hem (Home)», öppna «Masker (Mask)» och välj den tränade modellens kontrollpunkt; verifiera på separata synfält före en fullständig körning."
     },
     {
-      "key": "A parasite imaging assay",
-      "source": "A parasite imaging assay",
-      "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
-      "table": "ui",
-      "translation": "En bildbaserad parasitanalys"
-    },
-    {
       "key": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source_sha256": "d2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc",
@@ -351,6 +344,19 @@
         "table": "ui",
         "translation": "En sammanfogad bild kan inte ensam ersätta sekvenseringscyklerna. OPS-tabeller kräver en uttrycklig koppling och aggregering via identiteter före regression; genomgången utför inte denna omvandling automatiskt."
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "key": "A parasite imaging assay",
+        "source": "A parasite imaging assay",
+        "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+        "table": "ui",
+        "translation": "En bildbaserad parasitanalys"
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
     }
   ]
 }

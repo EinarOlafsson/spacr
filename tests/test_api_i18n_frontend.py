@@ -114,7 +114,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # +7 source-bound Timeflows nested helpers; subtraction and nine-language
 # review evidence: features/data/411_timeflows_guidance_2026-09-23.json.
 # +9 held-out validation entries, with exact source-bound locale records.
-REAL_SYMBOL_COUNT = 11_418
+REAL_SYMBOL_COUNT = 11_425
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

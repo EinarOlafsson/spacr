@@ -6553,6 +6553,10 @@ UI = {
     'Text detection': '텍스트 검출',
     'Probability cut-off': '확률 임계값',
     '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.': '{model}은(는) Cellpose 3 체크포인트이므로 Cellpose 4에서 불러올 수 없습니다. 이 미리보기에는 Cellpose 4와 호환되는 체크포인트를 선택하세요.',
+    'Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.': '주 마스크가 나타내는 객체 유형입니다. 클래스를 선택하거나 사용자 지정 이름을 입력하세요. 저장된 관계에 이름을 붙이며 원본 마스크를 다시 분할하지 않습니다.',
+    'Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.': '성장한 마스크에 지정할 객체 유형입니다. 클래스를 선택하거나 주 클래스와 다른 사용자 지정 이름을 입력하세요. 성장은 다른 설정에서 제어합니다.',
+    'Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.': '성장 후 최소 면적 필터링 전에 각 보조 객체 내부의 닫힌 배경 구멍을 채웁니다. 다른 객체에 속한 픽셀은 보존합니다.',
+    'Toxoplasma and parasite imaging assays': 'Toxoplasma 및 기생충 영상 분석',
 }
 
 MODULE_SUMMARIES = {
@@ -13230,4 +13234,8 @@ SOURCE_HASHES = {
     ('UI', 'Text detection'): 'cb9ef963c1d8542263cb338d22acde267dc38df40735949c602c2dee855cf1e3',
     ('UI', 'Probability cut-off'): 'fe0117282ac09c31808db26b853d0ab47a7e3c1fda9580685bd2c97cee78919d',
     ('UI', '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.'): '6641509e13ed273dff5260063c789c03e95cefd48358db39b42fd8328dff53dd',
+    ('UI', 'Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.'): '40ba693734df71522b1fc18dc318a3b98faa89d63aaea9bf9fbab7e2edd4b7b7',
+    ('UI', 'Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.'): 'a2c71ac7bf98d32fdc70718fb69a157856378ca6e3ffda3537229d48ceb80f2e',
+    ('UI', 'Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.'): '8ab2d752a5f4fdb31d41b5e49e416d74af767ba8427390e0fc4f1da869a208f8',
+    ('UI', 'Toxoplasma and parasite imaging assays'): 'be0aa19bd2abd30b969eaa6418cb304235d465f0abc206fea610a9279fc59d33',
 }

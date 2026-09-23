@@ -121,13 +121,6 @@
       "translation": "返回“主页 (Home)”，打开“掩膜 (Mask)”，选择训练好的模型检查点；先在独立视野上验证，再运行完整项目。"
     },
     {
-      "key": "A parasite imaging assay",
-      "source": "A parasite imaging assay",
-      "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
-      "table": "ui",
-      "translation": "寄生虫成像实验"
-    },
-    {
       "key": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
       "source_sha256": "d2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc",
@@ -351,6 +344,19 @@
         "table": "ui",
         "translation": "仅凭拼接图像无法替代测序轮次图像。OPS 表格在回归分析前需要按身份明确关联并聚合；本引导不会自动执行该转换。"
       }
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "key": "A parasite imaging assay",
+        "source": "A parasite imaging assay",
+        "source_sha256": "be1e2bac6c8577c7efd1ac765b055beff11c4a3fdab7fa950795c1d053a2c0fd",
+        "table": "ui",
+        "translation": "寄生虫成像实验"
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
     }
   ]
 }

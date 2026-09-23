@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted source-context review of pipeline annotation handoffs, external image and mask import routes, and parasite assay pathway titles. Seven shared phrases match the generated workflow tutorial banks. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis. Use Annotate para gravar as gates exibidas em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
+    },
+    {
+      "table": "ui",
+      "key": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source": "For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input.",
+      "source_sha256": "b78763615b15475f7bd02edaab46851014fe03a329dd244c900660fd59835e97",
+      "translation": "Para importações apenas de imagens, use Import Images ou Format Converter e indique ao Mask o projeto de imagens formatado. Medições externas isoladas não são uma entrada de segmentação."
+    },
+    {
+      "table": "ui",
+      "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "source_sha256": "a7dfb6c8e1f2c2cc6d0c3f9bc2104039ef4e48812f0803bd7f0a3cbae0aca976",
+      "translation": "Importe medições externas com mapeamentos explícitos de objetos e colunas, ou escolha Import Images, Format Converter ou External Masks. Medições importadas não são uma nova execução de Measure. Com as imagens de origem correspondentes e máscaras externas de inteiros, Import constrói os arrays mesclados do projeto usados por Measure. Escolha a rota adequada aos arquivos e confira as identidades dos objetos antes de medir; tabelas de características importadas podem ser usadas diretamente se já contiverem as medições necessárias."
+    },
+    {
+      "table": "ui",
+      "key": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source": "Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.",
+      "source_sha256": "1add3ee9b720d1a8cb1a2bd958ca943479479de99ad8433854e912dc545adaed",
+      "translation": "Importe as imagens correspondentes e as máscaras externas de inteiros para construir os arrays mesclados do projeto e abra Measure nesse projeto. Pule esta etapa se medições compatíveis já tiverem sido importadas ou calculadas. Não acrescente medições duplicadas a uma tabela importada existente."
+    },
+    {
+      "table": "ui",
+      "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+      "source_sha256": "73f0218ad1985f156a3b2d89f339a8294f2362cc568eb237b1c71c1fe269aaf9",
+      "translation": "Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado. Use o laço e os controles de anotação para gravar seleções revisadas em uma coluna de anotação do banco de medições correspondente. Uma seleção geométrica isolada não estabelece um fenótipo biológico."
+    },
+    {
+      "table": "ui",
+      "key": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "source_sha256": "f85a9cc79c3583d7bbd5c3e52ae8a5247479704c29927f597ef10ab0848438c7",
+      "translation": "Grave as seleções de gates revisadas em uma coluna de anotação e selecione essa mesma coluna e população de objetos em Classify. Mantenha os objetos de validação separados dos rótulos de treinamento."
+    },
+    {
+      "table": "ui",
+      "key": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth.",
+      "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
+      "translation": "Grave as seleções de laço revisadas em uma coluna de anotação do banco de objetos correspondente e selecione essa coluna em Classify. Inspecione os recortes e valide os rótulos; grupos no espaço de representação não são a verdade de referência."
+    },
+    {
+      "table": "ui",
+      "key": "Toxoplasma and parasite imaging assays",
+      "source": "Toxoplasma and parasite imaging assays",
+      "source_sha256": "be0aa19bd2abd30b969eaa6418cb304235d465f0abc206fea610a9279fc59d33",
+      "translation": "Ensaios de imagem de Toxoplasma e parasitas"
+    }
+  ]
+}

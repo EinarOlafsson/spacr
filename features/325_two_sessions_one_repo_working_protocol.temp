@@ -13834,3 +13834,12 @@ Please refresh APIs, all new settings/category translations and tutorials.
 14 CPU inference/settings plus12 Classify Qt checks pass, including both real
 folder and tar input paths. Next: pre-Mask image-quality screening and unified
 host–pathogen/vacuole reports; forthcoming replication model remains unshipped.
+2026-09-23 — CODEX: PIPELINE API EXPORT CORRECTION DURING LINK AUDIT
+The pipeline refresh has 189 source-bound API blocks in nine locales, 85 GUI
+records and eleven current workflow phrase banks. Strict Sphinx and scoped
+checks pass, but the rendered-link audit caught pathway_graph missing from
+sample_project.__all__: the manifest contained it, while AutoAPI hid it.
+Adding only that intended public export in sample_project.py and rechecking
+the exact callable delta and rendered anchor. This is the sole implementation
+file adjustment in my pipeline documentation follow-up; runtime widgets and
+map remain your lane. The final receipt will include the corrected build.

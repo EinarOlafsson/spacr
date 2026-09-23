@@ -74,6 +74,19 @@ def validate(data, root=ROOT, *, live=True):
             previous.add(module)
         if set(route.get("alternatives", [])) - modules.keys():
             raise ValueError(f"{key}: unknown alternative")
+        input_ids = set()
+        for source in route.get("inputs", []):
+            identity = source.get("id")
+            if (not isinstance(identity, str) or not identity.strip()
+                    or identity in input_ids
+                    or not str(source.get("title", "")).strip()
+                    or not str(source.get("description", "")).strip()
+                    or not source.get("artifacts")
+                    or set(source["artifacts"]) - artifacts.keys()
+                    or not source.get("targets")
+                    or set(source["targets"]) - previous):
+                raise ValueError(f"{key}: invalid external input {identity!r}")
+            input_ids.add(identity)
     for key, lesson in data["tutorials"].items():
         for field in ("description", "introduction", "conclusion"):
             if not str(lesson.get(field, "")).strip():
@@ -267,10 +280,29 @@ def outputs(data):
                "Use that module's example-data control when available, inspect "
                "the inputs and preview, then run a bounded example before your own data.\n\n"
              + "These routes and the API handoffs share the bundled module workflow map. "
-               "A walkthrough explains the steps; it does not run an experiment automatically.\n\n")
+               "A walkthrough explains the steps; it does not run an experiment automatically.\n\n"
+             + "Open **Pipeline overviews** to choose a pathway. Its graph includes external "
+               "input nodes that explain the files you supply; these are not runnable modules. "
+               "Persistent explanation cards describe modules and connections below the graph, "
+               "with API links at the end of module cards. Select a graph element to outline its "
+               "card, and drag the blue divider to adjust the space between graph and explanations. "
+               "**Start example** opens the pathway's first real module; **Walkthrough** keeps "
+               "the route available afterward. Alternative input and annotation branches do not "
+               "require you to execute every listed step.\n\n")
     sections = [intro]
     for key, route in data["pathways"].items():
         sections += [f".. _workflow-{key}:\n\n", _heading(route["title"], "-")]
+        if route.get("description"):
+            sections.append(route["description"] + "\n\n")
+        if route.get("inputs"):
+            sections.append("**Choose an input route:**\n\n")
+            for source in route["inputs"]:
+                targets = ", ".join(
+                    f":ref:`{data['modules'][target]['name']} <workflow-module-{target}>`"
+                    for target in source["targets"])
+                sections.append(f"* **{source['title']}**: {source['description']} "
+                                f"Continue with {targets}.\n")
+            sections.append("\n**Module steps and alternatives:**\n\n")
         for step in route["steps"]:
             module = data["modules"][step["module"]]
             sections.append(f"#. :ref:`{module['name']} <workflow-module-{step['module']}>`: {step['action']}\n")

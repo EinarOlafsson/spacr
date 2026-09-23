@@ -1193,7 +1193,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # The exact delta is recorded in 411_timeflows_guidance_2026-09-23.json.
     # +9 held-out validation entries: one module, six public functions and
     # two nested reporting helpers. All nine locale catalogs carry them.
-    expected = 11_418
+    expected = 11_425
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1235,7 +1235,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_418
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_425
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

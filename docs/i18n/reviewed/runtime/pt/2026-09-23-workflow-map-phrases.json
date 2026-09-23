@@ -294,13 +294,6 @@
     },
     {
       "table": "ui",
-      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
-      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
-      "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
-      "translation": "Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis."
-    },
-    {
-      "table": "ui",
       "key": "Direct Cellpose TIFF masks",
       "source": "Direct Cellpose TIFF masks",
       "source_sha256": "0a9d2574b41101da424810b89ad53c2956fbc0bb9c9a1e7abfca9618b40d171c",
@@ -487,13 +480,6 @@
       "source": "Images and label masks",
       "source_sha256": "ebb7b02d7ccf14f31eeeb38f3ae7e8867e9bb7c7e058279cc2a4723d21b6f7d6",
       "translation": "Imagens e máscaras de rótulos"
-    },
-    {
-      "table": "ui",
-      "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
-      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
-      "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
-      "translation": "Importe medições externas com mapeamentos explícitos de objetos e colunas, ou escolha Import Images, Format Converter ou External Masks. Medições importadas não são uma nova execução de Measure."
     },
     {
       "table": "ui",
@@ -858,13 +844,6 @@
       "source": "Pooled-screen simulation assumptions",
       "source_sha256": "00d2e615348ea4e3cb8f0ea57248680a3e1c4cd2f2d608921130f914c67300b9",
       "translation": "Pressupostos da simulação de triagem agrupada"
-    },
-    {
-      "table": "ui",
-      "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
-      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
-      "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
-      "translation": "Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado."
     },
     {
       "table": "ui",
@@ -1481,6 +1460,41 @@
       "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
       "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
       "translation": "src/<YYMMDD>/<name>/simulations.db; a exploração acrescenta linhas de resumo a simulations e opcionalmente grava gráficos. São estimativas sintéticas de desempenho, não resultados experimentais medidos."
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+        "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+        "translation": "Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+        "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+        "translation": "Importe medições externas com mapeamentos explícitos de objetos e colunas, ou escolha Import Images, Format Converter ou External Masks. Medições importadas não são uma nova execução de Measure."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+        "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+        "translation": "Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado."
+      },
+      "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
+      "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
     }
   ]
 }

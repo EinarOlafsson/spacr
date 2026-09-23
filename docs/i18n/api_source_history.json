@@ -333,19 +333,6 @@
       "source_sha256": "3415ac1e8592c5fbaeab6c74544147aa1d667846212d67844976452109302b82",
       "text": "One nucleus, numbered for the whole well. The join key for sampling.\n\nThe field names are the ``ops_objects`` columns the storage contract\nspecifies, so the table is written from these without a translation\nlayer.\n\n:param object_id: the well-wide number. Unique across the whole well,\n    which is the entire reason this type exists -- per-window numbering\n    gives two windows an object #1 apiece.\n:param centroid_x: column of the centroid, in well-frame pixels.\n:param centroid_y: row of the centroid, same frame.\n:param area: pixel count of the mask that was kept, which is the\n    UNCLIPPED observation wherever one exists.\n:param bbox: ``(top, left, bottom, right)`` in well-frame pixels,\n    bottom/right exclusive.\n:param window: the window whose observation was kept, as ``(row, col)``.\n    Recorded so a suspect object can be traced back to the pixels it was\n    segmented from.\n:param n_observations: how many windows saw this nucleus. Greater than\n    one means it sat in an overlap and the observations were sewn."
     },
-    "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321": {
-      "source_blocks_sha256": [
-        "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
-        "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
-        "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
-        "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
-        "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
-        "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
-      ],
-      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
-      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\nSlice-mask filenames are ignored and duplicate frame numbers are rejected.\nA source whose next-frame marker lacks an unambiguous full mask is\ncensored for that pair, rather than labelled as a disappearance.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:returns: the pairs, in time order.\n:raises ValueError: sequence/limit, duplicate frame identities or annotation\n    arrays are invalid."
-    },
     "36fffc47f5ebe1b9dcbd7e9e8d3039492175d2a1a689e8b86516474e4d39e44e": {
       "source_blocks_sha256": [
         "63e6a06225456770b4c93f3b3e09af12b1b1ce04c004d2651bb5ee09574985a2",
@@ -802,27 +789,6 @@
       ],
       "source_sha256": "70e171a8b331a52703e2007cfe7e5c306d02e352dac5c8fe8c969f58ee54a4bf",
       "text": "Read all widgets and return the current settings dict."
-    },
-    "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3": {
-      "source_blocks_sha256": [
-        "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
-        "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
-        "68fc515ccb0d44db55fedb699b3679480a0b482edbb651a7c4a1462ba82af83a",
-        "07d916296d4b8c33c4ef0695c8142e53d81b2d41d70a66658c5ed0102de5f024",
-        "f2d79720c613b83e4743c5198bfa8093920ffe679386f38d52abbd5872726efa",
-        "af930e4c22f6211371971144eb0af17091d09cbf894efefc915cf40f47209444",
-        "fea4d510366be47e8b2354b5f13cf9578d7b14f200c28191149011ecfe2ea647",
-        "7ac683edc8615b6ef411f04c9b89bc2c8de87908ef6dd3b3147b91d324867860",
-        "369c392b47aae044c5815bffa830212f9566ffb3f291ebd5193104d3833bb95b",
-        "21d477a04da7607da7066564d72c2357cebdcc6b62f870d8edf556e12fd93fd2",
-        "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
-        "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
-        "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
-        "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
-        "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
-      ],
-      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
-      "text": "Train the time head, then the whole network, on track-labelled pairs.\n\nA two-stage curriculum: the backbone's segmentation is already\npaid for, so it is frozen while the new head learns, then everything is\ntrained at a low learning rate. Every pair is augmented identically on\nboth frames before its targets are computed.\n\nA training crop keeps supervision only for complete source masks and,\nwhen present in the full target frame, complete successor masks. A\nsuccessor outside the tile is not a disappearance. Absences in the\nsupplied full-frame labels remain supervised; this does not validate\nthose annotations. Unusable crops are retried up to 32 times per step.\nCensoring prevents incorrect targets at crop boundaries but removes some\nfast-motion examples; it does not establish full-motion accuracy.\n\n:param net: from :func:`TimeflowsNet`.\n:param pairs: the training pairs.\n:param head_steps: steps with the backbone frozen.\n:param full_steps: steps with everything trainable.\n:param lr_head: learning rate for the head stage.\n:param lr_full: learning rate for the full stage.\n:param weights: sampling weight per pair (:func:`pair_sampling_weights`);\n    uniform when None.\n:param seed: the random seed.\n:param device: ``'cpu'`` or ``'cuda'``.\n:param log: ``fn(line)`` for progress.\n:returns: the loss at every step.\n:raises ValueError: no usable supervision remains after 32 sampled crops\n    for a step; inspect the full masks and motion relative to the tile."
     },
     "7105063da95e5fbb0f329b4e99dab0120cf4ebb4fd7f054c0736ea1824e7f458": {
       "source_blocks_sha256": [

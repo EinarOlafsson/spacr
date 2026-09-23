@@ -6486,6 +6486,10 @@ UI = {
     'Text detection': 'Textagreining',
     'Probability cut-off': 'Líkindaþröskuldur',
     '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.': '{model} er Cellpose 3-vistunarpunktur og Cellpose 4 getur ekki hlaðið honum inn. Veldu vistunarpunkt sem er samhæfur við Cellpose 4 fyrir þessa forskoðun.',
+    'Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.': 'Tegund hlutar sem frumgrímurnar tákna. Veldu flokk eða sláðu inn sérsniðið heiti. Þetta merkir vistuðu tengslin; upprunagríman er ekki skipt upp aftur.',
+    'Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.': 'Tegund hlutar sem er úthlutað á útvöxnu grímurnar. Veldu flokk eða sláðu inn sérsniðið heiti sem er annað en frumflokkurinn. Aðrar stillingar stjórna vextinum.',
+    'Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.': 'Fylla lokuð bakgrunnsgöt innan hvers afleidds hlutar eftir vöxt og áður en síað er eftir lágmarksflatarmáli. Mynddílar sem tilheyra öðrum hlut eru varðveittir.',
+    'Toxoplasma and parasite imaging assays': 'Myndgreiningarpróf á Toxoplasma og sníkjudýrum',
 }
 
 MODULE_SUMMARIES = {
@@ -13096,4 +13100,8 @@ SOURCE_HASHES = {
     ('UI', 'Text detection'): 'cb9ef963c1d8542263cb338d22acde267dc38df40735949c602c2dee855cf1e3',
     ('UI', 'Probability cut-off'): 'fe0117282ac09c31808db26b853d0ab47a7e3c1fda9580685bd2c97cee78919d',
     ('UI', '{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.'): '6641509e13ed273dff5260063c789c03e95cefd48358db39b42fd8328dff53dd',
+    ('UI', 'Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.'): '40ba693734df71522b1fc18dc318a3b98faa89d63aaea9bf9fbab7e2edd4b7b7',
+    ('UI', 'Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.'): 'a2c71ac7bf98d32fdc70718fb69a157856378ca6e3ffda3537229d48ceb80f2e',
+    ('UI', 'Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.'): '8ab2d752a5f4fdb31d41b5e49e416d74af767ba8427390e0fc4f1da869a208f8',
+    ('UI', 'Toxoplasma and parasite imaging assays'): 'be0aa19bd2abd30b969eaa6418cb304235d465f0abc206fea610a9279fc59d33',
 }

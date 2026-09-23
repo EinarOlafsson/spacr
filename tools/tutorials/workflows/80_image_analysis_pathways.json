@@ -311,9 +311,10 @@
         "embedding_features"
       ],
       "outputs": [
-        "projection"
+        "projection",
+        "labels"
       ],
-      "guidance": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+      "guidance": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
       "declared_ports": {
         "key": "umap",
         "consumes": [
@@ -372,9 +373,10 @@
         "projection"
       ],
       "outputs": [
-        "gates"
+        "gates",
+        "labels"
       ],
-      "guidance": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects."
+      "guidance": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
     },
     "align": {
       "name": "Align & Stitch",
@@ -598,10 +600,16 @@
           "after": []
         },
         {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
           "module": "measure",
           "action": "Open Measure on the resulting project and quantify objects.",
           "after": [
-            "mask"
+            "mask",
+            "foreign"
           ]
         },
         {
@@ -631,6 +639,32 @@
         "recruitment",
         "invasion",
         "replication"
+      ],
+      "description": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        }
       ]
     },
     "segmentation_training": {
@@ -656,10 +690,36 @@
             "train_cellpose"
           ]
         }
+      ],
+      "description": "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+      "inputs": [
+        {
+          "id": "curation",
+          "title": "Microscopy images and optional starting masks",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "make_masks"
+          ],
+          "description": "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set."
+        },
+        {
+          "id": "inference",
+          "title": "Independent microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment."
+        }
       ]
     },
     "parasite_assay": {
-      "title": "A parasite imaging assay",
+      "title": "Toxoplasma and parasite imaging assays",
       "home_app": "mask",
       "steps": [
         {
@@ -668,10 +728,16 @@
           "after": []
         },
         {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
           "module": "measure",
           "action": "Open Measure and collect the compartment or staining measurements needed by your assay.",
           "after": [
-            "mask"
+            "mask",
+            "foreign"
           ]
         },
         {
@@ -680,14 +746,67 @@
           "after": [
             "measure"
           ]
+        },
+        {
+          "module": "invasion",
+          "action": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "replication",
+          "action": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "analyze_plaques",
+          "action": "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+          "after": []
         }
       ],
-      "alternatives": [
-        "invasion",
-        "replication",
-        "analyze_plaques"
-      ],
-      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
+      "alternatives": [],
+      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.",
+      "description": "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        },
+        {
+          "id": "plaque_images",
+          "title": "Plaque images or existing plaque masks",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "analyze_plaques"
+          ],
+          "description": "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow."
+        }
+      ]
     },
     "import_images": {
       "title": "Import existing data",
@@ -718,6 +837,43 @@
           "after": [
             "measure"
           ]
+        }
+      ],
+      "description": "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        },
+        {
+          "id": "tables",
+          "title": "External measurements and object mappings",
+          "artifacts": [
+            "foreign_tables"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features."
         }
       ]
     },
@@ -759,6 +915,21 @@
             "gate_editor"
           ]
         }
+      ],
+      "description": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "inputs": [
+        {
+          "id": "project",
+          "title": "Segmented image project",
+          "artifacts": [
+            "merged",
+            "masks"
+          ],
+          "targets": [
+            "measure"
+          ],
+          "description": "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring."
+        }
       ]
     },
     "live_cell_tracking": {
@@ -778,10 +949,16 @@
           ]
         },
         {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
           "module": "measure",
           "action": "Open Measure on the tracked project to quantify the objects.",
           "after": [
-            "timelapse"
+            "timelapse",
+            "foreign"
           ]
         },
         {
@@ -791,6 +968,32 @@
             "timelapse",
             "measure"
           ]
+        }
+      ],
+      "description": "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
         }
       ]
     }
@@ -935,6 +1138,22 @@
         "measurements"
       ],
       "handoff": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+    },
+    {
+      "from": "gate_editor",
+      "to": "classify_merged",
+      "artifacts": [
+        "labels"
+      ],
+      "handoff": "Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+    },
+    {
+      "from": "umap",
+      "to": "classify_merged",
+      "artifacts": [
+        "labels"
+      ],
+      "handoff": "Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
     }
   ]
 }

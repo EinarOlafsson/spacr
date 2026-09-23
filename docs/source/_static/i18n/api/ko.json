@@ -128176,6 +128176,66 @@
         "ab62ded73a83d9419c4a9e6086a1aa37dd609f1ce23a3044301db4096d7e4681"
       ]
     },
+    "spacr.qt.widgets.pipeline_details": {
+      "source_blocks_sha256": [
+        "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3"
+      ],
+      "source_sha256": "c3ad3ff7442a6a62a88669bd99ec4bcfdf4309f588c237db9e0a2c3ce1ef82b3",
+      "text": "파이프라인의 각 요소에 대한 설명을 지속적으로 표시하고 선택할 수 있게 합니다.",
+      "translation_source_blocks_sha256": [
+        "d47b19148b144616bb5c634405b952f982577ee2f61d332500487d0886450a94"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails": {
+      "source_blocks_sha256": [
+        "58d11fd96f30c2b5b2ecc76cd58fcdd02ff6e3ef5f90ce30d033dd8e0d94df88",
+        "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+        "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138"
+      ],
+      "source_sha256": "08ab39ee94726f536f77c91d83a66dc1ec0c5d8a9410b3844185f7c236b8f895",
+      "text": "파이프라인의 의존 단계들을 모듈 및 연결 카드로 표시합니다.\n\n:param parent: 소유 대화상자입니다. 카드는 사용 가능한 너비를 채우며 창 너비가 바뀌면 텍스트가 줄바꿈됩니다. 그래프 요소를 선택하면 테두리만 바뀌며, 텍스트를 다시 만들거나 패널을 스크롤하지 않습니다.\n스크롤 위치가 안정적으로 유지되는 둥근 반투명 패널을 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "d2ea3f1867724feec80d788782ccf16f39765e93b067c22917403de708ea83e2",
+        "e133a7efbc9eb4c35cb5d570378addbfefabbd1ade2a9f1d3977713900486157",
+        "5a40122e82264c9ada1550eec0f19c323e5410f97b192499b76adebb6a9c7138"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.select_element": {
+      "source_blocks_sha256": [
+        "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+        "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4"
+      ],
+      "source_sha256": "4db96d6f09b74335474d0c6951ac5bd4b7c8d8de5f67802c7ddfc90eaddbe248",
+      "text": "텍스트를 이동하지 않고 해당 모듈이나 연결에 테두리를 표시합니다.\n\n:param identifier: 모듈 키 또는 →로 연결한 출발지와 목적지입니다.",
+      "translation_source_blocks_sha256": [
+        "4747930b21983e1d48981fe633a9d1f0c3d4e20aec7c71d9a7b6262df6decee7",
+        "a065d9d5d27ae4c6088855356cf89d9f86ae4db9e31750cb408dcd6b545d82d4"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.set_pipeline": {
+      "source_blocks_sha256": [
+        "470b2916eea05beeb8e95a23104e9060a6891cfc1e9529aa54ca5575aba381e4",
+        "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+        "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74"
+      ],
+      "source_sha256": "bcb12aece7bf363717f21d4a25d633b183b07e2125357aedb7dba148b6489231",
+      "text": "새로 선택한 파이프라인의 카드를 의존 순서에 따라 한 번 생성합니다.\n\n:param entry: 제목과 요약을 포함하는 경로 메타데이터입니다.\n:param diagram: 노드, 위치 및 간선을 포함하는 해당 WorkflowView입니다.",
+      "translation_source_blocks_sha256": [
+        "4b154293af980d3abe73f7c5201851d1c6e685c26028ab3d301d3b7dbc54f954",
+        "7acf74e39ce0300c99bce96a64dec2a7909ea37331c8764da48c24cc28e2c762",
+        "84e856f80809142e8d8783d72a9061c64bb3e2036dab92807d0fab5a4d55db74"
+      ]
+    },
+    "spacr.qt.widgets.pipeline_details.PipelineDetails.toPlainText": {
+      "source_blocks_sha256": [
+        "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0"
+      ],
+      "source_sha256": "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0",
+      "text": "접근성 및 검사를 위해 화면에 보이는 모든 설명 텍스트를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "dfc70abb6246948cb01368f9057b0679ba2ab8f64acc80ee29b594e911ac83d0"
+      ]
+    },
     "spacr.qt.widgets.pivot_builder": {
       "source_blocks_sha256": [
         "dc7512555552c1139a2338cdd7aa2eece53963122898f1626f7d796a324c4388",
@@ -132330,6 +132390,24 @@
         "88ec6a5ebfb58ea504c92f060e285f104f2542083038ba990abeb7f3017db3c8",
         "b15f6548461ecad9b40e0283f4cb7d5ee2e409e1f3b249465edde8bc585f59a9",
         "26c5cc2c23b871da9bc682d70be98a8fc7ac1b20398bd5838bf671689602b5da"
+      ]
+    },
+    "spacr.qt.widgets.sample_project.pathway_graph": {
+      "source_blocks_sha256": [
+        "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+        "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+        "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+        "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+        "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068"
+      ],
+      "source_sha256": "f918be074f571f19b89b2966a77125358dc855eea7f118ca823292ffa70eaa0a",
+      "text": "실행 가능한 단계를 변경하지 않고 표시용 복사본에 외부 입력을 추가합니다.\n\n:param entry: 선택적 외부 입력 레코드가 포함된 경로 메타데이터입니다.\n:param data: 공유 모듈 및 산출물 맵이며 변경하지 않습니다.\n:param steps: 실행 가능한 모듈의 의존 관계이며 변경하지 않습니다.\n:returns: 입력 노드를 포함하는 표시용 맵, 노드 키 및 의존 관계입니다.",
+      "translation_source_blocks_sha256": [
+        "60dec7889ceca033d87453f4465e131032c5cb3746a67593a17753e109461987",
+        "d2a53d1c0a998aa601966f412af5845f7eb805522a2c694f347799396705bd85",
+        "177c493b34a7733733db533f37e65bce02cb5ca4d2a59853823c08820d0e0784",
+        "c2cc6604c26d7301309f2f594daae1171963ffd8312b95cf9a38ed2e3b862fcf",
+        "f04035478128b06c79609af8c4b305f4e588a7dee806c108cbda5796ded65068"
       ]
     },
     "spacr.qt.widgets.sample_project.start_example": {
@@ -137814,6 +137892,34 @@
       "translation_source_blocks_sha256": [
         "a2bc4b2e817feebd003f8169ed4e1d8b947ead3c7916430538a88b920b32f271",
         "1885637af52d9e125f45699295ec8cb58b7daa38745f66506ba0212375b7ce01"
+      ]
+    },
+    "spacr.qt.widgets.workflow_diagram.details_box": {
+      "source_blocks_sha256": [
+        "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a"
+      ],
+      "source_sha256": "c40644f3cb5d93a1878a990e1686cee5fcdba04317ed257fa0687925f808fec2",
+      "text": "다이어그램에서 공유하는 크기 조절 및 스크롤이 가능한 설명 영역을 만듭니다.\n\n:param parent: 소유 위젯이며 기본값은 None입니다.\n:returns: 외부 API 링크가 활성화되고 소개 텍스트가 포함된 QTextBrowser입니다. 최소 높이는 본문 글꼴 여섯 줄이며 분할기가 높이를 설정합니다.",
+      "translation_source_blocks_sha256": [
+        "96a87a5bad08af0cc16c810493fa4559f1bc6dbf001268cae37cee42fdf1e4c9",
+        "1ad9c197a8f914f6bd7ff618215ad4f53aa3ead7b894315ed563921ae3179e6b",
+        "a85202f812d9de28211abfc1552f452c7f511ed7b6e8b2eeaa281a70e6bba02a"
+      ]
+    },
+    "spacr.qt.widgets.workflow_diagram.diagram_splitter": {
+      "source_blocks_sha256": [
+        "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+        "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+        "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
+      ],
+      "source_sha256": "a5bf230a1906e43101ab2134c62f82b2db22b00d597b7df6a9d0c9dde32f6387",
+      "text": "드래그할 수 있는 얇은 파란색 손잡이가 있는 세로 패널 분할기를 만듭니다.\n\n:param parent: 소유 대화상자 또는 컨테이너입니다.\n:returns: 접을 수 없는 QSplitter이며 호출자가 다이어그램과 세부 설명을 추가합니다.",
+      "translation_source_blocks_sha256": [
+        "7e8ca8b9ea717d10f71207f5e17dddfeff5851b37300584d129f7dcd65940bfa",
+        "36092505ef8d2c9e056ac72ec4daa58c31ae992adda96fbf641536d0d44d613a",
+        "d0896ff2fa85b96e5a9c3df2da093385070279a57f7309b6a57346124175bfbf"
       ]
     },
     "spacr.read_background": {

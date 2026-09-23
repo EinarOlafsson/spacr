@@ -28,7 +28,7 @@ from ..theme import active_palette, font_px
 from .workflow_diagram import DiagramDialog, WorkflowView, diagram_splitter, workflow_map
 from .pipeline_details import PipelineDetails
 
-__all__ = ["MAP_FILE", "pathways", "SampleProjectDialog", "start_example"]
+__all__ = ["MAP_FILE", "pathways", "pathway_graph", "SampleProjectDialog", "start_example"]
 
 LOG = logging.getLogger(__name__)
 

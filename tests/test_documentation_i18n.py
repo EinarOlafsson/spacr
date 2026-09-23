@@ -192,7 +192,7 @@ TOOLS = ROOT / "tools"
 # Source subtraction is recorded in the two dated 411 API receipts.
 # +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
 # +9 held-out validation module/functions/reporting helpers in all locales.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_418
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_425
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

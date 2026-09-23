@@ -247,10 +247,21 @@
           "after": []
         },
         {
+          "module": "map_barcodes",
+          "action": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
+          "after": []
+        },
+        {
+          "module": "foreign",
+          "action": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+          "after": []
+        },
+        {
           "module": "measure",
           "action": "Open Measure with the Mask project and create measurements and object crops.",
           "after": [
-            "mask"
+            "mask",
+            "foreign"
           ]
         },
         {
@@ -261,16 +272,27 @@
           ]
         },
         {
-          "module": "classify_merged",
-          "action": "Open Classify, choose images or measured features, and inspect held-out predictions.",
+          "module": "gate_editor",
+          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
           "after": [
-            "annotate"
+            "measure"
           ]
         },
         {
-          "module": "map_barcodes",
-          "action": "Return Home and open Map Barcodes for the matching sequencing reads and references.",
-          "after": []
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify, choose images or measured features, and inspect held-out predictions.",
+          "after": [
+            "annotate",
+            "gate_editor",
+            "umap"
+          ]
         },
         {
           "module": "regression",
@@ -279,6 +301,43 @@
             "classify_merged",
             "map_barcodes"
           ]
+        }
+      ],
+      "description": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "inputs": [
+        {
+          "id": "images",
+          "title": "Microscopy images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "mask"
+          ],
+          "description": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment."
+        },
+        {
+          "id": "external_masks",
+          "title": "Existing masks and matching images",
+          "artifacts": [
+            "raw_images",
+            "masks"
+          ],
+          "targets": [
+            "foreign"
+          ],
+          "description": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring."
+        },
+        {
+          "id": "fastq",
+          "title": "FASTQ: R1/R2, R1 only or R2 only",
+          "artifacts": [
+            "fastq"
+          ],
+          "targets": [
+            "map_barcodes"
+          ],
+          "description": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation."
         }
       ]
     },
@@ -299,7 +358,32 @@
           ]
         }
       ],
-      "note": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
+      "note": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "description": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "inputs": [
+        {
+          "id": "cycles",
+          "title": "Sequencing cycles and phenotype images",
+          "artifacts": [
+            "raw_images"
+          ],
+          "targets": [
+            "ops"
+          ],
+          "description": "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding."
+        },
+        {
+          "id": "phenotypes",
+          "title": "Compatible phenotype responses",
+          "artifacts": [
+            "scores"
+          ],
+          "targets": [
+            "regression"
+          ],
+          "description": "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff."
+        }
+      ]
     },
     "screen_planning": {
       "title": "Plan a screen",
@@ -316,6 +400,32 @@
           "after": [
             "experiment_design"
           ]
+        }
+      ],
+      "description": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "inputs": [
+        {
+          "id": "design",
+          "title": "Conditions, controls and design assumptions",
+          "artifacts": [
+            "design"
+          ],
+          "targets": [
+            "experiment_design"
+          ],
+          "description": "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required."
+        },
+        {
+          "id": "pilot",
+          "title": "Effect sizes, variability and optional pilot data",
+          "artifacts": [
+            "design",
+            "measurements"
+          ],
+          "targets": [
+            "power"
+          ],
+          "description": "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort."
         }
       ]
     }

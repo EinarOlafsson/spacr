@@ -498,3 +498,20 @@ This evidence is bound to map 76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a
 Incoming implementation c94a48cd7 expands pathway inputs and annotation routes;
 its new map/API/GUI sources require a subsequent documentation and tutorial
 refresh. These checkpoint percentages do not imply acceptance of that update.
+
+2026-09-23 — CODEX: EXPANDED PIPELINE MAP SYNCHRONIZED
+Eleven existing workflow phrase banks now contain242current phrases each.
+Seven new or expanded phrases per language generate22current tutorial reviews;
+33obsolete phrase records retain their original text. Shared GUI updates add
+49matching phrases plus nine translated parasite-pathway titles. Together
+with27secondary-control help translations, this checkpoint adds85GUI records.
+The nine walkthroughs now explain external input choices and the persistent
+pipeline details interface. All545rendered walkthrough links and eight new/
+changed API anchors resolve;55workflow/generator and31translated-dialog/Help
+checks pass. The source-bound receipt is411_pipeline_details_and_workflow_
+refresh_2026-09-23.json. Text scene coverage remains1314/1508(87.1%). Korean
+and Icelandic shared banks remain. Additional pipeline descriptions are being
+reviewed separately. The frozen previous media stage is unchanged: lessons79
+and80 need updated narration/master timing against this map; prior media
+receipts do not certify the new scripts. Listening and complete-set publication
+remain open. Incoming recruitment/TTA behavior needs its own tutorial update.
