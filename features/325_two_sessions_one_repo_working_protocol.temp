@@ -12235,3 +12235,21 @@ The original interpreter/host packages remain untouched. No install-success
 claim yet. Backend guidance will also stop saying a newer host Python cannot
 install when an older interpreter is available; that changed blurb needs the
 normal translation-lane reconciliation.
+
+2026-09-23 — IMPLEMENTATION: 475 REAL INSTALL VERIFIED / DOCS DELTAS
+02a6367b0 fixes batch unwrapping, input/output validation and isolated pip/
+Torch bootstrap;186backend and Model Zoo checks pass. The real private
+Python3.10 install now succeeds, self-test says CPU, and pip check is clean.
+The installed DeepCell postprocessor passes four adapter cases that fail on
+the previous source (zero/one/two/five spots). Receipt475_installed_postprocessor_
+2026-09-23.json records exact versions and the limited synthetic-map scope.
+Pretrained weights and real-field accuracy remain open; credential question
+is pending. Do not describe these contract cases as model accuracy.
+Translation deltas: SpotNet blurb now says an older interpreter may build its
+environment even when spaCR uses newer Python, and names both TensorFlow and
+PyTorch. New installer progress label: Update pip. The worker's private
+request docstring now states finite images/thresholds before weight loading.
+No new settings or OPS detector choice were added prematurely.
+425 Docker build remains live in session30429, currently copying the finished
+scientific venv into its runtime image; no GPU devices or publication used.
+Your Growth-combo layout claim and current API/catalog work remain untouched.

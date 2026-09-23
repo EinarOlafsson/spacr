@@ -1,0 +1,102 @@
+{
+  "versions": {
+    "deepcell-spots": "0.4.2",
+    "deepcell": "0.12.10",
+    "tensorflow": "2.8.4",
+    "torch": "2.14.0+cpu",
+    "numpy": "1.26.4",
+    "pip": "26.2.1"
+  },
+  "cases": [
+    {
+      "count": 0,
+      "upstream_shape": [
+        1,
+        0
+      ],
+      "before_error": "ValueError",
+      "after": {
+        "spots": []
+      }
+    },
+    {
+      "count": 1,
+      "upstream_shape": [
+        1,
+        1,
+        2
+      ],
+      "before_error": "ValueError",
+      "after": {
+        "spots": [
+          [
+            2.25,
+            2.875
+          ]
+        ]
+      }
+    },
+    {
+      "count": 2,
+      "upstream_shape": [
+        1,
+        2,
+        2
+      ],
+      "before_error": "TypeError",
+      "after": {
+        "spots": [
+          [
+            2.25,
+            2.875
+          ],
+          [
+            4.25,
+            4.875
+          ]
+        ]
+      }
+    },
+    {
+      "count": 5,
+      "upstream_shape": [
+        1,
+        5,
+        2
+      ],
+      "before_error": "ValueError",
+      "after": {
+        "spots": [
+          [
+            2.25,
+            2.875
+          ],
+          [
+            4.25,
+            4.875
+          ],
+          [
+            6.25,
+            6.875
+          ],
+          [
+            8.25,
+            8.875
+          ],
+          [
+            10.25,
+            10.875
+          ]
+        ]
+      }
+    }
+  ],
+  "scope": "Real installed DeepCell postprocessor on manufactured probability maps, then the production spaCR worker adapter. No pretrained weights, no GPU, no real-image accuracy claim.",
+  "source_commit": "02a6367b07e97ed0fd037b756a6442df8a012386",
+  "python": "3.10.20",
+  "pip_check": "No broken requirements found.",
+  "requirements_sha256": "23f9ab3cecc084c397dc268de4e57ccb1323b51f566a23d934982b04f866cf5a",
+  "environment_bytes_apparent": 3163976219,
+  "memory_cap_gib": 6,
+  "weights_used": false
+}

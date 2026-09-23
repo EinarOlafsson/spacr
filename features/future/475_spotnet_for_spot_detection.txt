@@ -84,3 +84,18 @@ real install/self-test is still being followed. DeepCell credentials/local
 weights were requested; none are configured for this session. OPS/FISH
 integration and the same-real-field comparison remain open. The newer host
 Python guidance was corrected; its translation is handed to the other lane.
+
+2026-09-23 — REAL ISOLATED INSTALL AND UPSTREAM POSTPROCESSOR PASS
+The retry above has finished successfully through the production installer:
+Python3.10.20, deepcell-spots0.4.2, deepcell0.12.10, TensorFlow2.8.4,
+Torch2.14.0+cpu, NumPy1.26.4 and pip26.2.1. The self-test reports CPU and
+pip check reports no broken requirements. Installed files total3,163,976,219
+apparent bytes; download cache is separate. No host or original conda
+environment packages were changed.
+The REAL installed y_annotations_to_point_list_max produced batches for zero,
+one, two and five spots from manufactured probability maps. The prior worker
+fails all four; the corrected worker preserves every subpixel coordinate and
+the empty result. Receipt:475_installed_postprocessor_2026-09-23.json.
+This closes the interpreter/install/import and postprocessing-adapter gaps.
+It does not close pretrained inference, labelled real-field comparison,
+OPS/FISH module integration or the conditional recommendation requirement.
