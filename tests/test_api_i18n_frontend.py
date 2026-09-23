@@ -116,7 +116,8 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # +9 held-out validation entries, with exact source-bound locale records.
 # +7 pipeline entries, then +12 inference/cursor/help/schema entries. English
 # is current; the complete-catalog browser gate still reports locale debt.
-REAL_SYMBOL_COUNT = 11_437
+# +12 image-quality/Host–Pathogen entries; translation completion is separate.
+REAL_SYMBOL_COUNT = 11_449
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -417,6 +418,33 @@ window.addEventListener('unhandledrejection', (event) => {
         "/api/i18n/api/es.json",
     }
     assert all("v=unit-content-v1" in query for _path, query in catalog_requests)
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_english_publication_keeps_current_content_without_loading_translations():
+    harness = """
+setTimeout(() => {
+  const article = document.querySelector('article[role="main"]');
+  const ok = article.querySelector('.spacr-api-publication-note') &&
+    article.textContent.includes('Translations are being updated.') &&
+    article.textContent.includes('English body') &&
+    !article.querySelector('.spacr-api-language') &&
+    !article.querySelector('.spacr-api-translation') &&
+    localStorage.getItem('spacr-doc-language') === 'es' &&
+    new URL(location.href).searchParams.get('lang') === 'en';
+  document.body.dataset.result = ok ? 'pass' : 'fail';
+}, 300);
+"""
+    before = "localStorage.setItem('spacr-doc-language', 'es');"
+    page = _page(harness, before_script=before).replace(
+        b'data-api-catalog-version="unit-content-v1"',
+        b'data-api-catalog-version="unit-content-v1" data-api-language="english"',
+    )
+    files = _browser_files(page, es=_catalog("es", "Old module.", "Old member.", stale=True))
+    with _server(files) as (base, requests):
+        dom = _dump_dom(f"{base}/api/page.html?lang=es")
+    assert 'data-result="pass"' in dom
+    assert not any(path.endswith('.json') for path, _query in requests)
 
 
 @pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")

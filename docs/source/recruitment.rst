@@ -9,6 +9,10 @@ See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the
 `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and
 :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow.
 
+For whole-vacuole marker states, explicit host infection denominators and
+optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`.
+The two modules remain separate analysis choices.
+
 Select ``channel_of_interest`` for the fluorescent marker whose recruitment
 you want to measure. The primary ``recruitment`` column is the pathogen mean
 intensity divided by the cytoplasm mean intensity in that channel. Configure

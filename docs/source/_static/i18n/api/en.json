@@ -19114,6 +19114,56 @@
       "source_sha256": "0df3be7236a5b725561d5421231d256f37246afe0f0803b16328ab73ddd3efbe",
       "text": "Identify coefficient terms included in multiple testing.\n\nParameters\n----------\nfeatures : iterable of Any\n    Design-matrix term names.\n\nReturns\n-------\nnumpy.ndarray of bool\n    Boolean mask aligned with ``features``. Guide and gene terms are\n    ``True``; intercept and layout nuisance terms are ``False``.\n\nNotes\n-----\nThe mask follows the family corrected by\n:func:`spacr.ml.perform_regression`. Nuisance terms are fitted as\ncovariates but are excluded from hit plots and multiple-testing\ncorrection.\n\nExamples\n--------\n>>> tested_family([\"Intercept\", \"fraction:grna[233460_1]\"]).tolist()\n[False, True]"
     },
+    "spacr.host_pathogen": {
+      "source_blocks_sha256": [
+        "f659b8661a62c30567ba656b416a8b4a861d0c0c88b3c7d196ceee03a6dc1ff8"
+      ],
+      "source_sha256": "f659b8661a62c30567ba656b416a8b4a861d0c0c88b3c7d196ceee03a6dc1ff8",
+      "text": "Vacuole recruitment and replication with explicit host-cell denominators."
+    },
+    "spacr.host_pathogen.analyze_host_pathogen": {
+      "source_blocks_sha256": [
+        "a2099ebcd38a976a383e1b382fd01b3e3c3092e6cbddec8d5a00faaa54ac29e7",
+        "0519872324fa548a0b80a48ea9d02673de8ee5a3063678319a1a93fd93bfe230",
+        "de7a6e0a3bca77b0519d05a4e6841d099e7c4f894c3c065911654ab0a4bfeec9"
+      ],
+      "source_sha256": "5fd2dc84a94ecbb9d13e1ee2f99570e6b3219ab7bb874c3b893fcdef286cc490",
+      "text": "Analyze measured projects and save a unified, source-separated report.\n\n:param settings: hp_* settings from :func:`default_settings`; src accepts\n    a project, measurements.db, or a list of either. Each canonical DB\n    path is a distinct source identity, even when plate/field IDs repeat.\n:returns: combined DataFrames from :func:`summarize_tables` and settings.\n    CSV files and the exact settings JSON are written to the first\n    project's results/host_pathogen directory when save is true.\n    Host infection fractions describe retained measured cells. Run Measure\n    with uninfected=True to include uninfected hosts in that denominator;\n    previously discarded hosts cannot be reconstructed from these tables."
+    },
+    "spacr.host_pathogen.default_settings": {
+      "source_blocks_sha256": [
+        "d222fb7632cd9acf10ab7cb2aaa49fdf67d3d678033abbe1f0ac985a33d88f4d",
+        "f8927a4645d41c43df3940adfa3c2be95c49509a1d6c105fc5b13688f667259e",
+        "3518ec9a573cfd2b8ec848ca6ff6fb49620f530a6cf01f5d2f54459187c0cba9"
+      ],
+      "source_sha256": "2fa2bb91289944ad5362589e3550c425bcf6fb88aebc609873dcb916e90fc5b5",
+      "text": "Apply Host–Pathogen defaults; replication requires explicit count inputs.\n\n:param settings: optional overrides, copied without modifying the caller.\n:returns: settings with independent mutable defaults."
+    },
+    "spacr.host_pathogen.summarize_tables": {
+      "source_blocks_sha256": [
+        "32cb6713565e9bf1ba73d05f5716173c6fe3fedd5299ff8de1152fa3d8ac82a9",
+        "9e4f009f94f38df80aaf662573b4fcd8ff3730ec08a88c9569e9360c5629d561",
+        "f83c14af97a285657ba1118e0031144a5b2abb1cc70531bdd730ec46d3bf39dc",
+        "e800c2bf3096eb81d9d8f46d220638d177af5b5ce3f5c3df23166b585f7bd596",
+        "357283e2cc7dfc66051ec3bbabe804606bbb8ac2b0df3240ebb6ce8358df9952",
+        "23c9e9870d952934ba83a2f0420046214f50209180738a302bf160b840bd54d1",
+        "d336c912476209abc42ab47b4f263e1a5e00c97cb0b167a8be3ce96520af3529",
+        "cd23e71d0cbc04fdc701c709b24d032e53e42992da0ddcf6a61451a0b58af549",
+        "70c12bd33ac370b1d5b19d7ada0c9f085e1d0aa74d41ab823f9dad610018da98"
+      ],
+      "source_sha256": "a434b8b08fbf13996eafe4c4c79087000802fe81305f38464c546f5652bf779f",
+      "text": "Join per-vacuole signals to host references and retain every host cell.\n\n:param cells: one row per host, including uninfected cells.\n:param vacuoles: one row per segmented vacuole, with object_label/cell_id.\n:param reference: one row per host reference compartment, object_label\n    identifying its host, with channel mean-intensity columns.\n:param parasites: optional independently segmented parasites with an\n    explicit parent-vacuole column; never infer parentage from cell ID.\n:param settings: hp_* options. Marker thresholds apply to vacuole/reference\n    ratios. A count column or parasite table is required for replication;\n    otherwise counts remain missing. These two inputs are mutually exclusive.\n:param source: experiment/acquisition identity, preserved in every output.\n:returns: dict of vacuoles, cells, wells, marker_states and orphan_parasites\n    DataFrames. Missing references and invalid denominators stay unknown;\n    extracellular or unlinked vacuoles do not inflate host infection rates.\n:raises ValueError: ambiguous identities, missing columns or invalid policy."
+    },
+    "spacr.host_pathogen.vacuole_links": {
+      "source_blocks_sha256": [
+        "8343d901c669a34b850e650f8f0f9f16ee47f050d2c5ad8433cdd1dc4d84e18b",
+        "92dc7f608232bb0c61891d036f7992f7cad4651f0705ec134701469febaf1969",
+        "78b1e67667fe46d6f096af943075aade6dc9187a7115ff9f1361da3b6fd0d5e1",
+        "83424bee49f8df3551f4340a9f11180bc2942945233e0b4b322bd59a25a8e9c4"
+      ],
+      "source_sha256": "1b773e8cc5e378a5eca24d80de14a45771cf366c5500aee82fe01fde101a31c3",
+      "text": "Link each child label only when one vacuole covers most of its pixels.\n\n:param child_mask: integer parasite/object mask, zero background.\n:param vacuole_mask: co-registered integer whole-vacuole mask.\n:returns: label, pathogen_id and pathogen_overlap_fraction columns.\n    A parent must cover strictly more than half the child; ties, outside\n    objects and ambiguous overlaps retain missing parent identities.\n    This geometric link does not assign biological meaning to an object."
+    },
     "spacr.hyperparam": {
       "source_blocks_sha256": [
         "0a2d94ed7d9f2ea17729bfe0e8560f829d52fc52cc6056256cd8293105899072",
@@ -20533,6 +20583,77 @@
       ],
       "source_sha256": "3e64ba56da95b96c8c6397bf808dc1cb3ffaff1431a9ebb3c78f338dc559fc40",
       "text": "Split a name into ``(kind, text)`` runs, kind ``\"alpha\"`` or ``\"digit\"``.\n\n``\"plate1_A01_F001\"`` becomes alpha/digit pairs. Separators are dropped:\nconventions disagree about ``_`` versus ``-`` versus nothing, and the\ndisagreement carries no information."
+    },
+    "spacr.image_quality": {
+      "source_blocks_sha256": [
+        "7bdc0835ac2f57f9a499540bb8882a2e02e8a32d803a3b56ed3a73d8657a717e"
+      ],
+      "source_sha256": "7bdc0835ac2f57f9a499540bb8882a2e02e8a32d803a3b56ed3a73d8657a717e",
+      "text": "Auditable image-quality screening before segmentation, using raw intensities."
+    },
+    "spacr.image_quality.assess_image": {
+      "source_blocks_sha256": [
+        "8b4f02a62739041fd0a29a104650ce647ec37bcbb0100d940b887b256467ab9a",
+        "f4f26b210e6766e5df0860034fec529ccb5b9052d499eb5e417a406f39850c1c",
+        "8ec11c88b23ff87971cabd56eba29ceca2e0f89375cffc1d18dab6e93a6aea0c",
+        "e264d92d52d4c9d8481bae123ce186551092574454f0c98e665bafbfc94205b0",
+        "8781682c5982d8c0fe640f6f60fb96eb7c5ca71374c6412a2438b22bb9ee872a",
+        "734ae0266c1b4281f3801b765d41c35b7e9fa91c17da5e23f2a537f0f506ddff"
+      ],
+      "source_sha256": "6446967d3541dfeb7c60244a19d4f78bffb8c94c4831b770410fccaa744d2d80",
+      "text": "Measure focus, saturation and nonfinite pixels on unnormalized channels.\n\n:param image: YX, YXC or leading-dimensions plus YXC array.\n:param settings: image_qc_* policy, validated before use.\n:param channel_ids: optional acquisition-channel labels for stored C planes.\n:returns: one metric/reason record per selected channel. Focus is the best\n    plane's Laplacian variance in raw intensity units squared, avoiding\n    rejection solely because a z stack includes out-of-focus planes.\n    Saturation uses an explicit acquisition level or integer dtype ceiling;\n    it never uses the brightest observed pixel. Object counts are not read.\n:raises ValueError: channels, shape or saturation calibration are unavailable."
+    },
+    "spacr.image_quality.ensure_no_retained_measurements": {
+      "source_blocks_sha256": [
+        "e6c5a284897d6c07a2c89c72f978aacc9950ea98f11c686a1245d3e57e02d076",
+        "2bb5543270c6dee3ce015b7713d8acc8e2d7429f18a95c2a9e7c99d9d9110575"
+      ],
+      "source_sha256": "4b252e3f3a20185b9bf1cd3d8f84ddc2a68f4e5c3d131688d643a4dc029cf1b3",
+      "text": "Refuse exclusions that would leave previously measured fields in reports.\n\nExisting results are never deleted. Re-screening an analyzed project needs\na fresh project if excluded fields already have measurement rows."
+    },
+    "spacr.image_quality.excluded_fields": {
+      "source_blocks_sha256": [
+        "ccd64f9690eb862b0890839b0f8a5b3f463a9f2f5c54f577d3f528fb1abf1b04",
+        "3ddea8a8f70d261c25a4a1729ff2baa79dd3974faa85539a30bd431524dd515d",
+        "c6149d014d55b288cd95dd0653f1666c8beca2d844dee093daa88f8cb1080f3e",
+        "729fc004f50612a7e18c5db3d683351db934925f08e9518c36f23d0e078251f0"
+      ],
+      "source_sha256": "5248e7ca9c629577078c8fe59dc341c9995c201d867c81bbeabd6a5944f5bdf9",
+      "text": "Read the active saved exclusion policy for downstream field consumers.\n\n:param root: project folder whose qc/image_quality.json is authoritative.\n:returns: excluded NPY basenames, or an empty set when no policy is active.\n:raises ValueError: a saved report has an unsupported or invalid schema."
+    },
+    "spacr.image_quality.filter_batch": {
+      "source_blocks_sha256": [
+        "d7c65a291d6a8acfcfb08f1ac33c015823ba7b139b024a3be9b794f564326fbe",
+        "4d431da34827be525484c6e24f9d430ab86041571757d2268fe69b5af5f219c2",
+        "c2948571e7846e7e6d86879d73b638c54859c5a48900b245790d5ad37c262fb9",
+        "31690a3bfbc57d42d1babb79737a113a6ddf231e8a06567585ad3889bde4af6c",
+        "84454a354d6025e3f1fa7f7b0b4a44a87103097954ff6aa26afc721f26f31a2a"
+      ],
+      "source_sha256": "29c6fb0978afb56e7daa4e2abd48f1979bfb6de91d106bd6a43d83be8941e5df",
+      "text": "Remove policy-excluded fields without substituting empty label images.\n\n:param batch: normalized image batch with its original field axis.\n:param filenames: matching basenames in batch order.\n:param settings: current run settings carrying image_qc_excluded_fields.\n:returns: filtered batch and matching filenames in their original order."
+    },
+    "spacr.image_quality.quality_policy": {
+      "source_blocks_sha256": [
+        "c33816246556f8f881be3790683d92f017369949e2083c793f0b297e398ce131",
+        "7e195d0a17faf5e6d78a75d1d302d6d4cb5221acf0e7886023f49869126a3ddf",
+        "c5c9db5be2d00433d8b42378194ef595c43e5ce88ef0da80fc9f4a6285423463",
+        "702ced7e80f0b6dce61af079e4bde14fd9a7186fbf46f207c66a247b9667427f"
+      ],
+      "source_sha256": "000f4be18a6cd7489efbd87a5241e5ecb25f7e5364c9aa3190f6c11108151f08",
+      "text": "Validate a saved per-channel policy without inspecting any image.\n\n:param settings: Mask settings containing image_qc_* options.\n:returns: JSON-serializable policy; empty channel list means every channel.\n:raises ValueError: unsupported mode, invalid channel or invalid threshold."
+    },
+    "spacr.image_quality.screen_fields": {
+      "source_blocks_sha256": [
+        "2e6582f8ea5837914fb9845e7f9a0a71ab5d4aeee7d2cdda88b045c01fa2c5a0",
+        "00bb669a780ec6e14e0d3a33dd8910d51507efa0e6bc33e00ffef155bc7b4ccb",
+        "19062aa273312b686a482b8290c9cef3ae2a650ad95b7bc022c940f16cc0dd37",
+        "b547afea3ce4f8717514bd30494d592c942957b1d17f89532d3a0ffce63ea3d3",
+        "994d842b7cf54977e38dc935d5df502ab153a7bcd199bd605cfc0d53fe32fd42",
+        "83beb671f089cee48e41f7d675a861a3eab3f8a58b600edd578c02b21a4a2755",
+        "448575db4ac4b303a78afa65bf94607c502cca1cbff9193ba2fe201297279b5f"
+      ],
+      "source_sha256": "12c9c9785c8b0ee0d1ae3a9d10fbec3067ae75e123175128a9935b718ed56bea",
+      "text": "Save a field/channel report and return fields explicitly excluded by policy.\n\n:param root: project folder; reports go to qc/image_quality.json and .csv.\n:param settings: Mask settings; mode off clears a previously active policy.\n:param paths: optional iterable of raw NPY paths; defaults to root/stack.\n:param channel_ids: optional acquisition-channel labels for supplied arrays.\n:returns: excluded basenames, empty in report-only or off mode. Inputs are\n    never deleted or rewritten. Report and exact policy precede exclusion.\n:raises ValueError: enabled screening has no raw fields or invalid calibration."
     },
     "spacr.image_stitch": {
       "source_blocks_sha256": [
@@ -70280,28 +70401,26 @@
     },
     "spacr.qt.widgets.cursor_policy": {
       "source_blocks_sha256": [
-        "9ff99ed95d9de10f37dee4a632c6a91e9a75d0ae82522041821d6ba3ed35508a"
+        "36217cba2ba61ea5547b039c15793c731df122e32b2d8d8355939ffe9da0d51b"
       ],
-      "source_sha256": "9ff99ed95d9de10f37dee4a632c6a91e9a75d0ae82522041821d6ba3ed35508a",
-      "text": "Keep one arrow silhouette and use blue to indicate interactive cursors."
+      "source_sha256": "36217cba2ba61ea5547b039c15793c731df122e32b2d8d8355939ffe9da0d51b",
+      "text": "Keep the operating system's standard arrow in every interactive context."
     },
     "spacr.qt.widgets.cursor_policy.arrow_cursor": {
       "source_blocks_sha256": [
-        "057257931413122aaa77c22728c3522b7cfe5937524e81b7202291d81eb50692",
-        "7a1a354b0b99d6f007a7258be4e61e31fb28bbbe040581f9c24c45f7a0fb7a12",
-        "a9a1f8fb23e16d3850ea70388c56f3002c3a8f62d407709a9ba8d37369dc306d"
+        "5928089557210a4063e926f7f97911f4f629cc81368e09f59a0bed150973967f",
+        "2c13e971c6e99905248fcce2217fab9685239a953e9bb86b2c3654a53e7655b5",
+        "05b2e06dfa261ed152f3932cf94aa67d0fd9f5a1960f3b3b11918c6f1177aa5e"
       ],
-      "source_sha256": "7d45c3d8c1a54e06313e9d6eae85255915d47d048a13022bfc7bda65be6f4a90",
-      "text": "Return the shared arrow, blue for interactive contexts.\n\n:param active: whether the original cursor requested a different shape.\n:returns: an arrow with opaque fill and a white outline in dark themes,\n    or black outline in light themes. Idle and active silhouettes match."
+      "source_sha256": "fbe77d36f2a171224ebb8648d623bfc3593233d922bc09bbad103f262f418f87",
+      "text": "Return the native OS arrow without customizing its artwork or size.\n\n:param active: retained for compatibility; both states use the OS arrow.\n:returns: a native arrow that follows the user's OS pointer preferences."
     },
     "spacr.qt.widgets.cursor_policy.install_cursor_policy": {
       "source_blocks_sha256": [
-        "d84e89ecc994e2c6239f6518e5ea335083817a0329767fb175b2479e1ac05afc",
-        "e303f4448e47aab6368f63d140ad4bc112f6c8c0753a8f916aad4d7bf8d26722",
-        "11e686ab0595391447edb32cd5a594828b3b1cb12f998b300b245d3c7b652a1a"
+        "1f07b257cc3a636d3c957a9ae00dfc080ade5220a06b8c67c6d0eeb0a0e3de7f"
       ],
-      "source_sha256": "3971213e5fe7be054ef71c520bf555073d263811f9844e38c99035fcf8d9b6df",
-      "text": "Install the application-wide fixed-arrow policy once.\n\n:param application: QApplication; defaults to the current instance.\n:returns: whether a new filter was installed. Widget gestures and native\n    compositor operations remain owned by their existing handlers."
+      "source_sha256": "1f07b257cc3a636d3c957a9ae00dfc080ade5220a06b8c67c6d0eeb0a0e3de7f",
+      "text": "Install the native-arrow policy once; leave all gestures unchanged."
     },
     "spacr.qt.widgets.cursor_zoom": {
       "source_blocks_sha256": [
@@ -81964,7 +82083,7 @@
     "spacr.qt.widgets.height_grip.HeightGrip": {
       "source_blocks_sha256": [
         "61de5da9d56b7786225377b3dd4eca0d970088e3fecf59b8d275083a77cd777e",
-        "b3370fbcb4d8f86b429d1c8f4e3ff2972772efa8edf9fc4755ecbc41d4c3f677",
+        "a2aaf7094e33f4255c2df94a4f2b1444bd05a0d0af83b3fdd5d6f2485e1c1492",
         "14f864d343243073d4d296fdfcb7a8072d185b0647cc79b05a57cc5a0c301fb7",
         "b539ef2707c5cc40365ddf36f55ead68969b1f3060862e592f0d7cee4729dbe4",
         "b6905ba7f24790de72cae46eb1ff27020d5759caf41ba1b72de961b7f1dfaa26",
@@ -81972,8 +82091,8 @@
         "b586b16c501d78a60c31dc4fbe6fc3e0f2c8526fece69987da66cd7168a2a758",
         "90e0e100f355ec67666b3392b318f77b1ddcc23b9c00de7156985739c974c544"
       ],
-      "source_sha256": "d583b9ab248a802127faa65227c12fc0cbb16a275564563e055bdb28f3d57ca5",
-      "text": "A thin bar that drags the widget above it taller or shorter.\n\nDrawn as three short lines rather than a plain strip because a strip that\nhappens to be draggable is a strip nobody drags. It brightens under the\npointer and takes focus for the same reason.\n\n:param target: the widget whose fixed height this drags.\n:param minimum: floor in px at 100 % font scale.\n:param maximum: ceiling in px at 100 % font scale.\n:param parent: parent widget; ownership only.\n:param name: accessible name, said aloud in place of \"resize handle\".\nBuild the grip, bounded so a drag cannot collapse or run away."
+      "source_sha256": "53c646de36e2a606461c5f926554700d8bd21af0052ba97b100d9b3c06f68786",
+      "text": "A thin bar that drags the widget above it taller or shorter.\n\nA thin line turns blue under the pointer or keyboard focus. The larger\ntransparent grab area keeps it easy to drag without a thick divider.\n\n:param target: the widget whose fixed height this drags.\n:param minimum: floor in px at 100 % font scale.\n:param maximum: ceiling in px at 100 % font scale.\n:param parent: parent widget; ownership only.\n:param name: accessible name, said aloud in place of \"resize handle\".\nBuild the grip, bounded so a drag cannot collapse or run away."
     },
     "spacr.qt.widgets.height_grip.HeightGrip.bounds": {
       "source_blocks_sha256": [
@@ -82065,10 +82184,10 @@
     },
     "spacr.qt.widgets.height_grip.HeightGrip.paintEvent": {
       "source_blocks_sha256": [
-        "c1ad1d2957943f1c4f6ad0b7fd696dfb98b368f5c23b7e2e1d3e3bacd8a73f82"
+        "67557ad3e944bc3acfb6d7901dead19f60dd8a27457d42068599a1d8e83354e2"
       ],
-      "source_sha256": "c1ad1d2957943f1c4f6ad0b7fd696dfb98b368f5c23b7e2e1d3e3bacd8a73f82",
-      "text": "Three short lines, centred, brighter under the pointer or focus."
+      "source_sha256": "67557ad3e944bc3acfb6d7901dead19f60dd8a27457d42068599a1d8e83354e2",
+      "text": "One thin line, blue under the pointer, during dragging or focus."
     },
     "spacr.qt.widgets.height_grip.HeightGrip.rescale": {
       "source_blocks_sha256": [
@@ -105010,6 +105129,7 @@
     "spacr.submodules.analyze_replication": {
       "source_blocks_sha256": [
         "1a59ac7b21bf28ddf5f980a0248997ddd98099c7b47fa6173f2995963ec5975d",
+        "605c05e5ef87a845b292da76a0192c107f810769f3830dcf030806f270899ba8",
         "09f55f2686721281ac76582b9512ad4b6c264baa6d3a73f475055d8149ab29ff",
         "27cf0bbaf9eff9661d0aceb2457709632fd67beb66540e9f994374e28d6ea72f",
         "d677c2117583955bb8308d9cde6a3b5ea7e81b214e47e69b1c41b356a7005fa2",
@@ -105029,8 +105149,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "5033317b59f56c4de4d95e37f2e3db6bf2ccf3af5ca61a56cea4e9e43114904a"
       ],
-      "source_sha256": "3559e6ef26b4b3a291e9c669e0c65f84a64e9f6b0cf7016f30c308edbb6990f2",
-      "text": "Replication assay: count parasites per vacuole and compare the distributions.\n\n*Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside\na mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites —\na power of two. The readout of a replication assay is therefore the\n**distribution** of parasites-per-vacuole across a well, not a mean: a mean\nof 3.2 cannot distinguish \"everything at 3-ish\", which is biologically\nimpossible, from a healthy mix of 2s and 4s. A drug that slows replication\nmoves mass from the 8 and 4 buckets down into 2 and 1, and only the\ndistribution shows that.\n\n**The counting unit is the vacuole.** Not the parasite, and emphatically\nnot the host cell — one host cell routinely carries several vacuoles, so\ngrouping on ``cell_id`` reports their combined count as a single vacuole\nand produces a plausible but meaningless number. See\n:func:`_assign_vacuole_ids` for how the vacuole is derived and what each\n``vacuole_key`` costs you.\n\nRosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two``\nbucket that is always reported and never folded into a neighbouring bucket.\nThat bucket is the assay's own quality control: a well where 30% of\nvacuoles are off the power-of-two ladder has a segmentation problem, and\nits replication number should not be trusted.\n\nStatistics: the two-condition comparison is a Mann-Whitney U test on the\ndoubling index ``log2(n_parasites)``, with a chi-squared omnibus test\nalongside it. :func:`_replication_compare_conditions` explains why, and why\na t-test on the raw counts is the wrong instrument.\n\n:param settings: dict of replication settings; see\n    ``set_analyze_replication_defaults``. Key entries:\n\n    - ``src`` — plate directory (or list of them) holding\n      ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` — table and column prefix\n      holding one row per segmented parasite. Default ``'pathogen'``.\n    - ``vacuole_key`` — how parasite rows are grouped into vacuoles\n      (``'auto'``, ``'spatial'``, ``'cell_id'``, ``'object'``, or a column\n      name).\n    - ``vacuole_link_distance`` / ``vacuole_link_factor`` — the spatial\n      clustering threshold, or the multiplier used to derive it.\n    - ``min_parasite_area`` / ``max_parasite_area`` — debris and\n      merged-clump filters applied before counting.\n    - ``max_parasites_per_vacuole`` — largest named power-of-two bucket.\n    - ``non_power_of_two_warn`` — QC flag threshold.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their\n      ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.\n    - ``save`` — write the CSVs and figures under\n      ``<src>/results/analyze_replication``.\n\n:returns: dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well\n    distribution), ``summary`` (per-condition distribution),\n    ``comparisons`` (pairwise ordered tests), ``chi_squared`` /\n    ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and\n    ``vacuole_key`` (the grouping actually used).\n:raises ValueError: when the parasite table holds no usable rows.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_replication\n        out = analyze_replication({\n            'src': '/data/plate1',\n            'pathogen_types': ['dmso', 'pyrimethamine'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['summary'][['condition', 'frac_1', 'frac_2', 'frac_4',\n                              'frac_8', 'frac_non_power_of_two']])\n\nSee Also:\n    :func:`analyze_endodyogeny` — the size-proxy version, for fused\n    rosettes that cannot be resolved into single parasites."
+      "source_sha256": "e9379b4934bc52b321d91ccade73e8fc6c7b1852838fff73e487d53f70001905",
+      "text": "Replication assay: count parasites per vacuole and compare the distributions.\n\n``replication_method='direct_count'`` is the default described below.\n``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its\narea-derived, host-aggregated readout instead. Both return the selected\nmethod in ``replication_method``. ``'deep_learning_coming_soon'`` raises\n:class:`NotImplementedError` before any data are read or outputs written;\nthe whole-vacuole classification model is not available yet.\n\n*Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside\na mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites —\na power of two. The readout of a replication assay is therefore the\n**distribution** of parasites-per-vacuole across a well, not a mean: a mean\nof 3.2 cannot distinguish \"everything at 3-ish\", which is biologically\nimpossible, from a healthy mix of 2s and 4s. A drug that slows replication\nmoves mass from the 8 and 4 buckets down into 2 and 1, and only the\ndistribution shows that.\n\n**The counting unit is the vacuole.** Not the parasite, and emphatically\nnot the host cell — one host cell routinely carries several vacuoles, so\ngrouping on ``cell_id`` reports their combined count as a single vacuole\nand produces a plausible but meaningless number. See\n:func:`_assign_vacuole_ids` for how the vacuole is derived and what each\n``vacuole_key`` costs you.\n\nRosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two``\nbucket that is always reported and never folded into a neighbouring bucket.\nThat bucket is the assay's own quality control: a well where 30% of\nvacuoles are off the power-of-two ladder has a segmentation problem, and\nits replication number should not be trusted.\n\nStatistics: the two-condition comparison is a Mann-Whitney U test on the\ndoubling index ``log2(n_parasites)``, with a chi-squared omnibus test\nalongside it. :func:`_replication_compare_conditions` explains why, and why\na t-test on the raw counts is the wrong instrument.\n\n:param settings: dict of replication settings; see\n    ``set_analyze_replication_defaults``. Key entries:\n\n    - ``src`` — plate directory (or list of them) holding\n      ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` — table and column prefix\n      holding one row per segmented parasite. Default ``'pathogen'``.\n    - ``vacuole_key`` — how parasite rows are grouped into vacuoles\n      (``'auto'``, ``'spatial'``, ``'cell_id'``, ``'object'``, or a column\n      name).\n    - ``vacuole_link_distance`` / ``vacuole_link_factor`` — the spatial\n      clustering threshold, or the multiplier used to derive it.\n    - ``min_parasite_area`` / ``max_parasite_area`` — debris and\n      merged-clump filters applied before counting.\n    - ``max_parasites_per_vacuole`` — largest named power-of-two bucket.\n    - ``non_power_of_two_warn`` — QC flag threshold.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their\n      ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.\n    - ``save`` — write the CSVs and figures under\n      ``<src>/results/analyze_replication``.\n\n:returns: dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well\n    distribution), ``summary`` (per-condition distribution),\n    ``comparisons`` (pairwise ordered tests), ``chi_squared`` /\n    ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and\n    ``vacuole_key`` (the grouping actually used).\n:raises ValueError: when the parasite table holds no usable rows.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_replication\n        out = analyze_replication({\n            'src': '/data/plate1',\n            'pathogen_types': ['dmso', 'pyrimethamine'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['summary'][['condition', 'frac_1', 'frac_2', 'frac_4',\n                              'frac_8', 'frac_non_power_of_two']])\n\nSee Also:\n    :func:`analyze_endodyogeny` — the size-proxy version, for fused\n    rosettes that cannot be resolved into single parasites."
     },
     "spacr.submodules.apply_cellpose_model": {
       "source_blocks_sha256": [

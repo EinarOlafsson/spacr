@@ -7312,7 +7312,12 @@ def main() -> int:
               f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
-    parser.add_argument("--audit", action="store_true")
+    audit_mode = parser.add_mutually_exclusive_group()
+    audit_mode.add_argument("--audit", action="store_true")
+    audit_mode.add_argument(
+        "--audit-english", action="store_true",
+        help="validate the current English runtime manifest without requiring translations",
+    )
     parser.add_argument(
         "--repair-untranslated",
         action="store_true",
@@ -7336,8 +7341,8 @@ def main() -> int:
     args = parser.parse_args()
 
     sources = canonical_sources()
-    if args.audit:
-        return audit(sources, args.languages)
+    if args.audit or args.audit_english:
+        return audit(sources, () if args.audit_english else args.languages)
 
     path = write_english(sources)
     print(

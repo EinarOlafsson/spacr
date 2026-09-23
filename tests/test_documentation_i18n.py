@@ -194,7 +194,8 @@ TOOLS = ROOT / "tools"
 # +9 held-out validation module/functions/reporting helpers in all locales.
 # +12 inference/cursor/help/schema entries. English and Help are refreshed;
 # all locale key/hash checks remain strict while translations are completed.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_437
+# +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_449
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

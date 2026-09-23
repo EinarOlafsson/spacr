@@ -1,0 +1,284 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "3b1b19273facff53c4513b79f587baa2f480e3ac",
+  "scope": "Explicit English website publication before full translation completion; current analysis guides, English API/Help refresh, ready-voice tutorial player preparation and pathway translation repairs.",
+  "documentation_version": "1.5.0.9",
+  "release_version_changed": false,
+  "api_symbols": 11449,
+  "ui_sources": 5067,
+  "map_modules": 78,
+  "pathways": 9,
+  "source_delta": {
+    "base_commit": "3b1b19273facff53c4513b79f587baa2f480e3ac",
+    "api_added": [
+      "spacr.host_pathogen",
+      "spacr.host_pathogen.analyze_host_pathogen",
+      "spacr.host_pathogen.default_settings",
+      "spacr.host_pathogen.summarize_tables",
+      "spacr.host_pathogen.vacuole_links",
+      "spacr.image_quality",
+      "spacr.image_quality.assess_image",
+      "spacr.image_quality.ensure_no_retained_measurements",
+      "spacr.image_quality.excluded_fields",
+      "spacr.image_quality.filter_batch",
+      "spacr.image_quality.quality_policy",
+      "spacr.image_quality.screen_fields"
+    ],
+    "api_changed": [
+      "spacr.qt.widgets.cursor_policy",
+      "spacr.qt.widgets.cursor_policy.arrow_cursor",
+      "spacr.qt.widgets.cursor_policy.install_cursor_policy",
+      "spacr.qt.widgets.height_grip.HeightGrip",
+      "spacr.qt.widgets.height_grip.HeightGrip.paintEvent",
+      "spacr.submodules.analyze_replication"
+    ],
+    "api_removed": [],
+    "before": {
+      "callables": 9460,
+      "categories": {
+        "function": 4207,
+        "dataclass_constructor": 503,
+        "constructor": 437,
+        "method": 4089,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9455,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9467,
+      "variant_counts": {
+        "1": 9453,
+        "2": 7
+      },
+      "parameters": 18780,
+      "required_parameters": 9672,
+      "digest": "01e5011e31bf61857028ce609f4f471d7b54dcfb1d1b3c28372e3b7de82587fd"
+    },
+    "after": {
+      "callables": 9470,
+      "categories": {
+        "function": 4217,
+        "dataclass_constructor": 503,
+        "constructor": 437,
+        "method": 4089,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9465,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9477,
+      "variant_counts": {
+        "1": 9463,
+        "2": 7
+      },
+      "parameters": 18804,
+      "required_parameters": 9688,
+      "digest": "19edbf186f1cfb9bf4379a8880369c57814a69b7f19b5c95e4dd4a073b1c730a"
+    },
+    "added_rows": {
+      "spacr.host_pathogen.analyze_host_pathogen": "spacr.host_pathogen.analyze_host_pathogen\u0000function\u0000autoapi\u0000settings\u0000\u0000settings\u00000\u00001\u00000\u00000",
+      "spacr.host_pathogen.default_settings": "spacr.host_pathogen.default_settings\u0000function\u0000autoapi\u0000settings\u0000\u0000settings\u00000\u00001\u00000\u00000",
+      "spacr.host_pathogen.summarize_tables": "spacr.host_pathogen.summarize_tables\u0000function\u0000autoapi\u0000cells,parasites,reference,settings,source,vacuoles\u0000cells,reference,vacuoles\u0000cells,parasites,reference,settings,source,vacuoles\u00000\u00001\u00000\u00000",
+      "spacr.host_pathogen.vacuole_links": "spacr.host_pathogen.vacuole_links\u0000function\u0000autoapi\u0000child_mask,vacuole_mask\u0000child_mask,vacuole_mask\u0000child_mask,vacuole_mask\u00000\u00001\u00000\u00000",
+      "spacr.image_quality.assess_image": "spacr.image_quality.assess_image\u0000function\u0000autoapi\u0000channel_ids,image,settings\u0000image,settings\u0000channel_ids,image,settings\u00000\u00001\u00000\u00000",
+      "spacr.image_quality.ensure_no_retained_measurements": "spacr.image_quality.ensure_no_retained_measurements\u0000function\u0000autoapi\u0000rejected,root\u0000rejected,root\u0000rejected,root\u00000\u00001\u00000\u00000",
+      "spacr.image_quality.excluded_fields": "spacr.image_quality.excluded_fields\u0000function\u0000autoapi\u0000root\u0000root\u0000root\u00000\u00001\u00000\u00000",
+      "spacr.image_quality.filter_batch": "spacr.image_quality.filter_batch\u0000function\u0000autoapi\u0000batch,filenames,settings\u0000batch,filenames,settings\u0000batch,filenames,settings\u00000\u00001\u00000\u00000",
+      "spacr.image_quality.quality_policy": "spacr.image_quality.quality_policy\u0000function\u0000autoapi\u0000settings\u0000settings\u0000settings\u00000\u00001\u00000\u00000",
+      "spacr.image_quality.screen_fields": "spacr.image_quality.screen_fields\u0000function\u0000autoapi\u0000channel_ids,paths,root,settings\u0000root,settings\u0000channel_ids,paths,root,settings\u00000\u00001\u00000\u00000"
+    }
+  },
+  "checks": {
+    "english_api_audit": {
+      "result": "verified API catalogs: languages=0 symbols=11449",
+      "sha256": "5d0a2d167283842534543946a81e977a71e6506b32a0b71804606f2297b37971"
+    },
+    "english_runtime_audit": {
+      "result": "verified external runtime catalogs: languages=0",
+      "sha256": "4912fbe11c70e43ee5a9b70ef5bd914e4681dd47c3b3107cdf78a2f3b4d5f14d"
+    },
+    "settings_reference": {
+      "result": "Current:",
+      "sha256": "d85ca3666531cf12b0f05dd40e4a37165d8b6e540d9ae3b0c0f2c32a14080d12"
+    },
+    "workflow_map": {
+      "result": "78 modules, 9 pathways verified",
+      "sha256": "509322f3ae3db44210ff7ad02ac9dba952aec747cacb2a12c51ec4a7b219b0d9"
+    },
+    "strict_sphinx": {
+      "result": "build succeeded.",
+      "sha256": "085abb51d25742658ce289961b5ff9ffa7aca60d904d447bdc2e47a1203b16aa"
+    },
+    "cli_and_frontend": {
+      "result": "16 passed",
+      "sha256": "927d9251b796e9bf2b28b4a97b4b30ba80aca98bd51993e806d487fe2e0fe077"
+    },
+    "source_version": {
+      "result": "7 passed, 1 skipped",
+      "sha256": "193ad3c9be248832fc7491fb7e7e0c1ea2ba641eab2c8ac74c1344437c6b2548"
+    },
+    "callable_inventory": {
+      "result": "2 passed",
+      "sha256": "192ff9924752148dffbe25095467235cbfe295671a6b12618e62a89a2c8036e9"
+    },
+    "built_api_in_application_environment": {
+      "result": "20 passed, 7 skipped, 36 deselected",
+      "sha256": "d3cde74c1cb46921621d011a3f2a57627dbe3f58453bb3f5a2bacec3b9d7f6b7"
+    },
+    "helper_fixtures_in_sphinx_environment": {
+      "result": "9 passed, 38 deselected",
+      "sha256": "c68237fbb05dbfe39aa6d983ffcadde7785aee6624145dccec4617dbc57ad66c"
+    },
+    "pathway_walkthroughs": {
+      "result": "22 passed",
+      "sha256": "304a0c4f70551002f15366ab7561fc224af98a9581c38c95a8977ac1ee54c4a7"
+    },
+    "lesson_voice_selectors": {
+      "result": "8 passed",
+      "sha256": "5ebea2affe88ad358e97d5c734756ce5ba2afb0e744383e096b507f614e0e59a"
+    },
+    "deployment_branch_gate": {
+      "result": "1 passed",
+      "sha256": "82c201bb904df7561785e93b567cf9f67336470fb20ba42c9846547bf1029aea"
+    }
+  },
+  "site": {
+    "rendered_links": 2181,
+    "rendered_api_anchors": [
+      "spacr.host_pathogen",
+      "spacr.host_pathogen.analyze_host_pathogen",
+      "spacr.host_pathogen.default_settings",
+      "spacr.host_pathogen.summarize_tables",
+      "spacr.host_pathogen.vacuole_links",
+      "spacr.image_quality",
+      "spacr.image_quality.assess_image",
+      "spacr.image_quality.ensure_no_retained_measurements",
+      "spacr.image_quality.excluded_fields",
+      "spacr.image_quality.filter_batch",
+      "spacr.image_quality.quality_policy",
+      "spacr.image_quality.screen_fields",
+      "spacr.qt.widgets.cursor_policy",
+      "spacr.qt.widgets.cursor_policy.arrow_cursor",
+      "spacr.qt.widgets.cursor_policy.install_cursor_policy",
+      "spacr.qt.widgets.height_grip.HeightGrip",
+      "spacr.qt.widgets.height_grip.HeightGrip.paintEvent",
+      "spacr.submodules.analyze_replication"
+    ],
+    "browser_cases": [
+      {
+        "page": "api/spacr/image_quality/index.html",
+        "passed": true,
+        "no_translation_requests": true,
+        "locale_preference_preserved": true,
+        "screenshot": "/mnt/firecuda2/codex/workflow-authoring-20260922/publication-image_quality-desktop.png"
+      },
+      {
+        "page": "api/spacr/host_pathogen/index.html",
+        "passed": true,
+        "no_translation_requests": true,
+        "locale_preference_preserved": true,
+        "screenshot": "/mnt/firecuda2/codex/workflow-authoring-20260922/publication-host_pathogen-desktop.png"
+      }
+    ],
+    "passed": true
+  },
+  "gui_translation_records": [
+    {
+      "language": "sv",
+      "path": "docs/i18n/reviewed/runtime/sv/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "1abd263bd01c9b8a3317ddafb6625f2b1fd749624cf27d89e7ad720ce932152e"
+    },
+    {
+      "language": "de",
+      "path": "docs/i18n/reviewed/runtime/de/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "7370039900d565031a31e24ee31006dab703d21ff07c8e06a5e433e16974a79b"
+    },
+    {
+      "language": "es",
+      "path": "docs/i18n/reviewed/runtime/es/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "7d3e62254dec3db531c8f3cb191357d551171aacfa1cc5ac0e928bdc89e34ffa"
+    },
+    {
+      "language": "zh_CN",
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "29b790464a0c308dd42dc458f2eb5b9a6121ee7bebc3de0760d8814c112cfd5b"
+    },
+    {
+      "language": "pt",
+      "path": "docs/i18n/reviewed/runtime/pt/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "50236cc14330331768e6ed92b79ed5b1e08dafa2eb05c88951253271f0b1aa2a"
+    },
+    {
+      "language": "hi",
+      "path": "docs/i18n/reviewed/runtime/hi/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "2226cdc1bb83a56771ef164c8df48bb0c1f8138373c127f4cbfd781b0fee0419"
+    },
+    {
+      "language": "ko",
+      "path": "docs/i18n/reviewed/runtime/ko/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "b68ce54d6276caa1d84b0f55fdedd42a25566812eec60912ebbe17efd55d8049"
+    },
+    {
+      "language": "ko",
+      "path": "docs/i18n/reviewed/runtime/ko/2026-09-23-parasite-pathway-actions.json",
+      "rows": 2,
+      "sha256": "19a26a27f692a261dc7dde4b40342dcc486d9b03d83d89e0a2cbee6857837ff5"
+    },
+    {
+      "language": "is",
+      "path": "docs/i18n/reviewed/runtime/is/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "dce0cfb3ec92573159673402cc4589251650b789a4faebe7ec910065fbf48218"
+    },
+    {
+      "language": "is",
+      "path": "docs/i18n/reviewed/runtime/is/2026-09-23-parasite-pathway-actions.json",
+      "rows": 2,
+      "sha256": "d24990c18303c5f722a6853d7027237ff734314fa542b89550cb988c93845b55"
+    },
+    {
+      "language": "fr",
+      "path": "docs/i18n/reviewed/runtime/fr/2026-09-23-host-pathway-actions.json",
+      "rows": 1,
+      "sha256": "7401b3b30e98c505ada483f64c68215d1daa43e875fa6c55727291de4293fadf"
+    }
+  ],
+  "gui_rows": 13,
+  "publication_mode": {
+    "default": "all",
+    "explicit_english_mode": true,
+    "source_manifests_regenerated_then_audited": true,
+    "nightly_push_deploys": false,
+    "manual_nightly_dispatch_deploys": true,
+    "stale_api_translations_not_offered": true,
+    "gui_languages_changed_by_publication_mode": false
+  },
+  "native_speaker_signoff": false,
+  "complete_api_translation_acceptance": false,
+  "full_ci_passed": false,
+  "published": false,
+  "uploaded": false,
+  "remaining": [
+    "Merge or deliberately deploy the intended source snapshot; package and Pages workflows are independent",
+    "Incoming origin/nightly Starplast, layout and category-help changes require source refresh after rebase",
+    "Complete API and GUI translations; Korean/Icelandic tutorial banks are private drafts",
+    "Promote exact source-checked tutorial candidates; ready-voice selector support alone does not publish new lessons",
+    "Source refresh and recordings for changed workflow tutorials; broader helper documentation"
+  ]
+}

@@ -2563,3 +2563,16 @@ All scripts start at Home and link existing specialist lessons. Source/map/API
 and staging checks pass89/89. This is authoring progress only: new recordings,
 13-language reviews, voices, player/caption/listening acceptance and complete-set
 publication remain open. They have not been inserted into the published course.
+
+2026-09-23 — CODEX: READY VOICES CAN BE OFFERED PER LESSON
+User explicitly prioritizes incremental public updates before every voice and
+translation is complete. The authoring player now accepts narration_voices
+per lesson, offering only declared, known voice IDs. Existing lessons without
+this metadata keep their full voice catalog. A language with no ready audio
+keeps its text language and offers Silent master. Eight Node-backed checks
+pass; actual private Chromium playback verifies English Heart, Spanish silent
+without missing-audio requests, and switching back to English. Evidence:
+evidence/2026-09-23-incremental-narration-selector.json under tools/tutorials.
+This is player preparation against previously recorded media, not acceptance
+of those recordings against current source. The published player is unchanged;
+reduced-voice candidate assembly, exact source/media checks and upload remain.

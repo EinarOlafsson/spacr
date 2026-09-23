@@ -526,3 +526,14 @@ CPU drafting/rendering continues. The user explicitly requests user-facing
 incremental documentation/tutorial updates without waiting for every translation
 or voice. Complete-set acceptance remains a completion measure, not a blanket
 hold on independently verified English documentation and ready tutorial subsets.
+
+2026-09-23 — CODEX: PATHWAY TRANSLATION REGRESSIONS RESOLVED
+The external-mask import action was already translated by3b1b19273. Added the
+new Host–Pathogen action in all nine GUI languages, preserving uninfected-host
+denominators, explicit optional counts and unknown measurements. Two additional
+invasion/replication actions in Korean and Icelandic close the remaining live
+walkthrough gaps. Thirteen source-bound records pass their catalog checks and
+all22tests in test_pathway_walkthroughs.py now pass. Tutorial phrase banks still
+need the newer Host–Pathogen map additions; private Korean/Icelandic drafts are
+finished but unreviewed. The English site publication option allows the current
+written walkthroughs/API to ship before that complete translation/media matrix.

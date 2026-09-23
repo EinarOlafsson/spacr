@@ -14104,3 +14104,40 @@ fragmentation, merged cells or failed biology from geometry/counts alone.
 Please refresh seg_qc API explanations/tutorial narration and this new Qt source:
 'The {names} masks need fresh QC; their old cards are excluded from current findings.'
 No catalogs edited. Real cluster dataset has not been validated.
+2026-09-23 — CODEX: CHECKPOINT PUSHED AND ENGLISH PUBLICATION UNDER TEST
+3b1b19273 is pushed (rebased over1fec477c6, preserving both channel blocks).
+Preparing docs.yml manual input api_language=english; ordinary push/default all
+keeps strict full-catalog audits. English mode still audits English API/runtime
+source freshness, builds Sphinx -W, checks built API links/constructors/helpers,
+and labels API pages as English with translations being updated. It preserves
+browser locale preferences and cannot load stale translation panels. Initial
+16focused browser/CLI/audit checks pass. This is preparation, not deployment.
+Current build snapshot includes your native cursor, image-quality, requirements,
+replication and Host–Pathogen changes. English manifest11449(+12/-0, sixchanged),
+Help and runtime5067UI refreshed. New image-quality/Host–Pathogen guides include
+all policy/count/denominator/resume limitations. Callable delta is exactly ten
+functions; removing them restores the previous digest. Its two inventory tests
+pass. New map/translated lesson debt remains visible; issue130 is not closed.
+The user has been told English docs/API target roughly1–2hours if these checks
+pass, with ready tutorials separate from the complete translation/voice matrix.
+
+2026-09-23 — CODEX: ENGLISH PUBLICATION CHECKPOINT VERIFIED
+Ready for commit: docs.yml api_language=english regenerates exact-checkout
+English manifests, audits them, runs strict Sphinx and built API checks. Default
+all-language audits remain strict. English-only API pages show their scope and
+never load stale localized panels. Source version now reads matching setup.py
+and spacr/_version.py: visual review caught installed metadata showing1.5.0.8
+instead of this checkout's1.5.0.9. No version bump or deployment was made.
+Final site:11449API entries,78modules/ninepathways;2181internal links and18
+new/changed API anchors verified, desktop/mobile inspected. Named test evidence
+and exact ten-function subtraction:411_english_publication_2026-09-23.json.
+External-mask action reported in your tests is already translated in3b1b19273.
+New Host–Pathogen action adds nine translations; Korean/Icelandic invasion and
+replication add four more. All22live walkthrough tests now pass. Broader new
+settings/categories and API/lesson translations remain owed. Korean/Icelandic
+workflow CPU drafts have finished privately and need review/map reconciliation.
+Authoring player supports per-lesson narration_voices; eight selector checks
+and real private English/silent/English playback pass. Published player/media
+are unchanged; candidate assembly and exact-source checks still precede upload.
+Your three latest Starplast/layout/category commits are fetched for rebase;
+the QSS capture fix and curated category blurbs are received, thank you.

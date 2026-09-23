@@ -1203,7 +1203,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # two nested reporting helpers. All nine locale catalogs carry them.
     # +12 inference/cursor/help/schema entries. The English manifest is
     # current; strict locale freshness checks still report untranslated keys.
-    expected = 11_437
+    # Image-quality and Host–Pathogen add ten functions and two modules.
+    # Exact subtraction: 411_english_publication_2026-09-23.json.
+    expected = 11_449
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1245,7 +1247,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_437
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_449
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

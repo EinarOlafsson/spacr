@@ -1908,3 +1908,23 @@ New API translations and TTA settings remain owed. Incoming native-cursor,
 image-quality, system-requirements and replication changes need the next refresh.
 The user now explicitly prioritizes incremental public updates before all
 translations and narration are complete; an English publication route is next.
+
+2026-09-23 — CODEX: INCREMENTAL ENGLISH PUBLICATION PREPARED
+The docs workflow now offers an explicit api_language=english dispatch. It
+regenerates English manifests from the selected checkout, audits those sources,
+builds strict Sphinx and checks the rendered API. Automatic/default all mode
+still requires complete catalogs. English pages explain that translations are
+being updated, omit the translation selector and preserve stored preferences.
+Source-version metadata now comes from matching setup.py/_version.py literals,
+not an older installed distribution. No release version was changed.
+This snapshot has11449English API entries,5067UI sources,78map modules and nine
+pathways. New image-quality and Host–Pathogen/replication guides cover raw
+intensities, calibrated thresholds, exclusion/resume behavior and explicit
+vacuole/host/count denominators. The strict version-correct site passes2181
+internal links and18affected API anchors plus actual desktop/mobile browser
+checks. Named tests:20pass/7skip in the app environment; nine helper fixtures
+pass separately in the Sphinx environment; two callable-inventory checks pass.
+Receipt: data/411_english_publication_2026-09-23.json. The opt-in broader helper
+corpus remains separate; complete translations/full CI are not claimed.
+Publication instructions: docs/notes/publishing_documentation.md. A package
+bump alone does not deploy this English mode or promote private video staging.

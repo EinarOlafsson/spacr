@@ -4,6 +4,15 @@ on:
   push:
     branches: [main, nightly]
   workflow_dispatch:
+    inputs:
+      api_language:
+        description: Publish complete translations or the current English API
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - english
 
 # Deploys the sphinx-autoapi build directly through the GitHub Pages
 # artifact upload API (modern approach — bypasses gh-pages, bypasses
@@ -50,6 +59,8 @@ concurrency:
 jobs:
   build:
     name: Build Sphinx
+    env:
+      SPACR_DOCS_API_LANGUAGE: ${{ inputs.api_language || 'all' }}
     runs-on: ubuntu-24.04
     # 60, RAISED FROM 30 ON 2026-09-11 BECAUSE THE JOB HAD GROWN INTO ITS
     # OWN LIMIT. Run 34559204118 was killed at exactly 30m15s with the
@@ -139,10 +150,23 @@ jobs:
           HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
             tools/run_capped.sh 4G python tools/build_make_masks_reference.py --check
 
+      - name: Refresh English manifests for incremental publication
+        if: env.SPACR_DOCS_API_LANGUAGE == 'english'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python tools/build_documentation_i18n.py --sources-only
+          python tools/build_i18n_catalogs.py --sources-only
+
       - name: Audit localization catalogs
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
+          audit_option=--audit
+          if [ "$SPACR_DOCS_API_LANGUAGE" = english ]; then
+            audit_option=--audit-english
+            echo "::notice::Publishing the current English API; translation completion is not claimed."
+          fi
           # BOTH LANES ALWAYS RUN, AND THAT IS THE WHOLE POINT OF THE
           # BOOKKEEPING. These are two independent catalogs -- the API
           # lane and the runtime lane -- and the step used to be two bare
@@ -152,9 +176,9 @@ jobs:
           # went unrun for fifteen runs and a regression in it would have
           # surfaced only once the unrelated lane was fixed.
           set +e
-          python tools/build_documentation_i18n.py --audit
+          python tools/build_documentation_i18n.py "$audit_option"
           api=$?
-          python tools/build_i18n_catalogs.py --audit
+          python tools/build_i18n_catalogs.py "$audit_option"
           runtime=$?
           set -e
           echo "audit exits: api=$api runtime=$runtime"
@@ -163,6 +187,17 @@ jobs:
             [ "$runtime" -ne 0 ] && echo "FAILED: the runtime catalog lane"
             exit 1
           fi
+
+      - name: Record publication scope
+        run: |
+          {
+            echo "### Documentation publication scope"
+            echo ""
+            echo "API language mode: $SPACR_DOCS_API_LANGUAGE."
+            echo "Source commit: $GITHUB_SHA."
+            echo "Tutorials use the checked-in catalog and pinned media revision."
+            echo "Private recordings and unfinished translations are not promoted by this run."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build docs
         env:
@@ -198,10 +233,18 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           SPACR_DOCS_BUILT: "1"
         run: |
+          selection=()
+          if [ "$SPACR_DOCS_API_LANGUAGE" = english ]; then
+            # The English site does not serve translated helper panels.
+            # Keep their full-catalog acceptance tests in the all-language run.
+            selection=(-k 'not enabled_helpers_use_their_own_real_catalog_entries_in_the_browser')
+          fi
           python -m pytest -q \
             tests/test_tooltip_api_links_resolve.py \
             tests/test_built_constructor_api.py \
-            tests/test_built_nested_helper_api.py
+            tests/test_built_nested_helper_api.py \
+            tests/test_english_documentation_publication.py \
+            "${selection[@]}"
 
       # --- production Pages path: main, or an explicit audited nightly ---
       - name: Configure Pages

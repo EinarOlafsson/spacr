@@ -596,6 +596,16 @@
     if (!apiArticle || (!apiArticle.querySelector("dl.py dt[id]") &&
         !/\/api(?:\/|$)/.test(location.pathname))) return;
 
+    if (script.dataset.apiLanguage === "english") {
+      const notice = document.createElement("p");
+      notice.className = "spacr-api-publication-note";
+      notice.textContent = "This API reference is published in English. " +
+        "Translations are being updated.";
+      apiArticle.prepend(notice);
+      commitEnglish({historyMode: "replaceState", persist: false});
+      return;
+    }
+
     const wrapper = document.createElement("label");
     wrapper.className = "spacr-api-language";
     languageLabel = document.createElement("span");

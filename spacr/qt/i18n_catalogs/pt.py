@@ -6912,6 +6912,7 @@ UI = {
     'Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.': 'Use arrays de imagens mescladas e os planos correspondentes de rótulos de objetos de Mask ou Import. Verifique os papéis dos canais, as identidades dos objetos e as configurações dos recortes antes de medir.',
     'Test-time augmentation': 'Aumento de dados na inferência',
     'Follow the pathway instructions for this connection.': 'Siga as instruções do fluxo de trabalho para esta conexão.',
+    'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': 'Meça vacúolos inteiros e compartimentos de referência das células hospedeiras, mantendo as células hospedeiras não infectadas no denominador da fração infectada. Selecione os canais dos marcadores e os limiares de razão calibrados com controles. Opcionalmente, conte os parasitas segmentados individualmente a partir de vínculos explícitos com vacúolos ou de uma coluna de contagens medidas. Revise as tabelas de vacúolos, células hospedeiras e poços, os estados conjuntos dos marcadores, as distribuições de replicação e os vínculos de parasitas sem correspondência; as medições desconhecidas permanecem desconhecidas.',
 }
 
 MODULE_SUMMARIES = {
@@ -13948,4 +13949,5 @@ SOURCE_HASHES = {
     ('UI', 'Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.'): '5509c5c687e14fe50ca5548f8b03361cac9b8d17399908919eb7566f4580414d',
     ('UI', 'Test-time augmentation'): '80ca70fbdb3bd16c2431ef449da30ab812973bc74df97d473df074ec22a71af9',
     ('UI', 'Follow the pathway instructions for this connection.'): 'ebc6c5d59a4e0fd79309f3e8c92efdf92f22467dc03565f1d1c498ee212b6ba1',
+    ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
 }

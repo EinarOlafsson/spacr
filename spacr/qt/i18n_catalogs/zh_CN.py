@@ -6932,6 +6932,7 @@ UI = {
     'Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.': '使用 Mask 或 Import 提供的合并图像数组和匹配的对象标签平面。测量前检查通道角色、对象身份标识和裁剪设置。',
     'Test-time augmentation': '推理时数据增强',
     'Follow the pathway instructions for this connection.': '请按照工作流程中针对此连接的说明操作。',
+    'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': '测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。',
 }
 
 MODULE_SUMMARIES = {
@@ -13987,4 +13988,5 @@ SOURCE_HASHES = {
     ('UI', 'Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.'): '5509c5c687e14fe50ca5548f8b03361cac9b8d17399908919eb7566f4580414d',
     ('UI', 'Test-time augmentation'): '80ca70fbdb3bd16c2431ef449da30ab812973bc74df97d473df074ec22a71af9',
     ('UI', 'Follow the pathway instructions for this connection.'): 'ebc6c5d59a4e0fd79309f3e8c92efdf92f22467dc03565f1d1c498ee212b6ba1',
+    ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
 }

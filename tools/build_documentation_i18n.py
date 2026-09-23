@@ -6831,7 +6831,12 @@ def main() -> int:
               f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
-    parser.add_argument("--audit", action="store_true")
+    audit_mode = parser.add_mutually_exclusive_group()
+    audit_mode.add_argument("--audit", action="store_true")
+    audit_mode.add_argument(
+        "--audit-english", action="store_true",
+        help="validate the current English API manifest without requiring translations",
+    )
     parser.add_argument(
         "--repair-api-blocks",
         action="store_true",
@@ -6858,8 +6863,8 @@ def main() -> int:
     args = parser.parse_args()
 
     docs = public_docstrings()
-    if args.audit:
-        return audit(docs, args.languages)
+    if args.audit or args.audit_english:
+        return audit(docs, () if args.audit_english else args.languages)
 
     if args.sources_only:
         if not args.rebuild_readme:
