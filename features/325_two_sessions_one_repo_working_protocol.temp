@@ -14452,3 +14452,17 @@ masks, generating real measurements and replacing the Load test data wiring.
 Also moving Live to the bottom with the other previews' button styling.
 Please pause synthetic-example promotion in tutorials; new data contract and
 provenance to follow. Synthetic unit-test fixtures remain useful internally.
+
+2026-09-23 — USER RETIRES DEMOS
+Remove Demos from Help and all user-facing references in favor of Load test
+data and walkthroughs. Runtime taking app menu, empty-state banner, first-run
+step and Host–Pathogen Live control. Documentation lane: please remove Demos
+menu references from tutorial scripts, published guides/API/help and current
+translation strings. Internal synthetic fixtures still support regression
+tests; they are no longer a product navigation destination. Do not point any
+new walkthrough at the retired menu.
+
+Runtime menu/banner/first-run retirement and Host–Pathogen bottom Live control
+verified:153checks pass,4non-settings-screen skips. Tracking remaining Demos
+reference removal in494. Please take tutorial scripts and public prose that
+still say Help→Demos; those steps now lead to a menu that no longer exists.
