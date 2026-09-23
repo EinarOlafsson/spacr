@@ -61,3 +61,18 @@ and held-out evaluation are unchanged; no model-accuracy gain is claimed.
 Validation:14 CPU inference/settings checks and12 merged-Classify Qt checks
 pass, including real PNG/tar paths, an orientation-sensitive model, deliberate
 mean/vote disagreement, input preservation and distinct transformation counts.
+
+2026-09-23 — PART3 COMPLETE: IMAGE QUALITY BEFORE MASK
+New Mask category with off/report/exclude modes and explicit channel-based
+focus and saturation thresholds, acquisition saturation levels and nonfinite
+pixel criteria. Raw stack values are screened before both pipeline versions
+segment them. Exclusions are saved with exact settings and reasons in JSON
+and CSV; an HTML gallery shows up to64 flagged-first field previews from QC
+Dashboard. All fields remain in the CSV. Inputs are preserved. Merge and
+Measure honor the saved exclusions; fields are never represented as zero
+objects. Existing measured rows overlapping a new exclusion policy cause an
+explicit refusal rather than retaining misleading old results; use report
+mode or a fresh project. Focus is best-plane raw Laplacian variance for volumes.
+Validation:56 focused quality/v2/QC checks and18 quality/v1 checks pass with
+CPU-only stubs; this includes all-fields-excluded avoidance of model calls,
+raw pixel preservation, calibration and retained-results protection.

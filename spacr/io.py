@@ -4422,6 +4422,9 @@ def _load_and_concatenate_arrays(
 
     count=0
     reference_files = _listdir_visible(reference_folder)
+    from .image_quality import excluded_fields
+    rejected_quality = excluded_fields(src)
+    reference_files = [name for name in reference_files if name not in rejected_quality]
     all_imgs = len(reference_files)
     time_ls = []
     layout_written = False

@@ -270,6 +270,7 @@ def convert_settings_dict_for_gui(settings):
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
         'cv_group_by': ('combo', ['cell', 'field', 'well', 'plate'], 'well'),
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
+        'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),
         'strict_errors': ('combo', [None, True, False], None),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),

@@ -842,6 +842,12 @@ def run_v2(
     stacks = stream_originals_to_stack(
         src, mapper, channels=channels, channel_names=channel_names,
     )
+    from .image_quality import screen_fields
+    rejected_quality = set(screen_fields(src, postprocess_settings or {},
+                                         [stack.path for stack in stacks], channels))
+    stacks = [stack for stack in stacks if stack.path.name not in rejected_quality]
+    if not stacks:
+        return {'mapper': mapper, 'stacks': [], 'dst': src / 'merged'}
     illumination_session = None
     if (stacks and illumination_settings and
             illumination_settings.get('illumination_correction', False)):

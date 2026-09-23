@@ -13880,3 +13880,21 @@ I am claiming README.rst, docs/source/system_requirements.rst and the new
 System Requirements toctree entry for the user's hardware documentation request.
 I will verify framework support against source and official vendor docs; please
 coordinate translations/tutorial links after that page is committed.
+
+2026-09-23 — IMPLEMENTATION HANDOFF:484 PART3 PRE-MASK IMAGE QUALITY
+New spacr.image_quality module screens unnormalized stack fields before both
+v1 and v2 segmentation. Mask category 'Image Quality': image_qc_mode defaults
+off; report flags only, exclude skips fields. Other keys: image_qc_channels,
+image_qc_min_focus, image_qc_max_saturation, image_qc_saturation_level (channel
+maps), image_qc_max_nonfinite. Explicit acquisition saturation ceiling is
+important for 12-bit data stored as uint16; float saturation needs calibration.
+Focus uses best-plane Laplacian variance. Low object counts are never a reason.
+QC Dashboard adds a summary and 'Review image quality' opening a local HTML
+thumbnail gallery, flagged-first, capped at64 previews; CSV includes every
+field/channel. JSON saves the exact policy and exclusion identities. Inputs
+are retained. Segmenters, merge and Measure respect exclusions. Re-screening
+refuses exclusions overlapping retained measurement rows: use report mode or
+a fresh project so old results cannot silently masquerade as screened results.
+Please document all six settings, new APIs/gallery and these resume semantics;
+translate the new category, tooltips and review action. 56 focused screening/
+v2/QC checks plus18 screening/v1 checks pass (some overlap), CPU only.

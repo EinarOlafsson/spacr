@@ -3447,6 +3447,10 @@ def measure_crop(settings):
                 _save_settings_to_db(settings)
 
                 files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                from .image_quality import excluded_fields, ensure_no_retained_measurements
+                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
+                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
+                files = [name for name in files if name not in rejected_quality]
                 _full_rescale_plan = build_plate_plan(
                     settings['src'], files, settings)
                 settings[PLAN_SETTINGS_KEY] = {

@@ -61,6 +61,7 @@ from ..theme import SPACING, register_widget_qss
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.measurements_example import install_test_data_button
+from ..i18n import tr
 from ..widgets.qc_summary import (
     Dashboard, format_dashboard, read_dashboard,
 )
@@ -331,7 +332,7 @@ class QCDashboardScreen(QWidget):
             paths = list(find_scorecards(src))
         except Exception:
             return None
-        for extra in ("measurements/measurements.db", "measurements.db"):
+        for extra in ("measurements/measurements.db", "measurements.db", "qc/image_quality.json"):
             candidate = os.path.join(src, extra)
             if os.path.isfile(candidate):
                 paths.append(candidate)
@@ -487,6 +488,15 @@ class QCDashboardScreen(QWidget):
                 heading.setToolTip(card.source)
             group_layout.addWidget(heading)
             self._card_labels.append(heading)
+            if card.key == 'image_quality' and card.source:
+                from pathlib import Path
+                from PySide6.QtCore import QUrl
+                from PySide6.QtGui import QDesktopServices
+                review = QPushButton(tr('Review image quality'))
+                gallery = str(Path(card.source).with_suffix('.html'))
+                review.clicked.connect(lambda _checked=False, path=gallery:
+                                       QDesktopServices.openUrl(QUrl.fromLocalFile(path)))
+                group_layout.addWidget(review)
             for line in card.detail:
                 detail = QLabel(line)
                 detail.setWordWrap(True)

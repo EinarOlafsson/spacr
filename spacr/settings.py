@@ -974,6 +974,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
         settings = {}
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
+    from .image_quality import DEFAULTS as image_quality_defaults
+    for key, value in image_quality_defaults.items():
+        settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
     settings.setdefault('segmentation_backend', 'cellpose')
     settings.setdefault('batch_fields', 8)
     settings.setdefault('keep_npz', False)
@@ -3523,6 +3526,12 @@ expected_types = {
     "pathogen_diameter":int,
     "diameter_estimate_n_fields":int,
     "seg_qc":str,
+    'image_qc_mode':str,
+    'image_qc_channels':list,
+    'image_qc_min_focus':dict,
+    'image_qc_max_saturation':dict,
+    'image_qc_saturation_level':dict,
+    'image_qc_max_nonfinite':float,
     "seg_qc_min_objects":int,
     "seg_qc_count_ratio":float,
     "seg_qc_size_ratio":float,
@@ -4075,6 +4084,12 @@ tooltips = {
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
+    'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
+    'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
+    'image_qc_min_focus': '(dict) - Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.',
+    'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
+    'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
+    'image_qc_max_nonfinite': '(float) - Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.',
     "seg_qc": "(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
     "seg_qc_min_objects": "(int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
     "seg_qc_count_ratio": "(float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.",
@@ -4858,6 +4873,9 @@ categories = {
 
     "Organelle": organelle_basic_settings,
     "Organelle advanced": organelle_advanced_settings,
+
+    "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
+                      'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
 

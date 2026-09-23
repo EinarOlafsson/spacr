@@ -1049,6 +1049,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
+        ("Image Quality", ("@Image Quality",)),
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",

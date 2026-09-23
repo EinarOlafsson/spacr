@@ -404,6 +404,16 @@ def preprocess_generate_masks(settings):
                         if not settings['preprocess']:
                             _check_archives_without_preprocessing(src)
 
+                        from .image_quality import screen_fields
+                        quality_paths = None
+                        if settings.get('image_qc_mode', 'off') != 'off':
+                            quality_paths = [os.path.join(src, 'stack', field + '.npy')
+                                             for field in _normalized_npz_field_ids(mask_src)]
+                        settings['image_qc_excluded_fields'] = screen_fields(src, settings, quality_paths)
+                        if quality_paths and len(settings['image_qc_excluded_fields']) == len(quality_paths):
+                            print('All fields were excluded by the saved image-quality policy; no masks generated.')
+                            break
+
                         if (not settings['preprocess'] and
                                 settings.get('illumination_correction', False)):
                             from .illumination import (
