@@ -151,13 +151,6 @@
     },
     {
       "table": "ui",
-      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "translation": "绘制当前视野的强度直方图，并标出上方设置所采用的阈值。此阈值与按钮使用的阈值相同，来自同一个函数；如果标记偏离直方图的谷底，应调整阈值校正系数。",
-      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
-    },
-    {
-      "table": "ui",
       "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "translation": "将图像和掩膜拖到此处，或编写一个正则表达式来分类。每行是一个视野，每列是一个通道或掩膜类型。",
@@ -281,6 +274,18 @@
       "source": "Grow / shrink:",
       "translation": "扩大 / 缩小：",
       "source_sha256": "6c6fc0076d7288997b218fa43d08c6fd2d8e5f77ad223c95292e901c6e54aff6"
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "translation": "绘制当前视野的强度直方图，并标出上方设置所采用的阈值。此阈值与按钮使用的阈值相同，来自同一个函数；如果标记偏离直方图的谷底，应调整阈值校正系数。",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

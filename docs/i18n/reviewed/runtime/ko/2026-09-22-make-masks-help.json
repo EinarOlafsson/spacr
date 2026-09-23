@@ -102,13 +102,6 @@
     },
     {
       "table": "ui",
-      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
-      "translation": "시야를 나눌 밝기 구간 수입니다. 2는 배경과 객체 사이에 임계값 하나를 두는 기본 Otsu 분할입니다. 배경, 어두운 테두리, 밝은 핵처럼 두 개보다 많은 집단이 있으면 값을 높이세요. 그러면 세 집단 사이의 절충된 임계값 대신 아래에서 선택한 원하는 경계를 사용합니다. Otsu 검출에만 적용됩니다."
-    },
-    {
-      "table": "ui",
       "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
       "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
       "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
@@ -127,13 +120,6 @@
       "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
       "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
       "translation": "전체 시야에서 한 번만 계산하는 대신 각 픽셀 주변 창에서 Otsu 임계값을 따로 구합니다. 조명이 약한 모서리를 그 주변과 비교하므로 그곳의 객체를 놓치지 않으면서 밝은 중앙은 깨끗하게 유지합니다. 잡음이 많은 배경에서는 객체가 더 생길 수 있으며 최소 면적으로 걸러냅니다. 클래스가 두 개일 때만, Otsu 검출에서만 사용할 수 있습니다."
-    },
-    {
-      "table": "ui",
-      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
-      "translation": "이 시야의 강도 히스토그램에 위 설정이 적용하는 임계값을 표시합니다. 버튼이 사용하는 것과 같은 함수에서 가져온 동일한 값입니다. 표시선이 히스토그램 골짜기에서 한쪽으로 치우쳐 있다면 임계값 보정을 조정하세요."
     },
     {
       "table": "ui",
@@ -201,6 +187,26 @@
         "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
         "translation": "상자 안 영역을 분할하는 모델입니다. Otsu는 영역에 Otsu 임계값을 적용하고 워터셰드로 맞닿은 객체를 분리합니다. 별도 설치가 필요 없으며 객체 작업의 최소 면적과 임계값 보정을 비롯한 Otsu 범주의 설정을 따릅니다. 모델을 불러올 수 없을 때도 Otsu가 실행됩니다. 적응형 임계값(Adaptive threshold), LoG blobs, DoG blobs, 능선 필터(Ridge filter), 히스테리시스(Hysteresis), U-Net은 세포소기관 검출 자체의 방법입니다. 분할 작업과 같은 코드를 실행하고 검출 방법 범주의 설정을 읽으며, 각 행의 툴팁에서 해당 방법에 적합한 용도를 설명합니다. Cellpose는 객체 검출에 설정된 모델, 두 임계값, 지름, 정규화를 사용하며 GPU가 없으면 느립니다. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell, SAMCell은 항상 목록에 있지만 설치 전에는 회색으로 표시됩니다. 선택하면 별도 환경에 설치하는 옵션이 나옵니다. Cellpose 3은 객체 검출의 두 임계값과 지름을, DINOCell은 세포 확률을 사용하고 SAMCell은 자체 임계값을 사용합니다."
       }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "시야를 나눌 밝기 구간 수입니다. 2는 배경과 객체 사이에 임계값 하나를 두는 기본 Otsu 분할입니다. 배경, 어두운 테두리, 밝은 핵처럼 두 개보다 많은 집단이 있으면 값을 높이세요. 그러면 세 집단 사이의 절충된 임계값 대신 아래에서 선택한 원하는 경계를 사용합니다. Otsu 검출에만 적용됩니다."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "이 시야의 강도 히스토그램에 위 설정이 적용하는 임계값을 표시합니다. 버튼이 사용하는 것과 같은 함수에서 가져온 동일한 값입니다. 표시선이 히스토그램 골짜기에서 한쪽으로 치우쳐 있다면 임계값 보정을 조정하세요."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

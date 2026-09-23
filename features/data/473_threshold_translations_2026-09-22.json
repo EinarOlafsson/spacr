@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "source_commit": "d3cea1dcb3369fd16fb79391a1a31c744eaf3a60",
+  "runtime_ui_sources": 4629,
+  "english_api_symbols": 11338,
+  "languages": [
+    {
+      "language": "de",
+      "live_caption_checks": 14,
+      "new_review_records": 13,
+      "reused_reviews": 1,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 895,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "live_caption_checks": 14,
+      "new_review_records": 13,
+      "reused_reviews": 1,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 926,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "sv",
+      "live_caption_checks": 14,
+      "new_review_records": 13,
+      "reused_reviews": 1,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 931,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "live_caption_checks": 14,
+      "new_review_records": 13,
+      "reused_reviews": 1,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 898,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "live_caption_checks": 14,
+      "new_review_records": 13,
+      "reused_reviews": 1,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 909,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "live_caption_checks": 14,
+      "new_review_records": 14,
+      "reused_reviews": 0,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 811,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "live_caption_checks": 14,
+      "new_review_records": 13,
+      "reused_reviews": 1,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 1226,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "live_caption_checks": 14,
+      "new_review_records": 14,
+      "reused_reviews": 0,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 950,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "live_caption_checks": 14,
+      "new_review_records": 14,
+      "reused_reviews": 0,
+      "entire_runtime_review_loader": true,
+      "entire_api_review_loader": true,
+      "all_reviewed_runtime_sources": 743,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "live_caption_checks": 126,
+  "new_review_records": 120,
+  "preserved_old_reviews": 27,
+  "semantic_review": "AI-assisted linguistic/technical review of threshold signs, R=1 and intensity scale, scope-dependent class limits, processed histogram input and snapshot/cancellation wording. No native-speaker sign-off.",
+  "remaining": "Other method/propagation and enhancement help, organism prose, full locale catalog acceptance, complete Make Masks reference, API helper rollout and tutorial media remain open.",
+  "validation": {
+    "distinct_focused_tests": 29,
+    "test_scope": "Runtime review syntax, actual Make Masks help, reviewed caption owners, detector-help inventory and helper/section extraction. Counts exclude repeated reruns.",
+    "logs_sha256": {
+      "threshold-caption-tests.log": "29c313641c4b7081b544d9704a24127e7b27aa8737a5705976b4d3d523effc44",
+      "threshold-caption-focused.log": "1ca995ac7fd1a61fe72eff87b2d92f9f1d85082277bfb31aa2b5066de6a47d75",
+      "threshold-section-tests.log": "ff5bb14df06408f3f537309da614d5dcb198afb710103e17c2154b9729f246e8",
+      "threshold-compact-review-final.log": "3aa6220abd82e46512c4b2f1329dcd8014ad379308b604dc4c0624d288ee043f",
+      "threshold-caption-verification-final.log": "5cfda8b590b54f0fa7ec31b997ea1c806de7734a8eab2ab6c92053fac488ac17"
+    },
+    "reruns": "French cohort count corrected after three preserved retirements. The reviewed-caption test now follows compact caption and term owners, including actual tr() checks."
+  }
+}

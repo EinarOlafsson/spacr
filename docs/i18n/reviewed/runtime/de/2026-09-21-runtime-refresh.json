@@ -375,13 +375,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
-      "translation": "Korrekturfaktor für den Schwellenwert: Der Otsu-Schwellenwert wird vor der Anwendung damit multipliziert. Oberhalb von 1 ist er strenger: Objekte schrumpfen, schwache verschwinden. Unterhalb von 1 werden dunklere Pixel einbezogen; 1 entspricht dem ursprünglichen Otsu-Schwellenwert. Sowohl die Otsu-Erkennung als auch der Otsu-Modus der Live-Lupe verwenden ihn, wenn ein Bereich zwei klar getrennte Populationen enthält."
-    },
-    {
-      "table": "ui",
       "key": "Add a model",
       "source": "Add a model",
       "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c",
@@ -690,13 +683,6 @@
     },
     {
       "table": "ui",
-      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
-      "translation": "Zeigt das Intensitätshistogramm dieses Felds und markiert den Schwellenwert aus den obigen Einstellungen. Die Schaltfläche verwendet denselben Wert aus derselben Funktion. Liegt die Markierung neben einem Histogrammtal, lässt sich ihre Position mit dem Korrekturfaktor anpassen."
-    },
-    {
-      "table": "ui",
       "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d",
@@ -848,13 +834,6 @@
       "source": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
       "source_sha256": "2ff97b2808fb54bb59b72f02ad6d40fb5abac516936062d679c9383636f67cff",
       "translation": "Lautstärke aller spaCR-Klänge, von stumm bis zur vollen Lautstärke. Die Hintergrundmusik bleibt stets leiser als die anderen Klänge."
-    },
-    {
-      "table": "ui",
-      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
-      "translation": "Anzahl der Helligkeitsklassen, in die das Feld aufgeteilt wird. 2 entspricht der ursprünglichen Otsu-Aufteilung mit einem Schwellenwert zwischen Hintergrund und Objekten. Erhöhen, wenn das Feld mehr als zwei Populationen enthält -- etwa Hintergrund, einen schwachen Halo und helle Kerne. Statt eines einzigen Kompromisswerts zwischen allen dreien wird dann die unten gewählte, tatsächlich gewünschte Grenze verwendet. Nur für die Otsu-Erkennung."
     },
     {
       "table": "ui",
@@ -2223,6 +2202,36 @@
         "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
         "translation": "Kanäle"
       }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+        "translation": "Korrekturfaktor für den Schwellenwert: Der Otsu-Schwellenwert wird vor der Anwendung damit multipliziert. Oberhalb von 1 ist er strenger: Objekte schrumpfen, schwache verschwinden. Unterhalb von 1 werden dunklere Pixel einbezogen; 1 entspricht dem ursprünglichen Otsu-Schwellenwert. Sowohl die Otsu-Erkennung als auch der Otsu-Modus der Live-Lupe verwenden ihn, wenn ein Bereich zwei klar getrennte Populationen enthält."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "Zeigt das Intensitätshistogramm dieses Felds und markiert den Schwellenwert aus den obigen Einstellungen. Die Schaltfläche verwendet denselben Wert aus derselben Funktion. Liegt die Markierung neben einem Histogrammtal, lässt sich ihre Position mit dem Korrekturfaktor anpassen."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "Anzahl der Helligkeitsklassen, in die das Feld aufgeteilt wird. 2 entspricht der ursprünglichen Otsu-Aufteilung mit einem Schwellenwert zwischen Hintergrund und Objekten. Erhöhen, wenn das Feld mehr als zwei Populationen enthält -- etwa Hintergrund, einen schwachen Halo und helle Kerne. Statt eines einzigen Kompromisswerts zwischen allen dreien wird dann die unten gewählte, tatsächlich gewünschte Grenze verwendet. Nur für die Otsu-Erkennung."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

@@ -188,7 +188,7 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
         sys.path.remove(tools_dir)
 
     english = import_module("spacr.qt.i18n_catalogs.en")
-    from spacr.qt.i18n import _ROWS, VALID_LANGUAGE_CODES
+    from spacr.qt.i18n import _ROWS, TERM_CATALOGS, VALID_LANGUAGE_CODES, tr
 
     for language in LANGUAGES:
         catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
@@ -210,6 +210,10 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
             if source in reviewed:
                 located.add(source)
                 assert values[language_index] == reviewed[source][language]
+        for source, value in TERM_CATALOGS[language].items():
+            if source in reviewed and source not in located:
+                located.add(source)
+                assert value == tr(source, language) == reviewed[source][language]
         assert located == set(reviewed), (
             f"{language}: reviewed UI rows missing from regenerated tables: "
             f"{sorted(set(reviewed) - located)}"

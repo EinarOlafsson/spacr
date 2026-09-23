@@ -144,13 +144,6 @@
     },
     {
       "table": "ui",
-      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "translation": "Dibuja el histograma de intensidad de este campo y marca el umbral definido por los ajustes anteriores. Es el mismo umbral que usa el botón, obtenido de la misma función. Si la marca queda a un lado del valle que desea usar, ajuste la corrección del umbral.",
-      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
-    },
-    {
-      "table": "ui",
       "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
       "translation": "Arrastre aquí imágenes y máscaras, o escriba una expresión regular que las clasifique. Las filas son campos; las columnas son canales y tipos de máscara.",
@@ -295,13 +288,6 @@
       "source": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
       "translation": "Volumen de todos los sonidos de spaCR, desde silencio hasta el máximo. La música de fondo siempre suena más baja que los demás sonidos.",
       "source_sha256": "2ff97b2808fb54bb59b72f02ad6d40fb5abac516936062d679c9383636f67cff"
-    },
-    {
-      "table": "ui",
-      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "translation": "Número de bandas de intensidad en las que se divide el campo. Con 2 se usa la división original de Otsu: un umbral entre el fondo y los objetos. Auméntelo si el campo contiene más de dos poblaciones, como fondo, un halo tenue y núcleos brillantes. Así, el corte deja de ser un compromiso entre las tres y pasa al límite que elija abajo. Solo se aplica a la detección con Otsu.",
-      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
     },
     {
       "table": "ui",
@@ -546,6 +532,26 @@
       },
       "superseded_on": "2026-09-22",
       "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "translation": "Dibuja el histograma de intensidad de este campo y marca el umbral definido por los ajustes anteriores. Es el mismo umbral que usa el botón, obtenido de la misma función. Si la marca queda a un lado del valle que desea usar, ajuste la corrección del umbral.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "translation": "Número de bandas de intensidad en las que se divide el campo. Con 2 se usa la división original de Otsu: un umbral entre el fondo y los objetos. Auméntelo si el campo contiene más de dos poblaciones, como fondo, un halo tenue y núcleos brillantes. Así, el corte deja de ser un compromiso entre las tres y pasa al límite que elija abajo. Solo se aplica a la detección con Otsu.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

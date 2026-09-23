@@ -166,7 +166,7 @@ _TEXT_METHODS = {
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
     "set_translatable_text", "tr",
-    "addRow", "insertRow",
+    "addRow", "insertRow", "add_section",
     # A ONE-LINE WRAPPER HIDES ITS TEMPLATES FROM THIS EXTRACTOR ENTIRELY.
     # `map_barcodes._set_status(text, **values)` forwards to
     # `set_translatable_text(self.status, text, **values)`, so the literal sits
@@ -3326,6 +3326,12 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         return
     if name == "addTab" and len(node.args) >= 2:
         yield node.args[1]
+        return
+    if name == "add_section":
+        yield from node.args[1:2]
+        for keyword in node.keywords:
+            if keyword.arg in {"name", "title"}:
+                yield keyword.value
         return
     if name in {"addRow", "insertRow"}:
         position = 1 if name == "insertRow" else 0

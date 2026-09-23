@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted linguistic and technical review against corrected CPU threshold and histogram contracts; no native-speaker sign-off",
+  "reused_review_sources": [
+    "Open a field first — a histogram needs an image."
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source_sha256": "e924c7c449871b9e8e06735b38d58c6a16d4c255501803fb96211f2335337ea8",
+      "translation": "阈值系数（默认 1；范围 0.1 至 5），在选择前景之前应用。对于正值的全局阈值和局部 Otsu，增大此系数会保留更少的亮像素或暗像素。Sauvola 和 Niblack 直接将局部阈值乘以此系数：局部阈值为正时，增大系数会保留更少的亮像素，但保留更多的暗像素；阈值为负时，方向相反。Multi-Otsu 会移动类别边界，因此选中的中间强度带既可能增加像素，也可能失去像素。"
+    },
+    {
+      "table": "ui",
+      "key": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source_sha256": "5b68e468bb932052c654fd47ed0253554f685e9f89cd92fdf6092684c7265632",
+      "translation": "无量纲的局部对比度权重（默认 0.2；范围 -2 至 2）。Niblack 使用 T=m-k*s：增大 k 会降低阈值，保留更多亮像素和更少暗像素。Sauvola 使用 T=m*(1+k*(s/R-1))，其中 m 是局部均值，s 是其标准差。这里 R=1，因为检测器接收浮点数时不会重新缩放数值范围；k 的作用取决于 m 和 s/R。更改强度尺度后请检查预览。"
+    },
+    {
+      "table": "ui",
+      "key": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source_sha256": "5d06859f9f2e876e2669097b4ab2f168ccf73565eab91973e9a58a23f9ee03f4",
+      "translation": "从高斯加权的局部均值中减去的数值（默认 5）。增大偏移量会降低阈值，在清理前保留更多前景像素；负偏移量更严格。单位随处理后的图像而定：自适应阈值使用平滑后的强度，采用自适应阈值的脊线滤波器使用脊线响应。适用于原始强度的偏移量可能完全压过 0 到 1 范围内的响应。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source_sha256": "df20e4ff6040325eab80c7bba5240243086ecad441ad0f65a75168df8e7fe0ad",
+      "translation": "适用于局部对比度能够区分对象的不均匀照明图像：均值由局部对比度加权。请检查图像的强度尺度：此检测器使用 R=1，不会重新缩放浮点输入。当对象较亮且 k 为正时，具有恒定正值的窗口也可能成为前景；空白区域不会被自动排除。"
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source_sha256": "f3c95763bc78580a1849b1c6a3666638e31397a3e345a1b884a9f02e6677ffcc",
+      "translation": "适用于局部强度统计能够区分对象的不均匀照明图像，使用窗口均值减去 k 乘以其标准差。增大 k 会降低阈值，保留更多亮像素，包括背景像素；负 k 会提高阈值。对于暗对象，像素纳入的变化方向相反。"
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source_sha256": "75f6c992f2d348554ad9cca515f18a0d87798a4947a578b0a988e3626cbb8016",
+      "translation": "将视野划分为多少个亮度带。2 是 Otsu 原本的划分方式，即用一个阈值分开背景和对象。当视野包含两个以上的群体，例如背景、暗淡光晕和明亮细胞核时，可增大此值，使分界从三者之间的折中位置移到下方选择的目标边界。Multi-Otsu 在放大镜的两种作用范围及整幅图像检测中都使用此类别数。每个范围根据自身的像素估计阈值；小区域中的不同强度可能不足以支持所请求的类别数。在普通 Otsu 模式下，此类别数仍仅用于整幅图像检测。"
+    },
+    {
+      "table": "ui",
+      "key": "Calculating threshold histogram…",
+      "source": "Calculating threshold histogram…",
+      "source_sha256": "9311940b1f0c43e1ff2af6b1e282f208ac26636371db2b22691664e03228ec9e",
+      "translation": "正在计算阈值直方图…"
+    },
+    {
+      "table": "ui",
+      "key": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source_sha256": "0a2e984308728e976e6a33941563bf6bc703a32668a112babc2813e6c4ce9617",
+      "translation": "阈值：{levels}（{description}）。这些是检测按钮对平滑后的检测器输入所使用的阈值。"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source_sha256": "e3f08d69a58b793e17b05762304b482590fd5c8d444dae4905d95ad53d9d8349",
+      "translation": "局部阈值随像素变化（{description}），因此不绘制单一阈值线。直方图显示局部阈值处理前经过平滑的检测器输入。"
+    },
+    {
+      "table": "ui",
+      "key": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source_sha256": "ab0ab5e43f2f379d1d4a4d06fc6b5958541e321dcfab5f6089db010a2702693c",
+      "translation": "预览整个视野经过反相、归一化、增强和平滑后的检测器输入，并显示所选方法的阈值。局部方法没有单一阈值标记。计算在后台进行；关闭窗口可丢弃此次计算。更改设置后，请重新打开窗口以刷新预览。"
+    },
+    {
+      "table": "ui",
+      "key": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source_sha256": "d0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3",
+      "translation": "打开时整个视野及设置的快照。更改图像或设置后，请重新打开直方图。"
+    },
+    {
+      "table": "ui",
+      "key": "Threshold histogram failed: {error}",
+      "source": "Threshold histogram failed: {error}",
+      "source_sha256": "9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89",
+      "translation": "阈值直方图失败：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "{method} histogram",
+      "source": "{method} histogram",
+      "source_sha256": "cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e",
+      "translation": "{method}直方图"
+    }
+  ]
+}

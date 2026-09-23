@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted linguistic and technical review against corrected CPU threshold and histogram contracts; no native-speaker sign-off",
+  "reused_review_sources": [],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source_sha256": "e924c7c449871b9e8e06735b38d58c6a16d4c255501803fb96211f2335337ea8",
+      "translation": "अग्रभूमि चुनने से पहले लागू सीमा गुणक (डिफ़ॉल्ट 1; सीमा 0.1 से 5)। धनात्मक वैश्विक सीमाओं और स्थानीय Otsu के लिए इसे बढ़ाने पर चमकीले या गहरे पिक्सेल कम संख्या में बने रहते हैं। Sauvola और Niblack अपने स्थानीय स्तरों को सीधे इस गुणक से गुणा करते हैं: धनात्मक स्तरों पर इसे बढ़ाने से चमकीले पिक्सेल कम और गहरे पिक्सेल अधिक संख्या में बने रहते हैं; ऋणात्मक स्तरों पर यह दिशा उलट जाती है। Multi-Otsu वर्गों की सीमाएँ खिसकाता है, इसलिए चुनी गई मध्य पट्टी में पिक्सेल जुड़ भी सकते हैं और हट भी सकते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source_sha256": "5b68e468bb932052c654fd47ed0253554f685e9f89cd92fdf6092684c7265632",
+      "translation": "स्थानीय कंट्रास्ट का विमाहीन भार (डिफ़ॉल्ट 0.2; सीमा -2 से 2)। Niblack में T=m-k*s होता है: k बढ़ाने पर सीमा घटती है और चमकीले पिक्सेल अधिक तथा गहरे पिक्सेल कम संख्या में बने रहते हैं। Sauvola में T=m*(1+k*(s/R-1)) होता है, जहाँ m स्थानीय माध्य और s उसका मानक विचलन है। यहाँ R=1 है, क्योंकि डिटेक्टर को मानों का परास बदले बिना फ़्लोटिंग-पॉइंट इनपुट मिलता है; k का प्रभाव m और s/R पर निर्भर करता है। तीव्रता का पैमाना बदलने के बाद पूर्वावलोकन जाँचें।"
+    },
+    {
+      "table": "ui",
+      "key": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source_sha256": "5d06859f9f2e876e2669097b4ab2f168ccf73565eab91973e9a58a23f9ee03f4",
+      "translation": "गॉसियन-भारित स्थानीय माध्य से घटाया जाने वाला मान (डिफ़ॉल्ट 5)। ऑफ़सेट बढ़ाने से सीमा घटती है और सफ़ाई से पहले अधिक अग्रभूमि पिक्सेल बने रहते हैं; ऋणात्मक ऑफ़सेट अधिक सख्त होता है। इकाइयाँ संसाधित छवि के अनुसार होती हैं: अनुकूली सीमा के लिए समतल की गई तीव्रता, और अनुकूली सीमा वाले रिज फ़िल्टर के लिए रिज प्रतिक्रिया। मूल तीव्रताओं के लिए उपयुक्त ऑफ़सेट, 0 से 1 के बीच की प्रतिक्रिया पर हावी हो सकता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source_sha256": "df20e4ff6040325eab80c7bba5240243086ecad441ad0f65a75168df8e7fe0ad",
+      "translation": "असमान रोशनी के लिए उपयुक्त, जब स्थानीय कंट्रास्ट ऑब्जेक्ट को अलग करता हो: माध्य को स्थानीय कंट्रास्ट से भारित किया जाता है। छवि की तीव्रता का पैमाना जाँचें: यह डिटेक्टर फ़्लोटिंग-पॉइंट इनपुट का पैमाना बदले बिना R=1 उपयोग करता है। चमकीले ऑब्जेक्ट और धनात्मक k के साथ स्थिर धनात्मक मान वाली विंडो भी अग्रभूमि बन सकती है; खाली क्षेत्र अपने-आप बाहर नहीं किए जाते।"
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source_sha256": "f3c95763bc78580a1849b1c6a3666638e31397a3e345a1b884a9f02e6677ffcc",
+      "translation": "असमान रोशनी के लिए उपयुक्त, जब स्थानीय तीव्रता के आँकड़े ऑब्जेक्ट को अलग करते हों। इसमें विंडो के माध्य से उसके मानक विचलन का k गुना घटाया जाता है। k बढ़ाने से सीमा घटती है और पृष्ठभूमि सहित चमकीले पिक्सेल अधिक संख्या में बने रहते हैं; ऋणात्मक k सीमा बढ़ाता है। गहरे ऑब्जेक्ट के लिए पिक्सेल शामिल होने की दिशा उलट जाती है।"
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source_sha256": "75f6c992f2d348554ad9cca515f18a0d87798a4947a578b0a988e3626cbb8016",
+      "translation": "दृश्य क्षेत्र को कितनी चमक पट्टियों में बाँटना है। 2, Otsu का मूल विभाजन है: पृष्ठभूमि और ऑब्जेक्ट के बीच एक सीमा। यदि क्षेत्र में दो से अधिक समूह हों — पृष्ठभूमि, हल्का प्रभामंडल और चमकीले केंद्रक — तो इसे बढ़ाएँ। विभाजन तब तीनों के बीच के समझौता स्तर से हटकर नीचे चुनी गई वांछित सीमा पर जाता है। Multi-Otsu इस वर्ग संख्या का उपयोग आवर्धक के दोनों कार्य-क्षेत्रों और पूरी छवि की पहचान में करता है। हर कार्य-क्षेत्र अपने पिक्सेल से सीमाओं का अनुमान लगाता है; छोटे क्षेत्र में माँगी गई वर्ग संख्या के लिए पर्याप्त अलग-अलग तीव्रताएँ नहीं हो सकतीं। साधारण Otsu मोड में यह संख्या अब भी केवल पूरी छवि की पहचान पर लागू होती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Calculating threshold histogram…",
+      "source": "Calculating threshold histogram…",
+      "source_sha256": "9311940b1f0c43e1ff2af6b1e282f208ac26636371db2b22691664e03228ec9e",
+      "translation": "सीमा हिस्टोग्राम की गणना हो रही है…"
+    },
+    {
+      "table": "ui",
+      "key": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source_sha256": "0a2e984308728e976e6a33941563bf6bc703a32668a112babc2813e6c4ce9617",
+      "translation": "स्तर: {levels} ({description})। पहचान बटन, डिटेक्टर के समतल किए गए इनपुट पर इन्हीं सीमाओं का उपयोग करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source_sha256": "e3f08d69a58b793e17b05762304b482590fd5c8d444dae4905d95ad53d9d8349",
+      "translation": "स्थानीय सीमा हर पिक्सेल के अनुसार बदलती है ({description}); कोई एक स्तर नहीं खींचा जाता। हिस्टोग्राम स्थानीय सीमा लगाने से पहले डिटेक्टर का समतल किया गया इनपुट दिखाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Open a field first — a histogram needs an image.",
+      "source": "Open a field first — a histogram needs an image.",
+      "source_sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a",
+      "translation": "पहले एक दृश्य क्षेत्र खोलें — हिस्टोग्राम के लिए छवि चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source_sha256": "ab0ab5e43f2f379d1d4a4d06fc6b5958541e321dcfab5f6089db010a2702693c",
+      "translation": "उलटने, सामान्यीकरण, सुधार और समतल करने के बाद पूरे दृश्य क्षेत्र के डिटेक्टर इनपुट का पूर्वावलोकन देखें, जिसमें चुनी गई विधि की सीमाएँ दिखाई जाती हैं। स्थानीय विधियों में कोई एक सीमा चिह्न नहीं होता। गणना पृष्ठभूमि में चलती है; इसे त्यागने के लिए विंडो बंद करें। सेटिंग बदलने के बाद पूर्वावलोकन ताज़ा करने के लिए फिर खोलें।"
+    },
+    {
+      "table": "ui",
+      "key": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source_sha256": "d0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3",
+      "translation": "खोलते समय पूरे दृश्य क्षेत्र और सेटिंग का स्नैपशॉट। छवि या सेटिंग बदलने के बाद हिस्टोग्राम फिर खोलें।"
+    },
+    {
+      "table": "ui",
+      "key": "Threshold histogram failed: {error}",
+      "source": "Threshold histogram failed: {error}",
+      "source_sha256": "9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89",
+      "translation": "सीमा हिस्टोग्राम विफल: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "{method} histogram",
+      "source": "{method} histogram",
+      "source_sha256": "cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e",
+      "translation": "{method} हिस्टोग्राम"
+    }
+  ]
+}

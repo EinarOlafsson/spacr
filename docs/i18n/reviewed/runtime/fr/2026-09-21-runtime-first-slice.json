@@ -375,13 +375,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "translation": "Facteur de correction du seuil : le seuil d'Otsu est multiplié par cette valeur avant d'être appliqué. Au-dessus de 1, il devient plus strict : les objets rétrécissent et les moins lumineux disparaissent ; en dessous de 1, des pixels moins lumineux sont inclus. À 1, le seuil d'Otsu est inchangé. La détection Otsu l'utilise, ainsi que le mode Otsu de la loupe en direct dès qu'une région contient deux populations bien distinctes.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
-    },
-    {
-      "table": "ui",
       "key": "Add a model",
       "source": "Add a model",
       "translation": "Ajouter un modèle",
@@ -553,6 +546,16 @@
         "translation": "Canaux",
         "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
       }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "translation": "Facteur de correction du seuil : le seuil d'Otsu est multiplié par cette valeur avant d'être appliqué. Au-dessus de 1, il devient plus strict : les objets rétrécissent et les moins lumineux disparaissent ; en dessous de 1, des pixels moins lumineux sont inclus. À 1, le seuil d'Otsu est inchangé. La détection Otsu l'utilise, ainsi que le mode Otsu de la loupe en direct dès qu'une région contient deux populations bien distinctes.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

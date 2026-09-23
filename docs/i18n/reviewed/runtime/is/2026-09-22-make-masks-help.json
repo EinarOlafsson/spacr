@@ -95,13 +95,6 @@
     },
     {
       "table": "ui",
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
-      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
-      "translation": "Leiðréttingarstuðull fyrir þröskuld: Otsu-gildið er margfaldað með honum áður en það er notað. Yfir 1 er strangara, svo hlutir minnka og daufir hlutir falla út. Undir 1 tekur með dekkri myndpunkta; 1 er óbreytt Otsu-gildi. Otsu-greining notar stuðulinn, og einnig Otsu-hamur lifandi stækkunarglersins þegar svæðið hefur tvo skýrt aðgreinda hópa."
-    },
-    {
-      "table": "ui",
       "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
       "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
       "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146",
@@ -130,13 +123,6 @@
     },
     {
       "table": "ui",
-      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
-      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
-      "translation": "Hve mörg birtubil myndsviðinu er skipt í. 2 er venjuleg skipting með Otsu, einn þröskuldur á milli bakgrunns og hluta. Hækkaðu gildið ef myndsviðið hefur fleiri en tvo hópa, til dæmis bakgrunn, daufan baug og bjarta kjarna. Þá færist þröskuldurinn frá málamiðlun milli allra þriggja hópa að þeim skilum sem þú velur hér að neðan. Aðeins fyrir Otsu-greiningu."
-    },
-    {
-      "table": "ui",
       "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
       "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
       "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
@@ -155,13 +141,6 @@
       "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
       "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
       "translation": "Finndu Otsu-gildi sérstaklega í glugga um hvern myndpunkt í stað eins gildis fyrir allt myndsviðið. Horn með daufri lýsingu er þá metið miðað við sitt eigið umhverfi, svo hlutir þar tapast ekki á meðan bjarta miðjan helst hrein. Þetta getur gefið fleiri hluti á bakgrunni með suði; lágmarksflatarmálið síar þá frá. Aðeins með tveimur flokkum og aðeins fyrir Otsu-greiningu."
-    },
-    {
-      "table": "ui",
-      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
-      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
-      "translation": "Teiknaðu tíðnirit styrkgilda þessa myndsviðs og merktu þröskuldinn sem stillingarnar hér að ofan gefa. Þetta er sama gildi og hnappurinn notar, fengið úr sama falli. Ef merkið liggur til hliðar við dal í tíðniritinu er leiðréttingarstuðullinn það sem á að breyta."
     },
     {
       "table": "ui",
@@ -229,6 +208,36 @@
         "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
         "translation": "Hvaða líkan greinir hluti á svæðinu í reitnum. Otsu þröskuldar svæðið við Otsu-gildið og aðskilur samliggjandi hluti með vatnaskilaaðferð. Það krefst engrar uppsetningar, notar lágmarksflatarmál úr aðgerðum á hlutum ásamt þröskuldsleiðréttingu og öðrum stillingum Otsu-flokksins, og er notað þegar ekki er hægt að hlaða líkani. Aðlögunarþröskuldur (Adaptive threshold), LoG blobs, DoG blobs, hryggsía (Ridge filter), hysteresis (Hysteresis) og U-Net eru eigin aðferðir frumulíffæragreiningar. Þær keyra sama kóða og skiptingarkeyrsla og lesa stillingarnar í flokknum Greiningaraðferðir; vísbending við hverja línu útskýrir hvað aðferðin hentar fyrir. Cellpose notar líkanið, báða þröskuldana, þvermálið og stöðlunina úr stillingum hlutagreiningar og er hægt án GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell og SAMCell eru alltaf á listanum en grá þar til þau eru uppsett. Þegar eitt þeirra er valið er boðið að setja það upp í sérstöku umhverfi. Cellpose 3 notar báða þröskuldana og þvermálið úr hlutagreiningu, DINOCell notar frumulíkurnar og SAMCell notar eigin þröskulda."
       }
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+        "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+        "translation": "Leiðréttingarstuðull fyrir þröskuld: Otsu-gildið er margfaldað með honum áður en það er notað. Yfir 1 er strangara, svo hlutir minnka og daufir hlutir falla út. Undir 1 tekur með dekkri myndpunkta; 1 er óbreytt Otsu-gildi. Otsu-greining notar stuðulinn, og einnig Otsu-hamur lifandi stækkunarglersins þegar svæðið hefur tvo skýrt aðgreinda hópa."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+        "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+        "translation": "Hve mörg birtubil myndsviðinu er skipt í. 2 er venjuleg skipting með Otsu, einn þröskuldur á milli bakgrunns og hluta. Hækkaðu gildið ef myndsviðið hefur fleiri en tvo hópa, til dæmis bakgrunn, daufan baug og bjarta kjarna. Þá færist þröskuldurinn frá málamiðlun milli allra þriggja hópa að þeim skilum sem þú velur hér að neðan. Aðeins fyrir Otsu-greiningu."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+        "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+        "translation": "Teiknaðu tíðnirit styrkgilda þessa myndsviðs og merktu þröskuldinn sem stillingarnar hér að ofan gefa. Þetta er sama gildi og hnappurinn notar, fengið úr sama falli. Ef merkið liggur til hliðar við dal í tíðniritinu er leiðréttingarstuðullinn það sem á að breyta."
+      },
+      "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
   ]
 }

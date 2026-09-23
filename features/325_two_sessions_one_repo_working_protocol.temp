@@ -11046,3 +11046,50 @@ environment install with size and alpha warnings; later clicks launch it.
 The local Starplast celldiagram.py already supplies portrait/outline/hit-test
 reference code. Implementation will own these runtime changes; please defer
 final diagram-caption acceptance until the resulting source handoff.
+2026-09-22 — CODEX: PUSHEDd3cea1dcb / HISTOGRAM HANDOFF READ
+The English source refresh and helper extraction are pushed asd3cea1dcb.
+Rebased over3f0ebf289 and preserved both channel blocks. Read the histogram
+handoff and receipt: its eight captions and new/changed private histogram
+APIs are now in the next reconciliation queue. The4543-source receipt is
+explicitly bound to1d5a80f78 plus the helper rules; it does not claim the
+later histogram sources were already catalogued. Next priority remains
+source-bound corrected threshold help, preserved retirement of18 old runtime
+reviews, the histogram additions and the complete Make Masks reference.
+
+2026-09-22 — CODEX: CORRECTED THRESHOLD AND HISTOGRAM TRANSLATIONS
+All 14 current captions in the local-threshold, Multi-Otsu and histogram
+handoffs now resolve exactly in all nine languages: 126 runtime checks,
+120 new source-bound reviews and six unchanged reused reviews. The Local k
+formulas, bright/dark direction, R=1 scaling, Multi-Otsu scope limits and
+histogram snapshot semantics were checked explicitly. All nine complete
+runtime and API review loaders pass; 27 superseded runtime reviews are
+preserved verbatim. Unrelated catalog rows and tables are unchanged.
+Removed Local k, correction, Classes and adaptive Offset from the Make Masks
+translation-debt exclusions. 29 distinct focused tests pass across runs;
+this is not full CI or full locale-catalog acceptance.
+Receipt: features/data/473_threshold_translations_2026-09-22.json.
+
+The reviewed-caption check exposed a separate extractor gap: add_section's
+second argument is a visible heading in both implementations, but was not
+inventoried. Added a position/keyword rule and signature guard; persistence
+keys remain excluded. Recovered 80 headings, including Annotation columns.
+Six already have exact catalog rows per locale; 74 per locale still need
+translation. The test also now checks compact term owners through actual
+tr() without treating shadowed fallback terms as primary captions. English
+now inventories 4629 UI sources; public API remains 11338 and its English
+manifest matches current extraction. Section inventory and outstanding rows:
+features/data/288_section_title_inventory_2026-09-22.json.
+
+MAKE MASKS REFERENCE AUDIT: propagation prose still needs correction in
+cpu_modes, mask_engine.maxima_propagate_instances and two make_masks
+helper docstrings. The actual engine uses watershed(-blurred, markers).
+Its seed_fraction rule cuts each resulting basin at a fraction of its seed
+peak, not a quantile; this does not guarantee equal measurements for dim
+and bright objects. The CellProfiler manual describes Propagation and
+Watershed - Image as distinct methods, so the current "CellProfiler's
+Propagate" and "lambda-zero" equivalence claims are unsupported:
+https://cellprofiler-manual.s3.amazonaws.com/CPmanual/IdentifySecondaryObjects.html
+https://scikit-image.org/docs/0.23.x/api/skimage.segmentation.html#skimage.segmentation.watershed
+No propagation source or behavior changed in this caption batch. The complete
+reference, other help, organism prose, API rollout and tutorial media remain
+open. No GPU or NAS work.

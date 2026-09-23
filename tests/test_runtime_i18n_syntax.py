@@ -70,7 +70,8 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert len(sources) == (167 if language == "sv" else 166)
     for filename, expected in (("form-labels-a", 78), ("sign-in-status", 1),
                                ("enhancement-and-scale", 10),
-                               ("organism-identities", 2)):
+                               ("organism-identities", 2),
+                               ("threshold-and-histogram", 13)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-22-{filename}.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -82,7 +83,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (257 if language == "sv" else 256)
+    assert len(sources) == (270 if language == "sv" else 269)
     return sources
 
 
@@ -124,8 +125,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
     ui_sources = {record["source"] for record in ui_refresh["records"]}
-    assert len(ui_refresh["records"]) == 266  # Channels already has a compact owner.
-    assert len(ui_sources) == 263
+    assert len(ui_refresh["records"]) == 263  # Three old threshold/histogram reviews archived.
+    assert len(ui_sources) == 260
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -310,12 +311,12 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(reviewed.keys() - sample_sources) == 371  # +39 scientific sources.
     assert len(reviewed) == 374  # Features, Controls and Quality use compact rows.
     # The new panel cohort also reuses the earlier whole-field model tooltip.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 636
-    assert len(older_all_sources - preview_sources - normalized_sources) == 643
-    assert len(older_all_sources - normalized_sources) == 648
-    assert len(older_all_sources) == 653
-    assert len(all_reviewed.keys() - subsequent_sources) == 664
-    assert len(all_reviewed) == 921  # ER and IMC added as exact abbreviations.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 633
+    assert len(older_all_sources - preview_sources - normalized_sources) == 640
+    assert len(older_all_sources - normalized_sources) == 645
+    assert len(older_all_sources) == 650
+    assert len(all_reviewed.keys() - subsequent_sources) == 661
+    assert len(all_reviewed) == 931  # Thirteen new sources replace three archived ones.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -338,15 +339,15 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
-    assert len(refresh["records"]) == len(refresh_sources) == 77
+    assert len(refresh["records"]) == len(refresh_sources) == 76
     assert not refresh_sources & _compact_tooltip_sources("fr")
     refresh_sources |= _compact_tooltip_sources("fr")
-    assert len(refresh_sources) == 79
+    assert len(refresh_sources) == 78
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
     second_sources = {record["source"] for record in second["records"]}
-    assert len(second["records"]) == len(second_sources) == 74
+    assert len(second["records"]) == len(second_sources) == 72
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
@@ -359,7 +360,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 302
+    assert len(refresh_sources) == 299  # Three superseded threshold/histogram sources.
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -538,8 +539,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 338
     assert len(older_all_sources) == 343
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 354
-    assert len(all_reviewed.keys() - subsequent_sources) == 660
-    assert len(all_reviewed) == 916  # ER and IMC added as exact abbreviations.
+    assert len(all_reviewed.keys() - subsequent_sources) == 657
+    assert len(all_reviewed) == 926  # Thirteen new sources replace three archived ones.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

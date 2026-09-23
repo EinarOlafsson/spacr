@@ -224,3 +224,22 @@ def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
     assert not keys & reached
     assert "Offset" in reached and "Blur first" in reached
     assert any(text.startswith("Subtracted from the Gaussian-weighted local mean") for text in reached)
+
+
+def test_section_titles_are_extracted_without_persistence_keys(builder):
+    """Both add_section implementations put their visible title after the widget."""
+    for filename, parameter in (("widgets/collapsible_splitter.py", "name"),
+                                ("widgets/measurement_scan_panel.py", "title")):
+        tree = ast.parse((QT / filename).read_text())
+        methods = [node for node in ast.walk(tree)
+                   if isinstance(node, ast.FunctionDef) and node.name == "add_section"]
+        assert len(methods) == 1
+        assert [arg.arg for arg in methods[0].args.args][:3] == ["self", "widget", parameter]
+    for expression in (
+        'split.add_section(widget, "Annotation columns", persist_key="agreement/columns")',
+        'split.add_section(widget, name="Annotation columns", persist_key="agreement/columns")',
+        'tab.add_section(widget, title="Annotation columns")',
+    ):
+        call = ast.parse(expression, mode="eval").body
+        assert [ast.literal_eval(node) for node in builder._candidate_arguments(call, "add_section")] == ["Annotation columns"]
+    assert "Annotation columns" in builder.extract_static_ui_sources()

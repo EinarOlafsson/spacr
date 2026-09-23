@@ -200,18 +200,14 @@ def _awaiting_translation(screen) -> set:
     than becoming a permanent hole.
 
     Owed since 2026-09-22 by item 473 (Make Masks offers every detection
-    method): the Detection method category's own rows -- the Method box,
-    the organelle methods' parameters, the propagation's, the local k --
-    and the Image enhancement card. The threshold-correction tooltip was
-    corrected on 2026-09-22 to explain the local bright/dark distinction;
-    that replacement source is also owed. The Method box's tooltip is now
-    translated in all nine languages and is no longer excluded here.
-    The Classes tooltip now describes Multi-Otsu in both magnifier scopes;
-    its replacement source awaits the same catalog lane.
+    method): the detection button, most organelle-method and propagation
+    parameters, and the Image enhancement card. The Method, Local k,
+    correction, Classes and adaptive Offset help now have source-bound
+    translations in all nine languages and are no longer excluded here.
     """
-    widgets = [screen._otsu_local_k, screen._otsu_correction, screen._otsu_classes,
-               screen._btn_otsu]
-    widgets += list(getattr(screen, "_method_widgets", {}).values())
+    widgets = [screen._btn_otsu]
+    widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
+                if key != "adaptive_offset"]
     widgets += list(getattr(screen, "_propagate_widgets", {}).values())
     for name in ("_enh_background", "_enh_background_radius",
                  "_enh_background_scale", "_enh_denoise",
