@@ -11576,3 +11576,33 @@ themes; older v01/v02 overflows remain recorded. These are review generators,
 not shipped Home UI. Only generator DenseRow/dense_list gain optional height
 (default30); no installed public API/settings/catalog changes. No README
 deck publication. Generator/layout claims release with this commit.
+2026-09-22 — CODEX: LOCK/LEVELS AND ORGANISM RUNTIME TRANSLATION CLAIM
+Previous turn landed API follow-ups a567c178a/a69909cc5 and heading batch
+d59dde95e; bookkeeping037487158 also pushed. Read9be2d3d72 and rebased cleanly.
+Catalog/extraction lane now covers pending482/478 captions and the remaining
+organism/Starplast runtime text. Found SHORTCUT_HINTS was absent from dynamic
+source extraction; adding its two display columns via AST, with a test against
+the actual rows. No make_masks.py/live_preview.py changes claimed;477 remains
+the implementation lane. Diagram SVG descriptions and installer progress are
+included in the translation inventory. No GPU/NAS work or installer execution.
+
+2026-09-22 — CODEX: LOCK/LEVELS/STARPLAST CONTROLS TRANSLATED
+74 sources have666 reviewed rows in nine languages,660 newly filled and six
+existing Try again rows preserved. Covers all current Make Masks shortcut
+rows, Levels controls and its full intensity-stretch explanation, magnifier
+lock hints/status, remaining installer controls and all seven phase labels.
+Proper service/scientific names and key chords use exact identity handling;
+Biofilm has explicit domain vocabulary where the natural translation is
+identical. Source extractor now follows SHORTCUT_HINTS via AST rather than
+missing variable-fed labels. English inventory4706 external UI/11356 API;
+current published API source hashes are unchanged by482/478.
+
+50 focused tests pass: real Levels worker captions and numeric formatting,
+actual Make Masks shortcut panel and installer progress prefixes in all nine
+languages, alongside lock/Levels/installer behavior checks. Both full review
+loaders pass in all nine locales; unrelated rows and tables unchanged. No
+installer execution or GPU/NAS work. Receipt:
+features/data/288_lock_levels_starplast_translations_2026-09-22.json, bound to
+9be2d3d72 plus this catalog/extractor batch.137 scoped organism titles/prose/
+SVG descriptions remain next; broader catalog/API/tutorial acceptance remains
+open. No Make Masks/live_preview implementation changes in this batch.

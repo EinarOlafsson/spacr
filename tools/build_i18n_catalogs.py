@@ -268,6 +268,9 @@ _IDENTITY_TEXT = {
     # Scientific genus names and the Latin plural abbreviation stay exact
     # on organism Home tiles; they are not untranslated English prose.
     "Candida spp.", "Plasmodium spp.",
+    "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "Starplast",
+    "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
+    "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc", "ER 2",
     "ER", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
@@ -3629,6 +3632,19 @@ def _organism_description_sources() -> set[str]:
     return found
 
 
+def _make_masks_shortcut_sources() -> set[str]:
+    """Read both labels in each Make Masks shortcut row without importing Qt."""
+    path = ROOT / "spacr" / "qt" / "screens" / "make_masks.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if (isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name)
+                        and target.id == "SHORTCUT_HINTS" for target in node.targets)):
+            rows = ast.literal_eval(node.value)
+            return {str(value) for row in rows for value in row}
+    return set()
+
+
 def _indirect_runtime_ui_sources() -> set[str]:
     """Return presentation prose exposed through runtime data structures.
 
@@ -3723,6 +3739,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     found: set[str] = set(PREFERENCE_TIPS)
     found.update(_starplast_progress_sources())
     found.update(_organism_description_sources())
+    found.update(_make_masks_shortcut_sources())
     for detector_modes in (cpu_modes, organelle_modes):
         found.update(detector_modes.MODE_LABELS.values())
         found.update(detector_modes.guidance(mode)

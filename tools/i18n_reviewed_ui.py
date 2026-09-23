@@ -48,6 +48,9 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    "Biofilm": _row(
+        "Biofilm", "Biofilm", "Biopelícula", "生物膜", "Biofilme",
+        "जैवफ़िल्म", "바이오필름", "Örveruþekja", "Biofilm"),
     # Scientific display nouns.  These rows deliberately choose the plotting,
     # imaging, tabular-data, and microplate senses rather than everyday ones.
     # "Source" is the field's label after the 2026-09-04 rename from "Path".
