@@ -512,18 +512,17 @@
       "id": "06_api",
       "number": 6,
       "slug": "api",
-      "title": "Python API और मौजूदा बिना ग्राफ़िकल इंटरफ़ेस वाले कार्यप्रवाह",
+      "title": "Python API and batch commands",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "स्थापित बैच कमांड खोजें, इंटरैक्टिव उपकरणों और Python फ़ंक्शन में अंतर समझें, और विश्लेषण चलाने का दावा किए बिना वास्तविक उदाहरण का ड्राई रन देखें।",
+      "description": "Find an analysis function, load saved settings, check the inputs and run spaCR from a terminal.",
       "objectives": [
-        "सक्रिय Python वातावरण में पैकेज का संस्करण जाँचें।",
-        "मौजूदा कमांड की कुंजियाँ और उनके द्वारा वास्तव में बुलाए जाने वाले फ़ंक्शन खोजें।",
-        "इंटरैक्टिव कार्यप्रवाह, Python फ़ंक्शन और बैच कमांड में अंतर समझें।",
-        "बिना निगरानी काम चलाने से पहले ड्राई रन की सेटिंग, निकास स्थिति और सीमाएँ पढ़ें।"
+        "Find the installed batch commands and their Python functions.",
+        "Inspect a function signature and its API reference.",
+        "Check saved settings before running an analysis."
       ],
-      "prerequisite": "पहले इंस्टॉलेशन की एक पाठिका पूरी करें। दिखाई गई शुरुआती जाँच के लिए Regression पाठ के डाउनलोड किए गए युग्मित डेटा और सहेजी गई सेटिंग का उपयोग करें; इस मशीन के पथों की जगह अपने पथ डालें। इस रिकॉर्डिंग में कोई विश्लेषण या रिपोर्ट तैयार नहीं होती।",
+      "prerequisite": "Install spaCR and activate its Python environment. Follow the Regression tutorial to prepare paired score/count tables and save the analysis settings. Use your own file paths in the commands.",
       "scenes": [
         {
           "visual": "01_version",
@@ -533,14 +532,13 @@
             1900,
             650
           ],
-          "narration": "जिस वातावरण में आपने spaCR स्थापित किया है, उसमें पैकेज इम्पोर्ट करके उसका संस्करण प्रिंट करें। यह वास्तविक टर्मिनल संस्करण एक बिंदु पाँच बिंदु शून्य बिंदु चार दिखाता है। कमांड अपनाने से पहले अपना संस्करण जाँचें, क्योंकि पुराने वातावरण में फ़ंक्शन और सेटिंग अलग हो सकते हैं।",
+          "narration": "Activate the Python environment where you installed spaCR. Import spacr and print its version with the command shown. Keep the version with your analysis notes so you can reproduce the same run later.",
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
           ],
-          "hold_after": 0.7,
-          "speech_text": "जिस वातावरण में आपने स्पेकर स्थापित किया है, उसमें पैकेज इम्पोर्ट करके उसका संस्करण प्रिंट करें। यह वास्तविक टर्मिनल संस्करण एक बिंदु पाँच बिंदु शून्य बिंदु चार दिखाता है। कमांड अपनाने से पहले अपना संस्करण जाँचें, क्योंकि पुराने वातावरण में फ़ंक्शन और सेटिंग अलग हो सकते हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "02_list",
@@ -550,9 +548,8 @@
             2800,
             1900
           ],
-          "narration": "spacr-run को list विकल्प के साथ चलाएँ। उसके बैच अनुभाग में mask, measure और classify_merged सहित कमांड की सटीक कुंजियाँ और Python प्रवेश बिंदु दिखाई देते हैं। Home स्क्रीन के नाम और भीतर रखे बटन अपने आप बैच कमांड नहीं बन जाते। ट्यूटोरियल के शीर्षक से कुंजी का अनुमान लगाने के बजाय स्थापित सूची देखें।",
-          "hold_after": 0.7,
-          "speech_text": "स्पेकर-run को list विकल्प के साथ चलाएँ। उसके बैच अनुभाग में mask, measure और classify_merged सहित कमांड की सटीक कुंजियाँ और Python प्रवेश बिंदु दिखाई देते हैं। Home स्क्रीन के नाम और भीतर रखे बटन अपने आप बैच कमांड नहीं बन जाते। ट्यूटोरियल के शीर्षक से कुंजी का अनुमान लगाने के बजाय स्थापित सूची देखें।"
+          "narration": "Run spacr-run with dash dash list to find the available batch commands. The list shows each command key and its Python function. Choose the command for your task, such as mask, measure or regression. Use the desktop application for interactive tasks such as labelling images in Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_describe",
@@ -562,27 +559,12 @@
             2250,
             900
           ],
-          "narration": "regression के साथ describe का उपयोग करके spacr.ml का perform_regression फ़ंक्शन, डिफ़ॉल्ट मान देने वाला फ़ंक्शन और इनपुट की आवश्यकताएँ देखें। इससे कमांड वास्तविक विश्लेषण फ़ंक्शन से जुड़ता है। यहाँ उपयोग की गई युग्मित डेटा की सहेजी सेटिंग लिंक किए गए Regression उदाहरण से आती हैं, किसी काल्पनिक माप फ़ोल्डर से नहीं।",
+          "narration": "Run spacr-run with dash dash describe followed by regression. Read the required inputs, defaults and function name. Here, the batch command calls perform_regression in spacr.ml. Open that function in the API reference to read its parameters and returned results.",
           "related_lessons": [
-            "13_regression"
+            "13_regression",
+            "15_image_umap"
           ],
-          "hold_after": 0.7,
-          "speech_text": "regression के साथ describe का उपयोग करके स्पेकर.ml का perform_regression फ़ंक्शन, डिफ़ॉल्ट मान देने वाला फ़ंक्शन और इनपुट की आवश्यकताएँ देखें। इससे कमांड वास्तविक विश्लेषण फ़ंक्शन से जुड़ता है। यहाँ उपयोग की गई युग्मित डेटा की सहेजी सेटिंग लिंक किए गए Regression उदाहरण से आती हैं, किसी काल्पनिक माप फ़ोल्डर से नहीं।"
-        },
-        {
-          "visual": "04_gui_only",
-          "focus": [
-            200,
-            100,
-            2800,
-            700
-          ],
-          "narration": "Annotate एक इंटरैक्टिव कार्यप्रवाह है। spacr-run annotate चलाने पर वास्तव में निकास स्थिति दो मिलती है और संदेश बताता है कि इसका कोई बैच समकक्ष नहीं है। क्रॉप पर लेबल लगाने के लिए डेस्कटॉप ऐप में Annotate इस्तेमाल करें। यह अपेक्षित इनकार इंस्टॉलेशन खराब होने का प्रमाण नहीं है।",
-          "related_lessons": [
-            "09_annotate"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Annotate एक इंटरैक्टिव कार्यप्रवाह है। स्पेकर-run annotate चलाने पर वास्तव में निकास स्थिति दो मिलती है और संदेश बताता है कि इसका कोई बैच समकक्ष नहीं है। क्रॉप पर लेबल लगाने के लिए डेस्कटॉप ऐप में Annotate इस्तेमाल करें। यह अपेक्षित इनकार इंस्टॉलेशन खराब होने का प्रमाण नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "05_report_api",
@@ -592,9 +574,8 @@
             2800,
             700
           ],
-          "narration": "कुछ अन्य क्षमताओं की Python API होती है, लेकिन उससे मेल खाने वाली बैच कुंजी नहीं होती। यहाँ हम spacr.report से build_report इम्पोर्ट करके उसके वास्तविक फ़ंक्शन सिग्नेचर को देखते हैं। हम उसे बुलाते नहीं और रिपोर्ट नहीं बनाते। spacr-run report मौजूद मान लेने के बजाय फ़ंक्शन का दस्तावेज़ और उसके आर्ग्युमेंट देखें।",
-          "hold_after": 0.7,
-          "speech_text": "कुछ अन्य क्षमताओं की Python API होती है, लेकिन उससे मेल खाने वाली बैच कुंजी नहीं होती। यहाँ हम स्पेकर.report से build_report इम्पोर्ट करके उसके वास्तविक फ़ंक्शन सिग्नेचर को देखते हैं। हम उसे बुलाते नहीं और रिपोर्ट नहीं बनाते। स्पेकर-run report मौजूद मान लेने के बजाय फ़ंक्शन का दस्तावेज़ और उसके आर्ग्युमेंट देखें।"
+          "narration": "In Python, import the function you need and inspect its signature. This example imports build_report from spacr.report. Look up the same name in the API reference, prepare the required arguments, and call the function from your script or notebook.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_dry_run",
@@ -604,24 +585,8 @@
             3440,
             680
           ],
-          "narration": "regression को सहेजी गई सेटिंग की फ़ाइल दें और dry-run विकल्प जोड़ें। वास्तविक कमांड सेटिंग तय करता है और शुरुआती जाँच चलाता है, फिर स्पष्ट बताता है कि perform_regression को नहीं बुलाया गया। निकास स्थिति और संदेश पढ़ें; इस रिकॉर्डिंग में कोई नया रिग्रेशन शुरू नहीं हुआ और उसके विश्लेषण परिणाम नहीं लिखे गए।",
-          "related_lessons": [
-            "13_regression"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "regression को सहेजी गई सेटिंग की फ़ाइल दें और dry-run विकल्प जोड़ें। वास्तविक कमांड सेटिंग तय करता है और शुरुआती जाँच चलाता है, फिर स्पष्ट बताता है कि perform_regression को नहीं बुलाया गया। निकास स्थिति और संदेश पढ़ें; इस रिकॉर्डिंग में कोई नया रिग्रेशन शुरू नहीं हुआ और उसके विश्लेषण परिणाम नहीं लिखे गए।"
-        },
-        {
-          "visual": "06_dry_run",
-          "focus": [
-            200,
-            1320,
-            3440,
-            680
-          ],
-          "narration": "बिना त्रुटि वाली शुरुआती जाँच यह प्रमाण नहीं है कि पूरा विश्लेषण सफल होगा या वैज्ञानिक रूप से सही होगा। इस संस्करण की सामान्य योजना माप के डेटाबेस का उल्लेख करती है, जबकि हमारा रिग्रेशन युग्मित तालिकाएँ उपयोग करता है। मॉड्यूल के वास्तविक इनपुट देखें और बिना निगरानी चलाने पर भरोसा करने से पहले सीमित परीक्षण चलाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "बिना त्रुटि वाली शुरुआती जाँच यह प्रमाण नहीं है कि पूरा विश्लेषण सफल होगा या वैज्ञानिक रूप से सही होगा। इस संस्करण की सामान्य योजना माप के डेटाबेस का उल्लेख करती है, जबकि हमारा रिग्रेशन युग्मित तालिकाएँ उपयोग करता है। मॉड्यूल के वास्तविक इनपुट देखें और बिना निगरानी चलाने पर भरोसा करने से पहले सीमित परीक्षण चलाएँ।"
+          "narration": "Save the settings from your module workflow, then pass the file with dash dash settings. Add dash dash dry-run to check the configuration and input paths. In this Regression example, the settings pair phenotype scores with guide counts for each plate. Read the messages and correct any missing inputs before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_describe",
@@ -631,15 +596,19 @@
             2250,
             900
           ],
-          "narration": "dry-run तभी हटाएँ जब आप सचमुच विश्लेषण चलाना चाहते हों। सटीक सेटिंग, इनपुट पहचानकर्ता, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें। प्रदर्शित वास्तविक रन के लिए लिंक किया गया मॉड्यूल पाठ देखें और Python स्क्रिप्ट लिखते समय फ़ंक्शन का मौजूदा API संदर्भ पढ़ें।",
+          "narration": "To execute the analysis, run the same command without dash dash dry-run. Follow the console until the command finishes, then inspect the outputs described by that module’s tutorial and API page. Keep the settings file, input tables, package version and console log with the results.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
           ],
-          "hold_after": 0.7,
-          "speech_text": "dry-run तभी हटाएँ जब आप सचमुच विश्लेषण चलाना चाहते हों। सटीक सेटिंग, इनपुट पहचानकर्ता, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें। प्रदर्शित वास्तविक रन के लिए लिंक किया गया मॉड्यूल पाठ देखें और Python स्क्रिप्ट लिखते समय फ़ंक्शन का मौजूदा API संदर्भ पढ़ें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "07_mask",
@@ -1546,111 +1515,171 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: वापस पलटने योग्य संपादन, दोबारा क्रॉप करना और स्थानीय पहचान",
+      "title": "Make Masks: edit labels and prepare training images",
       "series": 1,
       "app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
-      "description": "वास्तविक डाउनलोड किए गए सेल लेबल को असली क्रियाओं से संपादित करें, दृश्य और मास्क के बदलाव में अंतर समझें, मूल को सुरक्षित रखते हुए प्रशिक्षण क्रॉप बनाएँ और वास्तविक Cellpose पहचान तथा उसके मध्यवर्ती दृश्य देखें।",
+      "section": "Tools",
+      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
       "objectives": [
-        "डाउनलोड किए गए स्रोत को बदले बिना द्वि-आयामी चित्र और उनके इंस्टेंस मास्क खोलें।",
-        "वस्तु हटाने, रेखांकन, विभाजन और क्षेत्रफल फ़िल्टर की वापस पलटने योग्य क्रियाएँ करें और उन्हें दृश्य कॉन्ट्रास्ट से अलग समझें।",
-        "समीक्षित मास्क सहेजें और मूल चित्र को पुनर्प्राप्ति फ़ोल्डर में रखते हुए फ़ील्ड को फिर क्रॉप करें।",
-        "अंदर रखे सेगमेंटेशन उपकरण ढूँढें और वास्तविक स्थानीय Cellpose पहचान, स्कोर मानचित्र तथा फ्लो दृश्य देखें।"
+        "Open images with matching instance masks and inspect objects in the magnifier.",
+        "Measure paired fields and save an object-feature database.",
+        "Correct labels with Undo, drawing, division and size filters.",
+        "Save curated masks and create image-mask crops for training."
       ],
-      "prerequisite": "पहले Measure का वास्तविक डाउनलोड योग्य उदाहरण लें। रिकॉर्डिंग में उसके सात-प्लेन uint16 मर्ज किए गए फ़ील्ड से बिना पिक्सेल बदले निकाले गए दो अलग TIFF जोड़े हैं: प्लेन 1 में ER तीव्रता और प्लेन 4 में सेल लेबल हैं। सटीक तैयारी tools/tutorials/capture_make_masks.py के prepare_fields में है। अपने प्रयोग के लिए द्वि-आयामी चित्र और masks उपफ़ोल्डर में समान मूल नाम वाले इंस्टेंस-लेबल TIFF दें; हर डेटासेट में इसी प्लेन क्रम का अनुमान न लगाएँ।",
+      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home की Tools श्रेणी में Make Masks खोलें। यह मास्क का मैनुअल संपादक है और Core की Mask पाइपलाइन से अलग है। टूलबार वर्तमान फ़ील्ड को संपादित करता है; हेडर उन संबंधित सेगमेंटेशन कार्यप्रवाहों को खोलता है जो अब इस मुख्य मॉड्यूल के भीतर हैं।",
+          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "Home की Tools श्रेणी में Make Masks खोलें। यह मास्क का मैनुअल संपादक है और Core की Mask पाइपलाइन से अलग है। टूलबार वर्तमान फ़ील्ड को संपादित करता है; हेडर उन संबंधित सेगमेंटेशन कार्यप्रवाहों को खोलता है जो अब इस मुख्य मॉड्यूल के भीतर हैं।"
+          ]
         },
         {
           "visual": "02_folder_picker",
-          "narration": "इस उदाहरण में Measure के डाउनलोड किए गए डेटासेट के दो वास्तविक फ़ील्ड हैं। हमने तीव्रता और मौजूदा सेल लेबल के प्लेन अलग TIFF प्रतियों में निकाले और मूल स्टैक नहीं बदले। तैयारी उनके स्रोत प्लेन और हैश दर्ज करती है। दूसरे डेटासेट का प्लेन क्रम अलग हो सकता है।",
+          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "इस उदाहरण में Measure के डाउनलोड किए गए डेटासेट के दो वास्तविक फ़ील्ड हैं। हमने तीव्रता और मौजूदा सेल लेबल के प्लेन अलग TIFF प्रतियों में निकाले और मूल स्टैक नहीं बदले। तैयारी उनके स्रोत प्लेन और हैश दर्ज करती है। दूसरे डेटासेट का प्लेन क्रम अलग हो सकता है।"
+          ]
         },
         {
           "visual": "03_real_labels",
-          "narration": "चित्रों का फ़ोल्डर खोलें। संबंधित इंस्टेंस मास्क उसकी masks उपफ़ोल्डर में चित्र के समान मूल नाम से रहते हैं। पहले फ़ील्ड में तिरसठ लेबल वाली वस्तुएँ लोड होती हैं। साथी मास्क न मिले तो शुरुआत खाली होती है; लेबल चित्र में वस्तुओं के पहचानकर्ता होते हैं, केवल अग्रभूमि का रंग नहीं।",
+          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_04_otsu_magnifier_settings",
+          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "readouts_05_live_otsu_magnifier",
+          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
           "hold_after": 0.7,
-          "speech_text": "चित्रों का फ़ोल्डर खोलें। संबंधित इंस्टेंस मास्क उसकी masks उपफ़ोल्डर में चित्र के समान मूल नाम से रहते हैं। पहले फ़ील्ड में तिरसठ लेबल वाली वस्तुएँ लोड होती हैं। साथी मास्क न मिले तो शुरुआत खाली होती है; लेबल चित्र में वस्तुओं के पहचानकर्ता होते हैं, केवल अग्रभूमि का रंग नहीं।"
+          "focus": [
+            1370,
+            280,
+            2200,
+            1775
+          ]
+        },
+        {
+          "visual": "readouts_06_features_real_files",
+          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_08_features_choose_cell_mask",
+          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_09_features_assigned_table",
+          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "readouts_12_features_measurements_saved",
+          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "hold_after": 0.7,
+          "focus": [
+            650,
+            355,
+            2400,
+            1490
+          ],
+          "related_lessons": [
+            "08_measure"
+          ]
         },
         {
           "visual": "03_real_labels",
-          "narration": "Brush और Erase पिक्सेल पर काम करते हैं, जबकि Erase object पूरा लेबल हटाता है। Wand के नियंत्रण जुड़ी हुई तीव्रता वाली जगह को फैलाते हैं। Draw, Divide, Zoom और Recrop भी अब इसी टूलबार में हैं। गलती के अनुसार सही क्रिया चुनें और सहेजने से पहले परिणाम देखें।",
+          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ],
-          "speech_text": "Brush और Erase पिक्सेल पर काम करते हैं, जबकि Erase object पूरा लेबल हटाता है। Wand के नियंत्रण जुड़ी हुई तीव्रता वाली जगह को फैलाते हैं। Draw, Divide, Zoom और Recrop भी अब इसी टूलबार में हैं। गलती के अनुसार सही क्रिया चुनें और सहेजने से पहले परिणाम देखें।"
+          ]
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Erase object पर और फिर फ़ील्ड के भीतर की एक कोशिका पर क्लिक करें। वास्तविक क्लिक केवल लेबल सत्रह हटाता है और दूसरी वस्तुओं को छुए बिना संख्या तिरसठ से बासठ करता है। यह क्रिया का प्रदर्शन है, यह निर्णय नहीं कि इस कोशिका को जैविक कारण से हटाना चाहिए।",
-          "hold_after": 0.7,
-          "speech_text": "Erase object पर और फिर फ़ील्ड के भीतर की एक कोशिका पर क्लिक करें। वास्तविक क्लिक केवल लेबल सत्रह हटाता है और दूसरी वस्तुओं को छुए बिना संख्या तिरसठ से बासठ करता है। यह क्रिया का प्रदर्शन है, यह निर्णय नहीं कि इस कोशिका को जैविक कारण से हटाना चाहिए।"
+          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Undo मूल लेबल का हर पिक्सेल वापस लाता है। Redo वही हटाने की क्रिया दोहराता है; आगे बढ़ने से पहले Undo फिर उसे लौटाता है। ये क्लिक से बने वास्तविक इतिहास के चरण हैं, रिकॉर्डिंग स्क्रिप्ट द्वारा दर्शक में बदले गए मास्क नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Undo मूल लेबल का हर पिक्सेल वापस लाता है। Redo वही हटाने की क्रिया दोहराता है; आगे बढ़ने से पहले Undo फिर उसे लौटाता है। ये क्लिक से बने वास्तविक इतिहास के चरण हैं, रिकॉर्डिंग स्क्रिप्ट द्वारा दर्शक में बदले गए मास्क नहीं।"
+          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Draw किसी रूपरेखा को बंद करके एक वस्तु के रूप में भरता है। यहाँ पृष्ठभूमि पर छोटी रूपरेखा उपकरण का प्रदर्शन करती है और थोड़ी देर के लिए चौंसठवाँ लेबल बनाती है। यह जैविक एनोटेशन नहीं है, इसलिए हम इसे वापस लेते हैं। प्रशिक्षण लेबल बनाते समय वास्तविक सीमा सावधानी से बनाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "Draw किसी रूपरेखा को बंद करके एक वस्तु के रूप में भरता है। यहाँ पृष्ठभूमि पर छोटी रूपरेखा उपकरण का प्रदर्शन करती है और थोड़ी देर के लिए चौंसठवाँ लेबल बनाती है। यह जैविक एनोटेशन नहीं है, इसलिए हम इसे वापस लेते हैं। प्रशिक्षण लेबल बनाते समय वास्तविक सीमा सावधानी से बनाएँ।"
+          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Divide मौजूदा वस्तु को काटता है और अलग हिस्से को नया पहचानकर्ता देता है। क्रिया चित्र के भीतर शुरू और समाप्त करें तथा पूरी वस्तु को पार करें। इस असली कट से चौंसठ लेबल बनते हैं; हम प्रदर्शन के विभाजन को सही संदर्भ मानने के बजाय उसे वापस लेते हैं।",
-          "hold_after": 0.7,
-          "speech_text": "Divide मौजूदा वस्तु को काटता है और अलग हिस्से को नया पहचानकर्ता देता है। क्रिया चित्र के भीतर शुरू और समाप्त करें तथा पूरी वस्तु को पार करें। इस असली कट से चौंसठ लेबल बनते हैं; हम प्रदर्शन के विभाजन को सही संदर्भ मानने के बजाय उसे वापस लेते हैं।"
+          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Display के पर्सेंटाइल दृश्यता बदलते हैं, मूल तीव्रता या लेबल की ज्यामिति नहीं। निचला पर्सेंटाइल बढ़ाने से यह दृश्य बदलता है, जबकि दोनों ऐरे बिल्कुल समान रहते हैं। सेटिंग वापस करने पर दृश्य भी लौटता है। कॉन्ट्रास्ट देखने की मदद है, माप बदलने का तरीका नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Display के पर्सेंटाइल दृश्यता बदलते हैं, मूल तीव्रता या लेबल की ज्यामिति नहीं। निचला पर्सेंटाइल बढ़ाने से यह दृश्य बदलता है, जबकि दोनों ऐरे बिल्कुल समान रहते हैं। सेटिंग वापस करने पर दृश्य भी लौटता है। कॉन्ट्रास्ट देखने की मदद है, माप बदलने का तरीका नहीं।"
+          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "संपादक का वस्तु फ़िल्टर वास्तव में लेबल बदलता है। यहाँ मापा गया प्रदर्शन का क्षेत्रफल स्तर इक्कीस हज़ार बाईस पिक्सेल है; Apply filter now दबाने पर बत्तीस वस्तुएँ हटती हैं। मॉडल फिर नहीं चलता। यह सुझाई गई जैविक सीमा नहीं है और यह क्रिया वस्तुओं को सिर्फ छिपाती नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "संपादक का वस्तु फ़िल्टर वास्तव में लेबल बदलता है। यहाँ मापा गया प्रदर्शन का क्षेत्रफल स्तर इक्कीस हज़ार बाईस पिक्सेल है; Apply filter now दबाने पर बत्तीस वस्तुएँ हटती हैं। मॉडल फिर नहीं चलता। यह सुझाई गई जैविक सीमा नहीं है और यह क्रिया वस्तुओं को सिर्फ छिपाती नहीं है।"
+          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "फ़िल्टर को Undo करें और उसकी सीमाएँ शून्य करें ताकि अगले फ़ील्ड में वे बंद रहें। Save mask लौटाए गए लेबल और उनका संशोधन रिकॉर्ड लिखता है। हम जाँचते हैं कि अग्रभूमि की ज्यामिति नहीं बदली; मूल चित्रों को संपादित किए जा रहे मास्क से अलग सुरक्षित रखें।",
-          "hold_after": 0.7,
-          "speech_text": "फ़िल्टर को Undo करें और उसकी सीमाएँ शून्य करें ताकि अगले फ़ील्ड में वे बंद रहें। Save mask लौटाए गए लेबल और उनका संशोधन रिकॉर्ड लिखता है। हम जाँचते हैं कि अग्रभूमि की ज्यामिति नहीं बदली; मूल चित्रों को संपादित किए जा रहे मास्क से अलग सुरक्षित रखें।"
+          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "हेडर में Train Cellpose और Mask the whole folder हैं। मॉडल को प्रशिक्षित करना और लागू करना अलग काम हैं, जिनके मौजूदा विशेष पाठ यहाँ जुड़े हैं। कोई उपकरण अलग विंडो खोले, तब भी ट्यूटोरियल के Submodules अनुभाग में उसका मुख्य मॉड्यूल Make Masks ही है।",
+          "narration": "Use the header tools for the next step. Train Cellpose learns from your curated image-mask pairs; Mask the whole folder applies a model to a folder of images. Follow the linked tutorial for the workflow you need.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ],
-          "speech_text": "हेडर में Train सेल पोज़ और Mask the whole folder हैं। मॉडल को प्रशिक्षित करना और लागू करना अलग काम हैं, जिनके मौजूदा विशेष पाठ यहाँ जुड़े हैं। कोई उपकरण अलग विंडो खोले, तब भी ट्यूटोरियल के Submodules अनुभाग में उसका मुख्य मॉड्यूल Make Masks ही है।"
+          ]
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "इसी हेडर में Model Compare, Model Zoo, Curate और Open in napari हैं। मॉडल की साथ-साथ तुलना, उपलब्ध वेट, संशोधन और बाहरी संपादक में जाकर लौटने के लिए उनके पुराने सुरक्षित रखे गए पाठ देखें। यहाँ हम उनके असली स्थान दिखाते हैं, उन कार्यप्रवाहों को दोहराते या गढ़ते नहीं।",
+          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1658,65 +1687,61 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ],
-          "speech_text": "इसी हेडर में Model Compare, Model Zoo, Curate और Open in napari हैं। मॉडल की साथ-साथ तुलना, उपलब्ध वेट, संशोधन और बाहरी संपादक में जाकर लौटने के लिए उनके पुराने सुरक्षित रखे गए पाठ देखें। यहाँ हम उनके असली स्थान दिखाते हैं, उन कार्यप्रवाहों को दोहराते या गढ़ते नहीं।"
+          ]
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Recrop प्रशिक्षण का फ़ील्ड बदलता है, केवल ज़ूम नहीं। पूरी वस्तु के चारों ओर बॉक्स खींचें। यह क्रिया तुरंत नया चित्र और संबंधित मास्क लिखती है और मूल तीव्रता के पिक्सेल सुरक्षित रखती है। सीमा से कटने वाले लेबल निकाल दिए जाते हैं; केवल बॉक्स नहीं, परिणामी वस्तुओं की संख्या भी देखें।",
-          "hold_after": 0.7,
-          "speech_text": "Recrop प्रशिक्षण का फ़ील्ड बदलता है, केवल ज़ूम नहीं। पूरी वस्तु के चारों ओर बॉक्स खींचें। यह क्रिया तुरंत नया चित्र और संबंधित मास्क लिखती है और मूल तीव्रता के पिक्सेल सुरक्षित रखती है। सीमा से कटने वाले लेबल निकाल दिए जाते हैं; केवल बॉक्स नहीं, परिणामी वस्तुओं की संख्या भी देखें।"
+          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Next नई एक-वस्तु वाली क्रॉप खोलता है और मूल फ़ील्ड की प्रति को recropped_originals में रख देता है। यह पुनर्प्राप्ति फ़ोल्डर चित्र के बाइट सुरक्षित रखता है। इसका असर संपादक की फ़ोल्डर कतार पर है; यह Annotate का क्रॉप डेटाबेस दोबारा नहीं बनाता। यहाँ केवल निजी ट्यूटोरियल प्रति रखी जाती है, डाउनलोड किए गए स्रोत को नहीं छुआ जाता।",
+          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Next नई एक-वस्तु वाली क्रॉप खोलता है और मूल फ़ील्ड की प्रति को recropped_originals में रख देता है। यह पुनर्प्राप्ति फ़ोल्डर चित्र के बाइट सुरक्षित रखता है। इसका असर संपादक की फ़ोल्डर कतार पर है; यह Annotate का क्रॉप डेटाबेस दोबारा नहीं बनाता। यहाँ केवल निजी ट्यूटोरियल प्रति रखी जाती है, डाउनलोड किए गए स्रोत को नहीं छुआ जाता।"
+          ]
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "Cellpose-SAM खुले फ़ील्ड में वस्तुएँ पहचान सकता है। छोटा क्रॉप cpsam, चालू नॉर्मलाइज़ेशन, सेल स्कोर की सीमा शून्य, फ्लो की सीमा शून्य दशमलव चार और व्यास शून्य उपयोग करता है, जिससे मॉडल की डिफ़ॉल्ट आकार व्यवस्था रहती है। प्रतिस्थापन मोड महत्वपूर्ण है: यह पुराने लेबल में नई पहचान जोड़ने से अलग है।",
-          "hold_after": 0.7,
-          "speech_text": "सेल पोज़-SAM खुले फ़ील्ड में वस्तुएँ पहचान सकता है। छोटा क्रॉप cpsam, चालू नॉर्मलाइज़ेशन, सेल स्कोर की सीमा शून्य, फ्लो की सीमा शून्य दशमलव चार और व्यास शून्य उपयोग करता है, जिससे मॉडल की डिफ़ॉल्ट आकार व्यवस्था रहती है। प्रतिस्थापन मोड महत्वपूर्ण है: यह पुराने लेबल में नई पहचान जोड़ने से अलग है।"
+          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Cellpose-SAM detect दबाएँ और वास्तविक परिणाम देखें। इस रन में तीन सौ इकतीस गुणा दो सौ सड़सठ पिक्सेल की क्रॉप में एक वस्तु मिलती है। नई सीमा पुराने मास्क से अलग है; समान संख्या से यह साबित नहीं होता कि कोई भी सीमा सही है।",
-          "hold_after": 0.7,
-          "speech_text": "सेल पोज़-SAM detect दबाएँ और वास्तविक परिणाम देखें। इस रन में तीन सौ इकतीस गुणा दो सौ सड़सठ पिक्सेल की क्रॉप में एक वस्तु मिलती है। नई सीमा पुराने मास्क से अलग है; समान संख्या से यह साबित नहीं होता कि कोई भी सीमा सही है।"
+          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Cell probability उसी पहचान का असली स्कोर मानचित्र दिखाता है, जैविक व्याख्या सही होने की कैलिब्रेट की गई संभावना नहीं। इससे समझें कि मॉडल कहाँ अग्रभूमि का समर्थन करता है। पहचान की सीमा बदलने पर फिर पहचान चलानी होगी; ये दृश्य उस रन को बताते हैं जिसने उन्हें बनाया।",
-          "hold_after": 0.7,
-          "speech_text": "Cell probability उसी पहचान का असली स्कोर मानचित्र दिखाता है, जैविक व्याख्या सही होने की कैलिब्रेट की गई संभावना नहीं। इससे समझें कि मॉडल कहाँ अग्रभूमि का समर्थन करता है। पहचान की सीमा बदलने पर फिर पहचान चलानी होगी; ये दृश्य उस रन को बताते हैं जिसने उन्हें बनाया।"
+          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Flows मॉडल की दिशा-संबंधी जानकारी दिखाता है। फ्लो की संगति की सीमा का अर्थ अग्रभूमि स्कोर की सीमा से अलग है: कम मान अधिक कड़े हैं, जबकि शून्य यह जाँच बंद करता है। मास्क और मध्यवर्ती दृश्य साथ देखें; बड़ा अंक हमेशा बेहतर सेगमेंटेशन देगा, ऐसा न मानें।",
-          "hold_after": 0.7,
-          "speech_text": "Flows मॉडल की दिशा-संबंधी जानकारी दिखाता है। फ्लो की संगति की सीमा का अर्थ अग्रभूमि स्कोर की सीमा से अलग है: कम मान अधिक कड़े हैं, जबकि शून्य यह जाँच बंद करता है। मास्क और मध्यवर्ती दृश्य साथ देखें; बड़ा अंक हमेशा बेहतर सेगमेंटेशन देगा, ऐसा न मानें।"
+          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo चित्र बदले बिना क्रॉप के पहचान से पहले वाले लेबल लौटाता है। Cellpose स्थानीय मॉडल वेट उपयोग करता है, चैट प्रदाता का उत्तर नहीं। ऐप का उपकरण चयन उपलब्ध त्वरण और CPU विकल्प का समर्थन करता है। सुविधाएँ इंस्टॉलेशन पर निर्भर हैं, इसलिए अलग बैकएंड पर समान परिणाम का वादा न करें।",
-          "hold_after": 0.7,
-          "speech_text": "Undo चित्र बदले बिना क्रॉप के पहचान से पहले वाले लेबल लौटाता है। सेल पोज़ स्थानीय मॉडल वेट उपयोग करता है, चैट प्रदाता का उत्तर नहीं। ऐप का उपकरण चयन उपलब्ध त्वरण और CPU विकल्प का समर्थन करता है। सुविधाएँ इंस्टॉलेशन पर निर्भर हैं, इसलिए अलग बैकएंड पर समान परिणाम का वादा न करें।"
+          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "स्क्रिप्ट के लिए संपादक की load_image_and_mask, save_mask और write_recrop क्रियाएँ spacr.qt.mask_engine में हैं। समीक्षित प्रशिक्षण डेटा के साथ चित्र-मास्क का जोड़ा और स्रोत जानकारी रखें। जाँचे गए उदाहरण से पुनरुत्पादित किए जा सकने वाले कार्यप्रवाह की ओर बढ़ते समय जुड़े API और प्रशिक्षण पाठ देखें।",
+          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ],
-          "speech_text": "स्क्रिप्ट के लिए संपादक की load_image_and_mask, save_mask और write_recrop क्रियाएँ स्पेकर.क्यू टी.mask_engine में हैं। समीक्षित प्रशिक्षण डेटा के साथ चित्र-मास्क का जोड़ा और स्रोत जानकारी रखें। जाँचे गए उदाहरण से पुनरुत्पादित किए जा सकने वाले कार्यप्रवाह की ओर बढ़ते समय जुड़े API और प्रशिक्षण पाठ देखें।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "15_image_umap",
@@ -1829,104 +1854,96 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation Maps: वास्तविक सैलियेंसी आउटपुट और उनकी सीमाएँ",
+      "title": "Activation Maps: inspect an image classifier’s saliency maps",
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
-      "description": "Classify में Activation Maps खोलें, भरोसेमंद मॉडल को वास्तविक क्रॉप से मिलाएँ और एट्रिब्यूशन को सत्यापन समझे बिना दो आउटपुट देखें।",
+      "section": "Classify",
+      "description": "Select a trained classifier and matching image crops, compare channel and image saliency, and open the saved maps.",
       "objectives": [
-        "मौजूदा नेस्टेड उपकरण और मॉडल का इनपुट अनुबंध समझें।",
-        "इनपुट प्रीप्रोसेसिंग, प्रदर्शन कंट्रास्ट और एट्रिब्यूशन में अंतर करें।",
-        "खाली Figures पैनल होने पर वास्तविक सहेजी फ़ाइलें देखें।",
-        "संख्यात्मक जाँच, मॉडल अनुमान और वैज्ञानिक वैधता अलग रखें।"
+        "Match the crop archive, model and preprocessing settings.",
+        "Run channel saliency with an image overlay.",
+        "Compare image saliency and locate the saved grids."
       ],
-      "prerequisite": "Annotate के डाउनलोड उदाहरण के चार अपरिवर्तित RGB क्रॉप और एक एपॉक का भरोसेमंद स्थानीय ResNet18 चेकपॉइंट लें। पहले उदाहरण की विभाजित इकाइयों में वेल साझा हैं: स्वतंत्र सटीकता का कोई दावा नहीं। प्रारूप 3/RGB मार्कर और मॉडल कार्ड रखें। आकार 128, बैच 4, चैनल [1,2,3], normalize_input/normalize/Plot/Save चालू, shuffle/correlation बंद, एक CPU प्रक्रिया। saliency_channel में ओवरले, फिर saliency_image बिना ओवरले। 196608 इनपुट मान और 262144 सहेजे मैप घटक जाँचे, अधिकतम एक आठ-बिट स्तर की राउंडिंग छूट। पहचान और मूल फ़ाइलें सुरक्षित। src चेतावनी और खाली Figures ठीक नहीं हुए; PNG वास्तविक बाहरी व्यूअर में खुलते हैं। चार अनुपयोगी स्थान खाली हैं। एट्रिब्यूशन सत्यापन, स्वतंत्र सटीकता, AI अनुरोध, जैविक सत्यापन या प्रकाशन का दावा नहीं। API: spacr.deep_spacr.generate_activation_maps और spacr.utils.SaliencyMapGenerator.",
+      "prerequisite": "Use a trained image-classification checkpoint and a TAR archive of compatible image crops. Retain the crop-format marker when present and follow the model card’s channel order, image size and normalization. The example uses four RGB crops from Annotate and a ResNet18 model from Classify. Train or obtain a model whose preprocessing is known before starting.",
       "scenes": [
         {
           "visual": "02_activation_fold",
-          "narration": "Classify खोलें, फिर उसके अंदर Activation Maps उपकरण चुनें। यह कार्यप्रवाह देखता है कि प्रशिक्षित मॉडल का अनुमान इमेज पिक्सेल के प्रति कैसे बदलता है। यह क्लासिफायर प्रशिक्षित नहीं करता और देखे गए फीनोटाइप का कारण नहीं बताता। हम दो वास्तविक सैलियेंसी रन, उनके कंसोल और सहेजी फ़ाइलें देखने का स्पष्ट तरीका दिखाएँगे।",
+          "narration": "From Home, open Classify, then Activation Maps. This tool shows where a trained image classifier’s prediction is sensitive to the input pixels. Start with the model and an archive of crops prepared in the same way as its training data.",
           "related_lessons": [
             "09_annotate",
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Classify खोलें, फिर उसके अंदर Activation Maps उपकरण चुनें। यह कार्यप्रवाह देखता है कि प्रशिक्षित मॉडल का अनुमान इमेज पिक्सेल के प्रति कैसे बदलता है। यह क्लासिफायर प्रशिक्षित नहीं करता और देखे गए फीनोटाइप का कारण नहीं बताता। हम दो वास्तविक सैलियेंसी रन, उनके कंसोल और सहेजी फ़ाइलें देखने का स्पष्ट तरीका दिखाएँगे।"
+          "hold_after": 0.7
         },
         {
           "visual": "03_00_dataset",
-          "narration": "वास्तविक क्रॉप आर्काइव लें, केवल उदाहरण फ़ोल्डर नहीं। हमारे छोटे आर्काइव में Annotate के डाउनलोड उदाहरण के चार अपरिवर्तित RGB सेल क्रॉप और उनका प्रारूप मार्कर है। मूल फ़ाइलें सुरक्षित रखकर निजी प्रोजेक्ट में काम करते हैं। सुविधानुसार चुनी चार तस्वीरें संचालन दिखाती हैं; वे प्रतिनिधि सत्यापन समूह नहीं हैं।",
-          "hold_after": 0.7,
-          "speech_text": "वास्तविक क्रॉप आर्काइव लें, केवल उदाहरण फ़ोल्डर नहीं। हमारे छोटे आर्काइव में Annotate के डाउनलोड उदाहरण के चार अपरिवर्तित RGB सेल क्रॉप और उनका प्रारूप मार्कर है। मूल फ़ाइलें सुरक्षित रखकर निजी प्रोजेक्ट में काम करते हैं। सुविधानुसार चुनी चार तस्वीरें संचालन दिखाती हैं; वे प्रतिनिधि सत्यापन समूह नहीं हैं।"
+          "narration": "Select the crop archive in Dataset. This example contains four RGB cell crops from Annotate. Include the crop-format marker when packaging the images, and keep their filenames so you can connect each map to its original object.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_03_image_size",
-          "narration": "मिलता हुआ भरोसेमंद मॉडल चुनें और उसका मॉडल कार्ड रखें। यह पिछली प्रस्तुति में केवल एक एपॉक प्रशिक्षित ResNet अठारह चेकपॉइंट है। विभाजन में वेल साझा थे, इसलिए हम स्वतंत्र सटीकता का दावा नहीं करते। आकर्षक एट्रिब्यूशन चित्र खराब सत्यापित मॉडल को विश्वसनीय नहीं बनाता। सुविधा के लिए अविश्वसनीय चेकपॉइंट न खोलें।",
-          "hold_after": 0.7,
-          "speech_text": "मिलता हुआ भरोसेमंद मॉडल चुनें और उसका मॉडल कार्ड रखें। यह पिछली प्रस्तुति में केवल एक एपॉक प्रशिक्षित ResNet अठारह चेकपॉइंट है। विभाजन में वेल साझा थे, इसलिए हम स्वतंत्र सटीकता का दावा नहीं करते। आकर्षक एट्रिब्यूशन चित्र खराब सत्यापित मॉडल को विश्वसनीय नहीं बनाता। सुविधा के लिए अविश्वसनीय चेकपॉइंट न खोलें।"
+          "narration": "Select the trained model and choose its model type. Here the model is ResNet eighteen. Read its model card and set Image size to one hundred and twenty-eight to match the training input.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_05_channels",
-          "narration": "प्रशिक्षण का इनपुट अनुबंध मिलाएँ: आकार एक सौ अट्ठाईस और घोषित RGB चैनल क्रम। यहाँ वास्तविक चैनल चयन एक, दो, तीन है। दूसरे उपकरण में सूचकांक शून्य से शुरू होने के कारण चैनल न बदलें। सैलियेंसी की तुलना से पहले केंद्र से काटे और बदले इनपुट मानों को प्रशिक्षण लोडर से स्वतंत्र रूप से जाँचा।",
-          "hold_after": 0.7,
-          "speech_text": "प्रशिक्षण का इनपुट अनुबंध मिलाएँ: आकार एक सौ अट्ठाईस और घोषित RGB चैनल क्रम। यहाँ वास्तविक चैनल चयन एक, दो, तीन है। दूसरे उपकरण में सूचकांक शून्य से शुरू होने के कारण चैनल न बदलें। सैलियेंसी की तुलना से पहले केंद्र से काटे और बदले इनपुट मानों को प्रशिक्षण लोडर से स्वतंत्र रूप से जाँचा।"
+          "narration": "Set Channels to the order expected by the model. In this example the selector uses one, two and three for the RGB input. Preserve that order when comparing maps from different images.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_06_normalize_input",
-          "narration": "इनपुट नॉर्मलाइज़ेशन और प्रदर्शन नॉर्मलाइज़ेशन अलग हैं। इनपुट प्रशिक्षण जैसा होना चाहिए; यहाँ दर्ज सममित प्रीप्रोसेसिंग चालू है। प्रदर्शन नॉर्मलाइज़ेशन ओवरले की पृष्ठभूमि इमेज का रूप बदलता है, मॉडल की सटीकता या रंग का अर्थ नहीं। तुलना में दोनों सेटिंग रखें; अधिक चमकीला चित्र अधिक मजबूत प्रमाण नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "इनपुट नॉर्मलाइज़ेशन और प्रदर्शन नॉर्मलाइज़ेशन अलग हैं। इनपुट प्रशिक्षण जैसा होना चाहिए; यहाँ दर्ज सममित प्रीप्रोसेसिंग चालू है। प्रदर्शन नॉर्मलाइज़ेशन ओवरले की पृष्ठभूमि इमेज का रूप बदलता है, मॉडल की सटीकता या रंग का अर्थ नहीं। तुलना में दोनों सेटिंग रखें; अधिक चमकीला चित्र अधिक मजबूत प्रमाण नहीं है।"
+          "narration": "Set Normalize input to match training. The separate display normalization controls how the image appears in the saved overlay. Keep both settings consistent when comparing runs.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_method_and_overlay",
-          "narration": "saliency channel चुनें, Overlay चालू करें और Plot तथा Save चालू रखें। इस छोटे प्रदर्शन में एक प्रक्रिया, चार का बैच और CPU उपयोग करते हैं। स्क्रीन में लाइव पूर्वावलोकन नहीं है; तरीका बदलने पर फिर चलाना पड़ता है। चैनल सैलियेंसी डेरिवेटिव आधारित मैप सहेजते समय इनपुट चैनलों को अलग रखती है।",
-          "hold_after": 0.7,
-          "speech_text": "saliency channel चुनें, Overlay चालू करें और Plot तथा Save चालू रखें। इस छोटे प्रदर्शन में एक प्रक्रिया, चार का बैच और CPU उपयोग करते हैं। स्क्रीन में लाइव पूर्वावलोकन नहीं है; तरीका बदलने पर फिर चलाना पड़ता है। चैनल सैलियेंसी डेरिवेटिव आधारित मैप सहेजते समय इनपुट चैनलों को अलग रखती है।"
+          "narration": "Choose saliency channel and enable Overlay, Plot and Save. This produces separate channel maps over the images. For the four-crop example, use a batch size of four and one worker, then click Run.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_finished_console",
-          "narration": "असली कंसोल पढ़ें। गणना पूरी होती है, लेकिन यह संस्करण गलत कहता है कि src गायब है, जबकि Activation में Dataset उपयोग होता है। Figures पैनल भी खाली रहता है। इनपुट, सहेजे मैप और डेटाबेस पहचान स्वतंत्र रूप से जाँचे गए हैं; GUI की ये खराबियाँ ठीक नहीं कीं। अन्य त्रुटियों की जाँच अभी भी ज़रूरी है।",
-          "hold_after": 0.7,
-          "speech_text": "असली कंसोल पढ़ें। गणना पूरी होती है, लेकिन यह संस्करण गलत कहता है कि src गायब है, जबकि Activation में Dataset उपयोग होता है। Figures पैनल भी खाली रहता है। इनपुट, सहेजे मैप और डेटाबेस पहचान स्वतंत्र रूप से जाँचे गए हैं; GUI की ये खराबियाँ ठीक नहीं कीं। अन्य त्रुटियों की जाँच अभी भी ज़रूरी है।"
+          "narration": "Follow the console until processing finishes. If the Figures panel is empty, open the output folder and inspect the saved batch grids. Check error messages and the saved results before continuing.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_channel_saliency_09_saved_batch_0_grid",
-          "narration": "सहेजी बैच ग्रिड इमेज व्यूअर में खोलें। यह असली बाहरी व्यूअर है, spaCR में डाला गया चित्र नहीं। चार भरे स्थान हमारे चार क्रॉप हैं; बाकी चार उपयोग नहीं हुए। कोने के शून्य और एक मॉडल के अनुमान हैं, सत्य लेबल नहीं। ओवरले संवेदनशीलता दिखाता है, सेगमेंटेशन मास्क नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "सहेजी बैच ग्रिड इमेज व्यूअर में खोलें। यह असली बाहरी व्यूअर है, स्पेकर में डाला गया चित्र नहीं। चार भरे स्थान हमारे चार क्रॉप हैं; बाकी चार उपयोग नहीं हुए। कोने के शून्य और एक मॉडल के अनुमान हैं, सत्य लेबल नहीं। ओवरले संवेदनशीलता दिखाता है, सेगमेंटेशन मास्क नहीं।"
+          "narration": "Open batch_0_grid.png from the method’s batch_grids folder. Match each occupied slot with its source crop; unused slots may be blank. The corner labels are model predictions. Compare salient regions with the original image and known object boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_method_and_overlay",
-          "narration": "अब saliency image चुनें, Overlay बंद करें और वही इनपुट फिर चलाएँ। यह तरीका सहेजे ग्रेस्केल मैप को दोबारा स्केल करने से पहले चैनलों के निरपेक्ष डेरिवेटिव जोड़ता है। यह ऑक्लूज़न या इंटीग्रेटेड ग्रेडिएंट नहीं है। अलग तरीकों के आउटपुट अलग रखें, ताकि दूसरे रन को पहला न समझें।",
-          "hold_after": 0.7,
-          "speech_text": "अब saliency image चुनें, Overlay बंद करें और वही इनपुट फिर चलाएँ। यह तरीका सहेजे ग्रेस्केल मैप को दोबारा स्केल करने से पहले चैनलों के निरपेक्ष डेरिवेटिव जोड़ता है। यह ऑक्लूज़न या इंटीग्रेटेड ग्रेडिएंट नहीं है। अलग तरीकों के आउटपुट अलग रखें, ताकि दूसरे रन को पहला न समझें।"
+          "narration": "To compare a combined map, select saliency image and turn Overlay off. Run the same images again with the same preprocessing. Keep the two methods’ outputs in their respective folders.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_09_saved_batch_0_grid",
-          "narration": "दूसरी सहेजी ग्रिड में पृष्ठभूमि इमेज के बिना मैप दिखते हैं। रंग दिखाई गई सैलियेंसी का पैमाना हैं, वर्ग की संभावनाएँ या जैविक महत्त्व का प्रमाण नहीं। स्वतंत्र जाँच हर सहेजे घटक को अलग गणना किए ग्रेडिएंट से मिलाती है, अधिकतम एक आठ-बिट राउंडिंग स्तर स्वीकारते हुए। इससे कार्यान्वयन जँचता है, व्याख्या की उपयोगिता नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "दूसरी सहेजी ग्रिड में पृष्ठभूमि इमेज के बिना मैप दिखते हैं। रंग दिखाई गई सैलियेंसी का पैमाना हैं, वर्ग की संभावनाएँ या जैविक महत्त्व का प्रमाण नहीं। स्वतंत्र जाँच हर सहेजे घटक को अलग गणना किए ग्रेडिएंट से मिलाती है, अधिकतम एक आठ-बिट राउंडिंग स्तर स्वीकारते हुए। इससे कार्यान्वयन जँचता है, व्याख्या की उपयोगिता नहीं।"
+          "narration": "Open the second saved grid. Image saliency combines the channel sensitivities into one map for each crop. Compare the highlighted regions with the channel maps. The displayed colours indicate the map scale; interpreting them requires checking the model and image context.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_11_correlation",
-          "narration": "इस उदाहरण में मैप क्वांटिफिकेशन बंद है। हमने डिलीशन, इंसर्शन, मॉडल रैंडमाइज़ेशन या अन्य एट्रिब्यूशन सत्यापन नहीं चलाए; दिखने में अलग दो तरीके उनका विकल्प नहीं हैं। निष्कर्ष से पहले प्रतिनिधि सफलताएँ और विफलताएँ, अर्थपूर्ण नियंत्रण तथा स्वतंत्र रूप से अलग रखा डेटा लें। यह सीमित प्रदर्शन कार्यप्रवाह की जाँच है।",
+          "narration": "Leave Correlation off for this first walkthrough. Review examples from different classes, including prediction errors, before interpreting patterns. Use Classifier Evaluation to assess performance on independently held-out data.",
           "related_lessons": [
             "39_classifier_evaluation",
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "इस उदाहरण में मैप क्वांटिफिकेशन बंद है। हमने डिलीशन, इंसर्शन, मॉडल रैंडमाइज़ेशन या अन्य एट्रिब्यूशन सत्यापन नहीं चलाए; दिखने में अलग दो तरीके उनका विकल्प नहीं हैं। निष्कर्ष से पहले प्रतिनिधि सफलताएँ और विफलताएँ, अर्थपूर्ण नियंत्रण तथा स्वतंत्र रूप से अलग रखा डेटा लें। यह सीमित प्रदर्शन कार्यप्रवाह की जाँच है।"
+          "hold_after": 0.7
         },
         {
           "visual": "05_image_saliency_11_back_to_actual_gui",
-          "narration": "क्रॉप पहचान, मूल इमेज, मॉडल और कार्ड, सेटिंग, लॉग, मैप और डेटाबेस साथ रखें। मूल फ़ाइलें नहीं बदलीं और दोनों तरीकों ने चारों पहचान सुरक्षित रखीं। AI सहायता वैकल्पिक है; यहाँ कोई अनुरोध नहीं भेजा गया। बाद की सलाह को वास्तविक API और प्रमाण से जाँचें, सहज व्याख्या को सत्यापन न मानें।",
+          "narration": "Keep the input archive, model and model card, settings, maps and output database together. Return to the original crops to investigate unexpected regions, or compare another method using the same inputs.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "क्रॉप पहचान, मूल इमेज, मॉडल और कार्ड, सेटिंग, लॉग, मैप और डेटाबेस साथ रखें। मूल फ़ाइलें नहीं बदलीं और दोनों तरीकों ने चारों पहचान सुरक्षित रखीं। AI सहायता वैकल्पिक है; यहाँ कोई अनुरोध नहीं भेजा गया। बाद की सलाह को वास्तविक API और प्रमाण से जाँचें, सहज व्याख्या को सत्यापन न मानें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "17_timelapse",
@@ -2370,112 +2387,100 @@
       "series": 3,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
-      "title": "Cellpose लागू करना: सहेजे गए मास्क और लाइव फ़िल्टर की जाँच",
-      "description": "नेस्टेड Workbench में डाउनलोड योग्य तीन वास्तविक छवियों पर CPSAM चलाएँ, चित्र और कंसोल देखें, और प्रीव्यू को बैच अनुमान से अलग रखते हुए फ़िल्टर आज़माएँ।",
+      "section": "Tools",
+      "title": "Apply Cellpose: segment a folder and inspect masks",
+      "description": "Choose a segmentation model, process the supplied images and inspect saved masks and live size filters.",
       "objectives": [
-        "Make Masks के Cellpose Workbench में Apply ढूँढना।",
-        "सुरक्षित वास्तविक छवि प्रतियों और दर्ज मानक मॉडल सेटिंग का उपयोग करना।",
-        "तीन मास्क तथा मूल छवि, सीमा और फ्लो चित्र जाँचना।",
-        "वापस बदले जा सकने वाले फ़िल्टर और समकालिक ज़ूम दिखाना।",
-        "प्रीव्यू और बैच का मापा अंतर पहचानना, सटीकता का दावा नहीं करना।"
+        "Select images, model weights and segmentation settings.",
+        "Run Apply and locate the saved mask TIFFs.",
+        "Inspect live results and compare object-size filters."
       ],
       "example_files": [
         "Apply_Cellpose_stock_example.zip"
       ],
-      "prerequisite": "तीन छवियों का उदाहरण नई डायरेक्टरी में निकालें और src को images पर रखें। recorded_settings.json ऐतिहासिक सेटिंग है, पोर्टेबल GUI आयात का प्रमाण नहीं। ये वास्तविक 512×512 uint16 एक-चैनल कोशिका क्रॉप हैं, सही विभाजन के मानक लेबल नहीं। मानक CPSAM इस्तेमाल होता है, Train का मॉडल नहीं। channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert और remove_background False हैं। वास्तविक CUDA बैच 9/94/46 वस्तुएँ और तीन GUI चित्र सहेजता है। स्वतंत्र मॉडल कॉल ने सभी मास्क पिक्सेल और चित्र ऐरे पुनः बनाए। बाहरी सीमाएँ हर सटी हुई वस्तु को अलग नहीं करतीं; फ्लो चित्र एक विज़ुअलाइज़ेशन चैनल है, मापी हुई गति नहीं। छवि 02 का प्रीव्यू 94 नहीं, 95 देता है: कच्ची छवि पर Cellpose के डिफ़ॉल्ट, बैच की प्रीप्रोसेसिंग और रिसैंपलिंग नहीं। दिख रहे 2/99 समानता सिद्ध नहीं करते। न्यूनतम क्षेत्रफल 1838 पर 95→47→95, बिना नया मॉडल रन; हर लौटे पिक्सेल की जाँच हुई और सहेजे TIFF अपरिवर्तित रहे। ज़ूम दोनों दृश्य मिलाता है पर छवि काटता है, संकरा कार्ड ठीक नहीं करता। मूल डेटा और पुराने रोक रिकॉर्ड सुरक्षित हैं। जैविक सटीकता प्रमाणन, AI अनुरोध, प्रकाशन या ऐप में बदलाव नहीं।",
+      "prerequisite": "Extract the linked Apply Cellpose example into a new folder. It contains three single-channel cell images and a settings reference. Select its images folder as Source. This walkthrough uses the stock cpsam model; for a custom model, choose compatible weights and settings for your images.",
       "scenes": [
         {
           "visual": "02_actual_train_and_apply_tabs",
-          "narration": "Make Masks से नेस्टेड Cellpose Workbench खोलें और Apply चुनें। Train और Apply इसी वर्कबेंच के टैब हैं; Apply होम पर अलग टाइल नहीं है। इस पाठ में तीन वास्तविक छवियों पर मानक मॉडल चलता है, लिंक किए Train पाठ का प्रदर्शन वाला चेकपॉइंट नहीं।",
+          "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Make Masks से नेस्टेड सेल पोज़ Workbench खोलें और Apply चुनें। Train और Apply इसी वर्कबेंच के टैब हैं; Apply होम पर अलग टाइल नहीं है। इस पाठ में तीन वास्तविक छवियों पर मानक मॉडल चलता है, लिंक किए Train पाठ का प्रदर्शन वाला चेकपॉइंट नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "लिंक किया उदाहरण नई फ़ोल्डर में निकालें। मूल डाउनलोड सुरक्षित रखते हुए उसका images डायरेक्टरी स्रोत चुनें। ये एक चैनल वाली तीन कोशिका छवियाँ हैं, हर ओर पाँच सौ बारह पिक्सेल। ये प्रदर्शन इनपुट हैं, सही विभाजन के मानक नहीं। दर्ज सेटिंग देखते समय ऐतिहासिक पथ को अपने पथ से बदलें।",
-          "hold_after": 0.7,
-          "speech_text": "लिंक किया उदाहरण नई फ़ोल्डर में निकालें। मूल डाउनलोड सुरक्षित रखते हुए उसका images डायरेक्टरी स्रोत चुनें। ये एक चैनल वाली तीन कोशिका छवियाँ हैं, हर ओर पाँच सौ बारह पिक्सेल। ये प्रदर्शन इनपुट हैं, सही विभाजन के मानक नहीं। दर्ज सेटिंग देखते समय ऐतिहासिक पथ को अपने पथ से बदलें।"
+          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_model_name",
-          "narration": "CPSAM चुनें और कस्टम मॉडल खाली रखें। इन छवियों के लिए चैनल शून्य, सामान्यीकरण दूसरा और निन्यानवेवाँ पर्सेंटाइल, व्यास तीस, फ्लो सीमा शून्य दशमलव चार और कोशिका संभावना शून्य है। ये सीमित उदाहरण के विकल्प हैं, हर प्रयोग की सिफ़ारिश नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "CPSAM चुनें और कस्टम मॉडल खाली रखें। इन छवियों के लिए चैनल शून्य, सामान्यीकरण दूसरा और निन्यानवेवाँ पर्सेंटाइल, व्यास तीस, फ्लो सीमा शून्य दशमलव चार और कोशिका संभावना शून्य है। ये सीमित उदाहरण के विकल्प हैं, हर प्रयोग की सिफ़ारिश नहीं।"
+          "narration": "Select cpsam and leave Custom model empty for this example. Set Channels to zero, normalization percentiles to two and ninety-nine, Diameter to thirty, Flow threshold to zero point four and Cell probability to zero. Adjust these settings after inspecting a few representative fields from your own experiment.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_inference_outcome",
-          "narration": "Save और Verbose चालू करें, बैच आकार एक रखें और Apply चलाएँ। यह रास्ता अलग Plot स्विच के बिना चित्र बनाता है। वास्तविक कंसोल CUDA इस्तेमाल कर रही RTX तीस नब्बे दिखाता है और तीनों छवियाँ पूरी करता है। स्रोत और सहेजी सेटिंग जाँचें; अकेला Finished सटीकता नहीं मापता।",
-          "hold_after": 0.7,
-          "speech_text": "Save और Verbose चालू करें, बैच आकार एक रखें और Apply चलाएँ। यह रास्ता अलग Plot स्विच के बिना चित्र बनाता है। वास्तविक कंसोल CUDA इस्तेमाल कर रही RTX तीस नब्बे दिखाता है और तीनों छवियाँ पूरी करता है। स्रोत और सहेजी सेटिंग जाँचें; अकेला Finished सटीकता नहीं मापता।"
+          "narration": "Enable Save and Verbose, choose a batch size of one, and click Run in Apply. Follow the console as each image is processed. Review failures before proceeding to measurement.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "स्रोत की masks उपडायरेक्टरी में समान नाम वाले तीन मास्क TIFF सहेजे जाते हैं। गिनतियाँ नौ, चौरानवे और छियालीस हैं। वास्तविक चित्र इनपुट, लाल बाहरी सीमाएँ और फ्लो दिखाते हैं। ये सीमाएँ हर सटी वस्तु को अलग नहीं करतीं, और फ्लो रंग भौतिक गति या विभाजन की सटीकता नहीं हैं।",
+          "narration": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
           "focus": [
             1000,
             450,
             2780,
             640
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्रोत की masks उपडायरेक्टरी में समान नाम वाले तीन मास्क TIFF सहेजे जाते हैं। गिनतियाँ नौ, चौरानवे और छियालीस हैं। वास्तविक चित्र इनपुट, लाल बाहरी सीमाएँ और फ्लो दिखाते हैं। ये सीमाएँ हर सटी वस्तु को अलग नहीं करतीं, और फ्लो रंग भौतिक गति या विभाजन की सटीकता नहीं हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live preview चालू करें और वास्तविक छवि चयनकर्ता से cell pair शून्य दो चुनें। जगह चाहिए तो Console और System समेटें। प्रीव्यू के अपने नियंत्रण हैं: Live settings में चैनल शून्य और दिख रहे पर्सेंटाइल जाँचें। यह न मानें कि Apply के सभी विकल्प कॉपी हुए।",
-          "hold_after": 0.7,
-          "speech_text": "Live preview चालू करें और वास्तविक छवि चयनकर्ता से cell pair शून्य दो चुनें। जगह चाहिए तो Console और System समेटें। प्रीव्यू के अपने नियंत्रण हैं: Live settings में चैनल शून्य और दिख रहे पर्सेंटाइल जाँचें। यह न मानें कि Apply के सभी विकल्प कॉपी हुए।"
+          "narration": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "प्रीव्यू पचानवे वस्तुएँ पाता है, जबकि उसी छवि के सहेजे बैच मास्क में चौरानवे हैं। स्वतंत्र जाँच दोनों परिणाम दोहराती है: प्रीव्यू कच्ची छवि पर Cellpose के डिफ़ॉल्ट इस्तेमाल करता है, बैच की स्पष्ट प्रीप्रोसेसिंग और रिसैंपलिंग नहीं। इसे खोजपरक दृश्य मानें, समान सहेजे मास्क की गारंटी नहीं।",
+          "narration": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
           "focus": [
             1000,
             1160,
             2780,
             610
           ],
-          "hold_after": 0.7,
-          "speech_text": "प्रीव्यू पचानवे वस्तुएँ पाता है, जबकि उसी छवि के सहेजे बैच मास्क में चौरानवे हैं। स्वतंत्र जाँच दोनों परिणाम दोहराती है: प्रीव्यू कच्ची छवि पर सेल पोज़ के डिफ़ॉल्ट इस्तेमाल करता है, बैच की स्पष्ट प्रीप्रोसेसिंग और रिसैंपलिंग नहीं। इसे खोजपरक दृश्य मानें, समान सहेजे मास्क की गारंटी नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "इस संस्करण में प्रीव्यू कार्ड संकरा रहता है। माउस व्हील दोनों दृश्यों का एक हिस्सा साथ में बड़ा करता है; कार्ड बड़ा नहीं होता और पूरी छवि कट जाती है। इससे स्थानीय सीमाएँ देख सकते हैं, लेकिन पूरा फ़ील्ड जाँचना अलग ज़रूरी है।",
+          "narration": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
           "focus": [
             1010,
             1280,
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "इस संस्करण में प्रीव्यू कार्ड संकरा रहता है। माउस व्हील दोनों दृश्यों का एक हिस्सा साथ में बड़ा करता है; कार्ड बड़ा नहीं होता और पूरी छवि कट जाती है। इससे स्थानीय सीमाएँ देख सकते हैं, लेकिन पूरा फ़ील्ड जाँचना अलग ज़रूरी है।"
+          "hold_after": 0.7
         },
         {
           "visual": "22_native_filter_reduces_objects",
-          "narration": "Live settings खोलकर न्यूनतम कोशिका क्षेत्रफल अठारह सौ अड़तीस पिक्सेल करें। यह प्रदर्शन सीमा है, सर्वोत्तम जैविक मान नहीं। परिणाम देखने के लिए संवाद बंद करें। फ़िल्टर अड़तालीस वस्तुएँ हटाकर सैंतालीस छोड़ता है, Cellpose दोबारा चलाए या मूल विभाजन बदले बिना।",
-          "hold_after": 0.7,
-          "speech_text": "Live settings खोलकर न्यूनतम कोशिका क्षेत्रफल अठारह सौ अड़तीस पिक्सेल करें। यह प्रदर्शन सीमा है, सर्वोत्तम जैविक मान नहीं। परिणाम देखने के लिए संवाद बंद करें। फ़िल्टर अड़तालीस वस्तुएँ हटाकर सैंतालीस छोड़ता है, सेल पोज़ दोबारा चलाए या मूल विभाजन बदले बिना।"
+          "narration": "Open Live settings and increase Minimum cell area to remove small objects from the preview. The cutoff is in pixels; choose it according to your object sizes. Close the dialog to inspect the filtered result.",
+          "hold_after": 0.7
         },
         {
           "visual": "22b_actual_zoomed_filtered_preview",
-          "narration": "यह संवाद बंद करके और व्हील ज़ूम दोबारा लगाकर फ़िल्टर किया प्रीव्यू है। मूल छवि वही है, जबकि छोटे मास्क ऑब्जेक्ट गायब होते हैं। काउंटर सैंतालीस दिखाता है। बदलाव प्रीव्यू में हैं, डिस्क पर पहले से सहेजे तीन बैच TIFF दोबारा नहीं लिखे जाते।",
+          "narration": "Compare the filtered outlines with the original image. Changing this live filter updates the preview without rewriting masks already saved by Apply. Rerun the batch with the intended settings when you need new saved outputs.",
           "focus": [
             1010,
             1280,
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "यह संवाद बंद करके और व्हील ज़ूम दोबारा लगाकर फ़िल्टर किया प्रीव्यू है। मूल छवि वही है, जबकि छोटे मास्क ऑब्जेक्ट गायब होते हैं। काउंटर सैंतालीस दिखाता है। बदलाव प्रीव्यू में हैं, डिस्क पर पहले से सहेजे तीन बैच TIFF दोबारा नहीं लिखे जाते।"
+          "hold_after": 0.7
         },
         {
           "visual": "23b_actual_zoomed_restored_preview",
-          "narration": "न्यूनतम क्षेत्रफल शून्य पर लौटाएँ, संवाद बंद करें और फिर देखें। पचानवे वस्तुएँ लौटती हैं और हर बहाल लेबल पिक्सेल शुरुआती परिणाम से मिलता है। इनपुट, सेटिंग और मॉडल पहचान मास्क के साथ रखें। यहाँ वैकल्पिक spaCR AI कंसोल इस्तेमाल नहीं हुआ; वैज्ञानिक निष्कर्ष से पहले स्वतंत्र सत्यापन आपकी ज़िम्मेदारी है।",
+          "narration": "Return Minimum cell area to zero to restore the unfiltered preview. Keep the input images, model identity, settings and saved masks together. Use Make Masks for corrections or Measure to extract object features from the reviewed masks.",
           "focus": [
             1010,
             1280,
@@ -2486,34 +2491,38 @@
             "07_mask",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "न्यूनतम क्षेत्रफल शून्य पर लौटाएँ, संवाद बंद करें और फिर देखें। पचानवे वस्तुएँ लौटती हैं और हर बहाल लेबल पिक्सेल शुरुआती परिणाम से मिलता है। इनपुट, सेटिंग और मॉडल पहचान मास्क के साथ रखें। यहाँ वैकल्पिक स्पेकर AI कंसोल इस्तेमाल नहीं हुआ; वैज्ञानिक निष्कर्ष से पहले स्वतंत्र सत्यापन आपकी ज़िम्मेदारी है।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Model Compare: मौजूदा स्क्रीन और वास्तविक मास्कों की सहमति",
+      "title": "Model Compare: compare saved segmentation masks",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
-      "description": "नेस्टेड तुलना स्क्रीन खोलें, वास्तविक दृश्य-क्षेत्र लोड करें और सहेजे गए विभाजन परिणामों की API से तुलना करें। सहमति का अर्थ सटीकता या GUI अनुमान प्रक्रिया का ठीक हो जाना नहीं है।",
+      "section": "Segmentation models",
+      "description": "Load two masks of the same image, run the downloadable comparison helper and inspect overlap scores and overlays.",
       "objectives": [
-        "Make Masks में Model Compare खोजें और उदाहरण के वास्तविक दृश्य-क्षेत्र लोड करें।",
-        "Cellpose की मौजूदा असंगति और काम करने वाली मास्क-तुलना API को अलग समझें।",
-        "किसी परिणाम को सही माने बिना वस्तुओं की संख्या, जोड़े और ओवरलैप समझें।"
+        "Choose masks of the same field with matching pixel geometry.",
+        "Run the saved-mask comparison example.",
+        "Read the agreement table and inspect boundary differences."
       ],
       "example_files": [
         "Model_Compare_saved_masks_example.zip"
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly और Cellpose 4.2.1.1 पर रिकॉर्ड किया गया। GUI असमर्थित invert तर्क भेजता है; हम केवल चित्र लोड करते हैं, अनुमान नहीं चलाते, परिणाम नहीं डालते और ऐप नहीं बदलते। spacr.model_compare.compare_masks से Apply Cellpose के cell_pair_02.tif के दो वास्तविक सहेजे गए परिणामों की तुलना होती है: बैच और लाइव प्रीव्यू। दोनों में समान cpsam भार हैं, लेकिन पूर्व-प्रसंस्करण अलग है। कोई भी विशेषज्ञ द्वारा बनाया गया सही संदर्भ नहीं है और यहां कोई मॉडल नहीं चलता। दृश्य-क्षेत्र की पहचान, पिक्सेल ज्यामिति, पूर्व-प्रसंस्करण और फ़ाइल हैश सुरक्षित रखें; समान आकार से समान मूल चित्र सिद्ध नहीं होता। स्क्रिप्ट और दर्ज प्रमाण मूल फ़ाइलों की पहचान बताते हैं। नई आउटपुट फ़ोल्डर चुनें। सहमति से सटीकता, मॉडल की रैंकिंग, जैविक वैधता या स्वतंत्र चित्रों पर प्रदर्शन सिद्ध नहीं होता।",
+      "prerequisite": "Download and extract the linked Model Compare example. It provides one image, two saved masks and a Python helper. Use an environment with spaCR installed and choose a new output folder outside the extracted inputs. The example compares two preprocessing choices with the same cpsam weights; assessing accuracy requires reviewed reference labels.",
       "scenes": [
         {
           "visual": "gui_00_home",
-          "narration": "Model Compare, Make Masks के अंदर है। यह समान दृश्य-क्षेत्रों के विभाजन परिणामों की तुलना करता है। इस पाठ में पहले मौजूदा स्क्रीन दिखाते हैं, फिर दो वास्तविक सहेजे गए परिणामों पर काम करने वाली मास्क-तुलना API का उदाहरण देते हैं।",
+          "narration": "From Home, open Make Masks and choose Model Compare. Use this workflow to inspect segmentation differences on the same image. This walkthrough uses the linked saved-mask example and its Python helper.",
           "focus_modules": [
             "make_masks"
           ],
@@ -2521,45 +2530,22 @@
             "14_make_masks",
             "22_model_zoo"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Model Compare, Make Masks के अंदर है। यह समान दृश्य-क्षेत्रों के विभाजन परिणामों की तुलना करता है। इस पाठ में पहले मौजूदा स्क्रीन दिखाते हैं, फिर दो वास्तविक सहेजे गए परिणामों पर काम करने वाली मास्क-तुलना API का उदाहरण देते हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "gui_02_model_parameters",
-          "narration": "स्क्रीन पर Model A और Model B की सेटिंग अलग हैं। हर तुलना के लिए सही भार और पूर्व-प्रसंस्करण दर्ज करें। अलग नाम या अधिक वस्तुएं बेहतर परिणाम का प्रमाण नहीं हैं। तुलना चलाने से पहले पैरामीटर और परिणाम की तालिकाएं खाली हैं।",
+          "narration": "Keep the model weights and preprocessing settings with each set of masks. When preparing your own comparison, use the same fields and pixel geometry so object overlaps refer to corresponding image locations.",
           "focus": [
             350,
             420,
             3450,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्क्रीन पर Model A और Model B की सेटिंग अलग हैं। हर तुलना के लिए सही भार और पूर्व-प्रसंस्करण दर्ज करें। अलग नाम या अधिक वस्तुएं बेहतर परिणाम का प्रमाण नहीं हैं। तुलना चलाने से पहले पैरामीटर और परिणाम की तालिकाएं खाली हैं।"
-        },
-        {
-          "visual": "gui_03_real_fields_loaded_not_compared",
-          "narration": "वास्तविक उदाहरण फ़ोल्डर दर्ज करें और Load दबाएं। यहां तीन मूल दृश्य-क्षेत्र सही तरह लोड होते हैं और Compare उपलब्ध हो जाता है। चित्र लोड करना, मॉडल सफलतापूर्वक चलाने के समान नहीं है। हमने इस स्क्रीन पर मास्क नहीं बनाए और तुलना तालिका में परिणाम नहीं भरे।",
-          "hold_after": 0.7,
-          "speech_text": "वास्तविक उदाहरण फ़ोल्डर दर्ज करें और Load दबाएं। यहां तीन मूल दृश्य-क्षेत्र सही तरह लोड होते हैं और Compare उपलब्ध हो जाता है। चित्र लोड करना, मॉडल सफलतापूर्वक चलाने के समान नहीं है। हमने इस स्क्रीन पर मास्क नहीं बनाए और तुलना तालिका में परिणाम नहीं भरे।"
-        },
-        {
-          "visual": "api_01_current_gui_limit",
-          "narration": "इंस्टॉल किया हुआ Cellpose संस्करण invert तर्क अस्वीकार करता है, जिसे यह GUI बैकएंड अभी भी भेजता है। वास्तविक फ़ंक्शन सिग्नेचर की जांच अनुमान शुरू किए बिना असंगति दिखाती है। हम इसे छिपाते नहीं हैं। अगला उदाहरण मौजूदा लेबल चित्रों पर सीधे compare_masks चलाता है।",
-          "focus": [
-            200,
-            100,
-            3440,
-            1350
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "इंस्टॉल किया हुआ सेल पोज़ संस्करण invert तर्क अस्वीकार करता है, जिसे यह GUI बैकएंड अभी भी भेजता है। वास्तविक फ़ंक्शन सिग्नेचर की जांच अनुमान शुरू किए बिना असंगति दिखाती है। हम इसे छिपाते नहीं हैं। अगला उदाहरण मौजूदा लेबल चित्रों पर सीधे compare_masks चलाता है।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_00_inputs",
-          "narration": "दोनों मास्क Apply Cellpose पाठ के उसी वास्तविक चित्र से हैं। एक सहेजा गया बैच आउटपुट है, दूसरा सहेजा गया लाइव प्रीव्यू आउटपुट। दोनों समान मॉडल और अलग पूर्व-प्रसंस्करण इस्तेमाल करते हैं, प्रतिस्पर्धी भारों के दो समूह नहीं। कोई मास्क सही संदर्भ नहीं है।",
+          "narration": "Extract the linked example. The inputs are image.tif, batch.tif and preview.npy. Both masks describe the same field; they were produced with the same model and different preprocessing settings. Keep their original filenames for the supplied helper.",
           "focus": [
             200,
             100,
@@ -2569,36 +2555,33 @@
           "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "दोनों मास्क Apply सेल पोज़ पाठ के उसी वास्तविक चित्र से हैं। एक सहेजा गया बैच आउटपुट है, दूसरा सहेजा गया लाइव प्रीव्यू आउटपुट। दोनों समान मॉडल और अलग पूर्व-प्रसंस्करण इस्तेमाल करते हैं, प्रतिस्पर्धी भारों के दो समूह नहीं। कोई मास्क सही संदर्भ नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_02_actual_comparison",
-          "narration": "API, A में चौरानवे और B में पंचानवे वस्तुएं बताती है, जिनके इक्यानवे जोड़े मिलते हैं। मिले हुए जोड़ों का औसत ओवरलैप लगभग शून्य दशमलव नौ छह है। समायोजित रैंड सूचकांक लगभग शून्य दशमलव नौ छह एक है। ये सहमति बताते हैं, सटीकता या विजेता नहीं।",
+          "narration": "Run the supplied helper in your spaCR Python environment. Set source to the example input folder and output to a new results folder. The printed summary lists object counts, matched objects, mean matched overlap and adjusted Rand index. Higher agreement means the masks are more similar; it does not by itself establish which mask is correct.",
           "focus": [
             200,
             100,
             3440,
             900
           ],
-          "hold_after": 0.7,
-          "speech_text": "API, A में चौरानवे और B में पंचानवे वस्तुएं बताती है, जिनके इक्यानवे जोड़े मिलते हैं। मिले हुए जोड़ों का औसत ओवरलैप लगभग शून्य दशमलव नौ छह है। समायोजित रैंड सूचकांक लगभग शून्य दशमलव नौ छह एक है। ये सहमति बताते हैं, सटीकता या विजेता नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_04_actual_comparison_figure",
-          "narration": "वास्तव में सहेजे गए ओवरले देखें। दायां पैनल वे पिक्सेल दिखाता है जिनका अग्रभूमि में होना अलग है। यह वस्तुओं के लेबलों की हर असहमति नहीं दिखाता। मिलती-जुलती संख्या अलग सीमाएं, विभाजन या विलय छिपा सकती है, इसलिए संख्याओं के साथ चित्र भी देखें।",
+          "narration": "Open comparison.png. Compare the two mask overlays with the image and inspect splits, merges and boundary shifts. The right panel highlights pixels where foreground membership differs. Check touching-object boundaries in the overlays as well.",
           "focus": [
             450,
             480,
             2950,
             1230
           ],
-          "hold_after": 0.7,
-          "speech_text": "वास्तव में सहेजे गए ओवरले देखें। दायां पैनल वे पिक्सेल दिखाता है जिनका अग्रभूमि में होना अलग है। यह वस्तुओं के लेबलों की हर असहमति नहीं दिखाता। मिलती-जुलती संख्या अलग सीमाएं, विभाजन या विलय छिपा सकती है, इसलिए संख्याओं के साथ चित्र भी देखें।"
+          "hold_after": 0.7
         },
         {
           "visual": "api_03_outputs",
-          "narration": "स्क्रिप्ट मूल पिक्सेलों से हर मिले हुए जोड़े का ओवरलैप स्वतंत्र रूप से जांचती है और एक जैसे मास्कों का नियंत्रण भी परखती है। CSV, चित्र, मूल फ़ाइलों की पहचान और पूर्व-प्रसंस्करण के रिकॉर्ड साथ रखें। सटीकता या मॉडल चयन का दावा करने से पहले स्वतंत्र रूप से समीक्षा किए गए अंकन और मूल्यांकन के लिए अलग रखे चित्र इस्तेमाल करें।",
+          "narration": "Open comparison.csv for the numerical results and retain it with comparison.png, the inputs and the recorded settings. Use reviewed reference masks and representative fields when comparing segmentation accuracy or choosing a model for your experiment.",
           "focus": [
             200,
             100,
@@ -2609,10 +2592,14 @@
             "23_agreement",
             "19_train_cellpose"
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्क्रिप्ट मूल पिक्सेलों से हर मिले हुए जोड़े का ओवरलैप स्वतंत्र रूप से जांचती है और एक जैसे मास्कों का नियंत्रण भी परखती है। CSV, चित्र, मूल फ़ाइलों की पहचान और पूर्व-प्रसंस्करण के रिकॉर्ड साथ रखें। सटीकता या मॉडल चयन का दावा करने से पहले स्वतंत्र रूप से समीक्षा किए गए अंकन और मूल्यांकन के लिए अलग रखे चित्र इस्तेमाल करें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "22_model_zoo",
@@ -3633,211 +3620,201 @@
       "series": 4,
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
-      "title": "Training Runs: कृत्रिम लॉग से तुलना के नियंत्रणों का अभ्यास करें",
-      "description": "Classify के भीतर Training Runs खोलें और स्पष्ट रूप से कृत्रिम बताए गए प्रगति लॉग से दर्ज मेट्रिक, सेटिंग के स्वचालित अंतर और फ़ोल्ड दिखाने के तरीके देखें। इसमें किसी मॉडल को प्रशिक्षित या मूल्यांकित नहीं किया जाता।",
+      "section": "Tools",
+      "title": "Training Runs: compare curves and settings",
+      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
       "objectives": [
-        "मौजूदा लॉग फ़ोल्डर खोजें और उपयोग योग्य वक्रों को अधूरे परीक्षण उदाहरण से अलग पहचानें।",
-        "हर डेटा शृंखला की अपनी एपॉक सीमा बनाए रखते हुए दर्ज मेट्रिक की तुलना करें।",
-        "स्वचालित कॉन्फ़िगरेशन अंतर को निष्पादन-संबंधी सेटिंग से अलग पढ़ें।",
-        "दर्ज सर्वश्रेष्ठ और अंतिम एपॉक, फ़ोल्ड के नमूना मानक विचलन और वैज्ञानिक सत्यापन के बीच अंतर समझें।"
+        "Find saved runs and select the ones to compare.",
+        "Overlay training and validation metrics and inspect settings differences.",
+        "Switch between individual folds and their mean and standard deviation."
       ],
-      "prerequisite": "मौजूदा synthetic/training_runs ट्यूटोरियल फ़ोल्डर का उपयोग करें, जिसके डेटा को स्पष्ट रूप से कृत्रिम बताया गया है। इसके baseline, tuned और cross_validated वक्र, फ़ोल्ड के मान और सेटिंग इंटरफ़ेस के उदाहरणों के लिए बनाए गए थे; किसी वर्गीकारक ने ये मान उत्पन्न नहीं किए। इसकी अधूरी .pth फ़ाइल में केवल प्लेसहोल्डर टेक्स्ट है और उसे मॉडल के रूप में लोड नहीं करना चाहिए। यह पाठ वास्तविक CSV पार्सर और तुलना के नियंत्रण दिखाता है, प्रशिक्षण, चेकपॉइंट मूल्यांकन या जैविक प्रदर्शन नहीं। अपने विश्लेषण के लिए वास्तविक train.csv और validation.csv लॉग को उनकी सेटिंग और डेटासेट के स्रोत की जानकारी के साथ रखें। Training Runs में उदाहरण डाउनलोड करने का अलग नियंत्रण नहीं है।",
+      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Classify खोलें, फिर उसके भीतर का Training Runs टूल खोलें। इस पाठ में स्पष्ट रूप से कृत्रिम बताए गए प्रगति लॉग इस्तेमाल होते हैं: हर वक्र, फ़ोल्ड और कॉन्फ़िगरेशन एक उदाहरण है, किसी वर्गीकारक का मापा गया परिणाम नहीं। हम किसी मॉडल को प्रशिक्षित या मूल्यांकित किए बिना तुलना का इंटरफ़ेस दिखाते हैं।",
+          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
-          ],
-          "speech_text": "Classify खोलें, फिर उसके भीतर का Training Runs टूल खोलें। इस पाठ में स्पष्ट रूप से कृत्रिम बताए गए प्रगति लॉग इस्तेमाल होते हैं: हर वक्र, फ़ोल्ड और कॉन्फ़िगरेशन एक उदाहरण है, किसी वर्गीकारक का मापा गया परिणाम नहीं। हम किसी मॉडल को प्रशिक्षित या मूल्यांकित किए बिना तुलना का इंटरफ़ेस दिखाते हैं।"
+          ]
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Training Runs का अपना फ़ोल्डर चयनकर्ता, रन की सूची, Metric और Folds नियंत्रण, तथा Overlay selected बटन है। यह सहेजी गई train.csv और validation.csv तालिकाएँ पढ़ता है और सेटिंग प्राप्त करता है। मूल Classify का प्रशिक्षण फ़ॉर्म एक अलग कार्यप्रवाह है; इस अभ्यास में उसका Run बटन न दबाएँ।",
+          "narration": "Training Runs provides a folder selector, run list, Metric menu, Folds menu and Overlay selected button. Begin by choosing the parent folder containing the runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
             310,
             3350,
             1650
-          ],
-          "speech_text": "Training Runs का अपना फ़ोल्डर चयनकर्ता, रन की सूची, Metric और Folds नियंत्रण, तथा Overlay selected बटन है। यह सहेजी गई train.csv और validation.csv तालिकाएँ पढ़ता है और सेटिंग प्राप्त करता है। मूल Classify का प्रशिक्षण फ़ॉर्म एक अलग कार्यप्रवाह है; इस अभ्यास में उसका Run बटन न दबाएँ।"
+          ]
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Choose folder… पर क्लिक करें, कृत्रिम डेटा वाली मौजूदा training_runs डायरेक्टरी चुनें और Choose से पुष्टि करें। किसी एक CSV के बजाय उदाहरण प्रोजेक्टों के ऊपर वाला फ़ोल्डर चुनें। इन मूल परीक्षण उदाहरणों को बिना बदले रखें; इन्हें दोबारा बनाने, किसी रन की प्रतिलिपि बनाने या नया चेकपॉइंट बनाने की आवश्यकता नहीं है।",
+          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
           "hold_after": 0.7,
           "focus": [
             1555,
             790,
             1410,
             965
-          ],
-          "speech_text": "Choose folder… पर क्लिक करें, कृत्रिम डेटा वाली मौजूदा training_runs डायरेक्टरी चुनें और Choose से पुष्टि करें। किसी एक CSV के बजाय उदाहरण प्रोजेक्टों के ऊपर वाला फ़ोल्डर चुनें। इन मूल परीक्षण उदाहरणों को बिना बदले रखें; इन्हें दोबारा बनाने, किसी रन की प्रतिलिपि बनाने या नया चेकपॉइंट बनाने की आवश्यकता नहीं है।"
+          ]
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan को 4 परीक्षण उदाहरण फ़ोल्डर मिलते हैं: 20 एपॉक वाला baseline, 25 एपॉक वाला tuned, 3 फ़ोल्ड वाला 18 एपॉक का उदाहरण, और एक अधूरी प्रविष्टि। baseline और tuned प्रदर्शन के लिए दिए गए नाम हैं। इन पथों में मॉडल के नाम होने का अर्थ यह नहीं कि उन मॉडलों को इस पाठ के लिए प्रशिक्षित किया गया था।",
+          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
           "hold_after": 0.7,
           "focus": [
             465,
             530,
             940,
             285
-          ],
-          "speech_text": "Scan को 4 परीक्षण उदाहरण फ़ोल्डर मिलते हैं: 20 एपॉक वाला baseline, 25 एपॉक वाला tuned, 3 फ़ोल्ड वाला 18 एपॉक का उदाहरण, और एक अधूरी प्रविष्टि। baseline और tuned प्रदर्शन के लिए दिए गए नाम हैं। इन पथों में मॉडल के नाम होने का अर्थ यह नहीं कि उन मॉडलों को इस पाठ के लिए प्रशिक्षित किया गया था।"
+          ]
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "अधूरी प्रविष्टि की चेतावनियाँ पढ़ें। इसमें न सेटिंग हैं, न train.csv, न validation.csv, इसलिए इससे कोई वक्र या सेटिंग तुलना नहीं बनती। .pth पर समाप्त होने वाली फ़ाइल केवल खोज सुविधा का अभ्यास कराने वाला टेक्स्ट है; ऐप उस प्लेसहोल्डर को लोड या मूल्यांकित नहीं करता।",
+          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
           "hold_after": 0.7,
           "focus": [
             465,
             1845,
             3350,
             175
-          ],
-          "speech_text": "अधूरी प्रविष्टि की चेतावनियाँ पढ़ें। इसमें न सेटिंग हैं, न train.csv, न validation.csv, इसलिए इससे कोई वक्र या सेटिंग तुलना नहीं बनती। .pth पर समाप्त होने वाली फ़ाइल केवल खोज सुविधा का अभ्यास कराने वाला टेक्स्ट है; ऐप उस प्लेसहोल्डर को लोड या मूल्यांकित नहीं करता।"
+          ]
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "baseline और tuned उदाहरणों को टिक करें, फिर Metric में accuracy चुनें। मेनू में loss और prauc सहित वे संख्यात्मक कॉलम हैं जो इन लॉग में वास्तव में मौजूद हैं। उनके मान भी कृत्रिम हैं; किसी परिचित मेट्रिक का नाम होने से बनाया गया अंक प्रयोग में मापा गया मान नहीं बन जाता।",
+          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
           "hold_after": 0.7,
           "focus": [
             465,
             1680,
             940,
             300
-          ],
-          "speech_text": "baseline और tuned उदाहरणों को टिक करें, फिर Metric में accuracy चुनें। मेनू में loss और prauc सहित वे संख्यात्मक कॉलम हैं जो इन लॉग में वास्तव में मौजूद हैं। उनके मान भी कृत्रिम हैं; किसी परिचित मेट्रिक का नाम होने से बनाया गया अंक प्रयोग में मापा गया मान नहीं बन जाता।"
+          ]
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Overlay selected पर क्लिक करें। चुने गए दो उदाहरणों से 4 डेटा शृंखलाएँ दिखाई देती हैं: train टूटी रेखा है और validation निरंतर रेखा है। हर शृंखला अपनी 20 या 25 एपॉक की सीमा बनाए रखती है। छोटे वक्र को दूसरे वक्र के अनुरूप बनाने के लिए न बढ़ाया जाता है, न काटा जाता है; लेजेंड में रन और डेटा विभाजन पढ़ें।",
+          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "Overlay selected पर क्लिक करें। चुने गए दो उदाहरणों से 4 डेटा शृंखलाएँ दिखाई देती हैं: train टूटी रेखा है और validation निरंतर रेखा है। हर शृंखला अपनी 20 या 25 एपॉक की सीमा बनाए रखती है। छोटे वक्र को दूसरे वक्र के अनुरूप बनाने के लिए न बढ़ाया जाता है, न काटा जाता है; लेजेंड में रन और डेटा विभाजन पढ़ें।"
+          ]
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "सेटिंग की तुलना अपने-आप होती है। यहाँ 11 साझा सेटिंग में से 4 अलग हैं: batch_size 64 से 32 होता है, epochs 20 से 25, learning_rate 0.0001 से 0.0003, और src अलग-अलग कृत्रिम उदाहरण प्रोजेक्टों को बताता है।",
+          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ],
-          "speech_text": "सेटिंग की तुलना अपने-आप होती है। यहाँ 11 साझा सेटिंग में से 4 अलग हैं: batch_size 64 से 32 होता है, epochs 20 से 25, learning_rate 0.0001 से 0.0003, और src अलग-अलग कृत्रिम उदाहरण प्रोजेक्टों को बताता है।"
+          ]
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "अलग env पंक्ति में निष्पादन-संबंधी सेटिंग n_jobs का 30 से 8 होना दिखता है। यह 1 परिवेश अंतर है और स्कीमा के 0 अंतर हैं। ये उदाहरण की सेटिंग हैं, हार्डवेयर के इस्तेमाल या प्रशिक्षण में लगे समय का प्रमाण नहीं। यह तालिका साबित नहीं करती कि किसी सेटिंग के कारण वक्रों में अंतर आया।",
+          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ],
-          "speech_text": "अलग env पंक्ति में निष्पादन-संबंधी सेटिंग n_jobs का 30 से 8 होना दिखता है। यह 1 परिवेश अंतर है और स्कीमा के 0 अंतर हैं। ये उदाहरण की सेटिंग हैं, हार्डवेयर के इस्तेमाल या प्रशिक्षण में लगे समय का प्रमाण नहीं। यह तालिका साबित नहीं करती कि किसी सेटिंग के कारण वक्रों में अंतर आया।"
+          ]
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "baseline के validation वक्र पर क्लिक करें। उसकी विवरण पंक्ति अंतिम accuracy को एपॉक 20 पर 0.7496 और सर्वश्रेष्ठ accuracy को एपॉक 15 पर 0.7860 बताती है। ये CSV में दर्ज एपॉक हैं, अलग से मूल्यांकित चेकपॉइंट नहीं। उसी वक्र पर सर्वश्रेष्ठ बिंदु चुनना ही आशावादी आकलन की चेतावनी का कारण है।",
+          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
           "hold_after": 0.7,
           "focus": [
             465,
             2000,
             3350,
             105
-          ],
-          "speech_text": "baseline के validation वक्र पर क्लिक करें। उसकी विवरण पंक्ति अंतिम accuracy को एपॉक 20 पर 0.7496 और सर्वश्रेष्ठ accuracy को एपॉक 15 पर 0.7860 बताती है। ये CSV में दर्ज एपॉक हैं, अलग से मूल्यांकित चेकपॉइंट नहीं। उसी वक्र पर सर्वश्रेष्ठ बिंदु चुनना ही आशावादी आकलन की चेतावनी का कारण है।"
+          ]
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Metric में loss चुनें। वही 4 शृंखलाएँ और सेटिंग बनी रहती हैं, लेकिन अब ऊर्ध्वाधर अक्ष पर लॉग में दर्ज loss मान दिखते हैं। इन परीक्षण उदाहरणों में validation वक्रों का अंत की ओर ऊपर उठना जानबूझकर बनाया गया था। यह मेट्रिक बदलना दिखाता है, किसी प्रशिक्षित मॉडल के प्रदर्शन में देखी गई गिरावट नहीं।",
+          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "Metric में loss चुनें। वही 4 शृंखलाएँ और सेटिंग बनी रहती हैं, लेकिन अब ऊर्ध्वाधर अक्ष पर लॉग में दर्ज loss मान दिखते हैं। इन परीक्षण उदाहरणों में validation वक्रों का अंत की ओर ऊपर उठना जानबूझकर बनाया गया था। यह मेट्रिक बदलना दिखाता है, किसी प्रशिक्षित मॉडल के प्रदर्शन में देखी गई गिरावट नहीं।"
+          ]
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "tuned उदाहरण चुना रहने दें और baseline की जगह 18 एपॉक, 3 फ़ोल्ड वाला उदाहरण चुनें। Metric को वापस accuracy पर लाएँ, Overlay selected दबाएँ, फिर Folds खोलें। इसके वास्तविक विकल्प per fold, mean ± sd और both हैं। ये प्रदर्शन बदलते हैं; नए फ़ोल्ड नहीं बनाते।",
+          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
           "hold_after": 0.7,
           "focus": [
             465,
             1730,
             940,
             175
-          ],
-          "speech_text": "tuned उदाहरण चुना रहने दें और baseline की जगह 18 एपॉक, 3 फ़ोल्ड वाला उदाहरण चुनें। Metric को वापस accuracy पर लाएँ, Overlay selected दबाएँ, फिर Folds खोलें। इसके वास्तविक विकल्प per fold, mean ± sd और both हैं। ये प्रदर्शन बदलते हैं; नए फ़ोल्ड नहीं बनाते।"
+          ]
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "mean ± sd चुनें। 4 शृंखलाएँ दिखाई देती हैं: tuned उदाहरण के दो डेटा विभाजन, और 3 फ़ोल्ड वाले उदाहरण के train तथा validation के माध्य। हर पट्टी उस एपॉक पर 3 कृत्रिम फ़ोल्डों के बीच माध्य से एक नमूना मानक विचलन ऊपर और नीचे की सीमा है। यह न विश्वास अंतराल है, न जैविक अनिश्चितता का अनुमान।",
+          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "mean ± sd चुनें। 4 शृंखलाएँ दिखाई देती हैं: tuned उदाहरण के दो डेटा विभाजन, और 3 फ़ोल्ड वाले उदाहरण के train तथा validation के माध्य। हर पट्टी उस एपॉक पर 3 कृत्रिम फ़ोल्डों के बीच माध्य से एक नमूना मानक विचलन ऊपर और नीचे की सीमा है। यह न विश्वास अंतराल है, न जैविक अनिश्चितता का अनुमान।"
+          ]
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "both चुनने पर 10 शृंखलाएँ दिखाई देती हैं: tuned उदाहरण की 2, अलग-अलग फ़ोल्ड की 6 और फ़ोल्ड माध्य की 2। माध्य वक्र उन्हीं फ़ोल्ड मानों के सारांश हैं, अतिरिक्त स्वतंत्र रन नहीं। तीनों कृत्रिम फ़ोल्ड अपने दर्ज 18 एपॉक की पूरी अवधि में योगदान करते हैं।",
+          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ],
-          "speech_text": "both चुनने पर 10 शृंखलाएँ दिखाई देती हैं: tuned उदाहरण की 2, अलग-अलग फ़ोल्ड की 6 और फ़ोल्ड माध्य की 2। माध्य वक्र उन्हीं फ़ोल्ड मानों के सारांश हैं, अतिरिक्त स्वतंत्र रन नहीं। तीनों कृत्रिम फ़ोल्ड अपने दर्ज 18 एपॉक की पूरी अवधि में योगदान करते हैं।"
+          ]
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "per fold चुनने पर दो माध्य हट जाते हैं और 8 शृंखलाएँ बचती हैं। फ़ोल्ड वक्र एपॉक 18 पर रुकते हैं, जबकि tuned उदाहरण 25 तक चलता है। अद्यतन तालिका कॉन्फ़िगरेशन के 5 और परिवेश का 1 अंतर बताती है; चुने गए उदाहरण बदलने से सेटिंग तुलना भी बदलती है।",
+          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             1315
-          ],
-          "speech_text": "per fold चुनने पर दो माध्य हट जाते हैं और 8 शृंखलाएँ बचती हैं। फ़ोल्ड वक्र एपॉक 18 पर रुकते हैं, जबकि tuned उदाहरण 25 तक चलता है। अद्यतन तालिका कॉन्फ़िगरेशन के 5 और परिवेश का 1 अंतर बताती है; चुने गए उदाहरण बदलने से सेटिंग तुलना भी बदलती है।"
+          ]
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "इस रिकॉर्डिंग के लिए हम लौटाई गई संख्यात्मक पंक्तियों, खींचे गए वक्रों, सेटिंग के अंतर और नमूना मानक विचलन की पट्टियों को मौजूदा CSV से मिलाते हैं। मूल फ़ाइलें अपरिवर्तित रहती हैं। इससे केवल इस सॉफ़्टवेयर प्रदर्शन की पुष्टि होती है; ये कृत्रिम उदाहरण पूर्वानुमान प्रदर्शन, सामान्यीकरण क्षमता या वैज्ञानिक रूप से दोहराए जा सकने वाले श्रेष्ठ मॉडल को स्थापित नहीं कर सकते।",
-          "hold_after": 0.7,
-          "speech_text": "इस रिकॉर्डिंग के लिए हम लौटाई गई संख्यात्मक पंक्तियों, खींचे गए वक्रों, सेटिंग के अंतर और नमूना मानक विचलन की पट्टियों को मौजूदा CSV से मिलाते हैं। मूल फ़ाइलें अपरिवर्तित रहती हैं। इससे केवल इस सॉफ़्टवेयर प्रदर्शन की पुष्टि होती है; ये कृत्रिम उदाहरण पूर्वानुमान प्रदर्शन, सामान्यीकरण क्षमता या वैज्ञानिक रूप से दोहराए जा सकने वाले श्रेष्ठ मॉडल को स्थापित नहीं कर सकते।"
+          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Python में spacr.train_compare.find_runs फ़ोल्डर खोजता है और load_run एक रन पढ़ता है। compare_runs तुलना और सेटिंग के अंतर बनाता है; plot_curves चुने हुए मेट्रिक का आलेख बनाता है। compare_runs का folds आर्ग्युमेंट per_fold, mean या both स्वीकार करता है। अपने परिणामों पर इन केवल-पढ़ने वाले टूलों का उपयोग करते समय वास्तविक लॉग और डेटासेट के स्रोत की जानकारी साथ रखें।",
+          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
-          ],
-          "speech_text": "Python में स्पेकर.train_compare.find_runs फ़ोल्डर खोजता है और load_run एक रन पढ़ता है। compare_runs तुलना और सेटिंग के अंतर बनाता है; plot_curves चुने हुए मेट्रिक का आलेख बनाता है। compare_runs का folds आर्ग्युमेंट per_fold, mean या both स्वीकार करता है। अपने परिणामों पर इन केवल-पढ़ने वाले टूलों का उपयोग करते समय वास्तविक लॉग और डेटासेट के स्रोत की जानकारी साथ रखें।"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_training_runs.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "29_report",

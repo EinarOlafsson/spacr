@@ -2,625 +2,469 @@
   "policy": "report-only; English fallback",
   "entries": [
     {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "da",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "da",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "de",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
+      "lesson": "28_training_runs",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "18_motility",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "07_mask",
+      "lesson": "06_api",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "08_measure",
+      "lesson": "14_make_masks",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "10_classify_cv",
+      "lesson": "16_activation",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "11_classify_ml",
+      "lesson": "20_cellpose_masks",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "12_map_barcodes",
-      "language": "sv",
-      "status": "english_fallback",
-      "reason": "Missing or mismatched translation review"
-    },
-    {
-      "lesson": "13_regression",
+      "lesson": "21_model_compare",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "15_image_umap",
-      "language": "sv",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "18_motility",
+      "lesson": "28_training_runs",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
