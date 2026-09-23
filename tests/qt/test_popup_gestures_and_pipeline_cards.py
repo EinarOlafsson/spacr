@@ -53,7 +53,7 @@ def test_passive_child_drag_moves_popup_but_slider_owns_its_gesture(qtbot):
 def test_resize_pointer_contains_blue_pixels_and_center_hotspot(qapp, edges):
     cursor = glass._blue_resize_cursor(edges)
     pixels = cursor.pixmap().toImage()
-    assert cursor.hotSpot() == QPoint(16, 16)
+    assert cursor.hotSpot() == QPoint(4, 3)
     assert any((lambda c: c.alpha() > 100 and c.blue() > 220 and c.red() < 60)(pixels.pixelColor(x, y))
                for x in range(pixels.width()) for y in range(pixels.height()))
 
@@ -103,6 +103,7 @@ def test_pipeline_keeps_all_cards_and_selection_changes_only_border(qtbot):
             continue
         html = panel.cards[key].findChild(QLabel).text()
         assert html.endswith('</a>')
+        assert '<p' not in html and '<br' not in html and '<li' not in html
         assert 'API</a>' in html
 
 

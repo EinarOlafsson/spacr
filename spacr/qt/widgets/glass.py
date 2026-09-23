@@ -32,8 +32,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QPointF, Qt
-from PySide6.QtGui import QColor, QCursor, QPainter, QPen, QPixmap
+from PySide6.QtCore import QEvent, QObject, QRect, Qt
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSpinBox, QAbstractSlider, QGraphicsView, QPlainTextEdit, QApplication,
                                QComboBox, QDialog, QSplitterHandle, QTabBar,
@@ -275,29 +274,11 @@ def _cursor_for(edges):
     return None
 
 
-_RESIZE_CURSORS = {}
-
-
 def _blue_resize_cursor(edges):
-    """Return a blue directional resize pointer with a central hotspot."""
-    shape = _cursor_for(edges)
-    if shape not in _RESIZE_CURSORS:
-        pixmap = QPixmap(32, 32)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.translate(16, 16)
-        painter.rotate({Qt.SizeHorCursor: 0, Qt.SizeVerCursor: 90,
-                        Qt.SizeFDiagCursor: 45, Qt.SizeBDiagCursor: -45}[shape])
-        segments = [(-11, 0, 11, 0), (-11, 0, -6, -5),
-                    (-11, 0, -6, 5), (11, 0, 6, -5), (11, 0, 6, 5)]
-        for colour, width in ((QColor("white"), 4), (QColor("#168cff"), 2)):
-            painter.setPen(QPen(colour, width, Qt.SolidLine, Qt.RoundCap))
-            for x1, y1, x2, y2 in segments:
-                painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
-        painter.end()
-        _RESIZE_CURSORS[shape] = QCursor(pixmap, 16, 16)
-    return _RESIZE_CURSORS[shape]
+    """Keep the normal arrow silhouette and indicate a resize region in blue."""
+    from .cursor_policy import arrow_cursor
+
+    return arrow_cursor(True)
 
 
 def _owns_mouse_gesture(widget, window):
@@ -319,18 +300,11 @@ def _owns_mouse_gesture(widget, window):
 
 
 class _ResizeByEdge(QObject):
-    """Let a frameless window be resized by dragging its edges.
+    """Resize from the original press geometry while keeping the arrow cursor.
 
-    THROUGH THE WINDOW MANAGER, not by arithmetic. ``startSystemResize``
-    hands the drag to the compositor, which is what makes it feel like
-    every other window on the desktop -- it snaps, it shows the same
-    outline, and it does not fight the mask the rounded corners need.
-    Computing the geometry here instead works until the pointer moves
-    faster than the events arrive, and then the window walks away from the
-    cursor.
-
-    The cursor changes on hover so the edge is discoverable: a resize you
-    cannot see is one nobody finds.
+    Absolute press coordinates avoid accumulated movement errors. Wayland
+    requires compositor-owned moves and resizes; other platforms keep the
+    interaction in Qt so the compositor cannot substitute another cursor.
     """
 
     def __init__(self, window):
@@ -343,27 +317,47 @@ class _ResizeByEdge(QObject):
         """
         super().__init__(window)
         self._window = window
+        self._grab = None
         window.setMouseTracking(True)
         window.installEventFilter(self)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        """Resize the frameless window when an edge is pressed, and shape the cursor.
+        """Resize from a corner or edge and show the shared blue arrow.
 
-        The resize is handed to the compositor rather than implemented here, so
-        it snaps and tiles like any other window. The cursor is set on hover so
-        the edge advertises itself before it is grabbed, and unset on leave so
-        it does not persist over the rest of the screen.
-
-        :param watched: the window.
-        :param event: the event.
-        :returns: ``True`` only for the press that starts a resize; every other
-            event is observed and passed on.
+        :param watched: the window receiving the pointer event.
+        :param event: mouse press, move, release or leave event.
+        :returns: whether a resize gesture consumed the event. Wayland uses
+            its required compositor operation; other platforms use anchored
+            geometry while respecting minimum and maximum window sizes.
         """
         window = getattr(self, "_window", None)
         if window is None or watched is not window:
             return False
         try:
             kind = event.type()
+            if kind == QEvent.Type.MouseMove and self._grab is not None:
+                if not event.buttons() & Qt.LeftButton:
+                    self._grab = None
+                    return False
+                edges, origin, rectangle = self._grab
+                delta = event.globalPosition().toPoint() - origin
+                minimum = window.minimumSize().expandedTo(window.minimumSizeHint())
+                maximum = window.maximumSize()
+                x, y, width, height = rectangle.getRect()
+                if edges & (Qt.LeftEdge | Qt.RightEdge):
+                    proposed = width + (-delta.x() if edges & Qt.LeftEdge else delta.x())
+                    width = min(max(proposed, max(1, minimum.width())), maximum.width())
+                    if edges & Qt.LeftEdge:
+                        x = rectangle.right() - width + 1
+                if edges & (Qt.TopEdge | Qt.BottomEdge):
+                    proposed = height + (-delta.y() if edges & Qt.TopEdge else delta.y())
+                    height = min(max(proposed, max(1, minimum.height())), maximum.height())
+                    if edges & Qt.TopEdge:
+                        y = rectangle.bottom() - height + 1
+                window.setGeometry(QRect(x, y, width, height))
+                return True
+            if kind == QEvent.Type.MouseButtonRelease:
+                self._grab = None
             if kind == QEvent.Type.MouseMove and not event.buttons():
                 edges = _edges_at(window, event.position().toPoint())
                 shape = _cursor_for(edges)
@@ -380,7 +374,11 @@ class _ResizeByEdge(QObject):
                 handle = window.windowHandle()
                 if handle is None:
                     return False
-                handle.startSystemResize(edges)
+                if QApplication.platformName().lower().startswith("wayland"):
+                    handle.startSystemResize(edges)
+                else:
+                    self._grab = (edges, event.globalPosition().toPoint(), window.geometry())
+                    window.setCursor(_blue_resize_cursor(edges))
                 return True
             if kind == QEvent.Type.Leave:
                 window.unsetCursor()
@@ -455,7 +453,8 @@ class _DragByBackground(QObject):
                 if delta.manhattanLength() < QApplication.startDragDistance():
                     return False
                 handle = dialog.windowHandle()
-                if handle is not None and handle.startSystemMove():
+                if (QApplication.platformName().lower().startswith("wayland")
+                        and handle is not None and handle.startSystemMove()):
                     self._grab = None
                 else:
                     dialog.move(position + delta)
@@ -827,6 +826,9 @@ def install_glass_everywhere(application=None) -> bool:
         from PySide6.QtWidgets import QApplication
 
         application = application or QApplication.instance()
+        from .cursor_policy import install_cursor_policy
+
+        install_cursor_policy(application)
         if application is None:
             return False
         if _INSTALLED is not None and _INSTALLED_APP is application:

@@ -118,3 +118,16 @@ Those9checks were run first and failed on the new title, not waived. Shared
 workflow schema and live routes validate. Pooled and parasite renders were
 inspected at1280x1000. Native compositor movement remains desktop-dependent;
 offscreen tests cover fallback dragging, slider ownership and blue pointers.
+
+2026-09-23 — USER FOLLOW-UP: CONTINUOUS TEXT AND DENSER PRESENTATION
+Restored individual diagram nodes' input/output information. Continuous prose
+now joins each module's guidance, input/output inventory, locations and final
+API link; connections use the same inline treatment. No paragraph/bullet/line-
+break fragmentation inside explanation cards or network detail tooltips.
+Removed vertical stretching that separated cards from the top of their lane.
+The pipeline title and description share a continuous header. External inputs
+retain their dependency columns beside their consumers.
+A single cubic tangent meets each arrowhead at its base center, replacing the
+previous straight shoulder. Persistent selection borders and thin blue splitter
+remain. Focused validation across the changed UI/schema paths: 1096 passed;
+rendered pipeline and dictionary views inspected. Documentation handoff in 325.

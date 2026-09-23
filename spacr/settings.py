@@ -4523,7 +4523,7 @@ tooltips = {
     'number_of_organelles': "(int) - How many organelle slots this run has, "
         "from 0 to 26. Each slot is an independent object with its own "
         "channel, its own type preset and its own copy of every detection "
-        "setting, named organelle_*, organelleb_*, organellec_* and so on; "
+        "setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; "
         "raising the number generates another slot's settings and lowering "
         "it hides the slots above the new number without deleting them. A "
         "hidden slot keeps its values, is still written to the settings "

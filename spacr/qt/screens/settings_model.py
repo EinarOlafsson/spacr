@@ -3622,7 +3622,9 @@ def api_docs_url(
         return plugin_app.docs_url
     anchor = ""
     chosen_by_hand = True
-    if key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
+    if app_key == "make_masks" and key.startswith("make_masks_"):
+        module = "qt/detect_chain" if key.startswith("make_masks_enh_") else "qt/screens/make_masks"
+    elif key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
         module = "batch_correction"
     elif key in _EVALUATION_DOC_KEYS:
         module = "classifier_evaluation"
@@ -3994,7 +3996,7 @@ def _translated_setting_name(
 
     from ..i18n import _ROWS, _TERM_ROWS, tr
 
-    source = _humanize(key)
+    source = _humanize(key.removeprefix("make_masks_") if app_key == "make_masks" else key)
     if source in _ROWS or source in _TERM_ROWS:
         resolved = tr(source, code)
     else:
@@ -10573,7 +10575,7 @@ def retarget_field_tooltips(root: QWidget) -> int:
             "tooltip" if app_key and key else "hover-help",
         )
         label.setProperty("settingHelpLabel", True)
-        for prop in ("settingsAppKey", "settingKey",
+        for prop in ("settingsAppKey", "settingKey", "settingAnimationKey",
                      "apiTooltipDescriptionSource", "apiTooltipDescription"):
             carried = field.property(prop)
             if carried:

@@ -50,7 +50,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QComboBox,
-    QDialog,
+    QSplitter,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -76,6 +76,11 @@ from ...feature_dict import (
     parse_column,
     search_features,
 )
+
+from ...object_roles import ORGANELLE_ROLES
+from ...schema import object_type_summary
+from ..i18n import tr
+from .workflow_diagram import DiagramDialog
 
 LOG = logging.getLogger("spacr.qt.feature_dictionary")
 
@@ -143,12 +148,12 @@ def _objects_sentence(doc: FeatureDoc) -> str:
             return "Not a per-object measurement."
         return ("Not written for any object type by a standard run — see the "
                 "note below.")
-    listed = ", ".join(doc.object_types)
+    listed = object_type_summary(doc.object_types)
     missing = [o for o in OBJECT_TYPES if o not in doc.object_types]
     if not missing:
         return f"Written for every object type ({listed})."
     return (f"Written for {listed} — and NOT for "
-            f"{', '.join(missing)}.")
+            f"{object_type_summary(missing)}.")
 
 
 def _doc_html(doc: FeatureDoc, entry=None) -> str:
@@ -303,23 +308,29 @@ class FeatureDictionaryPanel(QWidget):
         self._object.setObjectName("FeatureDictionaryObject")
         self._object.addItem(_ANY_OBJECT, None)
         for obj in OBJECT_TYPES:
-            self._object.addItem(obj, obj)
+            if obj in ORGANELLE_ROLES and obj != "organelle":
+                continue
+            self._object.addItem(tr("Organelle") if obj == "organelle" else obj, obj)
         self._object.currentIndexChanged.connect(self._refresh)
         controls.addWidget(self._object)
         outer.addLayout(controls)
 
-        body = QHBoxLayout()
-        body.setSpacing(8)
+        body = QSplitter(Qt.Horizontal)
+        body.setChildrenCollapsible(False)
+        body.setHandleWidth(1)
+        body.setStyleSheet("QSplitter::handle:horizontal { background: #168cff; }")
         self._list = QListWidget()
         self._list.setObjectName("FeatureDictionaryList")
         self._list.currentRowChanged.connect(self._on_row_changed)
-        body.addWidget(self._list, 2)
+        body.addWidget(self._list)
 
         self._detail = QTextBrowser()
         self._detail.setObjectName("FeatureDictionaryDetail")
         self._detail.setOpenExternalLinks(False)
-        body.addWidget(self._detail, 3)
-        outer.addLayout(body, 1)
+        body.addWidget(self._detail)
+        body.setStretchFactor(0, 2)
+        body.setStretchFactor(1, 3)
+        outer.addWidget(body, 1)
 
         self._status = QLabel("")
         self._status.setObjectName("FeatureDictionaryStatus")
@@ -407,7 +418,7 @@ class FeatureDictionaryPanel(QWidget):
         self._list.clear()
         for hit in self._hits:
             doc = hit.doc
-            where = ", ".join(doc.object_types) if doc.object_types else doc.kind
+            where = object_type_summary(doc.object_types) if doc.object_types else doc.kind
             item = QListWidgetItem(f"{doc.title}\n{doc.family} · {where}")
             item.setData(Qt.UserRole, doc.key)
             item.setToolTip(doc.description or "No definition.")
@@ -461,7 +472,7 @@ class FeatureDictionaryPanel(QWidget):
         self.feature_selected.emit(doc.key)
 
 
-class FeatureDictionaryDialog(QDialog):
+class FeatureDictionaryDialog(DiagramDialog):
     """:class:`FeatureDictionaryPanel` in a non-modal window.
 
     :param parent: parent widget.
@@ -481,18 +492,19 @@ class FeatureDictionaryDialog(QDialog):
         self.setObjectName("FeatureDictionaryDialog")
         self.setWindowTitle(APP_NAME)
         self.setModal(False)
-        self.resize(940, 620)
+        self.resize(1100, 760)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(14, 14, 14, 14)
         self.panel = FeatureDictionaryPanel(self, column=column)
         layout.addWidget(self.panel, 1)
 
         footer = QHBoxLayout()
         footer.setContentsMargins(12, 0, 12, 12)
         footer.addStretch(1)
-        close = QPushButton("Close")
-        close.setObjectName("GhostButton")
+        close = QPushButton(tr("Close"))
+        close.setObjectName("DangerButton")
+        close.setProperty("buttonActionRole", "negative")
         close.clicked.connect(self.close)
         footer.addWidget(close)
         layout.addLayout(footer)
@@ -552,18 +564,22 @@ def make_screen(host=None) -> QWidget:
 
 def _panel_qss(palette: dict, opacity) -> str:
     """QSS block for the panel, rendered against the live theme palette."""
+    from ..theme import css_color
+
+    surface = css_color(palette["surface_alt"], .6)
     return f"""
+QWidget#{OBJECT_NAME} {{ background: transparent; }}
 QWidget#{OBJECT_NAME} QLabel#FeatureDictionaryBlurb,
 QWidget#{OBJECT_NAME} QLabel#FeatureDictionaryStatus {{
     color: {palette['fg_muted']};
 }}
 QWidget#{OBJECT_NAME} QListWidget#FeatureDictionaryList {{
-    background: {palette['surface_alt']};
+    background: {surface};
     border: 1px solid {palette['border_soft']};
     border-radius: 8px;
 }}
 QWidget#{OBJECT_NAME} QTextBrowser#FeatureDictionaryDetail {{
-    background: {palette['surface_alt']};
+    background: {surface};
     border: 1px solid {palette['border_soft']};
     border-radius: 8px;
     padding: 8px;

@@ -13738,3 +13738,38 @@ Please continue owning runtime widgets/map implementation and communicate any
 further source changes. I will not restart the completed CPU evaluation or
 full manual CI run. Remaining Korean/Icelandic workflow banks, whole-catalog
 API debt, broader helper rollout and media acceptance are still owed.
+
+2026-09-23 — IMPLEMENTATION: CONTINUOUS PIPELINE TEXT / HELP / CURSOR HANDOFF
+Read and fast-forwarded your 0de61b24d checkpoint. Further runtime changes:
+pipeline module and connection cards now use continuous text, with Inputs,
+Outputs, artifact locations and API references inline. The full-network
+node/edge detail text follows the same rule. No additional workflow-map prose
+was changed in this polish. Restored input/output inventories on diagram nodes,
+removed artificial vertical stretch in cards, and replaced the last straight
+arrow segment with a smooth cubic tangent ending at the arrowhead base.
+External inputs retain their dependency columns beside their consumers.
+
+Make Masks now installs API-linked help on its existing tooltip-bearing
+controls via widgets.make_masks_help.install_make_masks_help. Existing prose
+is retained. Twenty-one controls use exact existing animation matches through
+settingAnimationKey; reveal state remains specific to each control. API links
+route enhancement settings to qt/detect_chain and other controls to the Make
+Masks screen. Please index the new helper and document these behaviors. Three
+older secondary-mask captions still need their catalog translations; the
+settings-help translation gate continues to expose those missing rows.
+
+New widgets.cursor_policy keeps one arrow silhouette: alternate cursors become
+solid blue with a white rim in dark themes and black rim in light themes.
+X11/non-Wayland popup movement and resizing use original press coordinates;
+Wayland retains its required compositor operation. Feature Dictionary now has
+a translucent rounded window, standard red Close, a thin adjustable splitter,
+and one collective Organelle filter. New schema.object_type_summary compresses
+possible slots into exact regex notation, including all 702 roles as
+organelle(?:[b-z]|[a-z]{2})?. Error/report previews and the organelle count help
+use compact notation; stored IDs and concrete measurement columns are intact.
+Please refresh APIs and the changed organelle count tooltip translation source.
+
+Validation: 1096 focused schema, popup, cursor, pipeline, dictionary and linked
+help checks pass; offscreen screenshots reviewed. This does not claim a green
+full suite or completed translations. Deep restoration and measured/calculated
+PSF processing remain pending; no restoration implementation is claimed here.

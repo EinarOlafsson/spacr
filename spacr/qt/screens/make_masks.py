@@ -6634,8 +6634,8 @@ class MakeMasksScreen(QWidget):
             install_dropzone(self, MakeMasksDropHandler(), self)
         except Exception:
             pass
-        from .settings_model import retarget_field_tooltips
-        retarget_field_tooltips(self)
+        from ..widgets.make_masks_help import install_make_masks_help
+        install_make_masks_help(self)
         self._take_any_terminal_queue()
 
     def _take_any_terminal_queue(self) -> bool:

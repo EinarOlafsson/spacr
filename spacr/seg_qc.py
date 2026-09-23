@@ -2223,7 +2223,9 @@ def mask_stack_mtime(folder: str) -> float:
 def _subhead(digest: "QCDigest") -> str:
     """The counts behind the verdict, in one line."""
     n_fields = digest.n_fields
-    types = ", ".join(t for t in digest.object_types if t) or "object"
+    from .schema import object_type_summary
+
+    types = object_type_summary([t for t in digest.object_types if t]) or "object"
     plates = len(digest.plates)
     where = f" across {plates} plates" if plates > 1 else ""
     n_fail = sum(int(c.summary.get("n_fail", 0)) for c in digest.scorecards)

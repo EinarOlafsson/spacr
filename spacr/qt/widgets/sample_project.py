@@ -216,12 +216,12 @@ class SampleProjectDialog(DiagramDialog):
                 steps = [{"module": key, "after": entry["modules"][i-1:i] if i else []}
                          for i, key in enumerate(entry["modules"])]
             data, keys, steps = pathway_graph(entry, data, steps)
-            diagram = WorkflowView(data, keys, steps, row, compact=True)
+            diagram = WorkflowView(data, keys, steps, row)
             diagram.activated.connect(lambda i=index: self.list.setCurrentRow(i))
             diagram.selection_changed.connect(self._describe_graph_item)
             row_layout.addWidget(diagram, 1)
             self.diagrams.append(diagram)
-            item.setSizeHint(QSize(900, 360))
+            item.setSizeHint(QSize(1100, 460))
             self.list.setItemWidget(item, row)
         self.list.setCurrentRow(0)
         self.splitter = diagram_splitter(self)
@@ -236,7 +236,7 @@ class SampleProjectDialog(DiagramDialog):
         self.steps.hide()
         self.details = PipelineDetails(self)
         self.splitter.addWidget(self.details)
-        self.splitter.setSizes([380, 520])
+        self.splitter.setSizes([460, 440])
         self.list.currentRowChanged.connect(self._say_the_steps)
         self._say_the_steps(0)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,

@@ -215,17 +215,16 @@ def _awaiting_translation(screen) -> set:
                  "_enh_denoise_strength", "_enh_gamma", "_enh_clahe",
                  "_enh_clahe_tile", "_enh_clahe_clip", "_enh_equalize",
                  "_enh_sharpen", "_enh_sharpen_radius", "_enh_sharpen_amount",
-                 "_enh_morphology", "_enh_morphology_radius", "_enh_split",
-                 "_enh_show", "_btn_compare"):
+                 "_enh_morphology", "_enh_morphology_radius", "_enh_split"):
         widget = getattr(screen, name, None)
         if widget is not None:
             widgets.append(widget)
     owed = set()
     for widget in widgets:
-        owed.add(widget.toolTip())
+        owed.add(widget.property("apiTooltipDescriptionSource") or widget.toolTip())
         label = _sibling_label_for(widget)
         if label is not None:
-            owed.add(label.toolTip())
+            owed.add(label.property("apiTooltipDescriptionSource") or label.toolTip())
     return {text for text in owed if text}
 
 
@@ -247,12 +246,12 @@ def test_every_help_string_on_the_panel_has_an_exact_catalog_row(screen):
 
     strings = set()
     for widget in _controls(screen):
-        for source in (widget.toolTip(), ):
+        for source in (widget.property("apiTooltipDescriptionSource") or widget.toolTip(), ):
             if source:
                 strings.add(source)
         label = _sibling_label_for(widget)
         if label is not None and label.toolTip():
-            strings.add(label.toolTip())
+            strings.add(label.property("apiTooltipDescriptionSource") or label.toolTip())
     assert len(strings) > 25
     strings -= _awaiting_translation(screen)
 

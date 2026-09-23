@@ -27,7 +27,9 @@ def test_pipeline_rows_are_graphs_and_keep_the_independent_sequencing_branch(qtb
         'input:images', 'input:external_masks', 'input:fastq'}
     for key in graph.nodes:
         prose = wd.node_description(graph.data, key)
-        assert 'Inputs' in prose and 'Outputs' in prose
+        assert 'Outputs' in prose
+        if not key.startswith('input:'):
+            assert 'Inputs' in prose
         for artifact in graph.data['modules'][key]['inputs'] + graph.data['modules'][key]['outputs']:
             assert graph.data['artifacts'][artifact]['title'] in prose
 

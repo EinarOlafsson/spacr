@@ -5,11 +5,38 @@ from html import escape
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QTextDocument
-from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QScrollArea, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
 from ..i18n import tr
 from ..theme import active_palette, font_px
-from .workflow_diagram import edge_description, node_description
+from .workflow_diagram import _api_link
+
+
+def _connection_card(data, edge):
+    """Explain a handoff without repeating the endpoint artifact inventories."""
+    names = [escape(tr(data['modules'][edge[key]]['name'])) for key in ('from', 'to')]
+    text = edge.get('handoff') or tr("Follow the pathway instructions for this connection.")
+    links = ' · '.join(link for link in (_api_link(data, edge['from']), _api_link(data, edge['to'])) if link)
+    return ('<b>' + ' → '.join(names) + '.</b> ' + escape(tr(text)) + ' ' + links)
+
+
+def _module_card(data, key):
+    """Keep a module's guidance, input/output locations and API in one text flow."""
+    module = data['modules'][key]
+    parts = ['<b>' + escape(tr(module['name'])) + '.</b>', escape(tr(module.get('guidance', '')))]
+    for role, title in (('inputs', tr('Inputs')), ('outputs', tr('Outputs'))):
+        records = []
+        for artifact in module.get(role, ()):
+            info = data.get('artifacts', {}).get(artifact, {})
+            record = escape(tr(info.get('title', artifact)))
+            location = info.get('location')
+            if location:
+                record += ' (' + escape(tr(location).rstrip('.')) + ')'
+            records.append(record)
+        if records:
+            parts.append('<b>' + escape(title) + ':</b> ' + '; '.join(records) + '.')
+    parts.append(_api_link(data, key))
+    return ' '.join(part for part in parts if part)
 
 
 class PipelineDetails(QScrollArea):
@@ -50,37 +77,42 @@ class PipelineDetails(QScrollArea):
         content.setObjectName("PipelineExplanationContent")
         content.setStyleSheet("QWidget#PipelineExplanationContent { background: transparent; }")
         layout = QVBoxLayout(content)
-        layout.setContentsMargins(16, 16, 16, 16)
-        header = QLabel('<h2>' + escape(tr(entry['title'])) + '</h2><p>' +
-                        escape(tr(entry.get('description') or entry.get('summary', ''))) + '</p>')
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(6)
+        header = QLabel('<b>' + escape(tr(entry['title'])) + '.</b> ' +
+                        escape(tr(entry.get('description') or entry.get('summary', ''))))
         header.setWordWrap(True)
-        header.setStyleSheet(f"background: transparent; font-size: {font_px('body') + 2}px;")
+        header.setStyleSheet(f"background: transparent; font-size: {font_px('body')}px;")
         layout.addWidget(header)
         stages = {}
         for key, node in diagram.nodes.items():
             stages.setdefault(node.pos().x(), []).append(key)
         for stage in sorted(stages):
             group = QWidget()
+            group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
             grid = QGridLayout(group)
-            grid.setContentsMargins(0, 4, 0, 4)
+            grid.setContentsMargins(0, 0, 0, 0)
+            grid.setSpacing(8)
             keys = sorted(stages[stage], key=lambda k: diagram.nodes[k].pos().y())
             for column, key in enumerate(keys):
                 lane = QWidget()
+                lane.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
                 lane_layout = QVBoxLayout(lane)
+                lane_layout.setAlignment(Qt.AlignTop)
                 lane_layout.setContentsMargins(0, 0, 0, 0)
-                lane_layout.addWidget(self._card(key, node_description(diagram.data, key)))
+                lane_layout.setSpacing(6)
+                lane_layout.addWidget(self._card(key, _module_card(diagram.data, key)))
                 for edge in diagram.links:
                     if edge['from'] == key:
                         identifier = edge['from'] + '→' + edge['to']
-                        lane_layout.addWidget(self._card(identifier, edge_description(diagram.data, edge)))
-                lane_layout.addStretch()
-                grid.addWidget(lane, column // 2, column % 2)
+                        lane_layout.addWidget(self._card(identifier, _connection_card(diagram.data, edge)))
+                grid.addWidget(lane, column // 2, column % 2, Qt.AlignTop)
                 grid.setColumnStretch(column % 2, 1)
             layout.addWidget(group)
             if stage != max(stages):
                 arrow = QLabel('↓')
                 arrow.setAlignment(Qt.AlignCenter)
-                arrow.setStyleSheet('color: #168cff; background: transparent; font-size: 22px;')
+                arrow.setStyleSheet('color: #168cff; background: transparent; font-size: 16px;')
                 layout.addWidget(arrow)
         layout.addStretch()
         self.setWidget(content)
@@ -89,14 +121,16 @@ class PipelineDetails(QScrollArea):
         """Create a rounded explanation card whose final links open the API."""
         card = QFrame()
         card.setObjectName("PipelineExplanationCard")
+        card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setContentsMargins(12, 8, 12, 8)
         label = QLabel(html)
         label.setTextFormat(Qt.RichText)
         label.setWordWrap(True)
         label.setOpenExternalLinks(True)
         label.setTextInteractionFlags(Qt.TextBrowserInteraction)
         label.setMinimumWidth(0)
+        label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         layout.addWidget(label)
         self.cards[identifier] = card
         self._style_card(card, False)
@@ -111,7 +145,7 @@ class PipelineDetails(QScrollArea):
         colour = QColor(palette["surface_hi"])
         card.setStyleSheet(f"QFrame#PipelineExplanationCard {{ background: rgba({colour.red()}, {colour.green()}, {colour.blue()}, 150); "
                           f"border: 2px solid {border}; border-radius: 10px; }} "
-                          f"QLabel {{ border: none; background: transparent; font-size: {font_px('body') + 2}px; }}")
+                          f"QLabel {{ border: none; background: transparent; font-size: {font_px('body')}px; }}")
 
     def select_element(self, identifier):
         """Outline the corresponding module or connection without moving text.

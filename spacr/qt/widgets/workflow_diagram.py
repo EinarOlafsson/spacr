@@ -104,17 +104,21 @@ def node_description(data, key):
     :returns: escaped, translated HTML for the fixed details panel.
     """
     module = data["modules"][key]
-    parts = [f'<b>{escape(tr(module["name"]))}</b>',
+    parts = [f'<b>{escape(tr(module["name"]))}.</b>',
              escape(tr(module.get("guidance", "")))]
     for role, title in (("inputs", tr("Inputs")), ("outputs", tr("Outputs"))):
+        if key.startswith("input:") and not module.get(role):
+            continue
         entries = []
         for artifact in module.get(role, ()):
             info = data.get("artifacts", {}).get(artifact, {})
-            entries.append(escape(tr(info.get("title", artifact))) + ": " +
-                           escape(tr(info.get("location", ""))))
-        parts.append(f'<b>{escape(title)}</b><br>' + '<br>'.join(entries))
+            location = tr(info.get("location", "")).rstrip('.')
+            entries.append(escape(tr(info.get("title", artifact))) +
+                           (' (' + escape(location) + ')' if location else ''))
+        parts.append(f'<b>{escape(title)}:</b> ' +
+                     ('; '.join(entries) or escape(tr('None declared'))) + '.')
     parts.append(_api_link(data, key))
-    return '<br><br>'.join(parts)
+    return ' '.join(part for part in parts if part)
 
 
 def edge_description(data, edge):
@@ -134,11 +138,11 @@ def edge_description(data, edge):
     else:
         explanation = tr("Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.")
     artifacts = [data["artifacts"].get(key, {"title": key}) for key in edge["artifacts"]]
-    return (f'<b>{escape(source)} → {escape(target)}</b><br>' +
-            _api_link(data, edge['from']) + ' · ' + _api_link(data, edge['to']) +
-            f'<br><br>{escape(explanation)}' +
-            ''.join('<br><br><b>' + escape(tr(item["title"])) + '</b><br>' +
-                    escape(tr(item.get("location", ""))) for item in artifacts))
+    return (f'<b>{escape(source)} → {escape(target)}.</b> {escape(explanation)} ' +
+            ' '.join('<b>' + escape(tr(item["title"])) + ':</b> ' +
+                     escape(tr(item.get("location", ""))) for item in artifacts) + ' ' +
+            ' · '.join(link for link in (_api_link(data, edge['from']),
+                                        _api_link(data, edge['to'])) if link))
 
 
 def _positions(keys, edges, data=None, *, compact=False):
@@ -311,11 +315,9 @@ class _Edge(QGraphicsPathItem):
 
     def __init__(self, view, edge, start, end):
         base = end - QPointF(12, 0)
-        shoulder = base - QPointF(14, 0)
         path = QPainterPath(start)
-        bend = max(24, abs(shoulder.x() - start.x()) / 2)
-        path.cubicTo(start + QPointF(bend, 0), shoulder - QPointF(bend, 0), shoulder)
-        path.lineTo(base)
+        bend = max(24, abs(base.x() - start.x()) / 2)
+        path.cubicTo(start + QPointF(bend, 0), base - QPointF(bend, 0), base)
         super().__init__(path)
         self.view, self.edge = view, edge
         self.end = end

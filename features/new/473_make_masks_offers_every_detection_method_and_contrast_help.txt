@@ -770,3 +770,14 @@ ignored.257 distinct focused checks pass (53 drag/provenance/Multi-Otsu plus
 This does not add a general history-replay UI or repair older incomplete
 sidecars. No new runtime captions. The source APIs and record schema are
 handed to the documentation owner;473 remains open for its full acceptance.
+
+2026-09-23 — LINKED HELP AND MATCHING ANIMATIONS
+All existing Make Masks tooltip-bearing controls now receive standard linked
+API help while retaining their control-specific prose. Twenty-one controls
+bind to exact existing normalization, area/intensity, border, hole-fill,
+watershed, Cellpose and background/CLAHE animations. settingAnimationKey
+aliases an illustration without sharing a control's persistent reveal state.
+Live help, matching-animation and reveal-isolation tests pass. Catalog checks
+still expose older untranslated secondary-mask captions; the documentation
+session owns their translations and has received the handoff. No unrelated
+animation is attached to controls lacking a matching illustration.

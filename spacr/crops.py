@@ -67,6 +67,8 @@ the writer helpers, so it must not import ``spacr`` back.
 
 from __future__ import annotations
 
+from .schema import object_type_summary
+
 import ast
 import datetime
 import hashlib
@@ -505,7 +507,7 @@ class CropSpec:
         if self.object_type not in OBJECT_TYPES:
             raise CropError(
                 f"unknown object_type {self.object_type!r}; expected one of "
-                f"{', '.join(OBJECT_TYPES)}")
+                f"{object_type_summary(OBJECT_TYPES)}")
         if self.normalize_by not in ("png", "fov"):
             raise CropError(
                 f"normalize_by must be 'png' or 'fov', got {self.normalize_by!r}")

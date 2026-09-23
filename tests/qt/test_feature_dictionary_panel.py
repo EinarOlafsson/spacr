@@ -117,7 +117,8 @@ def test_show_column_explains_that_column_not_just_its_feature(panel):
     assert "native image intensity units" in text          # unit
     assert "spacr.measure" in text                          # module
     assert "intensity" in text                              # family
-    assert ", ".join(OBJECT_TYPES) in text
+    from spacr.schema import object_type_summary
+    assert object_type_summary(OBJECT_TYPES) in text
 
 
 def test_show_column_says_where_a_feature_is_NOT_written(panel):
