@@ -14944,3 +14944,20 @@ Your public1.5.0.9receipt should remain historical failed evidence; this is a
 nightly fix, not proof the published wheel changed. Please rerun the relevant
 installation diagnostic when consuming the updated source/release candidate.
 PSF GUI integration remains next; no GPU window has been assumed or used.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: plaque crash follow-up / startup affinity
+Rechecked the existing plaque cancellation/rerun fix3ed21185f:18focused tests
+pass at currentnightly, including off-GUI inference, retired workers and stale
+results. Real CPU checkpoint receipt remains valid; exact user/GPU crash has
+not been reproduced. Current logs repeatedly show a separate startup defect:
+settings prewarm constructs path_probe._Probes on a temporary Python thread.
+Reproduced cold: signal owner != QApplication.thread(). app now initializes
+that lightweight signal source on the GUI thread before background imports.
+Fresh-process regression checks cold imports, no off-thread QObject creation,
+and a worker-emitted answer delivered to a GUI callback.22focused checks pass;
+launch integration checks in progress. No new user strings/public API; please
+retain the previous plaque cancellation guidance in tutorials. PSF integration
+remains pending while this reported stability issue takes priority.
+Startup affinity follow-up:7launch/prewarm integration checks now also pass.
+The new helper is private; no API catalog or translation rebuild is required
+for this change. Issue127 remains open for the remaining acceptance work.

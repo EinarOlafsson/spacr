@@ -2443,14 +2443,14 @@ PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
 def _prewarmed_module_names():
     """The module names ``launch``'s background pre-warm imports.
 
-    Read out of the source of ``launch`` so that the two tests below compare
+    Read out of the prewarm helper so that the two tests below compare
     the code against :data:`PREWARMED_MODULES` rather than against each
     other.
     """
     import inspect
     import re
 
-    source = inspect.getsource(app_mod.launch)
+    source = inspect.getsource(app_mod._start_settings_prewarm)
     match = re.search(r"for mod in \(([^)]*)\):", source)
     assert match, "launch no longer pre-warms a tuple of module names"
     return [name.strip().strip("\"'")

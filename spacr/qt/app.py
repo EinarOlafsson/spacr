@@ -5705,6 +5705,31 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     return tuple(installed)
 
 
+def _start_settings_prewarm() -> threading.Thread:
+    """Own the path-notification QObject on the GUI thread before importing.
+
+    Settings imports reach ``path_probe`` through the file-list widgets.
+    Its process-wide signal source must outlive the temporary import thread
+    and deliver redraw callbacks on the GUI thread. Only its lightweight
+    initialization runs here; the slow settings imports remain background work.
+    """
+    _importlib.import_module("spacr.qt.path_probe")
+
+    def warm():
+        """Import the remaining settings dependencies without building widgets."""
+        try:
+            for mod in ("spacr.settings",
+                        "spacr.qt.screens.settings_model",
+                        "spacr.qt.imagery"):
+                _importlib.import_module(mod)
+        except Exception:
+            LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
+
+    thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
+    thread.start()
+    return thread
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
@@ -5873,28 +5898,10 @@ def launch(argv: Optional[list[str]] = None) -> int:
     except Exception:                                        # noqa: BLE001
         LOG.exception("the live zoom gesture could not be installed")
 
-    def _prewarm():
-        """Import the slow settings module off the GUI thread.
-
-        Runs on a daemon thread while the user looks at the home screen, so
-        opening a module finds the import cached instead of paying for it.
-        Importing modules creates no Qt objects and is safe off-thread; a
-        failure is logged and ignored, because a cold import is slow rather
-        than broken.
-        """
-        try:
-            import importlib
-            for mod in ("spacr.settings",
-                        "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery"):
-                importlib.import_module(mod)
-        except Exception:
-            LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
     from .preferences import in_safe_mode
 
     if not in_safe_mode():
-        threading.Thread(target=_prewarm, name="spacr-prewarm",
-                         daemon=True).start()
+        _start_settings_prewarm()
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.
