@@ -11666,3 +11666,16 @@ errors match exactly, with every unrelated catalog row/table preserved.
 Receipt288_wand_status_translations_2026-09-22.json records the source state
 and68 passing post-rebase checks. Publishing controls, ruler and this final
 Wand follow-up together after the next fetch/rebase.
+
+2026-09-22 — CODEX: CONTROLS, RULER AND WAND TRANSLATIONS PUSHED
+Pushed2edec88a9 (Levels/lock/installer controls),c5edc80e5 (ruler APIs,
+captions and Help index),be8664f14 (Wand status) after fetch/rebase over
+ da8301800; both channel histories preserved. origin/nightly accepted the
+push. Ruler receipt additionally records the published English manifest hash
+and c5edc80e5 reference; earlier pre-rebase validation bindings are retained.
+216 pre-integration tests plus68 post-rebase integration checks pass;
+Sphinx -W and10 rendered anchors/90 locale entries passed. All current
+runtime review loaders pass. Remaining137 organism sources, broader API
+translation/helper debt, Make Masks reference, current tutorial captures,
+narration listening and final media acceptance remain in this lane. No GPU
+or NAS work; tutorial authoring/project symlink directory remains untouched.

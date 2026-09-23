@@ -275,5 +275,11 @@
       "ruler-verification.log": "9ef9e5f3a3c0b007ab302ddb6fb21c6ed51ece47c59f89a5ca9c9673458d9b59"
     }
   },
-  "source_binding": "Local 4bc2353b8 plus the ruler documentation/catalog changes; precedes 9ad033f84 Wand captions and subsequent implementation changes."
+  "source_binding": "Local 4bc2353b8 plus the ruler documentation/catalog changes; precedes 9ad033f84 Wand captions and subsequent implementation changes.",
+  "published_evidence": {
+    "commit": "c5edc80e5",
+    "english_api_manifest_sha256": "ef5c0d9c31779421f47c03839c4f01e2cc3672495fb5642717d3a13ec6a5955a",
+    "post_rebase_public_api_sources_unchanged": true,
+    "post_rebase_integration_receipt": "features/data/288_wand_status_translations_2026-09-22.json"
+  }
 }
