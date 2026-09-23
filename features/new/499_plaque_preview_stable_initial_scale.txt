@@ -1,0 +1,20 @@
+499 — PLAQUE PREVIEW STAYS AT ITS CHOSEN SCALE
+=============================================
+Status: implemented;109focused tests passed2026-09-23.
+
+_ImageView no longer fits and replaces a QLabel pixmap on every resize.
+Native pixels are painted directly into an explicit view rectangle; neither
+pixels nor zoom determine the layout's size hint. Initial image bounds are
+at most480x260 logical pixels, without upscaling. Layout settling and pane
+resizing preserve scale. Overlay/selection updates of the same image retain
+zoom and pan. Pictures start with a smaller share of the vertical splitter.
+
+Explicit +/- and Fit image controls, native Ctrl-wheel cursor-anchored zoom,
+and dragging to pan let users inspect details. Clicks still select wells;
+drags do not. No custom cursor is assigned. A visible translated gesture hint
+uses the platform's native modifier. Well crops support the same gestures.
+
+Validation: tests/qt/test_plaque_image_navigation.py plus four existing plaque
+preview suites:109passed, under6GB/no-swap offscreen CPU cap. Regressions drive
+idle layout cycles, pane resize without scale change, explicit fit, anchored
+wheel zoom, overlay refresh, panning and well selection.

@@ -42,7 +42,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QPoint, QRectF, Qt, Signal
+from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import (QActionGroup, QColor, QFont, QImage, QPainter,
                            QPen, QPixmap)
 from PySide6.QtWidgets import (
@@ -54,7 +54,6 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..hidpi import scaled_for
 from .sortable_table import install_sorting, table_item
 from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
@@ -1681,7 +1680,7 @@ class PlaqueModeSwitch(QWidget):
 
 
 class _ImageView(QLabel):
-    """An image scaled to the width it is given, boxes painted on top.
+    """A native image with a modest initial scale and explicit user zoom/pan.
 
     A click is reported in IMAGE pixels, through :attr:`clicked`.
     """
@@ -1698,8 +1697,12 @@ class _ImageView(QLabel):
         self.setObjectName("PlaquePreviewImage")
         self.setAlignment(Qt.AlignCenter)
         self.setWordWrap(True)
-        self.setMinimumHeight(320)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setMinimumSize(120, 120)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self._scale = None
+        self._pan = QPointF()
+        self._drag_start = None
+        self._drag_pan = QPointF()
         self._pixmap: Optional[QPixmap] = None
         self._array: Optional[np.ndarray] = None
 
@@ -1729,6 +1732,8 @@ class _ImageView(QLabel):
         if rgb is None:
             self._pixmap = None
             self._array = None
+            self._scale = None
+            self._pan = QPointF()
             self.clear()
             return
         rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
@@ -1760,44 +1765,109 @@ class _ImageView(QLabel):
                                  region.y0 + font.pixelSize() + thickness,
                                  str(number))
             painter.end()
+        changed_shape = self._pixmap is None or self._pixmap.size() != pixmap.size()
         self._pixmap = pixmap
-        self._rescale()
+        self.clear()
+        if changed_shape or self._scale is None:
+            self.fit_image(initial=True)
+        self.update()
 
     def has_image(self) -> bool:
         """Whether an image is shown."""
         return self._pixmap is not None
 
+    def sizeHint(self):
+        """Keep image pixels out of the surrounding layout's size requests."""
+        return QSize(480, 260)
+
+    def image_rect(self):
+        """Return the displayed image bounds in logical widget coordinates."""
+        if self._pixmap is None or self._scale is None:
+            return QRectF()
+        width, height = self._pixmap.width() * self._scale, self._pixmap.height() * self._scale
+        return QRectF((self.width() - width) / 2 + self._pan.x(),
+                      (self.height() - height) / 2 + self._pan.y(), width, height)
+
     def image_point(self, x: float, y: float) -> Optional[Tuple[float, float]]:
-        """Where a point on the label falls in the image.
-
-        :param x: label column.
-        :param y: label row.
-        :returns: ``(x, y)`` in image pixels, or None off the image.
-        """
-        shown = self.pixmap()
-        if self._pixmap is None or shown is None or shown.isNull():
+        """Map a point through the current zoom and pan into native image pixels."""
+        rect = self.image_rect()
+        if rect.isEmpty() or not rect.contains(QPointF(x, y)):
             return None
-        ratio = shown.devicePixelRatio() or 1.0
-        width, height = shown.width() / ratio, shown.height() / ratio
-        if not width or not height:
-            return None
-        left = (self.width() - width) / 2.0
-        top = (self.height() - height) / 2.0
-        if not (left <= x <= left + width and top <= y <= top + height):
-            return None
-        return ((x - left) * self._pixmap.width() / width,
-                (y - top) * self._pixmap.height() / height)
+        return ((x - rect.left()) / self._scale, (y - rect.top()) / self._scale)
 
-    def mousePressEvent(self, event):                        # noqa: N802
-        """Report a click in image pixels.
+    def fit_image(self, *, initial=False):
+        """Fit only on initial loading or an explicit request, without upscaling."""
+        if self._pixmap is None:
+            return
+        width = min(self.width(), 480) if initial else self.width()
+        height = min(self.height(), 260) if initial else self.height()
+        self._scale = min(1.0, max(1, width - 12) / self._pixmap.width(),
+                          max(1, height - 12) / self._pixmap.height())
+        self._pan = QPointF()
+        self.update()
 
-        :param event: the mouse event.
-        """
-        position = event.position()
-        point = self.image_point(position.x(), position.y())
-        if point is not None and event.button() == Qt.LeftButton:
-            self.clicked.emit(point[0], point[1])
-        super().mousePressEvent(event)
+    def zoom(self, factor, position=None):
+        """Zoom about the pointer, or the view center for toolbar actions."""
+        if self._pixmap is None or self._scale is None:
+            return
+        point = position if position is not None else QPointF(self.width()/2, self.height()/2)
+        old = self._scale
+        self._scale = min(32., max(.0001, old * factor))
+        ratio = self._scale / old
+        center = QPointF(self.width()/2, self.height()/2)
+        self._pan = (point - center) * (1 - ratio) + self._pan * ratio
+        self.update()
+
+    def paintEvent(self, event):
+        """Draw directly from native pixels; zoom never allocates an enlarged bitmap."""
+        if self._pixmap is None:
+            return super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.drawPixmap(self.image_rect(), self._pixmap, QRectF(self._pixmap.rect()))
+
+    def wheelEvent(self, event):
+        """Ctrl-wheel zooms about the pointer; plain scrolling stays with the page."""
+        if self._pixmap is not None and event.modifiers() & Qt.ControlModifier:
+            amount = event.angleDelta().y() or event.pixelDelta().y()
+            if amount:
+                self.zoom(1.2 if amount > 0 else 1/1.2, event.position())
+            event.accept()
+        else:
+            super().wheelEvent(event)
+
+    def mousePressEvent(self, event):
+        """Begin a possible pan; selection waits until a click is released."""
+        if self._pixmap is not None and event.button() == Qt.LeftButton:
+            self._drag_start = event.position()
+            self._drag_pan = QPointF(self._pan)
+            event.accept()
+        else:
+            super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        """Move the image without changing the operating-system cursor."""
+        if self._drag_start is not None and event.buttons() & Qt.LeftButton:
+            self._pan = self._drag_pan + event.position() - self._drag_start
+            self.update()
+            event.accept()
+        else:
+            super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        """A click selects a well; a drag only pans the image."""
+        if self._drag_start is not None and event.button() == Qt.LeftButton:
+            distance = (event.position() - self._drag_start).manhattanLength()
+            if distance < 4:
+                self._pan = self._drag_pan
+                point = self.image_point(event.position().x(), event.position().y())
+                if point is not None:
+                    self.clicked.emit(*point)
+            self._drag_start = None
+            self.update()
+            event.accept()
+        else:
+            super().mouseReleaseEvent(event)
 
     def contextMenuEvent(self, event):                       # noqa: N802
         """A right-click asks the panel for the overlay options.
@@ -1807,17 +1877,10 @@ class _ImageView(QLabel):
         self.context_requested.emit(event.globalPos())
         event.accept()
 
-    def _rescale(self) -> None:
-        """Fit the pixmap to the label, keeping its shape."""
-        if self._pixmap is None:
-            return
-        self.setPixmap(scaled_for(self._pixmap, self, max(1, self.width()),
-                                  max(1, self.height())))
-
-    def resizeEvent(self, event):                            # noqa: N802
-        """Refit on resize."""
+    def resizeEvent(self, event):
+        """Keep scale fixed as layout settles or the user changes pane dimensions."""
         super().resizeEvent(event)
-        self._rescale()
+        self.update()
 
 
 class PlaquePreviewPanel(QWidget, LivePreviewContract):
@@ -2072,7 +2135,6 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                        persist_key=f"{key}::pictures")
         self._pictures_split = pictures
         self._view = _ImageView(self)
-        self._view.setCursor(Qt.PointingHandCursor)
         self._view.clicked.connect(self._on_figure_clicked)
         self._objects_view = _ImageView(self)
         self._objects_view.setObjectName("PlaqueObjectsImage")
@@ -2113,6 +2175,20 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         picture_host = QWidget(self)
         picture_col = QVBoxLayout(picture_host)
         picture_col.setContentsMargins(0, 0, 0, 0)
+        zoom_row = QHBoxLayout()
+        for title, action in (
+                (tr("−"), lambda: self._image_tabs.currentWidget().zoom(1/1.2)),
+                (tr("+"), lambda: self._image_tabs.currentWidget().zoom(1.2)),
+                (tr("Fit image"), lambda: self._image_tabs.currentWidget().fit_image())):
+            button = QPushButton(title)
+            button.clicked.connect(action)
+            zoom_row.addWidget(button)
+        from PySide6.QtGui import QKeySequence
+        modifier = QKeySequence("Ctrl+Z").toString(QKeySequence.NativeText).removesuffix("Z").rstrip("+")
+        self._image_navigation_hint = QLabel(tr("Hold {key} and scroll to zoom; drag the image to pan.", key=modifier))
+        self._image_navigation_hint.setWordWrap(True)
+        zoom_row.addWidget(self._image_navigation_hint, 1)
+        picture_col.addLayout(zoom_row)
         picture_col.addWidget(pictures, 1)
 
         self._legend_box = QFrame(self)
@@ -2180,7 +2256,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                     persist_key=f"{key}::sections")
         self._section_split = split
         self._sections["Pictures"] = split.add_section(
-            picture_host, "Pictures", stretch=3,
+            picture_host, "Pictures", stretch=1,
             persist_key=f"{key}/Pictures")
         self._sections["Wells and plaques"] = split.add_section(
             self._tabs, "Wells and plaques", stretch=2,

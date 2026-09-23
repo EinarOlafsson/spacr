@@ -14692,3 +14692,19 @@ walkthrough,API/defaults/translations accordingly. No GPU training claimed;
 PlagueFigurepreviewusernewreport: spontaneouszoomandoversizedinitialdisplay.
 Claimingplaque_preview.py/focusedtests now tobreakpixmap/layoutfeedback,
 retainmodestinitialscale,allowexplicitzoom/panwithoutautomaticrefit.
+
+2026-09-23 — PLAQUE PREVIEW SCALE (499), CALIBRATION CLAIM
+499 removes QLabel pixmap/layout feedback and automatic resize fitting. Native
+image painting starts at most480x260 logical pixels without upscaling, keeps
+scale through pane resize and overlay updates, and supports explicit +/-/Fit
+image, Ctrl-wheel zoom around the pointer, drag to pan and click to select.
+Pictures receive a smaller initial vertical share.109focused Qt tests pass.
+New public-facing hint: Hold {key} and scroll to zoom; drag the image to pan.
+Please update plaque tutorial controls and preview API descriptions.
+Next user request: save well diameter in pixels independently of known physical
+scale; manual pixels per micrometer and plaque-formation time; eventually fit
+and validate automatic growth estimates from the largest quarter of plaques.
+Claiming plaque_papers.py, submodules.py plaque output, settings metadata and
+plaque preview calibration UI/tests. Asked user for known-time, known-scale
+reference dataset. Do not teach an unvalidated growth estimate as a measurement:
+time and pixel scale cannot both be identified from plaque pixel sizes alone.
