@@ -1,0 +1,78 @@
+491 — spaCR 1.5.1.0 RELEASE MILESTONE
+===================================
+Status: IN PROGRESS. Requested2026-09-23 by the maintainer: plan a reasonable
+release, finish its items, bump to1.5.1.0, push to main, then resume the backlog.
+This milestone narrows the next release, not the overall implementation goal.
+The implementation lane owns the merge/version/release; docs lane retains its
+own checkout and API/translations/tutorial delivery. No duplicate release job.
+
+Release purpose
+---------------
+A stability and usability release of completed nightly work. Finish known
+data-correctness defects and verify the installation/onboarding path before
+promoting it. Do not add new scientific engines to the release critical path.
+
+Ordered scope and acceptance gates
+----------------------------------
+1. Classification correctness — finish issue73: shared high-bit-depth crop
+   decoding for labelled, folder and tar datasets, consistent declared channel
+   ordering, explicit persisted decoding contract, historical checkpoint
+   compatibility, resume/evaluation/activation consistency. Test real image
+   bytes, actual saved checkpoint metadata and folder/tar scoring. Existing
+   opt-in test-time augmentation stays off by default.
+2. Mask and preview stability — retain completed ruler/levels/Compare+Apply,
+   adaptive threshold, clear objects, magnifier lock, pointer-anchored zoom,
+   image quality screening, tooltip/API and plaque Live controls. Run a bounded
+   regression set and inspect current UI with sample data. Diagnose issue127's
+   plaque cropping freeze; fix any reproducible regression, otherwise retain
+   it as an explicit known issue with requested reproduction details.
+3. Navigation and desktop polish — validate completed pipeline overviews and
+   node/edge API descriptions, whole-pipeline selection, resize/drag handling,
+   native OS cursor, thin blue resize affordances, opacity, compact layouts,
+   dictionary terminology, organism diagrams and settings Templates. Verify
+   first-run sample/onboarding links rather than infer success from existence.
+4. Completed scientific additions — retain Host–Pathogen vacuole analysis,
+   recruitment fixes, replication-method selector and image-quality screening
+   with their documented count/unit/denominator limitations. Deep replication
+   model remains explicitly unavailable until the maintainer supplies it.
+5. Installation/update/readme — PyPI Starplast environment/launch integration,
+   verified package updates and graceful restart, system requirements link,
+   PyPI-compatible README images, installer catalog synchronization. Build real
+   wheel/sdist metadata, render README and check release version consistency.
+   Keep previous published installer links until new assets actually exist.
+6. Documentation release boundary — coordinate a reproducible English API/help
+   snapshot covering new methods/settings; preserve existing language coverage
+   without presenting unfinished translations/narrations as completed. Include
+   only reviewed tutorial assets supplied by their owner. Refresh deployed
+   installer links and close129 only after the live publication audit passes.
+7. Release candidate — integrate latest reviewed docs changes, inspect main/
+   nightly divergence, create an isolated release worktree, preserve main-only
+   release assets and keep working features/instructions out of the main tree
+   per the established repository convention. Run targeted scientific, Qt,
+   packaging and startup checks against the exact candidate. Inspect required
+   CI results; fix failures caused by this release without weakening gates.
+8. Promotion/publication — use packaging/release.py to bump setup.py,
+   spacr/_version.py and CITATION.cff together to1.5.1.0. Commit and push main
+   with the maintainer-authorized non-forced merge. This triggers release.yml
+   and PyPI publication; watch the existing workflow rather than starting a
+   duplicate. Verify published version, wheel README images, installer assets
+   and public links. Report any external failure precisely. Synchronize the
+   resulting release commits back to nightly without losing ongoing docs work.
+
+Explicitly deferred from1.5.1.0
+-------------------------------
+489 deep network image enhancement;490 measured/calculated PSF processing;
+unvalidated new model-zoo engines/Timeflows research capabilities; complete
+multilingual tutorial narration matrix; historical-issue audit beyond verified
+release blockers; macOS signing/notarization until credentials exist (#131).
+Signing is not represented as completed: last maintainer report says the
+institutional ticket was submitted, repository signing secrets are absent,
+and the current build uses ad-hoc app signing with no notarization step.
+Deferred work remains on the active backlog and resumes after this release.
+
+Progress at planning time
+-------------------------
+Items2–5 are largely implemented on nightly with recorded focused evidence;
+release-level revalidation is pending. Item1 is in progress with reproduced
+16-bit clipping and format2 mismatch. Items6–8 remain open. No version bump,
+main push, package upload or complete-release claim has been made.

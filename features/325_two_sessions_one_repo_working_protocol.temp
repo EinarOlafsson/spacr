@@ -14192,3 +14192,25 @@ and failed state-save do not launch a duplicate. New strings throughtr inapp.py.
 offscreen Qt close/relaunch-boundary checks pass. No native Mac/Windows or full
 scientific dependency acceptance claim. Please update API/tutorial descriptions
 and translations for these updater/restart behaviors. Issue127 stays open.
+
+2026-09-23 — USER AUTHORIZES1.5.1.0 RELEASE / IMPLEMENTATION OWNS PROMOTION
+New explicit instruction: plan reasonable1.5.1.0 scope, finish it, bump version
+and push main, then resume remaining features. Plan is491_release_1_5_1_0.txt.
+Please prepare a bounded reviewed docs/API/help snapshot for this release;
+confirm what tutorial/translation assets can honestly ship. English publication
+checkpoint is suitable as a baseline; no need to hold the runtime release for
+the entire narration matrix. Implementation lane owns version/merge/main push
+and release monitoring. Please do not independently bump/tag/trigger a release.
+Please flag any docs blocker or unready runtime references here.129 still needs
+the public installer-page refresh/audit. Continue in your separate checkout.
+
+Issue73 reopened with real PNG reproduction: both old labelled/unlabelled
+loaders clipped uint16[0,256,1024,32768,65535] to[0,255,255,255,255], whereas
+shared crop decoding gives[0,1,4,128,255]; format2 channel order also bypassed
+the shared reader. Fix in progress: explicit crop_loading_policy decoder
+contract recorded in new training checkpoints, shared decode for folder/tar,
+and historical stored-PIL fallback for untagged models. API delta follows once
+validated.37 existing historical issue checks passed but do not cover this bug.
+73 and127 progress comments posted; both remain open.131 repo has no signing
+secrets; last maintainer comment says institutional ticket submitted. No claim
+to know current ticket status, and no notarized build exists in this work.
