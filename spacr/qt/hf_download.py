@@ -799,7 +799,7 @@ def download_toxo_mito_demo(parent,
                                     [Optional[DownloadResult], str], None],
                                 *,
                                 worker_factory=None,
-                                title: str = "Downloading spaCR demo dataset"
+                                title: str = "Downloading spaCR test data"
                                 ) -> None:
     """Kick off the demo download with a modal progress dialog.
 

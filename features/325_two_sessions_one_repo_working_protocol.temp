@@ -14496,3 +14496,12 @@ old rows. Receipt: features/data/411_host_preview_montage_api_2026-09-23.json.
 Current English API is11479 after documenting closeEvent, and includes the
 rebased annotation-filter semantics. Source and translated inventories remain
 distinct; this does not claim the translated API rebuild is complete.
+2026-09-23 — RETIRED DEMOS DOWNLOAD REFERENCES
+Shared download errors, default dialog title and Mask CLI summary now refer
+to test data.47checks pass. Please remove obsolete Demos destinations in
+owned tutorial scripts/help/API index/translations; the runtime menu is gone.
+Host real sample selected from the already public THP-1/RNF213 Recruitment
+archive: two acquired fields, four stain channels and existing masks. Fresh
+Measure succeeds after standard parent reconciliation; 164 hosts,97 vacuoles.
+No individual-parasite counts exist: replication stays unknown. Verifying
+pixel measurements and preview/source alignment before publishing/wiring.
