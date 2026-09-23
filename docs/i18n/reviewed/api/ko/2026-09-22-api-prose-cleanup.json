@@ -34,7 +34,9 @@
       "label": "spacr.qt.detect_chain#4",
       "source": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
       "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
-      "translation": "배경 제거는 잡음 제거보다 먼저 수행합니다. 잡음 증폭을 막기 위해 잡음 제거를 대비 조정보다 먼저 수행하고, 선명화의 후광이 늘어나지 않도록 대비 조정을 선명화보다 먼저 수행합니다. 형태학 처리는 픽셀의 연결 관계를 바꾸므로 분할보다 먼저 수행합니다. :func:`prepare`는 배경, 잡음 제거, 대비, 선명화를 실행하고, :func:`finish`는 선택한 검출기 이후에 형태학 처리와 분할을 실행합니다."
+      "translation": "배경 제거는 잡음 제거보다 먼저 수행합니다. 잡음 증폭을 막기 위해 잡음 제거를 대비 조정보다 먼저 수행하고, 선명화의 후광이 늘어나지 않도록 대비 조정을 선명화보다 먼저 수행합니다. 형태학 처리는 픽셀의 연결 관계를 바꾸므로 분할보다 먼저 수행합니다. :func:`prepare`는 배경, 잡음 제거, 대비, 선명화를 실행하고, :func:`finish`는 선택한 검출기 이후에 형태학 처리와 분할을 실행합니다.",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px microscope field of view. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",

@@ -45,11 +45,14 @@
       "translation": "Gagnvirk forskoðun útdreginna myndsvæða fyrir Measure, með stillingaspjaldi sem samræmist vinnslurásinni."
     },
     {
-      "label": "spacr.submodules.analyze_replication#3",
+      "label": "spacr.submodules.analyze_replication#4",
       "source_sha256": "d677c2117583955bb8308d9cde6a3b5ea7e81b214e47e69b1c41b356a7005fa2",
       "source": "Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two`` bucket that is always reported and never folded into a neighbouring bucket. That bucket is the assay's own quality control: a well where 30% of vacuoles are off the power-of-two ladder has a segmentation problem, and its replication number should not be trusted.",
       "context": "Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two`` bucket that is always reported and never folded into a neighbouring bucket. That bucket is the assay's own quality control: a microplate sample position where 30% of vacuoles are off the power-of-two ladder has a segmentation problem, and its replication number should not be trusted.",
-      "translation": "Rósettur með 3, 5, 6 eða 7 sýklum eru taldar í sérstakan ``non_power_of_two`` flokk sem er alltaf birtur og aldrei sameinaður nágrannaflokki. Þessi flokkur er eigið gæðaeftirlit mælingarinnar: ef 30% sýklabóla í sýnisstöðu á örplötu eru utan veldisraðar tveggja er hlutunin gölluð og ekki ætti að treysta fjölgunartölunni."
+      "translation": "Rósettur með 3, 5, 6 eða 7 sýklum eru taldar í sérstakan ``non_power_of_two`` flokk sem er alltaf birtur og aldrei sameinaður nágrannaflokki. Þessi flokkur er eigið gæðaeftirlit mælingarinnar: ef 30% sýklabóla í sýnisstöðu á örplötu eru utan veldisraðar tveggja er hlutunin gölluð og ekki ætti að treysta fjölgunartölunni.",
+      "previous_labels": [
+        "spacr.submodules.analyze_replication#3"
+      ]
     },
     {
       "label": "spacr.qt.widgets.ambient.AmbientWidget.set_backdrop#1",

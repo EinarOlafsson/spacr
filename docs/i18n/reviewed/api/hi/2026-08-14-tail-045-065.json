@@ -82,10 +82,13 @@
     },
     {
       "context": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
-      "label": "spacr.submodules.analyze_replication#11",
+      "label": "spacr.submodules.analyze_replication#12",
       "source": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
       "source_sha256": "e69239fa60b793cb9337127d607becded455cd0cc107d29d798056aadd832f7e",
-      "translation": "``max_parasites_per_vacuole``—नामित buckets में दो की सबसे बड़ी घात।"
+      "translation": "``max_parasites_per_vacuole``—नामित buckets में दो की सबसे बड़ी घात।",
+      "previous_labels": [
+        "spacr.submodules.analyze_replication#11"
+      ]
     },
     {
       "context": "decay rate. The sign is not checked -- a negative ``b`` grows instead of decaying, and a large ``-b * x`` overflows to ``inf`` with a ``RuntimeWarning`` rather than throwing.",

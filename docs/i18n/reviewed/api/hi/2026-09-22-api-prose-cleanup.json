@@ -34,7 +34,9 @@
       "label": "spacr.qt.detect_chain#4",
       "source": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
       "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
-      "translation": "पृष्ठभूमि घटाना शोर हटाने से पहले होता है। शोर को बढ़ने से रोकने के लिए शोर हटाना कंट्रास्ट से पहले होता है; शार्पनिंग के हलो को फैलने से रोकने के लिए कंट्रास्ट शार्पनिंग से पहले होता है। आकारिकी विभाजन से पहले होती है क्योंकि वह बदलती है कि कौन-से पिक्सेल जुड़े हैं। :func:`prepare` पृष्ठभूमि, शोर हटाना, कंट्रास्ट और शार्पनिंग चलाता है; :func:`finish` चुने गए डिटेक्टर के बाद आकारिकी और विभाजन चलाता है।"
+      "translation": "पृष्ठभूमि घटाना शोर हटाने से पहले होता है। शोर को बढ़ने से रोकने के लिए शोर हटाना कंट्रास्ट से पहले होता है; शार्पनिंग के हलो को फैलने से रोकने के लिए कंट्रास्ट शार्पनिंग से पहले होता है। आकारिकी विभाजन से पहले होती है क्योंकि वह बदलती है कि कौन-से पिक्सेल जुड़े हैं। :func:`prepare` पृष्ठभूमि, शोर हटाना, कंट्रास्ट और शार्पनिंग चलाता है; :func:`finish` चुने गए डिटेक्टर के बाद आकारिकी और विभाजन चलाता है।",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px microscope field of view. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",

@@ -20,7 +20,9 @@
       "label": "spacr._starplast.REPOSITORY#0",
       "source": "Default source when no sibling checkout or explicit source is available.",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
-      "translation": "没有同级目录下的工作副本或显式指定的来源时使用的默认来源。"
+      "translation": "没有同级目录下的工作副本或显式指定的来源时使用的默认来源。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Return the external-application folder without creating it.",
@@ -48,14 +50,18 @@
       "label": "spacr._starplast.default_source#0",
       "source": "Prefer an explicit source or a sibling Starplast checkout, then GitHub.",
       "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
-      "translation": "优先使用显式指定的来源或同级目录下的 Starplast 工作副本，其次使用 GitHub。"
+      "translation": "优先使用显式指定的来源或同级目录下的 Starplast 工作副本，其次使用 GitHub。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL.",
       "label": "spacr._starplast.default_source#1",
       "source": "``SPACR_STARPLAST_SOURCE``, a local Git checkout, or repository URL.",
       "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
-      "translation": "``SPACR_STARPLAST_SOURCE``、本地 Git 工作副本或仓库 URL。"
+      "translation": "``SPACR_STARPLAST_SOURCE``、本地 Git 工作副本或仓库 URL。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Build an isolated environment, install Starplast and check its bundled data.",
@@ -76,7 +82,9 @@
       "label": "spacr._starplast.install_starplast#2",
       "source": "local Git checkout or pip repository URL; default_source otherwise.",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
-      "translation": "本地 Git 工作副本或供 pip 使用的仓库 URL；否则使用 default_source。"
+      "translation": "本地 Git 工作副本或供 pip 使用的仓库 URL；否则使用 default_source。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "external-application folder.",
@@ -132,7 +140,9 @@
       "label": "spacr._starplast.install_starplast#10",
       "source": "the selected source is neither a suitable local Git checkout nor an allowed official repository URL.",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
-      "translation": "所选来源既不是适用的本地 Git 工作副本，也不是允许的官方仓库 URL。"
+      "translation": "所选来源既不是适用的本地 Git 工作副本，也不是允许的官方仓库 URL。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Whether an owned environment has passed the import and bundled-data checks.",
@@ -293,7 +303,9 @@
       "label": "spacr.qt.starplast.open_starplast#0",
       "source": "Offer installation once, then launch the independent Starplast application.",
       "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
-      "translation": "首次提供安装选项，随后启动独立的 Starplast 应用。"
+      "translation": "首次提供安装选项，随后启动独立的 Starplast 应用。",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "organism page requesting the launch.",

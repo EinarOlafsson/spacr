@@ -34,7 +34,9 @@
       "label": "spacr.qt.detect_chain#4",
       "source": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
       "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
-      "translation": "Frádráttur bakgrunns kemur á undan suðminnkun. Suðminnkun kemur á undan birtuskilum til að forðast mögnun suðs; birtuskil koma á undan skerpingu til að forðast að teygja geislabauga hennar. Formfræðilegar aðgerðir koma á undan skiptingu því þær breyta því hvaða mynddílar tengjast. :func:`prepare` keyrir bakgrunnsleiðréttingu, suðminnkun, birtuskil og skerpingu; :func:`finish` keyrir formfræðilegar aðgerðir og skiptingu á eftir valinni greiningaraðferð."
+      "translation": "Frádráttur bakgrunns kemur á undan suðminnkun. Suðminnkun kemur á undan birtuskilum til að forðast mögnun suðs; birtuskil koma á undan skerpingu til að forðast að teygja geislabauga hennar. Formfræðilegar aðgerðir koma á undan skiptingu því þær breyta því hvaða mynddílar tengjast. :func:`prepare` keyrir bakgrunnsleiðréttingu, suðminnkun, birtuskil og skerpingu; :func:`finish` keyrir formfræðilegar aðgerðir og skiptingu á eftir valinni greiningaraðferð.",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px microscope field of view. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",

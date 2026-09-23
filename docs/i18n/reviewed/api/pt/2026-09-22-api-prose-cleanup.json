@@ -34,7 +34,9 @@
       "label": "spacr.qt.detect_chain#4",
       "source": "Background subtraction precedes denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
       "source_sha256": "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
-      "translation": "A subtração do fundo precede a redução de ruído. A redução de ruído vem antes do contraste para evitar amplificá-lo; o contraste vem antes da nitidez para evitar alongar seus halos. A morfologia precede a separação porque altera quais pixels estão conectados. :func:`prepare` executa fundo, redução de ruído, contraste e nitidez; :func:`finish` executa morfologia e separação após o detector selecionado."
+      "translation": "A subtração do fundo precede a redução de ruído. A redução de ruído vem antes do contraste para evitar amplificá-lo; o contraste vem antes da nitidez para evitar alongar seus halos. A morfologia precede a separação porque altera quais pixels estão conectados. :func:`prepare` executa fundo, redução de ruído, contraste e nitidez; :func:`finish` executa morfologia e separação após o detector selecionado.",
+      "retired": true,
+      "retired_reason": "2026-09-23: English source block or translation context changed. Preserve this review as historical evidence; use English fallback until a current-source translation is available."
     },
     {
       "context": "Disabled steps return their input unchanged. :func:`heavy_steps` identifies enabled steps that warrant a progress warning; non-local means can take minutes on a 2,000 px microscope field of view. Whole-image runs retain progress and Cancel controls. Selecting a background method does not enable denoising.",

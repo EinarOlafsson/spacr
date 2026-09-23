@@ -19,11 +19,14 @@
       "translation": "Strigapixillinn, sem getur verið brottala, sem heimspunktur lendir á."
     },
     {
-      "label": "spacr.submodules.analyze_replication#11",
+      "label": "spacr.submodules.analyze_replication#12",
       "source_sha256": "e69239fa60b793cb9337127d607becded455cd0cc107d29d798056aadd832f7e",
       "source": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
       "context": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
-      "translation": "``max_parasites_per_vacuole`` — stærsti nafngreindi flokkurinn sem er veldi af tveimur."
+      "translation": "``max_parasites_per_vacuole`` — stærsti nafngreindi flokkurinn sem er veldi af tveimur.",
+      "previous_labels": [
+        "spacr.submodules.analyze_replication#11"
+      ]
     },
     {
       "label": "spacr.agreement.annotation_columns#1",

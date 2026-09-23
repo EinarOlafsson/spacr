@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI-assisted source-context review of PSF Measure intensity-source and Live processing status/help. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "PSF: {operation} (preview field).",
+      "source": "PSF: {operation} (preview field).",
+      "source_sha256": "b7ca2034a2551d748d36bd83d8466977ece668e6a882c17b55e9e7ddab4624d8",
+      "translation": "PSF : {operation} (champ d’aperçu)."
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation: {methods}.",
+      "source": "Segmentation: {methods}.",
+      "source_sha256": "44c9c0497ca652c0362573d1dd4a198cce8f6ca031019ad6288304601e52a0e9",
+      "translation": "Segmentation : {methods}."
+    },
+    {
+      "table": "ui",
+      "key": "Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.",
+      "source": "Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.",
+      "source_sha256": "91bf3195d019e91e6c1a3cb0c5652c4f61f41c57e00584c987c5e19378fae0b7",
+      "translation": "L’aperçu utilise le champ chargé et une normalisation propre à ce champ. Les exécutions complètes de Mask peuvent utiliser une normalisation par lot et une correction d’éclairage ; leurs masques peuvent donc différer. Les filtres d’intensité utilisent les pixels originaux de l’aperçu."
+    },
+    {
+      "table": "ui",
+      "key": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+      "source": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+      "source_sha256": "2f17db1295200b62eac581ec2a85b838e2cbe9cca2b3bed2ab4b7b11d197efd3",
+      "translation": "Choisissez les intensités normales de Measure ou celles traitées par une PSF étalonnée pour les caractéristiques quantitatives. Le traitement PSF suit la remise à l’échelle standard et les étapes de prétraitement enregistrées. Les fichiers sources et les recadrages exportés conservent leurs pixels ; la provenance dans la base de données enregistre le choix et le noyau exact. Un noyau modifié ne peut pas être mélangé aux mesures existantes."
+    }
+  ]
+}
