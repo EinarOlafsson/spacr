@@ -33757,6 +33757,21 @@
       "source_sha256": "fd7e178acdf2cd8dcee656b7b5a4828857b893f1f83386f47465ec47d36b5db8",
       "text": "Put a person's edits and approvals onto one figure's proposals.\n\nA conflict flag stays on an edited image: the record keeps that the two\nreadings disagreed, and the edit and OK record how a person settled it.\n\n:param stem: the figure's file stem.\n:param annotations: the proposals, in reading order.\n:param overrides: from :func:`read_annotation_overrides`.\n:param confirm_each: when True, an image nobody approved is marked\n    ``approved=False`` and is not measured.\n:returns: the same annotations."
     },
+    "spacr.plaque_papers.calibration_number": {
+      "source_blocks_sha256": [
+        "de6e27b12a83aeac319312b45df2a01ad8f8b6830973c677de4525b30f28de5c"
+      ],
+      "source_sha256": "de6e27b12a83aeac319312b45df2a01ad8f8b6830973c677de4525b30f28de5c",
+      "text": "Parse an optional finite calibration value without treating invalid input as missing."
+    },
+    "spacr.plaque_papers.calibration_values": {
+      "source_blocks_sha256": [
+        "372341476aabb3763d862ccc7005408d9c529181e736779e582d85144682685d",
+        "834a521bf06fa517c93801b5ce99c046a430f3ab0caf8b2604e6a2c31367be64"
+      ],
+      "source_sha256": "2a3474ecfa0f2f2d68723d6a53d0b1947217e1b59fc2556afc90c32966220739",
+      "text": "Return per-well size, scale and timing metadata for preview and saved tables.\n\nThe well diameter is the mean detected bounding-box extent, not a fitted\ncircle or a segmentation-model diameter. It remains available without a\nphysical ruler. Time is entered metadata, never inferred from plaque size."
+    },
     "spacr.plaque_papers.console_legend_prompt": {
       "source_blocks_sha256": [
         "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
@@ -33883,6 +33898,8 @@
         "672ecf8871827ea0f1885d09e0a21d78f70aad330833f03319bc40bcf03594e8",
         "9a609cfac4005c33befe2711739e76c61b6d768732bee4bf429da6017d372d7d",
         "f3956d80f95f0eb79ff24b79a64c508e25f35c62b79d3ba8f8e1620aaae3aa7b",
+        "95398ad65892f83e81ebad3893fe68968986b819e60a858705c812b40d2ed442",
+        "961ae50522bd05c8227fb902ae208b43613224e5ad74ca67f174b275813460d2",
         "406fe6668faa828388394ef97c042059a5693c4057bd15012eeef123c516503b",
         "662993d664205db434d608584dd29424b1104e26e57f67b37b9b52f85a4d3a02",
         "e780155eb7f1f44451c1dd5ef1ef39693288bbf185aa9830600738c09356e8f7",
@@ -33891,8 +33908,8 @@
         "7764fd6fdd17a2bcdb40bd226151f20a05d70fdf74234ae4cd39dda65e391c05",
         "09cf42d612d5b47499c032128788dc725afe8035690b7bcec29dad43b9b77437"
       ],
-      "source_sha256": "1270d170e504ea8097b7f33bc281f5a6d3ea7e42fe7229dd9a9d8c0e1f0911dc",
-      "text": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.\n\nNothing here stops to ask. Legends come from ``legends`` (default\n``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``,\nthe paper from ``<src>/paper.json``, and a person's edits and approvals\nfrom ``annotations`` (default ``<src>/figure_annotations.csv``), which the\nFigure preview writes. With ``confirm_each`` on, only approved images are\nmeasured and the rest are counted as waiting. A figure measured again\nreplaces its earlier rows; the same image under a second name is\nmeasured once and recorded as a duplicate -- the copy with a legend is\nthe one measured, since figures with legends are taken first.\n\n:param src: the folder of figure images.\n:param dst: output folder; default ``<src>/plaque_figures``.\n:param detector: zoo key or checkpoint for the plaque-image detector.\n:param segmenter: zoo key or checkpoint for the plaque segmenter.\n:param imgsz: detector inference sizes.\n:param confidence: minimum detector score.\n:param confirm_each: measure only images a person approved.\n:param plate_format: plate format for whole-well images.\n:param legends: CSV of legends, see :func:`read_legends`.\n:param annotations: CSV of reviews, see :func:`read_annotation_overrides`.\n:param read_text: ``fn(path) -> [Word]``.\n:param detect: passed to :func:`find_plaque_regions`.\n:param segment: ``fn(crop) -> labels``.\n:param text_options: how the text is read (:class:`TextOptions`).\n:returns: the summary, with ``awaiting_approval`` added."
+      "source_sha256": "e3051dc9c2c8599dc98d80eb9dc5c8eee5788dafb0b5f01b7050596aa69538c1",
+      "text": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.\n\nNothing here stops to ask. Legends come from ``legends`` (default\n``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``,\nthe paper from ``<src>/paper.json``, and a person's edits and approvals\nfrom ``annotations`` (default ``<src>/figure_annotations.csv``), which the\nFigure preview writes. With ``confirm_each`` on, only approved images are\nmeasured and the rest are counted as waiting. A figure measured again\nreplaces its earlier rows; the same image under a second name is\nmeasured once and recorded as a duplicate -- the copy with a legend is\nthe one measured, since figures with legends are taken first.\n\n:param src: the folder of figure images.\n:param dst: output folder; default ``<src>/plaque_figures``.\n:param detector: zoo key or checkpoint for the plaque-image detector.\n:param segmenter: zoo key or checkpoint for the plaque segmenter.\n:param imgsz: detector inference sizes.\n:param confidence: minimum detector score.\n:param confirm_each: measure only images a person approved.\n:param plate_format: plate format for whole-well images.\n:param pixels_per_um: optional positive manual pixel scale; per-well\n    annotations override this value, then automatic rulers are considered.\n:param formation_hours: optional nonnegative elapsed time in hours;\n    per-well manual times take precedence. Stored as metadata, not inferred.\n:param legends: CSV of legends, see :func:`read_legends`.\n:param annotations: CSV of reviews, see :func:`read_annotation_overrides`.\n:param read_text: ``fn(path) -> [Word]``.\n:param detect: passed to :func:`find_plaque_regions`.\n:param segment: ``fn(crop) -> labels``.\n:param text_options: how the text is read (:class:`TextOptions`).\n:returns: the summary, with ``awaiting_approval`` added."
     },
     "spacr.plaque_papers.measure_plaques_from_papers": {
       "source_blocks_sha256": [
@@ -61630,13 +61647,13 @@
     "spacr.qt.screens.train_cellpose": {
       "source_blocks_sha256": [
         "828e530a39889d7774c3d960766bb624ee75842705da71826922cb8c12b23c9f",
-        "2115c4d84027b9bc154ba34eab468a019dfea771a4bd26529b82a347612b70d2",
+        "ac8bcef40aacf7ca6b8bde21f784089a606672b2f3e8641ab937b94bd8cf41a9",
         "a4f1450c47f124f4779a68e1811920e8dc8051ec9d34e4c4b3c55c5b7cdfd0a2",
         "60c26bacd5065bc16240b10fd9b064f084bdf09e138c388bbcad3a407d5944e0",
         "e4d5ebb78dfe7389d628bed79a02eeed342544329e8f0c0ec7af9110115ed74e"
       ],
-      "source_sha256": "c354589d5d8755b9901a6276ea18827c017552d4ef5ea9e22e45b2f459e7d973",
-      "text": "Combined interface for fine-tuning and applying Cellpose models.\n\nThe workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows\nas Train and Apply tabs, each backed by its own\n:class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads\n``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints\nbeneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its\nindependent source directory and writes masks to ``<src>/masks``.\n\nWhen the active tab changes, settings named by the ``cellpose_masks``\npropagation map in :mod:`spacr.qt.preview_registry` are copied to the\ndestination tab when that tab exposes the corresponding setting. ``src`` and\n``model_name`` are not copied. On entry to Apply, the workbench searches\n``<train-src>/models/cellpose_model/models`` for checkpoints whose names begin\nwith the Train tab's ``model_name``. It prefers completed checkpoints over\nperiodic ``_epoch_`` checkpoints and selects the most recently modified\ncandidate from the preferred group. If found, that path is assigned to\n``custom_model``, which\n:func:`spacr.spacr_cellpose.identify_masks_finetune` resolves before\n``model_name``; otherwise, Apply retains its current model selection.\n\nEach tab retains its own settings model, console, Run action, drop handling,\nand any registered preview. Search, recipe, and preview integrations are\ninstalled directly because embedded tabs do not become the current page in\nthe main-window stack.\n\nThe combined screen changes only GUI registration. The ``train_cellpose`` and\n``cellpose_masks`` pipeline keys, command-line entry points, and settings-file\nformats remain available."
+      "source_sha256": "b504c63079b5b0324e07dea6b6580ae0f92be5209b6f497706afb8f137e92c67",
+      "text": "Combined interface for fine-tuning and applying Cellpose models.\n\nThe workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows\nas Train and Apply tabs, each backed by its own\n:class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads\n``src`` and ``mask_src`` (default ``<src>/masks``) and writes model checkpoints\nbeneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its\nindependent source directory and writes masks to ``<src>/masks``.\n\nWhen the active tab changes, settings named by the ``cellpose_masks``\npropagation map in :mod:`spacr.qt.preview_registry` are copied to the\ndestination tab when that tab exposes the corresponding setting. ``src`` and\n``model_name`` are not copied. On entry to Apply, the workbench searches\n``<train-src>/models/cellpose_model/models`` for checkpoints whose names begin\nwith the Train tab's ``model_name``. It prefers completed checkpoints over\nperiodic ``_epoch_`` checkpoints and selects the most recently modified\ncandidate from the preferred group. If found, that path is assigned to\n``custom_model``, which\n:func:`spacr.spacr_cellpose.identify_masks_finetune` resolves before\n``model_name``; otherwise, Apply retains its current model selection.\n\nEach tab retains its own settings model, console, Run action, drop handling,\nand any registered preview. Search, recipe, and preview integrations are\ninstalled directly because embedded tabs do not become the current page in\nthe main-window stack.\n\nThe combined screen changes only GUI registration. The ``train_cellpose`` and\n``cellpose_masks`` pipeline keys, command-line entry points, and settings-file\nformats remain available."
     },
     "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen": {
       "source_blocks_sha256": [
@@ -61733,11 +61750,11 @@
     "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.trained_checkpoint": {
       "source_blocks_sha256": [
         "5d336687c584bde546e7385c5721239ae885f827c99761874742f135b7ef1f16",
-        "0083d330262de961b24d674402e16c7553612a5d6854ed101201c210ebcd66cc",
+        "b0fd3dd089ff0975c5fe72e962635661207d1ceed1e9c7c515ed46be58a2a349",
         "10b680740e6826a7ae733997cd153a4c32eb9587ef58e88de13549db341da12f"
       ],
-      "source_sha256": "43df2ebe0e2644d1fbb19d5034a3e019ac84015a9ac7205fde9bde2ed3d2596c",
-      "text": "The newest checkpoint the Train tab's settings would have written.\n\nFound by looking, not by rebuilding the file name: the training\nmodule stamps the architecture, the epoch count and the patch size\ninto what it saves, and a second copy of that formula here would go\nstale the first time it changed. Everything under the training\n``src`` whose name starts with the model name counts; a finished\nrun's save is preferred over the periodic ones it made on the way,\nand among equals the most recently written wins.\n\n:returns: an absolute path, or ``\"\"`` when there is nothing to find."
+      "source_sha256": "e4b8b26ec2b0556c3260ea2ba4869936e0d0be23c6edeb4a60f997ec4a557a79",
+      "text": "The newest checkpoint the Train tab's settings would have written.\n\nFound by looking, not by rebuilding the file name: the training\nmodule stamps the architecture and epoch count\ninto what it saves, and a second copy of that formula here would go\nstale the first time it changed. Everything under the training\noutput folder whose name starts with the model name counts; a finished\nrun's save is preferred over the periodic ones it made on the way,\nand among equals the most recently written wins.\n\n:returns: an absolute path, or ``\"\"`` when there is nothing to find."
     },
     "spacr.qt.screens.train_cellpose.build_screen": {
       "source_blocks_sha256": [
@@ -105606,12 +105623,13 @@
     },
     "spacr.submodules.train_cellpose": {
       "source_blocks_sha256": [
-        "bb7ef8d1a57262607fcb228b959e98705d6ed41b4be54bb518d24906ba6dbb6c",
-        "e5aecaa175612029828c3b3a0e131af11fae86e6944cc9073094255e045c58cb",
-        "a7c3290316bdee44e8f2347e1323c7f1b694f07cf40a4d1cf53e4c69febec318"
+        "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
+        "469d8e68bdebf115e71e4f4d6c9731fba782bbc3cdd0ac5ecd087fb189556ef8",
+        "d297cd371f123940ac73792b2a1a2c1c9c1671d84550f6c55a83c9992bcdbe7d",
+        "68bd070f095c6f864e4a8bf8cb655ee99edbf1869fb2db981ac89179562b4e4f"
       ],
-      "source_sha256": "997c5043a34ef165c72112a202bcd4ea1b6d9630b2a485c572b1c9d6fd56adc6",
-      "text": "Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.\n\n:param settings: dict of training settings; see\n    ``get_train_cellpose_default_settings`` for keys including ``src``,\n    ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,\n    ``learning_rate``, ``weight_decay``, and ``augment``.\n:returns: None. Saves the trained model under ``<src>/models/cellpose_model``,\n    named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``."
+      "source_sha256": "687a2baa158f24804088b2beeb590008c21e4eaedc1f58045fbd7d2a58c291d9",
+      "text": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.\n\n:param settings: image folder src; optional mask_src (default src/masks),\n    validation test_src/test_mask_src, base_model, model_name, AdamW schedule,\n    channels/channel_axis, normalize/percentiles, scale_range, min_train_masks,\n    optional image limits and checkpoint controls. Legacy project/train/images\n    plus project/train/masks remains accepted when mask_src is blank.\n:returns: Cellpose's checkpoint path, training losses and validation losses.\n    Weights are written beneath save_path/models (default src/models/cellpose_model/models).\n:raises ValueError: invalid settings, unpaired images or incompatible masks."
     },
     "spacr.sudoku": {
       "source_blocks_sha256": [

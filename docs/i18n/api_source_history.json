@@ -625,6 +625,15 @@
       "source_sha256": "429175565f3e602f8c7c24de9f66c05b3677c0cb6b550743c3bfe270ad3b6b6f",
       "text": "``spacr-make-masks`` — open the mask editor on a folder, as a queue.\n\nLedger item 396 asks for a curation session that can be started from a\nterminal, pointed at a folder, bounded, and resumed. Curation is done over\nSSH and on more than one machine, and the answer until now was\n``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run\nit in the GUI\"*. That sentence is still true about the brush and false about\nthe session. This module is the session::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue` does the thinking — which fields are waiting,\nin what order, and what was already decided about each one. This module is\nthe thin part: parse four arguments, build the queue, say what the session\nis, and only then start Qt.\n\nNothing is imported from :mod:`spacr.qt` until the folder has been read and\naccepted. That order is the point of the module rather than a detail of it:\na folder that does not exist, or that holds no layout spaCR recognises, is\nanswered with a sentence on a login node with no display, not with a Qt\ncrash after a ten-second import.\n\nWhat is printed before the editor opens\n---------------------------------------\n\nThe session summary, in the ledger's own terms::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\nso a curator sees what they are resuming into, and sees it in the shell they\nstarted from rather than only in a window.\n\nOne layout opens the editor, three open the queue\n-------------------------------------------------\n\n:func:`spacr.curation_queue.detect_layout` reads three layouts. The editor\nedits ONE of them: Make Masks reads a draft from ``<folder>/masks/<stem>.tif``\nand writes the curated mask back to the same place, which is the ``nested``\nlayout and nothing else. So a ``sibling`` or ``seg`` folder is summarised,\nordered and listed by ``--dry-run`` — and the editor is refused, by name,\nwith what it would have done wrong. Opening a sibling set on its ``images``\nfolder would read and write ``images/masks``, silently orphaning every draft\nmask the set already has; that is worse than a refusal, and it is the failure\nmode the ledger's \"loaded as empty\" warning is about.\n\nExit codes::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, a folder holding no\n        recognisable layout, or a layout the editor cannot edit in place"
     },
+    "43df2ebe0e2644d1fbb19d5034a3e019ac84015a9ac7205fde9bde2ed3d2596c": {
+      "source_blocks_sha256": [
+        "5d336687c584bde546e7385c5721239ae885f827c99761874742f135b7ef1f16",
+        "0083d330262de961b24d674402e16c7553612a5d6854ed101201c210ebcd66cc",
+        "10b680740e6826a7ae733997cd153a4c32eb9587ef58e88de13549db341da12f"
+      ],
+      "source_sha256": "43df2ebe0e2644d1fbb19d5034a3e019ac84015a9ac7205fde9bde2ed3d2596c",
+      "text": "The newest checkpoint the Train tab's settings would have written.\n\nFound by looking, not by rebuilding the file name: the training\nmodule stamps the architecture, the epoch count and the patch size\ninto what it saves, and a second copy of that formula here would go\nstale the first time it changed. Everything under the training\n``src`` whose name starts with the model name counts; a finished\nrun's save is preferred over the periodic ones it made on the way,\nand among equals the most recently written wins.\n\n:returns: an absolute path, or ``\"\"`` when there is nothing to find."
+    },
     "43eb7daee23c641a5ac13dd8a41bcf7461df1d7b25cc2322dcd8eaad23616227": {
       "source_blocks_sha256": [
         "31ac35f6ad929b0b4c6b965467c17c99a84de0ff62dad444f8885eb20c2e7d63",
@@ -1300,6 +1309,15 @@
       "source_sha256": "984b92483e4852d81a1b903f3ec78685fdbfcd6ab0d61658584b5c90a4e0d160",
       "text": "Apply a trained PyTorch model to images stored in a tar archive.\n\nThe function loads a saved model, reads images from a tar-based dataset,\nperforms batched inference, post-processes prediction scores, and saves the\nresults to a CSV file.\n\n:param settings: Dictionary of inference settings. Expected keys include\n    ``tar_path``, ``model_path``, ``image_size``, ``batch_size``,\n    ``normalize``, ``n_jobs``, ``verbose``, and ``score_threshold``.\n:type settings: dict\n:return: DataFrame with processed prediction results.\n:rtype: pandas.DataFrame\n\nThe returned DataFrame contains at least the columns ``path`` and ``pred``,\nplus the columns added by ``process_vision_results``. A single-logit head is\nconverted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``,\ngiving the probability of class 1 for two classes and the winning class's\nconfidence for more. With more than two classes the frame also carries\n``predicted_label`` and one ``prob_class_<i>`` column per class, and its\n``cv_predictions`` column holds the predicted class index rather than a\nthreshold on ``pred``."
     },
+    "997c5043a34ef165c72112a202bcd4ea1b6d9630b2a485c572b1c9d6fd56adc6": {
+      "source_blocks_sha256": [
+        "bb7ef8d1a57262607fcb228b959e98705d6ed41b4be54bb518d24906ba6dbb6c",
+        "e5aecaa175612029828c3b3a0e131af11fae86e6944cc9073094255e045c58cb",
+        "a7c3290316bdee44e8f2347e1323c7f1b694f07cf40a4d1cf53e4c69febec318"
+      ],
+      "source_sha256": "997c5043a34ef165c72112a202bcd4ea1b6d9630b2a485c572b1c9d6fd56adc6",
+      "text": "Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.\n\n:param settings: dict of training settings; see\n    ``get_train_cellpose_default_settings`` for keys including ``src``,\n    ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,\n    ``learning_rate``, ``weight_decay``, and ``augment``.\n:returns: None. Saves the trained model under ``<src>/models/cellpose_model``,\n    named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``."
+    },
     "9d393915f1383bdfe4049d9a552ced48151733ee190ff73c2a311275447d1664": {
       "source_blocks_sha256": [
         "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
@@ -1651,6 +1669,17 @@
       ],
       "source_sha256": "c237fd3639e51fb1cc0cbad74d854a3195a3756543bacaaf1e735dde3d197cb7",
       "text": "Persist one token from :func:`theme_choices`."
+    },
+    "c354589d5d8755b9901a6276ea18827c017552d4ef5ea9e22e45b2f459e7d973": {
+      "source_blocks_sha256": [
+        "828e530a39889d7774c3d960766bb624ee75842705da71826922cb8c12b23c9f",
+        "2115c4d84027b9bc154ba34eab468a019dfea771a4bd26529b82a347612b70d2",
+        "a4f1450c47f124f4779a68e1811920e8dc8051ec9d34e4c4b3c55c5b7cdfd0a2",
+        "60c26bacd5065bc16240b10fd9b064f084bdf09e138c388bbcad3a407d5944e0",
+        "e4d5ebb78dfe7389d628bed79a02eeed342544329e8f0c0ec7af9110115ed74e"
+      ],
+      "source_sha256": "c354589d5d8755b9901a6276ea18827c017552d4ef5ea9e22e45b2f459e7d973",
+      "text": "Combined interface for fine-tuning and applying Cellpose models.\n\nThe workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows\nas Train and Apply tabs, each backed by its own\n:class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads\n``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints\nbeneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its\nindependent source directory and writes masks to ``<src>/masks``.\n\nWhen the active tab changes, settings named by the ``cellpose_masks``\npropagation map in :mod:`spacr.qt.preview_registry` are copied to the\ndestination tab when that tab exposes the corresponding setting. ``src`` and\n``model_name`` are not copied. On entry to Apply, the workbench searches\n``<train-src>/models/cellpose_model/models`` for checkpoints whose names begin\nwith the Train tab's ``model_name``. It prefers completed checkpoints over\nperiodic ``_epoch_`` checkpoints and selects the most recently modified\ncandidate from the preferred group. If found, that path is assigned to\n``custom_model``, which\n:func:`spacr.spacr_cellpose.identify_masks_finetune` resolves before\n``model_name``; otherwise, Apply retains its current model selection.\n\nEach tab retains its own settings model, console, Run action, drop handling,\nand any registered preview. Search, recipe, and preview integrations are\ninstalled directly because embedded tabs do not become the current page in\nthe main-window stack.\n\nThe combined screen changes only GUI registration. The ``train_cellpose`` and\n``cellpose_masks`` pipeline keys, command-line entry points, and settings-file\nformats remain available."
     },
     "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c": {
       "source_blocks_sha256": [

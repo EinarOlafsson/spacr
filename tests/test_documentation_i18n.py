@@ -197,7 +197,8 @@ TOOLS = ROOT / "tools"
 # +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
 # Starplast update APIs add five entries; the retired Demos label removes one.
 # Exact added/removed sets: features/data/411_starplast_demos_api_2026-09-23.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_483
+# Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_485
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
