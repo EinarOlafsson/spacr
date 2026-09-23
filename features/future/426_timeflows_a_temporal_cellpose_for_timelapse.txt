@@ -715,3 +715,27 @@ These measurements condition on supplied masks. Actual corrected training,
 model-own segmentation, real held-out microscopy, whole-movie stable IDs,
 lineage and promotion remain open. The live nine-pair assignment comparison
 continues with its already-imported235ef07ea code and is not restarted.
+
+2026-09-23 — NINE-PAIR MATCHING COMPARISON FINISHED, WITH TRADEOFFS
+The bounded CPU job completed successfully (serviceResult=success,exit0),
+9527.53seconds/158.79minutes;9/9pairs and18score calls. All42unique input
+files and checkpoint/metadata remain unchanged. All18cached prediction sets
+were rehashed and scored with the newly shared helper: all696object rows
+and the final summary reproduce exactly without another inference pass.
+
+On277true successors, old/new matching changes trained correct links from
+249(89.89percent) to269(97.11percent), while zero-motion rises243to267
+(96.39percent). IoU stays256(92.42percent). Thus the trained head exceeds
+new zero-motion by only2correct links overall. Among71absent successors,
+false links worsen41to47 for trained and40to45 for zero-motion; IoU35.
+For displacement>=1diameter, trained improves2/9to3/9; zero-motion andIoU
+remain0/9. Copied-frame trained andIoU controls are348/348 for both decoders.
+The random head abstains on all277successors, not a calibrated chance result.
+
+These are occurrences in related synthetic frames, not independent biological
+replicates. No model promotion: the correct-link gain has an absence tradeoff,
+and hard-motion evidence remains sparse. Training/calibration, real biological
+holdouts, model-own segmentation and whole-movie identity/lineage remain open.
+Receipt:data/426_temporal_assignment_comparison_2026-09-23.json records both
+summaries,18cache hashes, service result and provenance. Private full strata:
+implementation-20260922/timeflows-426/completed-assignment-summaries.json.
