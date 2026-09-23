@@ -1601,12 +1601,10 @@ def _status_text(entry, local) -> str:
 def _where_a_backend_is_chosen(entry) -> str:
     """Why "Use this model" is grey for a backend, and what to do instead.
 
-    Reported 2026-09-22: "i cannot use spotnet or samcell, or dinocell in the
-    make mask modual, the use this model button is grayed out". The button
-    fills in a CHECKPOINT PATH, and a backend is not a file -- it is an
-    environment with its own models, chosen by name. The row said nothing, so
-    the grey button read as a defect. It now says where the backend is used,
-    and a backend that does not segment says that it never will be.
+    The button fills a checkpoint path. A backend is an environment with
+    its own models, selected by name through the detection controls. The
+    explanation names those controls or identifies a backend that performs
+    another operation, such as spot detection rather than segmentation.
 
     :param entry: the selected catalogue entry.
     :returns: the sentence for the status line and the button's tooltip.

@@ -1481,8 +1481,8 @@ def _follow_system_was_chosen(store) -> bool:
     Until 2026-09-21 ``"system"`` was the default, and both the setup
     screen and Preferences write the value their Theme control shows when
     they are saved. So a store holding ``"system"`` without this flag was
-    most likely written by a user who never touched the control, and the
-    maintainer's rule is that such a user gets dark. :func:`set_theme`
+    most likely written by a user who never touched the control, so the
+    default is dark unless this flag records a choice. :func:`set_theme`
     sets the flag whenever ``"system"`` is chosen from now on.
 
     :param store: the preference store being read.
@@ -7596,9 +7596,7 @@ SOUND_BED_RESTS_AT = ("laptop", "extra_performance")
 def sound_is_offered() -> bool:
     """Whether this process offers sound at all: only in spaceout mode.
 
-    Maintainer, 2026-09-21: "transfer the sound tab in preferences to only
-    be visible in spaceout mode. in normal spacr sound should be off by
-    default and there should be no sound tab in preferences." Spaceout is
+    Ordinary spaCR leaves sound off and hides its preferences tab. Spaceout is
     process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by
     the ``spaceout`` launcher), so this is read live and never stored.
 

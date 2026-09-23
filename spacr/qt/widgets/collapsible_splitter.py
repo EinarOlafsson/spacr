@@ -534,9 +534,8 @@ class _PaneHandle(QSplitterHandle):
     def _paint_arrow(self, painter, pane, palette, hovered) -> None:
         """A dark tab with a chevron pointing where a click sends the pane.
 
-        The maintainer, 2026-09-22: the tab is dark grey rather than black,
-        and the mark is a stroked chevron -- "< or >" -- rather than a filled
-        triangle. Hovered or held down, the chevron and the tab's edge turn
+        The dark-grey tab carries a stroked chevron. When hovered or held
+        down, the chevron and the tab's edge turn
         the accent colour, so the thing that is about to move says so.
         """
         splitter = self.splitter()

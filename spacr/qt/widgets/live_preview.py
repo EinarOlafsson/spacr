@@ -2437,8 +2437,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
           channel spin boxes in Live settings number. More planes than those
           spin boxes can name is taken for something other than channels.
 
-        THE CAPTION IS THE CHANNEL'S INDEX, from 0 (the maintainer,
-        2026-09-21): the number the Cell / Nucleus / Pathogen channel settings
+        The caption is the channel's index, from 0: the number the
+        Cell / Nucleus / Pathogen channel settings
         take, not the ID the file name carries. The pipeline stacks the
         channels in the sorted order of their IDs (``spacr.io``), which is the
         order the columns come in, so column N is channel N; a Yokogawa
@@ -2598,14 +2598,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def _adopt_clicked_channel(self, column: int) -> bool:
         """Give the chosen object the channel of the column the user clicked.
 
-        The maintainer, 2026-09-22: the channel setting already moves the
-        table to its column (:meth:`_follow_in_table`); the click has to move
-        the setting the same way, or clicking channel 2 with cell on channel 1
-        shows channel 2 for an instant and snaps back -- "it dosnt mater what
-        channel the user clicks it is always the channel selected for the
-        object". So a click on a channel column sets the chosen object's
-        channel to that column's channel, and the view and the setting agree
-        again whichever one the user moved.
+        Clicking a channel column updates the selected object's channel
+        setting so the view stays on that channel. Changing the setting
+        follows the same mapping through :meth:`_follow_in_table`.
 
         Only with ONE object chosen: with "cell + nucleus" there is no single
         setting the click could mean, and the click just shows the channel.
@@ -3897,9 +3892,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def _follow_in_table(self, wanted: int) -> bool:
         """Move the set table to channel ``wanted``'s column, in the same row.
 
-        The maintainer, 2026-09-21: with cell chosen and cell channel 1, a
-        table showing another channel's column switches to channel 1's --
-        staying on the same field -- so what is on screen is always what the
+        With cell chosen and cell channel 1, a table showing another
+        channel's column switches to channel 1 while staying on the same
+        field, so what is on screen is what the
         object will be segmented on.
 
         :param wanted: the channel index.

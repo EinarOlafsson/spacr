@@ -497,8 +497,8 @@ class GateEditorScreen(QWidget):
     def align_side_panel(self) -> int:
         """Line the Filter / Search page up with the graph and gate table.
 
-        The maintainer, 2026-09-21: every setting above the graph is ONE row,
-        the tabs of the panel on the right sit level with that row, and the
+        Settings above the graph share one row. The tabs of the panel on
+        the right sit level with that row, and the
         containers under both start at the same height. The row is the graph
         panel's own tool row -- the table chips and the X / Y / Z pickers
         were moved into it -- so the tabs already start level with it; what

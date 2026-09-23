@@ -1,13 +1,9 @@
 """What is done to a field BEFORE and AFTER a detector looks at it.
 
-Make Masks detects on the image as it was loaded. A curator whose objects
-are faint, whose field is lit unevenly, or whose puncta sit on grainy
-background has no way to say "look at it like this instead" short of
-editing the data, and editing the data would make every mask depend on the
-contrast it was drawn at.
-
-This module is that sentence, as a chain of optional steps that the
-DETECTOR reads and the magnifier can show. Nothing here touches the array
+Make Masks can apply optional enhancement steps to help find faint objects,
+unevenly illuminated structures, and puncta on noisy backgrounds. The Apply
+control enables the configured chain for detection and image display;
+Compare previews that configuration without enabling it. Nothing here touches the array
 on disk or the array the hover readout reports: a chain is applied to a
 copy on its way into a detector and to a copy on its way onto the screen.
 
@@ -50,12 +46,8 @@ the chain is offered to every mode and not only to Otsu.
 WHAT A STEP COSTS. :func:`heavy_steps` names the switched-on steps that are
 slow enough to say so before they run -- non-local means above all, which
 is minutes on a 2,000 px field and is the reason the whole-image run keeps
-item 407's progress and Cancel. A STEP NOBODY ASKED FOR COSTS THE MOST:
-:func:`_denoise` used to reach non-local means whenever ``denoise`` was
-``"none"``, so merely choosing a background ran it over the whole field
-from a mouse-move. That was the "rolling ball crashes the program right
-away" of 2026-09-22 and it is why every step now returns its input
-untouched when it is off, rather than falling through to a default.
+its progress and Cancel controls. Every disabled step returns its input
+untouched; selecting a background method does not enable denoising.
 
 WHAT THIS IS NOT, AND WHAT IT IS NEXT TO.
 :func:`spacr.object._preprocess_batch` is the mask pipeline's own
@@ -76,10 +68,9 @@ fitted and subtracted for one curator's look at one field.
 
 WITHIN MAKE MASKS ONLY. A chain changes how objects are FOUND for a
 curator to accept or reject; it does not change a pixel on disk and it is
-not wired into the Mask module's own pre-processing. Whether it should be
--- so that a model trained on masks curated over an enhanced image sees
-the same input at inference -- is a question for the maintainer, and item
-473 says to ask before answering it.
+not wired into the Mask module's own pre-processing. Models trained on
+enhanced images require consistent preprocessing at inference; this module
+does not configure that training or inference pipeline.
 """
 from __future__ import annotations
 
@@ -121,11 +112,8 @@ HEAVY_BACKGROUND_RADIUS = 30
 #: ``(what to say, a predicate on the chain)``. Read by
 #: :func:`heavy_steps`.
 #:
-#: MEASURED, on one 1,994 px toxo vacuole field on a CPU, re-measured
-#: 2026-09-22 after the fall-through bug in :func:`_denoise` was fixed (the
-#: numbers taken before it are wrong: every chain was running non-local
-#: means whether or not it had been asked to). The chain alone, on the whole
-#: field: gamma 0.01 s, CLAHE 0.19 s, median denoise 1.30 s, a rolling ball
+#: CPU timings on one 1,994 px toxo vacuole field, for the chain alone:
+#: gamma 0.01 s, CLAHE 0.19 s, median denoise 1.30 s, a rolling ball
 #: at radius 50 and the default scale 1.07 s, at scale 1.0 14.49 s; a
 #: top-hat at radius 50 and the default scale 2.30 s, at scale 1.0 35.89 s.
 #: The one number on the card that can still turn a second into half a
@@ -285,28 +273,20 @@ MIN_BACKGROUND_SIDE = 64
 def background_surface(image: np.ndarray, chain: Chain) -> np.ndarray:
     """The slowly varying background under ``image``, at ``image``'s size.
 
-    A ROLLING BALL ON A FULL FIELD IS NOT INTERACTIVE, and that is what
-    this function exists for. Measured 2026-09-22 on one 1,994 px toxo
-    field (uint16, as float32), CPU: ``skimage.restoration.rolling_ball``
-    took 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50 --
-    the default radius. Fourteen seconds is not a crash, but it arrived on
-    the GUI thread, from a mouse-move, and a window that stops answering
-    for fourteen seconds is a window a person force-quits. It was reported
-    as "the rolling ball crashes the program right away".
+    Estimate the background on a smaller copy at
+    :attr:`Chain.background_scale`, then resize the surface to the input
+    shape. The radius shrinks with the image to preserve its relative
+    extent. This approximates slowly varying illumination while reducing
+    both the pixel count and neighbourhood size.
 
-    SO THE BACKGROUND IS ESTIMATED ON A SMALLER COPY, at
-    :attr:`Chain.background_scale`, and the surface is scaled back up. That
-    is sound rather than a corner cut: a background is by definition what
-    varies SLOWLY across the field, so it is the one thing in the image
-    that survives being looked at on a smaller copy. The radius shrinks
-    with the image, so the ball is the same ball relative to the picture.
-    Cost falls with the pixels AND with the radius, so it falls fast: at
-    the default 0.5 the same field takes about a second.
-
-    1.0 IS AN ESCAPE HATCH AND IS EXACT. At a scale of 1.0 this calls
-    ``rolling_ball`` (or ``white_tophat``) on the full field with the full
-    radius and returns precisely what scikit-image returns, for anyone who
-    wants the exact answer and will wait for it.
+    At scale 1.0, call ``rolling_ball`` or ``white_tophat`` at full
+    resolution and return its exact result. Smaller images also use full
+    resolution when downsampling would cross :data:`MIN_BACKGROUND_SIDE`.
+    Full-resolution estimation can be slow: on a 1,994 px uint16 field
+    converted to float32, CPU rolling-ball timings were 0.3 s at radius 5,
+    0.9 s at 10, 4.1 s at 25 and 14.5 s at 50. At the default radius 50
+    and scale 0.5, the same field took about a second. Timings depend on
+    the hardware and image; callers should run this outside the GUI thread.
 
     :param image: the field or region, as float.
     :param chain: the chain, for its background method, radius and scale.
@@ -381,12 +361,10 @@ def _background(image: np.ndarray, chain: Chain) -> np.ndarray:
 def _noise_sigma(unit: np.ndarray) -> float:
     """How noisy ``unit`` is, without PyWavelets.
 
-    Reported 2026-09-22: scikit-image's ``estimate_sigma`` raises
-    ``PyWavelets is not installed`` -- it is an optional dependency spaCR
-    does not carry -- and the exception came out of a mouse-move, so hovering
-    the image filled the console. The estimate here is the classic robust
-    one: the median absolute deviation of the image's Laplacian, scaled so a
-    Gaussian gives back its own sigma, which needs numpy alone.
+    Pool second differences along rows and columns, then scale their median
+    absolute deviation for independent Gaussian noise. This uses numpy
+    without the optional PyWavelets dependency required by wavelet-based
+    noise estimators.
 
     :param unit: the image, scaled to 0-1.
     :returns: the noise's standard deviation, never negative.
@@ -403,14 +381,9 @@ def _noise_sigma(unit: np.ndarray) -> float:
 def _denoise(image: np.ndarray, chain: Chain) -> np.ndarray:
     """Smooth the noise ``chain`` names away, keeping the intensities.
 
-    THE FIRST LINE IS THE ONE THAT MATTERS. Without it this function's
-    final ``else`` is reached by ``denoise="none"`` as well as by
-    ``denoise="nlm"``, so every chain with ANY step switched on ran
-    non-local means over the whole field -- minutes, from a mouse-move,
-    with no box ticked asking for it. That was reported on 2026-09-22 as
-    "the rolling ball crashes the program right away": choosing a
-    background made the chain active, and the crash was the denoiser
-    nobody had asked for.
+    ``denoise="none"`` returns the input unchanged. Other modes run only
+    the selected denoiser; enabling background correction or contrast
+    adjustment does not implicitly enable non-local means.
     """
     if chain.denoise == "none":
         return image

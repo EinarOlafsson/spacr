@@ -155,13 +155,25 @@ class TestTheFoldedPanelKey:
 
         assert remembered == {"regression.summary": True}
 
-    def test_the_widget_still_guards_it(self):
+    @pytest.mark.parametrize("key", ["", "regression.summary"])
+    def test_the_widget_still_guards_it(self, qtbot, monkeypatch, key):
+        from PySide6.QtWidgets import QLabel, QWidget
+        from spacr.qt import preferences
         from spacr.qt.widgets import foldable as F
 
-        source = inspect.getsource(F)
-        marker = source.index("def remember(shut: bool) -> None:")
-        assert "if key:" in source[marker:marker + 200]
-        assert "set_folded_panel(key, shut)" in source[marker:marker + 400]
+        writes = []
+        monkeypatch.setattr(preferences, "get_folded_panels", lambda: {})
+        monkeypatch.setattr(preferences, "set_folded_panel",
+                            lambda name, shut: writes.append((name, shut)))
+        heading, body = QLabel("Section"), QWidget()
+        qtbot.addWidget(heading)
+        qtbot.addWidget(body)
+        folder = F.make_foldable(heading, body, persist_key=key)
+        folder.set_shut(True, by_user=False)
+        assert writes == [], "automatic layout changes must not change preferences"
+        folder.set_shut(False, by_user=True)
+        folder.set_shut(True, by_user=True)
+        assert writes == ([(key, False), (key, True)] if key else [])
 
 
 class TestGuardsAfterALoopThatCannotFallThrough:

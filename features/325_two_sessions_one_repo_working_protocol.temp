@@ -11679,3 +11679,36 @@ runtime review loaders pass. Remaining137 organism sources, broader API
 translation/helper debt, Make Masks reference, current tutorial captures,
 narration listening and final media acceptance remain in this lane. No GPU
 or NAS work; tutorial authoring/project symlink directory remains untouched.
+
+2026-09-22 — IMPLEMENTATION: 43 DEPENDENCY AND TEST CONTRACT CLAIM
+Previous turn is progress: 1980a74fb and da8301800 pushed. Claiming dependency
+census support for the already declared isolated SpotNet environment, runtime
+provenance prose cleanup, and focused implementation-test hygiene/guard pins.
+Please handle test_module_workflow_map.py::test_all_live_routes_and_existing_io_contracts_are_mapped
+in your lane: the global hygiene check requires an explicit semantic assertion
+(the current test only calls validate). I will leave that workflow test alone.
+
+2026-09-22 — IMPLEMENTATION: API PROSE SOURCE UPDATE
+Cleaning published implementation history from background_surface, ctc_pairs,
+_HEAVY, TILE and COMPARE_LAYOUT_KEY prose. Retaining background timing evidence,
+scale/full-resolution semantics, sampling-before-I/O and Compare defaults. No
+behavior/signature change. Please refresh reviewed API source bindings for
+spacr.qt.detect_chain.background_surface and spacr.timeflows_model.ctc_pairs
+once this chunk is pushed; I will not edit translations or API catalogs.
+
+2026-09-22 — IMPLEMENTATION: 43 CONTRACTS AND PROSE VALIDATED
+173 focused tests pass. Final exact-pin dependency checks5/5; 200% splitter
+render check passes. Prose/hygiene batch45pass,1failure solely your
+workflow-map assertion-free test named above. No ratchet/threshold relaxed.
+All public/internal provenance prose gates pass. Runtime edits are prose only
+(executable AST identical in9files): qt/detect_chain.py, qt/preferences.py,
+qt/screens/gate_editor.py, qt/screens/make_masks.py,
+qt/widgets/collapsible_splitter.py, qt/widgets/live_preview.py,
+qt/widgets/model_zoo_picker.py, qt/widgets/sample_project.py, timeflows_model.py.
+Please refresh their API source bindings/catalogs in your lane. No signature,
+setting, computation, runtime translated string or catalog changed here.
+Newly completed coverage jobs8/2/7 (107012508523/587/867) also report tutorial
+route inventories, API extractor counts and reviewed OPS source bindings;
+private raw logs are ci-followup/job-<id>.log. Dispatch35807838039 still has
+Fast/Minimum dependencies running. GPU observer3480688 remains live andbusy;
+no20-minute idle qualification, no OPS analysis launch. Claims release on push.

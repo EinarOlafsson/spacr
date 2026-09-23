@@ -5990,11 +5990,8 @@ def _grey_pixmap(image: np.ndarray, lower_pct: float,
     return QPixmap.fromImage(picture)
 
 
-#: What the Compare window is remembered under, and the size it opens at
-#: the first time. A comparison is a LOOKING task -- the two pictures have
-#: to be big enough to see a difference in -- and the first version of this
-#: window opened at 780x440 with two 360 px thumbnails in it, which the
-#: maintainer reported as "too small to see".
+#: Saved-layout key and initial window size for the side-by-side comparison.
+#: The initial size leaves enough room to inspect both images.
 COMPARE_LAYOUT_KEY = "make_masks::compare"
 COMPARE_DEFAULT_SIZE = (1100, 700)
 
@@ -8807,9 +8804,7 @@ class MakeMasksScreen(QWidget):
         THE LIST IS NOT SETTINGS, so the Settings toggle does not take it
         away: a shortcut list that disappears the moment the screen is
         cleared for work is a list you can only read when you do not need
-        it. IT HIDES ON ITS OWN INSTEAD (the maintainer, 2026-09-22: "in make
-        masks i should also be able to hide the shortcuts like i can hide the
-        settings"): it is an EDGE pane of its own splitter, so its handle
+        it. It hides independently as an EDGE pane of its own splitter. Its handle
         folds it to the right edge and drags it wider, and the image takes
         the room it leaves.
         """
@@ -9484,22 +9479,11 @@ class MakeMasksScreen(QWidget):
         return card
 
     def _build_detection_card(self) -> Section:
-        """ONE category for what finds the objects, whatever finds them.
+        """Build the shared detection-mode selector and its method controls.
 
-        Make Masks used to carry three categories answering one question:
-        "Otsu" (the threshold's settings), "Object detection" (Cellpose's)
-        and, from the first half of item 473, "Detection methods" (the
-        organelle methods'). Only one of the three was ever being read --
-        the one the Mode box was on -- and the other two sat open in front
-        of a curator with no way to tell which. The maintainer asked for
-        them folded into one, and this is it.
-
-        THE MODE BOX MOVED IN HERE, out of Live magnifier, because the mode
-        is not a magnifier setting: it drives the detect buttons and the
-        whole-image run as well, and a category whose contents change has
-        to hold the control that changes them. Live magnifier keeps what is
-        really the box's -- its size, its zoom, its scope, its overlap
-        rule, its sensitivity.
+        The mode drives the detect buttons, whole-image runs and Live
+        magnifier. The magnifier's size, zoom, scope, overlap rule and
+        sensitivity remain in its own category.
 
         Inside, four :class:`_MethodGroup` s, of which one is shown:
         the threshold family's settings (Otsu's own, and every algorithm in
@@ -9834,13 +9818,10 @@ class MakeMasksScreen(QWidget):
         the field. The note says where it is rather than putting a second
         switch for it on this card.
 
-        THE CHAIN IS NOT WIRED INTO THE MASK MODULE. Within Make Masks it
-        changes only how objects are found for a curator to accept or
-        reject; making a mask RUN detect on an enhanced image is a
-        different decision, because a model trained on those masks would
-        then have to see the same input at inference. Item 473 asks the
-        maintainer first, and until that answer the Mask module's own
-        preprocessing is untouched.
+        Apply enables the configured chain for image display and detection;
+        Compare previews it independently. This configures Make Masks only.
+        The Mask module uses its own preprocessing settings. Training and
+        inference on enhanced images require matching preprocessing there.
         """
         card = self._settings_category(
             "Image enhancement",

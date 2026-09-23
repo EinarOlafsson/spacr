@@ -104,6 +104,9 @@ def test_a_card_revealed_by_its_parent_builds_its_body(qtbot):
     card.build_body_when_first_shown(lambda: calls.append(1))
     host.show()
     qtbot.waitUntil(lambda: calls == [1], timeout=2000)
+    host.hide()
+    host.show()
+    assert calls == [1], "revealing the parent must build the body only once"
 
 
 # -- regression ---------------------------------------------------------------

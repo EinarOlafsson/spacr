@@ -2165,3 +2165,28 @@ concurrent external QSettings writer, while confirming this process is
 sandboxed. Private logs are in implementation-20260922/ci-followup/
 home-assets-final.log and home-refresh.log; visual review covered 04/13/17.
 CI dispatch 35807838039 still has other old-revision failures to reconcile.
+
+2026-09-22 — DEPENDENCY DECLARATIONS AND BEHAVIOR CONTRACTS
+Reproduced current-source CI failures before editing. The dependency census
+now recognizes SpotNet's existing isolated installer declaration, requiring
+an exact version pin, self-test import, disabled in-process support, and all
+imports to remain inside _worker_detect_spots. Mutation checks reject missing
+pins, host mode, imports outside the worker and imports in another module.
+No SpotNet dependency was added to the host environment or setup.py.
+Replaced stale movie source-text assumptions with grayscale/one/two/three/
+four-channel writer checks, including BGR output, unchanged input and release.
+Fold persistence now exercises real automatic/user folds with/without a key.
+Added explicit lifecycle/output assertions to four formerly assertion-free
+implementation tests. Object-classifier backend doubles now check Cellpose's
+real channel-axis conversion contract. HitList's type-only data-layer import
+is included in the lazy-import audit with its runtime-cost rationale.
+Published API prose explains current behavior instead of development history;
+nine runtime files have identical executable AST after docstrings are removed.
+173 focused behavior/dependency/guard checks pass; final exact-pin checks 5/5;
+the splitter's size assertion also passes at display scale2. Documentation
+and hygiene batch:45 pass,1 remaining failure solely for the other lane's
+workflow-map validator test, handed off by exact name. No ratchet relaxed.
+Private evidence: ci-followup/contracts-second.log, isolated-dependency-final.log,
+handle-hidpi.log, prose-hygiene-final.log and check-prose-ast.py.
+This does not close feature43: the old-revision full CI still has remaining
+runtime-worker, documentation/catalog, coverage and packaging failures.

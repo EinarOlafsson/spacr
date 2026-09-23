@@ -348,7 +348,8 @@ def test_invalid_regression_counts_are_rejected(count):
 def test_backend_mask_formats_give_identical_predictions(form):
     mask = _two_cells()
     class Backend:
-        def eval(self, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
             masks = {'list': [mask], 'stack': mask[None], 'single': mask}[form]
             return masks, None, None
     options = dict(head=_Head([('cell', .9), ('artifact', .8)]), size=8)
@@ -360,7 +361,8 @@ def test_backend_mask_formats_give_identical_predictions(form):
 
 def test_backend_cannot_silently_return_multiple_fields():
     class Backend:
-        def eval(self, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
             return [_two_cells(), _two_cells()], None, None
     with pytest.raises(ValueError, match='one mask'):
         oc.segment_and_classify(Backend(), np.zeros((40, 40)))

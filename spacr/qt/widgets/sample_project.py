@@ -1,18 +1,14 @@
 """Start a sample project of the kind you have, from the Home screen.
 
-GitHub #130, 2026-09-22: "I would like to open a sample project that is
-similar to a project I may have and see the platform in action." Home shows
-every module and says nothing about which one to press first; this asks what
-kind of experiment the person has and starts it -- the first module of that
-pathway, opened with its example data already downloaded and its settings
-filled in.
+Choose an experiment type and open the first module in its pathway with
+example data and settings already supplied.
 
 THE PATHWAYS COME FROM THE SHARED MAP when it is there:
-``spacr/resources/module_workflows.json``, the one source of truth item 472
-builds for the tutorials, the walkthroughs and the API pages alike, so what
+``spacr/resources/module_workflows.json``, shared by the tutorials,
+walkthroughs and API pages, so what
 this dialog offers and what the tutorials teach cannot drift apart. Until that
-file exists the three pathways below are used, which are the ones the
-maintainer named. The selected route remains available from a walkthrough
+file exists the three fallback pathways below are used.
+The selected route remains available from a walkthrough
 button in the status bar after its example opens.
 """
 from __future__ import annotations

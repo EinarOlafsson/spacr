@@ -264,9 +264,9 @@ class TestHandles:
                 split = self._edge_split(qtbot, orientation, last)
                 at = 1
                 handle = split.handle(at)
-                handle.grab()
+                assert handle.grab().deviceIndependentSize().toSize() == handle.size()
                 split.set_collapsed("Side", True)
-                handle.grab()
+                assert handle.grab().deviceIndependentSize().toSize() == handle.size()
                 QApplication.sendEvent(handle, QEvent(QEvent.Enter))
                 QApplication.sendEvent(handle, QEvent(QEvent.Leave))
         from spacr.qt import theme
@@ -275,7 +275,8 @@ class TestHandles:
             raise RuntimeError("no theme")
 
         monkeypatch.setattr(theme, "active_palette", refuse)
-        split.handle(1).grab()
+        handle = split.handle(1)
+        assert handle.grab().deviceIndependentSize().toSize() == handle.size()
 
     def test_the_last_pane_can_be_the_edge(self, qtbot):
         split = self._edge_split(qtbot, last=True)
@@ -426,14 +427,18 @@ class TestSizing:
         vertical.resize(0, 300)
         assert vertical._height_for_width(Sulky()) == 0
 
-    def test_a_refit_after_deletion_is_harmless(self, qtbot):
+    def test_a_refit_after_deletion_is_harmless(self, qtbot, monkeypatch):
         split = cs.CollapsibleSplitter(Qt.Vertical)
+        rebalanced = []
+        monkeypatch.setattr(split, "rebalance", lambda **kw: rebalanced.append(kw))
         split._laid_out = True
         split.resizeEvent(QResizeEvent(QSize(300, 100), QSize(200, 100)))
+        assert split._refit_queued
         from shiboken6 import delete
 
         delete(split)
         _pump()
+        assert rebalanced == [], "a queued resize must not touch the deleted widget"
 
     def test_a_drag_that_leaves_an_open_edge_open(self, qtbot):
         split = _split(qtbot, Qt.Horizontal, size=(800, 300))

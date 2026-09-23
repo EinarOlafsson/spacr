@@ -184,7 +184,7 @@ def augment_pair(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
 
 #: The side of the square the Cellpose-SAM encoder takes. Its position
 #: embedding is fixed at 32 x 32 patches of 8 px; a whole 1,100 px frame fails
-#: at the first step (measured 2026-09-22), so training reads windows of this
+#: at the first step, so training reads windows of this
 #: size and prediction tiles the frame with them.
 TILE = 256
 
@@ -661,9 +661,9 @@ def ctc_pairs(movie: str, sequence: str = "01",
     :param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).
     :param sequence: ``'01'`` or ``'02'``.
     :param max_pairs: at most this many pairs, spaced evenly through the
-        movie and chosen BEFORE any file is read. Measured 2026-09-22: six
-        movies read whole do not fit in 48 GB -- the HSC and MuSC movies alone
-        are about 3,000 frames -- so a training run takes a sample of each.
+        movie and chosen before any file is read. Set this limit to bound
+        the frames loaded from long movies; loading entire collections can
+        require tens of gigabytes of memory.
     :returns: the pairs, in time order.
     """
     import os

@@ -97,6 +97,8 @@ def test_every_organelle_method_is_a_legal_organelle_method():
 
     for mode, morphology in om.MODE_MORPHOLOGY.items():
         _validate_organelle_settings(morphology, mode)
+    with pytest.raises(ValueError, match="method must be one of"):
+        _validate_organelle_settings("spots", "not-a-detection-method")
 
 
 def test_a_method_runs_through_the_organelle_engine_and_not_a_copy(
