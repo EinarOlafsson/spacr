@@ -234,6 +234,13 @@ against its current script; missing or stale translations use English and
 are listed in the candidate's `translation-compatibility.json`. Existing
 uncovered module routes remain recorded rather than blocking unrelated lessons.
 
+For an updated existing tutorial, add `--replace-existing` and name only the
+lessons being replaced. Their identifiers and module routes stay fixed. The
+builder replaces their scripts, videos and offered audio together; unrelated
+lesson objects and media remain byte-identical. Old translations fall back to
+the revised English until a review matches that source. Old narration tracks
+are not carried into a replacement lesson's available voice list.
+
 The resulting candidate still needs `verify_release_candidate.py` and
 `check_placeholder_mutations.py`, followed by the normal immutable upload,
 readback and Pages-tree steps in `publish_release_candidate.py`. A partially

@@ -115,3 +115,67 @@ def test_preexisting_route_debt_is_not_a_gate_but_lost_routes_fail():
     require_no_new_route_gaps(before, {'missing_tutorials': []})
     with pytest.raises(ValueError):
         require_no_new_route_gaps(before, {'missing_tutorials': [{'app_key': 'previously_covered'}]})
+
+
+def test_refresh_replaces_only_selected_prose_and_registers_translation_fallback(sources):
+    published, new, _ = sources
+    for catalog in published.values():
+        catalog['lessons'].append(deepcopy(new))
+        catalog['lessons'][1]['scenes'] = [{'narration': 'Old translated narration'}]
+        catalog['lessons'][1]['narration_voices'] = {'en': ['af_heart'], 'es': ['ef_dora']}
+    before = deepcopy(published)
+    voices = {new['id']: {'en': ['af_heart']}}
+    result, compatibility = append_catalogs(published, [new], voices, {}, replace=True)
+    assert published == before
+    assert len(compatibility) == 13
+    for name in CATALOGS:
+        assert [row['id'] for row in result[name]['lessons']] == ['01_existing', '02_new']
+        assert result[name]['lessons'][0] == before[name]['lessons'][0]
+        updated = result[name]['lessons'][1]
+        assert updated['scenes'] == new['scenes']
+        assert updated['narration_voices'] == {'en': ['af_heart']}
+
+
+@pytest.mark.parametrize('change', ['unknown', 'number', 'module', 'parent', 'duplicate', 'no_english'])
+def test_refresh_rejects_identity_changes_and_missing_english(sources, change):
+    published, new, _ = sources
+    fresh = {**new, 'id': '01_existing', 'number': 1}
+    voices = {fresh['id']: {'en': ['af_heart']}}
+    if change == 'unknown':
+        fresh['id'] = '99_missing'
+    elif change == 'number':
+        fresh['number'] = 9
+    elif change == 'module':
+        fresh['app_key'] = 'mask'
+    elif change == 'parent':
+        fresh['host_app_key'] = 'measure'
+    elif change == 'no_english':
+        voices[fresh['id']] = {'es': ['ef_dora']}
+    selection = [fresh, fresh] if change == 'duplicate' else [fresh]
+    before = deepcopy(published)
+    with pytest.raises(ValueError):
+        append_catalogs(published, selection, voices, {}, replace=True)
+    assert published == before
+
+
+def test_javascript_refresh_preserves_unselected_historical_objects(sources):
+    published, new, voices = sources
+    english, _ = append_catalogs(published, [new], voices, {})
+    javascript = deepcopy(english['lessons_en.json'])
+    javascript['lessons'][0]['extra_historical_field'] = 'Keep this'
+    javascript['lessons'][1]['scenes'] = [{'narration': 'Old narration'}]
+    before = deepcopy(javascript)
+    result = append_javascript_catalog(javascript, english['lessons_en.json'], 1,
+                                       replacements=['02_new'])
+    assert javascript == before
+    assert result['lessons'][0] == before['lessons'][0]
+    assert result['lessons'][1]['scenes'] == new['scenes']
+    assert result['lessons'][1]['silent'] == '02_new/video/02_new_silent.mp4'
+
+
+def test_javascript_refresh_rejects_an_unknown_identity(sources):
+    published, new, voices = sources
+    english, _ = append_catalogs(published, [new], voices, {})
+    with pytest.raises(ValueError):
+        append_javascript_catalog(english['lessons_en.json'], english['lessons_en.json'], 1,
+                                   replacements=['99_missing'])

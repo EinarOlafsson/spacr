@@ -1,4 +1,4 @@
-"""Append verified lessons to the published library without a full voice gate.
+"""Publish individual verified lessons without waiting for every voice.
 
 Existing lesson objects and hosted media are preserved from a verified release.
 New lessons expose only audio that passes current-source checks. Missing or
@@ -25,13 +25,21 @@ from stage_lesson import REPO, read, write
 from validate_candidate import validate
 
 
-def append_catalogs(published, lessons, voices, reviews):
+def append_catalogs(published, lessons, voices, reviews, *, replace=False):
     """Preserve published objects and bind each added translation to its source."""
     existing = published['lessons_en.json']['lessons']
     identities = {item['id'] for item in existing}
     numbers = list(range(len(existing) + 1, len(existing) + len(lessons) + 1))
-    if (not lessons or [item['number'] for item in lessons] != numbers
-            or len({item['id'] for item in lessons}) != len(lessons)
+    if not lessons or len({item['id'] for item in lessons}) != len(lessons):
+        raise ValueError('Select at least one unique lesson')
+    positions = {item['id']: index for index, item in enumerate(existing)}
+    if replace:
+        for item in lessons:
+            if item['id'] not in positions or any(
+                    item.get(key) != existing[positions[item['id']]].get(key)
+                    for key in ('number', 'app_key', 'host_app_key')):
+                raise ValueError('A refresh must preserve the existing lesson identity and route')
+    elif ([item['number'] for item in lessons] != numbers
             or any(item['id'] in identities for item in lessons)):
         raise ValueError('Append new, unique lessons in contiguous number order')
     for item in lessons:
@@ -60,7 +68,10 @@ def append_catalogs(published, lessons, voices, reviews):
                     status, reason = 'english_fallback', str(error)
                 compatibility.append(dict(lesson=identity, language=language, status=status, reason=reason))
             translated['narration_voices'] = deepcopy(voices[identity])
-            catalogs[filename]['lessons'].append(translated)
+            if replace:
+                catalogs[filename]['lessons'][positions[identity]] = translated
+            else:
+                catalogs[filename]['lessons'].append(translated)
     return catalogs, compatibility
 
 
@@ -91,18 +102,26 @@ def verify_tracks(stage, lesson, catalogs):
     return declared, records
 
 
-def append_javascript_catalog(published, english, count):
+def append_javascript_catalog(published, english, count, *, replacements=()):
     """Retain historical JavaScript objects independently of JSON catalogs."""
     previous = published['lessons']
-    if ([row['id'] for row in previous]
-            != [row['id'] for row in english['lessons'][:-count]]):
+    baseline = english['lessons'] if replacements else english['lessons'][:-count]
+    if [row['id'] for row in previous] != [row['id'] for row in baseline]:
         raise ValueError('JavaScript and JSON baseline lesson identities differ')
+    if replacements and (len(replacements) != len(set(replacements))
+                         or set(replacements) - {row['id'] for row in previous}):
+        raise ValueError('Refresh only unique existing JavaScript lesson identities')
     result = deepcopy(published)
-    for original in english['lessons'][-count:]:
+    selected = [row for row in english['lessons'] if row['id'] in replacements] if replacements else english['lessons'][-count:]
+    for original in selected:
         lesson = deepcopy(original)
         lesson['poster'] = f'{lesson["id"]}/poster.jpg'
         lesson['silent'] = f'{lesson["id"]}/video/{lesson["id"]}_silent.mp4'
-        result['lessons'].append(lesson)
+        if replacements:
+            position = next(i for i, row in enumerate(previous) if row['id'] == lesson['id'])
+            result['lessons'][position] = lesson
+        else:
+            result['lessons'].append(lesson)
     return result
 
 
@@ -130,7 +149,7 @@ def require_no_new_route_gaps(before, after):
         raise ValueError('Appending lessons introduced missing module routes')
 
 
-def build(stage, baseline, identities):
+def build(stage, baseline, identities, *, replace=False):
     """Create a new private candidate; never upload or modify the published tree."""
     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
     validate(baseline, include_hosted_media=True, require_browser=True)
@@ -161,20 +180,25 @@ def build(stage, baseline, identities):
             if path.exists():
                 reviews[lesson['id'], language] = read(path)
     planned = {lesson['id']: {'en': ['af_heart']} for lesson in lessons}
-    provisional, _ = append_catalogs(catalogs, lessons, planned, reviews)
+    provisional, _ = append_catalogs(catalogs, lessons, planned, reviews, replace=replace)
     checks, voices = {}, {}
     for lesson in lessons:
         identity = lesson['id']
         voices[identity], checks[identity] = verify_tracks(stage, lesson, provisional)
         print(identity, len(checks[identity]), 'current audio tracks verified', flush=True)
-    catalogs, compatibility = append_catalogs(catalogs, lessons, voices, reviews)
+    catalogs, compatibility = append_catalogs(catalogs, lessons, voices, reviews, replace=replace)
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
     records, web_checks = [], []
     for path in sorted(published.rglob('*')):
         if path.is_file():
+            relative = path.relative_to(published)
+            if replace and len(relative.parts) > 1 and relative.parts[0] == 'production' and relative.parts[1] in identities:
+                continue
             copy_checked(path, root / 'web' / path.relative_to(published), records, root)
     for record in previous['files']:
         if record['path'].startswith('media_host/'):
+            if replace and Path(record['path']).parts[1] in identities:
+                continue
             copy_checked(baseline / record['path'], root / record['path'], records, root, record['sha256'])
     for lesson in lessons:
         identity = lesson['id']
@@ -200,7 +224,7 @@ def build(stage, baseline, identities):
         write(root / 'web/catalog' / name, catalog)
     js_catalog = append_javascript_catalog(
         parse_javascript((published / 'lesson_catalog.js').read_text()),
-        catalogs['lessons_en.json'], len(lessons))
+        catalogs['lessons_en.json'], len(lessons), replacements=identities if replace else ())
     nav = navigation(catalogs['lessons_en.json'])
     require_no_new_route_gaps(previous_navigation, nav)
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
@@ -222,14 +246,17 @@ def build(stage, baseline, identities):
         raise ValueError('Candidate exceeds the existing web media budget')
     english = catalogs['lessons_en.json']['lessons']
     held = [lesson['id'] for lesson in english if lesson.get('status') == 'coming_soon']
-    report = dict(scope='Private appended release; incomplete voices and translations remain tracked',
+    report = dict(scope='Private incremental release; incomplete voices and translations remain tracked',
                   ready_lessons=len(english)-len(held), coming_soon=held, routes=len(english),
-                  catalog_languages=len(CATALOGS), narration_tracks=previous['narration_tracks'] + sum(map(len, checks.values())),
+                  catalog_languages=len(CATALOGS), narration_tracks=sum(
+                      r['path'].startswith('media_host/') and r['path'].endswith('.m4a') for r in records),
                   web_bytes=web_bytes, ceiling_bytes=previous['ceiling_bytes'],
                   media_host_bytes=sum(r['bytes'] for r in records if r['path'].startswith('media_host/')),
                   files=sorted(records, key=lambda record: record['path']), web_checks=web_checks,
                   baseline_manifest_sha256=digest(baseline / 'release-manifest.json'),
-                  preserved_lessons=len(english)-len(lessons), appended_lessons=identities,
+                  preserved_lessons=len(english)-len(lessons),
+                  appended_lessons=[] if replace else identities,
+                  refreshed_lessons=identities if replace else [],
                   outstanding_module_tutorials=nav['missing_tutorials'],
                   new_lesson_tracks=checks, translation_incompatibilities=compatibility,
                   all_workflows_demonstrated=False, native_speaker_signoff=False,
@@ -245,5 +272,7 @@ if __name__ == '__main__':
     parser.add_argument('--stage', type=Path, required=True)
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--lesson', action='append', required=True)
+    parser.add_argument('--replace-existing', action='store_true',
+                        help='Refresh only the selected existing lessons; keep all other lesson media and prose')
     args = parser.parse_args()
-    build(args.stage, args.baseline, args.lesson)
+    build(args.stage, args.baseline, args.lesson, replace=args.replace_existing)
