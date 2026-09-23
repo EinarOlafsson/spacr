@@ -1,0 +1,104 @@
+{
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-published-download/merged/PLATE1_E01_1_1.npy",
+  "source_sha256": "3e0476f47ee841697e0f06f6e0fe876a02c7fc22bf6cdf1f573048c168844214",
+  "source_dataset": "einarolafsson/spacr-example-host-pathogen",
+  "source_revision": "83b73d7a0c4f8a9ea145304c2ba90acc16768031",
+  "source_shape": [
+    1998,
+    1998,
+    7
+  ],
+  "processed_intensity_channels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "output_shape": [
+    1998,
+    1998,
+    4
+  ],
+  "output_dtype": "float32",
+  "mask_planes_processed": false,
+  "source_changed": false,
+  "elapsed_seconds": 16.22558683899115,
+  "errors": [
+    {
+      "channel": 0,
+      "blur_mse": 4167.741824158708,
+      "restored_mse": 1042.6231463572406,
+      "mse_ratio": 0.25016500309917883
+    },
+    {
+      "channel": 1,
+      "blur_mse": 448.8590162328721,
+      "restored_mse": 82.07113055338873,
+      "mse_ratio": 0.182843894375087
+    },
+    {
+      "channel": 2,
+      "blur_mse": 384.96282364636716,
+      "restored_mse": 77.73659831796041,
+      "mse_ratio": 0.20193274140510373
+    },
+    {
+      "channel": 3,
+      "blur_mse": 2099.05760115349,
+      "restored_mse": 1226.990422131066,
+      "mse_ratio": 0.5845434739174384
+    }
+  ],
+  "method": "Add a known Gaussian blur to acquired images, then deconvolve with the same kernel",
+  "calibration": "1 um/pixel and 2 um FWHM are declared verification geometry, not measured microscope calibration",
+  "limitations": "Software/numerical acceptance; no biological recovery or measured-optical-PSF accuracy claim",
+  "processing": {
+    "operation": "deconvolve",
+    "kernel": {
+      "source": "gaussian approximation",
+      "shape": [
+        9,
+        9
+      ],
+      "sampling_um": [
+        1.0,
+        1.0
+      ],
+      "kernel_sha256": "69718a920d3e99a7776b21edefd7854eaf18e003fc3a485405c0d3cecddf34b3",
+      "kernel_dtype": "float32 little-endian",
+      "normalization": "sum=1",
+      "origin": "centre pixel",
+      "details": {
+        "formula": "sigma=FWHM/sqrt(8*ln(2))",
+        "fwhm_um": [
+          2.0,
+          2.0
+        ],
+        "optical_model": false,
+        "truncate_sigma": 4.0
+      }
+    },
+    "image_sampling_um": [
+      1.0,
+      1.0
+    ],
+    "channel_axis": 2,
+    "input_dtype": "float32",
+    "output_dtype": "float32",
+    "input_shape": [
+      1998,
+      1998,
+      4
+    ],
+    "boundary": "half-sample symmetric",
+    "intensity_units": "unchanged",
+    "input_modified": false,
+    "algorithm": "spacr.reflect_psf.v1",
+    "iterations": 20,
+    "method": "Richardson-Lucy",
+    "regularization": null,
+    "epsilon_relative": 1e-07,
+    "initialization": "channel mean",
+    "sensitivity_normalization": true
+  }
+}

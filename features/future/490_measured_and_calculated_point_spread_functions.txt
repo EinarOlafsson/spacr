@@ -1,6 +1,6 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: NOT IMPLEMENTED. Explicit user request; record added2026-09-23.
+Status: IN PROGRESS. Numerical engine validated2026-09-23; UI/pipeline wiring remains.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -19,3 +19,31 @@ use source or processed intensities. Validate synthetic known-convolution
 behavior and representative microscopy data before offering downstream use.
 API descriptions/tooltips/animations and translated tutorials belong in the
 shared documentation handoff. No claim of biological recovery from appearance.
+
+2026-09-23 — NUMERICAL ENGINE IMPLEMENTED; INTEGRATIONS REMAIN
+spacr.point_spread supports calibrated2D/3D measured TIFF/NPY kernels and
+explicit sampled Gaussian approximations from FWHM/spacing. Immutable kernel
+bytes retain normalized shape/sampling/hash and source-file SHA256. Odd spatial
+axes, finite nonnegative positive signal and calibrated sampling are checked;
+NPY/TIFF shapes are bounded before decoding. No implicit channel interpretation,
+kernel resampling, optical inference, integer clipping or source mutation.
+Convolution and Richardson–Lucy use half-sample symmetric boundaries. The
+adjoint folds boundary contributions exactly, with sensitivity normalization;
+an independent dense direct-convolution matrix verifies asymmetric-kernel RL.
+Each channel is independent; cancellation checks separate expensive operations.
+Outputs are float32 in original intensity units; all settings enter provenance.
+
+64 focused checks pass; branch-inclusive module coverage92.90%. Real public
+THP1/RNF213 field1998x1998x4 processed in16.23s CPU under4GiB cap. Added known
+Gaussian blur then deconvolved20iterations; MSE ratios relative to blurred
+image were0.250,0.183,0.202,0.585. Source unchanged, all mask planes excluded.
+Calibration1um/px and2um FWHM are declared verification geometry, not measured
+microscope calibration. This proves numerical/software behavior, not biological
+recovery. Receipt: features/data/490_psf_microscopy_acceptance_2026-09-23.json.
+
+Remaining: Make Masks controls and Compare/Apply/provenance integration;
+Mask/Measure settings and processing with explicit intensity source; actual
+measured optical PSF/application acceptance; docs/API/tooltips/translations.
+Do not mark490complete from numerical checks alone.
+Primary references: SciPy fftconvolve documentation and scikit-image
+Richardson–Lucy documentation, linked in spacr.point_spread's module docstring.
