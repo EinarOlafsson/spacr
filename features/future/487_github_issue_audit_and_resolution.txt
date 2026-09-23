@@ -1,0 +1,40 @@
+487 — GITHUB ISSUE AUDIT AND RESOLUTION
+======================================
+Status: IN PROGRESS. User explicitly requested all issues and discussions be
+read, resolved and then commented on and closed. Snapshot2026-09-23:103 issues,
+9 open. Pull requests excluded. Historical closure is not proof of current
+correctness; check relevant code, tests and any unresolved trailing comments.
+
+Runtime lane owns issue updates. Coordinate #130 with the documentation lane
+in325; it owns API/tutorial/translation delivery. Never close an issue merely
+because a related feature exists. Distinguish nightly fixes from released builds.
+
+133 — CLOSED after revalidating pointer-anchored zoom from d8fa55897.
+128 — CLOSED after five real settings-dialog visibility/scrolling checks passed;
+      existing fix7f04a5790 keeps OK/Cancel outside the scrolling form.
+125 — Tour clipping: implemented and tested, exclude highlight from shade instead of
+      clearing the window backing store; highlight menu-bar action geometry;
+      responsive card bounded to visible screen, scroll long explanations.
+126 — Annotate navigation clipping: implemented and tested; actions wrap at full size.
+127 — Seven separate requests: terminology; automatic reopen after update;
+      functional in-app update; pixel diameter measurement; preview prominence;
+      adaptable laptop layout; plaque cropping freeze. Audit each separately.
+129 — Installer version synchronization: nightly installer archive currently
+      lags published release. Check release generator, public site, and all
+      download entry points; add a consistency guard without inventing assets.
+130 — Home onboarding/sample project/module links: substantial implementation
+      exists; documentation/media delivery and original tile failure need review.
+131 — macOS signing: institutional request submitted by maintainer. Check
+      automation; actual credentials/notarized build remain an external dependency.
+132 — Cluster Mask QC report: full discussion read. Statistical heuristics make
+      unsupported causal claims (biology ruled out, illumination correction
+      guaranteed); stale card also reported. Inspect scoring/freshness before
+      changing severity. No raw images/settings supplied to diagnose that run.
+
+All initial open issue bodies and discussions have been read, including #132's
+full console report. Historical issue audit is ongoing; no all-issues-complete
+claim. Raw downloaded discussions remain outside the repo in task scratch.
+
+GUI verification:160 related checks pass. Nine localized pathway checks expose
+missing translations of a previously added import action; handed to docs lane,
+not weakened or falsely counted as passes. Offscreen visual review completed.

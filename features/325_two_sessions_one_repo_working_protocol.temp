@@ -14030,3 +14030,25 @@ features/data/411_pipeline_descriptions_and_incoming_guides_2026-09-23.json.
 Committing this verified snapshot before rebasing the incoming runtime commits.
 No media or website deployment is claimed. Next priority: explicit English
 publication support, retaining strict English/source/rendered-link checks.
+
+2026-09-23 — ISSUE AUDIT / PIPELINE CLICK / GUI FIXES
+#133 zoom and #128 Annotate settings footer verified, commented and closed;
+comments explicitly distinguish nightly fixes from the public installers.
+New request: any part of a pipeline row now selects that pipeline, including
+blank diagram space/margins. Node/edge highlighting and pan gestures preserved.
+#125 tour: remove backing-store Clear painting, correct hidden/native menu
+highlight geometry, bound card to visible screen, scroll long text with actions
+outside scroll. #126 Annotate toolbar now wraps full-size buttons. No new
+translated text in these fixes. Please reflect the interaction/layout changes
+in future tutorial captures. Regression verification in progress. Feature487
+tracks remaining GitHub audit; #130 needs your remaining-delivery status.
+GUI verification:160 checks passed across tour, Annotate, pipeline cards,
+diagrams and navigation. Nine localized pathway checks FAIL because the
+existing external-mask import action remains English in sv/de/es/zh_CN/pt/hi/
+ko/is/fr: 'If segmentation already exists, import the matching images and
+external masks into a spaCR project and inspect the resulting object identities.
+Skip segmentation and proceed to Measure when its required arrays are present.'
+Please include this missing source string and the newer Host–Pathogen steps in
+your catalog refresh. Runtime/layout tests pass; no translation test weakened.
+Offscreen screenshots inspected: Annotate full captions wrap onto rows; tour
+keeps its content and actions inside the window without clearing the backing.

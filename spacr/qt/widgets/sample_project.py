@@ -16,7 +16,7 @@ import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem,
@@ -223,6 +223,9 @@ class SampleProjectDialog(DiagramDialog):
             self.diagrams.append(diagram)
             item.setSizeHint(QSize(1100, 460))
             self.list.setItemWidget(item, row)
+            for child in [row, *row.findChildren(QWidget)]:
+                child.setProperty('pipelineRow', index)
+                child.installEventFilter(self)
         self.list.setCurrentRow(0)
         self.splitter = diagram_splitter(self)
         self.splitter.addWidget(self.list)
@@ -247,6 +250,14 @@ class SampleProjectDialog(DiagramDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+    def eventFilter(self, watched, event):
+        """Select a pipeline from any part of its row, preserving pan and clicks."""
+        if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+            row = watched.property('pipelineRow')
+            if row is not None:
+                self.list.setCurrentRow(int(row))
+        return super().eventFilter(watched, event)
 
     def _describe_graph_item(self, identifier):
         """Outline the matching persistent card without changing row geometry."""

@@ -2803,10 +2803,10 @@ class AnnotateScreen(QWidget):
         outer.addWidget(header)
         outer.addWidget(Divider())
 
-        toolbar = QWidget()
-        row = QHBoxLayout(toolbar)
+        from ..widgets.flow import FlowHost, FlowLayout
+        toolbar = FlowHost()
+        row = FlowLayout(toolbar, spacing=SPACING["sm"])
         row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["sm"])
         self._btn_open = QPushButton("Open source…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
@@ -2960,7 +2960,6 @@ class AnnotateScreen(QWidget):
         self._btn_clear.clicked.connect(self._on_clear_column)
         row.addWidget(self._btn_clear)
 
-        row.addStretch(1)
         self._btn_test_data = QPushButton(tr("Load test data"))
         self._btn_test_data.setCursor(Qt.PointingHandCursor)
         self._btn_test_data.setToolTip(tr(

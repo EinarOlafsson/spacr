@@ -131,3 +131,9 @@ A single cubic tangent meets each arrowhead at its base center, replacing the
 previous straight shoulder. Persistent selection borders and thin blue splitter
 remain. Focused validation across the changed UI/schema paths: 1096 passed;
 rendered pipeline and dictionary views inspected. Documentation handoff in 325.
+
+2026-09-23 — SELECT A PIPELINE FROM ITS WHOLE ROW
+A left click anywhere in a pipeline row selects it and refreshes its detail
+cards: title, margins, empty diagram space, nodes, edges and scrollbar areas.
+The event is observed without swallowing it, so diagram panning and item
+selection retain their normal behavior. Five click-target regressions pass.
