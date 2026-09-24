@@ -669,7 +669,7 @@ Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett
 Handledningar
 ~~~~~~~~~~~~~
 
-Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ innehåller berättade och textade genomgångar av installationen och varje programflöde: 73 lektioner med 50 röster på åtta språk.
+Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ visar installation och användning av moduler steg för steg. Tillgänglig berättarröst och språk anges för varje lektion.
 
 Citera spaCR
 ~~~~~~~~~~~~

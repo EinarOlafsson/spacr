@@ -6671,6 +6671,8 @@ UI = {
     'Segmentation: {methods}.': '분할: {methods}.',
     'Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.': '미리보기는 불러온 시야와 해당 시야 내부의 정규화를 사용합니다. 전체 Mask 실행은 배치 정규화와 조명 보정을 사용할 수 있어 마스크가 다를 수 있습니다. 강도 필터는 원본 미리보기 픽셀을 사용합니다.',
     'Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.': '정량적 특징에 일반 Measure 강도 또는 보정된 PSF로 처리한 강도를 선택합니다. PSF 처리는 표준 재조정과 등록된 전처리 단계 뒤에 수행됩니다. 원본 파일과 내보낸 크롭은 기존 픽셀을 유지하며, 데이터베이스의 처리 이력에 선택 항목과 정확한 커널이 기록됩니다. 변경된 커널을 기존 측정값과 혼합할 수 없습니다.',
+    'Host–Pathogen': '숙주–병원체',
+    'Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.': 'Invasion Assay는 숙주 세포에 부착된 기생충과 세포 안으로 들어간 기생충을 구분합니다. Recruitment는 기생충을 포함한 액포 주변의 숙주 단백질 농축을 측정합니다. 숙주–병원체는 액포 수준의 리크루트먼트, 기생충 수, 숙주 세포 감염 지표의 분모를 하나의 분석에 결합합니다. 개별 기생충 수를 세려면 적절한 기생충 마스크나 검증된 추정 방법이 필요하며, 액포 전체의 마스크만으로는 이 수를 얻을 수 없습니다. 이 모듈들을 함께 사용하면 침입의 변화와 침입 후 숙주 반응의 변화를 구분하는 데 도움이 됩니다. 두 집단을 구분할 수 있는 영상 채널과 표지자 정의를 선택하세요.',
 }
 
 MODULE_SUMMARIES = {
@@ -13466,4 +13468,6 @@ SOURCE_HASHES = {
     ('SETTING_LABELS', 'psf_operation'): 'c98412b92da4443332053dee4db6f328b81d747008c7344b885702306b13adb7',
     ('SETTING_LABELS', 'psf_path'): '11cbcc8c1921deab667ff9aa82317ae13b6e9720a121904bd34e7e94554e6b03',
     ('SETTING_LABELS', 'psf_source'): 'c9a272a1b2baac77be9358a6ce5654af26d4932a408f1c806c69de62c6df4a5c',
+    ('UI', 'Host–Pathogen'): '4c412cc95aa2cb17f6e0845eb10053d19c10cdd3303bd167cf972ce50362302e',
+    ('UI', 'Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.'): '9e911ea8fe2901d8809fb0145ca76fb04d1288ad1a4227464425c899dd863134',
 }

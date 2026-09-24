@@ -752,8 +752,9 @@ def test_setting_animations_are_wired_into_readme_and_docs():
     # 86 referenced GIFs are present, no GIF is left unreferenced, and
     # the README links the gallery and registry pages rather than any
     # GIF, so nothing on the front page is broken by the deletion.
-    assert gallery.count(".. _setting-animation-") == 86
-    assert gallery.count(".. image:: ../../spacr/resources/") == 86
+    assert gallery.count(".. _setting-animation-") == 87
+    assert gallery.count(".. image:: ../../spacr/resources/") == 87
+    assert "**Settings:** ``psf_fwhm_um``" in gallery
     assert ":mod:`spacr.setting_animations`" in gallery
 
 

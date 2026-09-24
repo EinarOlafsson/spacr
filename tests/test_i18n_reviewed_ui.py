@@ -20,23 +20,28 @@ from i18n_reviewed_ui import LANGUAGES, REVIEWED_UI_TRANSLATIONS  # noqa: E402
 # and a ROUTE in Icelandic (leiðin) -- all three are "path" in the sense of a
 # way to walk, and none is the sense of a source directory.  The reviewed row
 # is the fix, and the pin moves with it rather than after it.
-# 2026-09-23: ten organism/flowchart additions since 01a1cc3c4, and one
-# retired caption ("Plates"). Existing surviving translations are unchanged.
+# 2026-09-23: organism captions, three flowchart controls, and Save template
+# replace the retired Plates and Save recipe captions. Surviving rows are unchanged.
 REVIEWED_UI_ADDED_SINCE_87 = {
     "Biofilm", "Cytosol", "Filamentation", "Golgi", "None declared",
     "Rhoptries", "Vacuole", "cytosol", "rhoptries 1", "rhoptries 2",
+    "Fit", "Save template",
+    "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.",
+    "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.",
 }
-REVIEWED_UI_SOURCE_COUNT = 96
-REVIEWED_UI_SOURCE_SHA256 = "f4ee698624947edc011706b0960ff4817d8447c7a75d1a954b5e4e4df788a603"
-REVIEWED_UI_CONTENT_SHA256 = "5a8b993b0af899ed194085efbda7443e51f16a4700aef555e2b698aa607aaed0"
+REVIEWED_UI_REMOVED_SINCE_87 = {"Plates", "Save recipe"}
+REVIEWED_UI_SOURCE_COUNT = 99
+REVIEWED_UI_SOURCE_SHA256 = "2297822cfe2c67022c3897dfb0d26790b5f4651b69278e6c6b02b2faf6b29036"
+REVIEWED_UI_CONTENT_SHA256 = "e10495ddb859192ac68deda6c017eaa06e0ff3a58fd8587437ab017e4d631c65"
 
 
 def test_reviewed_ui_vocabulary_is_complete_and_pinned():
     """Every reviewed source must provide a nonblank value in every locale."""
     assert len(REVIEWED_UI_TRANSLATIONS) == REVIEWED_UI_SOURCE_COUNT
     assert REVIEWED_UI_ADDED_SINCE_87 <= set(REVIEWED_UI_TRANSLATIONS)
-    assert "Plates" not in REVIEWED_UI_TRANSLATIONS
-    assert len(set(REVIEWED_UI_TRANSLATIONS) - REVIEWED_UI_ADDED_SINCE_87) + 1 == 87
+    assert not REVIEWED_UI_REMOVED_SINCE_87 & set(REVIEWED_UI_TRANSLATIONS)
+    assert (len(set(REVIEWED_UI_TRANSLATIONS) - REVIEWED_UI_ADDED_SINCE_87)
+            + len(REVIEWED_UI_REMOVED_SINCE_87)) == 87
     digest = hashlib.sha256("\0".join(sorted(REVIEWED_UI_TRANSLATIONS)).encode("utf-8")).hexdigest()
     assert digest == REVIEWED_UI_SOURCE_SHA256
     content_digest = hashlib.sha256(
@@ -122,6 +127,10 @@ def test_reviewed_ui_vocabulary_rejects_the_known_false_sense_families():
     for source, row in rows.items():
         for language, value in row.items():
             folded = value.casefold()
-            if any(marker in folded for marker in contamination):
+            allowed = {"빈 공간"} if language == "ko" and source == (
+                "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. "
+                "Fit shows the whole map."
+            ) else set()
+            if any(marker in folded for marker in contamination if marker not in allowed):
                 failures.append(f"{language}:{source!r} -> {value!r}")
     assert not failures, "reviewed false-sense contamination:\n" + "\n".join(failures)

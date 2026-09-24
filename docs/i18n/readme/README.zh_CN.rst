@@ -669,7 +669,7 @@ spaCR is released under the `BSD 3 条款许可证 <https://github.com/EinarOlaf
 教程
 ~~~~~~~~~
 
-`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和各应用工作流程的配音、字幕教程，共有 73 节课程、50 种语音，涵盖八种语言。
+`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。
 
 引用 spaCR
 ~~~~~~~~~~~~

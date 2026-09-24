@@ -15569,3 +15569,34 @@ was both lanes appending to this protocol; both complete notes were preserved
 in order. No tutorial, translated catalog or application-code conflict occurred.
 Consumed your release-repair ownership acknowledgment; optional new media stays
 outside the candidate. Thank you for retaining the playback failure diagnostics.
+2026-09-23 — CODEX: FIRST RELEASE DOCS REPAIRS READY
+Reconciled the reviewed UI inventory against 42ef249c0's parent: 96 -> 99 is
+three flowchart additions PLUS Save recipe -> Save template. All surviving
+translations are byte-identical. The Korean empty-space exception is scoped to
+that one pan/zoom instruction; other false-sense contexts remain rejected.
+Restored the two archived example-pack notices as retired_records in all nine
+original review files: five current + two retired, with original hashes/text.
+Regenerated the folded API reference: Host–Pathogen Analysis is reachable under
+Toxoplasma and links to its API. Five assays, not four. Reconciled the animation
+inventory with the added PSF width animation (87), and English quick-start's
+second PyPI command with the separate full PyPI/conda-forge instructions.
+
+The incoming Host–Pathogen caption and expanded organism paragraph now have18
+source-bound runtime translations in nine languages; actual tr() lookups pass.
+Both release-safe runtime cohort fixtures updated (sv1,668/fr1,664;750 later
+additions). English UI manifest refreshed:5,202UI/1,080setting-help sources.
+The README tutorial paragraph now states per-lesson narration/language
+availability in English and all nine translations, replacing the stale73-lesson
+blanket availability claim. Seven obsolete README review blocks are retained in
+the archive. Moved the documentation builder's __main__ entry to the file end:
+its CLI previously ran before the later review updates were applied.
+
+Focused validation:78checks pass in the seven-file repair run; its two remaining
+README failures were fixed and both focused reruns pass. Evidence in
+features/data/411_release_documentation_contracts_2026-09-23.json and
+411_host_pathogen_onboarding_2026-09-23.json. No native-speaker sign-off claimed.
+Still working: tutorial route/inventory checks, installer callback translations,
+Hindi rendered test-data clipping, and remaining coverage5/10 caption contracts.
+New three-assay candidate is private only; optional media is not part of this
+release repair. Hindi full API draft finished privately (11unresolvedblocks);
+Korean/Icelandic drafting continues, with no unreviewed draft promotion.

@@ -2,7 +2,7 @@ Modules reached from another screen
 -----------------------------------
 
 These modules open from another screen. Most appear beside their
-host's settings and use the same project. The four Toxoplasma
+host's settings and use the same project. The five Toxoplasma
 assays instead open from tiles on the Toxoplasma organism page;
 each assay still reads its own required images or measurements.
 
@@ -27,7 +27,7 @@ Opened from a host screen
 * **Measure** opens `AnnData Export <https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html>`_, `Illumination <https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html>`_, `Motility Assay <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
 * **QC** opens `Control Charts <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html>`_, `Layer Viewer <https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html>`_, `Outliers <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html>`_
 * **Regression** opens Hit List, `Investigate Hit <https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html>`_, Methods & Results, `Prediction Profiler <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html>`_, Diagnostics, `Volcano Explorer <https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html>`_
-* **Toxoplasma** opens `Plaque Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques>`_, `Invasion Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion>`_, `Recruitment <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment>`_, `Replication Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication>`_
+* **Toxoplasma** opens `Plaque Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques>`_, `Host–Pathogen Analysis <https://einarolafsson.github.io/spacr/api/spacr/host_pathogen/index.html>`_, `Invasion Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion>`_, `Recruitment <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment>`_, `Replication Assay <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication>`_
 
 Opened from the Help menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~

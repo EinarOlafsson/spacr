@@ -43,5 +43,21 @@
       "source_sha256": "bf3e16003a8ca5391dcf9cfb76d1539e18b7a19a554705d47ea00f6ee60b0f73",
       "translation": "[example] {applied} stillingar úr {name} voru færðar inn í eyðublaðið; {accepted} CSV-lyklar voru samþykktir."
     }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "translation": "Dæmigagnasafnið var hlaðið inn ásamt stillingum þess. Veldu Live Preview til að sjá eitt sjónsvið eða Run til að vinna úr plötunni."
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "translation": "Dæmigagnasafnið var hlaðið inn án stillingapakka; sjálfgefnar stillingar eru notaðar. Veldu Live Preview til að sjá eitt sjónsvið eða Run til að vinna úr plötunni."
+    }
   ]
 }

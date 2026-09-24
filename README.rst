@@ -101,9 +101,8 @@ Try spaCR
    python -m pip install "spacr[qt]"
    spacr
 
-A first run needs no data: Import, Make Masks, Annotate and the assay screens
-each download an example dataset from a **Load test data…** button.
-``spacr-download`` fetches them from a terminal.
+Use **Load test data…** in Import, Make Masks, Annotate or an assay screen
+to download example data. From a terminal, use ``spacr-download``.
 
 Hardware support
 ~~~~~~~~~~~~~~~~
@@ -202,7 +201,8 @@ and the GPU compatibility tables.
 PyPI installation
 -----------------
 
-Python 3.12 has the widest choice of optional scientific packages:
+For the PyPI release, install spaCR with pip inside a Conda
+environment. Python 3.12 has the widest choice of optional scientific packages:
 
 .. code-block:: bash
 
@@ -787,9 +787,8 @@ Tutorials
 ~~~~~~~~~
 
 The `interactive spaCR tutorial library
-<https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated,
-captioned walkthroughs of installation and of each application workflow, in
-73 lessons with 50 voices across eight languages.
+<https://einarolafsson.github.io/spacr/tutorials/>`_ provides installation and
+module walkthroughs. Available narration and languages are listed for each lesson.
 
 Citing spaCR
 ~~~~~~~~~~~~

@@ -7068,10 +7068,6 @@ def main() -> int:
     return audit(docs, args.languages)
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
-
-
 # ============================================================================
 # RETIRED 2026-09-04, ON THE MAINTAINER'S ANSWER TO INSTRUCTION 316.
 #
@@ -7195,3 +7191,38 @@ REVIEWED_README_BLOCKS_ARCHIVE.update({
     for source in _SUPERSEDED_README_BLOCKS_2026_09_04
     if source in REVIEWED_README_BLOCKS
 })
+
+_SUPERSEDED_README_BLOCKS_2026_09_23 = (
+    'spaCR in slides',
+    'spaCR in slides: every module and the trained models, in 51 slides',
+    'A tour of every module and the trained models in 51 slides. Flip through them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_ (arrow keys or swipe), or page through the `PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.',
+    'slide viewer',
+    'PDF on GitHub',
+    'See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions.',
+    _TUTORIAL_LIBRARY_SOURCE,
+)
+REVIEWED_README_BLOCKS_ARCHIVE.update({
+    source: REVIEWED_README_BLOCKS.pop(source)
+    for source in _SUPERSEDED_README_BLOCKS_2026_09_23
+    if source in REVIEWED_README_BLOCKS
+})
+
+_CURRENT_TUTORIAL_LIBRARY_SOURCE = (
+    'The `interactive spaCR tutorial library <https://einarolafsson.github.io/spacr/tutorials/>`_ '
+    'provides installation and module walkthroughs. Available narration and languages are listed for each lesson.'
+)
+REVIEWED_README_BLOCKS[_CURRENT_TUTORIAL_LIBRARY_SOURCE] = {
+    'sv': 'Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ visar installation och användning av moduler steg för steg. Tillgänglig berättarröst och språk anges för varje lektion.',
+    'de': 'Die `interaktive spaCR-Tutorialbibliothek <https://einarolafsson.github.io/spacr/tutorials/>`_ führt durch die Installation und die Verwendung der Module. Verfügbare Vertonungen und Sprachen werden für jede Lektion angegeben.',
+    'es': 'La `biblioteca de tutoriales interactivos de spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ ofrece guías de instalación y uso de los módulos. Cada lección indica la narración y los idiomas disponibles.',
+    'zh_CN': '`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。',
+    'pt': 'A `biblioteca de tutoriais interativos do spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ oferece guias de instalação e uso dos módulos. Cada aula indica a narração e os idiomas disponíveis.',
+    'hi': '`spaCR की इंटरैक्टिव ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में इंस्टॉलेशन और मॉड्यूल के उपयोग की चरण-दर-चरण जानकारी है। हर पाठ में उपलब्ध नैरेशन और भाषाएँ दी गई हैं।',
+    'ko': '`spaCR 대화형 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_는 설치와 모듈 사용을 단계별로 안내합니다. 각 강의에는 사용 가능한 내레이션과 언어가 표시됩니다.',
+    'is': '`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ leiðir þig í gegnum uppsetningu og notkun eininganna. Hver kennslustund tilgreinir hvaða upplestur og tungumál eru í boði.',
+    'fr': 'La `bibliothèque de tutoriels interactifs spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ guide l’installation et l’utilisation des modules. Chaque leçon indique les narrations et les langues disponibles.',
+}
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -102,7 +102,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         for record in json.loads(path.read_text())["records"]
     }
     additions = later_sources - earlier_sources
-    assert len(additions) == report["later_distinct_additions"] == 748
+    assert len(additions) == report["later_distinct_additions"] == 750
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     return sources | additions
@@ -338,7 +338,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 641
     assert len(older_all_sources) == 646
     assert len(all_reviewed.keys() - subsequent_sources) == 657
-    assert len(all_reviewed) == 1666  # 931 - 9 - 4 + 748; source identities pinned above.
+    assert len(all_reviewed) == 1668  # 931 - 9 - 4 + 750; source identities pinned above.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -563,7 +563,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources) == 340
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 351
     assert len(all_reviewed.keys() - subsequent_sources) == 654
-    assert len(all_reviewed) == 1662  # 926 - 9 - 3 + 748; source identities pinned above.
+    assert len(all_reviewed) == 1664  # 926 - 9 - 3 + 750; source identities pinned above.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
