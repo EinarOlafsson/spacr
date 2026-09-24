@@ -17177,3 +17177,10 @@ JSON digit strings remain equivalent; malformed ratios raise ValueError.
 Parameter prose updated (signature/settings unchanged).5baseline failures
 fixed;45analysis/preview checks92.39%coverage plusJSONparity pass. Please
 refresh this API entry/translation; tutorials can keep ordinary integer keys.
+
+2026-09-24 — IMPLEMENTATION: PSF CONTROL VALIDATION490/288
+20PSFchecks pass;98.65%controls coverage. Real measured/Gaussian kernels,
+calibration refusals, picker cancellation and closed-control publication are
+covered in addition to the existing background Compare/Apply checks. Test-only
+change; no public API/settings/tutorial change required. Integrating your four
+new nightly commits before pushing this and the strict host-marker key fix.

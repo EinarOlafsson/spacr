@@ -226,3 +226,12 @@ best-settings PSF is not independently verified as an exact optical-setting
 match to this bead acquisition. GUI/integration evidence remains the prior
 checks; this is an additional3DCPU engine acceptance. API/tutorial/animation
 and translation follow-up still belongs to the documentation lane.
+
+2026-09-24 — Captured PSF request validation and picker behavior
+Added focused checks that execute captured kernel work with real NPY kernels
+and Gaussian construction. Measured/Gaussian readiness, missing files, absent
+calibration, mismatched sampling and incompatible volume sampling publish the
+expected ready/error state without rewriting kernel bytes. Cancelled file
+selection preserves the prior path; closed controls ignore late publication.
+Existing background/cancellation/Compare/Apply tests remain enabled.20checks
+pass; controls coverage98.65%including branches. No runtime/settings change.

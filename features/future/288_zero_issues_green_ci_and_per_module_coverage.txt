@@ -5401,3 +5401,11 @@ pass at92.39%module coverage; JSON roundtrip parity passes separately. Tests
 also reject missing/invalid identities, absent marker columns, missing times,
 invalid replication counts and host/parasite disagreement without inventing
 counts or shrinking denominators. Thresholds/exemptions/baseline unchanged.
+
+2026-09-24 — PSF control boundary coverage
+20PSFcontrol tests pass,98.65%module coverage. New captured-work cases use real
+kernel files and Gaussian construction to validate calibration and visible
+failure states; picker cancellation preserves the prior path and late results
+do not update closed controls. Existing asynchronous execution checks still
+prove background scheduling and cancellation; these unit cases exercise the
+request's validation/publication boundary. No model/algorithm behavior changed.

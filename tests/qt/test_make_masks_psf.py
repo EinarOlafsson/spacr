@@ -44,6 +44,73 @@ def test_default_psf_is_off_and_does_not_invent_calibration(screen):
     assert 'point_spread/index.html#spacr.point_spread.apply_psf' in widget.operation.property('apiTooltipHtml')
 
 
+@pytest.mark.parametrize('case,error', [
+    ('gaussian', ''), ('measured', ''), ('uncalibrated', 'positive image pixel'),
+    ('missing_file', 'Choose a measured PSF file'),
+    ('different_sampling', 'spacing must match'),
+    ('volume', '3 positive finite values'),
+])
+def test_captured_kernel_request_validates_calibration_before_publication(
+        qtbot, monkeypatch, tmp_path, case, error):
+    """Exercise captured request validation; background scheduling is checked separately."""
+    widget = controls._PSFControls()
+    qtbot.addWidget(widget)
+    submitted = []
+    monkeypatch.setattr(widget._jobs, 'submit',
+                        lambda work, complete: submitted.append((work, complete)))
+    path = tmp_path / 'kernel.npy'
+    np.save(path, np.ones((3, 3, 3) if case == 'volume' else (3, 3)))
+    original = path.read_bytes()
+    try:
+        for spin in (widget.image_y, widget.image_x, widget.kernel_y,
+                     widget.kernel_x, widget.fwhm_y, widget.fwhm_x):
+            spin.setValue(.2)
+        if case != 'gaussian':
+            widget.source.setCurrentIndex(widget.source.findData('measured'))
+        if case != 'missing_file':
+            widget.path.setText(str(path))
+        if case == 'uncalibrated':
+            widget.image_y.setValue(0)
+        if case == 'different_sampling':
+            widget.kernel_x.setValue(.4)
+        widget.operation.setCurrentIndex(widget.operation.findData('convolve'))
+        widget._timer.stop()
+        widget._load()
+        work, complete = submitted.pop()
+        kernel, reason = work()
+        complete((kernel, reason))
+        if error:
+            assert kernel is None and error in reason
+            assert error in widget.status.text()
+            assert widget._chain_fields()['psf'] is None
+        else:
+            assert reason == '' and kernel is widget._chain_fields()['psf']
+            assert kernel.sampling_um == (.2, .2)
+            assert 'PSF ready' in widget.status.text()
+        assert path.read_bytes() == original
+        status = widget.status.text()
+        widget._shutdown()
+        widget._loaded((None, 'late result'))
+        assert widget.status.text() == status
+    finally:
+        widget._shutdown()
+
+
+@pytest.mark.parametrize('accepted', [False, True])
+def test_measured_kernel_picker_preserves_path_when_cancelled(qtbot, monkeypatch, accepted):
+    widget = controls._PSFControls()
+    qtbot.addWidget(widget)
+    widget.path.setText('previous.npy')
+    monkeypatch.setattr(controls.QFileDialog, 'getOpenFileName',
+                        lambda *args: ('chosen.tif' if accepted else '', ''))
+    try:
+        widget._browse()
+        assert widget.path.text() == ('chosen.tif' if accepted else 'previous.npy')
+        assert not widget._timer.isActive()
+    finally:
+        widget._shutdown()
+
+
 @pytest.mark.parametrize('operation', ['convolve', 'deconvolve'])
 def test_compare_and_apply_use_actual_psf_without_modifying_source(screen, qtbot, operation):
     widget = _gaussian(screen, qtbot, operation)
