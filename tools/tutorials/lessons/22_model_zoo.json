@@ -1,17 +1,103 @@
 {
-  "id": "22_model_zoo", "number": 22, "slug": "model_zoo",
-  "title": "Model Zoo: find models and inspect their provenance",
-  "series": 2, "app_key": "model_zoo", "host_app_key": "make_masks", "section": "Segmentation models",
-  "description": "Open the nested model library, scan an existing local cache, and distinguish recorded training information from unknown provenance. Benchmarking is not demonstrated as successful while the current Cellpose argument incompatibility remains.",
-  "objectives": ["Find Model Zoo inside Make Masks and scan a local model directory.", "Read source, kind, checksum and training-information fields without confusing unknown metadata with validation.", "Distinguish model management from downloading, training and benchmarking."],
-  "prerequisite": "spaCR 1.5.0.7 nightly. This real recording scans an existing Cellpose cache and selects the original cpsam checkpoint; it does not download, train or run inference. Use your own model directory rather than copying the presenter's home path. The selected checkpoint's metadata records no published checksum, training dataset or author; the tutorial does not infer those from its filename. A separate checksum establishes only that this local file stayed unchanged during recording, not that its origin is verified. Model Zoo's benchmark and Model Compare currently pass an unsupported invert keyword to Cellpose 4.2.1.1. That app-owned incompatibility is recorded separately and not repaired or bypassed here. See the Plaque tutorial for an actual model download and preview. No accuracy comparison or held-out validation is claimed.",
+  "id": "22_model_zoo",
+  "number": 22,
+  "slug": "model_zoo",
+  "title": "Model Zoo: choose a model and try it on your images",
+  "series": 2,
+  "app_key": "model_zoo",
+  "host_app_key": "make_masks",
+  "section": "Segmentation models",
+  "description": "Open Model Zoo, find or download a checkpoint, inspect its details, and choose a small image set for a trial.",
+  "objectives": [
+    "Open Model Zoo from Make Masks and scan a local model folder.",
+    "Choose a checkpoint and download remote weights to a model folder.",
+    "Select representative fields for a trial and find the resulting masks and quality summaries."
+  ],
+  "prerequisite": "Have a local model folder or choose a downloadable catalog entry. To try a segmentation model, prepare a few TIFF, PNG, NPY or NPZ images; the Model Compare lesson includes example fields. Keep the downloaded checkpoint path for the module that will use it.",
   "scenes": [
-    {"visual": "00_home", "narration": "Model Zoo is the model library inside Make Masks. Open the host module, then use its Model Zoo control. This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.", "focus_modules": ["make_masks"], "related_lessons": ["14_make_masks"], "hold_after": 0.7},
-    {"visual": "02_model_library", "narration": "The table brings published entries and locally discovered files into one view. Read the model kind and source columns together. A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.", "focus": [350, 210, 3450, 560], "hold_after": 0.7},
-    {"visual": "03_cache_path", "narration": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button. Here we scan the real Cellpose cache. Use your own path. Scanning discovers files and metadata; it does not train a model or run segmentation.", "focus": [350, 340, 3450, 410], "hold_after": 0.7},
-    {"visual": "04_scanned_models", "narration": "This scan displays eight entries. Some are published remote models and others are local checkpoints. The count describes this machine, not a required setup. Select the exact file you intend to use instead of assuming that similar model names identify the same weights.", "focus": [350, 400, 3450, 380], "hold_after": 0.7},
-    {"visual": "05_selected_provenance", "narration": "The selected local checkpoint has no published checksum or recorded training provenance in this view. Unknown means unknown. Its name is not evidence of its training dataset. Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.", "focus": [350, 1050, 3450, 210], "hold_after": 0.7},
-    {"visual": "06_download_controls_not_started", "narration": "The download area controls where an available remote model is saved. It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads. This local selection is not downloaded again. The Plaque lesson shows an actual model download and preview.", "focus": [350, 1220, 3450, 170], "related_lessons": ["24_plaque"], "hold_after": 0.7},
-    {"visual": "07_benchmark_controls_not_run", "narration": "The lower area is for testing fields and comparing selected models. Those jobs are separate from scanning the library. The current Cellpose argument mismatch prevents us from claiming a successful benchmark here. No masks or test scores are fabricated. Keep representative validation images separate from training examples when evaluating a repaired workflow.", "focus": [350, 1380, 3450, 650], "related_lessons": ["19_train_cellpose", "21_model_compare"], "hold_after": 0.7}
+    {
+      "visual": "00_home",
+      "narration": "From Home, open Make Masks, then choose Model Zoo. Start by finding a model for your image type. You can scan an existing model folder or download a checkpoint from the catalog.",
+      "focus_modules": [
+        "make_masks"
+      ],
+      "related_lessons": [
+        "14_make_masks"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_model_library",
+      "narration": "The table lists model names, kinds and sources. Select a row to see its details. Check whether it is a segmentation model or a classifier, and choose a model whose image type and intended task match your workflow.",
+      "focus": [
+        350,
+        210,
+        3450,
+        560
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_cache_path",
+      "narration": "Click Choose folder, select your model directory, then click Scan. You can also enter the folder path directly. The table adds the local checkpoints it finds; select the file you want to use.",
+      "focus": [
+        350,
+        340,
+        3450,
+        410
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_scanned_models",
+      "narration": "Read the source and availability columns to distinguish a local checkpoint from a catalog entry that still needs downloading. Use the full path in the details panel to identify your local model, especially when several files have similar names.",
+      "focus": [
+        350,
+        400,
+        3450,
+        380
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_selected_provenance",
+      "narration": "The details panel shows available training information, file size and checksum information. Use the recorded image and object information to judge whether the model is a suitable starting point. When information is missing, try the model on representative images before a larger run.",
+      "focus": [
+        350,
+        1050,
+        3450,
+        210
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_download_controls_not_started",
+      "narration": "To obtain a remote model, select its catalog row, choose a Save to folder, then click Download. Wait for the progress to finish and keep the resulting local path. A published checksum lets the download verify the file; an entry without one requires your explicit choice to proceed.",
+      "focus": [
+        350,
+        1220,
+        3450,
+        170
+      ],
+      "related_lessons": [
+        "24_plaque"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_benchmark_controls_not_run",
+      "narration": "In Test on fields, choose a small image folder and set the number of fields. Select one local segmentation model and click Test on fields. Inspect the mask previews and per-field quality summaries. To compare two local models on the same images, select both and click Compare the two selected. Use your chosen checkpoint path in the analysis module.",
+      "focus": [
+        350,
+        1380,
+        3450,
+        650
+      ],
+      "related_lessons": [
+        "21_model_compare",
+        "14_make_masks"
+      ],
+      "hold_after": 0.7
+    }
   ]
 }
