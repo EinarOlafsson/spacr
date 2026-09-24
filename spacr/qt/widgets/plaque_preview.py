@@ -775,6 +775,7 @@ def _serialized_inference(work):
     """Keep cached model construction and evaluation exclusive across panels."""
     @wraps(work)
     def run(*args, **kwargs):
+        """Serialize the wrapped inference call so cached model instances cannot overlap."""
         with _INFERENCE_LOCK:
             return work(*args, **kwargs)
     return run
@@ -2966,6 +2967,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self.set_preview_status(tr(PREVIEW_RUNNING_MESSAGE))
         if self.mode() == FIGURE_MODE:
             def work():
+                """Detect figure wells and prepare a review result unless detection already returned an error."""
                 result = detect_figure(path, settings, detect=detect, read_text=read_text)
                 return result if result.get("error") else prepare_figure_review(result, settings)
         else:
@@ -3843,6 +3845,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self.set_preview_status(tr("Saving review…"))
 
         def finished(result):
+            """Ignore stale export completions and report failure or invoke the current success callback."""
             if self.preview_stale(token):
                 return
             if isinstance(result, dict) and result.get("error"):
@@ -3862,6 +3865,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return
         stem = Path(self._figure["path"]).stem
         def saved():
+            """Normalize the edited legend text, close its editor and rebuild the figure annotations."""
             self._caption = " ".join(text.split())
             self._legend_box.hide()
             self._reannotate()

@@ -1534,6 +1534,7 @@ class _IdlePrebuild(QObject):
         self._timer.start(ms)
 
     def _unwatch(self) -> None:
+        """Remove the application event filter once when activity observation ends."""
         if self._watching:
             app = QApplication.instance()
             if app is not None:

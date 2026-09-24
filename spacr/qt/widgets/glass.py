@@ -292,6 +292,7 @@ class _ResizeEdgeHint(QWidget):
     """Paint a one-pixel blue line on the edges available for dragging."""
 
     def __init__(self, window):
+        """Create an initially hidden edge overlay that never intercepts mouse input."""
         super().__init__(window)
         self.edges = Qt.Edge(0)
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
@@ -300,6 +301,7 @@ class _ResizeEdgeHint(QWidget):
         self.hide()
 
     def show_edges(self, edges):
+        """Match the window bounds and reveal only its currently resizable edges."""
         self.edges = edges
         self.setGeometry(self.parentWidget().rect())
         self.setVisible(bool(edges))
@@ -308,6 +310,7 @@ class _ResizeEdgeHint(QWidget):
             self.update()
 
     def paintEvent(self, event):
+        """Paint thin blue guides along active edges while leaving the corners unobscured."""
         painter = QPainter(self)
         painter.setPen(QPen(QColor('#168cff'), 1))
         left, top, right, bottom = 1, 1, self.width() - 2, self.height() - 2

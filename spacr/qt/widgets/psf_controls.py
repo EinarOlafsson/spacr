@@ -20,6 +20,7 @@ class _PSFControls(QWidget):
     changed = Signal()
 
     def __init__(self, parent=None):
+        """Construct calibrated PSF controls and a debounced background kernel loader."""
         super().__init__(parent)
         self._kernel = None
         self._error = ''
@@ -119,6 +120,7 @@ class _PSFControls(QWidget):
 
     @staticmethod
     def _length():
+        """Create a micrometer-valued editor whose zero state requests explicit calibration."""
         widget = QDoubleSpinBox()
         widget.setDecimals(4)
         widget.setRange(0, 10000)
@@ -128,6 +130,7 @@ class _PSFControls(QWidget):
         return widget
 
     def _sync_controls(self):
+        """Enable only controls needed by the selected operation and measured or Gaussian source."""
         active = self.operation.currentData() != 'none'
         measured = self.source.currentData() == 'measured'
         for widget in (self.source, self.image_y, self.image_x):
@@ -139,6 +142,7 @@ class _PSFControls(QWidget):
         self.iterations.setEnabled(self.operation.currentData() == 'deconvolve')
 
     def _operation_changed(self):
+        """Cancel disabled PSF work or invalidate the kernel when the operation changes."""
         self._sync_controls()
         if self.operation.currentData() == 'none':
             self._cancel.set()
@@ -150,6 +154,7 @@ class _PSFControls(QWidget):
         self.changed.emit()
 
     def _invalidate(self, *_args):
+        """Cancel stale kernel work, clear its snapshot and schedule loading for the latest calibration."""
         self._cancel.set()
         self._jobs.cancel()
         self._timer.stop()
@@ -162,12 +167,14 @@ class _PSFControls(QWidget):
         self.changed.emit()
 
     def _browse(self):
+        """Choose a measured TIFF or NPY kernel and update its source path."""
         path, _ = QFileDialog.getOpenFileName(
             self, tr('Choose a measured PSF'), '', tr('PSF kernels (*.tif *.tiff *.npy)'))
         if path:
             self.path.setText(path)
 
     def _load(self):
+        """Capture source and calibration values before submitting background kernel construction."""
         source = self.source.currentData()
         image_spacing = (self.image_y.value(), self.image_x.value())
         kernel_spacing = (self.kernel_y.value(), self.kernel_x.value())
@@ -176,6 +183,7 @@ class _PSFControls(QWidget):
         cancel = self._cancel = threading.Event()
 
         def work():
+            """Validate the captured calibration and return a loaded or generated kernel with its error."""
             try:
                 if not all(value > 0 for value in image_spacing):
                     raise ValueError(tr('Enter positive image pixel spacing in both axes.'))
@@ -198,6 +206,7 @@ class _PSFControls(QWidget):
         self._jobs.submit(work, self._loaded)
 
     def _loaded(self, result):
+        """Publish a completed kernel or its error unless the controls have already closed."""
         if self._closed:
             return
         self._kernel, self._error = result
@@ -209,6 +218,7 @@ class _PSFControls(QWidget):
         self.changed.emit()
 
     def _chain_fields(self):
+        """Return enhancement-chain PSF fields, or an empty mapping when processing is disabled."""
         if self.operation.currentData() == 'none':
             return {}
         return dict(psf_operation=self.operation.currentData(), psf=self._kernel,
@@ -216,6 +226,7 @@ class _PSFControls(QWidget):
                     psf_iterations=self.iterations.value(), psf_error=self._error)
 
     def _shutdown(self):
+        """Stop pending debounce and kernel work without blocking the GUI on worker completion."""
         self._closed = True
         self._timer.stop()
         self._cancel.set()

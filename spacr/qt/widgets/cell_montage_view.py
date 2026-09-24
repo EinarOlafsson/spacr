@@ -587,6 +587,7 @@ def load(request: MontageRequest, *, progress=None, cancelled=None) -> MontageLo
     :returns: the plans, the crops, and which source drew them.
     """
     def step(message):
+        """Report a loading stage while checking cancellation before and after the callback."""
         if cancelled is not None and cancelled():
             raise CancelledError()
         if progress is not None:
@@ -2128,6 +2129,7 @@ class CellMontageView(QWidget):
             f"{len(request.databases)} database(s).")
         self._refresh_controls()
         def report(message):
+            """Queue progress only for an active request and cancel if its Qt receiver has disappeared."""
             if not cancelled.is_set():
                 try:
                     self._load_progress.emit(cancelled, message)
@@ -2135,6 +2137,7 @@ class CellMontageView(QWidget):
                     cancelled.set()
 
         def work():
+            """Load the captured montage request and convert failures into a request-bound error result."""
             try:
                 return load(request, progress=report, cancelled=cancelled.is_set)
             except Exception as error:

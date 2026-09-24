@@ -29,13 +29,20 @@ class Model:
     def __init__(self):
         self.inputs = []
 
-    def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-        check_cellpose_eval_call(image, channel_axis)
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        check_cellpose_eval_call(x, channel_axis)
+        image = x
         self.inputs.append(image.copy())
         mask = np.zeros(image.shape, np.int32)
         mask[10:20, 10:20] = 1
         image[:] = 0
-        return mask, []
+        return mask, [], None
 
 
 @pytest.mark.parametrize('operation', ['none', 'convolve', 'deconvolve'])

@@ -99,6 +99,7 @@ class ParasiteCountHead:
     """
 
     def __init__(self, regressor: Any):
+        """Retain the stain-specific count regressor without loading or fitting it."""
         self.regressor = regressor
 
     def predict(self, crops: Sequence[np.ndarray]) -> List[Dict[str, Any]]:

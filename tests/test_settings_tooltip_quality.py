@@ -17,7 +17,9 @@ that blanket waiver was retired.
 from __future__ import annotations
 
 import ast
+import json
 import re
+from pathlib import Path
 from typing import NamedTuple
 
 import pytest
@@ -259,6 +261,14 @@ DEFAULT_VARIANT_EXPECTATIONS = {
     ("replication", "cmap"): DefaultVariant(
         "'inferno'", "'viridis'", ACCURATE_SHARED,
         "Replication uses its plotting-specific viridis override.",
+    ),
+    ("replication", "class_column"): DefaultVariant(
+        "'test'", "'predictions'", ACCURATE_SHARED,
+        "The shared tooltip names Replication's predictions column explicitly.",
+    ),
+    ("replication", "nuclei_limit"): DefaultVariant(
+        "None", "10", ACCURATE_SHARED,
+        "The shared tooltip names Replication's ten-nucleus cap explicitly.",
     ),
     ("replication", "level"): DefaultVariant(
         "'both'", "'object'", ACCURATE_SHARED,
@@ -729,7 +739,16 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # figure_read_text, confirm_annotations and the thirteen text_* reading
     # controls. Leaving: ("regression", "Toxoplasma"), retired by item 364,
     # so no app resolves it and its claim is compared against nothing.
-    assert comparisons == 673
+    # Compared with the actual 0a4f5aa75 package: +43 pairs, none removed.
+    # Plaque calibration +4, TTA +6, PSF +15, Host–Pathogen +4,
+    # Mask image QC/metadata +6 and restored Replication settings +8.
+    assert comparisons == 716
+    census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
+                         '491_default_claim_census_2026-09-23.json').read_text())
+    assert census['comparisons_after'] == comparisons
+    assert census['removed_pairs'] == []
+    assert len(census['added_pairs']) == 43
+    assert {tuple(pair) for pair in census['added_pairs']} <= compared_pairs
     assert ("regression", "Toxoplasma") not in compared_pairs
     for key in ("plaque_mode", "figure_detector", "figure_imgsz",
                 "figure_confidence", "figure_read_text",
@@ -762,7 +781,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # says mean" -- was an artefact of a setting whose tooltip had to name a
     # SECOND setting to explain itself. Instruction 391 removed both, so the
     # ambiguity is gone rather than newly tolerated.
-    assert len(variants) == 45
+    assert len(variants) == 47
     assert variants == expected
     assert {
         classification: sum(
@@ -776,7 +795,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         # ACCURATE_SHARED because its tooltip was right and only the parser
         # was confused by the neighbouring percentile. Instruction 391
         # removed the setting and the neighbour both.
-        ACCURATE_SHARED: 23,
+        ACCURATE_SHARED: 25,
         # 23 -> 22 on 2026-09-09, and it is the same one variant: the
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings

@@ -137,6 +137,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self._settings = values
 
     def _sync_settings(self):
+        """Refresh changed analysis settings only after this visible preview has been started."""
         if not self._started or not self.isVisible():
             return
         if self._reader:
@@ -165,9 +166,11 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         return self._jobs.is_busy()
 
     def _extra_work_in_flight(self):
+        """Report whether the background field reader still has a job in flight."""
         return self._jobs.is_busy()
 
     def _cancel_extra_work(self):
+        """Discard a queued refresh and invalidate the current background job."""
         self._pending_refresh = False
         self._jobs.cancel()
 
@@ -197,6 +200,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self.set_preview_status(tr('Reading field measurements and image…'))
 
         def work():
+            """Read available fields and analyze the captured field and plane selection off the GUI thread."""
             try:
                 fields, limited = preview_fields(settings)
                 if not fields:
@@ -210,6 +214,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         return True
 
     def _received(self, token, payload):
+        """Ignore stale results, then populate field choices, vacuole rows and image overlays."""
         if self.preview_stale(token):
             return
         if isinstance(payload, dict) and 'error' in payload:
@@ -267,11 +272,13 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self.preview_ready.emit(self._result)
 
     def _failed(self, message):
+        """Clear outdated results and present the worker error in the preview status."""
         self._clear()
         self.set_preview_busy(False)
         self.set_preview_status(tr('Preview failed: {error}', error=message))
 
     def _clear(self):
+        """Discard results, table selection and image overlays without changing the analysis settings."""
         self._result = None
         self._selected = None
         self._table.setRowCount(0)
@@ -281,20 +288,24 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self._summary.clear()
 
     def _field_changed(self, index):
+        """Invalidate the current result and preview a newly selected measured field."""
         if self._fields and index >= 0:
             self.cancel_preview()
             self._clear()
             self.run_preview()
 
     def _display_changed(self, *args):
+        """Invalidate the preview after display-plane changes and request an explicit rerun."""
         self.cancel_preview()
         self._clear()
         self.set_preview_status(tr('Display plane changed; Run preview to read it.'))
 
     def _hover_pixel(self, x, y):
+        """Remember the last hovered image pixel for subsequent vacuole selection."""
         self._hover = (x, y)
 
     def _image_clicked(self):
+        """Select the table row matching the vacuole label under the pointer."""
         if self._result is None or self._hover is None:
             return
         mask = self._result['masks'].get('vacuole')
@@ -309,6 +320,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
                 return
 
     def _table_selected(self):
+        """Synchronize the selected vacuole, linked measurement explanation and image outline."""
         from ..screens.settings_model import api_docs_url
 
         items = self._table.selectedItems()
@@ -328,6 +340,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self._paint()
 
     def _paint(self, *args, reset=False):
+        """Render enabled host, vacuole and parasite contours with a selected-vacuole highlight."""
         if self._result is None or self._result['image'] is None:
             return
         rgb = np.repeat(self._result['image'][..., None], 3, axis=-1)

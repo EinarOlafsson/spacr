@@ -5824,6 +5824,7 @@ class _LevelsDialog(QDialog):
     _delivered = Signal(object)
 
     def __init__(self, image, percentiles, parent=None):
+        """Build linked percentile controls and submit the source histogram for background computation."""
         super().__init__(parent)
         from ..i18n import tr
 
