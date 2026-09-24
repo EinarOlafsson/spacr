@@ -9988,7 +9988,8 @@ class MakeMasksScreen(QWidget):
 
         card.body_layout.addLayout(form)
         if secondary:
-            self._secondary_fill_holes = Toggle(tr('Fill holes inside secondary objects'))
+            self._secondary_fill_holes = Toggle(
+                tr('Fill holes inside secondary objects'), word_wrap=True)
             self._secondary_fill_holes.setToolTip(tr(
                 'Fill enclosed background holes within each secondary object after growth '
                 'and before minimum-area filtering. Pixels belonging to another object are preserved.'))

@@ -12,6 +12,33 @@ ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi')
 
 
+def test_secondary_explanatory_switch_wraps_in_a_narrow_column(qtbot, qt_theme_applied):
+    from PySide6.QtCore import QPoint, Qt
+    from spacr.qt import cpu_modes
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    switch = screen._secondary_fill_holes
+    caption = 'Fill enclosed holes within the secondary objects after growth ' * 3
+    switch.setText(caption)
+    screen._primary_selector.primary_class.setMinimumWidth(450)
+    screen._settings_scroll.setFixedWidth(500)
+    screen._mag_mode.setCurrentIndex(screen._mag_mode.findData(cpu_modes.SECONDARY))
+    screen._methods_card.set_expanded(True)
+    screen.resize(1707, 900)
+    screen.show()
+    qtbot.wait(100)
+    group = screen._method_groups['secondary']
+    assert group.minimumSizeHint().width() <= screen._settings_scroll.viewport().width()
+    assert switch.text() == caption
+    assert switch.height() >= switch.heightForWidth(switch.width())
+    assert switch.heightForWidth(200) > switch.heightForWidth(450)
+    before = switch.isChecked()
+    qtbot.mouseClick(switch, Qt.LeftButton, pos=QPoint(switch.width() - 12, switch.height() // 2))
+    assert switch.isChecked() != before
+
+
 def test_long_stop_caption_does_not_force_a_wider_settings_column(qtbot, qt_theme_applied):
     from spacr.qt import cpu_modes
     from spacr.qt.screens.make_masks import MakeMasksScreen

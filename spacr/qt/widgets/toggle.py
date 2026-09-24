@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Property, QPropertyAnimation, QRect, QSize, Qt
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen
-from PySide6.QtWidgets import QCheckBox
+from PySide6.QtWidgets import QCheckBox, QSizePolicy
 
 from ..theme import active_palette
 
@@ -11,15 +11,18 @@ from ..theme import active_palette
 class Toggle(QCheckBox):
     """A compact switch that can be clicked or dragged between states."""
 
-    def __init__(self, text: str = "", parent=None):
+    def __init__(self, text: str = "", parent=None, *, word_wrap: bool = False):
         """Initialize the switch with an optional trailing label.
 
         :param text: the label drawn after the switch. Empty leaves the
             switch alone, which is what a settings row wants -- the caption
             beside it is the form's, not the control's.
         :param parent: parent widget.
+        :param word_wrap: let a long caption wrap to the available width.
+            False keeps the existing single-line switch layout.
         """
         super().__init__(text, parent)
+        self._word_wrap = bool(word_wrap)
         self._track_x = 2
         self._track_w = 30
         self._track_h = 17
@@ -33,13 +36,41 @@ class Toggle(QCheckBox):
         self._anim.setDuration(140)
         self.stateChanged.connect(self._start_anim)
         self.setMinimumHeight(self._track_h + 2)
+        if self._word_wrap:
+            policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            policy.setHeightForWidth(True)
+            self.setSizePolicy(policy)
 
     def sizeHint(self) -> "QSize":
         """Return the default checkbox hint widened to fit the switch track."""
         base = super().sizeHint()
         base.setWidth(
             self._track_x + self._track_w + self._label_gap + base.width())
+        if self._word_wrap:
+            base.setWidth(min(base.width(), self.fontMetrics().averageCharWidth() * 40))
+            base.setHeight(self.heightForWidth(base.width()))
         return base
+
+    def minimumSizeHint(self) -> QSize:
+        """Allow wrapped captions to shrink without making their text a width floor."""
+        if not self._word_wrap:
+            return super().minimumSizeHint()
+        width = self._track_x + self._track_w + self._label_gap
+        return QSize(width + self.fontMetrics().averageCharWidth() * 8,
+                     max(self._track_h + 2, self.fontMetrics().height() + 4))
+
+    def heightForWidth(self, width: int) -> int:
+        """Return enough height to paint the complete wrapped caption.
+
+        :param width: available control width in logical pixels.
+        :returns: wrapped height, or the native checkbox result when disabled.
+        """
+        if not self._word_wrap:
+            return super().heightForWidth(width)
+        text_width = max(1, width - self._track_x - self._track_w - self._label_gap)
+        bounds = self.fontMetrics().boundingRect(
+            QRect(0, 0, text_width, 100000), Qt.TextWordWrap, self.text())
+        return max(self._track_h + 2, bounds.height() + 4)
 
     def _minimum_knob_x(self) -> int:
         """Return the knob's left edge in the unchecked position."""
@@ -81,11 +112,16 @@ class Toggle(QCheckBox):
         painter.drawEllipse(QRect(knob_x, knob_y, self._knob_d, self._knob_d))
         if self.text():
             painter.setPen(QColor(palette["fg"]))
-            painter.drawText(
-                self._track_x + self._track_w + self._label_gap,
-                (self.height() + painter.fontMetrics().ascent()) // 2 - 2,
-                self.text(),
-            )
+            text_x = self._track_x + self._track_w + self._label_gap
+            if self._word_wrap:
+                painter.drawText(
+                    QRect(text_x, 0, max(1, self.width() - text_x), self.height()),
+                    Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, self.text())
+            else:
+                painter.drawText(
+                    text_x, (self.height() + painter.fontMetrics().ascent()) // 2 - 2,
+                    self.text(),
+                )
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """Begin a click or drag without delegating a second toggle to Qt."""

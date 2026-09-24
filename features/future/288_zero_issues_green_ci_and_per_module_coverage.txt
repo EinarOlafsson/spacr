@@ -5131,3 +5131,14 @@ Earlier410/459msfailures are retained in the fixed/single timing logs.
 Other fresh CI failures remain: coverage7Hindi secondary-control width and
 Qt2native crash at Annotate._SettingsDialog construction. Neither is claimed
 fixed by this work. The protected run continues; no green full-run claim.
+
+2026-09-24 — SECONDARY WIDTH FOLLOW-UP
+Coverage7's Hindi width failure led to two concrete width-pressure checks:
+a long fill-holes caption (1181>490) and a wide primary-class field (594>490).
+The switch now opts into caption wrapping and the selector form wraps rows.
+27related checks pass, including9locales and native switch interactions;
+rendered caption inspected. Exact hosted font-state reproduction remains
+unproven, so this is not reported as a green coverage7rerun.
+Older protected35944548693is now terminal/failure, including its last minimum-
+dependency and full-control jobs. No need to keep polling that run. Fresh
+35952253721continues and remains protected across these fixes.

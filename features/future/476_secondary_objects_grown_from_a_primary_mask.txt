@@ -218,3 +218,20 @@ features/data/476_primary_source_coverage_2026-09-23.json.
 The Growth caption is Distance watershed. Its help explicitly distinguishes
 common stop masks, which constrain paths, from primary-peak fractions, which
 trim after growth. API semantics remain unchanged.
+
+2026-09-24 — SECONDARY CONTROLS FIT A NARROW SETTINGS COLUMN
+The fill-holes switch now opts into wrapped captions; other Toggle instances
+retain their single-line layout. Wrapped height follows available width and
+the full caption remains clickable/accessibly named by the checkbox text.
+The primary-mask selector form also wraps a long label/field row rather than
+forcing it side by side. No caption, localization binding or mask semantics
+changed. Toggle gains optional word_wrap=False plus minimumSizeHint and
+heightForWidth support for callers that opt in.
+
+A long caption reproduced1181pxminimum width against a490pxviewport. After
+wrapping the caption, an enlarged class field separately reproduced594>490;
+form row wrapping fixes that too.27translation/layout/default-switch checks
+pass, including all9languages, full label retention, width-dependent height
+and clicking the caption. The rendered wrapped control was inspected.
+The exact CI Hindi font state was not reproduced locally; these regressions
+exercise both unbounded width sources found during that investigation.

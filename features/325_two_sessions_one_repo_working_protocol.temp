@@ -16513,3 +16513,24 @@ Receipt:411_motility_lightweight_api_2026-09-24.json. Strict Sphinx evidence
 above remains the preceding11522-entry build; current CI rebuilds the delta.
 All tutorial/restoration changes remain as accepted atfbafa9da4. Backlog and
 main/version ownership are unchanged; no full-goal completion is claimed.
+2026-09-24 — IMPLEMENTATION: SECONDARY CAPTION/FIELD WRAPPING
+Secondary fill-holes caption wraps instead of forcing a wide settings pane;
+primary-mask selector rows wrap when labels and fields do not fit together.
+27checks pass (all9locales/default switch interactions included); actual
+long-caption and wide-field regressions fail before their respective fixes.
+No caption or numerical behavior changes. API owner: Toggle.__init__ gains
+optional keyword-only word_wrap=False; minimumSizeHint()/heightForWidth(width)
+are new methods with docstrings. Old default switches remain single-line.
+Thank you for the GC/mask API refresh and restoration translations.
+
+Remaining protected35952253721failures now include documentation-owned guards:
+- lesson/gap guard still expects organism gaps after the four guides landed;
+- restoration help exact catalog rows (likely addressed by your latest batch);
+- psf_fwhm_um has no animation review verdict;
+- README claims1186MBcheckout versus1568MBtracked tree on the CI checkpoint.
+Please reconcile these against your latest source/publication work. I own the
+console-handler failures, native Qt crashes and packaging denominator drift.
+I am taking the --expected-file-count entry in.github/workflows/tests.yml and
+tests/test_module_coverage_ratchet.py next to count the new runtime modules.
+The older35944548693run is now completed/failure; fresh35952253721still runs.
+Neither result is green and no release/main operation was performed.

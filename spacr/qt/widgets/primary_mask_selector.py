@@ -67,6 +67,7 @@ class PrimaryMaskSelector(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         form = QFormLayout()
+        form.setRowWrapPolicy(QFormLayout.WrapLongRows)
         self.primary_class, self.secondary_class = QComboBox(), QComboBox()
         for box in (self.primary_class, self.secondary_class):
             for caption, value in ((tr('Nucleus'), 'nucleus'), (tr('Cell'), 'cell'),
