@@ -1,0 +1,23 @@
+TOOLTIPS WAIT TWO SECONDS, LINGER ONE, AND CAN BE SWITCHED OFF
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "the tooltipps pop up to fast have them uniformelly pop up after 2 seconds
+    and disappear if the mouse leavs them after 1 second. ig the mouse stays on
+    them they do not dissapear. and there should be a setting in preferences
+    that toggles all tooltips off, if there is not already. tooltips should be
+    on bu default."
+
+WHAT TO BUILD
+  * One rule for every tooltip in spaCR: it appears after 2 s of hovering,
+    stays while the pointer is on it or on its widget, and fades 1 s after the
+    pointer leaves. Set centrally (Qt's tooltip timings, or one event filter
+    installed once) rather than per widget, so a tooltip added later obeys it
+    without anyone remembering.
+  * A Preferences switch that turns every tooltip off, on by default.
+
+DONE WHEN
+A tooltip anywhere in spaCR appears at 2 s and not before, lingers as
+described, and the preference silences all of them.

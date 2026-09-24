@@ -783,3 +783,10 @@ Live help, matching-animation and reveal-isolation tests pass. Catalog checks
 still expose older untranslated secondary-mask captions; the documentation
 session owns their translations and has received the handoff. No unrelated
 animation is attached to controls lacking a matching illustration.
+
+SEE ALSO (filed 2026-09-24)
+The maintainer answered the open question above: item 508 carries the whole
+enhancement chain and the deconvolution options into Mask generation, and adds
+a logarithmic transform and a Gaussian filter to both. Item 507 gives Make
+Masks a console for the text these steps emit. Item 511 replaces the fixed
+filter rows with any scikit-image regionprop the user adds.

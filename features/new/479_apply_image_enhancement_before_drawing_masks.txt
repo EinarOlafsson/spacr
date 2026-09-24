@@ -45,3 +45,7 @@ it previously named that step in the caption without actually performing it.
 cancel, obsolete success/error, newest-request replacement, real enhancement
 output, linked zoom, source preservation and normalization equivalence.
 This is readiness work for489/490, not their implementation.
+
+SEE ALSO (filed 2026-09-24): item 508 (the same chain and deconvolution in
+Mask generation, plus log and Gaussian transforms) and item 509 (inferring the
+optics, and collapsing the advanced settings).

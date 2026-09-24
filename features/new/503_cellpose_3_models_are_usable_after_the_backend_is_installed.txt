@@ -1,0 +1,38 @@
+CELLPOSE 3 MODELS ARE USABLE AFTER THE BACKEND IS INSTALLED
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: 423 (backends in the zoo), 446 (Cellpose 3 and
+Cellpose-SAM take different settings), 473 (detection methods).
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "when in mask generation i can downloade cellpose 3 into its own
+    environment fine. however after downloading the cyto2 and 3 and nucleus
+    models are not available anywhere. these should each get their own row in
+    the cellpose3 category. for these logic will have to be adde as cellpose4
+    and 3 do not take the same input shape or give the same output shape and
+    cellpose 3 models take different setings. so if one of these celpose 3
+    models is chosen they will need to also get a legacy cellpose3 settings
+    window with their settings and they will need their own function for
+    generating the masks that takes these settings and that implements the
+    cellpose3 input/output logic. everything downstream of mask generation
+    should however stay the same."
+
+WHAT TO BUILD
+  * A ROW PER CELLPOSE 3 MODEL in the Cellpose 3 category -- cyto, cyto2,
+    cyto3, nuclei -- reachable from Mask generation once the backend is
+    installed, not only from Make Masks' Mode box.
+  * A LEGACY CELLPOSE 3 SETTINGS WINDOW carrying the settings those weights
+    actually take (channels as [cyto, nucleus], diameter with its size model,
+    flow threshold, cellprob, resample, net average, and the normalization
+    those models were trained with -- see item 446's note on percentile
+    normalization), shown only when a Cellpose 3 model is chosen.
+  * ITS OWN MASK FUNCTION that implements Cellpose 3's input and output
+    shapes, rather than passing Cellpose-SAM's. Everything downstream of mask
+    generation -- the arrays written, Measure, the database -- stays exactly
+    as it is, which is the constraint the maintainer states.
+
+DONE WHEN
+Installing the Cellpose 3 backend makes cyto, cyto2, cyto3 and nuclei
+selectable in Mask generation; choosing one shows its own settings; a real run
+on real images writes masks that Measure reads unchanged; and a Cellpose-SAM
+run is bit-identical to before.

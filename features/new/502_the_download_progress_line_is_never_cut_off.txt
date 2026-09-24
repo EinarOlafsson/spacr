@@ -1,0 +1,24 @@
+THE DOWNLOAD PROGRESS LINE IS NEVER CUT OFF
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "usually when downloading the text e.g. step 1 of 3 or 10% is cutt of, fix
+    that so it is not cut off."
+
+WHAT TO BUILD
+Wherever spaCR reports a download or an install in progress -- the backend
+installer's step line, the example-data and model-zoo downloads, the
+installer dialogs -- the whole line is readable: "step 1 of 3", the
+percentage, the speed and the time left. Find every widget that shows one
+(the progress dialogs under spacr/qt/widgets, hf_download.py's dialog, the
+model-zoo picker's status, the backend install dialog) and make the text fit:
+elide the changing part rather than the count, give the label the room it
+needs, or wrap. A number the user is watching must never be the part that is
+cut.
+
+DONE WHEN
+Every progress line shows its step count and percentage in full at the
+smallest window spaCR supports (1366x768 at 100 % GUI scale, and at 50 %),
+checked in a rendered screenshot rather than by reading the code.

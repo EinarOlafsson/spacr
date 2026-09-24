@@ -1,0 +1,37 @@
+DECONVOLUTION INFERS ITS OWN VALUES, AND THE ADVANCED SETTINGS COLLAPSE
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: 490 (measured and calculated PSFs), 473, 508.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "for the deconvolution, there should be a button for infering or choosing a
+    microscope and objective and inferring all values, so the user dosnt need
+    to know. and the defaults should be common values. add a setting for
+    magnefication and image dimentions if you need to, but make this work
+    automatically , and the user should be able to change the values. now it is
+    broken unless the user knows all the values, which most will not. also for
+    all of the se settings (deconvolution, PSF, cellpose enhancement, CLAHE)
+    there are to many settings. these settings should all be available to the
+    users, but most of them should be hidden behind buttons, or at leas drop
+    downs that are collapsed by default. so the user can just click and have
+    default values be applied. if they need to change they can, but most people
+    will just use the default values for most of these settings."
+
+WHAT TO BUILD
+  1. PICK A MICROSCOPE AND OBJECTIVE, get everything else: a button that
+     either infers the optics from the images and their metadata (the naming
+     convention already read, the file's own metadata, magnification, pixel
+     size, image dimensions) or lets the user choose a microscope and
+     objective from a list, and fills numerical aperture, wavelength,
+     refractive index, pixel size and the rest. Defaults are common values, so
+     it works out of the box; every inferred value stays editable and says
+     where it came from.
+  2. ONE VISIBLE ROW, THE REST COLLAPSED: deconvolution, PSF, Cellpose
+     enhancement and CLAHE each show what a person must choose and hide the
+     remainder behind a collapsed group (item 471's folds), so the default
+     path is one click.
+
+DONE WHEN
+Someone who knows none of the optics can deconvolve a real plate from the
+defaults, the inferred values are shown and editable, and none of the four
+groups shows more than its essential rows until it is opened.

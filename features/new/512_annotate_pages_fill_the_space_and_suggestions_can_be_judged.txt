@@ -1,0 +1,36 @@
+ANNOTATE: A PAGE FILLS THE SPACE, AND A SUGGESTION CAN BE JUDGED
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "in annotate, images should not be visable by scrolling they should ocupy
+    the screen relestate the container and settings gives to them and the other
+    images available via preveous and next pages. now if i start the console i
+    get the ability to scroll, i dont want that i wnat iamges not visable to be
+    pushed into the next page instead."
+and:
+    "in annotation when suggested labels are made there needs to be a clear and
+    easy mechanism to annotate the suggestions as correct or wrong with clear
+    instructions and visual feedback to make it easier to itterate. currently
+    the suggest button seems to work well and smoothely but i dont understand
+    how to tell the algorithm that the annotations are correct or not other
+    than simply changing the annotation."
+
+WHAT TO BUILD
+  1. THE PAGE IS WHAT FITS. The grid holds exactly as many crops as the space
+     allows and never scrolls; opening the console, collapsing the settings or
+     resizing the window recomputes the page and pushes the rest to the next
+     one. The page counter follows.
+  2. JUDGING A SUGGESTION IS ITS OWN ACTION. When Suggest has labelled a page,
+     each suggested crop is marked as suggested, and the user confirms or
+     rejects it with one key or click, with the instruction on screen and
+     visible feedback for what was confirmed, rejected and left. What the user
+     confirmed and what they rejected both reach the next round of training --
+     a rejection is information, not silence -- and the round's counts are
+     shown.
+
+DONE WHEN
+No page of Annotate scrolls at any window size or console state, and a user
+can accept or reject every suggestion on a page without editing labels by
+hand, with the counts visible.

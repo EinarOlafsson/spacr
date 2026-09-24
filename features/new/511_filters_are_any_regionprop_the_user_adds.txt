@@ -1,0 +1,24 @@
+FILTERS ARE ANY scikit-image REGIONPROP, ADDED BY THE USER
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "there should be other filter options as well, basically the user should be
+    able to pick any sikit-image regionprop to filter on. but this should be
+    opti in not one row for each filter. the user should be able to add filters
+    from scikit-image regionprops, that is to say."
+
+WHAT TO BUILD
+Instead of a fixed row per filter, an "Add a filter" control that offers every
+property skimage.measure.regionprops computes for a labelled image (area,
+eccentricity, solidity, extent, perimeter, axis lengths, intensity statistics
+where an intensity image is available, and the rest), then adds one row with a
+minimum and a maximum. Rows can be removed. The chosen filters travel with the
+mask's provenance and apply in Make Masks and in Mask generation alike. Offer
+only the properties that are real for the image at hand (an intensity property
+needs an intensity image), rather than failing later.
+
+DONE WHEN
+A user can filter objects on a property spaCR never hard-coded, the filter is
+recorded, and removing it restores the objects it hid.

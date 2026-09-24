@@ -1,0 +1,21 @@
+THE FEATURES WINDOW LOOKS LIKE EVERY OTHER spaCR WINDOW
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "in make masks, the features button spawns a window that should have an
+    ocupacy, and have rounded edgesremove the maximize minimize and close at
+    the top and add a close red button at the bottom to the right of measure
+    which should be blue. and the window should have the travelling blue rim.
+    make this window like other spacr windows."
+
+WHAT TO BUILD
+The FEATURES window takes spaCR's own dialog dress (spacr.qt.widgets.glass):
+translucent dark background, rounded corners, the travelling blue rim, no
+native title bar buttons, and its actions at the bottom -- Measure in blue,
+Close in red to its right.
+
+DONE WHEN
+Side by side with another spaCR dialog, the two look like the same program,
+and a screenshot proves it.

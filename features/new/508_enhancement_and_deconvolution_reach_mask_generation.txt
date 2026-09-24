@@ -1,0 +1,25 @@
+EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: 473 (the chain), 479, 489, 490 (PSF).
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "all of the deconvolution and image enhancement stuff should be available
+    to mask generation as well."
+and, on the same day:
+    "to image enhancements in make masks and in mask generation add options
+    like logarithmize image, and gausian filter, etcetera."
+
+WHAT TO BUILD
+  * Mask generation offers the same enhancement chain Make Masks has
+    (spacr/qt/detect_chain.py) and the same deconvolution and PSF options, on
+    the same settings, so what a curator tuned is what the plate run applies.
+    This is the question item 473 left for the maintainer, now answered: yes.
+  * The chain grows the transforms he names: a logarithmic transform, a
+    Gaussian filter, and the other common ones (square root, invert already
+    there, per-channel percentile clip, anisotropic diffusion if cheap).
+  * The provenance already recorded for a mask records these too.
+
+DONE WHEN
+A chain built in Make Masks can be applied unchanged by Mask generation, the
+new transforms are in both, and a mask records which ran.

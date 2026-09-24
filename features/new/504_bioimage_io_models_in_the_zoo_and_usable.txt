@@ -1,0 +1,27 @@
+THE BIOIMAGE.IO CATEGORY CARRIES REAL MODELS, AND THEY RUN
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: 503 (the Cellpose 3 route it reuses), 423.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "also while i have a bioimage.io category there are no models there. i
+    would like you to add all of the cellpose sam and cellpose 3 type models
+    from bioimage.io here and make them available for use. the cellpose3
+    models on bioimage.io will use the same infrastructure as the canilla
+    cellpose3 models."
+
+WHAT TO BUILD
+  * List every Cellpose-SAM and Cellpose 3 style model bioimage.io publishes,
+    in the zoo's bioimage.io category, with what each was trained on and its
+    licence, the way the other rows carry theirs. Read bioimage.io's own
+    collection rather than a hand-written list, so the category cannot go
+    stale, and cache it.
+  * Downloading one makes it usable: a Cellpose-SAM style model through
+    spaCR's own Cellpose 4, a Cellpose 3 style model through the Cellpose 3
+    backend and item 503's legacy settings and mask function.
+  * Say plainly on a row what spaCR cannot run, rather than offering it.
+
+DONE WHEN
+The category lists the models, one can be downloaded and used to segment real
+images from Mask generation and Make Masks, and a Cellpose 3 model from
+bioimage.io behaves exactly like a stock Cellpose 3 model.

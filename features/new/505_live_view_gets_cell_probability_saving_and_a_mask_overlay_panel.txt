@@ -1,0 +1,32 @@
+LIVE VIEW: CELL PROBABILITY, SAVING A PANEL, AND COMPARING MASKS
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: the plaque preview's Overlay/Objects/Cell
+probability/Flows tabs, which are the nearest existing pattern.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "for the maks in live view there are the options of overlay, masks, and
+    flows. please add the cell probability array here as well. also here the
+    user should be able to right click on the images to save them as png or
+    pdf. asl o after having generated more than 1 mask the user should be able
+    to over lay the masks to see howe they relate to each other. they should
+    get a new button when more than one mask is generated if pressed they get
+    prompted with a popup where they can check the masks and images and and
+    choose a ocupacy and order of overlay for the images. this image showld
+    then pop up to the right of the overlay, mask, flows, cellprobability, so
+    there are 3 pannels now."
+
+WHAT TO BUILD
+  1. A CELL PROBABILITY view beside Overlay, Masks and Flows, from the same
+     Cellpose output the mask came from.
+  2. RIGHT-CLICK SAVE on any of those pictures: PNG or PDF, at the resolution
+     and figure format Preferences already carries.
+  3. A COMPARISON PANEL once more than one mask exists: a new button opens a
+     popup listing the masks and the images, each with a tick, an opacity and
+     a position in the stacking order; accepting it draws that composite in a
+     third panel, to the right of the existing views.
+
+DONE WHEN
+All four views are present, any of them saves as PNG or PDF from a right
+click, and two masks generated in one session can be laid over each other with
+chosen opacities and order, in a panel of their own.

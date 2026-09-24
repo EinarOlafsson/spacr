@@ -1,0 +1,39 @@
+MAKE MASKS: A CONSOLE, AND AN INSTALL BUTTON THAT SAYS WHAT HAPPENED
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: 503, 473, 423.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "in make masks if i hit install cellprofiler 3 i get a popup then hit
+    install but no feedback if cellpose 3 is or was infact installed. then when
+    i press apply at the bottom of enhance i get, after a while a bunch of
+    text, in the bottom right, magnigier could not segment this region and a
+    bunch of progress bars stacked one after the other. i think we need to add
+    a console in make moduals where this type of text lands. the console should
+    be to the right of the image and below the hot key map. ima not sure the
+    cellpose 3 stuff is working please test it on real images and make sure
+    that cellpose 3 is usable for object detection and that it is usable for
+    image enhancements. it looks like it is working now, for image enhancement,
+    but it is extreemely slow. if cellpose 3 is installed the install button
+    should be grayed out and say that cellpose 3 is installed."
+
+WHAT TO BUILD
+  1. A CONSOLE in Make Masks, to the right of the image and below the shortcut
+     list, collapsible like every other panel (item 471's primitive). Every
+     progress line, warning and failure that currently piles up in the corner
+     lands there instead -- including "the magnifier could not segment this
+     region" and the stacked progress bars.
+  2. THE INSTALL BUTTON TELLS THE TRUTH: while installing it says so, when the
+     backend is installed it is greyed and reads that Cellpose 3 is installed,
+     and a failure says why, in the console.
+  3. CELLPOSE 3 PROVEN ON REAL IMAGES, for object detection AND for image
+     enhancement (denoise/upsample), with the timings measured and written
+     down. It is reported as "extremely slow": measure where the time goes --
+     the worker's model load per call, the whole-field size, the environment's
+     torch build -- and fix what can be fixed (keep the model loaded, tile,
+     or say plainly that it is slow and why).
+
+DONE WHEN
+The console exists and carries that text; the install button reports state
+honestly; and the item records real measurements of Cellpose 3 segmenting and
+enhancing real images, with the speed either improved or explained.
