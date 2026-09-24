@@ -5154,3 +5154,14 @@ No baseline, per-module target, exemption, branch requirement or shard count
 changed. This repairs the inventory failure reported by fresh coverage1;
 it does not make missing/insufficient coverage acceptable. Log:
 /tmp/spacr-coverage-denominator-642.log.
+
+2026-09-24 — Console stand-ins isolate their logging route
+Protected Qt0's three fake-console failures reproduce when the application
+root Qt logging sink is already installed. Real ConsolePanels subscribe to
+both routes; these stand-ins only implement append_stdout, so the production
+duplicate filter correctly suppressed their route. The three tests now
+remove/restore that root sink locally. Runtime delivery/filter unchanged.
+Forced-root baseline: 3 failures. Fixed console/thread/de-duplication cohort:
+18 pass with the root sink installed, 18 pass normally (5.29s). GUI-thread,
+worker-thread and real-console duplicate suppression checks remain active.
+Native Qt crashes and remaining protected-CI failures remain separate work.

@@ -16558,3 +16558,11 @@ these are failures at452f88cf1, not assertions that your newer fixes failed.
 The old minimum-dependency/full-control jobs finished with the same known
 contract/dependency/inventory/settings-flow failures already addressed later.
 Latest implementation checkpoint8b47157bd is pushed; worktree is clean.
+
+2026-09-24 — IMPLEMENTATION: CONSOLE TEST ISOLATION
+Resolved the three Qt0 fake-console failures by isolating their verbose
+logging route from a previously installed root Qt sink. Production console
+code and duplicate suppression are unchanged. Baseline reproduced all three;
+18 relevant checks pass with forced root setup and 18 in normal setup.
+No API, translation or tutorial changes needed for this test-only batch.
+Next small runtime candidate is #429's already-converted image rerun hazard.
