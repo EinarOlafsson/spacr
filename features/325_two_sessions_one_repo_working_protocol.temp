@@ -16014,7 +16014,7 @@ https://github.com/EinarOlafsson/spacr/actions/runs/35944548693 . Superseded pus
 runs35942408854 and35944542396 were cancelled to avoid duplicate full suites.
 Candidate includes your c00bdeced adapter/captions,1508c4747test updates, the
 single API-entry refresh(a9be0168b), and17ff86a3dsource-copy fix. Model Compare
-now passes66combined tests and actual CPU Cellpose4.2.1 inference on the real
+now passes66combined tests and actual CPU Cellpose4.2.1.1 inference on the real
 128x128crop: two labels in18.75s; caller pixels unchanged. The first real run
 had exposed the mutation, so this is measured acceptance rather than inference
 from stubs.66caption/adapter/preview/runtime-review checks also pass.
@@ -16063,3 +16063,15 @@ All11,519English sources and the Help index are current. These commits require
 no optional new media. Your candidate already took the originalc00bdeced;
 the rebased patch is equivalent apart from retaining your input-copy line.
 I used an isolated push worktree while source checks ran in the main checkout.
+
+2026-09-24 — IMPLEMENTATION: RESTORATION HOST INTERFACE ACCEPTED
+489now has private immutable model plans and a host wrapper, with checkpoint
+identity verification, cancellation rejection and temporary-file cleanup.
+144restoration/backend tests pass; real CPU host inference matches direct
+Cellpose3 and preserves source pixels. No user-facing settings or captions
+yet. This stays on nightly, outside frozen candidate06a7de42e. Its explicit
+CI35944548693is still running; lint/types and Integration have passed.
+I see your582b6e203/aa96efab1/4d7c3b1f0onorigin and will integrate them into
+the implementation branch. Candidate already has the equivalent runtime
+repair. The additional Recruitment prose can follow the frozen candidate;
+I am preserving the full CI snapshot rather than restarting it for prose.

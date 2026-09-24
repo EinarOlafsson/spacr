@@ -1,6 +1,6 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: NOT IMPLEMENTED. Explicit user request; record added2026-09-23.
+Status: IN PROGRESS. Isolated restoration and host interface verified; UI pending.
 
 Add opt-in network-based enhancement to Make Masks, with useful choices for
 different structures and acquisition noise. Research primary documentation and
@@ -77,3 +77,21 @@ Remaining: host wrapper, Compare/Apply controls and channel/provenance wiring,
 GUI cancellation/stale-result acceptance, full-field behavior and scientific
 quality comparisons. This worker is follow-on nightly work, excluded from
 1.5.1.0until its user-facing integration is complete.
+
+2026-09-24 — IMMUTABLE HOST REQUESTS AND ACTUAL CPU ACCEPTANCE
+The application can now preload a restoration model off the GUI thread into
+an immutable plan carrying its environment, model, diameter, device, exact
+checkpoint SHA256 and Cellpose version. This plan can serve as a cache key.
+Inference requires the worker to match that captured identity, so a restarted
+worker with changed weights cannot silently supply a different enhancement.
+The host returns float32 data plus provenance; it discards cancelled replies,
+validates the output and removes temporary files on every exit path.
+
+144 restoration/backend isolation tests pass, including changed checkpoint
+rejection before inference, late cancellation, malformed replies, immutable
+requests and scratch cleanup. Real CPU host inference matches direct Cellpose3
+on the microscopy crop, retains source pixels and refuses a changed model
+identity. Model load11.17s; inference0.45s. Receipt:
+features/data/489_restoration_host_acceptance_2026-09-24.json.
+Still pending: Compare/Apply controls, per-channel integration, GUI acceptance
+and scientific quality comparisons. These additions remain outside1.5.1.0.

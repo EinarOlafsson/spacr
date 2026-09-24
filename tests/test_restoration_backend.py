@@ -4,6 +4,8 @@ from __future__ import annotations
 import hashlib
 import sys
 import types
+from dataclasses import FrozenInstanceError, replace
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -119,3 +121,104 @@ def test_invalid_result_cannot_replace_a_valid_output(restoration, invalid):
     assert not reply['ok']
     assert 'invalid values or changed image dimensions' in reply['error']['message']
     np.testing.assert_array_equal(np.load(request['output']), previous)
+
+
+@pytest.fixture
+def host(restoration, monkeypatch, tmp_path):
+    cache = {}
+    requests = []
+    after_request = []
+
+    class Worker:
+        def request(self, op, *, should_cancel=None, **payload):
+            requests.append((op, payload))
+            reply = backend._handle('cellpose3', dict(
+                payload, op=op, protocol=backend._PROTOCOL, id=1), cache)
+            if not reply['ok']:
+                raise backend._BackendError(reply['error']['message'])
+            for callback in after_request:
+                callback(op, reply)
+            return reply
+
+    monkeypatch.setattr(backend, '_backend_state', lambda *a: types.SimpleNamespace(
+        state=backend._INSTALLED, in_process=False, env=str(tmp_path / 'env')))
+    worker = Worker()
+    factory = lambda *a: worker
+    return factory, cache, requests, after_request
+
+
+def test_captured_plan_is_immutable_and_returns_owned_result(restoration, host):
+    factory, _, requests, _ = host
+    _, source, built, _ = restoration
+    original = source.copy()
+    plan = backend._restoration_plan('denoise_nuclei', 25, worker_for=factory)
+    assert requests[0][0] == 'restoration_model'
+    assert len(built) == 1
+    assert not built[0].calls
+    with pytest.raises(FrozenInstanceError):
+        plan.diameter = 40
+    assert hash(plan) != hash(replace(plan, diameter=40))
+    result, record = backend._restore_plane(source, plan, worker_for=factory)
+    assert result.dtype == np.float32
+    assert np.all(result == -0.125)
+    assert record['weights_sha256'] == plan.weights_sha256
+    np.testing.assert_array_equal(source, original)
+    assert not Path(requests[-1][1]['input']).parent.exists()
+
+
+def test_restarted_worker_rejects_changed_weights_before_inference(restoration, host):
+    factory, cache, requests, _ = host
+    _, source, built, weights = restoration
+    plan = backend._restoration_plan('denoise_nuclei', 25, worker_for=factory)
+    cache.clear()
+    weights.write_bytes(b'a replaced checkpoint')
+    with pytest.raises(backend._BackendError, match='model changed'):
+        backend._restore_plane(source, plan, worker_for=factory)
+    assert len(built) == 2
+    assert not any(model.calls for model in built)
+    assert not Path(requests[-1][1]['input']).parent.exists()
+
+
+def test_cancelled_result_is_discarded_and_scratch_removed(restoration, host):
+    factory, _, requests, callbacks = host
+    _, source, _, _ = restoration
+    plan = backend._restoration_plan('denoise_nuclei', 25, worker_for=factory)
+    cancelled = []
+    callbacks.append(lambda *a: cancelled.append(True))
+    with pytest.raises(backend._BackendCancelled):
+        backend._restore_plane(source, plan, worker_for=factory,
+                              should_cancel=lambda: bool(cancelled))
+    assert not Path(requests[-1][1]['input']).parent.exists()
+
+
+def test_cancelled_plan_does_not_start_worker(host):
+    factory, _, requests, _ = host
+    with pytest.raises(backend._BackendCancelled):
+        backend._restoration_plan('denoise_nuclei', 25, worker_for=factory,
+                                 should_cancel=lambda: True)
+    assert not requests
+
+
+@pytest.mark.parametrize('corruption', ['shape', 'dtype', 'nan', 'identity'])
+def test_host_rejects_invalid_worker_reply(restoration, host, corruption):
+    factory, _, requests, callbacks = host
+    _, source, _, _ = restoration
+    plan = backend._restoration_plan('denoise_nuclei', 25, worker_for=factory)
+
+    def corrupt(op, reply):
+        if corruption == 'identity':
+            reply['provenance']['weights_sha256'] = 'incorrect'
+        else:
+            output = np.load(reply['output'])
+            if corruption == 'shape':
+                output = output[:2]
+            elif corruption == 'dtype':
+                output = output.astype(np.uint16)
+            else:
+                output[:] = np.nan
+            np.save(reply['output'], output)
+
+    callbacks.append(corrupt)
+    with pytest.raises(backend._BackendError):
+        backend._restore_plane(source, plan, worker_for=factory)
+    assert not Path(requests[-1][1]['input']).parent.exists()

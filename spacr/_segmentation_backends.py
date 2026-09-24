@@ -1590,6 +1590,97 @@ def _shutdown_workers(name=None):
 atexit.register(_shutdown_workers)
 
 
+@dataclass(frozen=True)
+class _RestorationPlan:
+    """Immutable model identity captured off the GUI thread before Apply.
+
+    Including checkpoint and environment identity in a request key prevents
+    enhanced image caches surviving a model change or backend reinstall.
+    """
+
+    env: str
+    model: str
+    diameter: float
+    device: str
+    weights_sha256: str
+    cellpose_version: str
+
+    def _identity(self):
+        """The identity the worker must still have when inference starts."""
+        return {"backend": _CELLPOSE3, "model": self.model,
+                "device": self.device, "weights_sha256": self.weights_sha256,
+                "cellpose_version": self.cellpose_version}
+
+
+def _restoration_plan(model, diameter, *, root=None, device="cpu",
+                      should_cancel=None, worker_for=None):
+    """Load an isolated restoration model and capture its identity.
+
+    Call from a background worker: first use may download weights. Backend
+    installation remains an explicit Model Zoo action. CPU is the default;
+    no application-wide automatic accelerator selection is used here.
+    """
+    if model not in _RESTORATION_MODELS:
+        raise ValueError(f"unsupported same-grid restoration model: {model!r}")
+    diameter = float(diameter)
+    if not math.isfinite(diameter) or diameter <= 0:
+        raise ValueError("restoration diameter must be finite and positive")
+    _check_restoration_cancel(should_cancel)
+    state = _backend_state(_CELLPOSE3, root)
+    if state.state != _INSTALLED or state.in_process:
+        raise ImportError(_not_installed_message(_CELLPOSE3, state))
+    worker = (worker_for or _worker_for)(_CELLPOSE3, state.env)
+    reply = worker.request("restoration_model", should_cancel=should_cancel,
+                           model=model, device=device or "cpu")
+    _check_restoration_cancel(should_cancel)
+    identity = reply["identity"]
+    return _RestorationPlan(
+        env=state.env, model=model, diameter=diameter,
+        device=identity["device"], weights_sha256=identity["weights_sha256"],
+        cellpose_version=identity["cellpose_version"])
+
+
+def _check_restoration_cancel(should_cancel):
+    """Discard cancelled work even when its reply has already arrived."""
+    if should_cancel is not None and should_cancel():
+        raise _BackendCancelled("the restoration request was cancelled")
+
+
+def _restore_plane(image, plan, *, should_cancel=None, worker_for=None):
+    """Return a restored copy and provenance for one captured model plan.
+
+    This blocking operation belongs on a background thread. Scratch files
+    are removed after success, failure or cancellation. Output values retain
+    normalized model units and are never cast back to the source's dtype.
+    """
+    _check_restoration_cancel(should_cancel)
+    source = np.asarray(image)
+    if (source.ndim != 2 or min(source.shape) < 2
+            or source.dtype.kind not in "uif" or not np.isfinite(source).all()):
+        raise ValueError("restoration needs one finite real intensity plane")
+    worker = (worker_for or _worker_for)(_CELLPOSE3, plan.env)
+    with tempfile.TemporaryDirectory(prefix="spacr-restoration-") as scratch:
+        input_path = os.path.join(scratch, "input.npy")
+        output_path = os.path.join(scratch, "output.npy")
+        np.save(input_path, source, allow_pickle=False)
+        reply = worker.request(
+            "restore", should_cancel=should_cancel, model=plan.model,
+            diameter=plan.diameter, device=plan.device,
+            expected_identity=plan._identity(), input=input_path,
+            output=output_path)
+        _check_restoration_cancel(should_cancel)
+        restored = np.load(output_path, allow_pickle=False)
+        record = reply["provenance"]
+        if any(record.get(key) != value
+               for key, value in plan._identity().items()):
+            raise _BackendError("restoration model changed; select the model again")
+        if (restored.shape != source.shape or restored.dtype != np.float32
+                or not np.isfinite(restored).all()):
+            raise _BackendError("restoration returned an invalid intensity plane")
+        _check_restoration_cancel(should_cancel)
+        return restored, dict(record)
+
+
 class _RemoteBackend:
     """A backend in its own environment, answering ``CellposeModel.eval``.
 
@@ -2272,31 +2363,13 @@ def _worker_segment(name, request, adapters):
     return reply
 
 
-def _worker_restore(name, request, adapters):
-    """Restore one intensity plane without changing its coordinate system.
-
-    Only the isolated Cellpose3 environment supports this operation. Model
-    output remains float32 in normalized model units, including negative
-    values; callers must not interpret it as calibrated fluorescence. The
-    existing worker protocol supplies cancellation by terminating the isolated
-    process. Cache keys distinguish restoration from segmentation models.
-    """
+def _worker_restoration_model(name, request, adapters):
+    """Load or reuse a model and return the identity of its loaded weights."""
     if name != _CELLPOSE3:
         raise ValueError("image restoration requires the Cellpose 3 backend")
     model_name = request.get("model")
     if model_name not in _RESTORATION_MODELS:
         raise ValueError(f"unsupported same-grid restoration model: {model_name!r}")
-    diameter = float(request.get("diameter", 30.0))
-    if not math.isfinite(diameter) or diameter <= 0:
-        raise ValueError("restoration diameter must be finite and positive")
-    image = np.load(request["input"], allow_pickle=False)
-    if (image.ndim != 2 or min(image.shape) < 2
-            or image.dtype.kind not in "uif"
-            or not np.isfinite(image).all()):
-        raise ValueError("restoration needs one finite real intensity plane")
-    image = np.array(image, dtype=np.float32, copy=True)
-    if not np.isfinite(image).all():
-        raise ValueError("restoration intensity exceeds the float32 range")
     device = _worker_device(request.get("device") or "cpu")
     key = ("restore", model_name, device)
     cached = adapters.get(key)
@@ -2319,7 +2392,32 @@ def _worker_restore(name, request, adapters):
                     "weights_sha256": digest.hexdigest(), "device": str(model.device)}
         cached = (model, identity)
         adapters[key] = cached
-    model, identity = cached
+    return cached
+
+
+def _worker_restore(name, request, adapters):
+    """Restore a finite intensity plane on its original coordinate grid.
+
+    Output remains float32 in normalized model units, including negative
+    values; callers must not interpret it as calibrated fluorescence. The
+    existing worker protocol supplies cancellation by terminating the isolated
+    process. A restarted worker refuses weights differing from a captured plan.
+    """
+    diameter = float(request.get("diameter", 30.0))
+    if not math.isfinite(diameter) or diameter <= 0:
+        raise ValueError("restoration diameter must be finite and positive")
+    image = np.load(request["input"], allow_pickle=False)
+    if (image.ndim != 2 or min(image.shape) < 2
+            or image.dtype.kind not in "uif"
+            or not np.isfinite(image).all()):
+        raise ValueError("restoration needs one finite real intensity plane")
+    image = np.array(image, dtype=np.float32, copy=True)
+    if not np.isfinite(image).all():
+        raise ValueError("restoration intensity exceeds the float32 range")
+    model, identity = _worker_restoration_model(name, request, adapters)
+    expected = request.get("expected_identity")
+    if expected is not None and expected != identity:
+        raise ValueError("restoration model changed; select the model again")
     restored = np.asarray(model.eval(
         image, channels=None, channel_axis=None, diameter=diameter,
         normalize=True, batch_size=1), dtype=np.float32)
@@ -2495,6 +2593,9 @@ def _handle(name, request, adapters):
             body = _worker_segment(name, request, adapters)
         elif op == "restore":
             body = _worker_restore(name, request, adapters)
+        elif op == "restoration_model":
+            _, identity = _worker_restoration_model(name, request, adapters)
+            body = {"identity": dict(identity)}
         elif op == "detect":
             body = _worker_detect(request, adapters)
         elif op == "detect_spots":
