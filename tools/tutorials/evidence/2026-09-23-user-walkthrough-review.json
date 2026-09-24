@@ -45,6 +45,7 @@
     "30_plate_queue",
     "31_external_masks",
     "32_align_stitch",
+    "33_plate_viewer",
     "34_database",
     "35_converter",
     "36_import",
@@ -87,7 +88,11 @@
     "74_import_images",
     "75_regression_diagnostics",
     "76_ops",
-    "77_embeddings"
+    "77_embeddings",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
   ],
   "new_capture_required": [
     "02_conda_install",
@@ -98,6 +103,7 @@
     "76_ops"
   ],
   "fresh_capture_completed": [
+    "33_plate_viewer",
     "59_anndata_export",
     "77_embeddings",
     "18_motility",
@@ -114,12 +120,7 @@
     "85_host_pathogen"
   ],
   "remaining_existing_scripts": [
-    "33_plate_viewer",
-    "71_investigate_hit",
-    "78_spacr_screens",
-    "79_module_inputs_outputs",
-    "80_image_analysis_pathways",
-    "81_sequencing_pathways"
+    "71_investigate_hit"
   ],
   "live_verified_commit": "1e5c408b6e7d54e4cdedc52cea3cd0ba5cde991b",
   "live_catalog_sha256": "ba0bf1b7649f00a92294cf4f7975fab4a390ff02dd41ee60a9799100670821e8",
@@ -129,6 +130,7 @@
     "04_platform_installers",
     "17_timelapse",
     "19_train_cellpose",
+    "33_plate_viewer",
     "59_anndata_export",
     "70_explain_cv",
     "72_volcano_explorer",
@@ -136,7 +138,11 @@
     "74_import_images",
     "75_regression_diagnostics",
     "76_ops",
-    "77_embeddings"
+    "77_embeddings",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
   ],
   "rows": [
     {
@@ -966,11 +972,11 @@
     },
     {
       "lesson": "33_plate_viewer",
-      "english_sha256": "03f9d7b1559cc03ed9ffa69045168e0ab82e74b8165e93168b28c57f3777768e",
-      "scene_count": 8,
-      "source_revised": false,
+      "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+      "scene_count": 10,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
@@ -2105,28 +2111,42 @@
     },
     {
       "lesson": "78_spacr_screens",
-      "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+      "english_sha256": "7129b7d28189c869313aee5b5b9e47ad4f64470a4f694914e2f318841685ef97",
       "scene_count": 8,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [
         {
           "field": "scenes[6].narration",
           "reason": "negative_framing_to_review"
         }
       ],
-      "incompatible_translation_reviews": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
       "lesson": "79_module_inputs_outputs",
-      "english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
+      "english_sha256": "6e2e261d8d5eb6f64a33689d91365a8157c536bfd3d0fb059d9a79fc7fe97508",
       "scene_count": 80,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [
         {
           "field": "scenes[6].narration",
@@ -2163,28 +2183,32 @@
         {
           "field": "scenes[65].narration",
           "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[79].narration",
-          "reason": "negative_framing_to_review"
         }
       ],
-      "incompatible_translation_reviews": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "it",
+        "ja",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
       "lesson": "80_image_analysis_pathways",
-      "english_sha256": "65a138e271ce58cd0566ea8d421e6f28327ea7a86e5446fea17a2c95ef3bb309",
+      "english_sha256": "555ab9a6efd4efc7bc325e27f4ca08dd4dbdfd7652bffb78bef7ad404e289ea3",
       "scene_count": 19,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
         {
           "field": "scenes[6].narration",
           "reason": "negative_framing_to_review"
@@ -2194,17 +2218,29 @@
           "reason": "negative_framing_to_review"
         }
       ],
-      "incompatible_translation_reviews": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "it",
+        "ja",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
       "lesson": "81_sequencing_pathways",
-      "english_sha256": "156941806f4a4638fc94b82904a69650a11a6c5d908c78b8a2b98064dc59ddde",
+      "english_sha256": "af1175ad36b3624923d30d1a92765fa66cae572b2b76b268a0d1294c2fc0c636",
       "scene_count": 11,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [
         {
           "field": "scenes[3].narration",
@@ -2215,7 +2251,21 @@
           "reason": "negative_framing_to_review"
         }
       ],
-      "incompatible_translation_reviews": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
       "prepared_rewrite": false,
       "published_rewrite": false
     },

@@ -1,8 +1,8 @@
 {
   "title": "Module inputs and outputs",
   "description": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
-  "introduction": "Choose a module by the data you have and the result you need. Home shows the main modules; related tools can open inside a parent. This chapter-by-chapter reference covers every current route. Inputs and outputs can be conditional: an image classifier and a feature classifier need different data, and a viewer does not automatically save everything it displays. The notes for each module explain those differences. Keep the original files and use the recorded object, plate and well identities when passing results between modules.",
-  "conclusion": "Return to the chapter matching your next data product rather than repeating work you already completed. A count table is not a measured feature table, a projection is not a trained classifier, and a comparison is not a new experiment. The linked API pages carry the same file, table and column contracts, and the specialist lessons demonstrate the individual controls.",
+  "introduction": "Choose a module by the files you have and the result you need. Start from its Home tile, or open the related tool inside its parent module. Use the chapter list to find a module, check its required inputs and identify the output to pass to the next step. Keep object, plate and well identifiers with your data.",
+  "conclusion": "Choose the chapter for your next task and open its linked module lesson for the controls and example data. Keep each output with the settings that created it. The module pages and Python API list the same input files, tables and identifiers when you need to connect steps in your own analysis.",
   "pathways": [
     "pooled_screen",
     "high_content",

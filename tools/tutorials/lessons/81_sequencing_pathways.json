@@ -12,11 +12,11 @@
     "Identify what each module reads and writes.",
     "Follow the linked module lessons and API contracts for the next step."
   ],
-  "prerequisite": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+  "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
   "scenes": [
     {
       "visual": "home",
-      "narration": "Start on Home with the question and the type of barcode data. Map Barcodes reads sequencing files; optical pooled screening reads registered image cycles through OPS. Both need an explicit mapping from barcode identities to the experiment. Regression relates compatible perturbation counts and phenotype scores; it does not replace barcode decoding. Experiment Design and Power belong before acquisition when you are planning the screen, while Dose-Response and Run Compare inspect suitable results afterwards.",
+      "narration": "From Home, open Map Barcodes for sequencing reads, or open OPS inside Mask for optical sequencing images. Provide the references and experimental layout that connect barcode identities to your screen. Combine compatible guide counts and phenotype scores in Regression. Use Experiment Design and Power before acquisition; use Dose-Response and Run Compare when you have suitable results to inspect.",
       "hold_after": 0.7,
       "related_lessons": [
         "05_home"
@@ -107,7 +107,7 @@
     },
     {
       "visual": "home_summary",
-      "narration": "Keep sequencing references and plate layouts with the counts, and check the join to image-derived scores before interpreting a regression. Optical assignments require their own object join and aggregation; they are not automatically a drop-in sequencing count file. Treat planning assumptions, fitted effects and comparisons between completed runs as distinct results. The linked lessons and Home walkthroughs show the route for each kind of experiment.",
+      "narration": "Keep barcode references and plate layouts with your count tables. Match those counts to phenotype scores by plate and well before Regression. For optical screening, join decoded object identities to the phenotypes and aggregate them for the chosen analysis. Follow the linked module lessons for data preparation, settings and outputs.",
       "hold_after": 0.7
     }
   ]

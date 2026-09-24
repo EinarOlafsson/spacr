@@ -76,6 +76,7 @@ def main() -> int:
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
+    parser.add_argument('--plate-current-example', action='store_true', help='Record Plate Viewer with its current Load test data control')
     parser.add_argument('--barcode-saved-plots', action='store_true', help='Show independently verified Barcode QC PNGs in the actual external viewer; no claim of GUI figure repair')
     parser.add_argument('--activation-saved-plots', action='store_true', help='Show independently verified Activation PNG grids in the real external viewer; does not certify GUI figures')
     parser.add_argument('--napari-reopen-each-edit', action='store_true', help='Record the explicit close/reopen-between-imports workflow; does not certify repeated edits in one viewer')
@@ -719,7 +720,10 @@ def main() -> int:
             record_report(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout)
         if args.module == 'plate_view':
-            from capture_plate_retention import record_plate_retention
+            if args.plate_current_example:
+                from capture_plate_example import record_plate_example as record_plate_retention
+            else:
+                from capture_plate_retention import record_plate_retention
             record_plate_retention(app, window, screen, stage, captures, capture,
                                    settle, write_json, args.timeout)
         if args.module == 'control_chart':

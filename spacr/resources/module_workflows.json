@@ -2693,8 +2693,8 @@
     "78_spacr_screens": {
       "title": "spaCR screens",
       "description": "Follow a pooled image-based screen from Home through image measurements, phenotype classification, barcode counts and regression.",
-      "introduction": "Start on Home with the material you already have. A pooled image-based screen has two data branches: images describe the phenotype, while sequencing identifies the perturbations represented in each well. Mask, Measure, Annotate and Classify build the image branch. Map Barcodes builds the sequencing branch. Regression brings compatible scores and guide counts together. These are connected data products, not six buttons that must always be run in a fixed order.",
-      "conclusion": "Before Regression, check that the image scores, sequencing counts and experimental layout use matching plate and well identities. Preserve the object identifiers, annotation column, classifier settings and barcode references with the run. Use the linked module lessons for a worked example of each step; choose the pooled-screen walkthrough when you want Home to guide the navigation.",
+      "introduction": "Start on Home with the data you have. For a pooled image-based screen, use Mask and Measure to prepare image measurements, then Annotate and Classify to obtain phenotype scores. Use Map Barcodes for sequencing reads. Bring the scores and guide counts together in Regression, matching plate and well identifiers. Begin at the step that matches your existing results.",
+      "conclusion": "Before opening Regression, match the plate and well identifiers in your scores, guide counts and experimental layout. Keep the annotation column, classifier settings and barcode references with the run. Follow the linked module lessons for each step, or choose the pooled-screen walkthrough on Home for guided navigation.",
       "pathways": [
         "pooled_screen"
       ],
@@ -2710,8 +2710,8 @@
     "79_module_inputs_outputs": {
       "title": "Module inputs and outputs",
       "description": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
-      "introduction": "Choose a module by the data you have and the result you need. Home shows the main modules; related tools can open inside a parent. This chapter-by-chapter reference covers every current route. Inputs and outputs can be conditional: an image classifier and a feature classifier need different data, and a viewer does not automatically save everything it displays. The notes for each module explain those differences. Keep the original files and use the recorded object, plate and well identities when passing results between modules.",
-      "conclusion": "Return to the chapter matching your next data product rather than repeating work you already completed. A count table is not a measured feature table, a projection is not a trained classifier, and a comparison is not a new experiment. The linked API pages carry the same file, table and column contracts, and the specialist lessons demonstrate the individual controls.",
+      "introduction": "Choose a module by the files you have and the result you need. Start from its Home tile, or open the related tool inside its parent module. Use the chapter list to find a module, check its required inputs and identify the output to pass to the next step. Keep object, plate and well identifiers with your data.",
+      "conclusion": "Choose the chapter for your next task and open its linked module lesson for the controls and example data. Keep each output with the settings that created it. The module pages and Python API list the same input files, tables and identifiers when you need to connect steps in your own analysis.",
       "pathways": [
         "pooled_screen",
         "high_content",
@@ -2807,8 +2807,8 @@
     "80_image_analysis_pathways": {
       "title": "Image analysis modules and how they relate",
       "description": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
-      "introduction": "Begin on Home by deciding whether you have raw images, existing masks or measured objects. Mask creates segmentation outputs; Make Masks curates individual fields; Measure turns compatible images and labels into object measurements and optional crops. From there, the scientific question determines whether to classify, explore a projection, define a gate or run an assay. Align tiled images before the analysis that needs a common coordinate system. The routes here are alternatives and branches, not a requirement to run every module.",
-      "conclusion": "For high-content analysis, follow Mask into Measure and then choose the method that answers your question. For segmentation training, curate image-mask pairs in Make Masks before Train Cellpose and test the saved model in Mask. Existing compatible masks or measurements let you enter later. Preserve channel identities, units, object keys and the settings used to create each result; follow the dedicated walkthrough for the route you choose.",
+      "introduction": "From Home, start with Mask if you have raw images. Use Make Masks to edit individual fields, or import compatible masks you already have. Open Measure to create object measurements and optional crops. Then choose classification, image exploration, gating or an assay to answer your question. Align tiled images first when the analysis needs a shared coordinate system.",
+      "conclusion": "For image analysis, follow Mask into Measure, then choose the downstream method you need. To train a segmentation model, prepare image-mask pairs in Make Masks, train in Train Cellpose and open the saved model in Mask. Start later in the pathway when you already have compatible outputs. Keep channel identities, units and object keys with each result.",
       "pathways": [
         "high_content",
         "segmentation_training",
@@ -2840,8 +2840,8 @@
     "81_sequencing_pathways": {
       "title": "Sequencing modules and how they relate",
       "description": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
-      "introduction": "Start on Home with the question and the type of barcode data. Map Barcodes reads sequencing files; optical pooled screening reads registered image cycles through OPS. Both need an explicit mapping from barcode identities to the experiment. Regression relates compatible perturbation counts and phenotype scores; it does not replace barcode decoding. Experiment Design and Power belong before acquisition when you are planning the screen, while Dose-Response and Run Compare inspect suitable results afterwards.",
-      "conclusion": "Keep sequencing references and plate layouts with the counts, and check the join to image-derived scores before interpreting a regression. Optical assignments require their own object join and aggregation; they are not automatically a drop-in sequencing count file. Treat planning assumptions, fitted effects and comparisons between completed runs as distinct results. The linked lessons and Home walkthroughs show the route for each kind of experiment.",
+      "introduction": "From Home, open Map Barcodes for sequencing reads, or open OPS inside Mask for optical sequencing images. Provide the references and experimental layout that connect barcode identities to your screen. Combine compatible guide counts and phenotype scores in Regression. Use Experiment Design and Power before acquisition; use Dose-Response and Run Compare when you have suitable results to inspect.",
+      "conclusion": "Keep barcode references and plate layouts with your count tables. Match those counts to phenotype scores by plate and well before Regression. For optical screening, join decoded object identities to the phenotypes and aggregate them for the chosen analysis. Follow the linked module lessons for data preparation, settings and outputs.",
       "pathways": [
         "pooled_screen",
         "optical_screen",

@@ -12,11 +12,11 @@
     "Identify what each module reads and writes.",
     "Follow the linked module lessons and API contracts for the next step."
   ],
-  "prerequisite": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+  "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
   "scenes": [
     {
       "visual": "home",
-      "narration": "Start on Home with the material you already have. A pooled image-based screen has two data branches: images describe the phenotype, while sequencing identifies the perturbations represented in each well. Mask, Measure, Annotate and Classify build the image branch. Map Barcodes builds the sequencing branch. Regression brings compatible scores and guide counts together. These are connected data products, not six buttons that must always be run in a fixed order.",
+      "narration": "Start on Home with the data you have. For a pooled image-based screen, use Mask and Measure to prepare image measurements, then Annotate and Classify to obtain phenotype scores. Use Map Barcodes for sequencing reads. Bring the scores and guide counts together in Regression, matching plate and well identifiers. Begin at the step that matches your existing results.",
       "hold_after": 0.7,
       "related_lessons": [
         "05_home"
@@ -85,7 +85,7 @@
     },
     {
       "visual": "home_summary",
-      "narration": "Before Regression, check that the image scores, sequencing counts and experimental layout use matching plate and well identities. Preserve the object identifiers, annotation column, classifier settings and barcode references with the run. Use the linked module lessons for a worked example of each step; choose the pooled-screen walkthrough when you want Home to guide the navigation.",
+      "narration": "Before opening Regression, match the plate and well identifiers in your scores, guide counts and experimental layout. Keep the annotation column, classifier settings and barcode references with the run. Follow the linked module lessons for each step, or choose the pooled-screen walkthrough on Home for guided navigation.",
       "hold_after": 0.7
     }
   ]

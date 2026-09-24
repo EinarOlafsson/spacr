@@ -12,11 +12,11 @@
     "Identify what each module reads and writes.",
     "Follow the linked module lessons and API contracts for the next step."
   ],
-  "prerequisite": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+  "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
   "scenes": [
     {
       "visual": "home",
-      "narration": "Begin on Home by deciding whether you have raw images, existing masks or measured objects. Mask creates segmentation outputs; Make Masks curates individual fields; Measure turns compatible images and labels into object measurements and optional crops. From there, the scientific question determines whether to classify, explore a projection, define a gate or run an assay. Align tiled images before the analysis that needs a common coordinate system. The routes here are alternatives and branches, not a requirement to run every module.",
+      "narration": "From Home, start with Mask if you have raw images. Use Make Masks to edit individual fields, or import compatible masks you already have. Open Measure to create object measurements and optional crops. Then choose classification, image exploration, gating or an assay to answer your question. Align tiled images first when the analysis needs a shared coordinate system.",
       "hold_after": 0.7,
       "related_lessons": [
         "05_home"
@@ -197,7 +197,7 @@
     },
     {
       "visual": "home_summary",
-      "narration": "For high-content analysis, follow Mask into Measure and then choose the method that answers your question. For segmentation training, curate image-mask pairs in Make Masks before Train Cellpose and test the saved model in Mask. Existing compatible masks or measurements let you enter later. Preserve channel identities, units, object keys and the settings used to create each result; follow the dedicated walkthrough for the route you choose.",
+      "narration": "For image analysis, follow Mask into Measure, then choose the downstream method you need. To train a segmentation model, prepare image-mask pairs in Make Masks, train in Train Cellpose and open the saved model in Mask. Start later in the pathway when you already have compatible outputs. Keep channel identities, units and object keys with each result.",
       "hold_after": 0.7
     }
   ]

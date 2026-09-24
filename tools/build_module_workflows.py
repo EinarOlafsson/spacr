@@ -269,7 +269,7 @@ def lesson_document(data, key, *, translate=None):
             "objectives": [tr("Choose a starting module from the data you already have."),
                            tr("Identify what each module reads and writes."),
                            tr("Follow the linked module lessons and API contracts for the next step.")],
-            "prerequisite": tr("Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module."),
+            "prerequisite": tr("Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data."),
             "scenes": scenes}
 
 
