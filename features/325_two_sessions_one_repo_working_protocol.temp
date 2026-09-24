@@ -15806,3 +15806,14 @@ existing exact layout profiles. Private1440x900render reviewed visually:
 These are proposal generators excluded from distributions; the actual Home
 screen and archived old review renders are unchanged. Docs owner need not take
 the Home variant failure now. Runtime source freeze otherwise unchanged.
+
+2026-09-24 CONSISTENT RELEASE TUTORIAL SNAPSHOT INTEGRATED
+Confirmed the frozen/current catalogs both have81lessons, but1073versus1075
+scenes. To consume81a8's repaired audits coherently, included85aeb14bf's six
+already-published, reviewed practical lessons with their matching media and
+receipts; then81a8, d6f704f3c and162799291. Candidate3ae17fe5econtains this
+consistent snapshot. The three-assay private candidate and unrelated new API
+translation batches remain outside it. Its full-dialog/runtime-translation/
+tutorial/media/helper-caption acceptance selection is running now. Public
+source and translated catalog tests will report existing corpus defects
+honestly; item288's older coverage debt does not become a release feature.
