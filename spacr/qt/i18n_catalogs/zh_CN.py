@@ -7000,6 +7000,8 @@ UI = {
     'Segmentation: {methods}.': '分割：{methods}。',
     'Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.': '预览使用已加载的视野并在该视野内归一化。完整 Mask 运行可能使用批次归一化和照明校正，因此生成的掩膜可能不同。强度过滤器使用原始预览像素。',
     'Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.': '为定量特征选择常规 Measure 强度，或经校准 PSF 处理后的强度。PSF 处理在标准重缩放和已注册的预处理步骤之后进行。源文件和导出的裁剪图像保留原有像素；数据库中的来源记录保存所选方式和确切的核。不能将更改后的核与已有测量结果混用。',
+    'Host–Pathogen': '宿主–病原体',
+    'Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.': 'Invasion Assay 区分附着于宿主细胞表面的寄生虫和已进入细胞的寄生虫。Recruitment 测量含寄生虫液泡周围宿主蛋白的富集程度。宿主–病原体将液泡水平的募集、寄生虫计数和宿主细胞感染指标的分母整合到一次分析中。单个寄生虫的计数需要适用的寄生虫掩膜或经过验证的估计方法；仅有整个液泡的掩膜无法提供这些计数。结合使用这些模块，有助于区分入侵过程的变化与入侵后宿主反应的变化。请选择能够区分这两类群体的图像通道和标记定义。',
 }
 
 MODULE_SUMMARIES = {
@@ -14123,4 +14125,6 @@ SOURCE_HASHES = {
     ('SETTING_LABELS', 'psf_operation'): 'c98412b92da4443332053dee4db6f328b81d747008c7344b885702306b13adb7',
     ('SETTING_LABELS', 'psf_path'): '11cbcc8c1921deab667ff9aa82317ae13b6e9720a121904bd34e7e94554e6b03',
     ('SETTING_LABELS', 'psf_source'): 'c9a272a1b2baac77be9358a6ce5654af26d4932a408f1c806c69de62c6df4a5c',
+    ('UI', 'Host–Pathogen'): '4c412cc95aa2cb17f6e0845eb10053d19c10cdd3303bd167cf972ce50362302e',
+    ('UI', 'Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.'): '9e911ea8fe2901d8809fb0145ca76fb04d1288ad1a4227464425c899dd863134',
 }

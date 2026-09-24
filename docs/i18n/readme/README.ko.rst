@@ -669,7 +669,7 @@ If spaCR contributed to published work, a citation is appreciated and is not a c
 튜토리얼
 ~~~~~~~~~
 
-`대화형 spaCR 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_\ 에는 설치 및 각 애플리케이션 워크플로를 설명하는 음성·자막 안내가 있으며, 8개 언어의 50개 음성으로 제작된 73개 강의가 포함되어 있습니다.
+`spaCR 대화형 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_는 설치와 모듈 사용을 단계별로 안내합니다. 각 강의에는 사용 가능한 내레이션과 언어가 표시됩니다.
 
 spaCR 인용
 ~~~~~~~~~~~~

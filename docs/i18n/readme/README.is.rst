@@ -669,7 +669,7 @@ Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði
 Kennsluefni
 ~~~~~~~~~~~
 
-`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ inniheldur talsettar og textaðar leiðbeiningar um uppsetningu og hvert verkflæði: 73 kennslustundir með 50 röddum á átta tungumálum.
+`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ leiðir þig í gegnum uppsetningu og notkun eininganna. Hver kennslustund tilgreinir hvaða upplestur og tungumál eru í boði.
 
 Tilvísun í spaCR
 ~~~~~~~~~~~~~~~~

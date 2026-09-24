@@ -43,5 +43,21 @@
       "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
       "translation": "[example] 已向表单应用 {applied} 项来自 {name} 的设置；已接受 {accepted} 个 CSV 键。"
     }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "演示数据集及其设置已加载。点击 Live Preview 查看一个显微视野，或点击 Run 处理整块孔板。"
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "演示数据集已加载，但没有设置包；使用默认设置。点击 Live Preview 查看一个显微视野，或点击 Run 处理整块孔板。"
+    }
   ]
 }

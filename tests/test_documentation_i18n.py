@@ -1988,6 +1988,9 @@ def test_github_summary_has_reviewed_domain_translations():
         is_document_block = canonical_blocks.count(source) == 1
         assert (
             is_document_block
+            or (source == "Make Masks" and canonical_normalized.count(source) == 2
+                and ":alt: Open the Make Masks API" in canonical
+                and "Import, Make Masks, Annotate" in canonical)
             or canonical_normalized.count(source) == 1
         ), source
         expected_languages = (

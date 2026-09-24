@@ -43,5 +43,21 @@
       "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
       "translation": "[example] {applied} सेटिंग्स {name} से फ़ॉर्म पर लागू की गईं; CSV की {accepted} कुंजियाँ स्वीकार की गईं।"
     }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "डेमो डेटासेट उसकी सेटिंग्स सहित लोड हो गया है। एक दृश्य-क्षेत्र देखने के लिए Live Preview दबाएँ, या पूरी प्लेट को संसाधित करने के लिए Run दबाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "डेमो डेटासेट सेटिंग्स पैक के बिना लोड हुआ है; डिफ़ॉल्ट सेटिंग्स का उपयोग किया जा रहा है। एक दृश्य-क्षेत्र देखने के लिए Live Preview दबाएँ, या पूरी प्लेट को संसाधित करने के लिए Run दबाएँ।"
+    }
   ]
 }

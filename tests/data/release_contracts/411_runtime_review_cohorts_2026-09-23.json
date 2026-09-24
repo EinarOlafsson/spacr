@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1666,
+      "current_total": 1668,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 748,
+      "later_distinct_additions": 750,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -94,6 +94,12 @@
           "records": 3,
           "sources": 3,
           "sha256": "cad4a26861dc5c295fb607e6a30e6cc940de48aec8d7630662e014c1c9ae7e36"
+        },
+        {
+          "name": "2026-09-23-host-pathogen-onboarding.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "2e587de9cd8ef0b3c523078923eb7e283096131e1d79ee4ed213f65f4501323b"
         },
         {
           "name": "2026-09-23-host-pathway-actions.json",
@@ -216,14 +222,14 @@
           "sha256": "db64546daf8d27be84b00c043a55148dbbdce61a6e7ce735083108354247055b"
         }
       ],
-      "added_sources_sha256": "d0b4c146ea997b5fe9ee5d55fa5647de1206078446c1d2a4de562e95e7e77cdb"
+      "added_sources_sha256": "d52fff291386e1528cd08ebb1af717ee88e782c63582ee6484e0319d329b9ad2"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1662,
+      "current_total": 1664,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 748,
+      "later_distinct_additions": 750,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -309,6 +315,12 @@
           "records": 3,
           "sources": 3,
           "sha256": "979f531a3ba19a9c40994090d2424ee408a3d7baa43d77018886691a7c6f0723"
+        },
+        {
+          "name": "2026-09-23-host-pathogen-onboarding.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "3481d16b14754e1ebcb7fce698e6fbbc9a08b6a63dcad9bf88cd76096d708682"
         },
         {
           "name": "2026-09-23-host-pathway-actions.json",
@@ -431,7 +443,7 @@
           "sha256": "8be13f999c8c7e96e38fade87927f77e2997ed2cac6cf9c9920749964805757b"
         }
       ],
-      "added_sources_sha256": "d0b4c146ea997b5fe9ee5d55fa5647de1206078446c1d2a4de562e95e7e77cdb"
+      "added_sources_sha256": "d52fff291386e1528cd08ebb1af717ee88e782c63582ee6484e0319d329b9ad2"
     }
   }
 }

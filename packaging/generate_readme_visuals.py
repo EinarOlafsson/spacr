@@ -1172,7 +1172,7 @@ def _documentation_folds() -> str:
         "-----------------------------------",
         "",
         "These modules open from another screen. Most appear beside their",
-        "host's settings and use the same project. The four Toxoplasma",
+        "host's settings and use the same project. The five Toxoplasma",
         "assays instead open from tiles on the Toxoplasma organism page;",
         "each assay still reads its own required images or measurements.",
         "",

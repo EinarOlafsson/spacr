@@ -669,7 +669,7 @@ Se spaCR contribuiu para o trabalho publicado, uma citação é apreciada e não
 Tutoriais
 ~~~~~~~~~
 
-A `biblioteca interativa de tutoriais do spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contém demonstrações narradas e legendadas da instalação e de cada fluxo de trabalho: 73 lições, com 50 vozes em oito idiomas.
+A `biblioteca de tutoriais interativos do spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ oferece guias de instalação e uso dos módulos. Cada aula indica a narração e os idiomas disponíveis.
 
 Como citar o spaCR
 ~~~~~~~~~~~~~~~~~~

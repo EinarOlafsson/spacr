@@ -669,7 +669,7 @@ Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschä
 Tutorials
 ~~~~~~~~~
 
-Die `interaktive spaCR-Tutorialsammlung <https://einarolafsson.github.io/spacr/tutorials/>`_ enthält vertonte und untertitelte Anleitungen zur Installation und zu jedem Anwendungsablauf: 73 Lektionen mit 50 Stimmen in acht Sprachen.
+Die `interaktive spaCR-Tutorialbibliothek <https://einarolafsson.github.io/spacr/tutorials/>`_ führt durch die Installation und die Verwendung der Module. Verfügbare Vertonungen und Sprachen werden für jede Lektion angegeben.
 
 spaCR zitieren
 ~~~~~~~~~~~~~~
