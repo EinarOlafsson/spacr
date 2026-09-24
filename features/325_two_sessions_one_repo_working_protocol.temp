@@ -15793,3 +15793,16 @@ qt/screens/gate_editor._AxisCutoffDialog.eventFilter(watched,event), for source
 inventory refresh. Real wheel/sdist fromcandidate1f270both build and pass
 strict Twine checks; remaining test issue above has this runtime fix pending
 candidate integration.95suite-hygiene/drop-lifetime checks also passed.
+
+2026-09-24 HOME DESIGN-REVIEW GENERATORS REPAIRED
+The non-distributed Home variants now place Host–Pathogen with the assays
+rather than a fallback Report/Review bucket and use its compact tile caption.
+The widest stage remains two rows at seven columns: exactly12entries, up
+from11because Host–Pathogen is now explicitly classified. Variant17needed955px
+in a900px canvas; five212px app columns beside a260px status pane remove that
+overflow. All96Home-variant checks pass, with no new defect allowed in the
+existing exact layout profiles. Private1440x900render reviewed visually:
+/tmp/spacr-home-variant17-repaired.png; zero clipping/elision/overflow/scrollbars.
+These are proposal generators excluded from distributions; the actual Home
+screen and archived old review renders are unchanged. Docs owner need not take
+the Home variant failure now. Runtime source freeze otherwise unchanged.

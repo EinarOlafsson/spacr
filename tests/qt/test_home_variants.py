@@ -321,7 +321,7 @@ def test_every_categorisation_covers_every_app(gen_common):
 def test_organism_launchers_are_grouped_with_assays(gen_common, table, title):
     """Organism doors must not silently grow a fallback reporting group."""
     categories = dict(getattr(gen_common, table))
-    assert {"toxoplasma", "plasmodium", "candida"} <= set(categories[title])
+    assert {"toxoplasma", "plasmodium", "candida", "host_pathogen"} <= set(categories[title])
 
 
 def test_orderings_are_permutations_of_the_real_registry(gen_common):
@@ -409,7 +409,7 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 11, (
+        assert len(keys) <= 12, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
     # ...AND THE FLOOR IS THE WIDEST BAND, not the average one.
@@ -417,7 +417,7 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     # The widest band, rather than the arithmetic average, is the actual
     # width the fixed grid must accommodate.
     widest = max(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert widest == 11, (
+    assert widest == 12, (
         f"the widest band is {widest}; the cap above is the width the "
         f"grid must accommodate, so move them together")
 
