@@ -51,7 +51,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import pandas as pd
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
     QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
@@ -193,6 +193,7 @@ class _AxisCutoffDialog(QDialog):
             f"Cutoffs change the VIEW only -- a gate keeps the objects it "
             f"already holds.", self)
         self._explain.setWordWrap(True)
+        self._explain.installEventFilter(self)
         layout.addWidget(self._explain)
         form = QFormLayout()
         layout.addLayout(form)
@@ -209,6 +210,19 @@ class _AxisCutoffDialog(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         form.addRow(buttons)
+
+    def eventFilter(self, watched, event):
+        """Keep the explanation tall enough after width or font changes.
+
+        :param watched: the wrapped explanation label receiving the event.
+        :param event: Qt resize, font or style notification; never consumed.
+        """
+        if watched is self._explain and event.type() in (
+                QEvent.Resize, QEvent.FontChange, QEvent.StyleChange):
+            height = max(0, self._explain.heightForWidth(self._explain.width()))
+            if self._explain.minimumHeight() != height:
+                self._explain.setMinimumHeight(height)
+        return super().eventFilter(watched, event)
 
     def values(self) -> Tuple[Optional[float], Optional[float]]:
         """``(low, high)`` as typed, with a blank box meaning ``None``.
