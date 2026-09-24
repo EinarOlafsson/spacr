@@ -1099,7 +1099,7 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
         pretrained_model=config.resolved_model,
         **cellpose_kwargs(),
     )
-    batch = [np.asarray(image, dtype=np.float32) for image in images]
+    batch = [np.array(image, dtype=np.float32, copy=True) for image in images]
     kwargs = config.eval_kwargs()
     parameters = inspect.signature(model.eval).parameters
     if ('invert' not in parameters and not any(
