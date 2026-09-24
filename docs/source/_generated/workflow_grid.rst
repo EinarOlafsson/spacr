@@ -126,15 +126,15 @@ Quantitative readouts for biological assays.
 .. |DocModule_toxoplasma| image:: /_static/workflow/apps/toxoplasma.png
    :width: 16.0%
    :alt: Open the Toxoplasma API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
    :align: middle
 .. |DocModule_plasmodium| image:: /_static/workflow/apps/plasmodium.png
    :width: 16.0%
    :alt: Open the Plasmodium spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
    :align: middle
 .. |DocModule_candida| image:: /_static/workflow/apps/candida.png
    :width: 16.0%
    :alt: Open the Candida spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
    :align: middle

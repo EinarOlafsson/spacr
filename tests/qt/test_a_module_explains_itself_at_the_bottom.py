@@ -218,15 +218,23 @@ def test_the_router_is_silent_on_a_page_that_cannot_show_help(window):
 # The links themselves
 # ---------------------------------------------------------------------------
 
-def test_every_registry_module_has_a_lesson_to_link_to():
-    """Measured 36 of 36 on 2026-09-03. A new module must not silently
-    lose its Tutorial word -- if this fails, add the lesson or accept that
-    the word is dropped for that module and say so here."""
+def test_every_registry_module_has_a_lesson_or_a_registered_gap():
+    """Missing lessons stay explicit and do not acquire misleading links."""
+    import json
+    from pathlib import Path
     from spacr.qt.app import APPS
     from spacr.qt.tutorials import has_tutorial
 
-    missing = sorted(key for key, *_ in APPS if not has_tutorial(key))
-    assert not missing, f"these modules have no lesson: {missing}"
+    source = (Path(__file__).resolve().parents[2] /
+              'docs/source/_extra/tutorials/module_navigation.js').read_text()
+    navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
+    gaps = navigation['missing_tutorials']
+    registered = {row['app_key'] for row in gaps}
+    assert registered == {'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'}
+    assert len(registered) == len(gaps)
+    assert all(row['status'] == 'needs_tutorial' for row in gaps)
+    missing = {key for key, *_ in APPS if not has_tutorial(key)}
+    assert missing == registered
 
 
 def test_a_module_with_no_lesson_simply_loses_the_word(qtbot):

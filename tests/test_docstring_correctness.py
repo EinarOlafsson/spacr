@@ -2116,7 +2116,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # features/data/411_classification_api_2026-09-23.json.
     # The synthetic Host–Pathogen example adds four documented functions;
     # 411_host_pathogen_example_api_2026-09-23.json verifies their subtraction.
-    assert len(callables) == len(by_symbol) == 9_494
+    # Exact source deltas and restored baseline: 411_callable_surface_delta_2026-09-24.json.
+    assert len(callables) == len(by_symbol) == 9_523
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2175,20 +2176,20 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # functions. Subtracted, 3,776.
         # 2026-09-20: see the note above this assertion. The seven
         # buckets sum to 9,047, which is the total pinned there.
-        "function": 4_232,
+        "function": 4_247,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_097,
+        "method": 4_106,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 438,
+        "constructor": 439,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
         # RemovalReport. Subtracted, 474.
-        "dataclass_constructor": 503,
-        "namedtuple_constructor": 19,
-        "exception_constructor": 147,
+        "dataclass_constructor": 505,
+        "namedtuple_constructor": 20,
+        "exception_constructor": 148,
         "inherited_or_default_constructor": 58,
     }
     # 8,493 -> 8,530, the same +37: every new callable is rendered by
@@ -2229,7 +2230,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # that arrived in the five days is rendered by autoapi and by
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
-        "autoapi": 9_489,
+        "autoapi": 9_518,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2275,7 +2276,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,692 -> 8,705 on 2026-09-15, the same +13: each of 412's and 416's
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
-    assert sum(item.variant_count for item in callables) == 9_501
+    assert sum(item.variant_count for item in callables) == 9_530
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2287,7 +2288,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,691 -> 9,040 on 2026-09-20: every callable that arrived in
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
-        1: 9_487,
+        1: 9_516,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2329,10 +2330,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # states still holds: it rose, so no constructor prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 437
+    ) == 439
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 437
+    ) == 439
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2470,7 +2471,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_850
+    assert sum(len(item.parameters) for item in callables) == 18_937
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2499,7 +2500,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # make_masks_example_folder have no required parameter. Subtracted, 8,812.
     # 8,830 -> 9,214 on 2026-09-20, moving with the parameter total
     # above.
-    assert sum(len(item.required_parameters) for item in callables) == 9_708
+    assert sum(len(item.required_parameters) for item in callables) == 9_748
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2591,7 +2592,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Removing twelve preview/montage arrivals and restoring montage.load's
     # prior row exactly reproduces 99126a21. Complete rows are recorded in
     # features/data/411_host_preview_montage_api_2026-09-23.json.
-) == "ab8c17d3f7772de42f96c05c5d41cd463bcf82c92b14b6f2d48ab5961682f7cd"
+) == "dbd2302745753c6368e7507dca7113f533bfeb38f8e997924b4eae3afa2681ea"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3074,7 +3075,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +7 Timeflows nested helpers; source-bound catalogs exist in all locales.
     # +9 held-out validation entries with nine source-bound locale catalogs.
     # +12 inference/cursor/help/schema entries; matches the source extractor.
-    assert len(docs) == 11_479
+    assert len(docs) == 11_518
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3175,12 +3176,45 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                        'preview_running', 'run_preview', 'shutdown')),
     }
     assert preview_callables <= rendered_documented_callables.keys()
+    current_additions = {
+        'spacr._starplast.check_starplast_update',
+        'spacr._starplast.upgrade_starplast',
+        'spacr.plaque_growth.estimate_page',
+        'spacr.plaque_growth.estimates_from_settings',
+        'spacr.plaque_growth.largest_quarter',
+        'spacr.point_spread.PSF',
+        'spacr.point_spread.PSF.array',
+        'spacr.point_spread.PSF.provenance',
+        'spacr.point_spread.PSFResult',
+        'spacr.point_spread.ProcessingCancelled',
+        'spacr.point_spread.apply_psf',
+        'spacr.point_spread.gaussian_psf',
+        'spacr.point_spread.load_psf',
+        'spacr.point_spread.measured_psf',
+        'spacr.psf_measurement.measurement_psf_record',
+        'spacr.psf_measurement.measurement_psf_signature',
+        'spacr.psf_measurement.measurement_resume_settings',
+        'spacr.psf_measurement.prepare_measurement_psf',
+        'spacr.psf_measurement.validate_measurement_psf_history',
+        'spacr.psf_pipeline.PSFPlan',
+        'spacr.psf_pipeline.PSFPlan.apply',
+        'spacr.psf_pipeline.PSFPlan.provenance',
+        'spacr.psf_pipeline.prepare_psf',
+        'spacr.psf_pipeline.validate_psf_resume',
+        'spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent',
+        'spacr.qt.starplast.StarplastUpdateCheckDialog',
+        'spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent',
+        'spacr.qt.starplast.StarplastUpdateCheckDialog.reject',
+        'spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview',
+        'spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy',
+    }
+    assert current_additions <= rendered_documented_callables.keys()
     prior = (rendered_documented_callables.keys() - incoming_callables
              - quality_and_host_callables - classification_callables - example_callables
-             - preview_callables)
+             - preview_callables - current_additions) | {"spacr.qt.app.demo_label_for_app"}
     assert len(prior - pipeline_callables) == 9_442
     assert len(prior - pipeline_callables - validation_functions) == 9_436
-    assert len(rendered_documented_callables) == 9_489
+    assert len(rendered_documented_callables) == 9_518
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -3582,7 +3616,10 @@ def test_no_new_undocumented_required_public_parameters():
     # constructor parameter, so the `constructor` bucket is gone.
     # 2026-09-23: fill_holes now documents mask; adding its one former
     # omission back restores 7c5788d0. No new omission is admitted.
-    assert len(omissions) == 2_292
+    # Five incoming omissions are documented. inspect_torch is repaired; the
+    # removed Demos helper accounts for the other reduction. Restoring those
+    # two entries reproduces the prior omission digest exactly.
+    assert len(omissions) == 2_290
     # 1,635 -> 1,633: two of the six retired accessors were omissions.
     # 1,633 -> 1,636 on 2026-09-10, +2 function and +1 method against a
     # surface that grew by 69 -- the OPS modules document their
@@ -3597,7 +3634,7 @@ def test_no_new_undocumented_required_public_parameters():
     # ratio the OPS note above describes: documented surface does not land
     # here however much of it there is.
     # 1,634 -> 1,644 on 2026-09-20; see the note at the omissions total.
-    assert sum(omitted_callables.values()) == 1_642
+    assert sum(omitted_callables.values()) == 1_640
     # `function` 756 -> 755, the -1 above: `install_folds`, documented by
     # the Map Barcodes commit itself. Every other bucket is unmoved, because
     # the five new dataclasses were documented rather than admitted.
@@ -3608,7 +3645,7 @@ def test_no_new_undocumented_required_public_parameters():
     # They sum to 1,644, the total pinned above, and they are a debt rather
     # than a decision -- pinned here so the next one cannot arrive unseen.
     assert omitted_callables == {
-        "function": 756,
+        "function": 754,
         "method": 842,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
@@ -3617,7 +3654,7 @@ def test_no_new_undocumented_required_public_parameters():
     # 2026-09-20: function 1,126 -> 1,133, method 1,011 -> 1,018, and the
     # same new `constructor` bucket at 1. Both dataclass buckets unmoved.
     assert omitted_parameters == {
-        "function": 1_132,
+        "function": 1_130,
         "method": 1_018,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
@@ -3630,7 +3667,7 @@ def test_no_new_undocumented_required_public_parameters():
         # Barcodes dataclass fields never entered this set, because they
         # were documented rather than admitted.
         # REGENERATED 2026-09-20 with the omission counts above.
-        "3316acae3821bc391b01ffd2315b850c7d3de1ba7a57398abb85ba1ca62c8bd9"
+        "ead403e647ce84d156ac790a2747c81da8da8e69f9370a92aee52606058727ee"
     )
 
 

@@ -103,7 +103,8 @@ def test_the_animations_are_mostly_too_small_as_generated():
     # ``_min_intensity_percentile`` and ``_max_intensity_percentile`` — whose
     # settings went with them, so a GIF explaining any of them would now
     # illustrate a setting nobody can type.
-    assert len(extents) == 86
+    assert len(extents) == 87
+    assert 'psf_fwhm_um' in {animation.slug for animation in setting_animations()}
     below = [value for value in extents if value < az.MIN_FILL]
     # Re-checked as a claim about the population, not carried over. Six of the
     # eight departed animations measured above 70 % and two below, so the
@@ -137,7 +138,7 @@ def test_a_real_animation_zooms_into_the_seventy_to_eighty_band(slug):
 
 @pytest.mark.heavy
 def test_every_packaged_animation_zooms_into_the_band():
-    """All 86, not a sample — the slow, complete version of the test above."""
+    """Check the complete packaged animation inventory."""
     out_of_band = []
     for animation in setting_animations():
         zoomed = az.zoomed_animation(str(animation.path), DISPLAY_SIZE)

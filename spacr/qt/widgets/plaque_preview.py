@@ -2919,7 +2919,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         return self._jobs.is_busy() or self._jobs.active_jobs() > 0
 
     def set_preview_busy(self, busy: bool) -> None:
-        """Keep rerun controls disabled until cancelled inference has exited."""
+        """Keep rerun controls disabled until cancelled inference has exited.
+
+        :param busy: requested busy state; active preview jobs also keep controls
+            disabled until their workers retire.
+        :returns: None.
+        """
         busy = bool(busy or self.preview_running())
         LivePreviewContract.set_preview_busy(self, busy)
         for name in ('_well_btn', '_all_btn'):

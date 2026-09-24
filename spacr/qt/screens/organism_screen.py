@@ -1,7 +1,48 @@
-"""Sourced organism guides, interactive cell diagrams and assay navigation.
+"""Explore organism guides and open the available image-analysis modules.
 
-The information and module panes scroll independently and share a horizontal
-splitter. Existing assays keep their registry keys; proposals cannot run.
+From Home, choose an organism to read its introduction, explore the cell
+diagram and browse its assay tiles. These guide pages require no input files
+and produce no analysis files. Drag the divider to give the information or
+module pane more space; each pane scrolls independently. Hover over a diagram
+component to read its description, select several components to keep them
+highlighted, and use Clear components to reset the selection.
+
+.. _spacr.qt.screens.organism_screen.toxoplasma:
+
+Toxoplasma
+----------
+Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen,
+Invasion Assay or Replication Assay. The selected module provides its input
+selectors, settings, preview and Run controls. Use its Test data control when
+an example is available. Plaque Assay starts with images; the other assays
+use the corresponding measurement tables and object relationships. Follow
+each module's input help before running, then open the results in its selected
+output folder. Starplast opens a separate application for exploring the
+Toxoplasma knowledge map; its first launch offers installation.
+
+.. _spacr.qt.screens.organism_screen.plasmodium:
+
+Plasmodium
+----------
+Open Home > Plasmodium to browse blood-stage, liver-stage, motility and
+compound-response topics. Explore the apicomplexan diagram and follow the
+PlasmoDB or UniProt links for organism-specific information. The assay tiles
+currently say Coming soon and are disabled; this page has no runnable
+Plasmodium-specific analysis and writes no results. To work with images now,
+return to Home and use the general segmentation and measurement modules with
+appropriate images, channels and masks for your experiment.
+
+.. _spacr.qt.screens.organism_screen.candida:
+
+Candida
+-------
+Open Home > Candida to browse morphology, filamentation, biofilm and host-cell
+interaction topics. Explore the budding-yeast diagram and follow the Candida
+Genome Database or UniProt links for gene and protein information. The assay
+tiles currently say Coming soon and are disabled; this page requires no data
+and writes no analysis files. For an available image workflow, return to Home
+and select the general segmentation and measurement modules, choosing masks
+and imaging channels suited to your species and experimental readout.
 """
 from __future__ import annotations
 

@@ -1451,7 +1451,7 @@ SETTING_TOOLTIPS = {
     'normalize_input': '应用每渠道平均值 0.5 和标准偏差 0.5 在训练中使用,在生成启动地图之前。 相匹配这个设定与模型训练; 否则入口不分配,结果的课程和地图是无效的。, 哪个百分比为显示图像。 默认 True.',
     'nr': '在预处理诊断图中显示的示例字段数量. 它不会影响在磁盘上写的字段; 增加它只会增加插入时间. 在预先验证视图时,在大盘上使用一个字段。',
     'nr_imgs': '每个代表图像网中的对象图像裁剪数量 样本者选择这个数以条件,或者所有可用的图像裁剪,当存在的数量较少。 增加它为一个更代表性的,但更大和更慢的数字; 减少它为更快的初步视图。',
-    'nuclei_limit': '合并逐对象表时应用的每个细胞的细胞核数量上限。None 禁用筛选，True 仅保留单核细胞，整数 N 保留细胞核数不超过 N 的细胞。超过上限的细胞会从合并表中完全删除。不要传入 False：它会被解释为 0 并删除所有细胞，产生空分析而不引发错误。默认值为 None。Merged Classifier 以 True 开始，Recruitment 以 1 开始，因此两者最初都只保留单核细胞。',
+    'nuclei_limit': '合并逐对象表时应用的每个细胞的细胞核数量上限。None 禁用筛选，True 仅保留单核细胞，整数 N 保留细胞核数不超过 N 的细胞。超过上限的细胞会从合并表中完全删除。不要传入 False：它会被解释为 0 并删除所有细胞，产生空分析而不引发错误。默认值为 None。Merged Classifier 以 True 开始，Recruitment 以 1 开始，因此两者最初都只保留单核细胞。Replication 的初始值为 10。',
     'nucleus_area_outlier_mads': '在引导 RNA标记之前,将中间绝对偏差边界扩展到核区域。 较低的值在引导 RNA分裂和正常化计算之前删除更多的核尺寸极端. 设置为 None 以禁用. 默认值 None。',
     'nucleus_background': '当 remove_background_nucleus True 时,它下面的每个像素在正常化之前都是零的;它也被 nucleus_signal_to_noise 加倍,以设置顶点目标。',
     'nucleus_cellprob_threshold': '于 model.eval 为 cellprob_threshold 的核通道的 Cellpose 细胞概率阈值。 像素必须超过它才能加入遮罩,所以提高它会缩小遮罩并丢弃暗核,而降低它会增加遮罩和恢复暗核以及更多碎片。 范围约为-6到6;  0.',
@@ -2233,6 +2233,8 @@ CATEGORY_HELP = {
     "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.": '光点如何被判定为碱基：哪个通道对应哪个字母，光点必须比周围亮多少才计为读段，以及读段距离细胞核多远仍可归属于该核。这些是采集数据的实测属性，而非个人偏好；运行会报告条形码库匹配率，以判断设置是否正确。',
     'How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.': '图块的拼接方式，以及如何分割每个拼接孔图中的细胞核：包括显微镜采集时相邻图块的重叠、分割窗口的重叠和所用模型。每个读段归属于其所在或紧邻的细胞核，因此这里的模型和直径决定哪些对象能够获得条形码。',
     'Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.': '图块的读取位置和结果的写入位置：在测序文件夹及其子文件夹中，查找按放大倍数、循环、孔、通道和视野位置命名的图块；指定要叠加的表型图像文件夹、用于匹配判定结果的引导 RNA 库，以及接收 measurements.db 和逐孔报告的输出文件夹。请先设置这些项；其他 OPS 设置组都以这些设置正确为前提。',
+    'Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.': '记录图像比例（像素/微米）和噬斑形成时间（小时）。测得的孔直径以像素保存；已知的孔实际直径可用于校准图像比例。这些值使噬斑大小具有实际物理意义。',
+    'Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.': '可选择将噬斑大小与实验参考生长曲线进行比较。估计时间需要独立已知的比例，估计比例则需要已知的时间：仅凭噬斑大小无法同时确定两者。这些估计是近似值，需要针对寄生虫株、宿主细胞和成像条件进行验证。',
 }
 
 UI = {
@@ -7007,6 +7009,8 @@ UI = {
     'Could not explain model: {message}': '无法解释模型：{message}',
     'Could not investigate hit: {message}': '无法分析命中结果：{message}',
     "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.": 'Starplast 是用于探索弓形虫（Toxoplasma）知识图谱的 alpha 阶段应用。功能和结果可能变化。它会在单独的窗口中打开。\n\n安装程序从 PyPI 安装最新的兼容稳定版 Starplast。该软件包包含基因数据；依赖项会增加下载量和磁盘占用。具体要求因版本和平台而异。请预留至少 12 GB 可用磁盘空间。下载可能需要几分钟。\n\nStarplast 使用位于 {path} 的独立环境；spaCR 的软件包不会改变。源代码采用 MIT 许可证。本地 Git 工作副本是可选的开发来源；本地安装使用已提交的文件，不会修改工作副本。',
+    'Scale & Time': '比例与时间',
+    'Experimental Growth Estimates': '实验性生长估计',
 }
 
 MODULE_SUMMARIES = {
@@ -8736,7 +8740,7 @@ SOURCE_HASHES = {
     ('SETTING_TOOLTIPS', 'normalize_input'): '526a1a769135326b9cfbde5a2d7ab335f7605d02590de8bc0a9f9c587ff4b9d6',
     ('SETTING_TOOLTIPS', 'nr'): '67570859a399c59e373ba1a83b8b523728005ae908470b467a255470d1de0b3f',
     ('SETTING_TOOLTIPS', 'nr_imgs'): 'da2f590ba414d7743db666cde547a598b4a5e1a7f34879d073b40c610fd4b22c',
-    ('SETTING_TOOLTIPS', 'nuclei_limit'): 'fd03c70d046963fa83c6fd8dd5a66d0e2d3907a9b81cd4c9f288f48eb71db222',
+    ('SETTING_TOOLTIPS', 'nuclei_limit'): '441b564c6f3db7d1654eb4dff7f88d24c54c19f66b8055688b41f1f24bb9d960',
     ('SETTING_TOOLTIPS', 'nucleus_area_outlier_mads'): 'eb64535ebc12f0ec9a1b7bc04c4cb3f81d9f5e4c9da72aabbbaa3a9a5a733db8',
     ('SETTING_TOOLTIPS', 'nucleus_background'): '46adb764ccc552b4b2b68cf86eb97ea3277ab7b58aca90a32388e8daf959438d',
     ('SETTING_TOOLTIPS', 'nucleus_cellprob_threshold'): 'c3a08fa9fcb284f680b80ed8d83677927dd1e91f7dd56f7ae5ccc7dd546e2309',
@@ -14137,4 +14141,8 @@ SOURCE_HASHES = {
     ('UI', 'Could not explain model: {message}'): '12bf1387b86d36d78aebfb96542c163f552d4031136259d1f33ff366dcb6803a',
     ('UI', 'Could not investigate hit: {message}'): '62944db2a2f66add5ce5ad64eb588aa55e97721d4bb30283a8ff719fea2e087f',
     ('UI', "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched."): '0c5426f8d0cc9d6afaf215b807abacf6877b5494ce02126241b20381942d00f8',
+    ('CATEGORY_HELP', 'Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.'): '6a49d414bf9a8b6220d6c9aa0fb5fad0e6dfbdf6f45353f01463013d42a42704',
+    ('CATEGORY_HELP', 'Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.'): '86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16',
+    ('UI', 'Scale & Time'): '3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e',
+    ('UI', 'Experimental Growth Estimates'): '52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54',
 }

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted source-context review. Preserves pixels per micrometer, hours, independent scale/time requirement, approximate estimates and strain/host/imaging validation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
+      "source": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
+      "source_sha256": "6a49d414bf9a8b6220d6c9aa0fb5fad0e6dfbdf6f45353f01463013d42a42704",
+      "translation": "Indique a escala da imagem em píxeis por micrómetro e o tempo de formação das placas em horas. Os diâmetros medidos dos poços são guardados em píxeis; um diâmetro físico conhecido do poço permite calibrar a escala da imagem. Estes valores dão significado físico ao tamanho das placas."
+    },
+    {
+      "table": "categories",
+      "key": "Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.",
+      "source": "Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.",
+      "source_sha256": "86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16",
+      "translation": "Se desejar, compare o tamanho das placas com uma curva experimental de crescimento de referência. Para estimar o tempo é necessária uma escala conhecida de forma independente, ou um tempo conhecido para estimar a escala: o tamanho da placa, por si só, não permite determinar ambos. As estimativas são aproximadas e exigem validação para a estirpe do parasita, as células hospedeiras e as condições de aquisição de imagens."
+    },
+    {
+      "table": "ui",
+      "key": "Scale & Time",
+      "source": "Scale & Time",
+      "source_sha256": "3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e",
+      "translation": "ESCALA E TEMPO"
+    },
+    {
+      "table": "ui",
+      "key": "Experimental Growth Estimates",
+      "source": "Experimental Growth Estimates",
+      "source_sha256": "52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54",
+      "translation": "ESTIMATIVAS EXPERIMENTAIS DE CRESCIMENTO"
+    }
+  ]
+}

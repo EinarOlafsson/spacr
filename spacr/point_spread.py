@@ -237,7 +237,11 @@ def load_psf(path, *, sampling_um, cancel=None):
 
 
 class PSFResult(NamedTuple):
-    """Processed float32 image and a JSON-safe processing receipt."""
+    """Processed float32 image and a JSON-safe processing receipt.
+
+    :param image: processed image with the input's spatial shape, as float32.
+    :param provenance: JSON-safe kernel and processing settings for this result.
+    """
 
     image: np.ndarray
     provenance: dict

@@ -246,7 +246,11 @@ class StarplastUpdateCheckDialog(QDialog):
             super().reject()
 
     def closeEvent(self, event):
-        """Prevent destruction of an active check thread."""
+        """Prevent destruction of an active check thread.
+
+        :param event: Qt close event; ignored while the check is being cancelled.
+        :returns: None.
+        """
         if self._thread is not None:
             self.reject()
             event.ignore()
