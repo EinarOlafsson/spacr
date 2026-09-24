@@ -16805,3 +16805,12 @@ and refuses invalid/changed selections or contradictory aliases.79 mocked-
 device/allocation/existing resolver tests pass. No real GPU execution, worker
 scheduler or UI wiring claimed. Both private APIs need inventory/prose follow-
 up; no new settings/strings/modules. Manifest groundwork241ff9622 is pushed.
+
+2026-09-24 — CODEX: CURRENT ENGLISH API AND TABLE GUIDES LIVE
+Run35959737649 deployed605aeb67a. Live English API11526 and85-route catalog
+exactly match committed bytes. Actual browser playback/chapter seeks pass for
+59AnnData,60PCA,61Tabulate,63SmallMultiples and main Mask. Both served player
+cache keys match their content hashes. Receipt:358_live_table_guides_2026-09-24.json.
+55rewritten existing lessons plus four new guides are now verified live.
+The later a79a8039dsource/translation checkpoint is pushed; eight subsequent
+walkthroughs await the remaining media checks. No main/version change.

@@ -1,0 +1,85 @@
+{
+  "source_commit": "605aeb67a80eecb5453d94c70712e73b913054c8",
+  "workflow": 35959737649,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "79d71a92f7204c8b839b7b8c7aff5de7302394ef",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "605aeb67a80eecb5453d94c70712e73b913054c8",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 563519399,
+    "media_files": 141
+  },
+  "english_api_entries": 11526,
+  "live_catalog_sha256": "0c73f0525375f7c48b25e708d54afd40b702e8fb866e82fcbf0c7aa44766b2ee",
+  "catalog_matches_source": true,
+  "api_matches_source": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "e83a819b00bbe4133d1e955c3ad79a686b27fbc57fd20bbafd1f394d27b7bad3"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "3c1685cfb0c0ee4cec117c6e4bc4c9ada5fbd775142a672d0c3f1441fdae482a"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617/07_mask/video/07_mask_silent.mp4",
+      "width": 3840,
+      "time": 45.316296,
+      "expected": 45.672743759076944,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "59_anndata_export",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/077895c4c53658d9af5a0b08cc38d814775c25f4/59_anndata_export/video/59_anndata_export_silent.mp4",
+      "width": 3840,
+      "time": 31.325016,
+      "expected": 31.651640466148777,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "60_pca",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/077895c4c53658d9af5a0b08cc38d814775c25f4/60_pca/video/60_pca_silent.mp4",
+      "width": 3840,
+      "time": 33.355035,
+      "expected": 33.5213270237913,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "61_tabulate",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/077895c4c53658d9af5a0b08cc38d814775c25f4/61_tabulate/video/61_tabulate_silent.mp4",
+      "width": 3840,
+      "time": 27.513692,
+      "expected": 27.660204000000004,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "63_small_multiples",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/077895c4c53658d9af5a0b08cc38d814775c25f4/63_small_multiples/video/63_small_multiples_silent.mp4",
+      "width": 3840,
+      "time": 27.314153,
+      "expected": 27.70194565887077,
+      "error": null
+    }
+  ],
+  "passed": true
+}

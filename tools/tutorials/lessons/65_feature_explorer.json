@@ -146,5 +146,6 @@
         "58_graph_builder"
       ]
     }
-  ]
+  ],
+  "host_app_key": "classify_merged"
 }

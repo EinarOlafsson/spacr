@@ -18,8 +18,8 @@ older35944548693 finished/failure. Never cancel these protected runs.
 ## Current source and publication
 
 Pushed checkpoint605aeb67a includes accepted table media192d0356b, wrapping
-Toggle API7c2692ec3 and documentation fixes266203de0. Docs run35959737649 is
-building both channels; inspect its result before claiming deployment.
+Toggle API7c2692ec3 and documentation fixes266203de0. Docs run35959737649
+successfully built and deployed both channels; direct live readback passed.
 
 English API:11,526 entries;9526public callables. Help includes Toggle's new
 heightForWidth/minimumSizeHint methods. Conversion/stream docstrings are
@@ -34,11 +34,11 @@ and tutorials use it. New guides82Toxoplasma,83Plasmodium,84Candida and
 85Host–Pathogen are linked. Setup order is GitHub,PyPI,Conda,installers, followed
 by Home/orientation/pipelines and modules.
 
-Last verified LIVE: H/32e760991, run35955044338. English API11522 and catalog
-bytes matched the commit; browser playback/chapter seeks passed for49,57,58,62
+Last verified LIVE: I/605aeb67a, run35959737649. English API11526 and catalog
+bytes match the commit; browser playback/chapter seeks passed for59,60,61,63
 and main Mask. Both served player cache keys match their content hashes.
-Receipt:358_live_practical_guides_2026-09-24.json. Do not confuse this older
-live API count with the latest pushed source count.
+Receipt:358_live_table_guides_2026-09-24.json. Source/translation checkpoint
+a79a8039d is pushed and awaits its later deployment; its media remain I.
 
 ## Accepted media: never re-upload
 
@@ -65,7 +65,7 @@ Their capture sequences/hashes match the originals. Matching English media
 is rendering/checking in exploration-media.log, design-dose-media.log and
 outliers-power-media.log. Inspect terminal results; do not publish new prose
 with old audio. Prior prepared matching media covers55rewritten existing
-lessons; last verified live covers51. Audit:
+lessons; last verified live also covers55. Audit:
 `tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`.
 
 Twelve sources remain for review/rewrite:33PlateViewer,70ExplainCV,

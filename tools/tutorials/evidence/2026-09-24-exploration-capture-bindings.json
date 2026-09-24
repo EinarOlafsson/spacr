@@ -1,5 +1,5 @@
 {
-  "source_commit": "d7b8ccdc249be9c182d1500048983b282d9c341b",
+  "source_commit": "a79a8039d9b5b19d1f074befbee3fc416a54fc2f",
   "scope": "Rewritten narration with existing example files, routes, chapter links and exact original capture sequences. No new native capture or runtime bug repair claimed.",
   "passed": true,
   "lessons": [
@@ -20,7 +20,8 @@
         "b3bdd82ed98755db51ef8ffdaa99b70ae2ee4691924cba13b2a5efdd3f769029",
         "f91bb8b2457ef59071b9d7110922245337dacc18bb255a3b9ffd0677587bb93f"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": null
     },
     {
       "lesson": "56_lineage",
@@ -42,7 +43,8 @@
         "0f263d4307dfd1025d66861c676960f2f56665f12436e7efaf1994c2cc1b7b21",
         "9569f8989298ea0161a6d25772a968dedfd3e63e031ed98c446e1739a784a43b"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": null
     },
     {
       "lesson": "64_gate_editor",
@@ -72,12 +74,13 @@
         "840b0d60e5cf8c799fa256cb9db6a52edec83bcab26a070aab6dac0078edd9ae",
         "aab4fa26f1771d8d8af026a2df0c3d26458799b7b35b6bbb72addb180510c9ee"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": null
     },
     {
       "lesson": "65_feature_explorer",
       "scenes": 14,
-      "source_sha256": "422bef442dc080296a69ed35cec5a6b230488aaa31665c71564832d660959401",
+      "source_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
       "original_capture_hash_sequence": [
         "cb7358175d11cabb738aface73326f65683ceb0cd5e561a32c9a37b4a1324256",
         "54567d4165dd85c81b3fc5ae1f72e03b643094c08ac3c622f74998c3c10d5d47",
@@ -94,12 +97,16 @@
         "49209cbc710c8909dccb6d0411051c61c50d166b5bb7e5d9800f2932260eb058",
         "1c31f52d9e5e1c97b92cadcf2d096dfcfcf246a40406370e7424d713c982acca"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": {
+        "from": null,
+        "to": "classify_merged"
+      }
     },
     {
       "lesson": "66_outliers",
       "scenes": 17,
-      "source_sha256": "b297a7cd12aeaad42d5963f30fa9bcdeae4db12186ad0e986e67ce99cad2aa74",
+      "source_sha256": "11fc8373bff222df7688c809af9a0f13ee7ffe05927b59ef7fbdf36f1c883ca7",
       "original_capture_hash_sequence": [
         "3e37536d26f57ded3279fb08c768bbdae0e8b5b8055dcb65ca350b675662398c",
         "a51a7edbfd7e34c9ae14e9c773775d0e3f137fa13a9bae554f7552e0feb6d5f1",
@@ -119,7 +126,11 @@
         "01013781096f1d11cc40f549fd3597349c7aa2edc3ff3b96dabf0e76eb3f99b2",
         "50d8928264698edb902a166a8a1fd4b668827a236beb55c3b857d5df2b9049b5"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": {
+        "from": null,
+        "to": "qc_dashboard"
+      }
     },
     {
       "lesson": "67_experiment_design",
@@ -141,7 +152,8 @@
         "20e1c632667c14ccc6dfca0984e4d95f357fa3476a6494a79727b502aa0424a9",
         "b521fbb700d6b8d1dfdf6f6cad3e14ca8a0ce0ba9bb6acf15c000943c310cfd4"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": null
     },
     {
       "lesson": "68_power_design",
@@ -160,7 +172,8 @@
         "f17a6b960f239f0d560178adf893716736e5804c874df895d3a1bf1e158564e0",
         "603bde905f6a3c26ece2d58f1d2dc3952fc3ab9b3a3a19691c8ed0a59ec37410"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": null
     },
     {
       "lesson": "69_dose_response",
@@ -186,7 +199,8 @@
         "6f503740c6b8eac9ef78079c533fae57807ee1beb15856d34094a8320e3e7243",
         "01a17127f69ccb7b4fbddf5c9f4d4f4f3f0596aeadcdb0eb907f302fc9bff927"
       ],
-      "original_routes_examples_and_visual_actions_preserved": true
+      "original_routes_examples_and_visual_actions_preserved": true,
+      "host_metadata_normalized": null
     }
   ]
 }
