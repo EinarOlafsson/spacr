@@ -5179,3 +5179,17 @@ the whole32-test tooltip-footer file passes47.97s under6GiB. No timeout
 threshold was raised, setting skipped, or cache inflated.
 Scoped Ruff comparison across all11Python files changed since7327a4444:
 98 pre-existing findings before/after, zero new findings.
+
+2026-09-24 — Zoom audit follows live meter identity, not changing percentages
+Replayed protected coverage1 batch4's exact287 gw0 nodes after collecting
+all32 batch files. Reproduced the same labels-vanished failure: the missing
+key was ('Muted','17%'), a live resource reading that updated normally.
+The font snapshot now keys UsageBar percentage labels by resource caption;
+it still checks their visibility and restored size. CPU/RAM at the same
+percentage were previously collapsed into one record, which is also fixed.
+A two-real-meter regression fails before (3labels instead of4); full zoom
+file11checks pass16.84s, exact287-node replay passes142.52s with no missing
+labels. The original replay failed1/passed286in139.38s. Runtime UI unchanged.
+One pre-existing Ruff import-order finding before/after; no new lint finding.
+Private replay: release-1510/replay_cov1_zoom_order.py under implementation-
+20260922; logs /tmp/spacr-cov1-zoom-{replay,fixed}.log.

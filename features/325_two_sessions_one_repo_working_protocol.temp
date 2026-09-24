@@ -16608,3 +16608,14 @@ unchanged. This addresses Qt1's20minute timeout, not Qt2's native crash.
 Four runtime/test batches plus this audit optimization are committed/pushed.
 Version/main promotion remain with the maintainer. Protected35952253721still
 has full-control/minimum-dependency/coverage5running; no replacement run.
+
+2026-09-24 — IMPLEMENTATION: ZOOM CI FAILURE REPRODUCED/FIXED
+Coverage1's zoom failure was a live17%resource value changing, not a widget
+vanishing. The font audit now tracks each percentage by its CPU/RAM/etc.
+caption and still checks font size/visibility. It also stops collapsing two
+meters when their values match. Exact287-node/32-collected-file CI replay:
+before1failed/286passed; after287passed. Full zoom file11checks also pass.
+Test-only change; no API/tutorial/translation update required.
+The old GPU observer finished its bounded2hours normally; restarted once as
+spacr-implementation-gpu-idle-20260924-b.service (128MiB,swap0,2hours).
+Same gpu-idle.log; no20minute idle interval qualified and no GPU work launched.
