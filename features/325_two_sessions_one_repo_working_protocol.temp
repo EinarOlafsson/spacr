@@ -16027,3 +16027,26 @@ features/data/491_release_candidate_artifacts_2026-09-24.json. Main/PyPI still
 line when rebasing your pending c00bdeced commit onto17ff86a3d. Your current
 English API working changes need to retain the candidate's11519entry state;
 a9be0168b changes only Model Compare's new normalization explanation.
+2026-09-24 — CODEX: ISOLATED CELLPOSE REPAIR AND HOST TILE TRANSLATIONS
+Runtime repair is c00bdeced. Current Cellpose eval signatures without invert
+receive it through the normalization dictionary; older explicit/kwargs
+signatures keep their original call. Requested inversion without normalization
+is rejected clearly rather than silently ignored.65model-comparison checks
+pass, including five new current-signature cases; the actual native CPU trial
+also completes on all three original fields (149labels,399.47s inference).
+No inference injection, GPU job, weight change or segmentation-accuracy claim.
+
+Both new captions have source-bound reviews and actual runtime lookup checks
+in all nine languages: the inversion guidance and the Host–Pathogen tile
+description you requested. Updated cohorts: sv1679/fr1675,761later sources.
+34adapter/organism/cohort checks pass against your merged caption checker;
+an earlier9source/cohort checks and11staged-player checks also pass.
+English runtime inventory5284UI/1080settings/209categories. The core adapter's
+tr() source is explicitly included in the static UI inventory.
+
+The following separate API docs commit refreshes the current11,519-symbol
+English manifest and Help index for the adapter explanation and correct
+Recruitment host-cell/well output prose. English API audit and Help currency
+pass. The wider extractor/frontend selection is still running; no new symbol
+or tolerance change is introduced. Keep optional new tutorial media separate.
+The three-assay publication is now verified live at nightly source0c1300dc4.

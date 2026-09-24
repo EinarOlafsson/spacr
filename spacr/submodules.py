@@ -989,36 +989,51 @@ def analyze_percent_positive(settings):
     return merged
 
 def analyze_recruitment(settings):
-    """Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.
+    """Measure marker recruitment with host-cell and per-well summaries.
 
     Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from
     a spacr ``measurements.db``, annotates each row with cell type /
     pathogen / treatment based on plate metadata, filters objects by
     size and intensity, computes the pathogen-to-cytoplasm mean-intensity
     ratio for ``channel_of_interest``, groups by well and writes both
-    ``cells.csv`` and ``wells.csv`` alongside recruitment plots.
+    ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.
+
+    Each cell row combines the pathogen measurements assigned to that host
+    cell. Pathogen mean intensities are averaged across its associated objects;
+    these rows represent host cells rather than independently measured vacuoles.
+    The main recruitment ratio divides that aggregate pathogen mean by the
+    cell's cytoplasm mean. Each well averages its retained cell ratios.
+
+    In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project,
+    map its channels and plate conditions, review the object filters, and Run.
+    Inspect the retained counts and ratio columns before comparing conditions.
+    Condition plots show between-well standard deviations. For measurements
+    linked to individual vacuoles, use :mod:`spacr.host_pathogen`.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.get_analyze_recruitment_default_settings`.
         Key entries:
 
         - ``src`` — folder containing ``measurements/measurements.db``
-          (or the DB path directly).
+          and optional ``merged`` images for overlays. A database path is also
+          accepted; a database outside a measurements folder may be moved into
+          one, so use a project copy when reorganizing existing data.
         - ``cell_types`` / ``cell_plate_metadata`` — labels + row/col
           metadata that map wells to cell lines.
         - ``pathogen_types`` / ``pathogen_plate_metadata``.
         - ``treatments`` / ``treatment_plate_metadata``.
         - ``channel_of_interest`` — intensity channel for the ratio.
         - ``cell_chann_dim`` / ``nucleus_chann_dim`` /
-          ``pathogen_chann_dim`` — mask channel dims.
+          ``pathogen_chann_dim`` — recorded object-channel mapping used by
+          image overlays and intensity filtering.
         - ``cell_size_range``, ``nucleus_size_range``,
           ``pathogen_size_range`` — ``[min, max]`` px area filters.
         - ``*_intensity_range``, ``target_intensity_min``.
         - ``cells_per_well`` — minimum well count to keep.
         - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.
 
-    :returns: List ``[cells, wells]`` — the per-PV and per-well
-        recruitment DataFrames, also written to CSV under ``src``.
+    :returns: List ``[cells, wells]`` — the host-cell and per-well
+        recruitment DataFrames, also written to CSV under ``src/results``.
 
     Example:
         .. code-block:: python

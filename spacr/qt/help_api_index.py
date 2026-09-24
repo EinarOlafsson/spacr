@@ -10716,7 +10716,7 @@ API_ENTRIES = (
     ('spacr.submodules.analyze_invasion', 'Invasion assay: score every parasite attached or invaded and report efficiency per well.'),
     ('spacr.submodules.analyze_percent_positive', 'Annotate objects above a threshold and summarise positive fractions per well.'),
     ('spacr.submodules.analyze_plaques', 'Segment host-cell plaques with a bundled Cellpose model and summarize per-image counts and areas.'),
-    ('spacr.submodules.analyze_recruitment', 'Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.'),
+    ('spacr.submodules.analyze_recruitment', 'Measure marker recruitment with host-cell and per-well summaries.'),
     ('spacr.submodules.analyze_replication', 'Replication assay: count parasites per vacuole and compare the distributions.'),
     ('spacr.submodules.apply_cellpose_model', 'Run a Cellpose model over a folder of images and export per-object measurements.'),
     ('spacr.submodules.compare_reads_to_scores', 'Compare sequencing read fractions to classifier score fractions across wells.'),

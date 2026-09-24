@@ -27666,13 +27666,13 @@
       "source_blocks_sha256": [
         "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
         "7f20bb964cdb7ee52d2e7c61062db7715729d574f2a3551a5c0f8b0afc185f08",
-        "e79e7de054afc600e189c6c6de74f506da646ab7ca42e76bfe60f29484db3d15",
+        "d16913d52b4af0f77301c908519ad3cbfefa3f1acea4694caec16f22ed618688",
         "73b303233ebbcac7c2202876eb3bf24cb010bd634e48cc2f57b799a1c9939991",
         "bb1b928d7d9847478938762fccb868e05d9b36f1490d299bb1618ff936b782e1",
         "a911e70676995448ffbff8b4a8626916d20976f420e17ed149d54c305b5c544a"
       ],
-      "source_sha256": "8a9431f4448b8da892a7a0f989801ce51628f20ca417c58a141a718a1edbe852",
-      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\nModel and device dependencies are loaded on demand for this call.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
+      "source_sha256": "799e738f9789122613c606523c3a0686fafac2ac00404d9bc3301d2400c8efcd",
+      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\nModel and device dependencies are loaded on demand for this call.\nCellpose versions without a separate ``invert`` argument receive that\nsetting in the normalization dictionary. Inversion requires normalization\non those versions; other normalization options are retained.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
     },
     "spacr.model_zoo": {
       "source_blocks_sha256": [
@@ -105798,25 +105798,27 @@
     },
     "spacr.submodules.analyze_recruitment": {
       "source_blocks_sha256": [
-        "e2536b59483cfd352bcf0b5096f93952a96c80e5c82a50ee834dc99053a10df4",
-        "b80059345c10641372c16026d020f6147f39903f0a6d7ae5bae6bac0a7cba7b3",
+        "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
+        "a29f43922aa0cb30f176d04778b1fdd408509368b812cb139973604ece725c8b",
+        "92758f0c3daf51c7599fc7762df2cd5c50a2acc4f27e3c75df90b7b6df3cc203",
+        "fc79e36854da76e195f32ef1e797cc60fba0119db86589d27aca7d7ae8047840",
         "bc7b0751b5e626ce0d1d9e4645388f2d1632315538a293bbee50319995f90246",
-        "d35dac711726debe538cf45791357d9fd0beb0a1ee888abe5edd5772c9ec01bb",
+        "28d0a82095526582605eff4a5f53a1d538458fa91379f2695bbf50254e04a0f5",
         "d49ffbbbc91065c3d13e3203ca5d81a53ed6aac65028eb95bf01bc29cab054c9",
         "99041e50ccb8a33e96fd544282877bf394d360456c9273189b94cba3f7cd1a87",
         "f41971d5082af24bddf1ed49564ad7e20c3442e9b6ed4d4ca3db98f5a522b035",
         "b1c8031b535246fb3a3440bfd11daf33d2b009b6da4610bcc196312b743f0083",
-        "93045c092dada4b28fe6ae3b64d0628d00fedf8698383ab958287b6e4c8c8796",
+        "cb6d273d8f2360ea8ec4bef8ba6f62a667ebc6ecc72eac903fb617f1f6bd3721",
         "8dbbb94e897100d11ddc365f5604f78105dc28641625f10d2c303ed7f863124b",
         "26d6e34dde58f5b9dc4605654dc6a2a66ac44a6e538f9c32ff32a567673ec909",
         "a9901d8c71ebb7a2a07bb6c4f14277b343cdb6d123483a3f13fa6b057b53ed8c",
         "6a80daf5023abd3b3191600348123823966204a5582e395dfe664dbd8e798b5e",
-        "d937498713f8ea2c21a9b0b2ab92f7f8faac10bf1fb779c3f7685bcddbe76746",
+        "a361b3555fcb6119b2af0e473de644e51360e86efcabf19fd118ecc10bff870c",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "a3165013e4976fcd9c7a8c2352b1487419add9a4524c1d101fc2215d36a1a530"
       ],
-      "source_sha256": "eb060107464cd8583c8ede7bee487562c62dfb39725cb14ce3ef9249e78b3746",
-      "text": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.\n\nReads the merged cell/nucleus/pathogen/cytoplasm feature tables from\na spacr ``measurements.db``, annotates each row with cell type /\npathogen / treatment based on plate metadata, filters objects by\nsize and intensity, computes the pathogen-to-cytoplasm mean-intensity\nratio for ``channel_of_interest``, groups by well and writes both\n``cells.csv`` and ``wells.csv`` alongside recruitment plots.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_analyze_recruitment_default_settings`.\n    Key entries:\n\n    - ``src`` — folder containing ``measurements/measurements.db``\n      (or the DB path directly).\n    - ``cell_types`` / ``cell_plate_metadata`` — labels + row/col\n      metadata that map wells to cell lines.\n    - ``pathogen_types`` / ``pathogen_plate_metadata``.\n    - ``treatments`` / ``treatment_plate_metadata``.\n    - ``channel_of_interest`` — intensity channel for the ratio.\n    - ``cell_chann_dim`` / ``nucleus_chann_dim`` /\n      ``pathogen_chann_dim`` — mask channel dims.\n    - ``cell_size_range``, ``nucleus_size_range``,\n      ``pathogen_size_range`` — ``[min, max]`` px area filters.\n    - ``*_intensity_range``, ``target_intensity_min``.\n    - ``cells_per_well`` — minimum well count to keep.\n    - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.\n\n:returns: List ``[cells, wells]`` — the per-PV and per-well\n    recruitment DataFrames, also written to CSV under ``src``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_recruitment\n        settings = {\n            'src': '/data/plate01',\n            'cell_types': ['HeLa'], 'cell_plate_metadata': ['c2-c11'],\n            'pathogen_types': ['tgme49'], 'pathogen_plate_metadata': ['c2-c11'],\n            'treatments': ['dmso','drug'], 'treatment_plate_metadata': [['r1'],['r2']],\n            'channel_of_interest': 3,\n        }\n        cells_df, wells_df = analyze_recruitment(settings)\n\nSee Also:\n    :func:`analyze_plaques` — plaque-count/size assay.\n    :func:`spacr.ml.generate_ml_scores` — feature-based classifier\n    as an alternative to recruitment ratios."
+      "source_sha256": "c65527a8cc26ca3498a9c1bb84f3fadf317b6bba0e8a596a6524a9ea72445646",
+      "text": "Measure marker recruitment with host-cell and per-well summaries.\n\nReads the merged cell/nucleus/pathogen/cytoplasm feature tables from\na spacr ``measurements.db``, annotates each row with cell type /\npathogen / treatment based on plate metadata, filters objects by\nsize and intensity, computes the pathogen-to-cytoplasm mean-intensity\nratio for ``channel_of_interest``, groups by well and writes both\n``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.\n\nEach cell row combines the pathogen measurements assigned to that host\ncell. Pathogen mean intensities are averaged across its associated objects;\nthese rows represent host cells rather than independently measured vacuoles.\nThe main recruitment ratio divides that aggregate pathogen mean by the\ncell's cytoplasm mean. Each well averages its retained cell ratios.\n\nIn the GUI, open Home > Toxoplasma > Recruitment. Select a measured project,\nmap its channels and plate conditions, review the object filters, and Run.\nInspect the retained counts and ratio columns before comparing conditions.\nCondition plots show between-well standard deviations. For measurements\nlinked to individual vacuoles, use :mod:`spacr.host_pathogen`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_analyze_recruitment_default_settings`.\n    Key entries:\n\n    - ``src`` — folder containing ``measurements/measurements.db``\n      and optional ``merged`` images for overlays. A database path is also\n      accepted; a database outside a measurements folder may be moved into\n      one, so use a project copy when reorganizing existing data.\n    - ``cell_types`` / ``cell_plate_metadata`` — labels + row/col\n      metadata that map wells to cell lines.\n    - ``pathogen_types`` / ``pathogen_plate_metadata``.\n    - ``treatments`` / ``treatment_plate_metadata``.\n    - ``channel_of_interest`` — intensity channel for the ratio.\n    - ``cell_chann_dim`` / ``nucleus_chann_dim`` /\n      ``pathogen_chann_dim`` — recorded object-channel mapping used by\n      image overlays and intensity filtering.\n    - ``cell_size_range``, ``nucleus_size_range``,\n      ``pathogen_size_range`` — ``[min, max]`` px area filters.\n    - ``*_intensity_range``, ``target_intensity_min``.\n    - ``cells_per_well`` — minimum well count to keep.\n    - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.\n\n:returns: List ``[cells, wells]`` — the host-cell and per-well\n    recruitment DataFrames, also written to CSV under ``src/results``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_recruitment\n        settings = {\n            'src': '/data/plate01',\n            'cell_types': ['HeLa'], 'cell_plate_metadata': ['c2-c11'],\n            'pathogen_types': ['tgme49'], 'pathogen_plate_metadata': ['c2-c11'],\n            'treatments': ['dmso','drug'], 'treatment_plate_metadata': [['r1'],['r2']],\n            'channel_of_interest': 3,\n        }\n        cells_df, wells_df = analyze_recruitment(settings)\n\nSee Also:\n    :func:`analyze_plaques` — plaque-count/size assay.\n    :func:`spacr.ml.generate_ml_scores` — feature-based classifier\n    as an alternative to recruitment ratios."
     },
     "spacr.submodules.analyze_replication": {
       "source_blocks_sha256": [
