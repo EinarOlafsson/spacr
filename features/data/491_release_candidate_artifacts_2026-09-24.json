@@ -1,0 +1,26 @@
+{
+  "candidate": "419bf0967ced92981d5d017b25b4b7bddb6b3f2a",
+  "version": "1.5.1.0",
+  "readme_images": 49,
+  "all_readme_images_https": true,
+  "release_contract_fixtures": [
+    "spacr-1.5.1.0/tests/data/release_contracts/288_section_title_inventory_2026-09-22.json",
+    "spacr-1.5.1.0/tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json",
+    "spacr-1.5.1.0/tests/data/release_contracts/424_detector_transfer_merged_2026-09-21.json",
+    "spacr-1.5.1.0/tests/data/release_contracts/435_inversion_help_2026-09-22.json",
+    "spacr-1.5.1.0/tests/data/release_contracts/474_starplast_integration_2026-09-22.json",
+    "spacr-1.5.1.0/tests/data/release_contracts/491_default_claim_census_2026-09-23.json"
+  ],
+  "artifacts": {
+    "spacr-1.5.1.0-py3-none-any.whl": {
+      "sha256": "1ad97e6e9d7a0048c922afa1560c85d768124a10757c237d85add5fa75a9e547",
+      "bytes": 38354787
+    },
+    "spacr-1.5.1.0.tar.gz": {
+      "sha256": "1df3533ea8500f426fe9317a5b6db14fcfbc8bf9f93d85c1c6638120b677ea7f",
+      "bytes": 46179472
+    }
+  },
+  "published": false,
+  "image_count_method": "Actual PyPI readme_renderer HTML img elements"
+}

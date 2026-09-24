@@ -1,6 +1,6 @@
 488 — PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE
 =====================================================
-Status: implemented; public PyPI verification awaits the next package release.
+Status: DONE — implementation and package rendering verified; ships with1.5.1.0.
 
 User request2026-09-23: keep every GitHub image and all content, making PyPI
 compatible or providing a PyPI-specific equivalent instead of broken images.
@@ -23,3 +23,14 @@ images resolve publicly with HTTP200 and image Content-Type. A fresh build
 environment using the declared setuptools>=77 floor generated real wheel
 METADATA; PyPI's renderer accepted it and produced the complete HTML preview.
 Existing GitHub README remains byte-for-byte unchanged. No PyPI upload made.
+
+2026-09-24 — PACKAGE OUTPUT COMPLETE; PUBLICATION IS A RELEASE OPERATION
+Candidate419bf0967's actual wheel README renders49image elements through
+PyPI's readme_renderer, all with HTTPS sources. Wheel and source distribution
+both pass strict Twine checks. The source archive contains all six release
+contract fixtures and excludes development feature/instruction trees.
+Receipt features/data/491_release_candidate_artifacts_2026-09-24.json.
+Main/PyPI still carry1.5.0.9; the existing public page has not been changed yet.
+Per the maintainer, observing the published page after the version update is
+not a separate unfinished feature. Any actual publishing failure will be
+recorded only if it occurs; this implementation item is complete.
