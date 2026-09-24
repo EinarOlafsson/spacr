@@ -1,0 +1,23 @@
+{
+  "before": 11519,
+  "after": 11520,
+  "added": [
+    "spacr.qt.widgets.restoration_controls"
+  ],
+  "removed": [],
+  "changed": [
+    "spacr.qt.detect_chain",
+    "spacr.qt.detect_chain.Chain",
+    "spacr.qt.detect_chain.prepare"
+  ],
+  "previous_commit": "a811fe553^",
+  "exact_key_subtraction_passed": true,
+  "english_audit_passed": true,
+  "translation_approval": false,
+  "boundary": {
+    "visible": 11520,
+    "unfiltered": 11744,
+    "excluded": 224,
+    "excluded_ids_unchanged": true
+  }
+}

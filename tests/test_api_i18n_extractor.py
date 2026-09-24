@@ -1225,7 +1225,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # source-key subtraction in 411_api_test_surface_2026-09-23.json.
     # English publication remains independent of incomplete locale catalogs.
     # SaveFigureDialog.eventFilter is the only final release addition.
-    expected = 11_519
+    # +1 restoration_controls module; its private widget remains excluded.
+    # Exact subtraction: 411_restoration_api_refresh_2026-09-24.json.
+    expected = 11_520
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1267,7 +1269,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_519
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_520
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1615,7 +1617,9 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # 11,516 after. The exact 224 excluded IDs are retained in the report.
     # Re-measured after the two runtime repairs and SaveFigure.eventFilter;
     # the exact excluded IDs still match the previous 224-member boundary.
-    assert 11_743 - len(docs) == 224
+    # The restoration_controls module adds one visible and one raw entry;
+    # all 224 excluded identities were compared to the prior receipt.
+    assert 11_744 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
