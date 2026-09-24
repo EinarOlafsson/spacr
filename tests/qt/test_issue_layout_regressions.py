@@ -16,7 +16,8 @@ def test_tour_text_scrolls_with_actions_in_view(qtbot, qt_theme_applied, size):
     overlay = _TourOverlay(window, [TourStep('Long translated title ' * 4, 'Long explanation ' * 150)])
     overlay.show()
     qtbot.wait(50)
-    available = overlay.screen().availableGeometry()
+    from spacr.qt.hidpi import screen_for_widget
+    available = screen_for_widget(overlay).availableGeometry()
     visible = overlay.rect().intersected(QRect(overlay.mapFromGlobal(available.topLeft()), available.size()))
     assert visible.contains(overlay._card.geometry())
     for button in (overlay._skip_btn, overlay._next_btn):

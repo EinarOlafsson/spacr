@@ -298,7 +298,8 @@ def test_the_card_stays_at_the_bottom_centre_on_a_resize(window, qapp):
     overlay.setGeometry(0, 0, 1000, 800)
     overlay.resizeEvent(None)
     card = overlay._card.geometry()
-    available = overlay.screen().availableGeometry()
+    from spacr.qt.hidpi import screen_for_widget
+    available = screen_for_widget(overlay).availableGeometry()
     visible = overlay.rect().intersected(QRect(
         overlay.mapFromGlobal(available.topLeft()), available.size()))
     assert abs(card.center().x() - visible.center().x()) <= 1

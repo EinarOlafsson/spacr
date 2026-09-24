@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "status": "bounded runtime fix verified",
+  "base_commit": "738fb293b",
+  "ci_run": 35952253721,
+  "ci_job": 107483090716,
+  "failing_test": "tests/qt/test_the_crop_filter_is_written_per_colour.py::test_clearing_a_field_is_not_undone_by_the_old_setting",
+  "reproducer_files": [
+    "tests/test_a_square_is_the_canvas_not_the_data.py",
+    "tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py",
+    "tests/qt/test_features_settings_and_recovery.py",
+    "tests/qt/test_the_crop_filter_is_written_per_colour.py"
+  ],
+  "baseline": {
+    "cohort_cases": 61,
+    "plain_process_exit": 139,
+    "native_stack": [
+      "QScreen::virtualSiblings",
+      "QGuiApplication::screenAt",
+      "QWidget::screen",
+      "QWidget::metric",
+      "QFont::QFont",
+      "QWidgetPrivate::init",
+      "QDialog::QDialog"
+    ],
+    "premature_destruction": "GDB traced QScreen::~QScreen through shiboken6 and Python delete_garbage during generation-zero collection, before the next dialog constructor faulted.",
+    "deterministic_guard": "Constructing Annotate settings, retaining app.primaryScreen(), then delivering dialog.deleteLater() invalidated the retained screen wrapper. The assertion failed before the change."
+  },
+  "change": {
+    "helper": "spacr.qt.hidpi.screen_for_widget",
+    "lookup": "Static QGuiApplication.screenAt at the visible anchor center, with primaryScreen fallback. Hidden children use their parent. Real QWidget/QWindow screen() accessors are avoided.",
+    "surfaces": ["Annotate settings", "live settings", "first-run overlay", "screensaver", "ambient display sizing", "window sizing", "paint diagnostics", "DPI fallback"],
+    "settings_added": false
+  },
+  "verification": {
+    "qt_6_11_2_regression_and_original_cohort": {"passed": 65, "seconds": 14.19},
+    "qt_6_11_2_gui_surfaces": {"passed": 218, "seconds": 68.03},
+    "qt_6_11_2_live_preview": {"passed": 71, "seconds": 23.61},
+    "native_debugger_replays": {"runs": 3, "passed_each": 61, "screen_destruction": "Only after the tests, through QWindowSystemInterface::handleScreenRemoved at application shutdown; no collection-driven QScreen destructor."},
+    "qt_6_10_0_lifetime_and_selection": {"passed": 4, "seconds": 4.23},
+    "memory_cap_gib": 6
+  },
+  "limits": [
+    "Local acceptance used Linux offscreen Qt; physical multi-monitor placement was not exercised.",
+    "The protected full CI run predates this fix; no full-suite green claim.",
+    "Existing non-Qt screen-provider stand-ins remain supported."
+  ]
+}

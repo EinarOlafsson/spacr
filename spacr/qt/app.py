@@ -158,7 +158,8 @@ def _open_at_the_measured_width(window) -> bool:
         from .preferences import (_get_layout_decision,
                                   _set_layout_decision, get_font_scale)
 
-        handle = window.screen() or QApplication.primaryScreen()
+        from .hidpi import screen_for_widget
+        handle = screen_for_widget(window)
         if handle is None:
             return False
         available = handle.availableGeometry()
@@ -2283,8 +2284,8 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     # FIRST, before anything below can change a pixel.
     pixels, scale = None, (1.0, 1.0)
     try:
-        app = QApplication.instance()
-        display = window.screen() or app.primaryScreen()
+        from .hidpi import screen_for_widget
+        display = screen_for_widget(window)
         pixmap = display.grabWindow(window.winId())
         image = pixmap.toImage()
         report["screenshot"] = {

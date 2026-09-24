@@ -348,8 +348,9 @@ class _TourOverlay(QWidget):
         """Fit text and actions within the visible part of the application."""
         if not hasattr(self, '_text_scroll'):
             return
+        from .hidpi import screen_for_widget
         from .preferences import scaled_px
-        available = self.screen().availableGeometry()
+        available = screen_for_widget(self).availableGeometry()
         visible = self.rect().intersected(QRect(
             self.mapFromGlobal(available.topLeft()), available.size()))
         area = visible.adjusted(12, 12, -12, -12)

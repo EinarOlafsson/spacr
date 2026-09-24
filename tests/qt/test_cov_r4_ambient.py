@@ -76,10 +76,14 @@ def test_a_machine_that_reports_no_screen_gets_the_fallback_ceiling(
 
     class _NoScreens:
         @staticmethod
+        def instance():
+            return qapp
+
+        @staticmethod
         def primaryScreen():
             return None
 
-    monkeypatch.setattr("PySide6.QtGui.QGuiApplication", _NoScreens)
+    monkeypatch.setattr("spacr.qt.hidpi.QGuiApplication", _NoScreens)
     assert screen_pixels() == BUFFER_MAX_PIXELS
 
 

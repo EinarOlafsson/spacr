@@ -1803,8 +1803,9 @@ class _SettingsDialog(QDialog):
         self.layout().addWidget(buttons)
 
         from ..dialogs import give_it_a_size_grip
+        from ..hidpi import screen_for_widget
         give_it_a_size_grip(self)
-        available = self.screen().availableGeometry()
+        available = screen_for_widget(self).availableGeometry()
         self.setMinimumWidth(min(scaled_px(480), available.width()))
         self.resize(min(scaled_px(640), available.width()),
                     min(scaled_px(720), int(available.height() * 0.9)))

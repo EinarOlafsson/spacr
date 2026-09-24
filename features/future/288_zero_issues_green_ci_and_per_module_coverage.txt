@@ -5193,3 +5193,26 @@ labels. The original replay failed1/passed286in139.38s. Runtime UI unchanged.
 One pre-existing Ruff import-order finding before/after; no new lint finding.
 Private replay: release-1510/replay_cov1_zoom_order.py under implementation-
 20260922; logs /tmp/spacr-cov1-zoom-{replay,fixed}.log.
+
+2026-09-24 — Annotate native crash traced to shared QScreen lifetime
+Reproduced Qt2's exact constructor crash in a 61-test/four-file sequence.
+GDB caught QScreen::~QScreen during generation-zero Python collection through
+shiboken6, followed by QScreen::virtualSiblings -> screenAt -> QWidget::screen
+-> QDialog construction. A direct guard proved closing Annotate invalidated
+the screen wrapper returned by app.primaryScreen(): QWidget.screen() had
+associated that shared wrapper with the dialog.
+Added hidpi.screen_for_widget, using static Qt display lookup, and replaced
+all real widget screen() lookups in Annotate, live settings, first-run layout,
+screensavers, ambient sizing, main-window sizing/diagnostics and DPI fallback.
+Corresponding test diagnostics no longer create the unsafe ownership link.
+65 regression/original-cohort checks, 218 GUI checks and 71 live-preview
+checks pass. Three native-debugger replays each pass all61 cases and destroy
+the screen only through normal Qt application shutdown, never garbage
+collection. Four lifetime/selection checks also pass on Qt6.10.0.
+Receipt: features/data/288_qscreen_lifetime_2026-09-24.json. This is Linux
+Qt6.11.2/6.10 offscreen acceptance, not a new full-CI or physical-display claim.
+
+Protected minimum-dependency job107483090708 is now terminal/failure. Its
+failures are the already handed-off tutorial/animation/README guards plus
+our already corrected module denominator. Full-control and coverage5 remain
+running. No replacement full run, release bump or main promotion performed.

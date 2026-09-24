@@ -16716,3 +16716,21 @@ example-file links and routes; exact capture hashes are recorded in
 are complete; master/rendition/browser checks remain in progress. The source
 and nine-language score-tooltip work is committed atd7b8ccdc2. Media publication
 will be a separate checked batch, without delaying the accepted table guides.
+2026-09-24 — IMPLEMENTATION: NATIVE QT DISPLAY-LIFETIME FIX
+Reproduced and traced Qt2's Annotate crash. QWidget.screen() associated the
+shared QScreen wrapper with a dialog; closing/collecting dialogs invalidated
+and could destroy the display still used by Qt. Static display lookup now
+avoids that link across all seven runtime call sites and DPI fallback.
+65 regression/cohort +218 GUI +71 live-preview checks pass; three GDB replays
+of61cases each show screen destruction only at normal application shutdown.
+Four lifetime/selection checks also pass on Qt6.10.0. Receipt288_qscreen_lifetime_2026-09-24.json.
+
+API owner: new public helper spacr.qt.hidpi.screen_for_widget(widget=None),
+in __all__, selects the visible anchor's center via QGuiApplication.screenAt
+and falls back to primaryScreen; hidden children use their parent. Returns
+QScreen or None, leaves display lifetime with Qt; non-Qt stand-ins can supply
+screen(). Please add API prose/manifest/callable snapshot and translated
+fallback registration. No settings or user-facing strings added.
+Thank you for605aeb67a and the docs CI repairs; integrating them with this fix.
+Minimum-dependency107483090708 is completed/failure only on those older docs
+checks plus the denominator. Full-control/coverage5 still run at452f88cf1.

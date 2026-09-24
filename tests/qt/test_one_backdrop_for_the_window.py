@@ -247,7 +247,8 @@ def test_the_home_screen_is_not_black_on_a_real_display(qtbot):
     while clock.elapsed() < 2500:
         app.processEvents()
 
-    image = window.screen().grabWindow(window.winId()).toImage()
+    from spacr.qt.hidpi import screen_for_widget
+    image = screen_for_widget(window).grabWindow(window.winId()).toImage()
     assert not image.isNull() and image.width() > 100, (
         "the grab came back empty; run "
         "tools/can_this_display_be_measured.py first")

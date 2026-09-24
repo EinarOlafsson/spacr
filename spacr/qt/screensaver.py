@@ -136,7 +136,8 @@ def show_screensaver(parent: Optional[QWidget] = None) -> Optional[Screensaver]:
     try:
         saver = Screensaver(parent)
         if parent is not None:
-            handle = parent.screen()
+            from .hidpi import screen_for_widget
+            handle = screen_for_widget(parent)
             if handle is not None:
                 saver.setGeometry(handle.geometry())
         saver.showFullScreen()

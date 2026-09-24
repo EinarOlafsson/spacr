@@ -50,6 +50,7 @@ def test_settings_open_inside_the_available_screen(qtbot, qt_theme_applied):
     make_the_window_resizable(dialog)
     dialog.show()
     qtbot.wait(80)
-    available = dialog.screen().availableGeometry()
+    from spacr.qt.hidpi import screen_for_widget
+    available = screen_for_widget(dialog).availableGeometry()
     assert dialog.width() <= available.width()
     assert dialog.height() <= available.height()

@@ -4850,7 +4850,8 @@ class LiveSettingsDialog(QDialog):
         self.refresh_visibility()
 
         try:
-            avail = self.screen().availableGeometry()
+            from ..hidpi import screen_for_widget
+            avail = screen_for_widget(self).availableGeometry()
             want = row_host.sizeHint().width() + 48
             self.resize(min(want, avail.width() - 80), min(760, avail.height() - 80))
         except Exception:

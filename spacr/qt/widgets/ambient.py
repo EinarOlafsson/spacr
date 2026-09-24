@@ -688,10 +688,8 @@ def screen_pixels(widget: Optional[QWidget] = None) -> int:
     or invalid screen information falls back to :data:`BUFFER_MAX_PIXELS`.
     """
     try:
-        screen = widget.screen() if widget is not None else None
-        if screen is None:
-            from PySide6.QtGui import QGuiApplication
-            screen = QGuiApplication.primaryScreen()
+        from ..hidpi import screen_for_widget
+        screen = screen_for_widget(widget)
         if screen is None:
             return BUFFER_MAX_PIXELS
         size = screen.size()

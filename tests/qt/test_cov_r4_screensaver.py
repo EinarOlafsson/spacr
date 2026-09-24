@@ -207,23 +207,22 @@ def test_it_opens_on_the_screen_the_parent_is_on(qtbot, close_after, recording):
     close_after(saver)
     assert saver.isVisible()
     assert saver.hasFocus() or saver.focusWidget() is not None
-    assert recording.calls == [(parent.screen().geometry(),)], (
+    from spacr.qt.hidpi import screen_for_widget
+    assert recording.calls == [(screen_for_widget(parent).geometry(),)], (
         "the geometry must come from the parent's own screen")
 
 
 def test_a_parent_not_on_a_screen_yet_still_gets_a_screensaver(close_after,
-                                                               recording):
-    """The guard is real: ``screen()`` is None before a window is created.
+                                                               recording, monkeypatch):
+    """A failed display lookup must still allow the screensaver to open.
 
     Nothing is placed by hand in that case -- ``showFullScreen`` picks the
     screen -- but the window still opens, which is the behaviour that
     matters to whoever pressed the shortcut.
     """
-    class _NotShown(QWidget):
-        def screen(self):
-            return None
-
-    parent = _NotShown()
+    monkeypatch.setattr("spacr.qt.hidpi.screen_for_widget", lambda widget: None)
+    parent = QWidget()
+    close_after(parent)
 
     saver = show_screensaver(parent)
 
