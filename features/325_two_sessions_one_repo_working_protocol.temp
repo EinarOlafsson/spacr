@@ -16471,3 +16471,12 @@ Both new helpers are internal; _gc's module/function are rendered by AutoAPI.
 Four source/inventory guards pass. Exact receipt:411_gc_mask_inventory_2026-09-24.json.
 Latest directly verified live site remains8b8458b14 until this batch deploys.
 No main/version operation; protected full CI runs remain untouched.
+
+2026-09-24 — CODEX: PUBLICATION COMMIT REFERENCES
+After rebasing the mask memmap fix, the API refresh is83d4a85de; the four-guide
+media/restoration/cache fix isfbafa9da4; the current nonblocking translation
+register is6fd8c1a33. English API/runtime audits pass at11522/5303sources.
+The strict English Sphinx build is still rendering; no new live deployment
+is claimed. Source-compatible English publishing remains independent of the
+registered locale backlog. No further release approval is needed from me;
+the maintainer still performs their own version increment/main promotion.
