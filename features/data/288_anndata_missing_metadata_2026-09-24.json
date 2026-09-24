@@ -1,0 +1,63 @@
+{
+  "anndata_version": "0.12.19",
+  "source_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "source_unchanged": true,
+  "exports": [
+    {
+      "table": "cell",
+      "shape": [
+        2341,
+        261
+      ],
+      "passed": true,
+      "matrix_values_checked": 611001,
+      "missing_feature_values": 28,
+      "metadata_columns_checked": 27,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ]
+    },
+    {
+      "table": "joined",
+      "shape": [
+        2341,
+        1136
+      ],
+      "passed": true,
+      "matrix_values_checked": 2659376,
+      "missing_feature_values": 400320,
+      "metadata_columns_checked": 35,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ]
+    }
+  ],
+  "scope": "Actual tutorial database copied privately; normal Run-button entry point, no workaround. CPU only.",
+  "base_commit": "728031e9b",
+  "validation": {
+    "pandas_3_0_5": "262 passed, 1 skipped (extra-missing test)",
+    "pandas_2_3_3": "262 passed, 1 skipped (extra-missing test)",
+    "baseline": "Both real exports and both added original regression cases fail with TypeError before the fix.",
+    "limits": "No new native GUI recording; verified the entry point called by the GUI. No model inference or biological claim."
+  }
+}

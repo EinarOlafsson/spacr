@@ -769,6 +769,7 @@ def _build_var(features: Sequence[str], frame: pd.DataFrame,
                 values.to_numpy(dtype=float, na_value=np.nan)).sum()),
         })
     var = pd.DataFrame(rows, index=pd.Index(list(features), name=None))
+    _hdf5_metadata(var)
     for categorical in ("object_type", "channel_scope", "family",
                         "source_table", "measurement_units"):
         var[categorical] = var[categorical].astype("category")
@@ -810,6 +811,26 @@ def _redundant_identity_columns(columns: Sequence[str],
     return drop
 
 
+def _hdf5_metadata(frame: pd.DataFrame) -> None:
+    """Normalize owned metadata in place for AnnData's HDF5 string encoding.
+
+    Preserve values and missingness while avoiding nullable string storage,
+    which AnnData requires callers to opt into globally. Entirely missing
+    object columns use empty categoricals; numeric metadata is untouched.
+    """
+    frame.index = frame.index.astype(object)
+    for column in frame.columns:
+        values = frame[column]
+        if isinstance(values.dtype, pd.CategoricalDtype):
+            if isinstance(values.cat.categories.dtype, pd.StringDtype):
+                frame[column] = values.cat.rename_categories(
+                    values.cat.categories.astype(object))
+        elif isinstance(values.dtype, pd.StringDtype):
+            frame[column] = values = values.astype(object)
+        if values.dtype == object and values.isna().all():
+            frame[column] = pd.Categorical(values)
+
+
 def _build_obs(frame: pd.DataFrame, features: Sequence[str],
                annotations: Sequence[str], predictions: Sequence[str],
                *, timelapse: bool,
@@ -820,6 +841,10 @@ def _build_obs(frame: pd.DataFrame, features: Sequence[str],
 
     The index is :func:`spacr.selection.object_keys`, which is spaCR's own
     object identity -- not a new one invented for AnnData.
+
+    Entirely missing object-typed metadata uses an empty categorical for
+    HDF5 storage. Missingness is preserved without inventing a numeric value
+    or a string label; populated calibration columns remain numeric.
     """
     obs = frame.drop(columns=[c for c in features if c in frame.columns])
     obs = obs.drop(columns=[c for c in drop_columns if c in obs.columns])
@@ -848,6 +873,7 @@ def _build_obs(frame: pd.DataFrame, features: Sequence[str],
             mapping.get(str(value), CONDITION_FALLBACK)
             for value in frame[condition_column]]
 
+    _hdf5_metadata(obs)
     categorical = list(OBJECT_KEY_COLUMNS[:-1]) + [
         schema.PRC_KEY, schema.PRCF_KEY, "condition", "cluster",
         "measurement_units", *annotations, *predictions]
@@ -1620,6 +1646,8 @@ def _stamp_parent_file(child_path: str, parent_path: str,
         provenance = dict(adata.uns["spacr"])
         provenance["relationships"] = relationships
         adata.uns["spacr"] = provenance
+        _hdf5_metadata(adata.obs)
+        _hdf5_metadata(adata.var)
         adata.write_h5ad(child_path)
     except Exception as exc:
         warnings.warn(

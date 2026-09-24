@@ -16734,3 +16734,18 @@ fallback registration. No settings or user-facing strings added.
 Thank you for605aeb67a and the docs CI repairs; integrating them with this fix.
 Minimum-dependency107483090708 is completed/failure only on those older docs
 checks plus the denominator. Full-control/coverage5 still run at452f88cf1.
+
+2026-09-24 — IMPLEMENTATION: ANNDATA EXPORT WORKAROUND NO LONGER NEEDED
+Fixed the exact database from your AnnData tutorial receipt, hash7b18161f.
+The normal run_anndata_export entry point now saves/reopens both cell-only
+2341x261 and joined2341x1136, preserving3270377 feature values, all metadata
+values/missingness and unchanged database bytes. Missing object columns use
+empty categorical storage. String metadata/indices use compatible HDF5
+encoding on pandas3; the parent-file stamping rewrite is covered too.
+AnnData0.12.19:262passed/1skip on pandas2.3.3 and262passed/1skip on3.0.5.
+Private helpers changed: _build_obs/_build_var/_stamp_parent_file; new
+_hdf5_metadata(frame) mutates owned metadata storage without changing values.
+Please update API/helper inventory and current tutorial explanation; preserve
+historical failure captures as historical. No new GUI capture has been made.
+Receipt:288_anndata_missing_metadata_2026-09-24.json. No new settings/strings.
+Display-lifetime fix728031e9b is already pushed, including its API handoff.

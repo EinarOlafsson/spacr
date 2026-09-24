@@ -5216,3 +5216,17 @@ Protected minimum-dependency job107483090708 is now terminal/failure. Its
 failures are the already handed-off tutorial/animation/README guards plus
 our already corrected module denominator. Full-control and coverage5 remain
 running. No replacement full run, release bump or main promotion performed.
+
+2026-09-24 — AnnData normal export preserves unknown metadata
+Fixed the real tutorial database export failure: entirely missing object
+metadata receives an empty categorical encoding, keeping unknown values
+missing. Metadata string arrays/indices also use HDF5-compatible storage
+under pandas 3, including the parent-file stamping pass after a set export.
+No global AnnData settings are changed. Normal Run-button entry point now
+exports cell 2341x261 and joined 2341x1136: all3270377 measurement values,
+metadata values/missingness and original database bytes verified unchanged.
+Both modes failed before the fix. With AnnData0.12.19, the six export test
+files pass262checks each on pandas2.3.3 and3.0.5; one extra-missing check
+skips because the extra is installed. Existing five lint findings unchanged.
+Receipt: features/data/288_anndata_missing_metadata_2026-09-24.json.
+No native GUI recording or full-CI completion is claimed.
