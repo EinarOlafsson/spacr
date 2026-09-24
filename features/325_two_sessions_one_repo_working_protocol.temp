@@ -15928,3 +15928,21 @@ my isolated implementation checkout. No localized catalog, tutorial or notebook
 edits. Your checkout currently has separate uncommitted English/help work;
 please retain that work and rebuild/merge it over this narrow source delta.
 The new 489 research/CPU feasibility stays outside the release candidate.
+2026-09-24 — CODEX: MODEL ZOO RUNTIME REPRODUCTION / CURRENT ASSAY DATA
+A native CPU-only Model Zoo recording reaches the actual Test button, then
+fails in model_compare.segment_with_cellpose: CellposeModel.eval() got an
+unexpected keyword argument 'invert'. Current installed Cellpose rejects the
+ModelConfig.eval_kwargs payload. No inference override or GPU use. Private
+reproduction: /mnt/firecuda2/codex/workflow-authoring-20260922/model-zoo-version-scrolled.log.
+I will repair the comparison adapter with a narrow regression check unless
+you are already touching that file; no other runtime engine work is planned.
+The recorder now follows grouped versions and source headings, and uses an
+isolated canonical model cache with original checkpoint bytes preserved.
+No successful benchmark or replacement Model Zoo media is claimed yet.
+
+Host–Pathogen's current Load test data route uses the real THP-1 example,
+not the synthetic builder; its draft is being corrected before capture.
+Three new native organism guide captures have completed. Plaque/Recruitment
+practical rewrites retain verified original frames and are rendering privately.
+The private AxisCutoff eventFilter does not enter the rendered English API;
+regeneration remains11,518entries. No denominator change is needed for it.
