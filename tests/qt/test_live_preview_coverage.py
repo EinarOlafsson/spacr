@@ -2031,12 +2031,11 @@ class TestLiveSettingsDialog:
             p._live_settings_dialog.close()
 
     def test_the_dialog_still_opens_without_a_screen(self, qtbot, monkeypatch):
-        """Headless / detached-display fallback: ``screen()`` returns None and
-        ``None.availableGeometry()`` raises, so the dialog takes its default
-        size instead of failing to open."""
-        monkeypatch.setattr(LP.LiveSettingsDialog, "screen",
-                            lambda self: None, raising=False)
+        """The safe screen resolver returns None for the detached-display case."""
+        from spacr.qt import hidpi
+
         p = _panel(qtbot)
+        monkeypatch.setattr(hidpi, 'screen_for_widget', lambda widget=None: None)
         dlg = LP.LiveSettingsDialog(p)
         qtbot.addWidget(dlg)
         try:

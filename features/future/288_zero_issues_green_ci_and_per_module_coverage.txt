@@ -5294,3 +5294,13 @@ original has one distinct well, sorted originals map to A01/A02, and every
 written plane retains its pixels. The combined conversion/worker-plot cohort
 passes38checks. Existing overwrite/reconversion guards remain intact. Other
 protected jobs remain live; this is not a full-CI success claim.
+
+2026-09-24 — Screen-policy fixtures and exact API exclusion guard
+Coverage2/7 still mocked QWidget.screen after the QScreen lifetime repair
+moved callers to hidpi.screen_for_widget. Updated measured-width and live
+settings fixtures to the real boundary, preserving no-screen, growth and
+screen-edge assertions:17checks pass in7.80s. The API exclusion check now
+compares actual filtered and unfiltered inventories instead of subtracting
+from a historical total; the exact224excluded-entry contract is unchanged.
+Its two API guards plus live settings class pass10checks in58.66s. Protected
+35966906164 remains active; these fixes do not make that old revision green.

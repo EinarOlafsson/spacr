@@ -1299,7 +1299,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     )
 
 
-def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
+def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monkeypatch):
     docs = builder.public_docstrings()
 
     assert builder.AUTOAPI_IGNORE == tuple(_conf_assignment("autoapi_ignore"))
@@ -1621,7 +1621,14 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # the exact excluded IDs still match the previous 224-member boundary.
     # The restoration_controls module adds one visible and one raw entry;
     # all 224 excluded identities were compared to the prior receipt.
-    assert 11_744 - len(docs) == 224
+    # Measure both sides on this source; a historical raw total goes stale
+    # whenever a reviewed public entry is added. The visible-surface test
+    # separately pins those additions, while this pins the excluded boundary.
+    with monkeypatch.context() as unfiltered:
+        unfiltered.setattr(builder, '_is_rendered_autoapi_entry', lambda *args, **kwargs: True)
+        raw = builder.public_docstrings()
+    assert set(docs) <= set(raw)
+    assert len(set(raw) - set(docs)) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

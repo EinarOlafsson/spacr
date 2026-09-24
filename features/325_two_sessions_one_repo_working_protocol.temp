@@ -17042,3 +17042,13 @@ It now converts two real multichannel TIFFs and verifies distinct stable wells,
 channel reuse and output pixels. No runtime/API change.38combined conversion
 and worker-plot checks pass. Protected35966906164 remains live; Coverage10/11
 failures are repaired on current nightly, not retroactively called green.
+
+2026-09-24 — IMPLEMENTATION: SCREEN/API CI GUARDS288
+Repaired obsolete screen mocks after safe QScreen lookup;17window/live checks
+pass. API exclusion guard now measures raw and rendered sets directly while
+retaining exact224exclusions; API+live cohort10passes. No runtime/API change.
+Docs owner: newly terminal Coverage9/4 on35966906164 reports stale organism
+lesson gaps, nested-helper rollout inventory and README1764-word limit.
+Please reconcile these documentation-owned guards with your current changes;
+I will handle closed-category construction and secondary Hindi sizing.
+The running protected suite is not cancelled/restarted. No version/main work.
