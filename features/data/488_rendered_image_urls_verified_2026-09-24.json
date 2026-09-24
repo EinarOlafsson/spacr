@@ -1,0 +1,301 @@
+{
+  "candidate": "06a7de42ed49be873ec908f0c0fe6e0b9148c085",
+  "rendered_images": 49,
+  "distinct_urls": 49,
+  "results": [
+    {
+      "url": "https://anaconda.org/conda-forge/spacr/badges/downloads.svg",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/downloads-797%20total-green.svg?style=flat-square",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://anaconda.org/conda-forge/spacr/badges/version.svg",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/Anaconda.org-1.5.0.8-blue.svg?style=flat-square",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg?branch=nightly",
+      "status": 200,
+      "final_url": "https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg?branch=nightly",
+      "content_type": "image/svg+xml; charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/Cite-CITATION.cff-8A2BE2",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/Cite-CITATION.cff-8A2BE2",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/GitHub-Source-181717?logo=github",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/GitHub-Source-181717?logo=github",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsql-clickhouse.clickhouse.com%2F%3Fuser%3Ddemo%26param_package_name%3Dspacr%26param_days%3D30%26query%3DWITH%2B%2528%2BSELECT%2Bsum%2528count%2529%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bproject%2B%253D%2B%257Bpackage_name%253AString%257D%2BAND%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B%2529%2BAS%2Bdownloads%2BSELECT%2Bdownloads%2BAS%2Bpackage_downloads%252C%2BcountIf%2528n%2B%253E%253D%2Bdownloads%2529%2BAS%2Brank%252C%2Bcount%2528%2529%2BAS%2Btotal_packages%252C%2B100.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2BAS%2Bpercentile%252C%2Bif%2528%2Btotal_packages%2B%253D%2B0%2BOR%2Bdownloads%2B%253D%2B0%252C%2B%2527no%2Bdata%2527%252C%2Bconcat%2528%2B%2527top%2B%2527%252C%2BtoString%2528ceil%25281000.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2529%2B%252F%2B10%2529%252C%2B%2527%2525%2527%2B%2529%2B%2529%2BAS%2Bmessage%2BFROM%2B%2528%2BSELECT%2Bproject%252C%2Bsum%2528count%2529%2BAS%2Bn%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2BGROUP%2BBY%2Bproject%2B%2529%2BFORMAT%2BJSON&query=%24.data%5B0%5D.message&label=PyPI+rank+%2830d%29&color=brightgreen&cacheSeconds=86400",
+      "status": 200,
+      "final_url": "https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsql-clickhouse.clickhouse.com%2F%3Fuser%3Ddemo%26param_package_name%3Dspacr%26param_days%3D30%26query%3DWITH%2B%2528%2BSELECT%2Bsum%2528count%2529%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bproject%2B%253D%2B%257Bpackage_name%253AString%257D%2BAND%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B%2529%2BAS%2Bdownloads%2BSELECT%2Bdownloads%2BAS%2Bpackage_downloads%252C%2BcountIf%2528n%2B%253E%253D%2Bdownloads%2529%2BAS%2Brank%252C%2Bcount%2528%2529%2BAS%2Btotal_packages%252C%2B100.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2BAS%2Bpercentile%252C%2Bif%2528%2Btotal_packages%2B%253D%2B0%2BOR%2Bdownloads%2B%253D%2B0%252C%2B%2527no%2Bdata%2527%252C%2Bconcat%2528%2B%2527top%2B%2527%252C%2BtoString%2528ceil%25281000.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2529%2B%252F%2B10%2529%252C%2B%2527%2525%2527%2B%2529%2B%2529%2BAS%2Bmessage%2BFROM%2B%2528%2BSELECT%2Bproject%252C%2Bsum%2528count%2529%2BAS%2Bn%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2BGROUP%2BBY%2Bproject%2B%2529%2BFORMAT%2BJSON&query=%24.data%5B0%5D.message&label=PyPI+rank+%2830d%29&color=brightgreen&cacheSeconds=86400",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation",
+      "status": 200,
+      "final_url": "https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/github/issues/EinarOlafsson/spacr",
+      "status": 200,
+      "final_url": "https://img.shields.io/github/issues/EinarOlafsson/spacr",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/github/license/EinarOlafsson/spacr",
+      "status": 200,
+      "final_url": "https://img.shields.io/github/license/EinarOlafsson/spacr",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers",
+      "status": 200,
+      "final_url": "https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://img.shields.io/pypi/v/spacr",
+      "status": 200,
+      "final_url": "https://img.shields.io/pypi/v/spacr",
+      "content_type": "image/svg+xml;charset=utf-8"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/docs/source/_static/deck/slides/slide_01.jpg",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/docs/source/_static/deck/slides/slide_01.jpg",
+      "content_type": "image/jpeg"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/biorxiv_button.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/biorxiv_button.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/biostudies_button.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/biostudies_button.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/huggingface_button.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/huggingface_button.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/ncbi_button.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/ncbi_button.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/spacrpower_button.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/databanks/spacrpower_button.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/annotate.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/annotate.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/align.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/align.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/candida.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/candida.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/dose_response.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/dose_response.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/embeddings.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/embeddings.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/experiment_design.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/experiment_design.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/foreign.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/foreign.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/gate_editor.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/gate_editor.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/graph_builder.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/graph_builder.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/make_masks.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/make_masks.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/plasmodium.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/plasmodium.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/power.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/power.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/qc_dashboard.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/qc_dashboard.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/run_compare.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/run_compare.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/toxoplasma.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/toxoplasma.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/umap.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/apps/umap.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/classify_merged.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/classify_merged.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/map_barcodes.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/map_barcodes.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/mask.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/mask.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/measure.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/measure.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/regression.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/workflow/regression.png",
+      "content_type": "image/png"
+    },
+    {
+      "url": "https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads",
+      "status": 200,
+      "final_url": "https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads",
+      "content_type": "image/svg+xml"
+    }
+  ]
+}

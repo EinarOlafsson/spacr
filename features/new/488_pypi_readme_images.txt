@@ -34,3 +34,12 @@ Main/PyPI still carry1.5.0.9; the existing public page has not been changed yet.
 Per the maintainer, observing the published page after the version update is
 not a separate unfinished feature. Any actual publishing failure will be
 recorded only if it occurs; this implementation item is complete.
+
+2026-09-24 — EVERY RENDERED IMAGE URL RESOLVES
+The actual06a7de42e wheel metadata was rendered through readme_renderer and
+all49distinct img sources checked against their live HTTP endpoints. Every
+URL returns200with an image Content-Type, including redirects. No broken
+image destination was found. Receipt:
+features/data/488_rendered_image_urls_verified_2026-09-24.json.
+This checks the built package's description and live image hosts, not a
+publication of1.5.1.0. The maintainer retains the version/main release step.

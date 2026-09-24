@@ -16135,3 +16135,11 @@ version metadata or release operation changes.
 The profile now pins packaging21.3, exactly setup.py's declared floor.
 All17dependency-profile/floor/optimal-version checks pass. This repairs the
 specific shard11failure without changing the dependency floor or any test.
+
+2026-09-24 — IMPLEMENTATION: PYPI IMAGE HOSTS VERIFIED
+488's built-wheel description was rendered and all49image URLs checked live:
+49HTTP200responses with image Content-Type. Receipt is
+features/data/488_rendered_image_urls_verified_2026-09-24.json. No README or
+catalog changes needed; this strengthens existing implementation acceptance.
+CI35944548693now has nine passed/two failed/twelve running; the two known
+failures have the focused nightly repairs recorded above. No release upload.
