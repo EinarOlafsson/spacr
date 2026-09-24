@@ -1082,11 +1082,16 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
     comparison that explains itself and one that says "no difference".
 
     Model and device dependencies are loaded on demand for this call.
+    Cellpose versions without a separate ``invert`` argument receive that
+    setting in the normalization dictionary. Inversion requires normalization
+    on those versions; other normalization options are retained.
 
     :param images: 2-D or 3-D arrays, one per field.
     :param config: the model to run.
     :returns: one integer label image per input image.
     """
+    import inspect
+
     from cellpose import models as cp_models
 
     from .accelerator import cellpose_kwargs
@@ -1095,7 +1100,21 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
         **cellpose_kwargs(),
     )
     batch = [np.asarray(image, dtype=np.float32) for image in images]
-    output = model.eval(x=batch, **config.eval_kwargs())
+    kwargs = config.eval_kwargs()
+    parameters = inspect.signature(model.eval).parameters
+    if ('invert' not in parameters and not any(
+            parameter.kind == inspect.Parameter.VAR_KEYWORD
+            for parameter in parameters.values())):
+        inversion = kwargs.pop('invert', False)
+        normalize = kwargs.get('normalize', True)
+        normalization = dict(normalize) if isinstance(normalize, dict) else {'normalize': normalize}
+        if inversion and not normalization.get('normalize', True):
+            from .qt.i18n import tr
+
+            raise ValueError(tr('Enable normalization to invert images with this Cellpose version.'))
+        normalization['invert'] = inversion
+        kwargs['normalize'] = normalization
+    output = model.eval(x=batch, **kwargs)
     masks = output[0] if isinstance(output, tuple) else output
     return [np.asarray(m).astype(np.int32) for m in masks]
 

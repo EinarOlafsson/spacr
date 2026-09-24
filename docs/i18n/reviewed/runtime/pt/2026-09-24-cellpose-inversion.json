@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted source-context review. Preserves the requirement to enable image normalization before inversion in the current Cellpose backend. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Enable normalization to invert images with this Cellpose version.",
+      "source": "Enable normalization to invert images with this Cellpose version.",
+      "source_sha256": "1ecdf92a913436762551ab950c1b8ff682816e84e519eae4421983a3be811d12",
+      "translation": "Ative a normalização para inverter imagens com esta versão do Cellpose."
+    }
+  ]
+}

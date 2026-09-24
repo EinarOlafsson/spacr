@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1677,
+      "current_total": 1679,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 759,
+      "later_distinct_additions": 761,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -222,6 +222,18 @@
           "sha256": "db64546daf8d27be84b00c043a55148dbbdce61a6e7ce735083108354247055b"
         },
         {
+          "name": "2026-09-24-cellpose-inversion.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "ce2d89e23286747c186e5d1b8213313751bc8c5565a1d9ee04d928fcdc676259"
+        },
+        {
+          "name": "2026-09-24-host-pathogen-description.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "f98b23bbfcbf6037764cf1be853f6a85696cf145dafc866a1f6690bbbf358229"
+        },
+        {
           "name": "2026-09-24-plaque-calibration.json",
           "records": 4,
           "sources": 4,
@@ -234,14 +246,14 @@
           "sha256": "e5763aa419f5d0d8ca15cee550a4308f2873f8266673214699c22f35cef0d2a2"
         }
       ],
-      "added_sources_sha256": "6c6761ae6d1b489821d6c6c67ea324ced857e810b582542115c091f590044f89"
+      "added_sources_sha256": "8e57b878ac5f9b017891d008f262d672c72a0725f259f0ccd182ea8aba06445c"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1673,
+      "current_total": 1675,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 759,
+      "later_distinct_additions": 761,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -455,6 +467,18 @@
           "sha256": "8be13f999c8c7e96e38fade87927f77e2997ed2cac6cf9c9920749964805757b"
         },
         {
+          "name": "2026-09-24-cellpose-inversion.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "ed421e1d321a4cd659db621e65222976871d76fe4bf48c1cee7c78f735719b8b"
+        },
+        {
+          "name": "2026-09-24-host-pathogen-description.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "17e6b0c50c9c74c3e5be945b00f65532d036637d4ec3c1d7556a59be1f5113c9"
+        },
+        {
           "name": "2026-09-24-plaque-calibration.json",
           "records": 4,
           "sources": 4,
@@ -467,7 +491,7 @@
           "sha256": "0e79aed050f6f203550b5dcc983ead58c80087914ef704f57477f313bbe1b998"
         }
       ],
-      "added_sources_sha256": "6c6761ae6d1b489821d6c6c67ea324ced857e810b582542115c091f590044f89"
+      "added_sources_sha256": "8e57b878ac5f9b017891d008f262d672c72a0725f259f0ccd182ea8aba06445c"
     }
   }
 }

@@ -6682,6 +6682,8 @@ UI = {
     "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.": 'Starplast는 Toxoplasma 지식 지도를 탐색하는 알파 단계 애플리케이션입니다. 기능과 결과는 변경될 수 있습니다. 별도 창에서 열립니다.\n\nPyPI에서 호환되는 최신 안정 버전의 Starplast를 설치합니다. 패키지에는 유전자 데이터가 포함되며, 종속 패키지로 인해 다운로드 크기와 디스크 사용량이 늘어납니다. 요구 사항은 버전과 플랫폼에 따라 다릅니다. 최소 12 GB의 여유 디스크 공간을 확보하세요. 다운로드에는 몇 분이 걸릴 수 있습니다.\n\nStarplast는 {path}에 별도 환경을 사용하며 spaCR의 패키지는 변경되지 않습니다. 소스 코드는 MIT 라이선스를 따릅니다. 로컬 Git 체크아웃은 선택적으로 사용할 수 있는 개발 소스입니다. 로컬 설치는 커밋된 파일을 사용하며 체크아웃을 변경하지 않습니다.',
     'Scale & Time': '척도 및 시간',
     'Experimental Growth Estimates': '실험적 성장 추정',
+    'Enable normalization to invert images with this Cellpose version.': '이 Cellpose 버전에서 이미지를 반전하려면 정규화를 활성화하세요.',
+    'Combine vacuole marker recruitment, parasite counts and host infection denominators.': '액포 표지자 모집, 기생충 수, 숙주 감염률의 분모를 함께 분석합니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -13488,4 +13490,6 @@ SOURCE_HASHES = {
     ('CATEGORY_HELP', 'Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.'): '86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16',
     ('UI', 'Scale & Time'): '3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e',
     ('UI', 'Experimental Growth Estimates'): '52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54',
+    ('UI', 'Enable normalization to invert images with this Cellpose version.'): '1ecdf92a913436762551ab950c1b8ff682816e84e519eae4421983a3be811d12',
+    ('UI', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.'): '5120ec4571177f07d8e93ab43163195162dc238e2b9cda0da55ef0c5a7bdcc12',
 }

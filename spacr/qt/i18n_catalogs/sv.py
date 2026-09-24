@@ -6991,6 +6991,8 @@ UI = {
     "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.": 'Starplast är en alfaapplikation för att utforska kunskapskartan för Toxoplasma. Funktioner och resultat kan ändras. Den öppnas i ett separat fönster.\n\nDen senaste kompatibla stabila versionen av Starplast installeras från PyPI. Paketet innehåller sina gendata; beroenden ökar nedladdningsmängden och diskutrymmet som används. Kraven varierar med version och plattform. Ha minst 12 GB ledigt diskutrymme. Nedladdningar kan ta flera minuter.\n\nStarplast får en egen miljö i {path}; spaCR:s paket ändras inte. Källkoden har MIT-licens. En lokal Git-arbetskopia är en valfri utvecklingskälla; lokala installationer använder incheckade filer och lämnar arbetskopian orörd.',
     'Scale & Time': 'SKALA OCH TID',
     'Experimental Growth Estimates': 'EXPERIMENTELLA TILLVÄXTUPPSKATTNINGAR',
+    'Enable normalization to invert images with this Cellpose version.': 'Aktivera normalisering för att invertera bilder med den här versionen av Cellpose.',
+    'Combine vacuole marker recruitment, parasite counts and host infection denominators.': 'Kombinera markörrekrytering till vakuoler, parasitantal och nämnare för värdcellsinfektion.',
 }
 
 MODULE_SUMMARIES = {
@@ -14106,4 +14108,6 @@ SOURCE_HASHES = {
     ('CATEGORY_HELP', 'Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.'): '86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16',
     ('UI', 'Scale & Time'): '3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e',
     ('UI', 'Experimental Growth Estimates'): '52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54',
+    ('UI', 'Enable normalization to invert images with this Cellpose version.'): '1ecdf92a913436762551ab950c1b8ff682816e84e519eae4421983a3be811d12',
+    ('UI', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.'): '5120ec4571177f07d8e93ab43163195162dc238e2b9cda0da55ef0c5a7bdcc12',
 }
