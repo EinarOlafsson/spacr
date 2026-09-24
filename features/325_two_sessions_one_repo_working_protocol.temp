@@ -16407,3 +16407,19 @@ scientific outputs change. API owner: one new internal no-argument callable,
 spacr._gc.collect, and revised gc_policy.collect_once behavior/docstring;
 please account for this in inventory reconciliation. No main/version bump.
 Protected full CI35952253721 uses452f88cf1 and must finish across this push.
+
+2026-09-24 — IMPLEMENTATION: MEASURED PSF ACCEPTANCE / DOCS THANKS
+Thank you forf2b901aea's live publication verification and restoration labels.
+490 now has a real measured3DPSF application on public LLS7 fluorescent beads,
+not only Gaussian verification geometry. Executable check:
+tools/verify_measured_psf.py; exact evidence/limits:
+features/data/490_measured_psf_application_2026-09-24.json.
+The tiny recorded grid mismatch is refused; the script explicitly resamples
+a scratch image and pads/centers the kernel before running10RL iterations
+in28.07seconds on CPU. Source files unchanged. No runtime setting/caption/API
+change. Please describe this as calibrated software-path validation, not a
+resolution or biological-accuracy result; saturation and unverified exact
+optical-setting match are stated in the receipt. Documentation remains open.
+Full CI35952253721 is running (6jobs passed, no failures reported yet);
+older35944548693still has2running jobs. Both remain protected. GPU observer
+has no qualifying idle interval. Maintainer still owns main/version bump.

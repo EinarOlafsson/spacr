@@ -1,0 +1,178 @@
+{
+  "item": 490,
+  "date_utc": "2026-09-24",
+  "device": "CPU",
+  "execution_note": "Use tools/run_capped.sh 6G; memory limits are enforced by the caller.",
+  "validation_script_sha256": "3dcbc6e82e6edee92de56a25e05cabf3418f36c5a2b3e75172755d4396e485a0",
+  "source": "https://doi.org/10.5281/zenodo.14203207",
+  "source_license": "CC-BY-4.0",
+  "source_authors": [
+    "Nicolas Chiaruttini",
+    "Romain Guiet"
+  ],
+  "source_sha256": {
+    "30x1000_FS-025_FW-60_AC-170-04.tif": "2a0bb687266b21c192b43567b7778ed3106ab10c716061bcd74fb2e0629f863b",
+    "psf-200nm.tif": "ed442182bce15d39aa13fbb3145c9e625f8f20f78860d2aa954a6c8be92df118"
+  },
+  "source_md5_verified_against_record": true,
+  "image_shape_zyx": [
+    128,
+    256,
+    256
+  ],
+  "image_dtype": "uint16",
+  "image_sampling_um": [
+    0.19999999999999998,
+    0.14499219434521743,
+    0.14499219434521743
+  ],
+  "image_metadata_unit": "micron",
+  "psf_original_shape_zyx": [
+    128,
+    68,
+    45
+  ],
+  "psf_sampling_um": [
+    0.2,
+    0.1450000152250016,
+    0.1450000152250016
+  ],
+  "psf_metadata_unit_literal": "\\u00B5m",
+  "psf_peak_origin_zyx": [
+    64,
+    35,
+    22
+  ],
+  "psf_zero_padding_zyx": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "psf_derived_shape_zyx": [
+    129,
+    71,
+    45
+  ],
+  "psf_derived_sha256": "0a07dd549fc78d4c3b843d4ab6a607f95f6244929338f1224d82c54156f4e882",
+  "psf_values_and_total_preserved_before_normalization": true,
+  "original_grid_refusal": "Image and PSF sampling differ; supply a kernel sampled at the image spacing",
+  "explicit_image_resampling": {
+    "matrix_output_to_input": [
+      [
+        1.0000000000000002,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0000539400056638,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0000539400056638
+      ]
+    ],
+    "offset": [
+      -1.4210854715202004e-14,
+      -0.006877350722135134,
+      -0.006877350722135134
+    ],
+    "interpolation_order": 1,
+    "boundary": "reflect",
+    "center_aligned": true,
+    "output_sampling_um": [
+      0.2,
+      0.1450000152250016,
+      0.1450000152250016
+    ],
+    "purpose": "Explicitly match image sampling to the measured PSF; no runtime tolerance changes."
+  },
+  "saturated_input_voxels": 98,
+  "seconds": 28.071638918016106,
+  "iterations": 10,
+  "output_dtype": "float32",
+  "output_shape_preserved": true,
+  "output_finite_nonnegative": true,
+  "original_files_and_processing_input_unchanged": true,
+  "output_sha256": "185ff533a62c8216a60b062a112deae6e73f5370d849f33f3739277126823fc6",
+  "input_quantiles": [
+    49.38725280761719,
+    103.97584533691406,
+    708.970364990234,
+    5092.3424433600485,
+    65535.0
+  ],
+  "output_quantiles": [
+    0.06444069743156433,
+    96.76437377929688,
+    684.7759924316406,
+    8888.694792971168,
+    374467.71875
+  ],
+  "processing_provenance": {
+    "operation": "deconvolve",
+    "kernel": {
+      "source": "measured",
+      "shape": [
+        129,
+        71,
+        45
+      ],
+      "sampling_um": [
+        0.2,
+        0.1450000152250016,
+        0.1450000152250016
+      ],
+      "kernel_sha256": "ccb3f056c849bc4cfce6fc1f9e28083a510a1f62fd383c84dc8ffec2b3d98d6c",
+      "kernel_dtype": "float32 little-endian",
+      "normalization": "sum=1",
+      "origin": "centre pixel",
+      "details": {
+        "file_sha256": "0a07dd549fc78d4c3b843d4ab6a607f95f6244929338f1224d82c54156f4e882",
+        "path": "/mnt/firecuda2/Claude/implementation-20260922/psf-measured-490/psf-200nm-explicit-odd-peak-origin.tif"
+      }
+    },
+    "image_sampling_um": [
+      0.2,
+      0.1450000152250016,
+      0.1450000152250016
+    ],
+    "channel_axis": null,
+    "input_dtype": "float32",
+    "output_dtype": "float32",
+    "input_shape": [
+      128,
+      256,
+      256
+    ],
+    "boundary": "half-sample symmetric",
+    "intensity_units": "unchanged",
+    "input_modified": false,
+    "algorithm": "spacr.reflect_psf.v1",
+    "iterations": 10,
+    "method": "Richardson-Lucy",
+    "regularization": null,
+    "epsilon_relative": 1e-07,
+    "initialization": "channel mean",
+    "sensitivity_normalization": true
+  },
+  "limits": [
+    "The record calls this the best-settings PSF; an exact optical-setting match to this bead acquisition is not verified.",
+    "Real fluorescent-bead data and a measured optical PSF, not biological recovery ground truth.",
+    "Both arrays remain in the published raw, non-deskewed LLS7 coordinates.",
+    "Explicit image resampling and zero-padding/peak-origin preparation are acceptance-script steps, not new automatic application behavior.",
+    "Saturated voxels, finite 200nm bead size, background and unregularized RL preclude a resolution or accuracy claim.",
+    "This validates a CPU 3D measured-PSF application; it does not revalidate every GUI or establish applicability to another microscope."
+  ]
+}

@@ -1,7 +1,8 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
 Status: IN PROGRESS. Engine, Make Masks, Mask, Measure and Mask Live preview
-validated2026-09-23; measured optical acceptance and documentation remain.
+validated2026-09-23; real measured3DPSF application validated2026-09-24.
+Documentation remains; instrument-specific optical accuracy is not claimed.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -194,3 +195,34 @@ Validation:162preview/model/channel checks passed; additional coverage run had
 197passes and one old shared-request identity regression, fixed by retaining
 one captured pre/post mapping. Final15focused PSF/request checks all pass.
 Earlier stale-token test failure was fixed; no failing check is claimed green.
+
+2026-09-24 — REAL MEASURED OPTICAL PSF APPLICATION, CPU
+Ran tools/verify_measured_psf.py against the public Zeiss LLS7 fluorescent-bead
+volume and measured psf-200nm from doi:10.5281/zenodo.14203207 (Chiaruttini
+and Guiet, CC-BY-4.0). Both downloads match the record's MD5; original SHA256s
+remain unchanged. The raw volume is128x256x256uint16, with Z/Y/X spacing
+0.2/0.14499219434521743/0.14499219434521743um. The PSF records
+0.2/0.1450000152250016/0.1450000152250016um. The original mismatch is correctly
+REFUSED. No sampling tolerance or application behavior was relaxed.
+
+The acceptance script explicitly resamples a scratch image to the PSF grid
+with a recorded center-aligned affine transform and linear interpolation.
+It pads the original128x68x45measured PSF to129x71x45with zeros to place the
+measured peak at the odd center, retaining every original value and total
+signal before normalization. These are explicit preparation steps, not
+new automatic runtime behavior. Both datasets retain raw non-deskewed axes.
+
+Actual10iteration Richardson-Lucy completed in28.07seconds on CPU under6GiB,
+with all10progress events. Output is float32, finite, nonnegative and the
+same shape; processing input and source files remain unchanged. Kernel/file
+identities, exact calibration and processing provenance are recorded in
+features/data/490_measured_psf_application_2026-09-24.json, together with the
+executed script's hash. A preliminary equivalent run took35.09seconds.
+
+This closes the missing real measured-kernel application check. It does not
+claim optical resolution, recovery accuracy or biological improvement:
+98input voxels saturate, the beads have finite200nmextent, and the record's
+best-settings PSF is not independently verified as an exact optical-setting
+match to this bead acquisition. GUI/integration evidence remains the prior
+checks; this is an additional3DCPU engine acceptance. API/tutorial/animation
+and translation follow-up still belongs to the documentation lane.
