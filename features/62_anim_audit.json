@@ -1,9 +1,9 @@
 {
   "audited": "2026-08-20",
   "audited_against": "fce4ef86",
-  "animations_total": 86,
+  "animations_total": 87,
   "counts": {
-    "GOOD": 86,
+    "GOOD": 87,
     "WEAK": 0
   },
   "verdicts": {
@@ -17,7 +17,8 @@
     "Two sessions audited this concurrently on 2026-08-18. This record is the union of both: an animation is WEAK if either pass found it weak.",
     "2026-08-20: the eight WEAK animations were fixed rather than left recorded. Five were faint-at-tooltip-size and were redrawn heavier; three (use_bounding_box, organelle_diameter, organelle_skeletonize) were showing the wrong thing and were rebuilt around what the code actually does. Every one was re-watched as a contact sheet after regeneration, and the visible_change figures here are re-measured off the shipped GIF.",
     "2026-09-08: eleven slugs were renamed in 0d384115b -- the four *_CP_prob to *_cellprob_threshold, the four *_FT to *_flow_threshold and the three *_Signal_to_noise to *_signal_to_noise. git records all eleven as R100, byte-identical, so the artefact each verdict was watched against on 2026-08-20 is the same file under a new name and the judgement carries with its evidence. Nothing here was re-judged; an animation whose PIXELS changed would have to be re-watched. The same commit b7ae412af renamed <object>_min_object_area to <object>_min_split_area across the four intensity-split animations and retired organelle_min_size / organelle_max_size, which the two organelle area entries had listed beside their live key; those settings lists are migrated here by the same reasoning.",
-    "2026-09-15 (418): Only the eight new absolute mean-bound animations for cell, nucleus, pathogen and organelle were reviewed in this pass. All stored frames of their first shipped render were inspected as contact sheets. After changing the disabled endpoint from an inequality to plain 0, native-size before/filtered/return panels from all eight final shipped GIFs were rechecked: equal-sized objects differ in brightness, equality is retained, lower and upper bounds discard opposite pairs, and 0 restores all objects. Each new record has its own reviewed date and visible_change remeasured from the final shipped file with spacr.setting_animations.measure_visible_change. The other 78 GIFs were verified byte-identical to HEAD 0560c747a94ee403bb7a0c46eb976cfcad096dee, and their existing review evidence is carried forward unchanged; they were not rewatched in this pass. The original audit dates above are preserved. The eight retired merge/split entries, reviewed in August 2026 and reconfirmed on 2026-09-14, were removed because their controls no longer ship; their historical verdicts are not evidence for the new animations."
+    "2026-09-15 (418): Only the eight new absolute mean-bound animations for cell, nucleus, pathogen and organelle were reviewed in this pass. All stored frames of their first shipped render were inspected as contact sheets. After changing the disabled endpoint from an inequality to plain 0, native-size before/filtered/return panels from all eight final shipped GIFs were rechecked: equal-sized objects differ in brightness, equality is retained, lower and upper bounds discard opposite pairs, and 0 restores all objects. Each new record has its own reviewed date and visible_change remeasured from the final shipped file with spacr.setting_animations.measure_visible_change. The other 78 GIFs were verified byte-identical to HEAD 0560c747a94ee403bb7a0c46eb976cfcad096dee, and their existing review evidence is carried forward unchanged; they were not rewatched in this pass. The original audit dates above are preserved. The eight retired merge/split entries, reviewed in August 2026 and reconfirmed on 2026-09-14, were removed because their controls no longer ship; their historical verdicts are not evidence for the new animations.",
+    "2026-09-24: reviewed only the new psf_fwhm_um GIF, all 18 encoded frames as a contact sheet, with native 360x360 narrow/broad frame checks, with its exact setting key and immutable image hash. Existing verdicts were carried forward. The Gaussian profile conservation and width behavior have separate executable tests; visual judgment does not claim optical calibration."
   ],
   "animations": [
     {
@@ -909,6 +910,23 @@
       "verdict": "GOOD",
       "visible_change": 0.0329,
       "note": "Of two cells the one with no pathogen is removed."
+    },
+    {
+      "slug": "psf_fwhm_um",
+      "scene": "psf",
+      "settings": [
+        "psf_fwhm_um"
+      ],
+      "verdict": "GOOD",
+      "reviewed": "2026-09-24",
+      "sha256": "545a4ac71309b71d34658519129dcdaa85b400ce8a003588c394f8078069a7e1",
+      "frames_reviewed": 18,
+      "visible_change": 0.013055555555555556,
+      "note": "All 18 stored frames inspected as a contact sheet. The white input peaks remain fixed while the teal convolved curve broadens and its peaks fall as the blue width bracket expands, then returns. The changes remain readable at the native 360-pixel tooltip size. This illustrates Gaussian convolution width, not measured optical calibration or deconvolution.",
+      "native_frames_reviewed": [
+        0,
+        9
+      ]
     }
   ],
   "removed_2026_09_13": {

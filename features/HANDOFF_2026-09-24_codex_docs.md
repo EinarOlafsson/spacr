@@ -19,10 +19,10 @@ is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
 workflow pages use this same map.
 
-57 of the original 81 scripts have practical walkthrough rewrites; four more
+61 of the original 81 scripts have practical walkthrough rewrites; four more
 organism guides were authored. See the exact per-lesson audit in
 `tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`. Rewritten
-source does not imply new native screenshots or publication. 716 older
+source does not imply new native screenshots or publication. 768 older
 translation review records are currently incompatible with their English
 sources; they remain registered work, not accepted translations.
 
@@ -188,3 +188,29 @@ The subsequent lightweight Motility parser adds two rendered API entries
 pass; Help is regenerated. The locale register includes this exact delta.
 The strict Sphinx receipt covers the immediately preceding11522-entry build;
 the publication workflow rebuilds current sources. Receipt:411_motility_lightweight_api_2026-09-24.json.
+
+## Table walkthroughs and documentation CI follow-up
+
+H candidate6kuath0f is live at32e760991, run35955044338. All four refreshed
+lessons49/57/58/62 and main Mask pass live playback/chapter seeking, and both
+player cache keys equal generated content hashes. Live API is11522; the
+subsequent11524/11526API updates require their later deployments.
+
+Four further source rewrites59AnnData/60PCA/61Tabulate/63SmallMultiples and
+matching English media pass individual browser checks. Candidatehpih30qn
+contains85routes/84ready/1211compatible narration tracks. Its local84playback
+cases and14placeholder views pass; both mutation guards observed red. Upload
+branchcandidate-table-guides-20260924-hpih30qn, tagtutorials-table-guides-20260924-hpih30qn.
+Inspect table-candidate-upload.log and its receipt before any retry.
+
+20existing scripts and six recapture gaps remain;768older translation reviews
+are stale. The current AnnData normal writer failure is reproduced on a copy
+of the actual example; the supplied helper preserves2341x261values, metadata
+and source hashes. Current receipt:2026-09-24-anndata-current-workaround.json.
+
+Documentation CI repairs are itemized in288_documentation_ci_repairs_2026-09-24.json.
+The full tutorial audit files have13passes and2registered nonblocking locale
+failures. PSF animation review, checkout-size measurement/all9README updates,
+restoration help and English route/objective checks are reconciled.
+The wrapping Toggle API refresh is privately committed atbf63d6e16:11526API
+entries,9526public callables; exact subtraction and four source guards pass.

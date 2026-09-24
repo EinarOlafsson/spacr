@@ -249,7 +249,7 @@ Quien contribuye necesita el historial; para solo ejecutar spaCR, elija una de e
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-El clon completo descarga 5,8 GB para una copia de trabajo de 1186 MB. Añadir ``--filter=blob:none`` a ese clon no ahorra nada: el checkout descarga los blobs de todos modos.
+En la medición del 2026-09-15, el clon completo descargó 5,8 GB. Añadir ``--filter=blob:none`` al clon superficial no redujo su descarga medida. Los archivos versionados de nightly ocupan 1607 MB en la copia de trabajo (medidos el 2026-09-24), sin el historial de Git. El tamaño y el tiempo de descarga varían según la rama.
 
 
 Comandos de línea de comandos

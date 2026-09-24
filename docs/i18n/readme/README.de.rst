@@ -249,7 +249,7 @@ Wer zu spaCR beiträgt, braucht den Verlauf; wer spaCR nur ausführen will, nimm
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Der vollständige Klon lädt 5,8 GB für ein Arbeitsverzeichnis von 1186 MB herunter. Ergänzt man diesen Klon um ``--filter=blob:none``, spart das nichts: Beim Auschecken werden die Blobs trotzdem geladen.
+Bei der Messung am 2026-09-15 lud der vollständige Klon 5,8 GB herunter. Beim flachen Klon verringerte ``--filter=blob:none`` die gemessene Downloadmenge nicht. Die versionierten Dateien von nightly ergeben ein Arbeitsverzeichnis von 1607 MB (gemessen am 2026-09-24), ohne Git-Verlauf. Downloadmenge und Dauer hängen vom Branch ab.
 
 
 Befehle für die Kommandozeile

@@ -249,7 +249,7 @@ conda-forge से इंस्टॉलेशन
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-पूरा क्लोन 1186 MB के चेकआउट के लिए 5.8 GB डाउनलोड करता है। उस क्लोन में ``--filter=blob:none`` जोड़ने से कोई बचत नहीं होती: चेकआउट वैसे भी सारे blob ले आता है।
+2026-09-15 के मापन में पूरे क्लोन ने 5.8 GB डाउनलोड किया। एक कमिट वाले क्लोन में ``--filter=blob:none`` जोड़ने से उसके मापे गए डाउनलोड में कमी नहीं आई। nightly की ट्रैक की गई फ़ाइलों का चेकआउट 1607 MB है (मापन: 2026-09-24), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।
 
 
 कमांड-लाइन प्रवेश बिंदु

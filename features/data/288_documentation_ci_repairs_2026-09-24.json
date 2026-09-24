@@ -1,0 +1,46 @@
+{
+  "ci_run": 35952253721,
+  "ci_source": "452f88cf1",
+  "scope": "Documentation-owned completed-job failures reconciled against current content; no claim that the full CI run is green.",
+  "repairs": [
+    "85 routes and four organism guides replace the obsolete gap expectation",
+    "Activation and External Masks objectives checked in their own lesson fields",
+    "New psf_fwhm_um animation reviewed across all18frames and native narrow/broad states",
+    "Current tracked-file checkout size measured; historical clone-download measurements kept separate in English and9reviewed translations",
+    "Existing restoration tooltip translations pass the exact catalog-row guard",
+    "Live static audit accepts only the known publication transforms and checks pinned media paths"
+  ],
+  "verification": {
+    "tutorial_files": "13 passed,2translation incompatibilities registered as xfailed",
+    "animation_and_checkout": "25 passed; the one obsolete tense assertion was corrected and its targeted rerun passed",
+    "targeted_followup": "3 passed, covering corrected route metadata, clone explanation and all9translated source-install sections",
+    "publisher_and_inventory": "21 passed; the one overly strict catalog-host assertion was corrected and its targeted rerun passed",
+    "restoration_help": "1 passed"
+  },
+  "remaining_translation_failures": [
+    "test_caption_only_installation_lessons_keep_reviewed_display_copy",
+    "test_localized_navigation_chrome_and_reviewed_copy_do_not_regress"
+  ],
+  "logs": {
+    "full-tutorial-audit-tests.log": {
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/full-tutorial-audit-tests.log",
+      "sha256": "ebc5f9365dc3f603a4701cbf63899d2f7be607c65cad16a17637c34e057f67f8"
+    },
+    "animation-checkout-contract-tests.log": {
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/animation-checkout-contract-tests.log",
+      "sha256": "5deded1afb88537fae223e20066661a3c59e2f74d1ddffa5eff9aaa7823c820e"
+    },
+    "tutorial-ci-followup-tests.log": {
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/tutorial-ci-followup-tests.log",
+      "sha256": "ae8006a7882a04bac2d72250e383391cda4fefa362c459d0a98ea0c42e5c90de"
+    },
+    "current-restoration-help-test.log": {
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/current-restoration-help-test.log",
+      "sha256": "77f7bab6b2cfa87727e6a3a1cb4e4849e86871bfbe7c0d6657abf12e6eee72f3"
+    },
+    "current-tutorial-contract-tests.log": {
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/current-tutorial-contract-tests.log",
+      "sha256": "57ffac71e92c128e69a968451e33ea2b929279ee8d754ea8029b086f5d454d93"
+    }
+  }
+}

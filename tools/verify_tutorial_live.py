@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
-EXPECTED_CACHE_KEY = "assays-20260924-xw4j5buw"
+EXPECTED_CACHE_KEY = json.loads((ROOT / "tools/tutorials/release_candidate/publication-receipt.json").read_text())["pages"]["cache_key"]
 EXPECTED_VOICE_KEY = "20260811-50-voices"
 EXPECTED_APP_KEY = "20260923-workflow78-learning-order"
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}
@@ -54,6 +54,45 @@ def _voice_inventory(source: str) -> tuple[list[str], list[str]]:
     return languages, voices
 
 
+def source_equivalent_assets(remote: dict[str, bytes]) -> dict[str, bytes]:
+    """Undo only the publisher's banner, cache key and immutable media lookup."""
+    assets = dict(remote)
+    player = assets['app_v2.js'].decode()
+    helper = re.search(
+        r'\nconst SPACR_PUBLISHED_MEDIA = ([^\n]+);\n'
+        r'function publishedMedia\(path\) \{\n'
+        r'  return SPACR_PUBLISHED_MEDIA\[path\] \|\| `\$\{PRODUCTION_ROOT\}/\$\{path\}`;\n'
+        r'\}\n', player)
+    if helper:
+        manifest = json.loads(helper[1])
+        expected_paths = {path.relative_to(LOCAL / 'production').as_posix()
+                          for path in (LOCAL / 'production').rglob('*')
+                          if path.is_file() and path.suffix.lower() in {'.mp4', '.jpg', '.jpeg', '.png', '.webp'}}
+        assert set(manifest) == expected_paths
+        receipt = json.loads((ROOT / 'tools/tutorials/release_candidate/publication-receipt.json').read_text())
+        hosted = receipt['media_root'].rstrip('/') + '/'
+        for relative, destination in manifest.items():
+            path = LOCAL / 'production' / relative
+            assert path.is_file(), relative
+            if destination.startswith('https://'):
+                assert path.suffix.lower() == '.mp4', relative
+                assert destination == hosted + relative, (relative, destination)
+            else:
+                digest = _sha256(path.read_bytes())
+                assert destination in {
+                    '../_media/' + digest + path.suffix,
+                    '../../_media/' + digest + path.suffix}, (relative, destination)
+        player = player[:helper.start()] + player[helper.end():]
+        player = player.replace('publishedMedia(lesson.silent)', '`${PRODUCTION_ROOT}/${lesson.silent}`')
+        player = player.replace('publishedMedia(activeLesson.poster)', '`${PRODUCTION_ROOT}/${activeLesson.poster}`')
+        assets['app_v2.js'] = player.encode()
+    index = assets['index.html'].decode()
+    index = re.sub(r'<div class="spacr-publication-channel"[^>]*>.*?</div>', '', index, count=1)
+    index = re.sub(r'(app_v2\.js\?v=)[^"\s]+', lambda m: m[1] + EXPECTED_APP_KEY, index)
+    assets['index.html'] = index.encode()
+    return assets
+
+
 def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
     base = url.rstrip("/") + "/"
     names = ("index.html", "app_v2.js", "voice_catalog.js", "lesson_catalog.js")
@@ -85,14 +124,16 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
     if compare_local:
         local_hashes = {name: _sha256((LOCAL / name).read_bytes()) for name in names}
         result["local_sha256"] = local_hashes
-        result["hashes_match_local"] = result["sha256"] == local_hashes
-    assert result["lessons"] == 81, result
-    assert result["scenes"] == 1075, result
+        normalized = {name: _sha256(payload) for name, payload in source_equivalent_assets(remote).items()}
+        result["source_equivalent_sha256"] = normalized
+        result["hashes_match_local"] = normalized == local_hashes
+    assert result["lessons"] == 85, result
+    assert result["scenes"] == 1080, result
     assert result["languages"] == 8, result
     assert result["voices"] == 50, result
     assert result["cache_key"] == EXPECTED_CACHE_KEY, result
     assert result["voice_cache_key"] == EXPECTED_VOICE_KEY, result
-    assert result["app_cache_key"] == EXPECTED_APP_KEY, result
+    assert result["app_cache_key"] in {EXPECTED_APP_KEY, result["sha256"]["app_v2.js"]}, result
     assert not result["retired_voices_present"], result
     if compare_local:
         assert result["hashes_match_local"], result

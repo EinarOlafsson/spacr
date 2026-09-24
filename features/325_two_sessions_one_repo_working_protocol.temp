@@ -16627,3 +16627,41 @@ a plain rerun erased the mapping, and adding a new input replaced it. Both
 now refuse before writes. All 51 conversion checks pass. API owner: the
 convert_to_yokogawa :raises: description includes an existing conversion log;
 no signature/settings changes. Seven small batches are now pushed to nightly.
+
+2026-09-24 — CODEX: FOUR GUIDES LIVE; FOUR MORE WALKTHROUGH REWRITES
+Run35955044338 deployed32e760991. API11522 and the85-route/84-ready English
+catalog match committed bytes. All four new lessons49/57/58/62 pass live
+playback/chapter seeking; main Mask also passes with its own immutable media.
+Both deployed player cache keys equal their generated content hashes.
+Receipt:358_live_practical_guides_2026-09-24.json. The11524-entry Motility API
+follow-up is still awaiting its later deployment; do not conflate the two.
+
+Next source batch:59AnnData,60PCA,61Tabulate,63SmallMultiples. Practical
+input/control/output narration replaces the validation lectures. Retained
+capture hashes verified; CPU English narration/master rendering underway.
+61of81existing scripts now rewritten;20remain.768old translation reviews
+are tracked as stale. No new capture/publication is claimed for this batch.
+
+AnnData's normal writer still fails on the actual copied example with
+TypeError: Can't implicitly convert non-string objects to strings. The
+supplied helper succeeds and preserves611001values (2341x261,28missing),
+metadata and database bytes. Current evidence is in
+2026-09-24-anndata-current-workaround.json. GUI writer repair remains owed;
+the lesson keeps the helper route explicit. No runtime/API source changed.
+
+2026-09-24 — CODEX: RECONCILED DOCUMENTATION-OWNED CI FAILURES
+Current restoration help exact-row guard passes. Website/candidate inventory
+and gap guards now require85routes and actual organism lessons; objectives
+are checked in the relevant lesson fields. Full tutorial audit files:
+13passed,2incompatible locale tests registered/report-only. The live static
+auditor also verifies the publisher's hashed player and immutable media map.
+
+The18-frame psf_fwhm_um GIF is reviewed against its exact key/hash, including
+native narrow/broad frames; audit counts updated. Checkout measured1607MiB
+on this source snapshot, excluding Git history. All9README translations now
+distinguish that from the historical5.8GBfull-clone download and shallow-clone
+filter comparison. The corrected guards pass; full CI remains unclaimed.
+Evidence:288_documentation_ci_repairs_2026-09-24.json and328_checkout_size_2026-09-24.json.
+Toggle wrapping is privately reconciled atbf63d6e16:11526APIentries and9526
+public callables; subtraction restores every prior count/digest. Four guards
+pass. I will integrate it with the table-guide publication checkpoint.

@@ -56,8 +56,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     languages, voices = live._voice_inventory(
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
-    assert len(catalog["lessons"]) == 81
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1075
+    assert len(catalog["lessons"]) == 85
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1080
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -185,7 +185,8 @@ def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_l
     navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
     gaps = navigation['missing_tutorials']
     missing = {row['app_key'] for row in gaps}
-    assert missing == {'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'}
+    assert missing == set()
+    assert {'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'} <= set(lesson_keys)
     assert len(missing) == len(gaps)
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
     assert not missing & set(lesson_keys)

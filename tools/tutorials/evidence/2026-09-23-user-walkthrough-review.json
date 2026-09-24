@@ -68,7 +68,11 @@
     "55_image_scatter",
     "57_layer_viewer",
     "58_graph_builder",
+    "59_anndata_export",
+    "60_pca",
+    "61_tabulate",
     "62_feature_dictionary",
+    "63_small_multiples",
     "76_ops"
   ],
   "new_capture_required": [
@@ -97,10 +101,6 @@
     "33_plate_viewer",
     "48_hit_list",
     "56_lineage",
-    "59_anndata_export",
-    "60_pca",
-    "61_tabulate",
-    "63_small_multiples",
     "64_gate_editor",
     "65_feature_explorer",
     "66_outliers",
@@ -119,18 +119,18 @@
     "80_image_analysis_pathways",
     "81_sequencing_pathways"
   ],
-  "live_verified_commit": "8b8458b14856d6834ac84f96cc4978749402ae5a",
-  "live_catalog_sha256": "42a6d3379c097f5968d87488b5c897061b603a00f589ddaf1f85ed403a985cc8",
+  "live_verified_commit": "32e7609918781246a5e6e64f70d4016bbc078e7e",
+  "live_catalog_sha256": "a425d2950b5496ec9eff154bb8fd0a430c03805ff1a0f29b9ecfd7a398b2a366",
   "narration_and_caption_refresh_required": [
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
     "17_timelapse",
     "19_train_cellpose",
-    "49_methods_results",
-    "57_layer_viewer",
-    "58_graph_builder",
-    "62_feature_dictionary",
+    "59_anndata_export",
+    "60_pca",
+    "61_tabulate",
+    "63_small_multiples",
     "76_ops"
   ],
   "rows": [
@@ -1361,7 +1361,7 @@
       "scene_count": 9,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1379,7 +1379,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "50_run_compare",
@@ -1588,7 +1588,7 @@
       "scene_count": 20,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1606,11 +1606,37 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "58_graph_builder",
       "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+      "scene_count": 12,
+      "source_revised": true,
+      "newly_authored": false,
+      "manual_review": "source rewritten; live narration aligned",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
+      "prepared_rewrite": true,
+      "published_rewrite": true
+    },
+    {
+      "lesson": "59_anndata_export",
+      "english_sha256": "4b3417ef5e31108f8bb5f52ea9f5ce501a68d290e7175f76694075c85bc1da46",
       "scene_count": 12,
       "source_revised": true,
       "newly_authored": false,
@@ -1631,117 +1657,58 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": true,
-      "published_rewrite": false
-    },
-    {
-      "lesson": "59_anndata_export",
-      "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
-      "scene_count": 12,
-      "source_revised": false,
-      "newly_authored": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[1].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[7].narration",
-          "reason": "negative_framing_to_review"
-        }
-      ],
-      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
       "lesson": "60_pca",
-      "english_sha256": "f295718c295b040c75a11a245ef79b086bb19375b109fcd741ddbbc33b19d402",
+      "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
       "scene_count": 16,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[1].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[4].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "manual_review": "source rewrite; media publication pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
     {
       "lesson": "61_tabulate",
-      "english_sha256": "f09a40c85fa7b4a0c02c18d7fc14858799cdd4342e43b4630a7a480d73536ccd",
+      "english_sha256": "1d22d1f5a170f7e6d1e63dc052ce2281278fe4068e9a27b1c7c90b3a8c60d2cb",
       "scene_count": 18,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[3].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[4].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[9].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[9].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[10].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[11].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[14].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "manual_review": "source rewrite; media publication pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
@@ -1751,7 +1718,7 @@
       "scene_count": 9,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1769,42 +1736,31 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "63_small_multiples",
-      "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+      "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
       "scene_count": 17,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[0].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[5].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[9].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[12].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "manual_review": "source rewrite; media publication pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },

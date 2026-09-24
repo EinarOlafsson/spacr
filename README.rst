@@ -293,9 +293,10 @@ measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-The full clone downloads 5.8 GB for a 1186 MB checkout.
-Adding ``--filter=blob:none`` to that clone saves nothing: the checkout
-fetches the blobs anyway.
+On 2026-09-15, the full clone downloaded 5.8 GB. Adding
+``--filter=blob:none`` to the shallow clone did not reduce its measured download.
+The nightly tracked tree is a 1607 MB checkout (measured 2026-09-24),
+excluding Git history. Download sizes and times vary with the branch.
 
 
 Command-line entry points

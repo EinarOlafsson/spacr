@@ -1,0 +1,20 @@
+{
+  "scope": "Practical walkthroughs using the existing measured-object example; retain operational and statistical interpretation cautions, remove authoring and validation narration.",
+  "lessons": [
+    {
+      "lesson": "60_pca",
+      "old_spoken_words": 758,
+      "new_spoken_words": 548,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "61_tabulate",
+      "old_spoken_words": 884,
+      "new_spoken_words": 624,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Narration refresh pending; not yet published."
+}

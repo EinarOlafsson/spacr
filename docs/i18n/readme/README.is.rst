@@ -249,7 +249,7 @@ Uppsetning frá frumkóða (létt)
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Fullt klón sækir 5,8 GB fyrir 1186 MB vinnutré. Það sparar ekkert að bæta ``--filter=blob:none`` við það klón: blob-hlutirnir eru sóttir hvort sem er þegar vinnutréð er sett upp.
+Í mælingunni 2026-09-15 sótti fullt klón 5,8 GB. Í grunna klóninu minnkaði ``--filter=blob:none`` ekki mælt niðurhal. Skrárnar sem Git fylgist með í nightly taka 1607 MB í vinnutrénu (mælt 2026-09-24), án Git-ferilsins. Stærð niðurhals og tími fara eftir greininni.
 
 
 Skipanalínuskipanir

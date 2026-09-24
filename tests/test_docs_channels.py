@@ -146,6 +146,28 @@ def test_media_only_update_changes_the_player_cache_key(tmp_path):
     assert (before / 'tutorials/app_v2.js').read_bytes() == (after / 'tutorials/app_v2.js').read_bytes()
 
 
+def test_live_audit_recognizes_only_the_publishers_asset_changes(tmp_path, monkeypatch):
+    import verify_tutorial_live as live
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
+    output = tmp_path / 'published'
+    assemble(main, nightly, output)
+    receipt = tmp_path / 'tools/tutorials/release_candidate/publication-receipt.json'
+    receipt.parent.mkdir(parents=True)
+    receipt.write_text(json.dumps({'media_root': 'https://example.invalid/immutable'}))
+    monkeypatch.setattr(live, 'ROOT', tmp_path)
+    monkeypatch.setattr(live, 'LOCAL', nightly / 'tutorials')
+    monkeypatch.setattr(live, 'EXPECTED_APP_KEY', 'unchanged-source')
+    names = ('index.html', 'app_v2.js')
+    remote = {name: (output / 'nightly/tutorials' / name).read_bytes() for name in names}
+    source = {name: (nightly / 'tutorials' / name).read_bytes() for name in names}
+    assert live.source_equivalent_assets(remote) == source
+    changed = dict(remote, **{'app_v2.js': remote['app_v2.js'] + b'\nalert("changed")'})
+    assert live.source_equivalent_assets(changed) != source
+    wrong_media = dict(remote, **{'app_v2.js': remote['app_v2.js'].replace(b'../../_media/', b'../wrong-media/')})
+    with pytest.raises(AssertionError):
+        live.source_equivalent_assets(wrong_media)
+
+
 def test_missing_main_or_oversized_site_cannot_replace_public_site(tmp_path):
     main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
     with pytest.raises(ValueError, match='budget'):
