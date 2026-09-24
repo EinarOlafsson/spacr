@@ -1,0 +1,192 @@
+{
+  "source_commit": "d7b8ccdc249be9c182d1500048983b282d9c341b",
+  "scope": "Rewritten narration with existing example files, routes, chapter links and exact original capture sequences. No new native capture or runtime bug repair claimed.",
+  "passed": true,
+  "lessons": [
+    {
+      "lesson": "48_hit_list",
+      "scenes": 11,
+      "source_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+      "original_capture_hash_sequence": [
+        "7202ff2d70fce045df06f8b00daec354a4f6f40520a62f5618183b21f9f536c6",
+        "f462a27771f8d5f73fb256c8f8fc7bb7862a90020bf06308f9c8a3e2670bc0da",
+        "24134347103b0cee183af6ca4f1446d461a83dc27b3e7eb1ffdbcb817fc58bf2",
+        "9a70c3bd245322634ae701bc13a12cafab2057ff50b9ddf9661f85820aed6114",
+        "542a8b0312e2eb1d85f0555074b86aa2932883c9a719aad48a3e8478da60e35c",
+        "d48368ff876007bd68166bbdb9482da255f863aa682d216440b670ad11842c05",
+        "00b61bcd316b3cf6e31515b1c522a4ee115ea6f6b2a897fa690c955e8ddc5eca",
+        "409407c9bc88294c89fdfec7005ea72b080b59e01012efd99cd1ad0e65360b78",
+        "b65484aab0a5db89d8aa2533004b8b85cd430aa7098c2e375fd21ddef86884f1",
+        "b3bdd82ed98755db51ef8ffdaa99b70ae2ee4691924cba13b2a5efdd3f769029",
+        "f91bb8b2457ef59071b9d7110922245337dacc18bb255a3b9ffd0677587bb93f"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "56_lineage",
+      "scenes": 14,
+      "source_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+      "original_capture_hash_sequence": [
+        "a109dcc43a81b01a477e818d14d60dea45bc2e052013994f006de8d822e8228e",
+        "2314ddf2dd1649e6aa4520ccc6ce5e191e5edc418c1205966ce2ddd38b9ad061",
+        "e1df626e69ad7815fccd0bfbf492135a98d017c63ee98404af677b3ea4227092",
+        "6d269cfd284f3bc73383acbae04dbe4b6f3742057c8d333df49bba7f69a8d83c",
+        "f458eb57598d7955c8966c1c6e2c0ea939e1084fff82c3f4be80d0599899c349",
+        "bd788e2ba921fc2248f1d1f758f72080ba8bd30ef26a64c1211cbd837460eabe",
+        "2c3ff94a7f36b8ada69073d9709caea6c134372eaa3f8c60d67d38870e0620dc",
+        "117748136a195cb0728738c84988cc1d95b0bec0f7bfa0dc8068dec4752f3031",
+        "1b6e060fe423b956ec91b97dd0793f5e482b9c1cd545f73c031ec721287070e4",
+        "d9b57d430a1638ad4761cbf814e8400d9d0bbe2a089bb786269cff6f4eb97a97",
+        "d299bfd97e79aac2ed61ab8743b095aff8eb78cdf49af99597c5802303fe50fd",
+        "1ced5980b626238316a98b1b38d1dd6ec854b748e87048829179dfb589485e24",
+        "0f263d4307dfd1025d66861c676960f2f56665f12436e7efaf1994c2cc1b7b21",
+        "9569f8989298ea0161a6d25772a968dedfd3e63e031ed98c446e1739a784a43b"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "64_gate_editor",
+      "scenes": 22,
+      "source_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+      "original_capture_hash_sequence": [
+        "743c8b099291676dd8764e28b5c9262494bd0477a97a79e6530a343919500e46",
+        "8a2c3f2d1db4b59b461a828ae23487680bf97445d167b3682346f505053e34ea",
+        "53b93a46d184881e5bb266830f67897c5e2c32523f75b876b8cf7313839c4314",
+        "bce4a0d2e6f3b97b25299beb056b2c4c4761ce6136f54d7fe37d3941d78b3143",
+        "553432343e5ffe6d88e31e0cfd529ab2f082196198f8bd3e9fe94b05c996336b",
+        "4da0f72eadd182c7011b23687c1976f502087f3d5381204cea1b68062bde7300",
+        "112d19ee9bf27edba5387a95769d8d574a1ba71adcd5f42511652cef3d0852f4",
+        "1267d44d8325dcf1d306086923d73af0de260cfb41d5daa64e1fa1ed7e44f63a",
+        "4ac404ebbc6d39316723be90b4d7f0561143710b29756a6c9b2ca7083e113ff7",
+        "71f29335997afd88c36c2818efc5d305f09d901a9a5326d0f844876962798fff",
+        "5e739a41a134050b1b73b101ad6c75457965234875429a85aa935a613eccc35a",
+        "e8ca27ca1235065ba0ebe11ce0ce8336eea6b374f04a0db99b983b4b29463cad",
+        "79ff5448a8726b3788b2debc4e89c5085221b9011d9f5a2035eeec975d2df038",
+        "a458856972498ff5a3631f4c26f75a80001c3df7ba6f1700277ac179a8361d5b",
+        "decec8ac224d53b31e8829245648f7020ee3d81886594f3f74b9fe36c3ef83ec",
+        "9750c0f7f9f9e7a6326e40989d0b3b7fb0d03a97ef3bf31143320124910fcf6b",
+        "d5aa76b8999aabe51242ce5b5f3473b5fa07f2cd4fafeeb14eefc7b435e6437e",
+        "eced0df976ce6873fd29a30322345c59765a589bc00e42bf75fdcb6aba426da6",
+        "62daa030de9d530f051bf85fad58b27d6c899bbfeb69c876d61938fd1f1d88e9",
+        "ed323b6596cc53a5da062402260d05b45242409de5220dc9a86e1a71b94394b9",
+        "840b0d60e5cf8c799fa256cb9db6a52edec83bcab26a070aab6dac0078edd9ae",
+        "aab4fa26f1771d8d8af026a2df0c3d26458799b7b35b6bbb72addb180510c9ee"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "65_feature_explorer",
+      "scenes": 14,
+      "source_sha256": "422bef442dc080296a69ed35cec5a6b230488aaa31665c71564832d660959401",
+      "original_capture_hash_sequence": [
+        "cb7358175d11cabb738aface73326f65683ceb0cd5e561a32c9a37b4a1324256",
+        "54567d4165dd85c81b3fc5ae1f72e03b643094c08ac3c622f74998c3c10d5d47",
+        "8dec4b06dcd24440bdb1573970be5795f43464fdd820b62f616a21bd26a3cb3e",
+        "8dec4b06dcd24440bdb1573970be5795f43464fdd820b62f616a21bd26a3cb3e",
+        "8033f2d8b82ebb6b69332b4debdc56c17587dc6578c58f569def4b18829a615e",
+        "db1b4b35fca3747a0dbd819765f9c1db411f61a4bf2fc11fe94781f2deee59df",
+        "5d9015125696d4c934e74c8185da5b9fd14406d4a7feb2dadd36d73f9a967e31",
+        "572f995f28ec77753c747db1ba4f28336505cfbca7f8da1d03f513779710bdae",
+        "7dd2e669c6f057285776a73f217a95e8b85ced934a97d4bb874d2118d16b6fce",
+        "101732bb0ff50e1cb4bcd25dae1bfca98cbf766e0ba1737464a6117397cbba33",
+        "4d00e6d02fb34053367b96e11f46a5e64e10150382e3c250a2deb929ae52cb1f",
+        "80e40b48eef2373a9e8506068120d550f571202e346b44afc805e26a343e40d8",
+        "49209cbc710c8909dccb6d0411051c61c50d166b5bb7e5d9800f2932260eb058",
+        "1c31f52d9e5e1c97b92cadcf2d096dfcfcf246a40406370e7424d713c982acca"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "66_outliers",
+      "scenes": 17,
+      "source_sha256": "b297a7cd12aeaad42d5963f30fa9bcdeae4db12186ad0e986e67ce99cad2aa74",
+      "original_capture_hash_sequence": [
+        "3e37536d26f57ded3279fb08c768bbdae0e8b5b8055dcb65ca350b675662398c",
+        "a51a7edbfd7e34c9ae14e9c773775d0e3f137fa13a9bae554f7552e0feb6d5f1",
+        "d45861853f7d1282a159ac6ab6122244ed91e2c0364485835814da6a700a0137",
+        "f16a4da91a809850950f8eafeddbf1ff91a8cee302dc40fa545f9cbea319ca7b",
+        "5017c60f9f8f708f76eee5f13f9154c00075315042d363ef742c98a84f5ae0dc",
+        "34c052caa9138c33609b4a3cef0e86861d380c54272e105b9a7229435220bee6",
+        "96b7157c2499a3a1dd65dcf4fbbeee6dd99527c357ec4e9d308aa991ff6406de",
+        "83b3435d5baab304ddd02c45c5fce7da9f212511fcd6309cd597ff4ea9fe6703",
+        "a6d71f93830ef5a6323700d77cb4b080fec6f93431f298f0ecd9b7c4c984dad9",
+        "2ad0d93afcf5f71da0e3958b82124bdf575f80c50d94882f79b626450704facc",
+        "8e5d7702f0774653e249c32a31db8fb723b0d7f035c137d997b88ee3cd6a9470",
+        "52437ce598964a852d44688de59ba91e8df59cadec80e7e38ac31da7a9b5e931",
+        "a04a881490f2efad88835cf03c8eb807315cd21cdaf814cccfd800998a40dc4e",
+        "e261ce5e3cc9b480087a11076a75a6012a719adde01c3c824163c1568d646ec5",
+        "9cf2d15a73e15510d875272bec38b7cbd5ace95ee270ed87b2b7cce0f84a3708",
+        "01013781096f1d11cc40f549fd3597349c7aa2edc3ff3b96dabf0e76eb3f99b2",
+        "50d8928264698edb902a166a8a1fd4b668827a236beb55c3b857d5df2b9049b5"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "67_experiment_design",
+      "scenes": 14,
+      "source_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+      "original_capture_hash_sequence": [
+        "59ed13cfd44c9adbe35ed17227c469d172309bb33bd4044d155f54b2bfe2f444",
+        "f3cb4f32758ea122da3611a757da1b8a81e7fee7256e7e61fdcfdbef5662d0e2",
+        "ad2c66fcc24d4aa4aea0e1205faec6bc981e444b56ff7180b35f961b71d15e7e",
+        "f841eb9288173c7e5928ad65765e2900a1908a402244e8ce32847e80d1c63b49",
+        "287297aa5e9073e627b28631b89f2276b13baef37164df9a6615029c3a3d991a",
+        "811f5e591bea730966e92c582dbf37774d9fd002b2c0af0b71c71f0aefc79fef",
+        "07b514384ea8fbfea0d92de176cdf8d1bedcd706ea432ff3e8854fa4dcddcdb7",
+        "069290d2ee93aa251aba61fabebd5232fc41baacfaf889c500792ffdc8e386cb",
+        "20e1c632667c14ccc6dfca0984e4d95f357fa3476a6494a79727b502aa0424a9",
+        "cd81b397a70b4d953a0fee984d114d29e5250940232803f4fe68af735c994c3c",
+        "eca976b94c417649e3696b0a09c675b993eaca4375ce3d5fdbe8e6b0767d49be",
+        "b521fbb700d6b8d1dfdf6f6cad3e14ca8a0ce0ba9bb6acf15c000943c310cfd4",
+        "20e1c632667c14ccc6dfca0984e4d95f357fa3476a6494a79727b502aa0424a9",
+        "b521fbb700d6b8d1dfdf6f6cad3e14ca8a0ce0ba9bb6acf15c000943c310cfd4"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "68_power_design",
+      "scenes": 11,
+      "source_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+      "original_capture_hash_sequence": [
+        "878ae6a0125c83183e3cf0cfc9060896582ad9b7953666ab14c62216020ad88b",
+        "cb3295e235b0849746d67edc555b8619beef83dd0e8cab2006c65b0faf626d69",
+        "d2e8c86758c250fb2cd653ec2e31d24c6a38b000f52a6d2dbccf4d7e22135fe9",
+        "535a9797aa84df60600826f009aa825991e222cdd7e81cbd0f4a7a6ad7eb6cf0",
+        "8cfb1ed00801adf1f2b3e0847ca09270b4842d4008eac48834ca763de7cae626",
+        "23f3fae966989142f8bb7afc3b2683db14eaae21807172fd66fe2f898d1850a4",
+        "ba9522431bf207b414c62c60d901d441626dc16ebc38f680b34d5cad4374b786",
+        "ba9522431bf207b414c62c60d901d441626dc16ebc38f680b34d5cad4374b786",
+        "603bde905f6a3c26ece2d58f1d2dc3952fc3ab9b3a3a19691c8ed0a59ec37410",
+        "f17a6b960f239f0d560178adf893716736e5804c874df895d3a1bf1e158564e0",
+        "603bde905f6a3c26ece2d58f1d2dc3952fc3ab9b3a3a19691c8ed0a59ec37410"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    },
+    {
+      "lesson": "69_dose_response",
+      "scenes": 18,
+      "source_sha256": "34417ee0b35163e5d977b5ec2c4cb8f350c8b51afbb57c35816ffba537990b2b",
+      "original_capture_hash_sequence": [
+        "a5a987293bfab978b7b78a7ae97cd8bb21c3ca38dfce0dabb8cf12eda138aea2",
+        "fdd5936608941135ff0c00ac199a0d17179e5821737abdccb4ba349cc60b5634",
+        "5cac9e2c8cf121c5363698e1d2bc5e47459c75626c692a1f25484e25dda7c7d6",
+        "98ca762d8bdcc9232dd51f640af68549eeb28536d8002a8c1b5ceca58f2e9923",
+        "98ca762d8bdcc9232dd51f640af68549eeb28536d8002a8c1b5ceca58f2e9923",
+        "a9454a54097bd9dfd4b3df9825c9779a42fdb360dc2c7608980ca7e1dcc9525e",
+        "0e400bb45e670a54c43214985fe0448263d85da7d2369c511eea29887315cd3d",
+        "290eb50c1f6ce1ae2e3e7b54410d64298497fb250e91511f4a9c930a393c075d",
+        "f5c11242be36739b863c9fefda2ec3b63c1f660185746293431122ee3a00c103",
+        "e51803548579f023882575305824ac40b4d2917e16ba2f639172d3176b4ec265",
+        "0e400bb45e670a54c43214985fe0448263d85da7d2369c511eea29887315cd3d",
+        "0e400bb45e670a54c43214985fe0448263d85da7d2369c511eea29887315cd3d",
+        "9d02dffa27bba18d403a053d912e2927d78348ec0a24766d1c52b1316257dc33",
+        "61740695a283b7b4c8afd09b5988aa0b3996fe238056c1414f24d0d4923ec580",
+        "01a17127f69ccb7b4fbddf5c9f4d4f4f3f0596aeadcdb0eb907f302fc9bff927",
+        "05fe4b1bfa29b69f57e1025484c280efc1544012338a4388028715d8499b1434",
+        "6f503740c6b8eac9ef78079c533fae57807ee1beb15856d34094a8320e3e7243",
+        "01a17127f69ccb7b4fbddf5c9f4d4f4f3f0596aeadcdb0eb907f302fc9bff927"
+      ],
+      "original_routes_examples_and_visual_actions_preserved": true
+    }
+  ]
+}

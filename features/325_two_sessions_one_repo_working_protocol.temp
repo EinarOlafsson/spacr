@@ -16708,3 +16708,11 @@ languages. Nine actual runtime lookups and both Swedish/French review-cohort
 guards pass. Exact cohort subtraction preserves the old counts; current
 English API/runtime audits also pass. The compatibility register is refreshed.
 Receipt:411_score_threshold_translations_2026-09-24.json. No full-CI/main claim.
+
+2026-09-24 — CODEX: SOURCE/CAPTION CHECKPOINT d7b8ccdc2
+The eight-lesson refresh preserves all121 original visual/chapter bindings,
+example-file links and routes; exact capture hashes are recorded in
+2026-09-24-exploration-capture-bindings.json. All eight English narration tracks
+are complete; master/rendition/browser checks remain in progress. The source
+and nine-language score-tooltip work is committed atd7b8ccdc2. Media publication
+will be a separate checked batch, without delaying the accepted table guides.
