@@ -2,135 +2,143 @@
   "lessons": {
     "activation": {
       "lesson": "16_activation",
-      "title": "Activation Maps: real saliency outputs and their limits"
+      "title": "Activation Maps: inspect an image classifier’s saliency maps"
     },
     "agreement": {
       "lesson": "23_agreement",
-      "title": "Annotator Agreement"
+      "title": "Annotator Agreement: compare independent annotation passes"
     },
     "align": {
       "lesson": "32_align_stitch",
-      "title": "Align & Stitch: inspect a real plan and verify the written mosaic"
+      "title": "Align & Stitch: plan and write an image mosaic"
     },
     "analyze_plaques": {
       "lesson": "24_plaque",
-      "title": "Plaque Analysis"
+      "title": "Plaque Assay: count plaques and measure their areas"
     },
     "anndata_export": {
       "lesson": "59_anndata_export",
-      "title": "AnnData Export: current route and a verified API workaround"
+      "title": "AnnData Export: save measured objects and features"
     },
     "annotate": {
       "lesson": "09_annotate",
-      "title": "Annotate: real example crops, saved labels and review tools"
+      "title": "Annotate: label objects and save your annotations"
     },
     "barcode_qc": {
       "lesson": "47_barcode_qc",
-      "title": "Barcode QC: real counts, threshold trade-offs and saved plots"
+      "title": "Barcode QC: inspect read depth and choose a cutoff"
     },
     "batch": {
       "lesson": "37_batch",
-      "title": "Batch Runner: validated jobs, dependencies and separate logs"
+      "title": "Batch Runner: configure and run a queue"
+    },
+    "candida": {
+      "lesson": "84_candida",
+      "title": "Candida: explore the organism guide"
     },
     "cellpose_masks": {
       "lesson": "20_cellpose_masks",
-      "title": "Apply Cellpose: saved masks and live-filter checks"
+      "title": "Apply Cellpose: segment a folder and inspect masks"
     },
     "classifier_evaluation": {
       "lesson": "39_classifier_evaluation",
-      "title": "Classifier evaluation"
+      "title": "Classifier Evaluation: inspect predictions and errors"
     },
     "classify": {
       "lesson": "10_classify_cv",
-      "title": "Classify: a checked computer-vision example"
+      "title": "Classify: train an image classifier"
     },
     "classify_merged": {
       "lesson": "41_classify",
-      "title": "Classify: the main module and its nested tools"
+      "title": "Classify: choose a model and explore its results"
     },
     "control_chart": {
       "lesson": "51_control_charts",
-      "title": "Control Charts: inspect a campaign with explicit controls and limits"
+      "title": "Control Charts: monitor controls across plates"
     },
     "convert": {
       "lesson": "35_converter",
-      "title": "Format Converter: review identities before writing real images"
+      "title": "Format Converter: preview and convert image files"
     },
     "curate": {
       "lesson": "42_curate",
-      "title": "Curate: practice edits and preserve their history"
+      "title": "Curate: edit masks and tracks"
     },
     "data_manager": {
       "lesson": "44_data_manager",
-      "title": "Data Manager: inspect, prune and archive a real example safely"
+      "title": "Data Manager: inspect usage, clean up and archive"
     },
     "db_browser": {
       "lesson": "34_database",
-      "title": "Database Browser"
+      "title": "Database Browser: filter and export measurements"
     },
     "distributed_jobs": {
       "lesson": "38_distributed_jobs",
-      "title": "Distributed Jobs"
+      "title": "Distributed Jobs: configure an execution target"
     },
     "dose_response": {
       "lesson": "69_dose_response",
-      "title": "Dose Response: fitted curves, uncertainty and honest refusals"
+      "title": "Dose Response: fit concentration curves and read their intervals"
     },
     "embeddings": {
       "lesson": "77_embeddings",
-      "title": "Embeddings: current screen and a real Python example"
+      "title": "Embeddings: load crops and compare channel policies"
     },
     "experiment_design": {
       "lesson": "67_experiment_design",
-      "title": "Experiment Design: a reproducible plate plan and exact export"
+      "title": "Experiment Design: plan a plate and export its well map"
     },
     "explain_cv": {
       "lesson": "70_explain_cv",
-      "title": "Explain CV Model"
+      "title": "Explain CV Model: compare predictions with measured features"
     },
     "external_masks": {
       "lesson": "31_external_masks",
-      "title": "External Masks: measure existing cell labels without resegmenting"
+      "title": "External Masks: measure images with supplied object labels"
     },
     "feature_dict": {
       "lesson": "62_feature_dictionary",
-      "title": "Feature Dictionary: look up meanings, units and computing functions"
+      "title": "Feature Dictionary: find definitions and units"
     },
     "feature_explorer": {
       "lesson": "65_feature_explorer",
-      "title": "Feature Explorer: rank real measurements and keep the comparison explicit"
+      "title": "Feature Explorer: compare groups and export a feature ranking"
     },
     "foreign": {
       "lesson": "36_import",
-      "title": "Import Project: review real masks, measurements and provenance"
+      "title": "Import Project: bring images, masks and measurements into spaCR"
     },
     "gate_editor": {
       "lesson": "64_gate_editor",
-      "title": "Gate Editor: real populations, reversible views and exact exports"
+      "title": "Gate Editor: select populations and save their membership"
     },
     "graph_builder": {
       "lesson": "58_graph_builder",
-      "title": "Graph Builder: real measurements, live filters and an explicit handoff limit"
+      "title": "Graph Builder: plot measurements and filter objects"
     },
     "hit_list": {
       "lesson": "48_hit_list",
-      "title": "Hit List: inspect candidates with an explicit companion window"
+      "title": "Hit List: filter candidates and export a shortlist"
+    },
+    "host_pathogen": {
+      "lesson": "85_host_pathogen",
+      "title": "Host–Pathogen: link vacuole markers and parasite counts"
     },
     "illumination": {
       "lesson": "43_illumination",
-      "title": "Illumination"
+      "title": "Illumination: estimate and inspect a correction model"
     },
     "image_scatter": {
       "lesson": "55_image_scatter",
-      "title": "Image Scatter: real measurements and the crop behind each point"
+      "title": "Image Scatter: inspect measurements and their crops"
     },
     "import_images": {
       "lesson": "74_import_images",
-      "title": "Import Images: inspect the plan before importing"
+      "title": "Import Images: map image identities and create a project"
     },
     "invasion": {
       "lesson": "26_invasion",
-      "title": "Invasion Assay"
+      "title": "Invasion Assay: score outside and total staining"
     },
     "investigate_hit": {
       "lesson": "71_investigate_hit",
@@ -138,43 +146,43 @@
     },
     "layer_viewer": {
       "lesson": "57_layer_viewer",
-      "title": "Layer Viewer: real image-mask overlays, display controls and source-safe inspection"
+      "title": "Layer Viewer: inspect images and label overlays"
     },
     "lineage": {
       "lesson": "56_lineage",
-      "title": "Lineage: containment identities and verified parent crops"
+      "title": "Lineage: browse parent objects and their contents"
     },
     "make_masks": {
       "lesson": "14_make_masks",
-      "title": "Make Masks: reversible editing, recropping and local detection"
+      "title": "Make Masks: edit labels and prepare training images"
     },
     "map_barcodes": {
       "lesson": "12_map_barcodes",
-      "title": "Map Barcodes: live search, verified references and real counts"
+      "title": "Map Barcodes: from sequencing reads to counts"
     },
     "mask": {
       "lesson": "07_mask",
-      "title": "Mask: live filters, a real run and verified overlay export"
+      "title": "Mask: segment images and inspect the results"
     },
     "measure": {
       "lesson": "08_measure",
-      "title": "Measure: live field views, real measurements and saved outputs"
+      "title": "Measure: extract object features and crops"
     },
     "methods_export": {
       "lesson": "49_methods_results",
-      "title": "Methods & Results: build, review and export a draft"
+      "title": "Methods & Results: draft and export a run report"
     },
     "ml_analyze": {
       "lesson": "11_classify_ml",
-      "title": "Classify: tabular machine learning"
+      "title": "Classify: learn from measured features"
     },
     "model_compare": {
       "lesson": "21_model_compare",
-      "title": "Model Compare: current screen and real mask agreement"
+      "title": "Model Compare: compare saved segmentation masks"
     },
     "model_zoo": {
       "lesson": "22_model_zoo",
-      "title": "Model Zoo: find models and inspect their provenance"
+      "title": "Model Zoo: choose a model and try it on your images"
     },
     "motility": {
       "lesson": "18_motility",
@@ -182,7 +190,7 @@
     },
     "napari_bridge": {
       "lesson": "46_napari_bridge",
-      "title": "Napari Bridge: edit, import and reopen safely"
+      "title": "Napari Bridge: edit and return a label mask"
     },
     "ops": {
       "lesson": "76_ops",
@@ -190,19 +198,23 @@
     },
     "outliers": {
       "lesson": "66_outliers",
-      "title": "Outliers: inspect real flags without deleting observations"
+      "title": "Outliers: flag measurements for inspection"
     },
     "parameter_sweep": {
       "lesson": "73_parameter_sweep",
-      "title": "Parameter Sweep"
+      "title": "Parameter Sweep: compare saved Regression trials"
     },
     "pca": {
       "lesson": "60_pca",
-      "title": "PCA: real measurements, live refits and missing values"
+      "title": "PCA: explore measurements and export components"
     },
     "pipeline_graph": {
       "lesson": "52_pipeline_graph",
-      "title": "Pipeline Graph: inspect real provenance and missing artifacts"
+      "title": "Pipeline Graph: inspect outputs and dependencies"
+    },
+    "plasmodium": {
+      "lesson": "83_plasmodium",
+      "title": "Plasmodium: explore the organism guide"
     },
     "plate_view": {
       "lesson": "33_plate_viewer",
@@ -210,59 +222,63 @@
     },
     "power": {
       "lesson": "68_power_design",
-      "title": "Power / Design: read the simulator and its limitations"
+      "title": "Power & Design: explore simulated detection curves"
     },
     "profiler": {
       "lesson": "53_prediction_profiler",
-      "title": "Prediction Profiler"
+      "title": "Prediction Profiler: explore a fitted model"
     },
     "project_browser": {
       "lesson": "45_project_browser",
-      "title": "Project Browser: discover real projects and interpret their evidence"
+      "title": "Project Browser: find and inspect projects"
     },
     "qc_dashboard": {
       "lesson": "54_qc_dashboard",
-      "title": "QC: read the evidence, not just the headline"
+      "title": "QC: inspect project quality reports"
     },
     "queue": {
       "lesson": "30_plate_queue",
-      "title": "Plate Queue: run, stop between jobs and continue"
+      "title": "Plate Queue: run several prepared projects"
     },
     "recruitment": {
       "lesson": "25_recruitment",
-      "title": "Recruitment: verify compartment ratios on real measurements"
+      "title": "Recruitment: measure marker enrichment around parasites"
     },
     "regression": {
       "lesson": "13_regression",
-      "title": "Regression: a real example from paired tables to results"
+      "title": "Regression: from paired tables to results"
     },
     "regression_diagnostics": {
       "lesson": "75_regression_diagnostics",
-      "title": "Regression Diagnostics: read the evidence behind the results"
+      "title": "Regression Diagnostics: inspect the saved analysis reports"
     },
     "replication": {
       "lesson": "27_replication",
-      "title": "Replication Assay"
+      "title": "Replication Assay: count parasites per vacuole"
     },
     "report": {
       "lesson": "29_report",
-      "title": "Report: inspect and share recorded results without rerunning analysis"
+      "title": "Report: create a document from project results"
     },
     "run_compare": {
       "lesson": "50_run_compare",
-      "title": "Run Compare: inspect two real Measure snapshots"
+      "title": "Run Compare: compare saved runs"
     },
     "run_history": {
       "lesson": "40_run_history",
-      "title": "Run History: inspect real journals and restore available settings"
+      "title": "Run History: inspect past jobs and restore settings"
     },
     "tabulate": {
       "lesson": "61_tabulate",
-      "title": "Tabulate: group real measurements, inspect counts and refresh the summary plot"
+      "title": "Tabulate: summarize measurements by well and field"
     },
     "timelapse": {
       "lesson": "17_timelapse",
       "title": "Timelapse"
+    },
+    "toxoplasma": {
+      "lesson": "82_toxoplasma",
+      "title": "Toxoplasma: explore the page and choose an assay"
     },
     "train_cellpose": {
       "lesson": "19_train_cellpose",
@@ -270,19 +286,19 @@
     },
     "train_compare": {
       "lesson": "28_training_runs",
-      "title": "Training Runs: practise comparison controls with synthetic logs"
+      "title": "Training Runs: compare curves and settings"
     },
     "trellis": {
       "lesson": "63_small_multiples",
-      "title": "Small Multiples: real groups, live filters and honest scales"
+      "title": "Small Multiples: compare groups with shared or separate axes"
     },
     "umap": {
       "lesson": "15_image_umap",
-      "title": "Image UMAP: real measurements and interactive crop inspection"
+      "title": "Image UMAP: explore measurements with image crops"
     },
     "volcano_explorer": {
       "lesson": "72_volcano_explorer",
-      "title": "Volcano Explorer: inspect existing results and export a figure"
+      "title": "Volcano Explorer: inspect results and save a figure"
     }
   },
   "schema": 1

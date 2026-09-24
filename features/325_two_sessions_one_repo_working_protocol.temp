@@ -17136,3 +17136,12 @@ results for71 Investigate Hit, please name the paths. Four-well Annotate data
 cannot meet its4target+4control-well inference design. No fake results used.
 Next media candidate will replace33/78–81 on accepted K/ui5y3r18.
 No version bump/main operation. Unrelated authoring/project untouched.
+
+2026-09-24 — CODEX: DOCUMENTATION CI TRIAD REPAIRED
+Source walkthrough checkpoint8c37ea6a8. Coverage9's organism-gap failure
+exposed a stale bundled GUI tutorial index, not merely an obsolete test:
+regenerated75module links/titles; publisher now refreshes this index too.
+Coverage4 nested-helper guard passes with the current English manifest;
+_mask_workers had been missing in the older CI snapshot. README trimmed
+below its existing1750word ceiling, without relaxing the guard. All three
+named CI regressions now pass. Matching five-video candidate still rendering.

@@ -230,7 +230,9 @@ def test_every_registry_module_has_a_lesson_or_a_registered_gap():
     navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
     gaps = navigation['missing_tutorials']
     registered = {row['app_key'] for row in gaps}
-    assert registered == {'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'}
+    assert registered == set()
+    assert all(has_tutorial(key) for key in
+               ('candida', 'host_pathogen', 'plasmodium', 'toxoplasma'))
     assert len(registered) == len(gaps)
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
     missing = {key for key, *_ in APPS if not has_tutorial(key)}

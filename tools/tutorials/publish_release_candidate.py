@@ -43,6 +43,9 @@ from build_release_candidate import copy_checked
 from stage_lesson import REPO, read, write
 from validate_candidate import validate
 
+sys.path.insert(0, str(REPO / 'tools'))
+import build_tutorial_index
+
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'authoring' / 'tools'))
 from publish_tutorials import HF_DATASET, hf_upload_ready  # noqa: E402
 
@@ -296,7 +299,14 @@ def pages(root, key):
     index_temporary = PAGES / 'index.html.publishing'
     index_temporary.write_text(index, encoding='utf-8')
     index_temporary.replace(PAGES / 'index.html')
+    bundled_index = REPO / 'spacr/resources/tutorial_index.json'
+    bundled_temporary = bundled_index.with_suffix('.json.publishing')
+    bundled_temporary.write_text(json.dumps(
+        build_tutorial_index.build(PAGES / 'lesson_catalog.js'),
+        ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+    bundled_temporary.replace(bundled_index)
     receipt['pages'] = {'destination': str(PAGES.relative_to(REPO)), 'files_from_candidate': len(written) + 1,
+                        'bundled_tutorial_index_sha256': digest(bundled_index),
                         'index_sha256': digest(PAGES / 'index.html'),
                         'candidate_index_sha256': web['index.html']['sha256'],
                         'cache_key': key, 'unchanged_versioned_assets': sorted(unchanged),

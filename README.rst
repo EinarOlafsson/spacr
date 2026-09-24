@@ -643,11 +643,10 @@ assay, and counting is usually better served by over-calling: the plaque model
 was accepted at precision 0.858 with recall 0.811 over an earlier round at
 0.939 and 0.631.
 
-**IoU**, intersection over union, is how much a predicted object and the real
-one overlap, divided by the area they cover together. It is the ruler the rest
-are read against, so a score means nothing without its threshold: "F1 0.864 at
-IoU 0.5" counts a vacuole as found when the two outlines agree over half their
-combined area.
+**IoU**, intersection over union, divides the overlap between predicted and
+reference objects by their combined area. Read scores with their threshold:
+"F1 0.864 at IoU 0.5" counts a vacuole as found when that overlap reaches half
+the combined area.
 
 **mAP50** and **mAP50-95** belong to the detector. The first asks whether the
 wells were found; the second repeats it across ten thresholds from 0.5 to
