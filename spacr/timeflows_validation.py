@@ -97,6 +97,7 @@ def summarise(rows):
     arms = sorted({arm for row in rows for arm in row['correct']})
 
     def group(selected):
+        """Summarize correct successor links and abstentions for the selected ground-truth objects."""
         alive = [row for row in selected if row['has_successor']]
         gone = [row for row in selected if not row['has_successor']]
         return {'sources': len(selected), 'true_successors': len(alive), 'no_successor': len(gone),

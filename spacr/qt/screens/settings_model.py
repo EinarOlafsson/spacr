@@ -6184,6 +6184,7 @@ class _TrainingFolderEdit(_ScalarEdit):
     """An editable directory with a browse action, retaining the standard value contract."""
 
     def __init__(self, value=None, parent=None):
+        """Initialize the folder value and add its trailing directory-picker action."""
         super().__init__(parent)
         from PySide6.QtWidgets import QFileDialog, QStyle
         from ..i18n import tr
@@ -8053,16 +8054,19 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         self._built[key] = widget
 
     def __getitem__(self, key):
+        """Build a pending setting on first access and return its editor."""
         if key not in self._built and key in self._to_come:
             self.build((key,))
         return self._built[key]
 
     def __setitem__(self, key, widget) -> None:
+        """Replace a pending or built editor while retaining its position in the key order."""
         self._to_come.pop(key, None)
         self._built[key] = widget
         self._order[key] = None
 
     def __delitem__(self, key) -> None:
+        """Remove a known setting from both lazy and built inventories, or raise KeyError."""
         if key not in self._built and key not in self._to_come:
             raise KeyError(key)
         self._built.pop(key, None)
@@ -8070,15 +8074,19 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         self._order.pop(key, None)
 
     def __contains__(self, key) -> bool:
+        """Check whether a setting exists without constructing its editor."""
         return key in self._built or key in self._to_come
 
     def __iter__(self):
+        """Iterate a snapshot of setting keys in their declared order without building editors."""
         return iter(list(self._order))
 
     def __len__(self) -> int:
+        """Count pending and constructed settings without triggering construction."""
         return len(self._order)
 
     def __bool__(self) -> bool:
+        """Report whether any setting is registered without constructing a widget."""
         return bool(self._order)
 
     def items(self):
@@ -8096,6 +8104,7 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         return dict(self.items())
 
     def __repr__(self) -> str:
+        """Describe the built and pending editor counts without forcing lazy construction."""
         return (f"<controls: {len(self._built)} built, "
                 f"{len(self._to_come)} to come>")
 

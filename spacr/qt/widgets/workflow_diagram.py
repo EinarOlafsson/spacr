@@ -242,6 +242,7 @@ class _Node(QGraphicsItem):
     """One focusable module, including its input and output artifact titles."""
 
     def __init__(self, view, key):
+        """Create a focusable module node associated with its workflow and registry key."""
         super().__init__()
         self.view, self.key = view, key
         self.setAcceptHoverEvents(True)
@@ -314,6 +315,7 @@ class _Edge(QGraphicsPathItem):
     """Directed connection with a wider invisible hit target for hovering."""
 
     def __init__(self, view, edge, start, end):
+        """Build a smooth connection ending at the arrow base and retain its handoff metadata."""
         base = end - QPointF(12, 0)
         path = QPainterPath(start)
         bend = max(24, abs(base.x() - start.x()) / 2)

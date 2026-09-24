@@ -469,6 +469,7 @@ def prepare(image: np.ndarray, chain: Chain, *, cancel=None) -> np.ndarray:
         copy -- and otherwise a new float32 array of the same shape.
     """
     def check():
+        """Stop between enhancement stages when the supplied callback or event is cancelled."""
         if cancel is not None and (cancel() if callable(cancel) else cancel.is_set()):
             raise ProcessingCancelled('Image enhancement cancelled')
 

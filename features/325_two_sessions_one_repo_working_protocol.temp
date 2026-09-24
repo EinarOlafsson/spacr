@@ -15600,3 +15600,47 @@ Hindi rendered test-data clipping, and remaining coverage5/10 caption contracts.
 New three-assay candidate is private only; optional media is not part of this
 release repair. Hindi full API draft finished privately (11unresolvedblocks);
 Korean/Icelandic drafting continues, with no unreviewed draft promotion.
+
+
+2026-09-23 COVERAGE1 FOLLOW-UP
+The last shard found missing helper docstrings (61callables), stale Demos
+visibility assertions, an incomplete Cellpose test-double signature, and a
+coverage denominator still pinned to634instead of639shipped Python modules.
+I am taking those implementation repairs, including the .github/workflows/tests.yml
+inventory count after explicitly naming the module additions/removals; floors
+and ratchets are unchanged. I also own four underspecified Host–Pathogen/TTA
+help descriptions and the actual-default comparison inventory audit. Docs owner:
+tests/qt/test_setting_animation_zoom.py also pins86animations versus87;
+please resolve alongside test_readme_presentation's same inventory. New logs:
+/tmp/spacr-e498-coverage1.log. No API signatures are intentionally changing.
+
+2026-09-23 METHOD DOCUMENTATION AND DEFAULT CENSUS COMPLETE
+Documented all61missing helper/method bodies with their actual ownership,
+cancellation, units, boundary handling or return behavior. These affect15files
+including point_spread, Host–Pathogen/PSF/plaque previews, settings_model's lazy
+mapping methods and shared widget helpers. Public method signatures unchanged.
+The callable/nested-helper sweeps pass. Default audit ran the actual0a4f5aa75
+package and current package separately:673to716comparisons, exactly43new pairs,
+none removed. Two previously uncounted Replication differences are now stated
+in the shared prose (predictions class column, nuclei_limit10), with explicit
+named expectations. All existing variants remain. Portable census receipt:
+tests/data/release_contracts/491_default_claim_census_2026-09-23.json.
+Five actual additions sinceaaa97cc0d are plaque_growth, point_spread,
+psf_measurement, psf_pipeline and qt/widgets/psf_controls; coverage denominator
+now639, with the same90percent floor and per-module ratchet.66focused contract
+checks and32portable default/tooltip checks pass. Demos stay removed.
+
+Additional docs-owned failures from completed Qt/coverage9jobs:
+* tests/qt/test_a_module_explains_itself_at_the_bottom.py missing organism and
+  Host–Pathogen lessons; tests/test_every_module_is_reachable_and_documented.py
+  misses the now-organism assay navigation.
+* tests/test_every_module_lands_on_prose.py: organism API destinations share an
+  unanchored page and some entry pages have less prose.
+* tests/test_the_settings_flow_artefacts_are_current.py:47new settings and125
+  changed sections. Please regenerate after consuming the runtime fixes.
+* tests/qt/test_walkthrough.py still expects the deleted Demos menu step.
+* tests/qt/test_setting_tooltip_footer.py: new animation text clipping.
+I own the remaining native-cursor assertions, Cellpose training contracts,
+plaque category descriptions, dataset counts, release-only sparse paths and
+rendered dialog/close-mark/layout/native-lifetime failures. Full logs now include
+/tmp/spacr-e498-qt{0,1,2}.log and /tmp/spacr-e498-coverage9.log.

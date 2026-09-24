@@ -19,10 +19,12 @@ class _CursorPolicy(QObject):
     """Preserve gestures while suppressing application cursor substitutions."""
 
     def __init__(self, application):
+        """Bind the native-arrow policy to its application and guard recursive cursor events."""
         super().__init__(application)
         self._changing = False
 
     def eventFilter(self, watched, event):
+        """Restore the native arrow on pointer events without consuming the original gesture."""
         if self._changing or event.type() not in (
                 QEvent.CursorChange, QEvent.Enter, QEvent.Show, QEvent.MouseMove):
             return False

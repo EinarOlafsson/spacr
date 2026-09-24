@@ -1886,6 +1886,7 @@ def _describe_regression_plan(settings: Dict[str, Any]) -> str:
     pairs = settings.get('paired_data') or []
     if not pairs:
         def paths(value):
+            """Normalize an optional scalar or sequence source into a list without inventing entries."""
             return list(value) if isinstance(value, (list, tuple)) else ([] if value is None else [value])
 
         pairs = [dict(score=score, count=count)

@@ -39,11 +39,13 @@ class ProcessingCancelled(RuntimeError):
 
 
 def _cancelled(cancel):
+    """Raise ProcessingCancelled when a callback or event requests cancellation."""
     if cancel is not None and (cancel() if callable(cancel) else cancel.is_set()):
         raise ProcessingCancelled('PSF processing cancelled')
 
 
 def _spacing(values, ndim, name):
+    """Validate positive finite physical lengths and expand a scalar across spatial axes."""
     try:
         values = (values,) * ndim if np.isscalar(values) else tuple(values)
         if any(isinstance(v, (bool, np.bool_)) for v in values):
@@ -57,6 +59,7 @@ def _spacing(values, ndim, name):
 
 
 def _shape(shape):
+    """Validate a bounded 2D or 3D kernel shape with positive odd axis lengths."""
     shape = tuple(shape)
     if len(shape) not in (2, 3) or any(int(n) != n or n < 1 or n % 2 != 1 for n in shape):
         raise ValueError('A PSF must have two or three spatial axes with positive odd lengths')
@@ -85,6 +88,7 @@ class PSF:
     details_json: str = '{}'
 
     def __post_init__(self):
+        """Validate serialized kernel geometry, calibration and immutable float32 values."""
         shape = _shape(self.shape)
         spacing = _spacing(self.sampling_um, len(shape), 'PSF sampling')
         values = bytes(self.values)
@@ -118,6 +122,7 @@ class PSF:
 
 
 def _kernel(data, sampling_um, source, details):
+    """Capture a nonnegative kernel with unit sum and reproducible calibration provenance."""
     data = np.asarray(data)
     shape = _shape(data.shape)
     if data.dtype.kind not in 'uif':
@@ -242,6 +247,7 @@ class _ReflectOperator:
     """Convolution after symmetric extension, with its exact transpose."""
 
     def __init__(self, shape, kernel):
+        """Prepare symmetric boundary padding and index maps for a fixed image shape."""
         self.kernel = kernel
         self.shape = shape
         self.pad = tuple((n // 2, n // 2) for n in kernel.shape)
@@ -249,11 +255,13 @@ class _ReflectOperator:
                      for n, p in zip(shape, self.pad)]
 
     def forward(self, image):
+        """Convolve a symmetrically extended image and return its original spatial extent."""
         from scipy.signal import fftconvolve
         return fftconvolve(np.pad(image, self.pad, mode='symmetric'),
                            self.kernel, mode='valid')
 
     def adjoint(self, image):
+        """Apply the transpose convolution, folding boundary contributions back onto image pixels."""
         from scipy.signal import fftconvolve
         out = fftconvolve(image, np.flip(self.kernel), mode='full')
         for axis, (length, indices) in enumerate(zip(self.shape, self.maps)):
