@@ -2631,22 +2631,22 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "Übereinstimmung zwischen Annotierenden",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
       "section": "Results and quality control",
-      "description": "Öffnen Sie das eingebettete Werkzeug, vergleichen Sie ausdrücklich künstliche Lehrbezeichnungen auf Kopien echter heruntergeladener Bildausschnitte und unterscheiden Sie paarweise Übereinstimmung von der Zusammenfassung mehrerer Durchgänge.",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Annotator Agreement aus Annotate öffnen.",
-        "Bezeichnungen, fehlende Beobachtungen und Konfusionsmatrizen vergleichen, ohne Annotationen zu ändern.",
-        "Abweichende Bildausschnitte prüfen und Zusammenfassungen zweier beziehungsweise dreier Durchgänge interpretieren."
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "Die sechzehn Bildausschnitte sind unveränderte Kopien des herunterladbaren Annotate-Beispiels. DEMO_A, DEMO_B und DEMO_C sind künstliche Lehrbezeichnungen in einer neuen privaten Datenbank, keine biologischen Klassen, menschlichen Leistungsbewertungen oder Modellvorhersagen. Ursprüngliche Bilder und Bezeichnungen bleiben unverändert; nur in der Demokopie wird png_path relativ. Für eigene Bewertungen sind echte unabhängige Annotationsdurchgänge erforderlich. Bekannte Modellausgabespalten werden standardmäßig nicht erkannt. Unabhängige Ganzzahl- und Bruchrechnungen prüfen alle Paare, Matrizen und Aggregate; drei Vorschauen stimmen pixelgenau mit den Originalausschnitten überein. Das kleine Beispiel erklärt die Bedienung, nicht die Zuverlässigkeit eines Assays. Der alte Film wiederholte einen leeren Bildschirm und beschrieb eine automatische Vorhersagespaltenerkennung, die nicht mehr zur API passt: Die Lektion wurde nicht bloß verschoben.",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Öffnen Sie Annotate und anschließend dessen Schaltfläche Annotator Agreement. Dies ist ein eingebettetes Werkzeug, kein weiteres Home-Modul. Die Vergleichsansicht liest Annotationsspalten, ohne sie zu bearbeiten; zum Ändern einer Bezeichnung kehren Sie zu Annotate zurück.",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -2654,54 +2654,62 @@
         },
         {
           "visual": "04_demo_database",
-          "narration": "Öffnen Sie die vorbereitete Demonstrationsdatenbank. Ihre sechzehn Bilder sind echte Ausschnitte des herunterladbaren Beispiels, doch die drei DEMO-Spalten enthalten künstliche Lehrbezeichnungen. Sie messen weder die Fähigkeit einer Person noch einen biologischen Phänotyp. Die ursprünglichen Bilder und Bezeichnungen bleiben in einer separaten Quellkopie erhalten.",
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
           "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "Prüfen Sie die ausgewählten Spalten ausdrücklich, statt die ersten Voreinstellungen zu übernehmen. Mit einer einzigen Spalte lässt sich keine Übereinstimmung messen. Die aktuelle Erkennung schließt bekannte Modellausgabespalten standardmäßig aus; der Vergleich eines Klassifikators mit einer Person ist Modellvalidierung, nicht Übereinstimmung zwischen Menschen.",
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
           "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "Wählen Sie DEMO A und DEMO B und drücken Sie Compute agreement. Zwölf Ausschnitte sind in beiden Durchgängen bezeichnet, drei nur in einem und einer in keinem. Fehlende Bezeichnungen werden nicht stillschweigend als Abweichungen gezählt.",
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
           "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "Die beiden Lehrdurchgänge stimmen bei neun von zwölf verglichenen Ausschnitten überein: fünfundsiebzig Prozent, mit einem Cohen-Kappa von null Komma fünf. Betrachten Sie rohe Übereinstimmung, Überlappung und Klassenverteilung gemeinsam. Die Anzeige warnt, dass zwölf gemeinsame Bezeichnungen für eine stabile Zuverlässigkeitsschätzung zu wenig sind; die erfundenen Bezeichnungen dienen nur der Demonstration.",
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
           "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "Die Zeilen stehen für DEMO A, die Spalten für DEMO B. Fünf Ausschnitte haben in beiden Durchgängen Klasse eins, vier in beiden Klasse zwei. Die Werte außerhalb der Diagonale, eins und zwei, zeigen drei Abweichungen. Eine zusammenfassende Einstufung wie mäßig ist eine Konvention, kein Annahmeschwellenwert für Ihren Assay.",
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
           "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "Wählen Sie eine Abweichung, um den zugehörigen Ausschnitt und beide Bezeichnungen zu prüfen. Wir haben alle drei Vorschauen mit ihren Originalpixeln verglichen. Prüfen Sie in einer echten Studie repräsentative Bilder und Klassendefinitionen, bevor Sie über die Klärung entscheiden; diese schreibgeschützte Ansicht entscheidet nicht für Sie.",
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "Fügen Sie DEMO C hinzu und berechnen Sie erneut. Ein geändertes Kontrollkästchen allein startet keine neue Berechnung. Die Tabelle vergleicht jetzt drei Paare mit unterschiedlichen Anzahlen gemeinsamer Bezeichnungen; die globale Fleiss-Zusammenfassung verwendet nur die zwölf Ausschnitte, die in jedem ausgewählten Durchgang bezeichnet wurden.",
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
           "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "Das Fleiss-Kappa des Lehrbeispiels beträgt ungefähr null Komma sechs sechs drei, nicht den Mittelwert der drei paarweisen Kappas. Die globale rohe Übereinstimmung zählt hier vollständig und einstimmig bezeichnete Zeilen. Der vierten Prüfzeile fehlt A, doch B und C weichen voneinander ab; deshalb kann sie zur Prüfung erscheinen, ohne in die Zusammenfassung vollständiger Fälle einzugehen.",
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
           "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "Wenn Sie nur A und B auswählen und erneut berechnen, erhalten Sie den ursprünglichen Vergleich zurück. Wir haben geprüft, dass Datenbank und Bilddateien bei allen drei Berechnungen unverändert bleiben. Verwenden Sie für eigene Analysen wirklich unabhängige Annotationsdurchgänge; das Annotate-Tutorial zeigt, wie Sie diese Bezeichnungen erfassen.",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3134,21 +3142,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasionsassay",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Den aktuellen Zweifarbenassay konfigurieren, Färbungsreferenz-Wells von Versuchsbedingungen trennen und echte Schwellenwerte, Diagramme und Dateien prüfen. Die Beispieldatenbank ist ausdrücklich synthetisch.",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "Außen- und Gesamtfärbung den richtigen Messspalten zuordnen.",
-        "Die umbenannte Färbungsreferenz einstellen und die Schwellenempfindlichkeit prüfen.",
-        "Abbildungen und Nenner pro Well lesen, ohne synthetische Muster als biologische Effekte zu deuten."
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "Die vorhandene synthetische Datenbank bleibt erhalten; die aktuelle GUI läuft auf einer neuen bytegleichen Kopie. Von 1.800 erfundenen Messungen dienen 360 als Färbungsreferenz, 1.440 stammen aus zwölf künstlichen Assay-Wells. Aufgenommene Zweifarbenbilder fehlen; auch die allgemeine Download-Platte belegt kein Färbungsdesign vor und nach Permeabilisierung. Vehicle und inhibitor sind Lehrbezeichnungen, keine getesteten Behandlungen. Der Mittelwert wird wegen der verfügbaren Spalten gewählt, nicht als generell beste Größe für eine Oberflächenfärbung. Unabhängige Berechnungen prüfen Klassen, Schwellen, Zählungen, Zusammenfassungen und Diagrammgeometrie; Bildqualität, Wirksamkeit und statistische Inferenz werden nicht validiert. Original und Eingabekopie bleiben unverändert. Die aktuelle Einstellung heißt stain_baseline_wells statt control_wells; der auf sechs Dezimalstellen darstellbare Bimodalitätsgrenzwert wird exakt erfasst.",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öffnen Sie Invasion Assay im Bereich Assays von Home. Dieses Modul klassifiziert bereits vermessene Parasiten; hier segmentiert es keine Bilder. Unsere Beispieldatenbank ist ausdrücklich synthetisch. Die Diagramme erläutern Einstellungen und Rechenwege, keine beobachtete Invasion und keinen Behandlungseffekt.",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3162,7 +3170,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Wählen Sie den Versuchsordner mit measurements/measurements.db. Die neue private Kopie enthält 1.800 erfundene Parasitenzeilen: 360 Färbungsreferenzobjekte und 1.440 Objekte aus Assay-Wells. Die gewöhnliche Download-Platte ersetzt keinen validierten Zweifarben-Färbungsversuch.",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
@@ -3173,7 +3181,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel bezeichnet die Färbung vor der Permeabilisierung, hier Kanal 1. Total channel ist die spätere Färbung, hier Kanal 0. Ein außenpositiver Parasit heißt attached; bei einem Signal gleich oder unter der Außenschwelle heißt er invaded. Schwache Außenfärbung kann daher falsche invaded-Klassifikationen erzeugen.",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
@@ -3184,7 +3192,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Wir wählen mean, weil die Lehrdatenbank Spalten für die mittlere Intensität enthält. Das ist keine allgemeine Empfehlung für Oberflächenfärbung. Prüfen Sie bei realen Daten, welche Rand- oder Perzentilmessungen verfügbar und geeignet sind. Ein lokaler Hintergrundring ist ebenfalls etwas anderes als der Außenfärbungskanal selbst.",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
@@ -3195,7 +3203,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Setzen Sie Stain baseline wells auf Spalte 1. Die Einstellung ersetzt den früheren Namen control wells und bezeichnet die künstliche Negativfärbungsreferenz, nicht die Vehikelbedingung. Diese Objekte bestimmen die Färbungsschwelle und gehen nicht in die Ergebnisnenner ein. Vehicle und inhibitor bleiben in Spalten 2 und 3.",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
@@ -3206,7 +3214,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile beträgt 0,99. Die 360 Referenzobjekte ergeben eine Schwelle von etwa 22,8 Intensitätseinheiten. Outside threshold bleibt leer, damit die referenzbasierte Schwelle verwendet wird. Der automatische Algorithmus liefert in diesem Lauf nicht die angewandte Schwelle.",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
@@ -3217,7 +3225,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity beträgt 0,25: Auch eine um 25 % niedrigere und höhere Schwelle wird bewertet. Eine höhere Schwelle kann mehr Parasiten als invaded einstufen. Prüfen Sie Effizienzspanne und Qualitätsmarkierungen vor der Interpretation; ein erfolgreicher Lauf beweist keine zuverlässige Färbung.",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
@@ -3228,7 +3236,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class legt den Umgang mit Objekten ohne Wirtszellzuordnung fest. Hier überlässt classify die Entscheidung der Färbung; alle Lehrdatenzeilen haben bereits eine Wirtszuordnung. Entscheiden Sie bei realen Daten nach Prüfung der Wirtszellsegmentierung bewusst zwischen attached, exclude und classify.",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
@@ -3239,7 +3247,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run erzeugt drei echte Abbildungen. Die Schwellenseite zeigt eine Verteilung pro Well, nicht pro Parasit. Die angewandte Linie stammt hier aus der Referenz, und alle zwölf Wells sind sichtbar. Prüfen Sie, ob die Schwelle plausible Populationen trennt; erfundene Verteilungen ersetzen keine repräsentativen Färbungsbilder.",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
@@ -3250,7 +3258,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "Ragt eine Legende über die Zeichenfläche hinaus, öffnen Sie Figure settings und wählen im Achsenreiter best unter Legend position. Bestätigen Sie, damit die Beschriftungen sichtbar bleiben. Dies ändert nur die Darstellung: Die gezeichneten Werte und gespeicherten Ergebnistabellen bleiben nachweislich unverändert.",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3264,7 +3272,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Die Well-Balken zeigen attached- und invaded-Anteile; über jedem Balken stehen 120 klassifizierte Parasiten. Referenz-Wells fehlen. Lesen Sie den Nenner immer mit: Ein hoher Anteil aus sehr wenigen Objekten ist nicht gleichwertig mit demselben Anteil aus einem gut beprobten Well.",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
@@ -3275,7 +3283,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Beide erfundenen Bedingungen enthalten jeweils 720 klassifizierte Parasiten. Ihre invaded-Anteile liegen bei etwa 39,7 % und 68,9 %. Die Zusammenfassung enthält auch den Mittelwert über Wells, der im Allgemeinen nicht dem Zusammenlegen aller Objekte entspricht. Weder diese Namen noch ein p-Wert belegen hier einen biologischen Effekt.",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
@@ -3286,7 +3294,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Prüfen Sie Konsole und Ergebnisordner auf Parasitenklassen, Feldschwellen, Well-Effizienzen, Bedingungsübersichten und Vergleiche. Nutzen Sie unabhängige Versuchs-Wells für Inferenz, nicht einzelne Parasiten als austauschbare Replikate. spaCR AI ist optional und wurde bei dieser lokalen Analyse nicht eingesetzt. Validieren Sie Färbung und Bilder vor biologischen Schlussfolgerungen.",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3299,27 +3307,35 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replikationsassay",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Zählen Sie Parasiten je Vakuole, prüfen Sie Verteilungen und ändern Sie Legenden ohne Eingriff in die Daten. Das Beispiel ist synthetisch und belegt keine Behandlungswirkung.",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "Die Vakuole statt der Wirtszelle als Zähleinheit wählen.",
-        "Zählwerte außerhalb der Zweierpotenzen erhalten und Zusammenfassungen je Well und Bedingung prüfen.",
-        "Die tatsächlichen Abbildungsregler verwenden und Exportwarnungen beachten."
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "Eine neue Kopie der synthetischen Lehrdatenbank enthält 1.992 erfundene Parasitenzeilen, 480 Vakuolen, 240 Wirtszellgruppen und zwölf künstliche Wells. Vehicle und inhibitor sind Lehrbezeichnungen; die sechs Wells jeder Gruppe wiederholen dieselbe Verteilung. Es gibt keine aufgenommenen Bilder und keinen eigenen Beispieldaten-Download in diesem Modul. Die Originaldatenbank bleibt unverändert. Unabhängige Berechnungen prüfen 6.588 CSV-Felder sowie Balkenhöhen und Stapelbasen. Segmentierung, p-Werte und Wirksamkeit werden damit nicht validiert. Biologische Analysen benötigen echte Messungen, geprüfte Vakuolenzuordnungen und unabhängige experimentelle Wiederholungen.",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öffnen Sie Replication Assay unter Assays auf Home. Das Modul zählt gemessene Parasiten je Vakuole; Bilder werden hier nicht segmentiert. Dieses ausdrücklich synthetische Beispiel erklärt mit seinen Diagrammen die Bedienung und Zählregeln, nicht die biologische Wirkung einer Behandlung.",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3333,7 +3349,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Wählen Sie den vorbereiteten Experimentordner mit measurements/measurements.db. Unsere neue private Kopie enthält 1.992 erfundene Parasitenzeilen. Die Originaldatenbank bleibt erhalten, und wir beginnen ohne alte Ergebnisdateien. Alle gezeigten Ausgaben gehören deshalb zu diesem Lauf.",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
@@ -3344,7 +3360,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Setzen Sie Vacuole key auf die Spalte mit den ausdrücklichen Vakuolen-IDs. Das Beispiel umfasst 480 Vakuolen, aber nur 240 Wirtszellgruppen: Jede Wirtszelle ist mit zwei Vakuolen verknüpft. Eine Zählung nach Wirtszelle würde diese zusammenfassen und eine andere Frage beantworten. Prüfen Sie diese Zuordnung an echten Bildern, bevor Sie eigene Daten analysieren.",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
@@ -3355,7 +3371,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell schließt Objekte ohne gültige Wirtszuordnung aus. Damit gelangen nicht zugeordnete Objekte nicht in diesen Messwert; bei fehlerhafter Wirtssegmentierung können aber auch echte Parasiten entfallen. Alle Lehrdatenzeilen haben gültige Verknüpfungen. Dieses Beispiel validiert nicht Ihre Segmentierung.",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
@@ -3366,7 +3382,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Die größte benannte Zweierpotenz-Kategorie ist 16, keine Grenze, die sämtliche größeren Zählwerte abschneidet. Höhere Zweierpotenzen haben eine Überlaufkategorie, andere Zählwerte bleiben getrennt. Jedes künstliche Well enthält zwei Vakuolen mit drei Parasiten. Runden Sie einen Zählwert von drei nicht auf vier.",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
@@ -3377,7 +3393,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Prüfen Sie die Zuordnung zwischen Bedingungen und Wells. Hier heißt Spalte eins vehicle und Spalte zwei inhibitor, mit sechs künstlichen Wells je Gruppe. Diese Namen gehören zum erfundenen Lehrdesign. Sie belegen keine tatsächliche Medikamentengabe, und ein überzeugend aussehender Unterschied beweist keine Wirksamkeit.",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
@@ -3388,7 +3404,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Starten Sie Run erst nach Prüfung von Quelle, Zuordnungsschlüssel, Filtern und Ausgabeeinstellungen. Hier werden Tabellen analysiert; es ist weder eine neue Cellpose-Segmentierung noch ein GPU-Leistungstest. Der tatsächliche Verarbeitungslauf erzeugt die Abbildungen je Well und je Bedingung.",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
@@ -3399,7 +3415,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Lesen Sie jeden gestapelten Balken als Verteilung der Parasitenzahlen je Vakuole in einem Well. Das Vehicle-Beispiel hat 228 Parasiten in 40 Vakuolen, das Inhibitor-Beispiel 104 in 40. Beide behalten fünf Prozent Vakuolen mit Zählwerten außerhalb der Zweierpotenzen. Wir haben die sichtbaren Balkenhöhen anhand unabhängiger Zählungen geprüft, nicht nur die gespeicherten Dateinamen.",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
@@ -3410,7 +3426,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Ist die Legende abgeschnitten, öffnen Sie Figure settings und den Achsenreiter und ändern Sie Legend position. Über diese echten Bedienelemente wählen wir eine Position innerhalb der Abbildung. Das ändert nur die Darstellung: Alle Balkenwerte und Datendateien bleiben unverändert.",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3421,7 +3437,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Die Bedingungsansicht fasst die Beispielvakuolen zu zwei Verteilungen zusammen. Alle sechs Wells jeder Gruppe wiederholen dasselbe erfundene Muster. Zitieren Sie die resultierenden Signifikanztests nicht als Behandlungsbefund. Echte Inferenz benötigt tatsächliche Wiederholungen und eine begründbare unabhängige experimentelle Einheit.",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
@@ -3432,7 +3448,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Lesen Sie neben dem Diagramm auch die Konsole. Dieser Lauf warnt, dass einige gewählte Farben auf einer hellen Exportseite kaum Kontrast haben. Kontrollieren Sie exportierte Abbildungen und wählen Sie eine gut unterscheidbare Palette. Eine lesbare dunkle Bildschirmansicht garantiert nicht automatisch eine lesbare gespeicherte Abbildung.",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
@@ -3443,7 +3459,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "Mit aktiviertem Save landen die Ergebnisse unter results/analyze_replication: Vakuolenzählungen, Well-Verteilungen, Bedingungszusammenfassungen, Statistiktabellen und Abbildungen. Bewahren Sie Einstellungen und Quellkennungen dazu auf. Prüfen Sie für Ihren Assay echte Bilder und biologische Kontrollen, bevor Sie diese Zusammenfassungen interpretieren.",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3456,7 +3472,15 @@
             "34_database"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

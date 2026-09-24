@@ -2631,22 +2631,22 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "Enighet mellom annotatører",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
       "section": "Results and quality control",
-      "description": "Åpne det innebygde verktøyet, sammenlign tydelig kunstige undervisningsetiketter på kopier av ekte nedlastede bildeutsnitt, og skill mellom parvis enighet og et sammendrag av flere gjennomganger.",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Åpne Annotator Agreement fra Annotate.",
-        "Sammenligne etiketter, manglende observasjoner og forvekslingsmatriser uten å endre annotasjoner.",
-        "Undersøke bildeutsnitt med uenighet og tolke sammendrag for to og tre gjennomganger."
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "De seksten bildeutsnittene er uendrede kopier av Annotates nedlastbare eksempel. DEMO_A, DEMO_B og DEMO_C er kunstige undervisningsetiketter lagt til i en ny privat database, ikke biologiske klasser, vurderinger av menneskers prestasjon eller modellprediksjoner. Originale etiketter og bilder er uendret; png_path blir relativ bare i demokopien. Bruk reelt uavhengige annotasjoner til egen vurdering. Standardoppdagelsen utelater kjente modellutdatakolonner. Uavhengige heltalls- og brøkberegninger kontrollerer alle par, matriser og samlede mål; tre forhåndsvisninger samsvarer nøyaktig med originalenes piksler. Det lille eksemplet lærer bort betjening, ikke påliteligheten til forsøket. Den gamle videoen gjentok en tom skjerm og beskrev automatisk oppdagelse av prediksjoner som ikke lenger stemmer med API-et; dette er ikke bare en flyttet leksjon.",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Åpne Annotate og deretter knappen Annotator Agreement. Dette er et innebygd verktøy, ikke enda en modul på Home. Sammenligningen leser annotasjonskolonner uten å redigere dem; gå tilbake til Annotate når du vil endre en etikett.",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -2654,54 +2654,62 @@
         },
         {
           "visual": "04_demo_database",
-          "narration": "Åpne den klargjorte demonstrasjonsdatabasen. De seksten bildene er ekte utsnitt fra det nedlastbare eksemplet, men de tre DEMO-kolonnene er kunstige undervisningsetiketter. De måler verken en persons ferdigheter eller en biologisk fenotype. Originale etiketter og bilder er bevart i en egen kildekopi.",
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
           "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "Kontroller de valgte kolonnene uttrykkelig i stedet for å godta de første standardvalgene. Én kolonne kan ikke måle enighet. Dagens oppdagelse utelater som standard kjente modellutdatakolonner; å sammenligne en klassifikator med et menneske er modellvalidering, ikke enighet mellom mennesker.",
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
           "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "Velg DEMO A og DEMO B og trykk Compute agreement. Tolv utsnitt er merket i begge gjennomgangene, tre i bare én og ett i ingen. Manglende etiketter blir ikke i det stille omgjort til uenighet.",
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
           "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "De to undervisningsgjennomgangene er enige om ni av tolv sammenlignede utsnitt: syttifem prosent, med Cohens kappa på null komma fem. Les rå enighet, overlapp og klassebalanse samlet. Skjermen advarer om at tolv felles etiketter er for få til et stabilt pålitelighetsestimat; de oppdiktede etikettene er bare en demonstrasjon.",
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
           "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "Radene er DEMO A og kolonnene DEMO B. Fem utsnitt har klasse én i begge gjennomgangene, og fire har klasse to i begge. Tallene utenfor diagonalen, én og to, viser tre uenigheter. En oppsummerende betegnelse som moderat er en konvensjon, ikke en godkjenningsgrense for forsøket ditt.",
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
           "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "Velg en uenighet for å undersøke det tilhørende utsnittet og begge etikettene. Vi kontrollerte alle tre forhåndsvisningene mot de opprinnelige pikslene. I en virkelig studie bør du gjennomgå representative bilder og klassedefinisjoner før du bestemmer hvordan uenighetene skal avgjøres; denne skrivebeskyttede visningen tar ikke avgjørelsen for deg.",
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "Legg til DEMO C og beregn på nytt. Å endre en avkrysningsboks utfører ikke i seg selv en ny beregning. Tabellen sammenligner nå tre par med ulike antall felles etiketter, mens det samlede Fleiss-sammendraget bare bruker de tolv utsnittene som er merket i alle valgte gjennomganger.",
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
           "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "Fleiss-kappa i undervisningseksemplet er omtrent null komma seks seks tre, ikke gjennomsnittet av de tre parvise kappaene. Samlet rå enighet teller her enstemmige, komplette rader. Den fjerde raden til gjennomgang mangler A, men har uenighet mellom B og C; den kan derfor vises til vurdering uten å inngå i sammendraget av komplette tilfeller.",
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
           "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "Velg bare A og B og beregn på nytt for å gjenopprette den opprinnelige sammenligningen. Vi bekreftet at databasen og bildefilene forblir uendret gjennom alle tre beregningene. Bruk reelt uavhengige annotasjonsgjennomganger i din egen analyse, og gå tilbake til Annotate-veiledningen for å samle inn etikettene.",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3134,21 +3142,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasjonsanalyse",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Konfigurer dagens tofargeanalyse, skill fargingsreferansebrønner fra forsøksbetingelser, og undersøk faktiske terskler, figurer og filer. Eksempeldatabasen er uttrykkelig syntetisk.",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "Koble utvendig og total farging til riktige målekolonner.",
-        "Bruke den omdøpte fargingsreferansen og undersøke terskelfølsomheten.",
-        "Lese figurer og nevnere per brønn uten å tolke syntetiske mønstre som biologiske effekter."
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "Den eksisterende syntetiske databasen bevares; dagens grensesnitt kjøres på en ny byte-identisk kopi. Av 1 800 oppdiktede målinger er 360 referanseobjekter og 1 440 analyseobjekter i tolv kunstige brønner. Virkelige tofargebilder mangler, og den generelle nedlastingsplaten dokumenterer heller ikke fargingsopplegget før og etter permeabilisering. Vehicle og inhibitor er undervisningsnavn, ikke testede behandlinger. Gjennomsnittsintensitet velges fordi kolonnene finnes, ikke som et generelt beste mål for overflatefarging. Uavhengige beregninger kontrollerer klasser, terskler, antall, sammendrag og figurgeometri uten å validere bilder, effekt eller statistisk inferens. Originalen og inndatakopien er uendret. Innstillingen heter nå stain_baseline_wells i stedet for control_wells, og bimodalitetsgrensen med seks desimaler registreres nøyaktig.",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åpne Invasion Assay under Assays på Home. Modulen klassifiserer allerede målte parasitter; den segmenterer ikke bilder her. Databasen vår er uttrykkelig syntetisk. Figurene forklarer innstillinger og beregninger, ikke observert invasjon eller en behandlingseffekt.",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3162,7 +3170,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Velg forsøksmappen med measurements/measurements.db. Den nye private kopien inneholder 1 800 oppdiktede parasittrader: 360 fargingsreferanseobjekter og 1 440 objekter i analysebrønnene. Den vanlige nedlastingsplaten erstatter ikke et validert tofarget fargingsforsøk.",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
@@ -3173,7 +3181,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel er fargingen før permeabilisering, her kanal 1. Total channel er fargingen etterpå, her kanal 0. En parasitt med positiv utvendig farging klassifiseres som attached; ved eller under terskelen klassifiseres den som invaded. Svak utvendig farging kan dermed gi falske invaded-klassifiseringer.",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
@@ -3184,7 +3192,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Vi velger mean fordi undervisningsdatabasen inneholder kolonner for gjennomsnittsintensitet. Det er ingen generell anbefaling for overflatefarging. Undersøk hvilke rand- eller persentilmålinger som finnes og passer for virkelige data. En lokal bakgrunnsring er også noe annet enn selve kanalen for utvendig farging.",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
@@ -3195,7 +3203,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Sett Stain baseline wells til kolonne 1. Navnet erstatter tidligere control wells og angir den kunstige negative fargingsreferansen, ikke vehikkelbetingelsen. Disse objektene bestemmer terskelen og tas ikke med i analysens resultatnevnere. Vehicle og inhibitor blir i kolonne 2 og 3.",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
@@ -3206,7 +3214,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile er 0,99. De 360 referanseobjektene gir en terskel på omtrent 22,8 intensitetsenheter. Outside threshold holdes tomt slik at den referansebaserte terskelen brukes. Den automatiske metoden gir ikke terskelen som anvendes i denne kjøringen.",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
@@ -3217,7 +3225,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity er 0,25: terskelen vurderes også 25 prosent lavere og høyere. En høyere terskel kan klassifisere flere parasitter som invaded. Undersøk effektivitetsintervallet og kvalitetsflaggene før du tolker endringer; en vellykket kjøring beviser ikke at fargingen er pålitelig.",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
@@ -3228,7 +3236,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class avgjør hvordan objekter uten forbindelse til en vertscelle håndteres. Her lar classify fargingen avgjøre; alle undervisningsradene har allerede en vertstilknytning. Velg bevisst mellom attached, exclude og classify for virkelige data etter å ha undersøkt vertscellesegmenteringen.",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
@@ -3239,7 +3247,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run lager tre faktiske figurer. Terskelsiden viser én fordeling per brønn, ikke per parasitt. Her kommer den anvendte linjen fra referansen, og alle tolv brønnene er synlige. Vurder om terskelen skiller plausible populasjoner; oppdiktede fordelinger erstatter ikke representative fargingsbilder.",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
@@ -3250,7 +3258,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "Hvis en tegnforklaring går utenfor tegneflaten, åpne Figure settings og velg best for Legend position i aksefanen. Bekreft dialogen slik at etikettene er synlige. Dette endrer bare visningen: vi har kontrollert at tegnede verdier og lagrede resultattabeller er uendret.",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3264,7 +3272,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Stolpene per brønn viser andelene attached og invaded, med 120 klassifiserte parasitter over hver stolpe. Referansebrønnene er ikke med. Les nevneren sammen med andelen: en høy andel basert på svært få objekter er ikke likeverdig med samme andel i en godt undersøkt brønn.",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
@@ -3275,7 +3283,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "De to oppdiktede betingelsene har 720 klassifiserte parasitter hver. Andelene invaded er omtrent 39,7 og 68,9 prosent. Sammendraget viser også gjennomsnittet over brønner, som vanligvis ikke tilsvarer å slå sammen alle objektene. Verken navnene eller en p-verdi påviser en biologisk effekt her.",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
@@ -3286,7 +3294,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Undersøk konsollen og resultatmappen for parasittklasser, feltterskler, effektivitet per brønn, betingelsessammendrag og sammenligninger. Bruk uavhengige forsøksbrønner til inferens, ikke enkeltparasitter som utskiftbare replikater. spaCR AI er valgfritt og ble ikke brukt i denne lokale analysen. Valider farging og bilder før biologiske konklusjoner.",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3299,27 +3307,35 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replikasjonsanalyse",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Tell parasitter per vakuole, undersøk fordelingene og juster tegnforklaringer uten å endre data. Eksemplet er syntetisk og viser ingen behandlingseffekt.",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "Bruke vakuolen, ikke vertscellen, som telleenhet.",
-        "Beholde tellinger som ikke er potenser av to, og undersøke sammendrag per brønn og betingelse.",
-        "Bruke de faktiske figurkontrollene og lese eksportadvarsler."
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "En ny kopi av den syntetiske undervisningsdatabasen inneholder 1 992 oppdiktede parasittrader, 480 vakuoler, 240 vertscellegrupper og tolv kunstige brønner. Vehicle og inhibitor er undervisningsnavn; de seks brønnene i hver gruppe gjentar samme fordeling. Det finnes ingen innsamlede bilder eller egen knapp for nedlasting av eksempeldata i denne modulen. Originaldatabasen forblir uendret. Uavhengige beregninger kontrollerer 6 588 CSV-felt samt søylehøyder og stablede utgangspunkter. Dette validerer ikke segmentering, p-verdier eller effekt. Biologiske analyser krever faktiske målinger, validerte vakuolerelasjoner og uavhengige eksperimentelle replikater.",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åpne Replication Assay under Assays på Home. Modulen teller målte parasitter per vakuole; den segmenterer ikke bilder her. Eksemplet er uttrykkelig syntetisk, så diagrammene forklarer kontrollene og tellereglene, ikke en biologisk behandlingseffekt.",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3333,7 +3349,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Velg den klargjorte forsøksmappen som inneholder measurements/measurements.db. Vår nye private kopi inneholder 1 992 oppdiktede parasittrader. Vi bevarer originaldatabasen og begynner uten gamle resultatfiler, slik at alt som vises, tilhører denne kjøringen.",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
@@ -3344,7 +3360,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Sett Vacuole key til kolonnen med eksplisitte vakuole-ID-er. Eksemplet har 480 vakuoler, men bare 240 vertscellegrupper: Hver vert er knyttet til to vakuoler. Telling per vertscelle ville slå dem sammen og besvare et annet spørsmål. Valider forholdet i ekte bilder før du analyserer egne data.",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
@@ -3355,7 +3371,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell utelukker objekter uten gyldig vertstilknytning. Det hindrer at objekter uten tilordning inngår i resultatet, men kan også fjerne ekte parasitter hvis vertssegmenteringen sviktet. Alle undervisningsradene har gyldige koblinger; eksemplet validerer ikke din segmentering.",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
@@ -3366,7 +3382,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Den største navngitte kategorien for potenser av to er 16, ikke en grense som kutter alle større tellinger. Større potenser har en overløpskategori, og øvrige tellinger holdes atskilt. Hver kunstige brønn har to vakuoler med tre parasitter; ikke rund en telling på tre opp til fire.",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
@@ -3377,7 +3393,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Kontroller koblingen mellom betingelser og brønner. Her heter første kolonne vehicle og andre kolonne inhibitor, med seks kunstige brønner per gruppe. Navnene er del av det oppdiktede undervisningsoppsettet. De beviser ikke at et legemiddel ble brukt, og en visuelt overbevisende forskjell beviser ikke effekt.",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
@@ -3388,7 +3404,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Trykk Run først etter at kilde, tilordningsnøkkel, filtre og utdatainnstillinger er kontrollert. Dette er tabellanalyse, ikke ny Cellpose-segmentering eller en ytelsestest av GPU-en. Den faktiske prosessen lager både figuren per brønn og figuren per betingelse.",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
@@ -3399,7 +3415,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Les hver stablet søyle som fordelingen av parasittall per vakuole i én brønn. Vehicle-eksemplet har 228 parasitter i 40 vakuoler; inhibitor-eksemplet har 104 i 40. Begge beholder fem prosent vakuoler med tellinger utenfor potensene av to. Vi kontrollerte de viste søylehøydene mot uavhengige tellinger, ikke bare filnavnene.",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
@@ -3410,7 +3426,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Hvis tegnforklaringen er avkuttet, åpner du Figure settings og aksefanen og endrer Legend position. Vi velger en plassering inne i figuren med disse faktiske kontrollene. Dette endrer bare presentasjonen: Alle søyleverdier og utdatafiler forblir uendret.",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3421,7 +3437,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Betingelsesvisningen samler eksemplets vakuoler i to fordelinger. Alle seks brønnene i hver gruppe gjentar samme oppdiktede mønster. Ikke siter de resulterende signifikanstestene som et behandlingsfunn. Reell inferens krever faktiske replikater og en begrunnet uavhengig eksperimentell enhet.",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
@@ -3432,7 +3448,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Les konsollen i tillegg til diagrammet. Denne kjøringen advarer om at enkelte valgte farger har liten kontrast på en lys eksportert side. Kontroller eksporterte figurer og velg en lett synlig palett; en lesbar mørk skjermvisning garanterer ikke automatisk en lesbar lagret figur.",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
@@ -3443,7 +3459,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "Med Save aktivert legges resultatene i results/analyze_replication: vakuoletellinger, brønnfordelinger, betingelsessammendrag, statistikktabeller og figurer. Behold innstillinger og kildeidentifikatorer sammen med dem. Se gjennom ekte bilder og biologiske kontroller i ditt eget forsøk før du tolker disse sammendragene.",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3456,7 +3472,15 @@
             "34_database"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

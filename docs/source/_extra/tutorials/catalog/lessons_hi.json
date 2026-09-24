@@ -2715,87 +2715,85 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "एनोटेटरों के बीच सहमति",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
-      "description": "Annotate के भीतर तुलना टूल खोलें, डाउनलोड की गई असली क्रॉप छवियों की प्रतियों पर स्पष्ट रूप से कृत्रिम शिक्षण लेबल की तुलना करें, और जोड़ीवार सहमति तथा कई चरणों के सारांश में अंतर समझें।",
+      "section": "Results and quality control",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Annotate से Annotator Agreement खोलें।",
-        "एनोटेशन बदले बिना लेबल, अनुपस्थित प्रेक्षण और कन्फ्यूज़न मैट्रिक्स की तुलना करें।",
-        "असहमति वाली क्रॉप छवियाँ जाँचें और दो तथा तीन चरणों के सारांश समझें।"
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "सोलह क्रॉप छवियाँ Annotate के डाउनलोड योग्य उदाहरण की अपरिवर्तित प्रतियाँ हैं। नए निजी डेटाबेस में DEMO_A, DEMO_B और DEMO_C कृत्रिम शिक्षण लेबल जोड़े गए हैं; ये जैविक वर्ग, मानव समीक्षकों के अंक या मॉडल की भविष्यवाणियाँ नहीं हैं। मूल लेबल और छवियाँ अपरिवर्तित हैं; केवल प्रदर्शन प्रति में png_path सापेक्ष बनाया गया है। अपने मूल्यांकन के लिए वास्तविक स्वतंत्र एनोटेशन चरण लें। डिफ़ॉल्ट खोज ज्ञात मॉडल आउटपुट कॉलम को छोड़ती है। स्वतंत्र पूर्णांक और भिन्न गणनाएँ हर जोड़ी, मैट्रिक्स और समग्र परिणाम की पुष्टि करती हैं; तीन पूर्वावलोकन मूल क्रॉप के पिक्सल से पूरी तरह मेल खाते हैं। यह छोटा उदाहरण नियंत्रण सिखाता है, प्रयोग की विश्वसनीयता प्रमाणित नहीं करता। पुराने वीडियो में खाली स्क्रीन दोहराई गई थी और भविष्यवाणी कॉलम की स्वतः खोज का वर्णन अब API से मेल नहीं खाता; यह केवल दूसरी जगह रखी गई पुरानी कक्षा नहीं है।",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Annotate खोलें, फिर उसका Annotator Agreement बटन दबाएँ। यह भीतर मौजूद टूल है, Home का अलग मॉड्यूल नहीं। तुलना दृश्य एनोटेशन कॉलम पढ़ता है, उन्हें बदलता नहीं; कोई लेबल बदलना हो तो Annotate पर लौटें।",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Annotate खोलें, फिर उसका Annotator Agreement बटन दबाएँ। यह भीतर मौजूद टूल है, Home का अलग मॉड्यूल नहीं। तुलना दृश्य एनोटेशन कॉलम पढ़ता है, उन्हें बदलता नहीं; कोई लेबल बदलना हो तो Annotate पर लौटें।"
+          "hold_after": 0.7
         },
         {
           "visual": "04_demo_database",
-          "narration": "तैयार किया गया प्रदर्शन डेटाबेस खोलें। इसकी सोलह छवियाँ डाउनलोड योग्य उदाहरण के असली क्रॉप हैं, लेकिन तीनों DEMO कॉलम कृत्रिम शिक्षण लेबल हैं। ये किसी व्यक्ति के कौशल या जैविक फीनोटाइप को नहीं मापते। मूल लेबल और छवियाँ एक अलग स्रोत प्रति में सुरक्षित रखी गई हैं।",
-          "hold_after": 0.7,
-          "speech_text": "तैयार किया गया प्रदर्शन डेटाबेस खोलें। इसकी सोलह छवियाँ डाउनलोड योग्य उदाहरण के असली क्रॉप हैं, लेकिन तीनों DEMO कॉलम कृत्रिम शिक्षण लेबल हैं। ये किसी व्यक्ति के कौशल या जैविक फीनोटाइप को नहीं मापते। मूल लेबल और छवियाँ एक अलग स्रोत प्रति में सुरक्षित रखी गई हैं।"
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "पहले से चुने विकल्प स्वीकार करने के बजाय चयनित कॉलम स्वयं जाँचें। अकेले एक कॉलम से सहमति नहीं मापी जा सकती। वर्तमान खोज डिफ़ॉल्ट रूप से ज्ञात मॉडल आउटपुट कॉलम छोड़ती है; किसी क्लासिफ़ायर की व्यक्ति से तुलना मॉडल सत्यापन है, लोगों के बीच सहमति नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "पहले से चुने विकल्प स्वीकार करने के बजाय चयनित कॉलम स्वयं जाँचें। अकेले एक कॉलम से सहमति नहीं मापी जा सकती। वर्तमान खोज डिफ़ॉल्ट रूप से ज्ञात मॉडल आउटपुट कॉलम छोड़ती है; किसी क्लासिफ़ायर की व्यक्ति से तुलना मॉडल सत्यापन है, लोगों के बीच सहमति नहीं।"
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "DEMO A और DEMO B चुनें, फिर Compute agreement दबाएँ। बारह क्रॉप दोनों चरणों में लेबल किए गए हैं, तीन केवल एक में, और एक किसी में नहीं। अनुपस्थित लेबल चुपचाप असहमति में नहीं बदले जाते।",
-          "hold_after": 0.7,
-          "speech_text": "DEMO A और DEMO B चुनें, फिर Compute agreement दबाएँ। बारह क्रॉप दोनों चरणों में लेबल किए गए हैं, तीन केवल एक में, और एक किसी में नहीं। अनुपस्थित लेबल चुपचाप असहमति में नहीं बदले जाते।"
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "दोनों शिक्षण चरण तुलना किए गए बारह में से नौ क्रॉप पर सहमत हैं: पचहत्तर प्रतिशत, और कोहेन का कप्पा शून्य दशमलव पाँच है। कच्ची सहमति, साझा लेबल की संख्या और वर्ग संतुलन को साथ पढ़ें। स्क्रीन चेतावनी देती है कि बारह साझा लेबल स्थिर विश्वसनीयता अनुमान के लिए बहुत कम हैं; ये बनाए गए लेबल केवल प्रदर्शन हैं।",
-          "hold_after": 0.7,
-          "speech_text": "दोनों शिक्षण चरण तुलना किए गए बारह में से नौ क्रॉप पर सहमत हैं: पचहत्तर प्रतिशत, और कोहेन का कप्पा शून्य दशमलव पाँच है। कच्ची सहमति, साझा लेबल की संख्या और वर्ग संतुलन को साथ पढ़ें। स्क्रीन चेतावनी देती है कि बारह साझा लेबल स्थिर विश्वसनीयता अनुमान के लिए बहुत कम हैं; ये बनाए गए लेबल केवल प्रदर्शन हैं।"
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "पंक्तियाँ DEMO A और कॉलम DEMO B हैं। पाँच क्रॉप दोनों चरणों में वर्ग एक हैं और चार दोनों में वर्ग दो। विकर्ण के बाहर की गिनतियाँ, एक और दो, तीन असहमतियाँ दिखाती हैं। मध्यम जैसे सारांश शब्द एक परंपरा हैं, आपके प्रयोग की स्वीकृति सीमा नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "पंक्तियाँ DEMO A और कॉलम DEMO B हैं। पाँच क्रॉप दोनों चरणों में वर्ग एक हैं और चार दोनों में वर्ग दो। विकर्ण के बाहर की गिनतियाँ, एक और दो, तीन असहमतियाँ दिखाती हैं। मध्यम जैसे सारांश शब्द एक परंपरा हैं, आपके प्रयोग की स्वीकृति सीमा नहीं।"
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "संबंधित क्रॉप और दोनों लेबल देखने के लिए एक असहमति चुनें। हमने तीनों पूर्वावलोकन मूल पिक्सल से मिलाए हैं। वास्तविक अध्ययन में मामलों का निपटारा तय करने से पहले प्रतिनिधि छवियों और वर्गों की परिभाषाओं की समीक्षा करें; यह केवल पढ़ने वाली स्क्रीन आपके लिए निर्णय नहीं लेती।",
-          "hold_after": 0.7,
-          "speech_text": "संबंधित क्रॉप और दोनों लेबल देखने के लिए एक असहमति चुनें। हमने तीनों पूर्वावलोकन मूल पिक्सल से मिलाए हैं। वास्तविक अध्ययन में मामलों का निपटारा तय करने से पहले प्रतिनिधि छवियों और वर्गों की परिभाषाओं की समीक्षा करें; यह केवल पढ़ने वाली स्क्रीन आपके लिए निर्णय नहीं लेती।"
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "DEMO C जोड़ें और फिर गणना करें। केवल चेकबॉक्स बदलने से नई गणना नहीं होती। अब तालिका तीन जोड़ियों की तुलना करती है, जिनमें साझा लेबल की संख्या अलग है; समग्र फ़्लाइस सारांश केवल उन बारह क्रॉप का उपयोग करता है जिन्हें हर चुने हुए चरण में लेबल मिला है।",
-          "hold_after": 0.7,
-          "speech_text": "DEMO C जोड़ें और फिर गणना करें। केवल चेकबॉक्स बदलने से नई गणना नहीं होती। अब तालिका तीन जोड़ियों की तुलना करती है, जिनमें साझा लेबल की संख्या अलग है; समग्र फ़्लाइस सारांश केवल उन बारह क्रॉप का उपयोग करता है जिन्हें हर चुने हुए चरण में लेबल मिला है।"
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "शिक्षण उदाहरण में फ़्लाइस कप्पा लगभग शून्य दशमलव छह छह तीन है, तीन जोड़ीवार कप्पा का औसत नहीं। यहाँ समग्र कच्ची सहमति पूर्ण पंक्तियों की सर्वसम्मति गिनती है। समीक्षा की चौथी पंक्ति में A का लेबल नहीं है, लेकिन B और C असहमत हैं; इसलिए वह समीक्षा में दिख सकती है, पूर्ण मामलों के सारांश में शामिल हुए बिना।",
-          "hold_after": 0.7,
-          "speech_text": "शिक्षण उदाहरण में फ़्लाइस कप्पा लगभग शून्य दशमलव छह छह तीन है, तीन जोड़ीवार कप्पा का औसत नहीं। यहाँ समग्र कच्ची सहमति पूर्ण पंक्तियों की सर्वसम्मति गिनती है। समीक्षा की चौथी पंक्ति में A का लेबल नहीं है, लेकिन B और C असहमत हैं; इसलिए वह समीक्षा में दिख सकती है, पूर्ण मामलों के सारांश में शामिल हुए बिना।"
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "केवल A और B चुनकर दोबारा गणना करने से मूल तुलना लौट आती है। हमने पुष्टि की कि तीनों गणनाओं में डेटाबेस और क्रॉप फ़ाइलें अपरिवर्तित रहती हैं। अपने विश्लेषण में वास्तव में स्वतंत्र एनोटेशन चरण लें, और ऐसे लेबल जुटाने के लिए Annotate ट्यूटोरियल पर लौटें।",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
-          "hold_after": 0.7,
-          "speech_text": "केवल A और B चुनकर दोबारा गणना करने से मूल तुलना लौट आती है। हमने पुष्टि की कि तीनों गणनाओं में डेटाबेस और क्रॉप फ़ाइलें अपरिवर्तित रहती हैं। अपने विश्लेषण में वास्तव में स्वतंत्र एनोटेशन चरण लें, और ऐसे लेबल जुटाने के लिए Annotate ट्यूटोरियल पर लौटें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3264,21 +3262,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "आक्रमण परख",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
-      "section": "टोक्सोप्लाज़्मा परीक्षण",
-      "description": "मौजूदा दो-रंग परख सेट करें, रंगाई के आधारभूत वेल को प्रयोगात्मक स्थितियों से अलग रखें और वास्तविक सीमा-मान, चित्र तथा आउटपुट देखें। प्रदर्शन का डेटाबेस स्पष्ट रूप से कृत्रिम है।",
+      "section": "Toxoplasma assays",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "बाहरी और कुल रंगाई को सही मापन कॉलम से जोड़ना।",
-        "बदले हुए नाम वाले रंगाई आधार नियंत्रण का उपयोग और सीमा-मान की संवेदनशीलता जाँचना।",
-        "कृत्रिम पैटर्न को जैविक प्रभाव माने बिना चित्र और प्रति-वेल हर समझना।"
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "पुराना कृत्रिम डेटाबेस सुरक्षित रहता है; वर्तमान GUI उसकी नई, बाइट-समान प्रति पर चलता है। 1,800 काल्पनिक मापों में 360 रंगाई आधार के ऑब्जेक्ट और 12 कृत्रिम वेल में 1,440 परख ऑब्जेक्ट हैं। वास्तविक दो-रंग छवियाँ उपलब्ध नहीं हैं। सामान्य डाउनलोड वाली प्लेट भी पारगम्यता बढ़ाने के पहले और बाद की रंगाई का प्रयोगात्मक डिज़ाइन स्थापित नहीं करती। Vehicle और inhibitor शिक्षण नाम हैं, परीक्षण किए गए उपचार नहीं। औसत तीव्रता इसलिए चुनी गई है क्योंकि उसके कॉलम उपलब्ध हैं, न कि इसलिए कि वह सतही रंगाई के लिए हमेशा सर्वोत्तम है। स्वतंत्र गणना वर्गीकरण, सीमा-मान, गिनती, सारांश और चित्र की ज्यामिति जाँचती है; छवियों, प्रभावशीलता या सांख्यिकीय निष्कर्ष की पुष्टि नहीं करती। मूल और कॉपी किए गए इनपुट नहीं बदलते। वर्तमान नाम stain_baseline_wells है, पुराना नाम control_wells था। छह दशमलव वाला द्विशिखरी वितरण का कटऑफ ठीक-ठीक दर्ज है।",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home के Assays भाग में Invasion Assay खोलें। यह मॉड्यूल पहले से मापे गए परजीवियों को वर्गीकृत करता है; यहाँ छवियों का विभाजन नहीं करता। हमारा डेटाबेस स्पष्ट रूप से कृत्रिम है। चित्र सेटिंग और गणना सिखाते हैं, वास्तविक रूप से देखा गया आक्रमण या उपचार प्रभाव नहीं दिखाते।",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3288,108 +3286,99 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Home के Assays भाग में Invasion Assay खोलें। यह मॉड्यूल पहले से मापे गए परजीवियों को वर्गीकृत करता है; यहाँ छवियों का विभाजन नहीं करता। हमारा डेटाबेस स्पष्ट रूप से कृत्रिम है। चित्र सेटिंग और गणना सिखाते हैं, वास्तविक रूप से देखा गया आक्रमण या उपचार प्रभाव नहीं दिखाते।"
+          "hold_after": 0.7
         },
         {
           "visual": "02_setting_src",
-          "narration": "वह प्रयोग फ़ोल्डर चुनें जिसमें measurements, स्लैश, measurements, डॉट, db है। इस नई निजी प्रति में अठारह सौ काल्पनिक परजीवी रिकॉर्ड हैं। तीन सौ साठ रंगाई आधार के ऑब्जेक्ट हैं और चौदह सौ चालीस परख वेल के हैं। सामान्य डाउनलोड प्लेट किसी सत्यापित दो-रंग रंगाई प्रयोग का विकल्प नहीं है।",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "वह प्रयोग फ़ोल्डर चुनें जिसमें measurements, स्लैश, measurements, डॉट, db है। इस नई निजी प्रति में अठारह सौ काल्पनिक परजीवी रिकॉर्ड हैं। तीन सौ साठ रंगाई आधार के ऑब्जेक्ट हैं और चौदह सौ चालीस परख वेल के हैं। सामान्य डाउनलोड प्लेट किसी सत्यापित दो-रंग रंगाई प्रयोग का विकल्प नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel कोशिका की पारगम्यता बढ़ाने से पहले की रंगाई है, यहाँ चैनल एक। Total channel उसके बाद की रंगाई है, यहाँ चैनल शून्य। बाहरी रंगाई के लिए पॉज़िटिव परजीवी attached कहलाता है; सीमा-मान के बराबर या उससे कम तीव्रता पर invaded कहलाता है। इसलिए कमज़ोर बाहरी रंगाई गलत invaded वर्गीकरण पैदा कर सकती है।",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Outside channel कोशिका की पारगम्यता बढ़ाने से पहले की रंगाई है, यहाँ चैनल एक। Total channel उसके बाद की रंगाई है, यहाँ चैनल शून्य। बाहरी रंगाई के लिए पॉज़िटिव परजीवी attached कहलाता है; सीमा-मान के बराबर या उससे कम तीव्रता पर invaded कहलाता है। इसलिए कमज़ोर बाहरी रंगाई गलत invaded वर्गीकरण पैदा कर सकती है।"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "हम mean चुनते हैं क्योंकि शिक्षण डेटाबेस में औसत तीव्रता के कॉलम हैं। यह सतही रंगाई के लिए सामान्य सिफारिश नहीं है। वास्तविक डेटा में देखें कि सीमा-क्षेत्र या प्रतिशतक के कौन से माप उपलब्ध और उपयुक्त हैं। स्थानीय पृष्ठभूमि की रिंग भी बाहरी रंगाई के चैनल से अलग होती है।",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "हम mean चुनते हैं क्योंकि शिक्षण डेटाबेस में औसत तीव्रता के कॉलम हैं। यह सतही रंगाई के लिए सामान्य सिफारिश नहीं है। वास्तविक डेटा में देखें कि सीमा-क्षेत्र या प्रतिशतक के कौन से माप उपलब्ध और उपयुक्त हैं। स्थानीय पृष्ठभूमि की रिंग भी बाहरी रंगाई के चैनल से अलग होती है।"
+          "hold_after": 0.7
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Stain baseline wells को कॉलम एक पर रखें। यह पुराने control wells नाम की जगह आया है और कृत्रिम नकारात्मक रंगाई का आधार बताता है, vehicle स्थिति नहीं। ये ऑब्जेक्ट रंगाई का कटऑफ तय करते हैं और परख परिणामों के हर से बाहर रखे जाते हैं। Vehicle और inhibitor कॉलम दो और तीन में रहते हैं।",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Stain baseline wells को कॉलम एक पर रखें। यह पुराने control wells नाम की जगह आया है और कृत्रिम नकारात्मक रंगाई का आधार बताता है, vehicle स्थिति नहीं। ये ऑब्जेक्ट रंगाई का कटऑफ तय करते हैं और परख परिणामों के हर से बाहर रखे जाते हैं। Vehicle और inhibitor कॉलम दो और तीन में रहते हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile शून्य दशमलव नौ नौ है। तीन सौ साठ आधार ऑब्जेक्ट से लगभग बाईस दशमलव आठ तीव्रता इकाई का कटऑफ मिलता है। निश्चित Outside threshold खाली रखते हैं, इसलिए आधार से निकला कटऑफ लागू होता है। इस रन में स्वचालित विधि वाला सीमा-मान लागू नहीं किया गया है।",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Control quantile शून्य दशमलव नौ नौ है। तीन सौ साठ आधार ऑब्जेक्ट से लगभग बाईस दशमलव आठ तीव्रता इकाई का कटऑफ मिलता है। निश्चित Outside threshold खाली रखते हैं, इसलिए आधार से निकला कटऑफ लागू होता है। इस रन में स्वचालित विधि वाला सीमा-मान लागू नहीं किया गया है।"
+          "hold_after": 0.7
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity शून्य दशमलव दो पाँच है। कटऑफ से पच्चीस प्रतिशत नीचे और ऊपर भी परिणाम जाँचे जाते हैं। कटऑफ बढ़ाने से अधिक परजीवी invaded वर्ग में आ सकते हैं। बदलाव समझने से पहले दक्षता का दायरा और गुणवत्ता संकेत देखें; रन सफल होना रंगाई की विश्वसनीयता का प्रमाण नहीं है।",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Threshold sensitivity शून्य दशमलव दो पाँच है। कटऑफ से पच्चीस प्रतिशत नीचे और ऊपर भी परिणाम जाँचे जाते हैं। कटऑफ बढ़ाने से अधिक परजीवी invaded वर्ग में आ सकते हैं। बदलाव समझने से पहले दक्षता का दायरा और गुणवत्ता संकेत देखें; रन सफल होना रंगाई की विश्वसनीयता का प्रमाण नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class तय करता है कि मेज़बान कोशिका से संबंध न रखने वाले ऑब्जेक्ट का क्या करना है। इस उदाहरण में classify से निर्णय रंगाई पर छोड़ते हैं, और हर शिक्षण रिकॉर्ड का मेज़बान से संबंध पहले से मौजूद है। वास्तविक डेटा में मेज़बान विभाजन जाँचकर attached, exclude और classify में से सोच-समझकर चुनें।",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Extracellular class तय करता है कि मेज़बान कोशिका से संबंध न रखने वाले ऑब्जेक्ट का क्या करना है। इस उदाहरण में classify से निर्णय रंगाई पर छोड़ते हैं, और हर शिक्षण रिकॉर्ड का मेज़बान से संबंध पहले से मौजूद है। वास्तविक डेटा में मेज़बान विभाजन जाँचकर attached, exclude और classify में से सोच-समझकर चुनें।"
+          "hold_after": 0.7
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run से तीन वास्तविक चित्र बनते हैं। सीमा-मान वाला पृष्ठ प्रति-वेल वितरण दिखाता है, प्रति-परजीवी वितरण नहीं। यहाँ लागू रेखा आधार से आती है और सभी बारह वेल दिखते हैं। देखें कि कटऑफ उचित आबादियों के बीच है या नहीं; काल्पनिक वितरण प्रतिनिधि रंगी हुई छवियों की जाँच का विकल्प नहीं हैं।",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "Run से तीन वास्तविक चित्र बनते हैं। सीमा-मान वाला पृष्ठ प्रति-वेल वितरण दिखाता है, प्रति-परजीवी वितरण नहीं। यहाँ लागू रेखा आधार से आती है और सभी बारह वेल दिखते हैं। देखें कि कटऑफ उचित आबादियों के बीच है या नहीं; काल्पनिक वितरण प्रतिनिधि रंगी हुई छवियों की जाँच का विकल्प नहीं हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "16_legend_00",
-          "narration": "यदि लेजेंड चित्र क्षेत्र से बाहर जाए, तो Figure settings खोलकर axes टैब में Legend position के लिए best चुनें। संवाद की पुष्टि करें ताकि लेबल दिखाई दें। यह केवल प्रदर्शन का बदलाव है: हमने जाँचा है कि चित्र के मान और सहेजी गई परिणाम तालिकाएँ नहीं बदलतीं।",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3399,36 +3388,33 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7,
-          "speech_text": "यदि लेजेंड चित्र क्षेत्र से बाहर जाए, तो Figure settings खोलकर axes टैब में Legend position के लिए best चुनें। संवाद की पुष्टि करें ताकि लेबल दिखाई दें। यह केवल प्रदर्शन का बदलाव है: हमने जाँचा है कि चित्र के मान और सहेजी गई परिणाम तालिकाएँ नहीं बदलतीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "प्रति-वेल बार attached और invaded अनुपात दिखाते हैं। हर बार के ऊपर एक सौ बीस वर्गीकृत परजीवियों की गिनती है। आधार वेल इनमें नहीं हैं। अनुपात के साथ हर भी देखें: बहुत कम ऑब्जेक्ट पर आधारित बड़ा अनुपात, पर्याप्त नमूने वाले वेल के उसी अनुपात के बराबर साक्ष्य नहीं है।",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "प्रति-वेल बार attached और invaded अनुपात दिखाते हैं। हर बार के ऊपर एक सौ बीस वर्गीकृत परजीवियों की गिनती है। आधार वेल इनमें नहीं हैं। अनुपात के साथ हर भी देखें: बहुत कम ऑब्जेक्ट पर आधारित बड़ा अनुपात, पर्याप्त नमूने वाले वेल के उसी अनुपात के बराबर साक्ष्य नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "दोनों काल्पनिक स्थितियों में सात सौ बीस वर्गीकृत परजीवी हैं। invaded अनुपात लगभग उनतालीस दशमलव सात और अड़सठ दशमलव नौ प्रतिशत हैं। सारांश वेल के बीच औसत भी देता है, जो सामान्यतः सभी ऑब्जेक्ट को जोड़कर निकाले अनुपात जैसा नहीं होता। ये नाम या कोई पी मान यहाँ जैविक प्रभाव स्थापित नहीं करते।",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "दोनों काल्पनिक स्थितियों में सात सौ बीस वर्गीकृत परजीवी हैं। invaded अनुपात लगभग उनतालीस दशमलव सात और अड़सठ दशमलव नौ प्रतिशत हैं। सारांश वेल के बीच औसत भी देता है, जो सामान्यतः सभी ऑब्जेक्ट को जोड़कर निकाले अनुपात जैसा नहीं होता। ये नाम या कोई पी मान यहाँ जैविक प्रभाव स्थापित नहीं करते।"
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_completion",
-          "narration": "कंसोल और परिणाम फ़ोल्डर में वर्गीकरण, प्रति-फ़ील्ड सीमा-मान, प्रति-वेल दक्षता, स्थिति सारांश और तुलना तालिकाएँ देखें। निष्कर्ष के लिए स्वतंत्र प्रयोगात्मक वेल इस्तेमाल करें, अलग-अलग परजीवियों को अदल-बदल योग्य प्रतिकृतियाँ न मानें। spaCR AI वैकल्पिक है और इस स्थानीय विश्लेषण में इस्तेमाल नहीं हुआ। जैविक निष्कर्ष से पहले रंगाई और छवियों को सत्यापित करें।",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3439,30 +3425,37 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "कंसोल और परिणाम फ़ोल्डर में वर्गीकरण, प्रति-फ़ील्ड सीमा-मान, प्रति-वेल दक्षता, स्थिति सारांश और तुलना तालिकाएँ देखें। निष्कर्ष के लिए स्वतंत्र प्रयोगात्मक वेल इस्तेमाल करें, अलग-अलग परजीवियों को अदल-बदल योग्य प्रतिकृतियाँ न मानें। स्पेकर AI वैकल्पिक है और इस स्थानीय विश्लेषण में इस्तेमाल नहीं हुआ। जैविक निष्कर्ष से पहले रंगाई और छवियों को सत्यापित करें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "प्रतिकृति परीक्षण",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
-      "section": "टोक्सोप्लाज़्मा परीक्षण",
-      "description": "वैक्यूल के आधार पर परजीवी गिनें, वितरण देखें और डेटा बदले बिना ग्राफ़ की लेजेंड समायोजित करें। उदाहरण पूरी तरह कृत्रिम है; यह उपचार का प्रभाव नहीं दिखाता।",
+      "section": "Toxoplasma assays",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "मेज़बान कोशिका के बजाय वैक्यूल को गिनती की इकाई चुनना।",
-        "दो की घात न होने वाली गिनतियाँ बनाए रखना और वेल तथा स्थिति के सारांश देखना।",
-        "ग्राफ़ के असली नियंत्रण इस्तेमाल करना और निर्यात की चेतावनियाँ पढ़ना।"
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "कृत्रिम शिक्षण डेटाबेस की नई प्रति में परजीवियों की 1,992 काल्पनिक पंक्तियाँ, 480 वैक्यूल, 240 मेज़बान-कोशिका समूह और बारह कृत्रिम वेल हैं। Vehicle और inhibitor शिक्षण नाम हैं; हर समूह के छह वेल वही वितरण दोहराते हैं। इस मॉड्यूल में न प्राप्त की गई असली छवियाँ हैं, न विशेष डेटा-डाउनलोड बटन। मूल डेटाबेस अपरिवर्तित रहता है। स्वतंत्र गणनाएँ 6,588 CSV फ़ील्ड और बारों की ऊँचाइयों तथा आधारों की जाँच करती हैं। इससे सेगमेंटेशन, पी-मान या प्रभावशीलता सत्यापित नहीं होते। जैविक कार्य के लिए वास्तविक माप, सत्यापित वैक्यूल संबंध और स्वतंत्र प्रयोगात्मक प्रतिकृतियाँ चाहिए।",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home के Assays भाग में Replication Assay खोलें। यह हर वैक्यूल में मापे गए परजीवी गिनता है; यहाँ छवियों का सेगमेंटेशन नहीं होता। यह उदाहरण स्पष्ट रूप से कृत्रिम है, इसलिए ग्राफ़ नियंत्रण और गिनती के नियम सिखाते हैं, उपचार का जैविक प्रभाव नहीं।",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3472,132 +3465,121 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Home के Assays भाग में Replication Assay खोलें। यह हर वैक्यूल में मापे गए परजीवी गिनता है; यहाँ छवियों का सेगमेंटेशन नहीं होता। यह उदाहरण स्पष्ट रूप से कृत्रिम है, इसलिए ग्राफ़ नियंत्रण और गिनती के नियम सिखाते हैं, उपचार का जैविक प्रभाव नहीं।"
+          ]
         },
         {
           "visual": "03_setting_src",
-          "narration": "तैयार प्रयोग का वह फ़ोल्डर चुनें जिसमें measurements स्लैश measurements डॉट db है। हमारी नई निजी प्रति में परजीवियों की एक हज़ार नौ सौ बानवे काल्पनिक पंक्तियाँ हैं। हम मूल डेटाबेस बचाकर रखते हैं और पुराने परिणामों के बिना शुरू करते हैं, ताकि दिखाया गया हर आउटपुट इसी रन का हो।",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "तैयार प्रयोग का वह फ़ोल्डर चुनें जिसमें measurements स्लैश measurements डॉट db है। हमारी नई निजी प्रति में परजीवियों की एक हज़ार नौ सौ बानवे काल्पनिक पंक्तियाँ हैं। हम मूल डेटाबेस बचाकर रखते हैं और पुराने परिणामों के बिना शुरू करते हैं, ताकि दिखाया गया हर आउटपुट इसी रन का हो।"
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Vacuole key में वैक्यूल के स्पष्ट पहचानकर्ता वाला कॉलम चुनें। उदाहरण में चार सौ अस्सी वैक्यूल, पर केवल दो सौ चालीस मेज़बान-कोशिका समूह हैं: हर मेज़बान से दो वैक्यूल जुड़े हैं। मेज़बान कोशिका के आधार पर गिनने से वे मिल जाएँगे और सवाल बदल जाएगा। अपना डेटा विश्लेषित करने से पहले असली छवियों में यह संबंध सत्यापित करें।",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Vacuole key में वैक्यूल के स्पष्ट पहचानकर्ता वाला कॉलम चुनें। उदाहरण में चार सौ अस्सी वैक्यूल, पर केवल दो सौ चालीस मेज़बान-कोशिका समूह हैं: हर मेज़बान से दो वैक्यूल जुड़े हैं। मेज़बान कोशिका के आधार पर गिनने से वे मिल जाएँगे और सवाल बदल जाएगा। अपना डेटा विश्लेषित करने से पहले असली छवियों में यह संबंध सत्यापित करें।"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell उन वस्तुओं को हटाता है जिनका किसी मेज़बान से वैध संबंध नहीं है। इससे बिना आवंटन वाली वस्तुएँ परिणाम में नहीं आतीं, लेकिन मेज़बान का सेगमेंटेशन विफल हो तो वास्तविक परजीवी भी हट सकते हैं। सभी शिक्षण पंक्तियों के संबंध वैध हैं; यह उदाहरण आपके सेगमेंटेशन को सत्यापित नहीं करता।",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Require host cell उन वस्तुओं को हटाता है जिनका किसी मेज़बान से वैध संबंध नहीं है। इससे बिना आवंटन वाली वस्तुएँ परिणाम में नहीं आतीं, लेकिन मेज़बान का सेगमेंटेशन विफल हो तो वास्तविक परजीवी भी हट सकते हैं। सभी शिक्षण पंक्तियों के संबंध वैध हैं; यह उदाहरण आपके सेगमेंटेशन को सत्यापित नहीं करता।"
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "दो की घात वाली सबसे बड़ी नामित श्रेणी सोलह है; यह हर बड़ी गिनती को काट देने वाली सीमा नहीं है। बड़ी घातों के लिए अतिरिक्त श्रेणी है और बाकी गिनतियाँ अलग रहती हैं। हर कृत्रिम वेल में तीन परजीवियों वाले दो वैक्यूल हैं; तीन की गिनती को चार तक गोल न करें।",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "दो की घात वाली सबसे बड़ी नामित श्रेणी सोलह है; यह हर बड़ी गिनती को काट देने वाली सीमा नहीं है। बड़ी घातों के लिए अतिरिक्त श्रेणी है और बाकी गिनतियाँ अलग रहती हैं। हर कृत्रिम वेल में तीन परजीवियों वाले दो वैक्यूल हैं; तीन की गिनती को चार तक गोल न करें।"
+          "hold_after": 0.7
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "स्थितियों और वेल का मिलान जाँचें। यहाँ पहले कॉलम का नाम vehicle और दूसरे का inhibitor है, और हर समूह में छह कृत्रिम वेल हैं। ये नाम काल्पनिक शिक्षण डिज़ाइन का हिस्सा हैं। इनसे यह साबित नहीं होता कि दवा दी गई थी, और देखने में प्रभावशाली अंतर प्रभावशीलता का प्रमाण नहीं है।",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्थितियों और वेल का मिलान जाँचें। यहाँ पहले कॉलम का नाम vehicle और दूसरे का inhibitor है, और हर समूह में छह कृत्रिम वेल हैं। ये नाम काल्पनिक शिक्षण डिज़ाइन का हिस्सा हैं। इनसे यह साबित नहीं होता कि दवा दी गई थी, और देखने में प्रभावशाली अंतर प्रभावशीलता का प्रमाण नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_run",
-          "narration": "स्रोत, आवंटन की कुंजी, फ़िल्टर और आउटपुट सेटिंग जाँचने के बाद ही Run दबाएँ। यह तालिकाओं का विश्लेषण है, नया Cellpose सेगमेंटेशन या जीपीयू प्रदर्शन परीक्षण नहीं। असली प्रक्रिया वेल के अनुसार और स्थिति के अनुसार दोनों ग्राफ़ बनाती है।",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्रोत, आवंटन की कुंजी, फ़िल्टर और आउटपुट सेटिंग जाँचने के बाद ही Run दबाएँ। यह तालिकाओं का विश्लेषण है, नया सेल पोज़ सेगमेंटेशन या जीपीयू प्रदर्शन परीक्षण नहीं। असली प्रक्रिया वेल के अनुसार और स्थिति के अनुसार दोनों ग्राफ़ बनाती है।"
+          "hold_after": 0.7
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "हर स्टैक्ड बार को एक वेल में प्रति वैक्यूल परजीवी गिनतियों के वितरण की तरह पढ़ें। Vehicle उदाहरण में चालीस वैक्यूल में दो सौ अट्ठाईस परजीवी हैं; inhibitor में चालीस में एक सौ चार। दोनों में पाँच प्रतिशत वैक्यूल की गिनती दो की घात नहीं है। हमने दिखाई गई ऊँचाइयों को स्वतंत्र गिनतियों से मिलाया, केवल सहेजी गई फ़ाइलों के नाम नहीं जाँचे।",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "हर स्टैक्ड बार को एक वेल में प्रति वैक्यूल परजीवी गिनतियों के वितरण की तरह पढ़ें। Vehicle उदाहरण में चालीस वैक्यूल में दो सौ अट्ठाईस परजीवी हैं; inhibitor में चालीस में एक सौ चार। दोनों में पाँच प्रतिशत वैक्यूल की गिनती दो की घात नहीं है। हमने दिखाई गई ऊँचाइयों को स्वतंत्र गिनतियों से मिलाया, केवल सहेजी गई फ़ाइलों के नाम नहीं जाँचे।"
+          "hold_after": 0.7
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "लेजेंड कट रही हो तो Figure settings और अक्षों का टैब खोलें, फिर Legend position बदलें। इन वास्तविक नियंत्रणों से हम अंदर की स्थिति चुनते हैं। यह प्रस्तुति का बदलाव है: सभी बार मान और आउटपुट डेटा फ़ाइलें अपरिवर्तित रहती हैं।",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ],
-          "speech_text": "लेजेंड कट रही हो तो Figure settings और अक्षों का टैब खोलें, फिर Legend position बदलें। इन वास्तविक नियंत्रणों से हम अंदर की स्थिति चुनते हैं। यह प्रस्तुति का बदलाव है: सभी बार मान और आउटपुट डेटा फ़ाइलें अपरिवर्तित रहती हैं।"
+          ]
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "स्थिति वाला दृश्य उदाहरण के वैक्यूल को दो वितरणों में मिलाता है। हर समूह के सभी छह वेल एक ही काल्पनिक पैटर्न दोहराते हैं। इससे मिले सार्थकता परीक्षणों को उपचार का निष्कर्ष न कहें; वास्तविक अनुमान के लिए वास्तविक प्रतिकृतियाँ और उचित स्वतंत्र प्रयोगात्मक इकाई चाहिए।",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "स्थिति वाला दृश्य उदाहरण के वैक्यूल को दो वितरणों में मिलाता है। हर समूह के सभी छह वेल एक ही काल्पनिक पैटर्न दोहराते हैं। इससे मिले सार्थकता परीक्षणों को उपचार का निष्कर्ष न कहें; वास्तविक अनुमान के लिए वास्तविक प्रतिकृतियाँ और उचित स्वतंत्र प्रयोगात्मक इकाई चाहिए।"
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_completion",
-          "narration": "ग्राफ़ के साथ कंसोल भी पढ़ें। इस रन में चेतावनी है कि कुछ चुने हुए रंग हल्के निर्यात पृष्ठ पर कम स्पष्ट दिखते हैं। निर्यात की गई आकृतियाँ जाँचें और सुलभ रंग-पैलेट चुनें; स्क्रीन पर पढ़ने योग्य गहरा दृश्य अपने आप पढ़ने योग्य सहेजी गई आकृति की गारंटी नहीं देता।",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7,
-          "speech_text": "ग्राफ़ के साथ कंसोल भी पढ़ें। इस रन में चेतावनी है कि कुछ चुने हुए रंग हल्के निर्यात पृष्ठ पर कम स्पष्ट दिखते हैं। निर्यात की गई आकृतियाँ जाँचें और सुलभ रंग-पैलेट चुनें; स्क्रीन पर पढ़ने योग्य गहरा दृश्य अपने आप पढ़ने योग्य सहेजी गई आकृति की गारंटी नहीं देता।"
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_save",
-          "narration": "Save सक्रिय होने पर परिणाम results स्लैश analyze replication में जाते हैं: वैक्यूल गिनतियाँ, वेल वितरण, स्थिति सारांश, सांख्यिकीय तालिकाएँ और आकृतियाँ। इनके साथ सेटिंग और स्रोत पहचानकर्ता रखें। अपने परीक्षण में इन सारांशों का अर्थ निकालने से पहले असली छवियाँ और जैविक नियंत्रण जाँचें।",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3608,10 +3590,17 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ],
-          "speech_text": "Save सक्रिय होने पर परिणाम results स्लैश analyze replication में जाते हैं: वैक्यूल गिनतियाँ, वेल वितरण, स्थिति सारांश, सांख्यिकीय तालिकाएँ और आकृतियाँ। इनके साथ सेटिंग और स्रोत पहचानकर्ता रखें। अपने परीक्षण में इन सारांशों का अर्थ निकालने से पहले असली छवियाँ और जैविक नियंत्रण जाँचें।"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

@@ -6,10 +6,10 @@
   ],
   "routes": 81,
   "catalog_languages": 14,
-  "narration_tracks": 3020,
-  "web_bytes": 414153794,
+  "narration_tracks": 2873,
+  "web_bytes": 418558543,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 6122479132,
+  "media_host_bytes": 5893945710,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_heart.json",
@@ -3282,509 +3282,19 @@
       "bytes": 5854676
     },
     {
-      "path": "media_host/23_agreement/audio/en/af_aoede.json",
-      "sha256": "91533b5edf8d7c5b52425eb8c93d94912164a076f72af5795f9ccbcc7c9c5ec2",
-      "bytes": 48035
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_aoede.m4a",
-      "sha256": "7444be75fb3f718c0fe9464b73724afd7b34aa7e66ef749ddd0cc0dd7f8e0e33",
-      "bytes": 1161801
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_bella.json",
-      "sha256": "abadbbd0558ec5ddbd4c469e5679193f42877507e6cfd483da5eede5bed1d9e5",
-      "bytes": 47821
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_bella.m4a",
-      "sha256": "83e8a26eff06e6c6b7c6448e513312794e404a9fc61316589ac2ed76dbdcfdaa",
-      "bytes": 1207115
-    },
-    {
       "path": "media_host/23_agreement/audio/en/af_heart.json",
-      "sha256": "ae1009d1152226e344e0c54af54c40aab28b6814b6405a0a8cce5810ebe36110",
-      "bytes": 47876
+      "sha256": "0575fc2d0c14caaaa31730398a3232fc35729f30f0d4becc059195d9c08c1405",
+      "bytes": 41450
     },
     {
       "path": "media_host/23_agreement/audio/en/af_heart.m4a",
-      "sha256": "435f49e386d252ce6e328d0e2562adc851f7cd1b0ef1b69f1202e7e5644e5b97",
-      "bytes": 1171790
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_jessica.json",
-      "sha256": "cc991ab90807fd328da5f2881a9870c21683416f5feeb6379af78b57dfa00a7f",
-      "bytes": 48368
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_jessica.m4a",
-      "sha256": "67590cc6915bc75b20e1ca09e496dc6041eb209e6334d076a90dccdbfef9be32",
-      "bytes": 1139919
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_river.json",
-      "sha256": "580acdc790aaa4086eee2062f206f79280056ebd89a8bc1845bfd9576e33edff",
-      "bytes": 47582
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_river.m4a",
-      "sha256": "21dc53a873931e16ac32951dabca46b8c69239486231e1c7f6dfa7edc9facb93",
-      "bytes": 1135014
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_sarah.json",
-      "sha256": "7f1a27d3c42355e93c6dc02d2e80860904e2dc2fe4520a15be8510fa9a5fe347",
-      "bytes": 47775
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_sarah.m4a",
-      "sha256": "69529c1eef495d7bbd708b32ac8c791ce455e900b0d86710c17c12613f18b504",
-      "bytes": 1192891
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_sky.json",
-      "sha256": "c354827f778348f28465a8057be15fa4c6f0550c79c013f4916d18e9e5d9531d",
-      "bytes": 47959
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/af_sky.m4a",
-      "sha256": "0858d45ed7552737f309d75a383533a1d3cd18b274b79f6ae71a744a0702f0cb",
-      "bytes": 1176446
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_adam.json",
-      "sha256": "d8ea83e0fa5b541cdaad0c1e50540707d63778b30c74ec2400fd2627d5a4458f",
-      "bytes": 47788
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_adam.m4a",
-      "sha256": "8541f117a0e017b03921cab6ac178fd8ad29db6a9f047a0e45aa76da4e6791f5",
-      "bytes": 1165552
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_echo.json",
-      "sha256": "52a03036de4a1636a707b48ad2199a832035d4283558cfa73a78a6d7dd6d303e",
-      "bytes": 48139
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_echo.m4a",
-      "sha256": "490f63aba36b97453e88ddfbc4f6a4e1e63cd085d9951111df2a3d7c1bd90470",
-      "bytes": 1192031
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_eric.json",
-      "sha256": "8491edd39925e9d4b1a735cc53fb93c865a531b3bfcdf4e23afe98c8f6f507b3",
-      "bytes": 48055
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_eric.m4a",
-      "sha256": "b246b6db90112eca5309da7a43ab6b94eb3296ee72496c15a1815ceade90a1a0",
-      "bytes": 1107660
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_fenrir.json",
-      "sha256": "6a830e4f8634c0ee23afc756af494392aae0a3471d7015209bdcb2568d44567b",
-      "bytes": 47714
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_fenrir.m4a",
-      "sha256": "aa5eb1608b63e40068ec0a04da2688afdbd9e749001d5c06d920a110f0442677",
-      "bytes": 1186999
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_liam.json",
-      "sha256": "c8b9889b126f1cfd660dc6d5d63ce780af903579fbcf5baefd478102ae9c7531",
-      "bytes": 48142
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_liam.m4a",
-      "sha256": "d12f3eedadb80975fe531e480e2ed8cbbb84b0927e548f6db06ff931fbf42067",
-      "bytes": 1176939
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_michael.json",
-      "sha256": "f6a6de3d004d0de3c68341eb105999213dafa577a045f942c8a6f24baf391c25",
-      "bytes": 48135
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_michael.m4a",
-      "sha256": "66c4bdf365ac201968a6fad5f49fae81b2e9bc827a509f4b746861015ee68739",
-      "bytes": 1262378
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_onyx.json",
-      "sha256": "e2f7aced6af04d882888011de13c737b420a759c77523b124a69aad85e3cdbc9",
-      "bytes": 48443
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_onyx.m4a",
-      "sha256": "dc781424d1f65159f4dac3bca062e2bb1087677578fe8529a589ea4c8d0fd2d8",
-      "bytes": 1208564
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_puck.json",
-      "sha256": "4de0a14c73cb5c1c71caa5e6ffbbf9e37e3b360b4564344c56ab7c5e0d460eb7",
-      "bytes": 47641
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_puck.m4a",
-      "sha256": "e9acd940cee1ae56fb23d766d7997015f193ac62f982daa14fff21e9ea8896f5",
-      "bytes": 1191785
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_santa.json",
-      "sha256": "05d2d037f14050c264a971ac69bf56fec3c0373f96aba6518861cd9c42db5472",
-      "bytes": 47906
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/am_santa.m4a",
-      "sha256": "c5aa9b1a0da9af148b58b4c0c9f76156aa3d770276e4701787bae5afae937069",
-      "bytes": 1257110
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_alice.json",
-      "sha256": "226b8f040f187db0dabc7b4bc280e0f3ea97e477223cb75213d23b94d2021cbf",
-      "bytes": 48059
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_alice.m4a",
-      "sha256": "163cec01922d448606bf6a6f637d28b0e479ad9ac092e1261e41b2fdfa448753",
-      "bytes": 1187998
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_emma.json",
-      "sha256": "8feda1b31f1bf700d7f1e9c19d2fab372a92033444f5f1a21c191b9802d328fc",
-      "bytes": 48092
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_emma.m4a",
-      "sha256": "56c74e5367feda629a038337969079fc0656df96291a949b4cdcba753eeb8064",
-      "bytes": 1169430
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_isabella.json",
-      "sha256": "15fdc65d4ee479a391f53b318b2d8c6b52c7565c28beef8db3ec21b164806f24",
-      "bytes": 48093
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_isabella.m4a",
-      "sha256": "e0b0c78d62dca87d2a33859ccb9b43f6843a8dc31a6d42f75edaf595706049ea",
-      "bytes": 1180478
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_lily.json",
-      "sha256": "60c84e41f4c06d75f47494cb367921f4e700951ce7a70c6a2a9683ffbf7ee6b8",
-      "bytes": 48021
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bf_lily.m4a",
-      "sha256": "dcb6bce3db21455590ed09aa31f421a93c30976fddcaa2d1dabc92d5ccb5303f",
-      "bytes": 1208881
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_daniel.json",
-      "sha256": "911dcd0249bd4f1b3546028b910b729c2218fd587a5a834c56663adf404d24ea",
-      "bytes": 47907
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_daniel.m4a",
-      "sha256": "3af7eb4859f883993b29bcea64c34c7c25072a10aefb08f21cfaa97ec3030cb6",
-      "bytes": 1191717
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_fable.json",
-      "sha256": "b15dadd40344add2c2d1b13e5d356ccb6cc8e181a96b7754d3e1912cc9ac9b06",
-      "bytes": 47973
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_fable.m4a",
-      "sha256": "bfc9725f6d3f8652f16e71058bb1b72bb5c8e3d0ffeff9dd7b0723496fc33a6a",
-      "bytes": 1231389
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_george.json",
-      "sha256": "977b8b5548bf89aec87547eeac10c9a8d05fb81c42247af26408784c75f0407d",
-      "bytes": 48199
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_george.m4a",
-      "sha256": "d24157d30dd31bc8037650dbab0212960c08352b3413b72007bda183323835a0",
-      "bytes": 1293925
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_lewis.json",
-      "sha256": "b415eaf02ccac5bfb69ad2a1920c758b472bb634d9a6d7c8582aefe2d7a6c88d",
-      "bytes": 48394
-    },
-    {
-      "path": "media_host/23_agreement/audio/en/bm_lewis.m4a",
-      "sha256": "03ae171d54e17ba81e5ed2bb65a34a40b4d242da2079deef6a4228aea191d41b",
-      "bytes": 1260886
-    },
-    {
-      "path": "media_host/23_agreement/audio/es/ef_dora.json",
-      "sha256": "df9f995055183e82892bdce901d05be463a10121b8076e24667ae5c4166ac188",
-      "bytes": 41059
-    },
-    {
-      "path": "media_host/23_agreement/audio/es/ef_dora.m4a",
-      "sha256": "1ab6078a196f770242b947409dfac68f5bc8ae96df6e5be5e48d47fb65d9dde9",
-      "bytes": 1140226
-    },
-    {
-      "path": "media_host/23_agreement/audio/es/em_alex.json",
-      "sha256": "53dcb3239786d328fdc486a4fe5470849d8e49f6c3368f156b4af098f1759747",
-      "bytes": 41082
-    },
-    {
-      "path": "media_host/23_agreement/audio/es/em_alex.m4a",
-      "sha256": "4a25f1d293750f3920a378c16db674b6e9664f490ba5f8df7ae01731c0d128d5",
-      "bytes": 1143047
-    },
-    {
-      "path": "media_host/23_agreement/audio/es/em_santa.json",
-      "sha256": "ef246ea782d33cfdbad3dbd14202c93a5965194e8b2ccf2215cb9dac458ae866",
-      "bytes": 41216
-    },
-    {
-      "path": "media_host/23_agreement/audio/es/em_santa.m4a",
-      "sha256": "240059dbffaf4d656707b284c8d9a6cf18b78d786a3b22e0c497c3fe652d4452",
-      "bytes": 1141416
-    },
-    {
-      "path": "media_host/23_agreement/audio/fr/ff_siwis.json",
-      "sha256": "568d891d140222095ef6a536d34a184d3fdfdc999422e26a4d29906eb921cf3b",
-      "bytes": 41876
-    },
-    {
-      "path": "media_host/23_agreement/audio/fr/ff_siwis.m4a",
-      "sha256": "174b16bbd05194fa050fea65cc6c265de5253aa2ae0225aaf9b198db7919cc6e",
-      "bytes": 1133530
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hf_alpha.json",
-      "sha256": "48b87b233ec5e697f8964ea91ad0a117a3d928a2ddaae52c316566f0e407cba9",
-      "bytes": 61983
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hf_alpha.m4a",
-      "sha256": "59186d0307205130b114e6f26fcf1d14fd242632044e87b84a2ad319c858d5fb",
-      "bytes": 1222528
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hf_beta.json",
-      "sha256": "2e251d246406173906135583fe088ad39f101a9b6cbb3abca80bd9a279503069",
-      "bytes": 62081
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hf_beta.m4a",
-      "sha256": "e2bcbcad258091816b8d79187713a9cb072297d96338ccff44bdb04e94f38b4e",
-      "bytes": 1048083
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hm_omega.json",
-      "sha256": "8c62c9c1ba916eb8765fd9bdc3771879c62498a953a0bf59c6026b2b5ec730ef",
-      "bytes": 62337
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hm_omega.m4a",
-      "sha256": "1c52e168372783a0218c472d3439fc37cd1ae463fbf1f32530c2942d9ceec389",
-      "bytes": 1239569
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hm_psi.json",
-      "sha256": "17ebf5ed3f6a8bbcd6f28cac17b3f09f18f15d505cbe71a1a9c18e34de31619c",
-      "bytes": 62373
-    },
-    {
-      "path": "media_host/23_agreement/audio/hi/hm_psi.m4a",
-      "sha256": "be5b89801140cc074aa249603be53f2ef3cd3b8649b84df0bbe41d5b1396aaac",
-      "bytes": 1263838
-    },
-    {
-      "path": "media_host/23_agreement/audio/it/if_sara.json",
-      "sha256": "7cb46343d997c9619d87040fd0d822c26669969b62c1fb352097543a5f0bf352",
-      "bytes": 40713
-    },
-    {
-      "path": "media_host/23_agreement/audio/it/if_sara.m4a",
-      "sha256": "0b2fe8f442576e4de52767754a68b3c1f036b5a900024217494f3429afdc8129",
-      "bytes": 1126074
-    },
-    {
-      "path": "media_host/23_agreement/audio/it/im_nicola.json",
-      "sha256": "eae678267f6edf934ed3f955bf40012af081969037f27ac651b8fa58f3d6920a",
-      "bytes": 40969
-    },
-    {
-      "path": "media_host/23_agreement/audio/it/im_nicola.m4a",
-      "sha256": "9be9a16105292720d1dcc7bf5cdeb9001d951d623b3ab72036a4bf85827388d2",
-      "bytes": 1269449
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_alpha.json",
-      "sha256": "7ebe33578c8389aac0332deb4cb450184abcf7bcb29a81edf2be4bc6687e3231",
-      "bytes": 43043
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_alpha.m4a",
-      "sha256": "f107354944194512f9d72d750a887db0784049af78fbe4c2b8bda210ed3f2dc1",
-      "bytes": 1308142
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_gongitsune.json",
-      "sha256": "654e2218902bbd6d160b75f885694acd8fe57569f453598a806d5b8700067409",
-      "bytes": 43055
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_gongitsune.m4a",
-      "sha256": "79b264f633152f20f711f9c8150b5ba3feed1491d1cbb775b7821a8cf0bd04b2",
-      "bytes": 1602949
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_nezumi.json",
-      "sha256": "c16a2934759b21c5aa8e2c18e0252149ce07539a3e360cbadc9501e39c814681",
-      "bytes": 42891
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_nezumi.m4a",
-      "sha256": "38e397fed7b562d778af847e4aebe2049f5e43fe99f6d5cffb44afa729a3fc0f",
-      "bytes": 1630459
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_tebukuro.json",
-      "sha256": "0650ac4a62ddb96e5a8f18d905304cf38e4f63a0932084c3c094e6ce842ca86b",
-      "bytes": 43086
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jf_tebukuro.m4a",
-      "sha256": "10feef8b942e1d4d4a37d6d58f8dd80e7ca375b044b0bb4ae66101eca5acdec2",
-      "bytes": 1594506
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jm_kumo.json",
-      "sha256": "c3ad82349387df4bcbbcf7f34024c567aa489f1a37df1c92dcf6cb997b949ce6",
-      "bytes": 43018
-    },
-    {
-      "path": "media_host/23_agreement/audio/ja/jm_kumo.m4a",
-      "sha256": "d70ee8a6eaedacec1b19c5b02d006f073b47d54a50854dec96174cc4fffaafa6",
-      "bytes": 1410672
-    },
-    {
-      "path": "media_host/23_agreement/audio/pt-BR/pf_dora.json",
-      "sha256": "2571bee38e7bd2aae163e1f60f6809b2759cf2b363df62af30a041d8af72c012",
-      "bytes": 42460
-    },
-    {
-      "path": "media_host/23_agreement/audio/pt-BR/pf_dora.m4a",
-      "sha256": "98da0c3dfd94bfd1d99dd977b3753db06723234b62a31c60cd5c32ff3fdedb6f",
-      "bytes": 1100523
-    },
-    {
-      "path": "media_host/23_agreement/audio/pt-BR/pm_alex.json",
-      "sha256": "336b75d5c7a007831062b29a6686c807b45aafa7b9b79102d10562e57b633a42",
-      "bytes": 42229
-    },
-    {
-      "path": "media_host/23_agreement/audio/pt-BR/pm_alex.m4a",
-      "sha256": "fcd063c23f04ad7e47cb2ff02dd853e1178745072393f7fc14c22708beea0bba",
-      "bytes": 1112514
-    },
-    {
-      "path": "media_host/23_agreement/audio/pt-BR/pm_santa.json",
-      "sha256": "fb383e6046ca2a1f8e8f0f5e2d59a3b77822f82ac8aed4cbb7e13ca16536273e",
-      "bytes": 42259
-    },
-    {
-      "path": "media_host/23_agreement/audio/pt-BR/pm_santa.m4a",
-      "sha256": "1b6736f6338dbf176c7c694198c4429ecf48d56f7bc7315c7de3247f01708aa6",
-      "bytes": 1109945
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaobei.json",
-      "sha256": "edfe14abf9cf8afa3ae27ad9a2796e8f7fa4c8aa0f53483ee53d247d50661ad5",
-      "bytes": 39686
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaobei.m4a",
-      "sha256": "6945cef772026f2d5c8f0da54ba189cee4ef849ee8acd3a43267ee82d611f240",
-      "bytes": 1079177
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaoni.json",
-      "sha256": "0231af51c1d7a500badb17a4582340fd5c6f3744b714bd99a6d2a28e126e0845",
-      "bytes": 39841
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaoni.m4a",
-      "sha256": "7e6ae45db4b311f16f556ebda67c54831a07157c2fdad11b2667992a896a46ae",
-      "bytes": 954156
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaoxiao.json",
-      "sha256": "733a46d2a449b5f0677174640a630d6dfd7e50bc10dddac39e210ff704f85bf6",
-      "bytes": 39990
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaoxiao.m4a",
-      "sha256": "ff33ff2f43f573cda863166cfb11ce6b85963300b8f547b42736a59adc19b837",
-      "bytes": 939981
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaoyi.json",
-      "sha256": "132039bffd7fe7dd82b3dbdb8d86c60200fa253fe35733bb5012ccb2fc7f87e4",
-      "bytes": 39668
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zf_xiaoyi.m4a",
-      "sha256": "bd3ea954b7b7d784cc116a08493aea547450bc2b0a861ace36c321907b5ab4da",
-      "bytes": 922788
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunjian.json",
-      "sha256": "2eb3371d6e461534016b24fce24ed21e2cc71b62ed2e8e52f2dd2670ffa86f91",
-      "bytes": 39795
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunjian.m4a",
-      "sha256": "9507fa63a0202033f45fcd387d66a9dc0c0f4f18d983af357e7f29bd363e937e",
-      "bytes": 915484
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunxi.json",
-      "sha256": "47f8c5434b2f2afd03c04b741e5e3d7de864a2b10b0a147142d78d1f4dcc6339",
-      "bytes": 39625
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunxi.m4a",
-      "sha256": "2bd3851fd2e7923d9900d93a6038e2612cb5e1351c3ada831a867cfab20d7ac8",
-      "bytes": 867449
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunxia.json",
-      "sha256": "ef8cee9e9d148a330f3db7c8aec563efa01f46b965378e65cef8aa583c564ec2",
-      "bytes": 39752
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunxia.m4a",
-      "sha256": "75de6293e053df6182071cf782ca0d4dce2c75e1b80e3c7e64db7ce2a1da00ed",
-      "bytes": 980071
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunyang.json",
-      "sha256": "642e1c46028aac34065c6f7fc7d9b145d777a1616505772169f8cc4877b34eda",
-      "bytes": 39906
-    },
-    {
-      "path": "media_host/23_agreement/audio/zh-CN/zm_yunyang.m4a",
-      "sha256": "f1531de7b3ca4610cd222a01340c0845cb99963f0d33cb488d7b55482abdda03",
-      "bytes": 860652
+      "sha256": "9823c77567ddb8e42f400e5946d3472bcdc4332fc84552e27f9b37f003cc4e10",
+      "bytes": 911522
     },
     {
       "path": "media_host/23_agreement/video/23_agreement_silent.mp4",
-      "sha256": "62f8926733a03335da452e3d0494b8392d992d48389ab2a5f39ae3b695c447ac",
-      "bytes": 8108713
+      "sha256": "b558cf411f71f2d5403b04aa0d0fc90d9116902ab480da541c96a9375b82d21a",
+      "bytes": 6346450
     },
     {
       "path": "media_host/24_plaque/audio/en/af_aoede.json",
@@ -4797,1014 +4307,34 @@
       "bytes": 23802512
     },
     {
-      "path": "media_host/26_invasion/audio/en/af_aoede.json",
-      "sha256": "e365b2bebca15f15c8cf02f6de24f194f7be0f5782068312c48b2d0b357364b0",
-      "bytes": 68818
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_aoede.m4a",
-      "sha256": "a4a0e2f25638c4888d964d53d18a59c862fbb487d4b7ff4f2e4c0032402eb92b",
-      "bytes": 1703868
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_bella.json",
-      "sha256": "f07b11c62c64486bff4a1149435678bbdbab798fb27e4d5283b32a1f54de4b44",
-      "bytes": 68776
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_bella.m4a",
-      "sha256": "594adf3d9d934bb461f890f5edb86dc2dda9db84a8891c7b494f304ebce65ac5",
-      "bytes": 1778735
-    },
-    {
       "path": "media_host/26_invasion/audio/en/af_heart.json",
-      "sha256": "4f546b16a0ed9068f6c1ea56553de1220db4b6cbc4f89b6a387d0810b3bf71ef",
-      "bytes": 69140
+      "sha256": "dccd2c55b9dc5b3a99dd026376de4440de7eab11a12a75d3421a23106513ec95",
+      "bytes": 58827
     },
     {
       "path": "media_host/26_invasion/audio/en/af_heart.m4a",
-      "sha256": "d6f8b4b7dba66e4a91bfa812d3cbdfcb88f4c45a721c8467b0eeb0990360874a",
-      "bytes": 1746827
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_jessica.json",
-      "sha256": "f6aa7bf8b21762887c3f6591aa7327d4cace317d0d29d9df41c2da383a1aef9c",
-      "bytes": 69127
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_jessica.m4a",
-      "sha256": "744e1e9e45849058e5a98ed5dec2ff19ac5da5fd4cb0fa021df8dea919ac657d",
-      "bytes": 1704805
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_river.json",
-      "sha256": "e0fc64d5073a921b71c7e03a7ef75913f769967037980c1915c2c659f279e6d9",
-      "bytes": 68998
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_river.m4a",
-      "sha256": "c58a47111067604e05e24b32d7818b46bc7cb5183ad83939a1c67cf9f7c8b6c7",
-      "bytes": 1698281
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_sarah.json",
-      "sha256": "e8f50c818bc8e2c746f89e86b46883bc0fdfea664e0d9ae4a3df5c62c38320ce",
-      "bytes": 69356
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_sarah.m4a",
-      "sha256": "4bf8987bbefa3a360127826bfa5920f1c7ad629613ec06542d74e77f55a5022a",
-      "bytes": 1781923
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_sky.json",
-      "sha256": "0747ae07cac70811f9ff32871c498e26a3b0f333888de23039e3324e4e20d4fa",
-      "bytes": 68376
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/af_sky.m4a",
-      "sha256": "be3174b8e7a4c6bbe297ea5b64570c0fc9052cfde6ca916c87e9e86716e360b1",
-      "bytes": 1741690
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_adam.json",
-      "sha256": "84820e1b91c32d6785750ca53ba650e607cd2e92322f609f641dc9ecfb2efa6d",
-      "bytes": 69622
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_adam.m4a",
-      "sha256": "af7bfa96408b74375c60c5faedea9855e8b8969f87f3948b3cff675375ad6ed2",
-      "bytes": 1733893
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_echo.json",
-      "sha256": "aa4cbe2cab52e2ebc501e3a13c0d98ece8ee3b0be4c07631610234f711827f1f",
-      "bytes": 69134
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_echo.m4a",
-      "sha256": "e6e6be7d2f9ec1a1171e12b8f0775c4976b8ce0916df763bc6066f10fce7f901",
-      "bytes": 1793095
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_eric.json",
-      "sha256": "35211a1e660f93570a3baa97863ba3a4ad5574ed4fe41b0a2eeaa0ba5b6f0788",
-      "bytes": 69160
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_eric.m4a",
-      "sha256": "7e4392b576ee86c0e4bc9bfeb7a75725acb970caaeadd5aa912aa86ce6d17670",
-      "bytes": 1637581
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_fenrir.json",
-      "sha256": "b8366af5e09665abd13a09baa0ec22fee948d8f3a66783f539e08f4bb509ca6f",
-      "bytes": 68711
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_fenrir.m4a",
-      "sha256": "5bed780e188e17503bfb16e4905529f4df10a39a9feb760e9fbf22ea97872f03",
-      "bytes": 1748544
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_liam.json",
-      "sha256": "a1cae585a37f21fd868640db53f08bea66e1c236633c5658bb5d325aa11713b6",
-      "bytes": 68634
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_liam.m4a",
-      "sha256": "3bdcd113000fe2a1cdcdbfb529b58d4b0dfdf07253d591704aa0a2cd90659eec",
-      "bytes": 1743675
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_michael.json",
-      "sha256": "0ead6ac0ead63c93eba58bd032a896db72adb1bce0f5e5011a0356bad18054c5",
-      "bytes": 68646
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_michael.m4a",
-      "sha256": "a3b3da39c254c622563c38c60f70d8e0251277a2ad9df785827fae224510c261",
-      "bytes": 1850022
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_onyx.json",
-      "sha256": "b317e863169c3ac781d998060d44bd9ab79104b1bc20083c89c3e3dfe663bbd2",
-      "bytes": 68862
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_onyx.m4a",
-      "sha256": "6780260a41aceb90ffffb174be54644cf1b49d5382607780938d834d69589098",
-      "bytes": 1801140
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_puck.json",
-      "sha256": "78b74d9b8434bc51eba81554f59cf90895022a225e9b2f1705250fcd1312757f",
-      "bytes": 69121
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_puck.m4a",
-      "sha256": "437568deb0c5fb3b142d0b91b4afc0ec4cf14b21d595869927f0db056b8bc257",
-      "bytes": 1757232
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_santa.json",
-      "sha256": "7c88810fcfa00f1c6a7b986b5f5afb80586f7dd0c656d03b4e0a46d702aff65e",
-      "bytes": 69128
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/am_santa.m4a",
-      "sha256": "4b045d5413f7a134f525a7095c0307281b4f4c9faa36201cb90b77a8d2e43d35",
-      "bytes": 1895456
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_alice.json",
-      "sha256": "b6ffb054409328c3bf3ecf23fa96141cbeda3d40a0ce70388ac1e487e2db1274",
-      "bytes": 68887
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_alice.m4a",
-      "sha256": "2fd891cb967bab53f6ca2e9cbd239d3554f683a873ae7f64752748cb44483320",
-      "bytes": 1770438
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_emma.json",
-      "sha256": "eed3e50ce575eff28e20c213fd3b37e1d476d60d31352016325b8d73671a6343",
-      "bytes": 68935
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_emma.m4a",
-      "sha256": "07495c1a63f465c762bb43b5ccc4d7e1352f76ea9006ecdc8cab09e16da4263f",
-      "bytes": 1742805
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_isabella.json",
-      "sha256": "b58d3f862ac12b03b94159ca6b3acc5ece3e5eea6eae6318b47975b69a5b938e",
-      "bytes": 68359
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_isabella.m4a",
-      "sha256": "2fcb3b187a28982e2af6104c763efa94cb4b6cf0541b2ba99868ba6bd519a473",
-      "bytes": 1762203
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_lily.json",
-      "sha256": "270c3ffe31baa039facbc9af8a166689d3b1bdc9eddb95a7eecd0f0dae9129a8",
-      "bytes": 68917
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bf_lily.m4a",
-      "sha256": "6d383c35a7da70de38591eef0859d491ed49fc6138bf04393ad237bd600e4fda",
-      "bytes": 1791734
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_daniel.json",
-      "sha256": "10d2237216737b29a511a852b2b8e5e3f9d625905bae39fe51cb6eb36bd72c6f",
-      "bytes": 69175
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_daniel.m4a",
-      "sha256": "0bb03a1f3f53c7fcb74c90aafeebb3f3a4f136b34a71693c69de764c533de43a",
-      "bytes": 1766757
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_fable.json",
-      "sha256": "b36c6ee8faebccd2d4a71361ab5a39382c35d999f436ebd2619711d2c8a089a1",
-      "bytes": 68828
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_fable.m4a",
-      "sha256": "920489162d9ec7abfef978c372ee8dc0db930352eaaa6f41c34207b73b84c6be",
-      "bytes": 1854160
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_george.json",
-      "sha256": "c1ac351e03750baba0ff468c2fc6f15fddb2dc51084286a10658ebdb3099fd68",
-      "bytes": 68972
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_george.m4a",
-      "sha256": "72aafd23c555d6447ec1d57717be88684dc41ed95e710b82b1461fb2e6d6d1ef",
-      "bytes": 1930347
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_lewis.json",
-      "sha256": "9eda312fb00756bdea788ae36de168a4a9938a174a4da54ce5f7866b106b3d63",
-      "bytes": 68919
-    },
-    {
-      "path": "media_host/26_invasion/audio/en/bm_lewis.m4a",
-      "sha256": "58d43df7e128aed18a1998ea128e9938c18f651fbfc5983be0bdfd34334ee44a",
-      "bytes": 1869433
-    },
-    {
-      "path": "media_host/26_invasion/audio/es/ef_dora.json",
-      "sha256": "e4a70626111918351e79296d532faf138dffcc00c05a6f4b0e11175808ccdf99",
-      "bytes": 54453
-    },
-    {
-      "path": "media_host/26_invasion/audio/es/ef_dora.m4a",
-      "sha256": "5a7382450f13f4e13d616588980efc3279264a9f8a4e76a57a741eda7858955b",
-      "bytes": 1544882
-    },
-    {
-      "path": "media_host/26_invasion/audio/es/em_alex.json",
-      "sha256": "b626587af12128890ef8e0ea8a2b7420234fe0bb0a15d2aabee50e3f1dae191a",
-      "bytes": 54706
-    },
-    {
-      "path": "media_host/26_invasion/audio/es/em_alex.m4a",
-      "sha256": "488622c73e4315c7483b07242eff49d2aaa9ba2ba0f417cd68b62e50c24211ce",
-      "bytes": 1557447
-    },
-    {
-      "path": "media_host/26_invasion/audio/es/em_santa.json",
-      "sha256": "fae88a6483e2cc892fd76dbceb146e644b61ed3ab704be18c6c8d4830c5bac11",
-      "bytes": 54273
-    },
-    {
-      "path": "media_host/26_invasion/audio/es/em_santa.m4a",
-      "sha256": "95faaa17fb7d57b4dcc92310b6f9a457c8a2369b77dfeda35b8747f286edead2",
-      "bytes": 1545068
-    },
-    {
-      "path": "media_host/26_invasion/audio/fr/ff_siwis.json",
-      "sha256": "bb6e7a7f92a713ee20ae14396a842b614d43ec195db4ee45a079a161f35f53db",
-      "bytes": 55778
-    },
-    {
-      "path": "media_host/26_invasion/audio/fr/ff_siwis.m4a",
-      "sha256": "100cd3971125c0311576679386d0f4c00591b1c76c8ff3b7d21c54a29741bc27",
-      "bytes": 1541244
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hf_alpha.json",
-      "sha256": "94603e57c9c316a3cdbe14f69245289bcc852734360419fb37451beced31bf3c",
-      "bytes": 86128
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hf_alpha.m4a",
-      "sha256": "1fc4fb016ecda6eb0d53b0cbbfa800bf525813f3b85847da42d57d822dbf0c48",
-      "bytes": 1798227
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hf_beta.json",
-      "sha256": "39e999c49ad9f96de0079fc1c891a456cf4e7a0a267e42bb3f82378d187cf5df",
-      "bytes": 86114
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hf_beta.m4a",
-      "sha256": "4fa341669d5c3c8bbf29a620780e358110b17f937ab8b8bd93e566c859bd20b2",
-      "bytes": 1528719
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hm_omega.json",
-      "sha256": "4a021262852dfef33b05f142cab97e02bb9f00b37ff1ef608237767ad6aab86e",
-      "bytes": 86137
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hm_omega.m4a",
-      "sha256": "cc6a84a1471f85d239fe0c1c62e00e7260cbcdd130546695a4b0c08cc7f80962",
-      "bytes": 1827049
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hm_psi.json",
-      "sha256": "9d7b669546169d50eb331a7c7c57b93b21d12a0dba9a3e1ad98324ffc2fa18d0",
-      "bytes": 86231
-    },
-    {
-      "path": "media_host/26_invasion/audio/hi/hm_psi.m4a",
-      "sha256": "d6890adda8360da8e02c204cce410d0ed7e90d64f08fd60786f31df3c12e627a",
-      "bytes": 1849250
-    },
-    {
-      "path": "media_host/26_invasion/audio/it/if_sara.json",
-      "sha256": "948ea7dfa399955cf5c2eb70e9f37d1a6c3b59002395d2fe61b70f0681082af5",
-      "bytes": 55105
-    },
-    {
-      "path": "media_host/26_invasion/audio/it/if_sara.m4a",
-      "sha256": "1eab152b0d1d788a531d77cf387b2b5bee4a188dfdee667d39668b3cb26acb40",
-      "bytes": 1555856
-    },
-    {
-      "path": "media_host/26_invasion/audio/it/im_nicola.json",
-      "sha256": "39636b209cfde882fc6aba566fa3d959aaf5faeb987efd594b87ff612cf3ce1d",
-      "bytes": 54999
-    },
-    {
-      "path": "media_host/26_invasion/audio/it/im_nicola.m4a",
-      "sha256": "f58ba0d8f354a930560849925cd4702c9c20866cb39c1b3211d37cc0a5fbfd13",
-      "bytes": 1758986
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_alpha.json",
-      "sha256": "9b8d6d34cd74bb463f5f1780c01c38504f6f06d6b9ea662388917a687e800954",
-      "bytes": 56912
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_alpha.m4a",
-      "sha256": "b981066cc145e6a26ff1f990d5ebfc5e9ccf9f84caecfb94db781f9543d3ab6a",
-      "bytes": 1847584
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_gongitsune.json",
-      "sha256": "d3fa0a34f8833405a128cbaaa734590040be60a69973178e783206a5535b535f",
-      "bytes": 57240
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_gongitsune.m4a",
-      "sha256": "20fc28d4a9434f07219813d60a098f17bec6ce8bc019406b94cbbb0bbd4c085d",
-      "bytes": 2273986
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_nezumi.json",
-      "sha256": "aaeada3bdc8376f8bb1ecbc1b62497c79df74bdbb910219e88461bf05b0a05f4",
-      "bytes": 57031
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_nezumi.m4a",
-      "sha256": "ebb828e9e70f2410d0f1b726ee370f289e18341ec5bc1595ed13d1ab5213c24d",
-      "bytes": 2344683
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_tebukuro.json",
-      "sha256": "22fa85b8fc5909650a3f7d5b57e2fefd2f6cda8df69f6dff300b70d6be62c912",
-      "bytes": 56865
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jf_tebukuro.m4a",
-      "sha256": "956e1db3ef98821180185c003ac445e60b0e04be5c89f47939673baa3565df08",
-      "bytes": 2289509
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jm_kumo.json",
-      "sha256": "8e7fb4e741a4553f9719bcb802cd4f12a4f1f4a0022b888ff52c18948c7f3065",
-      "bytes": 57069
-    },
-    {
-      "path": "media_host/26_invasion/audio/ja/jm_kumo.m4a",
-      "sha256": "90f10420f809664608cc2922b4c0ca537eb90bb686f90d9263b6f66e80e969de",
-      "bytes": 1970991
-    },
-    {
-      "path": "media_host/26_invasion/audio/pt-BR/pf_dora.json",
-      "sha256": "c79bd15578fadc2a5df7e718699955262bc9d79c7cbc4a1d30b06fc34dc6a425",
-      "bytes": 56592
-    },
-    {
-      "path": "media_host/26_invasion/audio/pt-BR/pf_dora.m4a",
-      "sha256": "483a0d35529e50363027be235868da3a7980f96b4722f4d2f90bf23e1eee28ff",
-      "bytes": 1535447
-    },
-    {
-      "path": "media_host/26_invasion/audio/pt-BR/pm_alex.json",
-      "sha256": "824b1a22b9817fa575d0cb9044e197bcde46f3d1abdf4353bfa4aef1d8f403a5",
-      "bytes": 56588
-    },
-    {
-      "path": "media_host/26_invasion/audio/pt-BR/pm_alex.m4a",
-      "sha256": "d6a76a2500efbadf26b107d680b3d6896784dd3bf823972f760e4f42d3d706e5",
-      "bytes": 1537224
-    },
-    {
-      "path": "media_host/26_invasion/audio/pt-BR/pm_santa.json",
-      "sha256": "0d7a562fec4748bf518d14f8cad5772c03fe0585378fa6d980abd01ae154e685",
-      "bytes": 56519
-    },
-    {
-      "path": "media_host/26_invasion/audio/pt-BR/pm_santa.m4a",
-      "sha256": "602e6d08f8664cff354991e1a85b7fd9f1a6b19465342d8b3f4b471c81631b88",
-      "bytes": 1534179
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaobei.json",
-      "sha256": "e57391b0f1d542f7104008e406329d7ad99cb474425d491403bbb51963206168",
-      "bytes": 53872
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaobei.m4a",
-      "sha256": "555294b8a6bc96f35fe9cb036728a1e527fcc4d808be392e81a034abb054be49",
-      "bytes": 1534415
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaoni.json",
-      "sha256": "dd9897755beea523b1fae30861c10a6def51488657bf4cfa7c6400b78f1a78cd",
-      "bytes": 53961
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaoni.m4a",
-      "sha256": "b265a4e8669780f9c4765620d5d053fbbfe61812503d64334ac74f120180f018",
-      "bytes": 1391730
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaoxiao.json",
-      "sha256": "9e4f541527d83e6b3277a3ed8c746523e020672dedb6436088d1a4147d7cd7c0",
-      "bytes": 53792
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaoxiao.m4a",
-      "sha256": "a159859d690c405ba11fcf38d4ec5ea7557b6e4aaaffa9af64ad1699ae11661e",
-      "bytes": 1345509
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaoyi.json",
-      "sha256": "9ef6dffd2a21f8b1b35e0385b66b03f25658e98f405dacf1573f70ad8ccf6fb4",
-      "bytes": 53726
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zf_xiaoyi.m4a",
-      "sha256": "797fe00b1676dc8d66e3eb1b264fbc3f6520924db9fa02773ac0a2b7f83a2e67",
-      "bytes": 1314498
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunjian.json",
-      "sha256": "2f16e2cd13b069a0a8ed425f92eccc221f5d73ee4994d2b6f1ae162a459c5b15",
-      "bytes": 53710
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunjian.m4a",
-      "sha256": "7fb4ed5c9bb790e3b7806765c24be156b8e993ef0ce4aa1a4d68945a6db5a513",
-      "bytes": 1311821
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunxi.json",
-      "sha256": "48986f7d3798d06016f39ea110ca1aa46ad81da95ecec7d36c8577f41fc84453",
-      "bytes": 54068
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunxi.m4a",
-      "sha256": "07f961b3ba41a71d9d6ee704f19ad8b2e6b3922114e1dfeb88ee63c7e5ff045d",
-      "bytes": 1239511
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunxia.json",
-      "sha256": "ed7f34c01d0b8282c031982cdf20d1053772e8d241ee514c7e2ac08c2203bb77",
-      "bytes": 53929
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunxia.m4a",
-      "sha256": "542c0c2fed4681c4ad46b8989f50ad4dbb97b95a78da79b2b982d6dcb4b3de91",
-      "bytes": 1393415
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunyang.json",
-      "sha256": "92a1e45e48dda5b3dfcf1bdf152b69cbba13640a01f10eb900c3c3756fcbe02d",
-      "bytes": 53820
-    },
-    {
-      "path": "media_host/26_invasion/audio/zh-CN/zm_yunyang.m4a",
-      "sha256": "d717b726375a1369d9ce01c39e85003b433e4e264596666f6101ef3862089686",
-      "bytes": 1230295
+      "sha256": "b7b1185340242d45cf4049a95a00453d8885757f9ec70c119d9910ef3fff34b2",
+      "bytes": 1403577
     },
     {
       "path": "media_host/26_invasion/video/26_invasion_silent.mp4",
-      "sha256": "603e3a4a5acb63e02866556c265e150a70af73c8d08adc6887de85abbbff8f02",
-      "bytes": 11580931
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_aoede.json",
-      "sha256": "d245ebe5c9aaa6c8be1f7dea7fbed6a36d5f7f7687d03463a603f8760eeb14f3",
-      "bytes": 58033
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_aoede.m4a",
-      "sha256": "bf993bd829cec3f0680636767f8b368abac19f5a82da938865f841b23cda0866",
-      "bytes": 1409630
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_bella.json",
-      "sha256": "ec2ce32b5c0dd9e97cc2858b1ac2ffd2692d41923b1d2136b4af5664fdc9c302",
-      "bytes": 58237
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_bella.m4a",
-      "sha256": "b048c1fc684f994e94f3b9876958b7317cd647801f3987c7c11cf918e37ae0d3",
-      "bytes": 1478987
+      "sha256": "b48f9bfc225951940bc3bfcc95ae7d9b3567ab1cb2ea82cf617f2d44b3c59a1d",
+      "bytes": 9233317
     },
     {
       "path": "media_host/27_replication/audio/en/af_heart.json",
-      "sha256": "6e67eed19f9bf25e2ff422d32ccc60bc27321ab10b42b8d306767556cb0f2d68",
-      "bytes": 58116
+      "sha256": "529df1f843d59c57ba0ea1ed0efb8876b799571a44c15ca3f7555c1e0e244ada",
+      "bytes": 50406
     },
     {
       "path": "media_host/27_replication/audio/en/af_heart.m4a",
-      "sha256": "ac6454cf7c8aafa28bb5bcdde20d642f167f4f7308a468d4d3cd04233b02d976",
-      "bytes": 1450538
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_jessica.json",
-      "sha256": "3907c5c6b2b5c9520c84b75249b5efb00e768aef3f0c4c1f3499bb3ec36d35f5",
-      "bytes": 58319
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_jessica.m4a",
-      "sha256": "59b16484854383bb6553f7279c97f743914960deb60e33d05df7aebebfe91925",
-      "bytes": 1392505
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_river.json",
-      "sha256": "503f69c4b7b2a48064a2e4a584a389bde90296f36d59b3708bc252bc2ffd2a0e",
-      "bytes": 58354
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_river.m4a",
-      "sha256": "132ed7b4d4f2adc7294c62ed76a19d977c70234b70a91eba49b5656951ef1b82",
-      "bytes": 1395842
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_sarah.json",
-      "sha256": "af2e912e6fdeb2268cab1de76951057a88ac1aaf0f550088c8ef0a43149824f4",
-      "bytes": 58239
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_sarah.m4a",
-      "sha256": "701a71cd22a231aaf9c874ee63b8bbd0d4678b3e500528f813dcd487fc8dd770",
-      "bytes": 1464586
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_sky.json",
-      "sha256": "46f00c81c75efc7809a51e199d1c549c2ec7150c3013f3d733de1f7d8e0d9c06",
-      "bytes": 58433
-    },
-    {
-      "path": "media_host/27_replication/audio/en/af_sky.m4a",
-      "sha256": "a51f5f7758125cb979b05c11cdb9d3885f94551c0853f9f006b03edf57687179",
-      "bytes": 1437693
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_adam.json",
-      "sha256": "a3d5f2b3b57fcb752d38b325bf24262f5eeae456dc6dd9e8c4fced6dbf2d226b",
-      "bytes": 57976
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_adam.m4a",
-      "sha256": "b7883e10dc0f25f5e38004189184db63ab659dceb400e71e9bcc36cb933c4746",
-      "bytes": 1439470
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_echo.json",
-      "sha256": "ad32acd99ac04728734d7c241555744d78fb644c4505b92e0c7a477276e0aa89",
-      "bytes": 58447
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_echo.m4a",
-      "sha256": "64e182b87958147e6f8f825fd8a7991555c3c5f0fc554ba648a53074d953beb9",
-      "bytes": 1481026
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_eric.json",
-      "sha256": "bc7ed0ef51980b1fdaf119441a4bba5b4e4d143a6ec24f7ff41d20e041c83c83",
-      "bytes": 57945
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_eric.m4a",
-      "sha256": "017452c82eb82dcc9e0fa72322757ae22b8a28cff59d321e597c54b0a6ee55b9",
-      "bytes": 1354220
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_fenrir.json",
-      "sha256": "07fa03e70f4949815104f6bc78d956bb2e330889e11a867ba13b98bab42b053d",
-      "bytes": 58366
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_fenrir.m4a",
-      "sha256": "f82976c872eb46631afb3aa6f289dd891c82c2b2577158b097a520cd12528a6a",
-      "bytes": 1456970
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_liam.json",
-      "sha256": "ef386357294f29d97c0e1d83c08591651469f54f1df8b3012251bd02d0839c63",
-      "bytes": 58061
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_liam.m4a",
-      "sha256": "06b466645939c60e74ab6f5825d728e07e80d6793b8cf7c6ce613dfdf2e7ffd1",
-      "bytes": 1444959
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_michael.json",
-      "sha256": "91cd3bc35407b3f22e9d1c87e24a61326c421a941364d3ccec4150e65eb4abcf",
-      "bytes": 58361
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_michael.m4a",
-      "sha256": "6a334b9794b363a9193d4b8b1bff2c5a39b4812023a1805d257110c88d10a4e8",
-      "bytes": 1544145
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_onyx.json",
-      "sha256": "9106e903c172eef4bf37443b774120793f83be634c28267ae0d2f7dd7f79db67",
-      "bytes": 58374
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_onyx.m4a",
-      "sha256": "e6b2952d20d750f0f1cbb5dacd402742100ad05575c35d0058c362c48d5cef7e",
-      "bytes": 1489963
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_puck.json",
-      "sha256": "cdeb562278c20ecdddfacf18834bac76628331ec8624eb464ad0781d02d881ab",
-      "bytes": 58283
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_puck.m4a",
-      "sha256": "a265c36e8c569f2b5aafb2cd4ea71029ddaf1fb579961e8f2927291bf56c7701",
-      "bytes": 1467077
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_santa.json",
-      "sha256": "d8c3c45d1c77b09e6bc743200baa7d9d8d6285c2879d1733e490dad6514a14b2",
-      "bytes": 58308
-    },
-    {
-      "path": "media_host/27_replication/audio/en/am_santa.m4a",
-      "sha256": "db7697964c173b595f1ffb48335e3bfebd0689b5293f3f6df7be2bbe3569bca7",
-      "bytes": 1561899
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_alice.json",
-      "sha256": "6872742604571ee1d382edad7fa7d7505722a500a98feed477cef012442335ea",
-      "bytes": 58328
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_alice.m4a",
-      "sha256": "83bad0ab7ec07022b87698fc08ff6941cf6266dbbf4e19748cdcc4b51c343336",
-      "bytes": 1467783
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_emma.json",
-      "sha256": "8abe2a2f1ee748508027078f8cd458c25a951c54f5574a6d407c23f2ff6b3a82",
-      "bytes": 58291
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_emma.m4a",
-      "sha256": "91e407951ea384321a674066b671a71423a72c87cdd5eeb14cdb2ee9e98f4e86",
-      "bytes": 1444980
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_isabella.json",
-      "sha256": "6eca738474660a2a61e2082efc1e2a282cba2851f5d382d8e2f8393978ccef0f",
-      "bytes": 58336
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_isabella.m4a",
-      "sha256": "bf7aa1236d544b98c00366892a30d2444ff78e938346a5680bab68f26291fb4d",
-      "bytes": 1465044
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_lily.json",
-      "sha256": "8453d8734198b48a1d0baf2d0bde9c187c5e62231e031d661bad5b3db6e6461a",
-      "bytes": 58322
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bf_lily.m4a",
-      "sha256": "34cd55b96c9997a4161c0814c5ce7c74fe293138f759ad9f904efdf541b65e60",
-      "bytes": 1465583
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_daniel.json",
-      "sha256": "03fef5267ebe1c29b247ff202e6df8291bc5a4ec44852622b5a1a56212bfdebd",
-      "bytes": 58110
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_daniel.m4a",
-      "sha256": "b2bd21af01be16eff320ddcdc4a731af0774cb24fac3643c1a6c8e2e02423954",
-      "bytes": 1460089
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_fable.json",
-      "sha256": "3cb961547074eaf0065c772cfd6f010d92f1bdd3e6fae51e3c25740115449c07",
-      "bytes": 58412
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_fable.m4a",
-      "sha256": "65ff6b0346530a1ac4c53b8330260cfeec50dc79ccec48847b8ad4aeea2f28cd",
-      "bytes": 1524475
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_george.json",
-      "sha256": "a106a46b75da54f23a8a28404e55115dfe582ae14db7b0ebaac17742a7ac8b08",
-      "bytes": 58406
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_george.m4a",
-      "sha256": "965f766733f21d59d294871a1c21febaa3fc5207243a0304e89b71d8e2074dab",
-      "bytes": 1591973
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_lewis.json",
-      "sha256": "5e8ad3103eef5c71560918c8323d16d8369d2df6b48023ab4d46538ffd774ac5",
-      "bytes": 58376
-    },
-    {
-      "path": "media_host/27_replication/audio/en/bm_lewis.m4a",
-      "sha256": "f81ab11a72bc67760fe303c061a90f50e6891994e5068e0cd2d0e527716559b9",
-      "bytes": 1553370
-    },
-    {
-      "path": "media_host/27_replication/audio/es/ef_dora.json",
-      "sha256": "1707a2ac9e524e0a45aa3f12913777e54f0e66aa07713c6badbdad7e19e8d4be",
-      "bytes": 49981
-    },
-    {
-      "path": "media_host/27_replication/audio/es/ef_dora.m4a",
-      "sha256": "2f62fe606e97dc7ff01f4118a6ecf44384aaae854e8d9124818c535ca090f578",
-      "bytes": 1423643
-    },
-    {
-      "path": "media_host/27_replication/audio/es/em_alex.json",
-      "sha256": "b8028964154a18f679362e21ccde49d4a5dbb5555fecb208f30173d1c39684af",
-      "bytes": 50012
-    },
-    {
-      "path": "media_host/27_replication/audio/es/em_alex.m4a",
-      "sha256": "72212b669962bb178c2e8b5eeb33179d2a7f89f9d570db33264201319657effb",
-      "bytes": 1420299
-    },
-    {
-      "path": "media_host/27_replication/audio/es/em_santa.json",
-      "sha256": "6500a1181c34485edbae16b0bf8529438fb4bb01ff5691aed6505d18998f1ecd",
-      "bytes": 49920
-    },
-    {
-      "path": "media_host/27_replication/audio/es/em_santa.m4a",
-      "sha256": "6b44908411d03e4efd354707c825945fbb2973874beb69396559b8006a28a1ee",
-      "bytes": 1415138
-    },
-    {
-      "path": "media_host/27_replication/audio/fr/ff_siwis.json",
-      "sha256": "12335511393c7fc5b411f5c48ba2bd8e9a509f01c5b4bf7c521b4762777d3d10",
-      "bytes": 50930
-    },
-    {
-      "path": "media_host/27_replication/audio/fr/ff_siwis.m4a",
-      "sha256": "c4ac85247c7a14e387854279e5d38f41b721d65b9e18e700ab580daa4606277a",
-      "bytes": 1409729
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hf_alpha.json",
-      "sha256": "8cd7460ff5fb16e68830d46f17addecef6c305a617c41316871d42421452675a",
-      "bytes": 78178
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hf_alpha.m4a",
-      "sha256": "44b806d8928a92fc06ef20ee78c0de321d0e375a30b3ee57d43974fe37beac10",
-      "bytes": 1560567
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hf_beta.json",
-      "sha256": "273b3197a4a32fd6294d00d705b7da283d3c38aafcf1276e25a443d24e4bb7e6",
-      "bytes": 78295
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hf_beta.m4a",
-      "sha256": "f962055f99ec4ecf6cd460b72ccf8cb5237ba7d2a10bef740ef8c8ea0e4899c7",
-      "bytes": 1320818
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hm_omega.json",
-      "sha256": "6e5220850cd1783dbf96c905cac8c2a6a3ca243270afdbbca9e37d742a856b23",
-      "bytes": 78226
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hm_omega.m4a",
-      "sha256": "214268375e6e18e21124a2f2b4163ee41a73470fcd62461e9240876676550665",
-      "bytes": 1569770
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hm_psi.json",
-      "sha256": "503572cabc49e5d29f336c9eaec5fd6b351d1b5c25dd239609e79f9a72210d2b",
-      "bytes": 78502
-    },
-    {
-      "path": "media_host/27_replication/audio/hi/hm_psi.m4a",
-      "sha256": "9269c78567fa0cf4318efdf8bcc36a4562b4fb0bafeb30d68dde283ea97fec38",
-      "bytes": 1602298
-    },
-    {
-      "path": "media_host/27_replication/audio/it/if_sara.json",
-      "sha256": "9e7fa1377993e89b9c97fc15e55044f2bc0affabb8a222374b717ef6cc41c398",
-      "bytes": 49500
-    },
-    {
-      "path": "media_host/27_replication/audio/it/if_sara.m4a",
-      "sha256": "364e39debf3b692e31b2464a014d69decbc3df80e8f5ed8a07741a874365b785",
-      "bytes": 1377465
-    },
-    {
-      "path": "media_host/27_replication/audio/it/im_nicola.json",
-      "sha256": "ce79c078921a57dc2cab3fdb4e2b211a1e8a84a3426908338c58fc4663b00028",
-      "bytes": 49418
-    },
-    {
-      "path": "media_host/27_replication/audio/it/im_nicola.m4a",
-      "sha256": "237a81231ca4a4ad4a962f107091b127de6943ff3ed9181ce365b9bdd02b883b",
-      "bytes": 1564659
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_alpha.json",
-      "sha256": "94b0bd50f17c958dcda3625bc0ae31f7c276f6b3d303d96316a722876fe74586",
-      "bytes": 52864
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_alpha.m4a",
-      "sha256": "f00630a91707f4f1bd65a8855ba37e631f66074123713d68f784b1c6eac41d71",
-      "bytes": 1686009
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_gongitsune.json",
-      "sha256": "9cad2f45be953a327264fcd90b3fac3f6252da8375cd654f7527e19eb862704e",
-      "bytes": 52581
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_gongitsune.m4a",
-      "sha256": "673927b184f65b75ff0936e4b6c83e2fcfdd0f22e578acd774d8dfbf93beee9a",
-      "bytes": 2067317
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_nezumi.json",
-      "sha256": "546fa21b3258bb389b0d2df4b6b5afe4bdbe689d2fde0ca544f7f3ba4a499c09",
-      "bytes": 52621
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_nezumi.m4a",
-      "sha256": "2f5031bb88c3a4e5823b102e2811885d88969e21d6cb571d0d66abfbf6e9c96f",
-      "bytes": 2109411
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_tebukuro.json",
-      "sha256": "ba113f1e7568601b8a7e9993d973db72ae719c1a4a6bdfb26b28805716a3da4e",
-      "bytes": 52659
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jf_tebukuro.m4a",
-      "sha256": "cacf1414f7d9433e71bc57e9f1b00397ee83e0e9522e2e347fc230615b23acc7",
-      "bytes": 2064512
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jm_kumo.json",
-      "sha256": "e4db1ac73b906300f48f410cbbe43f6cb61d9ad96eac0aafb3aaa9277e048dd3",
-      "bytes": 52754
-    },
-    {
-      "path": "media_host/27_replication/audio/ja/jm_kumo.m4a",
-      "sha256": "f067beb715f1f4e9be98870e1d44927f20ba09f93ccb7d90ff98ca2316b542ca",
-      "bytes": 1775704
-    },
-    {
-      "path": "media_host/27_replication/audio/pt-BR/pf_dora.json",
-      "sha256": "ce146513b4b00088f4fc71890eea23f8da94bc91fe0f817d444182fc6f5d8d46",
-      "bytes": 51190
-    },
-    {
-      "path": "media_host/27_replication/audio/pt-BR/pf_dora.m4a",
-      "sha256": "939a4b9e8de6eaf222d7fd585111ee70b6222658c6a992eadc5ce5c0ca32afce",
-      "bytes": 1369587
-    },
-    {
-      "path": "media_host/27_replication/audio/pt-BR/pm_alex.json",
-      "sha256": "9f78a23fc04c6abcec4b5edc44b85af237b1529b1e9a54d5b8cb85a50a1d0dc2",
-      "bytes": 51252
-    },
-    {
-      "path": "media_host/27_replication/audio/pt-BR/pm_alex.m4a",
-      "sha256": "a1b5bbf385476614aeff16a66b3f6b66eec48c1a84551f8eca2f0112bf757f4c",
-      "bytes": 1367616
-    },
-    {
-      "path": "media_host/27_replication/audio/pt-BR/pm_santa.json",
-      "sha256": "4a3e7a7623de014e63256f9e82e909250bdf3369b1a650e2fcf8f175ed14ba02",
-      "bytes": 51300
-    },
-    {
-      "path": "media_host/27_replication/audio/pt-BR/pm_santa.m4a",
-      "sha256": "d304b8489e17e3b3f2dd01302c0d3803342b61af70af669895e910dfb8659608",
-      "bytes": 1372148
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaobei.json",
-      "sha256": "bc9af2d98b1f8a35307a55f505c816dba3f8a1140284e2b83124c06023f37b78",
-      "bytes": 49851
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaobei.m4a",
-      "sha256": "0642783a1e8540e8492740ae58f9f4d1767ee1407de6fcb047253eb002a2d7cc",
-      "bytes": 1394916
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaoni.json",
-      "sha256": "bd776d3f2d7a2ba8aae27826acf5cc5d19e85ac664f89d84b8a616f5b7f03112",
-      "bytes": 49512
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaoni.m4a",
-      "sha256": "4ec83cf4fe4916a325682476cdc79b603435b09ff1f83460f0eb3ea417600c13",
-      "bytes": 1227589
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaoxiao.json",
-      "sha256": "36ba530a073a653b8fdf1a330993eb175484a76a0f0c0518dba4363c875dfb12",
-      "bytes": 49583
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaoxiao.m4a",
-      "sha256": "5ce965b6b2ab8b5be2203b366a928e99b67eb08071152969cb2b84180b0883b8",
-      "bytes": 1214854
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaoyi.json",
-      "sha256": "18b770082c2ee1fe3ecb829b0d5bea936f9bc11ac5e5985e40c531fe327ab01f",
-      "bytes": 49591
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zf_xiaoyi.m4a",
-      "sha256": "e02486dc957f805878125d75431d819861ed37f983134366b2c33d7bc1770691",
-      "bytes": 1181487
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunjian.json",
-      "sha256": "65661acc60814c95787671125171b095f6ceabbea51381729473006e77aa8ac2",
-      "bytes": 49568
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunjian.m4a",
-      "sha256": "88d41e4e4a18760e3bf4adc4a8d3334c3accb68438bb5299d3cd352fb3dddab2",
-      "bytes": 1197424
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunxi.json",
-      "sha256": "79d973338965e58957acddb39fd78053e525378b2d7ebbfdaf34b620ddc45440",
-      "bytes": 49534
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunxi.m4a",
-      "sha256": "bc1e81707034640e3bb4e53352fe0f83452c80bb1c6fa0f5df1254279b206d06",
-      "bytes": 1128955
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunxia.json",
-      "sha256": "d53193e58b15f5b5f4aac95902977598107bbe6268a76ec1d6926add73708d35",
-      "bytes": 49546
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunxia.m4a",
-      "sha256": "d2482c9f154dcdb91526ad5526d16e2bdbf7d8768359c67060793cda51ea96b3",
-      "bytes": 1267755
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunyang.json",
-      "sha256": "238e2436be93841061d7fe9185cade9e3b12045edaf4961645e56475168c80d2",
-      "bytes": 49629
-    },
-    {
-      "path": "media_host/27_replication/audio/zh-CN/zm_yunyang.m4a",
-      "sha256": "265b462a46531539ad8b76407a61a223fec04a04ad02b2c8f9d36bcb16d066a7",
-      "bytes": 1130634
+      "sha256": "16aca47eff368343b36bdbce44093993bad89781fcf7922f1bd1c238c01cc417",
+      "bytes": 1144521
     },
     {
       "path": "media_host/27_replication/video/27_replication_silent.mp4",
-      "sha256": "fb2073f9350c9159f56ad4843c5fd786c0e2091991e0b4dc97f92be69fe2320e",
-      "bytes": 9742263
+      "sha256": "438c6d9e3a6137a2630087e36b9a104350767ed6c12509fc5edd43cb70f53f48",
+      "bytes": 7501380
     },
     {
       "path": "media_host/28_training_runs/audio/en/af_heart.json",
@@ -30623,73 +29153,78 @@
     },
     {
       "path": "web/catalog/captions_da.json",
-      "sha256": "bd0649eb34c4817c6147fa6932234b641dbba63d98e347959525cb9e6f32637f",
-      "bytes": 666617
+      "sha256": "941413218d8d385a75eed5d8df67c96f2a26de5db1ad7d77eb24203655fdc72d",
+      "bytes": 663211
     },
     {
       "path": "web/catalog/captions_de.json",
-      "sha256": "5265cea3d019750061fd83f41fa86cc4feccfd960e6e46d0b7a866619f4d7248",
-      "bytes": 709628
+      "sha256": "30b9373427026931c8f18958c931e64049d189c7dc98ecd1bac740c49c86ba92",
+      "bytes": 704707
     },
     {
       "path": "web/catalog/captions_is.json",
-      "sha256": "629deabeab6240576858f42fd0d2d9d0a29e0a4699f3034c403654b3b6e02cdd",
-      "bytes": 676621
+      "sha256": "8e61dea07a2ed034481d66d9b1779cab5a718b2bb0480f6d80e38b8ba97bae13",
+      "bytes": 672517
     },
     {
       "path": "web/catalog/captions_ko.json",
-      "sha256": "3d8293bfae49842bb0460583d349d55f3f0d81a01936526957431943486b7345",
-      "bytes": 709326
+      "sha256": "693f2fd07c97352d01b7a78db398aed304e7af0ab758dad4cf1054f972c7f77e",
+      "bytes": 703677
     },
     {
       "path": "web/catalog/captions_nb.json",
-      "sha256": "c5d85ea714587e3834d7269ab17096408424071503085af5df30053ca64e7b74",
-      "bytes": 662400
+      "sha256": "cf2a6ab5bc364a2a5dc21bbfa1b9cb201d0d992e2437499a5e327c2e8a5b3539",
+      "bytes": 659212
     },
     {
       "path": "web/catalog/captions_sv.json",
-      "sha256": "8518af71772d3576ebef1cfeefd2f89ad6b56adb4dda16f3c5547358fecc8e71",
-      "bytes": 672046
+      "sha256": "48db07a8e88a8ab2ceb61f38a0b798b7309b9235375684a74a38c60c1b2c8ac8",
+      "bytes": 668375
     },
     {
       "path": "web/catalog/lessons_en.json",
-      "sha256": "d52ddfc77b242992eb83eedd6551f2f93e08c174834fcb1c9ac214d868de2d47",
-      "bytes": 676503
+      "sha256": "fd578de5fe04d2dc6e80bc1077f2c661dbb21d2a5866d0f590025a16a228912e",
+      "bytes": 672477
     },
     {
       "path": "web/catalog/lessons_es.json",
-      "sha256": "fc522a7404f58f46d8f336b7177ff5109a649aa6526822e98e9e3267dc342db7",
-      "bytes": 1049160
+      "sha256": "18d260fa6df9970dcd7ce0a52ffc430f490e4ca9282bbb5d7a699d17f65fb86c",
+      "bytes": 1032342
     },
     {
       "path": "web/catalog/lessons_fr.json",
-      "sha256": "7544289651e752a3fbf018129dfc9da87ad2c17a2ad8a6a5f7ef4a58d70c90b8",
-      "bytes": 1092161
+      "sha256": "d77b51ff7a57331fdf3042b8c70057d4aa971bd3e0265eb089b3e808461fa04e",
+      "bytes": 1073316
     },
     {
       "path": "web/catalog/lessons_hi.json",
-      "sha256": "2310004e4e15ecdf81b1db9528156e64975a74224073153e5e3c295ce8123157",
-      "bytes": 1775350
+      "sha256": "825751172263bf639d1e175a2bac95c9eed6cd4e16ead0ca15cf1bca6ef9fb3c",
+      "bytes": 1729379
     },
     {
       "path": "web/catalog/lessons_it.json",
-      "sha256": "c4da2ceb1c233e13e1009246e368cbf57312cd9a1778f761007e22fd1b3c0029",
-      "bytes": 1038949
+      "sha256": "63009ddcacc9d0476a7d9b6835dec01666f9b29267cdacaf06f65dd9132d1d06",
+      "bytes": 1021802
     },
     {
       "path": "web/catalog/lessons_ja.json",
-      "sha256": "0c7ea59dccae989e1c333b6516d8c51005d3fe671961ee141ec72be54c0a8422",
-      "bytes": 1151913
+      "sha256": "b021948c5c78fb074bd69084df9f7412a3e72dd85a53114f8491599e46f880b0",
+      "bytes": 1131748
     },
     {
       "path": "web/catalog/lessons_pt-BR.json",
-      "sha256": "9bef141eae7b41fbf860e7991901ecdc71ee1d3404ad2c876a8e499a7eac92c4",
-      "bytes": 1033822
+      "sha256": "999fadf859e5109b56c8fe2ac8653446b7a4e0ded10090c05b205a6a11b683e7",
+      "bytes": 1017014
     },
     {
       "path": "web/catalog/lessons_zh-CN.json",
-      "sha256": "39ba1a54f32b426dee461614e172271356885d4a59aa217e8ffb167e9972430e",
-      "bytes": 907506
+      "sha256": "c19793d4b671dc7d7c3404176a22ef43ef723c8260eb9913028028364f52a006",
+      "bytes": 895529
+    },
+    {
+      "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
+      "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+      "bytes": 2143021
     },
     {
       "path": "web/examples/AnnData_API_workaround.zip",
@@ -30777,6 +29312,11 @@
       "bytes": 4730
     },
     {
+      "path": "web/examples/SYNTHETIC_invasion_example.zip",
+      "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014",
+      "bytes": 60593
+    },
+    {
       "path": "web/examples/SYNTHETIC_motility_tracks.zip",
       "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7",
       "bytes": 2345013
@@ -30795,6 +29335,11 @@
       "path": "web/examples/SYNTHETIC_profiler_example.zip",
       "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83",
       "bytes": 6231
+    },
+    {
+      "path": "web/examples/SYNTHETIC_replication_example.zip",
+      "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7",
+      "bytes": 35013
     },
     {
       "path": "web/examples/SYNTHETIC_timelapse_preview.zip",
@@ -30833,13 +29378,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "2954f0ceda5069e3252b181284111fba1a3027b26bd7d74921bf506aeed69f38",
-      "bytes": 15589
+      "sha256": "4e6a79e96970505d89f1559b76ac5ee2b9ba22d152aed352cf505cd869e113eb",
+      "bytes": 15593
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "9889255dd4c5d51dc8ba755175e67b96d07afb5bf76f3200ea5109ed0f270d19",
-      "bytes": 570315
+      "sha256": "9c1dd0e92af93f81ccbc6a5d5681eefc177a6ee54652410b5276119773ca4a71",
+      "bytes": 566097
     },
     {
       "path": "web/logo_spacr.png",
@@ -30848,7 +29393,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "b4b98e1ef04fa919d0caee18827658ea3404f55b3af3ca5f94131f4c1ddac5c7",
+      "sha256": "b890458da913e8ebcabeccd1683e2d8f80af109d156f5d6bcccb888ca88f607d",
       "bytes": 16259
     },
     {
@@ -31073,13 +29618,13 @@
     },
     {
       "path": "web/production/23_agreement/poster.jpg",
-      "sha256": "9a9dc848cd2cd6fa91d6396ec65adcf262fa61841ceb404ba5f1e5ea1c3f6f34",
-      "bytes": 24468
+      "sha256": "86ae7ea4b494324a1de79a74d5f384840b242bee86c2e0730907f0aef0f8f121",
+      "bytes": 116747
     },
     {
       "path": "web/production/23_agreement/video/23_agreement_silent.mp4",
-      "sha256": "304497247be5855719990ee1f34596b0b7f2a78044e4099f01235cd9068fb303",
-      "bytes": 2408825
+      "sha256": "12ce8283f84ef104c58e9b7016a6b45d97f65ea2498fe96b7fae72371db0c474",
+      "bytes": 1906751
     },
     {
       "path": "web/production/24_plaque/poster.jpg",
@@ -31103,23 +29648,23 @@
     },
     {
       "path": "web/production/26_invasion/poster.jpg",
-      "sha256": "a71665df6c473d61beaa0987f015c382c0bafb10e155d598e0e2a90811cc697d",
-      "bytes": 32169
+      "sha256": "b2a1cb0c205376f2da087b716bb02347a98e16946c94e991013b2c08596bd29b",
+      "bytes": 128902
     },
     {
       "path": "web/production/26_invasion/video/26_invasion_silent.mp4",
-      "sha256": "e8b42084f804301c37953df82d9e148abfd77a342b14be69e561bce226f7020d",
-      "bytes": 3420198
+      "sha256": "d22ca6090e5c95152a594b2e07b21f2bb62c2ee989c5a0e8b95df605e06c81b4",
+      "bytes": 2809035
     },
     {
       "path": "web/production/27_replication/poster.jpg",
-      "sha256": "8d5844cdcecba4c9b40a443ca5950aaa10c3ac5a11ae97778b5c576c82b133e8",
-      "bytes": 34266
+      "sha256": "a2a1abec304d5987ef1a2dffb8127bdc2ded5449b181ab6dffd86c1964746144",
+      "bytes": 136558
     },
     {
       "path": "web/production/27_replication/video/27_replication_silent.mp4",
-      "sha256": "f70f52934a255938f53a06677ade66ee50d88a4715eb1d07777fec5a1a5180b5",
-      "bytes": 2832283
+      "sha256": "d8f160416fc369eefb0054dc18b0622b8a40649b181ca1113efe254efe213f18",
+      "bytes": 5961793
     },
     {
       "path": "web/production/28_training_runs/poster.jpg",
@@ -31658,8 +30203,8 @@
     },
     {
       "path": "web/translation-compatibility.json",
-      "sha256": "e375bb8e1e765c350faabc59a3a50f223cff5fe8859ba5c97c8652b93974e2ab",
-      "bytes": 13324
+      "sha256": "d5d9071e5c6b2a9e3d5c85fb774cb74f57dbc3c4986d258d6dc245e84dfe65d9",
+      "bytes": 52779
     },
     {
       "path": "web/voice_catalog.js",
@@ -31669,46 +30214,28 @@
   ],
   "web_checks": [
     {
-      "lesson": "06_api",
-      "rendition_sha256": "d633e3c4a9d69ea0e5af7a44ee7ee06c5446250925e9fbe08d661f5bf9b10d7b",
-      "browser_report_sha256": "dced04d8615313945f7477b0e396a36f9d0eb05b0ec283fdfc4707ed6370bf7d"
+      "lesson": "23_agreement",
+      "rendition_sha256": "12ce8283f84ef104c58e9b7016a6b45d97f65ea2498fe96b7fae72371db0c474",
+      "browser_report_sha256": "093aad3971beeba61e9ac91330a19dd3cbba0ba8f910c9d4c66e81073dbcc7ba"
     },
     {
-      "lesson": "14_make_masks",
-      "rendition_sha256": "02c5a8d766ec20b25707e41d342d8d7ba8897c15e378499f32ae37376283f20b",
-      "browser_report_sha256": "0505d35241dfc8b52fc331c82143b209786da7e606e6eae3a914f4b1f855a87d"
+      "lesson": "26_invasion",
+      "rendition_sha256": "d22ca6090e5c95152a594b2e07b21f2bb62c2ee989c5a0e8b95df605e06c81b4",
+      "browser_report_sha256": "aaac30cd892b11fb1632116a4d09b11bd9ee8d30fe511f9cda7ab6f41a976b74"
     },
     {
-      "lesson": "16_activation",
-      "rendition_sha256": "1110155a5b8c596d0bb10c1f2d6e05d2addea1546f5b1b4401badfb4f8b1fd97",
-      "browser_report_sha256": "6c65e116f3553d0584098fca9ad7dfd62f2a273d3f5207617b0269c84e4b7b91"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "rendition_sha256": "31b694f1e02d165f42366e7383ae3ca759a974785d5ba63ff92ab70e88ab176f",
-      "browser_report_sha256": "fdef1ff0b7c483a15ff93b949ccfb6e8c4f5d242f44deff3f242f9d6ee64e7e2"
-    },
-    {
-      "lesson": "21_model_compare",
-      "rendition_sha256": "654b660d5054702384e6e12e0445e4054d96e107799489f89505f54be15f03d3",
-      "browser_report_sha256": "f63f59dbb404452035ee518efee0df8261508c47c27b0e95cb31e75644773621"
-    },
-    {
-      "lesson": "28_training_runs",
-      "rendition_sha256": "30da9ec3cb50017a8044900675b8aa327878b81dd553547a6fd8018869bd884e",
-      "browser_report_sha256": "f5a010e9a82aa8cfa43f3cf3e44b8b5b8915287439d3996891776dd8796b5f9f"
+      "lesson": "27_replication",
+      "rendition_sha256": "d8f160416fc369eefb0054dc18b0622b8a40649b181ca1113efe254efe213f18",
+      "browser_report_sha256": "f1489c43929ab253ab94ca3640b369ef358462c5df90eee369f39bdc012af7c1"
     }
   ],
-  "baseline_manifest_sha256": "2a87dbe4a600ba45b972013b01de11c383f3f50f2b3b79a11064eb9253c1ed6e",
-  "preserved_lessons": 75,
+  "baseline_manifest_sha256": "680a242e7d74dbfb49893ea919fea94f3cc256bb6e385a6d4ecec84730f59806",
+  "preserved_lessons": 78,
   "appended_lessons": [],
   "refreshed_lessons": [
-    "06_api",
-    "14_make_masks",
-    "16_activation",
-    "20_cellpose_masks",
-    "21_model_compare",
-    "28_training_runs"
+    "23_agreement",
+    "26_invasion",
+    "27_replication"
   ],
   "outstanding_module_tutorials": [
     {
@@ -31737,340 +30264,190 @@
     }
   ],
   "new_lesson_tracks": {
-    "06_api": [
+    "23_agreement": [
       {
         "language": "en",
         "voice": "af_heart",
-        "audio_sha256": "8b0f2c263ca48c0cb2b4a24d6d29ec44dfe291df85d123cf0a418061ed48f339",
-        "timing_sha256": "f73e32b649bc474fae3c0b74dcc6be5a99711cb7d855bbb739f27c0540a18977"
+        "audio_sha256": "9823c77567ddb8e42f400e5946d3472bcdc4332fc84552e27f9b37f003cc4e10",
+        "timing_sha256": "0575fc2d0c14caaaa31730398a3232fc35729f30f0d4becc059195d9c08c1405"
       }
     ],
-    "14_make_masks": [
+    "26_invasion": [
       {
         "language": "en",
         "voice": "af_heart",
-        "audio_sha256": "686e08fb4b32692583b3a1df5f0ee5195d5fb6492c681612c2bf57a94e239f27",
-        "timing_sha256": "c0db41f7c3ff8834d259741b188911503b53cff94e7e01cfa3930005524b14e2"
+        "audio_sha256": "b7b1185340242d45cf4049a95a00453d8885757f9ec70c119d9910ef3fff34b2",
+        "timing_sha256": "dccd2c55b9dc5b3a99dd026376de4440de7eab11a12a75d3421a23106513ec95"
       }
     ],
-    "16_activation": [
+    "27_replication": [
       {
         "language": "en",
         "voice": "af_heart",
-        "audio_sha256": "8689be1521d2f36867690d703d56e818f14930a67d2de20609ed2fd158523ce8",
-        "timing_sha256": "067c25d88654b5442eaa78b5e97c2da915068d8b08951dcafc39014399ca0f78"
-      }
-    ],
-    "20_cellpose_masks": [
-      {
-        "language": "en",
-        "voice": "af_heart",
-        "audio_sha256": "efb383f6e32fce2312fb9c7c9592b43b981c3d61e7150293992ae4bb6ee9bdde",
-        "timing_sha256": "48387e51d82ae7e36d8330f00edd767bbd1dd8493cfe1b200437e5587fa353cf"
-      }
-    ],
-    "21_model_compare": [
-      {
-        "language": "en",
-        "voice": "af_heart",
-        "audio_sha256": "98b3505d4d968aefda9436c2683d12c640537da84f989757e40b98d60006736e",
-        "timing_sha256": "ffc72ddf8569c53c8611c802c3c04a7e8f2e25468ce8d04cf0dc125e70d4e79c"
-      }
-    ],
-    "28_training_runs": [
-      {
-        "language": "en",
-        "voice": "af_heart",
-        "audio_sha256": "4db4467d9b639614c961213888c330c02dd34f70a03bbbe6280afefa1e28a71c",
-        "timing_sha256": "f918b3077b57ed6d9bc5d853a676020327a2fc8374e52de273b76c54cf2cad9c"
+        "audio_sha256": "16aca47eff368343b36bdbce44093993bad89781fcf7922f1bd1c238c01cc417",
+        "timing_sha256": "529df1f843d59c57ba0ea1ed0efb8876b799571a44c15ca3f7555c1e0e244ada"
       }
     ]
   },
   "translation_incompatibilities": [
     {
-      "lesson": "06_api",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
+      "lesson": "01_pypi_github",
       "language": "da",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "14_make_masks",
+      "lesson": "01_pypi_github",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
       "language": "da",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "16_activation",
-      "language": "da",
+      "lesson": "05_home",
+      "language": "de",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "20_cellpose_masks",
-      "language": "da",
+      "lesson": "05_home",
+      "language": "es",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "21_model_compare",
-      "language": "da",
+      "lesson": "05_home",
+      "language": "fr",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "28_training_runs",
+      "lesson": "05_home",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "06_api",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
@@ -32082,32 +30459,20 @@
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "de",
+      "lesson": "06_api",
+      "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "16_activation",
-      "language": "de",
+      "lesson": "06_api",
+      "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "20_cellpose_masks",
-      "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "de",
+      "lesson": "06_api",
+      "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -32118,67 +30483,19 @@
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "is",
+      "lesson": "06_api",
+      "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
       "lesson": "06_api",
-      "language": "ko",
+      "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
+      "lesson": "06_api",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
@@ -32190,32 +30507,8 @@
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "nb",
+      "lesson": "06_api",
+      "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -32226,8 +30519,776 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "06_api",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "14_make_masks",
       "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -32238,8 +31299,230 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "16_activation",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "20_cellpose_masks",
       "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -32250,10 +31533,424 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "21_model_compare",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "28_training_runs",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
     }
   ],
   "all_workflows_demonstrated": false,

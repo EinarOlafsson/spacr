@@ -2652,22 +2652,22 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "Annotator Agreement",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
       "section": "Results and quality control",
-      "description": "Open the nested agreement tool, compare explicitly artificial teaching labels on copies of real downloaded crops, and distinguish pairwise agreement from a multi-pass summary.",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Open Annotator Agreement from the Annotate module.",
-        "Compare labels, missing observations and confusion matrices without changing annotations.",
-        "Inspect disagreement crops and interpret two-pass versus three-pass summaries."
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "The sixteen crop images are unchanged copies from Annotate's downloadable example, but DEMO_A, DEMO_B and DEMO_C are deliberately artificial teaching labels added to a new private database. They are not biological classifications, human-reviewer scores or model predictions. Existing source labels and images remain unchanged; png_path is made relative only in the demonstration copy. Use real independent annotation passes for your own quality assessment. Current known model-output columns are excluded from the GUI's default discovery; model validation is a different question. Independent integer/fraction calculations verify every demonstrated pair, confusion matrix and aggregate. Three selected previews match their source crop pixels exactly. This small example is for learning the controls, not validating assay reliability. The existing video repeated an empty screen, and its old automatic prediction-discovery wording no longer matches the API, so this is not merely a moved lesson.",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Open Annotate, then its Annotator Agreement button. This is a nested tool, not another Home module. The comparison view reads annotation columns without editing them; return to Annotate when you actually want to change a label.",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -2675,54 +2675,62 @@
         },
         {
           "visual": "04_demo_database",
-          "narration": "Open the prepared demonstration database. Its sixteen images are real downloadable example crops, but the three DEMO columns are artificial teaching labels. They do not measure a person's skill or a biological phenotype. The original labels and images were preserved in a separate source copy.",
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
           "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "Check the selected columns explicitly rather than accepting the first defaults. A single column cannot measure agreement. The current discovery excludes known model-output columns by default; comparing a classifier with a person is model validation, not agreement between people.",
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
           "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "Select DEMO A and DEMO B, then press Compute agreement. There are twelve crops labelled by both passes, three labelled by only one, and one labelled by neither. Missing labels are not silently converted into disagreements.",
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
           "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "The two teaching passes agree on nine of twelve compared crops: seventy-five percent, with Cohen's kappa zero point five. Read the raw agreement, overlap and class balance together. The screen warns that twelve shared labels are too few for a stable reliability estimate; these invented labels are only a demonstration.",
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
           "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "Read rows as DEMO A and columns as DEMO B. Five crops have class one in both passes, and four have class two in both. The off-diagonal counts, one and two, identify three disagreements. A summary label such as moderate is a convention, not an acceptance threshold for your assay.",
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
           "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "Select a disagreement to inspect the corresponding crop and both labels. We checked all three previews against their original pixels. For a real study, review representative images and the class definitions before deciding how to adjudicate; this read-only screen does not make that decision for you.",
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "Add DEMO C and compute again. Changing a checkbox is not a new computation by itself. The table now compares three pairs, whose shared-label counts differ, while the overall Fleiss summary uses only the twelve crops labelled by every selected pass.",
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
           "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "The teaching example's Fleiss kappa is about zero point six six three, not the average of the three pairwise kappas. Overall raw agreement here counts unanimous complete rows. The fourth review row has a missing A label but disagreement between B and C, so it can appear for review without entering the complete-case summary.",
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
           "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "Selecting just A and B and computing again restores the original comparison. We verified that the database and crop files remain unchanged through all three computations. Use genuinely independent annotation passes for your own analysis, and return to the Annotate tutorial for collecting those labels.",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3155,21 +3163,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Configure the current two-colour assay, separate stain-baseline wells from experimental conditions, and inspect actual thresholds, distributions and output files. The worked database is explicitly synthetic.",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "Map the outside and total stains to their correct measurement columns.",
-        "Use the renamed stain-baseline control and inspect the threshold sensitivity.",
-        "Read real figures and per-well denominators without turning synthetic patterns into biological claims."
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "This lesson preserves the existing synthetic Invasion database and runs the current GUI on a new byte-identical copy. Its 1,800 invented parasite measurements comprise 360 stain-baseline objects and 1,440 assay objects across twelve artificial wells. It has no acquired two-colour images, and the general downloaded plate does not establish the required pre- and post-permeabilisation staining design. Vehicle and inhibitor are arbitrary teaching labels, not tested treatments. The example uses mean intensity because those are the available columns, not because mean is generally the best statistic for a surface stain. Independent arithmetic checks parasite calls, field thresholds, well counts, condition summaries and plotted geometry; no image validation, experimental efficacy or inferential-statistics approval is claimed. Original and private input databases remain unchanged. The current GUI uses stain_baseline_wells in place of the older control_wells name, and its six-decimal bimodality cutoff is recorded exactly.",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Invasion Assay in the Assays section of Home. This module scores already measured parasites; it does not segment the images here. Our worked database is explicitly synthetic. The figures demonstrate settings and arithmetic, not observed invasion or a treatment effect.",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3183,7 +3191,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Choose the experiment folder containing measurements slash measurements dot db. This new private copy has eighteen hundred invented parasite rows. Three hundred sixty are staining-baseline objects; fourteen hundred forty belong to assay wells. The ordinary downloaded plate is not a substitute for a validated two-colour staining experiment.",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
@@ -3194,7 +3202,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel is the stain applied before permeabilisation, here channel one. Total channel is the stain applied afterwards, here channel zero. An outside-positive parasite is called attached; a parasite at or below the outside threshold is called invaded. Weak outside staining can therefore create false invaded calls.",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
@@ -3205,7 +3213,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "We select mean intensity because this teaching database contains mean-intensity columns. That is not a general recommendation for a surface stain. For real data, inspect which boundary or percentile measurements are available and appropriate. A local background ring is also different from the outside-stain channel itself.",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
@@ -3216,7 +3224,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one. This replaces the older control wells name and identifies the artificial negative-stain baseline, not the vehicle condition. These objects establish the staining cutoff and are excluded from the assay result denominators. Vehicle and inhibitor remain in columns two and three.",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
@@ -3227,7 +3235,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile is zero point nine nine. The three hundred sixty baseline objects give a cutoff of about twenty-two point eight intensity units. We leave the fixed Outside threshold empty, so the baseline-derived cut is used. The automatic method is not the applied threshold in this run.",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
@@ -3238,7 +3246,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity is zero point two five, which brackets the cutoff twenty-five percent lower and higher. Raising the cutoff can label more parasites invaded. Inspect the resulting efficiency bracket and quality-control flags before interpreting a change; a successful run does not prove that the stain is reliable.",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
@@ -3249,7 +3257,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class decides how objects without a host link are handled. This example uses classify, leaving that decision to the stain, and every teaching row already has a host link. In real data, choose deliberately between attached, exclude and classify after checking the host segmentation.",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
@@ -3260,7 +3268,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run produces three actual figures. The threshold page shows one distribution per well, not one per parasite. Here the applied line comes from the baseline, and all twelve wells are visible. Inspect whether a cutoff falls between plausible populations; these invented distributions cannot replace reviewing representative stained images.",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
@@ -3271,7 +3279,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the canvas, open Figure settings and select best for Legend position in the axes tab. Confirm the dialog to keep the labels visible. This is a display adjustment only: we verified that it leaves plotted values and saved result tables unchanged.",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3285,7 +3293,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "The per-well bars show attached and invaded fractions, with one hundred twenty scored parasites above each bar. Baseline wells are absent. Keep the denominator beside the proportion: a large fraction based on very few objects is not equivalent to the same fraction from a well-sampled well.",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
@@ -3296,7 +3304,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "The two invented conditions contain seven hundred twenty scored parasites each. Their invaded fractions are approximately thirty-nine point seven and sixty-eight point nine percent. The summary also reports the mean across wells, which is not generally the same as pooling objects. Neither these labels nor any p-value establishes a biological effect here.",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
@@ -3307,7 +3315,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Review the console and the results folder for parasite calls, field thresholds, well efficiencies, condition summaries and comparison tables. Use independent experimental wells for inference, not individual parasites as interchangeable replicates. spaCR AI is optional and was not used for this local analysis. Validate the stain and images before drawing biological conclusions.",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3320,27 +3328,35 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Count parasites by explicit vacuole identity, inspect the resulting distributions, and adjust figure legends without changing the analysis. The complete worked example is synthetic and does not demonstrate a treatment effect.",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "Choose the vacuole, rather than the host cell, as the counting unit.",
-        "Keep non-power-of-two counts visible and inspect both well and condition summaries.",
-        "Use the actual figure controls and review export warnings without changing the underlying data."
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "This lesson uses a new copy of the preserved synthetic replication tutorial database, not acquired assay images or the core modules' downloadable plate. Its 1,992 invented parasite rows form 480 explicit vacuoles in 240 host-cell groups across twelve artificial wells. Vehicle and inhibitor are teaching names, not observed treatments; the six wells in each group deliberately repeat the same distribution. The module currently has no dedicated live-data download button. For biological work, supply genuinely measured parasites with validated vacuole relationships and independent experimental replicates. The original database remains unchanged. Independent counts verify 6,588 output CSV fields; actual plotted heights and stacked bases are checked separately. The example does not validate image segmentation, inferential p-values or efficacy. Its new explanation replaces the older script's unsupported implication that synthetic data include reviewable vacuole images.",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Replication Assay in the Assays section of Home. It counts measured parasites per vacuole; it does not segment images here. This worked example is explicitly synthetic, so its charts teach the controls and counting rules, not a biological treatment effect.",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3354,7 +3370,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Choose the prepared experiment folder containing measurements slash measurements dot db. Our new private copy contains one thousand nine hundred ninety-two invented parasite rows. We preserve the original database and start without old result files, so every output shown belongs to this run.",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
@@ -3365,7 +3381,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to the explicit vacuole ID column. The example contains four hundred eighty vacuoles but only two hundred forty host-cell groups: two vacuoles share each host. Counting by host cell would merge them and answer a different question. Validate this relationship in real images before analysing your own data.",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
@@ -3376,7 +3392,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell excludes objects without a valid host link. That prevents unassigned objects entering this readout, but it can also remove real parasites if the host segmentation failed. All teaching rows have valid links; this example does not validate your segmentation.",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
@@ -3387,7 +3403,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "The largest named power-of-two bucket is sixteen, not a limit that clips every larger count. Larger powers have an overflow bucket, and off-ladder counts remain separate. Each artificial well includes two three-parasite vacuoles; do not round a count of three up to four.",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
@@ -3398,7 +3414,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Check the condition-to-well mapping. Here column one is called vehicle and column two inhibitor, with six artificial wells in each group. Those names are part of the invented teaching design. They are not evidence that a drug was applied, and a convincing-looking difference is not proof of efficacy.",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
@@ -3409,7 +3425,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Run only after checking the source, assignment key, filters and output settings. This is table analysis, not a new Cellpose segmentation or a GPU benchmark. The actual worker produces both the per-well and by-condition figures.",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
@@ -3420,7 +3436,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Read each stacked bar as the distribution of vacuole counts in one well. The vehicle example has two hundred twenty-eight parasites in forty vacuoles; the inhibitor example has one hundred four in forty. Both retain five percent off-ladder vacuoles. We checked the displayed bar heights against independent counts, not merely the saved filenames.",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
@@ -3431,7 +3447,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "If the legend is clipped, open Figure settings and the axes tab, then change Legend position. We choose an inside position through these real controls. This is a presentation change: all bar values and the output data files remain unchanged.",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3442,7 +3458,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "The condition view pools the example's vacuoles into two distributions. All six wells in each group repeat the same invented pattern. Do not cite the resulting significance tests as a treatment finding; real inference needs genuine replication and a defensible independent experimental unit.",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
@@ -3453,7 +3469,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read the console as well as the chart. This run warns that some selected colours have poor contrast on a light exported page. Check your exported figures and choose an accessible palette; a readable dark on-screen view does not automatically guarantee a readable saved figure.",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
@@ -3464,7 +3480,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "With Save enabled, results go under results slash analyze replication: vacuole counts, well distributions, condition summaries, statistical tables and figures. Keep the settings and source identifiers with them. For your own assay, review real images and biological controls before interpreting these summaries.",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3477,7 +3493,15 @@
             "34_database"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

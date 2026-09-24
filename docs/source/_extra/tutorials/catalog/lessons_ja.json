@@ -2715,87 +2715,85 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "アノテーター間の一致度",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "結果と品質管理",
-      "description": "Annotate 内のツールを開き、ダウンロードした実際の切り出し画像のコピーに付けた、教材用の人工ラベルを比較します。ペアごとの一致度と複数回のアノテーションの要約を区別します。",
+      "section": "Results and quality control",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Annotate から Annotator Agreement を開く。",
-        "アノテーションを変更せずに、ラベル、欠測、混同行列を比較する。",
-        "不一致の画像を確認し、2回と3回のアノテーションの要約を解釈する。"
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "16枚の画像は、Annotate のダウンロード可能なサンプルから内容を変えずにコピーしたものです。DEMO_A、DEMO_B、DEMO_C は新しい非公開データベースに追加した教材用の人工ラベルで、生物学的分類、人間の評価者の成績、モデル予測ではありません。元のラベルと画像は変更せず、png_path を相対パスにするのはデモ用コピーだけです。ご自身の評価には、実際に独立して行ったアノテーションを使ってください。既知のモデル出力列は標準の列検出から除外されます。独立した整数・分数計算で全ペア、混同行列、集計値を検証し、3枚のプレビューの画素が元画像と一致することを確認しています。小さな教材例であり、実験の信頼性を実証するものではありません。従来の動画は空の画面を繰り返し、予測列の自動検出の説明も現在の API と異なるため、単なる移動ではなく内容の更新が必要です。",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Annotate を開き、その中の Annotator Agreement ボタンを選びます。これは内蔵ツールで、Home の別モジュールではありません。比較画面はアノテーション列を読み取るだけで変更しません。ラベルを変える場合は Annotate に戻ります。",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Annotate を開き、その中の Annotator Agreement ボタンを選びます。これは内蔵ツールで、ホーム の別モジュールではありません。比較画面はアノテーション列を読み取るだけで変更しません。ラベルを変える場合は Annotate に戻ります。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_demo_database",
-          "narration": "用意したデモ用データベースを開きます。16枚の画像はダウンロード可能なサンプルの実際の切り出し画像ですが、3つの DEMO 列は教材用の人工ラベルです。人の技能や生物学的な表現型を測定するものではありません。元のラベルと画像は別のソースコピーに保存しています。",
-          "hold_after": 0.7,
-          "speech_text": "用意したデモ用データベースを開きます。16枚の画像はダウンロード可能なサンプルの実際の切り出し画像ですが、3つの DEMO 列は教材用の人工ラベルです。人の技能や生物学的な表現型を測定するものではありません。元のラベルと画像は別のソースコピーに保存しています。"
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "最初の既定の選択をそのまま使わず、選択された列を明示的に確認します。1列だけでは一致度を測れません。現在の列検出では、既知のモデル出力列は標準で除外されます。分類器と人の比較はモデルの検証であり、人同士の一致度ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "最初の既定の選択をそのまま使わず、選択された列を明示的に確認します。1列だけでは一致度を測れません。現在の列検出では、既知のモデル出力列は標準で除外されます。分類器と人の比較はモデルの検証であり、人同士の一致度ではありません。"
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "DEMO A と DEMO B を選び、Compute agreement を押します。12枚には両方のアノテーションがあり、3枚には片方だけ、1枚にはどちらもありません。欠けたラベルが、知らないうちに不一致として数えられることはありません。",
-          "hold_after": 0.7,
-          "speech_text": "DEMO A と DEMO B を選び、Compute agreement を押します。12枚には両方のアノテーションがあり、3枚には片方だけ、1枚にはどちらもありません。欠けたラベルが、知らないうちに不一致として数えられることはありません。"
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "教材用の2回のアノテーションは、比較できる12枚中9枚で一致します。一致率は75パーセント、コーエンのカッパは0.5です。単純一致率、共通にラベル付けされた範囲、クラスのバランスを併せて読みます。画面には、共通ラベル12件では安定した信頼性推定には少なすぎるという警告があります。この人工ラベルはデモ専用です。",
-          "hold_after": 0.7,
-          "speech_text": "教材用の2回のアノテーションは、比較できる12枚中9枚で一致します。一致率は75パーセント、コーエンのカッパは0.5です。単純一致率、共通にラベル付けされた範囲、クラスのバランスを併せて読みます。画面には、共通ラベル12件では安定した信頼性推定には少なすぎるという警告があります。この人工ラベルはデモ専用です。"
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "行が DEMO A、列が DEMO B です。5枚は両方でクラス1、4枚は両方でクラス2です。対角線以外の数、1と2は、合計3件の不一致を示します。中程度といった要約表示は慣習的な分類であり、ご自身の実験の合格基準ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "行が DEMO A、列が DEMO B です。5枚は両方でクラス1、4枚は両方でクラス2です。対角線以外の数、1と2は、合計3件の不一致を示します。中程度といった要約表示は慣習的な分類であり、ご自身の実験の合格基準ではありません。"
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "不一致を選択して、対応する画像と両方のラベルを確認します。3枚のプレビューすべてを元の画素と照合しました。実際の研究では、代表的な画像とクラス定義を見直してから判定の調整方法を決めます。この読み取り専用画面が代わりに決めるわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "不一致を選択して、対応する画像と両方のラベルを確認します。3枚のプレビューすべてを元の画素と照合しました。実際の研究では、代表的な画像とクラス定義を見直してから判定の調整方法を決めます。この読み取り専用画面が代わりに決めるわけではありません。"
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "DEMO C を追加して、もう一度計算します。チェックボックスを変えるだけでは再計算されません。表には3つのペアが表示され、それぞれ共通ラベル数が異なります。一方、全体のフライスの要約に使うのは、選択したすべての回でラベルのある12枚だけです。",
-          "hold_after": 0.7,
-          "speech_text": "DEMO C を追加して、もう一度計算します。チェックボックスを変えるだけでは再計算されません。表には3つのペアが表示され、それぞれ共通ラベル数が異なります。一方、全体のフライスの要約に使うのは、選択したすべての回でラベルのある12枚だけです。"
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "この教材例のフライスのカッパは約0.663で、3つのペア別カッパの平均ではありません。ここでの全体の単純一致率は、全ラベルがそろった行の全員一致を数えます。確認表の4行目は A のラベルが欠け、B と C が不一致です。そのため確認対象には表示されても、完全な行だけの要約には入りません。",
-          "hold_after": 0.7,
-          "speech_text": "この教材例のフライスのカッパは約0.663で、3つのペア別カッパの平均ではありません。ここでの全体の単純一致率は、全ラベルがそろった行の全員一致を数えます。確認表の4行目は A のラベルが欠け、B と C が不一致です。そのため確認対象には表示されても、完全な行だけの要約には入りません。"
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "A と B だけを選んで再計算すると、元の比較に戻ります。3回の計算を通じて、データベースと画像ファイルが変化しないことを確認しました。ご自身の分析には本当に独立したアノテーションを使い、ラベルの収集方法は Annotate のチュートリアルで確認してください。",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
-          "hold_after": 0.7,
-          "speech_text": "A と B だけを選んで再計算すると、元の比較に戻ります。3回の計算を通じて、データベースと画像ファイルが変化しないことを確認しました。ご自身の分析には本当に独立したアノテーションを使い、ラベルの収集方法は Annotate のチュートリアルで確認してください。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3264,21 +3262,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "侵入アッセイ",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
-      "section": "トキソプラズマアッセイ",
-      "description": "現在の二色染色アッセイを設定し、染色の基準ウェルと実験条件を区別して、実際の閾値、図、出力ファイルを確認します。実演用データベースは明確に合成データです。",
+      "section": "Toxoplasma assays",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "細胞外染色と全体染色を正しい測定列に対応付ける。",
-        "名称が変更された染色基準の設定を使い、閾値感度を確認する。",
-        "合成パターンを生物学的効果と誤認せず、図とウェルごとの分母を読む。"
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "既存の合成データベースは保存し、同一バイトの新しいコピーで現在のGUIを実行します。架空の1,800測定のうち360は染色基準、1,440は12個の人工的な実験ウェルの対象です。実際に取得した二色画像はなく、一般のダウンロード用プレートも透過処理前後の染色設計を保証しません。Vehicleとinhibitorは教材の名前で、検証した処置ではありません。平均強度は列が存在するため選択し、表面染色で一般に最適という意味ではありません。独立した計算で分類、閾値、カウント、要約、描画形状を確認しますが、画像、薬効、統計的推論の妥当性は検証していません。元とコピーの入力は変えません。現行名はcontrol_wellsではなくstain_baseline_wellsです。小数6桁の二峰性カットオフを正確に記録します。",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "HomeのAssaysからInvasion Assayを開きます。このモジュールは測定済みの寄生体を分類し、ここで画像を分割するわけではありません。使用するデータベースは明確に合成データです。図で説明するのは設定と計算であり、観察された侵入や処置の効果ではありません。",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3288,108 +3286,99 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "ホームのAssaysからInvasion Assayを開きます。このモジュールは測定済みの寄生体を分類し、ここで画像を分割するわけではありません。使用するデータベースは明確に合成データです。図で説明するのは設定と計算であり、観察された侵入や処置の効果ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_setting_src",
-          "narration": "measurements、スラッシュ、measurements、ドット、dbを含む実験フォルダーを選びます。新しい専用コピーには千八百個の架空の寄生体があります。三百六十個は染色基準、千四百四十個は実験ウェルの対象です。通常のダウンロード用プレートは、検証済みの二色染色実験の代わりにはなりません。",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "measurements、スラッシュ、measurements、ドット、dbを含む実験フォルダーを選びます。新しい専用コピーには千八百個の架空の寄生体があります。三百六十個は染色基準、千四百四十個は実験ウェルの対象です。通常のダウンロード用プレートは、検証済みの二色染色実験の代わりにはなりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channelは透過処理前の染色で、ここではチャンネル一です。Total channelは処理後の染色で、ここではチャンネルゼロです。細胞外染色が陽性ならattached、閾値以下ならinvadedと分類されます。細胞外染色が弱いだけでも、誤ってinvadedと判定される場合があります。",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Outside channelは透過処理前の染色で、ここではチャンネル一です。Total channelは処理後の染色で、ここではチャンネルゼロです。細胞外染色が陽性ならattached、閾値以下ならinvadedと分類されます。細胞外染色が弱いだけでも、誤ってinvadedと判定される場合があります。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "この教材には平均強度の列があるためmeanを選択します。表面染色に対する一般的な推奨ではありません。実データでは、境界部分やパーセンタイルのどの測定値が利用でき、適切かを確認してください。局所背景を測るリングも、細胞外染色のチャンネルそのものとは別です。",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "この教材には平均強度の列があるためmeanを選択します。表面染色に対する一般的な推奨ではありません。実データでは、境界部分やパーセンタイルのどの測定値が利用でき、適切かを確認してください。局所背景を測るリングも、細胞外染色のチャンネルそのものとは別です。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Stain baseline wellsを列一に設定します。旧名control wellsを置き換えた設定で、人工的な陰性染色の基準を指定します。溶媒対照条件ではありません。これらの対象から閾値を決め、実験結果の分母からは除外します。Vehicleとinhibitorは列二と三に残ります。",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Stain baseline wellsを列一に設定します。旧名control wellsを置き換えた設定で、人工的な陰性染色の基準を指定します。溶媒対照条件ではありません。これらの対象から閾値を決め、実験結果の分母からは除外します。Vehicleとinhibitorは列二と三に残ります。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantileはゼロ点九九です。三百六十個の基準対象から、強度単位で約二十二点八の閾値が得られます。固定値のOutside thresholdは空欄にし、基準由来の閾値を使います。この実行で適用されるのは自動手法の閾値ではありません。",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Control quantileはゼロ点九九です。三百六十個の基準対象から、強度単位で約二十二点八の閾値が得られます。固定値のOutside thresholdは空欄にし、基準由来の閾値を使います。この実行で適用されるのは自動手法の閾値ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivityはゼロ点二五です。閾値を二十五パーセント下げた場合と上げた場合も評価します。閾値を上げるとinvadedに分類される寄生体が増えることがあります。差を解釈する前に、効率の変動範囲と品質フラグを確認してください。実行が成功しても染色の信頼性は証明されません。",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Threshold sensitivityはゼロ点二五です。閾値を二十五パーセント下げた場合と上げた場合も評価します。閾値を上げるとinvadedに分類される寄生体が増えることがあります。差を解釈する前に、効率の変動範囲と品質フラグを確認してください。実行が成功しても染色の信頼性は証明されません。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular classは宿主細胞との対応がない対象の扱いを決めます。ここではclassifyで染色に判断を任せますが、教材の全行には既に宿主との対応があります。実データでは宿主の分割結果を確認し、attached、exclude、classifyから意図的に選択してください。",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Extracellular classは宿主細胞との対応がない対象の扱いを決めます。ここではclassifyで染色に判断を任せますが、教材の全行には既に宿主との対応があります。実データでは宿主の分割結果を確認し、attached、exclude、classifyから意図的に選択してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "15_figure_02",
-          "narration": "Runを実行すると実際に三つの図が生成されます。閾値ページには寄生体ごとではなく、ウェルごとの分布が表示されます。今回は基準由来の閾値線があり、十二ウェルすべてが見えます。妥当な集団の間に閾値があるか確認してください。架空の分布は代表的な染色画像の確認に代わるものではありません。",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "Runを実行すると実際に三つの図が生成されます。閾値ページには寄生体ごとではなく、ウェルごとの分布が表示されます。今回は基準由来の閾値線があり、十二ウェルすべてが見えます。妥当な集団の間に閾値があるか確認してください。架空の分布は代表的な染色画像の確認に代わるものではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "16_legend_00",
-          "narration": "凡例が描画領域からはみ出す場合はFigure settingsを開き、軸のタブのLegend positionでbestを選択します。ダイアログを確定してラベルを見えるようにします。これは表示だけの調整です。描画された値と保存済みの結果表が変わらないことを確認しています。",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3399,36 +3388,33 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7,
-          "speech_text": "凡例が描画領域からはみ出す場合はFigure settingsを開き、軸のタブのLegend positionでbestを選択します。ダイアログを確定してラベルを見えるようにします。これは表示だけの調整です。描画された値と保存済みの結果表が変わらないことを確認しています。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "ウェル別の棒はattachedとinvadedの割合を示し、各棒の上には分類した寄生体数の百二十が表示されます。染色基準ウェルは含まれません。割合と分母を一緒に確認してください。ごく少数の対象から得た高い割合は、十分な対象を測定したウェルの同じ割合と同等ではありません。",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "ウェル別の棒はattachedとinvadedの割合を示し、各棒の上には分類した寄生体数の百二十が表示されます。染色基準ウェルは含まれません。割合と分母を一緒に確認してください。ごく少数の対象から得た高い割合は、十分な対象を測定したウェルの同じ割合と同等ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "二つの架空条件はそれぞれ七百二十個の分類済み寄生体を含みます。invadedの割合は約三十九点七パーセントと六十八点九パーセントです。要約にはウェル間の平均もあり、通常は対象をまとめた割合とは異なります。ここでは条件名もピー値も、生物学的な効果の証拠にはなりません。",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "二つの架空条件はそれぞれ七百二十個の分類済み寄生体を含みます。invadedの割合は約三十九点七パーセントと六十八点九パーセントです。要約にはウェル間の平均もあり、通常は対象をまとめた割合とは異なります。ここでは条件名もピー値も、生物学的な効果の証拠にはなりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_completion",
-          "narration": "コンソールと結果フォルダーで、分類、視野別閾値、ウェル別効率、条件別要約、比較表を確認します。推論には独立した実験ウェルを使い、個々の寄生体を交換可能な反復として扱わないでください。spaCR AIは任意で、今回のローカル解析では使用していません。生物学的な結論の前に染色と画像を検証してください。",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3439,30 +3425,37 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "コンソールと結果フォルダーで、分類、視野別閾値、ウェル別効率、条件別要約、比較表を確認します。推論には独立した実験ウェルを使い、個々の寄生体を交換可能な反復として扱わないでください。スペーカー AIは任意で、今回のローカル解析では使用していません。生物学的な結論の前に染色と画像を検証してください。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "増殖アッセイ",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
-      "section": "トキソプラズマアッセイ",
-      "description": "寄生胞ごとに寄生体を数え、分布を確認し、解析データを変えずに凡例を調整します。例はすべて合成データで、治療効果を示すものではありません。",
+      "section": "Toxoplasma assays",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "宿主細胞ではなく寄生胞を計数単位にする。",
-        "二のべき乗ではない計数を残し、ウェル別と条件別の集計を確認する。",
-        "実際の図の操作機能を使い、出力時の警告を確認する。"
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "保存済みの合成教材データベースを新たにコピーして使います。架空の寄生体1,992行、寄生胞480個、宿主細胞グループ240個、人工的な12ウェルからなります。Vehicleとinhibitorは教材上の名称で、各群の6ウェルは同じ分布を繰り返します。実際に撮影した画像はなく、このモジュール専用のデータダウンロードボタンもありません。元のデータベースは変更しません。独立した計算でCSVの6,588項目と棒の高さ・積み上げ位置を検証しています。画像分割、推測統計のp値、薬効を検証したものではありません。実際の生物学的解析には、実測値、検証済みの寄生胞との対応、独立した実験反復が必要です。",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "HomeのAssaysからReplication Assayを開きます。測定済みの寄生体を寄生胞ごとに数える機能で、ここで画像分割は行いません。この例は明示的に合成データを使います。グラフは操作方法と計数のルールを学ぶためのもので、処置の生物学的効果を示してはいません。",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3472,132 +3465,121 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "ホームのAssaysからReplication Assayを開きます。測定済みの寄生体を寄生胞ごとに数える機能で、ここで画像分割は行いません。この例は明示的に合成データを使います。グラフは操作方法と計数のルールを学ぶためのもので、処置の生物学的効果を示してはいません。"
+          ]
         },
         {
           "visual": "03_setting_src",
-          "narration": "measurementsフォルダーの中にmeasurementsドットdbが入った、準備済みの実験フォルダーを選びます。新しい作業用コピーには、架空の寄生体が千九百九十二行あります。元のデータベースを保護し、過去の結果ファイルがない状態から始めるので、表示する出力はすべて今回の実行結果です。",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "measurementsフォルダーの中にmeasurementsドットdbが入った、準備済みの実験フォルダーを選びます。新しい作業用コピーには、架空の寄生体が千九百九十二行あります。元のデータベースを保護し、過去の結果ファイルがない状態から始めるので、表示する出力はすべて今回の実行結果です。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Vacuole keyには、寄生胞の明示的な識別子を持つ列を指定します。寄生胞は四百八十個ですが、宿主細胞グループは二百四十個で、各宿主に二つの寄生胞が対応しています。宿主細胞で数えると二つをまとめてしまい、別の問いに答えることになります。自分のデータを解析する前に、実画像でこの対応を検証してください。",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Vacuole keyには、寄生胞の明示的な識別子を持つ列を指定します。寄生胞は四百八十個ですが、宿主細胞グループは二百四十個で、各宿主に二つの寄生胞が対応しています。宿主細胞で数えると二つをまとめてしまい、別の問いに答えることになります。自分のデータを解析する前に、実画像でこの対応を検証してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cellは、有効な宿主への対応がない対象を除外します。未割り当ての対象が集計に入るのを防ぎますが、宿主の画像分割に失敗していると実在する寄生体も除外され得ます。教材の全行には有効な対応があります。この例は皆さんの画像分割を検証するものではありません。",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Require host cellは、有効な宿主への対応がない対象を除外します。未割り当ての対象が集計に入るのを防ぎますが、宿主の画像分割に失敗していると実在する寄生体も除外され得ます。教材の全行には有効な対応があります。この例は皆さんの画像分割を検証するものではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "二のべき乗として名前の付いた最大の区分は十六です。それより大きい数をすべて切り捨てる上限ではありません。より大きなべき乗は超過区分に入り、それ以外の数は別に残ります。各人工ウェルには寄生体三個の寄生胞が二つあります。三という計数を四へ丸めないでください。",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "二のべき乗として名前の付いた最大の区分は十六です。それより大きい数をすべて切り捨てる上限ではありません。より大きなべき乗は超過区分に入り、それ以外の数は別に残ります。各人工ウェルには寄生体三個の寄生胞が二つあります。三という計数を四へ丸めないでください。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "条件とウェルの対応を確認します。ここでは一列目をvehicle、二列目をinhibitorと呼び、各群に六つの人工ウェルがあります。名称は架空の教材設計の一部です。薬剤を投与した証拠ではなく、もっともらしく見える差も薬効の証明にはなりません。",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7,
-          "speech_text": "条件とウェルの対応を確認します。ここでは一列目をvehicle、二列目をinhibitorと呼び、各群に六つの人工ウェルがあります。名称は架空の教材設計の一部です。薬剤を投与した証拠ではなく、もっともらしく見える差も薬効の証明にはなりません。"
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_run",
-          "narration": "入力元、割り当てキー、フィルター、出力設定を確認してからRunを押します。これは表の解析であり、新たなCellposeの画像分割やGPUの性能測定ではありません。実際の処理によって、ウェル別と条件別の二つの図が生成されます。",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7,
-          "speech_text": "入力元、割り当てキー、フィルター、出力設定を確認してからRunを押します。これは表の解析であり、新たなセルポーズの画像分割やGPUの性能測定ではありません。実際の処理によって、ウェル別と条件別の二つの図が生成されます。"
+          "hold_after": 0.7
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "各積み上げ棒を、一つのウェルにおける寄生胞あたりの寄生体数の分布として読みます。Vehicleの例では四十個の寄生胞に二百二十八個、inhibitorの例では四十個に百四個の寄生体があります。どちらも二のべき乗ではない数を持つ寄生胞を五パーセント残しています。保存ファイル名だけでなく、表示された棒の高さを独立した計数と照合しました。",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "各積み上げ棒を、一つのウェルにおける寄生胞あたりの寄生体数の分布として読みます。Vehicleの例では四十個の寄生胞に二百二十八個、inhibitorの例では四十個に百四個の寄生体があります。どちらも二のべき乗ではない数を持つ寄生胞を五パーセント残しています。保存ファイル名だけでなく、表示された棒の高さを独立した計数と照合しました。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "凡例が切れていたらFigure settingsで軸のタブを開き、Legend positionを変更します。ここでは実際の操作機能で図の内側を選びます。変えるのは表示方法だけで、棒の値と出力データファイルはすべて変わりません。",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ],
-          "speech_text": "凡例が切れていたらFigure settingsで軸のタブを開き、Legend positionを変更します。ここでは実際の操作機能で図の内側を選びます。変えるのは表示方法だけで、棒の値と出力データファイルはすべて変わりません。"
+          ]
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "条件別の表示では、例の寄生胞をまとめて二つの分布にします。各群の六ウェルはすべて同じ架空のパターンを繰り返しています。得られた有意性検定を治療効果の知見として引用しないでください。本来の推論には実際の反復と、妥当な独立した実験単位が必要です。",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "条件別の表示では、例の寄生胞をまとめて二つの分布にします。各群の六ウェルはすべて同じ架空のパターンを繰り返しています。得られた有意性検定を治療効果の知見として引用しないでください。本来の推論には実際の反復と、妥当な独立した実験単位が必要です。"
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_completion",
-          "narration": "グラフだけでなくコンソールも読みます。今回の実行では、選んだ色の一部は明るい出力ページ上でコントラストが低いと警告されます。出力した図を確認し、見分けやすい配色を選びましょう。画面の暗い背景で読みやすくても、保存した図まで読みやすいとは限りません。",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7,
-          "speech_text": "グラフだけでなくコンソールも読みます。今回の実行では、選んだ色の一部は明るい出力ページ上でコントラストが低いと警告されます。出力した図を確認し、見分けやすい配色を選びましょう。画面の暗い背景で読みやすくても、保存した図まで読みやすいとは限りません。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_save",
-          "narration": "Saveを有効にすると、results内のanalyze replicationに、寄生胞の計数、ウェル別分布、条件別集計、統計表、図が保存されます。設定と入力元の識別情報も一緒に保管してください。自分のアッセイでは、集計を解釈する前に実画像と生物学的対照を確認しましょう。",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3608,10 +3590,17 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ],
-          "speech_text": "Saveを有効にすると、results内のanalyze replicationに、寄生胞の計数、ウェル別分布、条件別集計、統計表、図が保存されます。設定と入力元の識別情報も一緒に保管してください。自分のアッセイでは、集計を解釈する前に実画像と生物学的対照を確認しましょう。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

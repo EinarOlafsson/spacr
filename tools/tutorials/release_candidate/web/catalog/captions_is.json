@@ -2631,22 +2631,22 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "Samræmi milli merkjenda",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
       "section": "Results and quality control",
-      "description": "Opnaðu innbyggða samanburðartólið, berðu saman tilbúnar kennslumerkingar á afritum af raunverulegum niðurhöluðum myndbútum og greindu á milli samræmis í pörum og samantektar úr fleiri merkingarumferðum.",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Opna Annotator Agreement úr Annotate.",
-        "Bera saman merkingar, gildi sem vantar og ruglingsfylki án þess að breyta merkingum.",
-        "Skoða myndbúta með ósamræmi og túlka samantektir úr tveimur og þremur umferðum."
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "Myndbútar sextán eru óbreytt afrit úr niðurhalanlega Annotate-dæminu. DEMO_A, DEMO_B og DEMO_C eru tilbúnar kennslumerkingar í nýjum einkagagnagrunni, ekki líffræðileg flokkun, einkunnir mannlegra yfirlesara eða líkanaspár. Upprunalegar merkingar og myndir eru óbreyttar; png_path er aðeins gert afstætt í sýnikennsluafritinu. Notaðu raunverulegar, óháðar merkingarumferðir við eigið mat. Sjálfgefin dálkaleit sleppir þekktum úttaksdálkum líkana. Óháðir útreikningar með heiltölum og brotum sannreyna öll pör, fylki og heildargildi; þrjár forsýningar samsvara mynddílum frummyndanna nákvæmlega. Litla dæmið kennir á stýringar en sannar ekki áreiðanleika tilraunar. Gamla myndskeiðið endurtók tóman skjá og lýsti sjálfvirkri leit að spádálkum sem passar ekki lengur við API-ið; kennsluefnið var því ekki aðeins fært.",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Opnaðu Annotate og síðan hnappinn Annotator Agreement. Þetta er innbyggt tól, ekki annar einingareitur á Home. Samanburðarskjárinn les merkingardálka án þess að breyta þeim; farðu aftur í Annotate þegar þú vilt breyta merkingu.",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -2654,54 +2654,62 @@
         },
         {
           "visual": "04_demo_database",
-          "narration": "Opnaðu tilbúna sýnikennslugagnagrunninn. Myndirnar sextán eru raunverulegir myndbútar úr niðurhalanlega dæminu, en DEMO-dálkarnir þrír eru tilbúnar kennslumerkingar. Þær mæla hvorki færni einstaklings né líffræðilega svipgerð. Upprunalegar merkingar og myndir eru varðveittar í sérstöku upprunaafriti.",
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
           "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "Athugaðu sérstaklega hvaða dálkar eru valdir í stað þess að samþykkja fyrstu sjálfgefnu valkostina. Ekki er hægt að mæla samræmi með einum dálki. Núverandi dálkaleit sleppir sjálfgefið þekktum úttaksdálkum líkana; samanburður flokkara við manneskju er sannprófun líkans, ekki samræmi milli manna.",
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
           "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "Veldu DEMO A og DEMO B og ýttu á Compute agreement. Tólf myndbútar eru merktir í báðum umferðum, þrír aðeins í annarri og einn í hvorugri. Merkingar sem vantar eru ekki taldar ósamræmi án þess að frá því sé sagt.",
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
           "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "Kennsluumferðirnar tvær eru sammála um níu af tólf samanbornum myndbútum: sjötíu og fimm prósent, með Cohen-kappa núll komma fimm. Skoðaðu hrátt samræmi, sameiginlegar merkingar og jafnvægi flokka saman. Skjárinn varar við að tólf sameiginlegar merkingar séu of fáar fyrir stöðugt mat á áreiðanleika; þessar uppspunnu merkingar eru aðeins sýnikennsla.",
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
           "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "Raðirnar tákna DEMO A og dálkarnir DEMO B. Fimm myndbútar hafa flokk eitt í báðum umferðum og fjórir flokk tvö í báðum. Tölurnar utan hornalínunnar, einn og tveir, sýna þrjú ósamræmi. Samantektarheiti eins og miðlungs er venja, ekki samþykkisviðmið fyrir tilraunina þína.",
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
           "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "Veldu ósamræmi til að skoða viðeigandi myndbút og báðar merkingar. Við bárum allar þrjár forsýningarnar saman við upprunalegu mynddílana. Í raunverulegri rannsókn skaltu yfirfara dæmigerðar myndir og skilgreiningar flokka áður en ákveðið er hvernig leysa eigi ágreining; þessi skrifvarði skjár tekur ekki ákvörðunina fyrir þig.",
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "Bættu DEMO C við og reiknaðu aftur. Að breyta gátreit framkvæmir ekki nýjan útreikning eitt og sér. Taflan ber nú saman þrjú pör með mismarga sameiginlega merkta myndbúta, en heildarsamantekt Fleiss notar aðeins tólf myndbúta sem eru merktir í öllum völdum umferðum.",
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
           "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "Fleiss-kappa kennsludæmisins er um núll komma sex sex þrír, ekki meðaltal þriggja kappa-gilda paranna. Hrátt heildarsamræmi telur hér fullmerktar raðir þar sem allar merkingar eru sammála. Fjórðu yfirferðarröðina vantar A-merkingu en B og C eru ósammála; hún getur því birst til yfirferðar án þess að teljast með í samantekt fullmerktra tilvika.",
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
           "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "Ef aðeins A og B eru valin og reiknað aftur kemur upprunalegi samanburðurinn aftur. Við staðfestum að gagnagrunnurinn og myndskrárnar haldast óbreytt í öllum þremur útreikningum. Notaðu raunverulega óháðar merkingarumferðir við þína greiningu og farðu aftur í Annotate-leiðbeiningarnar til að safna þeim merkingum.",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3134,21 +3142,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Innrásarpróf",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Stilltu núverandi tveggja lita próf, aðgreindu viðmiðunarbrunna litunar frá tilraunaskilyrðum og skoðaðu raunveruleg þröskuldsgildi, gröf og skrár. Gagnagrunnur sýnidæmisins er skýrt merktur sem tilbúinn.",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "Tengja ytri litun og heildarlitun við rétta mælingadálka.",
-        "Nota endurnefndu litunarviðmiðunina og kanna næmi fyrir þröskuldi.",
-        "Lesa myndir og nefnara hvers brunns án þess að túlka tilbúin mynstur sem líffræðileg áhrif."
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "Fyrri tilbúni gagnagrunnurinn er varðveittur; núverandi viðmót keyrir á nýju, bæti fyrir bæti eins afriti. Af 1.800 uppspunnum mælingum eru 360 viðmiðunarhlutir litunar og 1.440 prófunarhlutir í tólf tilbúnum brunnum. Engar raunverulegar tveggja lita myndir fylgja og almenna niðurhalsplatan staðfestir ekki tilraunahönnun litunar fyrir og eftir að frumur eru gerðar gegndræpar. Vehicle og inhibitor eru kennsluheiti, ekki prófaðar meðferðir. Meðalstyrkur er valinn vegna tiltækra dálka, ekki sem almennt besta mæling fyrir yfirborðslitun. Óháðir útreikningar athuga flokkun, þröskulda, fjölda, samantektir og rúmfræði grafa, en staðfesta ekki myndir, virkni eða tölfræðilegar ályktanir. Upprunalegi grunnurinn og inntaksafritið haldast óbreytt. Stillingin heitir nú stain_baseline_wells í stað control_wells og mörk tvítoppa dreifingar eru skráð nákvæmlega með sex aukastöfum.",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Opnaðu Invasion Assay undir Assays á Home. Einingin flokkar sníkjudýr sem þegar hafa verið mæld; hún skiptir ekki myndum í hluti hér. Gagnagrunnurinn okkar er skýrt merktur sem tilbúinn. Gröfin kenna stillingar og útreikninga, ekki mælda innrás eða áhrif meðferðar.",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3162,7 +3170,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Veldu tilraunamöppuna sem inniheldur measurements/measurements.db. Nýja einkaafritið hefur 1.800 uppspunnar færslur um sníkjudýr: 360 viðmiðunarhluti litunar og 1.440 hluti í prófunarbrunnum. Venjulega niðurhalsplatan kemur ekki í stað staðfestrar tveggja lita litunartilraunar.",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
@@ -3173,7 +3181,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel er litunin áður en frumur eru gerðar gegndræpar, hér rás 1. Total channel er litunin eftir það, hér rás 0. Sníkjudýr með jákvætt ytra litunarmerki flokkast sem attached; við eða undir þröskuldinum flokkast það sem invaded. Veik ytri litun getur því valdið rangri invaded-flokkun.",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
@@ -3184,7 +3192,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Við veljum mean vegna þess að kennslugagnagrunnurinn hefur dálka með meðalstyrk. Þetta er ekki almenn ráðlegging fyrir yfirborðslitun. Skoðaðu hvaða jaðar- eða hundraðshlutamælingar eru tiltækar og viðeigandi fyrir raunveruleg gögn. Hringur sem mælir staðbundinn bakgrunn er líka annað en ytri litunarrásin sjálf.",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
@@ -3195,7 +3203,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Stilltu Stain baseline wells á dálk 1. Þetta heiti leysir gamla control wells af hólmi og tilgreinir tilbúið neikvætt litunarviðmið, ekki leysiskilyrðið. Hlutirnir ákvarða þröskuld litunar og eru ekki í nefnurum prófunarniðurstaðna. Vehicle og inhibitor eru áfram í dálkum 2 og 3.",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
@@ -3206,7 +3214,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile er 0,99. Viðmiðunarhlutirnir 360 gefa þröskuld um 22,8 styrkeiningar. Outside threshold er tómt svo að viðmiðunarþröskuldurinn sé notaður. Sjálfvirka aðferðin gefur ekki þröskuldinn sem er beitt í þessari keyrslu.",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
@@ -3217,7 +3225,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity er 0,25: einnig er metinn 25 prósent lægri og hærri þröskuldur. Hærri þröskuldur getur flokkað fleiri sníkjudýr sem invaded. Skoðaðu bil innrásarhlutfallsins og gæðaflögg áður en þú túlkar breytingar; vel heppnuð keyrsla sannar ekki áreiðanleika litunar.",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
@@ -3228,7 +3236,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class ræður meðferð hluta sem tengjast engri hýsilfrumu. Hér lætur classify litunina ráða; allar kennslufærslur tengjast þegar hýsli. Fyrir raunveruleg gögn skaltu velja meðvitað milli attached, exclude og classify eftir að hafa skoðað skiptingu hýsilfrumna.",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
@@ -3239,7 +3247,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run býr til þrjár raunverulegar myndir. Þröskuldasíðan sýnir eina dreifingu á brunn, ekki á sníkjudýr. Hér kemur beitta línan frá viðmiðinu og allir tólf brunnar sjást. Skoðaðu hvort þröskuldurinn aðskilji trúverðuga hópa; uppspunnar dreifingar koma ekki í stað dæmigerðra litunarmynda.",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
@@ -3250,7 +3258,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "Ef skýringarlykill fer út fyrir teikniflötinn skaltu opna Figure settings og velja best í Legend position á ásaflipanum. Staðfestu gluggann svo merkingarnar sjáist. Þetta er eingöngu útlitsbreyting: við staðfestum að teiknuð gildi og vistaðar niðurstöðutöflur haldast óbreytt.",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3264,7 +3272,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Súlurnar fyrir hvern brunn sýna hlutföll attached og invaded, með 120 flokkuðum sníkjudýrum merktum fyrir ofan hverja súlu. Viðmiðunarbrunnarnir eru ekki með. Lestu nefnarann með hlutfallinu: hátt hlutfall frá örfáum hlutum jafngildir ekki sama hlutfalli úr vel mældum brunni.",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
@@ -3275,7 +3283,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Tilbúnu skilyrðin tvö hafa hvort um sig 720 flokkuð sníkjudýr. Invaded-hlutföllin eru um 39,7 og 68,9 prósent. Samantektin gefur einnig meðaltal yfir brunna, sem er almennt ekki það sama og að sameina alla hlutina. Hvorki þessi heiti né p-gildi staðfesta líffræðileg áhrif hér.",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
@@ -3286,7 +3294,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Skoðaðu stjórnborðsúttak og niðurstöðumöppu fyrir flokkun sníkjudýra, þröskulda hvers myndsviðs, innrásarhlutfall hvers brunns, samantektir og samanburð. Notaðu óháða tilraunabrunna við ályktanir, ekki einstök sníkjudýr sem skiptanlegar endurtekningar. spaCR AI er valfrjálst og var ekki notað í þessari staðbundnu greiningu. Staðfestu litun og myndir áður en þú dregur líffræðilegar ályktanir.",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3299,27 +3307,35 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Fjölgunargreining",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Teldu sníkla í hverri frymisbólu, skoðaðu dreifingar og stilltu skýringar myndrita án þess að breyta gögnunum. Dæmið er tilbúið og sýnir ekki meðferðaráhrif.",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "Nota frymisbóluna, ekki hýsilfrumuna, sem talningareiningu.",
-        "Halda talningum sem eru ekki veldi af tveimur og skoða samantektir eftir brunnum og skilyrðum.",
-        "Nota raunverulegar myndritastillingar og lesa viðvaranir við útflutning."
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "Nýtt afrit af tilbúna kennslugagnagrunninum inniheldur 1.992 uppspunnar sníklaraðir, 480 frymisbólur, 240 hýsilfrumuhópa og tólf tilbúna brunna. Vehicle og inhibitor eru kennsluheiti; sex brunnar í hverjum hópi endurtaka sömu dreifingu. Engar raunverulegar myndir fylgja og þessi eining hefur engan sérstakan hnapp til að sækja dæmigögn. Upprunalegi gagnagrunnurinn helst óbreyttur. Óháðir útreikningar sannreyna 6.588 CSV-reiti ásamt hæð og upphafsstöðu staflaðra súluhluta. Þetta staðfestir hvorki myndgreiningu, p-gildi né virkni meðferðar. Líffræðileg greining krefst raunmælinga, staðfestra tengsla við frymisbólur og óháðra tilraunaendurtekninga.",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Opnaðu Replication Assay undir Assays á Home. Einingin telur mælda sníkla í hverri frymisbólu; hún afmarkar ekki hluti í myndum hér. Dæmið er sérstaklega merkt sem tilbúið, svo myndritin kenna á stjórntæki og talningarreglur en sýna ekki líffræðileg áhrif meðferðar.",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3333,7 +3349,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Veldu undirbúna tilraunamöppu sem inniheldur measurements/measurements.db. Nýja einkafritið okkar hefur 1.992 uppspunnar raðir um sníkla. Við varðveitum upprunalega gagnagrunninn og byrjum án eldri niðurstöðuskráa, svo allar niðurstöður sem sjást tilheyra þessari keyrslu.",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
@@ -3344,7 +3360,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Stilltu Vacuole key á dálkinn með skýrum auðkennum frymisbólna. Dæmið inniheldur 480 frymisbólur en aðeins 240 hýsilfrumuhópa: Tvær frymisbólur tengjast hverjum hýsli. Talning eftir hýsilfrumu myndi sameina þær og svara annarri spurningu. Staðfestu þessi tengsl í raunverulegum myndum áður en þú greinir eigin gögn.",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
@@ -3355,7 +3371,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell útilokar hluti án gildra tengsla við hýsil. Það kemur í veg fyrir að ótengdir hlutir fari inn í þessa mælingu, en getur einnig fjarlægt raunverulega sníkla ef afmörkun hýsilfrumna mistókst. Allar kennsluraðir hafa gild tengsl; dæmið staðfestir ekki þína myndgreiningu.",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
@@ -3366,7 +3382,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Stærsti nafngreindi flokkurinn fyrir veldi af tveimur er 16, ekki mörk sem skera allar stærri talningar niður. Stærri veldi fara í yfirfallsflokk og aðrar talningar haldast aðskildar. Hver tilbúinn brunnur inniheldur tvær frymisbólur með þremur sníklum; ekki námunda talninguna þrjá upp í fjóra.",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
@@ -3377,7 +3393,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Athugaðu tengsl skilyrða og brunna. Hér heitir fyrsti dálkur vehicle og annar inhibitor, með sex tilbúnum brunnum í hvorum hópi. Heitin eru hluti af uppspunnu kennsluskipulagi. Þau sanna ekki að lyf hafi verið gefið, og sannfærandi útlit á mun sannar ekki virkni.",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
@@ -3388,7 +3404,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Ýttu aðeins á Run eftir að hafa athugað uppruna, tengilykil, síur og úttaksstillingar. Þetta er töflugreining, ekki ný Cellpose-myndgreining eða afkastaprófun skjákorts. Raunverulega keyrslan býr til bæði myndrit eftir brunnum og myndrit eftir skilyrðum.",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
@@ -3399,7 +3415,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Lestu hverja staflaða súlu sem dreifingu sníklafjölda í frymisbólum eins brunns. Vehicle-dæmið hefur 228 sníkla í 40 frymisbólum; inhibitor-dæmið hefur 104 í 40. Í báðum eru fimm prósent frymisbólna með fjölda sem er ekki veldi af tveimur. Við bárum sýnilegar súluhæðir saman við óháðar talningar, ekki aðeins nöfn vistaðra skráa.",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
@@ -3410,7 +3426,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Ef skýringar myndritsins skerðast skaltu opna Figure settings og ásaflipann og breyta Legend position. Við veljum staðsetningu innan myndritsins með þessum raunverulegu stillingum. Þetta breytir aðeins framsetningu: Öll súlugildi og úttaksgögn haldast óbreytt.",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3421,7 +3437,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Yfirlitið eftir skilyrðum sameinar frymisbólur dæmisins í tvær dreifingar. Allir sex brunnar hvers hóps endurtaka sama uppspunna mynstrið. Ekki vitna í marktækniprófin sem niðurstöðu um meðferðaráhrif; raunveruleg ályktun krefst raunverulegra endurtekninga og rökstuddrar óháðrar tilraunaeiningar.",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
@@ -3432,7 +3448,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Lestu stjórnborðið jafnt sem myndritið. Þessi keyrsla varar við að sumir valdir litir hafi lítil birtuskil á ljósri útflutningssíðu. Athugaðu útflutt myndrit og veldu aðgengilega litatöflu; læsilegt dökkt skjáyfirlit tryggir ekki sjálfkrafa læsilegt vistað myndrit.",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
@@ -3443,7 +3459,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "Þegar Save er virkt fara niðurstöður undir results/analyze_replication: talningar eftir frymisbólum, dreifingar eftir brunnum, samantektir eftir skilyrðum, tölfræðitöflur og myndrit. Geymdu stillingar og auðkenni upprunagagna með þeim. Skoðaðu raunverulegar myndir og líffræðileg viðmið í eigin tilraun áður en þú túlkar þessar samantektir.",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3456,7 +3472,15 @@
             "34_database"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

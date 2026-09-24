@@ -2631,22 +2631,22 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "주석자 간 일치도",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
       "section": "Results and quality control",
-      "description": "Annotate 안의 도구를 열고 실제로 내려받은 잘라낸 이미지의 복사본에 붙인 교육용 인공 라벨을 비교합니다. 쌍별 일치도와 여러 차례 주석 작업의 요약을 구분합니다.",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Annotate에서 Annotator Agreement 열기.",
-        "주석을 바꾸지 않고 라벨, 결측 관측값, 혼동 행렬 비교하기.",
-        "불일치 이미지를 살펴보고 두 차례와 세 차례 주석 결과의 요약 해석하기."
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "열여섯 이미지는 Annotate의 다운로드 예제에서 내용 변경 없이 복사했습니다. DEMO_A, DEMO_B, DEMO_C는 새 비공개 데이터베이스에 추가한 교육용 인공 라벨이며, 생물학적 분류나 사람의 평가 점수, 모델 예측이 아닙니다. 원래 라벨과 이미지는 그대로이며 png_path만 시연용 복사본에서 상대 경로로 바꿉니다. 실제 평가에는 독립적으로 수행한 주석 작업을 사용하세요. 기본 열 탐색에서는 알려진 모델 출력 열을 제외합니다. 독립적인 정수 및 분수 계산으로 모든 쌍, 혼동 행렬, 집계값을 검증했고 세 미리보기를 원본 이미지 픽셀과 정확히 대조했습니다. 이 작은 예는 조작법을 설명하며 실험 신뢰성을 검증하지 않습니다. 이전 영상은 빈 화면을 반복했고 예측 열 자동 탐색에 대한 설명도 현재 API와 맞지 않으므로, 단순히 위치만 옮기는 강의가 아닙니다.",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Annotate를 연 다음 그 안의 Annotator Agreement 버튼을 누릅니다. Home의 별도 모듈이 아니라 안에 들어 있는 도구입니다. 비교 화면은 주석 열을 읽기만 하고 편집하지 않습니다. 라벨을 바꾸려면 Annotate로 돌아가세요.",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
@@ -2654,54 +2654,62 @@
         },
         {
           "visual": "04_demo_database",
-          "narration": "준비된 시연용 데이터베이스를 엽니다. 열여섯 이미지는 다운로드 예제의 실제 잘라낸 이미지이지만 세 DEMO 열은 교육용 인공 라벨입니다. 사람의 능력이나 생물학적 표현형을 측정하지 않습니다. 원래 라벨과 이미지는 별도의 원본 복사본에 보존했습니다.",
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
           "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "처음 선택된 기본값을 그대로 쓰지 말고 선택한 열을 직접 확인하세요. 열 하나로는 일치도를 측정할 수 없습니다. 현재 탐색은 알려진 모델 출력 열을 기본적으로 제외합니다. 분류기와 사람을 비교하는 것은 모델 검증이지 사람 사이의 일치도가 아닙니다.",
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
           "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "DEMO A와 DEMO B를 선택하고 Compute agreement를 누릅니다. 열두 이미지는 두 차례 모두 라벨이 있고, 세 이미지는 한쪽에만, 한 이미지는 어느 쪽에도 없습니다. 없는 라벨을 알리지 않고 불일치로 바꾸어 세지 않습니다.",
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
           "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "교육용 두 차례 작업은 비교한 열두 이미지 중 아홉 이미지에서 일치합니다. 일치율은 칠십오 퍼센트이고 코헨 카파는 영 점 오입니다. 원시 일치율, 공동으로 라벨을 붙인 범위, 클래스 균형을 함께 읽으세요. 화면은 공동 라벨 열두 개로는 안정적인 신뢰도 추정이 어렵다고 경고합니다. 만들어 낸 이 라벨들은 시연용일 뿐입니다.",
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
           "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "행은 DEMO A, 열은 DEMO B입니다. 다섯 이미지는 양쪽 모두 클래스 일이고 네 이미지는 양쪽 모두 클래스 이입니다. 대각선 밖의 수 일과 이는 불일치 세 건을 나타냅니다. 보통 같은 요약 등급은 관례이며, 여러분의 실험에 대한 합격 기준이 아닙니다.",
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
           "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "불일치 항목을 선택해 해당 이미지와 두 라벨을 확인합니다. 세 미리보기를 모두 원래 픽셀과 대조했습니다. 실제 연구에서는 대표 이미지와 클래스 정의를 검토한 뒤 어떻게 판정을 조정할지 결정하세요. 이 읽기 전용 화면이 대신 결정하지는 않습니다.",
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "DEMO C를 추가하고 다시 계산합니다. 체크박스를 바꾸는 것만으로 새 계산이 실행되지는 않습니다. 이제 표는 공동 라벨 수가 서로 다른 세 쌍을 비교합니다. 전체 플라이스 요약에는 선택한 모든 차례에 라벨이 있는 열두 이미지만 사용합니다.",
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
           "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "교육용 예의 플라이스 카파는 약 영 점 육육삼이며 세 쌍별 카파의 평균이 아닙니다. 여기서 전체 원시 일치율은 모든 라벨이 있는 행의 전원 일치를 셉니다. 검토 표의 네 번째 행은 A 라벨이 없지만 B와 C가 불일치합니다. 따라서 검토 목록에는 나오되 완전한 사례의 요약에는 들어가지 않을 수 있습니다.",
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
           "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "A와 B만 선택해 다시 계산하면 원래 비교로 돌아갑니다. 세 번의 계산 동안 데이터베이스와 이미지 파일이 바뀌지 않았음을 확인했습니다. 자신의 분석에는 정말 독립적인 주석 작업을 사용하고, 라벨을 수집하는 방법은 Annotate 튜토리얼에서 확인하세요.",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3134,21 +3142,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "침입 분석",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "현재의 두 색 염색 분석을 설정하고 염색 기준 웰과 실험 조건을 구분하며 실제 임계값, 그래프, 파일을 확인합니다. 예제 데이터베이스는 명시적으로 합성 데이터입니다.",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "외부 및 전체 염색을 올바른 측정 열에 연결하기.",
-        "이름이 바뀐 염색 기준 설정을 사용하고 임계값 민감도 확인하기.",
-        "합성 패턴을 생물학적 효과로 해석하지 않고 그림과 웰별 분모 읽기."
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "기존 합성 데이터베이스를 보존하고 바이트 단위로 동일한 새 복사본에서 현재 GUI를 실행합니다. 가상의 1,800개 측정 중 360개는 염색 기준 객체이고, 1,440개는 12개 인공 실험 웰의 객체입니다. 실제로 획득한 두 색 이미지는 없으며 일반 다운로드 플레이트도 투과화 전후의 염색 실험 설계를 입증하지 않습니다. Vehicle과 inhibitor는 교육용 이름이지 검증한 처리가 아닙니다. 평균 강도는 해당 열이 있기 때문에 선택하며, 표면 염색에 일반적으로 가장 좋은 통계량이라는 뜻이 아닙니다. 독립 계산으로 분류, 임계값, 개수, 요약 및 그래프 기하를 확인하지만 이미지, 효능 또는 통계적 추론은 검증하지 않습니다. 원본과 복사한 입력은 그대로 유지됩니다. 현재 설정은 control_wells 대신 stain_baseline_wells이며 소수점 여섯 자리의 이봉성 기준을 정확히 기록합니다.",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home의 Assays에서 Invasion Assay를 엽니다. 이 모듈은 이미 측정한 기생체를 분류하며 여기서 이미지를 분할하지 않습니다. 예제 데이터베이스는 명시적으로 합성 데이터입니다. 그림은 설정과 계산을 설명할 뿐, 관찰된 침입이나 처리 효과를 보여 주는 것이 아닙니다.",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3162,7 +3170,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "measurements/measurements.db가 들어 있는 실험 폴더를 선택합니다. 새 전용 복사본에는 가상의 기생체 기록 1,800개가 있습니다. 360개는 염색 기준 객체이고 1,440개는 실험 웰의 객체입니다. 일반 다운로드 플레이트는 검증된 두 색 염색 실험을 대신할 수 없습니다.",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
@@ -3173,7 +3181,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel은 투과화 전에 적용한 염색으로 여기서는 채널 1입니다. Total channel은 이후의 염색으로 여기서는 채널 0입니다. 외부 염색이 양성이면 attached, 신호가 임계값과 같거나 낮으면 invaded로 분류합니다. 따라서 약한 외부 염색은 잘못된 invaded 판정을 만들 수 있습니다.",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
@@ -3184,7 +3192,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "이 교육용 데이터베이스에는 평균 강도 열이 있으므로 mean을 선택합니다. 표면 염색에 대한 일반적인 권장 사항은 아닙니다. 실제 데이터에서는 사용 가능하고 적절한 경계 또는 백분위 측정값을 확인하세요. 국소 배경을 측정하는 고리도 외부 염색 채널 자체와는 다릅니다.",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
@@ -3195,7 +3203,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Stain baseline wells를 열 1로 설정합니다. 이전 이름인 control wells를 대체하며 인공적인 음성 염색 기준을 지정하는 것이지 용매 조건을 지정하는 것이 아닙니다. 이 객체들로 염색 임계값을 정하고 분석 결과의 분모에서는 제외합니다. Vehicle과 inhibitor는 열 2와 3에 남습니다.",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
@@ -3206,7 +3214,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile은 0.99입니다. 기준 객체 360개로 약 22.8 강도 단위의 임계값을 얻습니다. 고정값인 Outside threshold를 비워 기준에서 유도한 임계값을 사용합니다. 이번 실행에서 적용하는 값은 자동 방법이 산출한 임계값이 아닙니다.",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
@@ -3217,7 +3225,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity는 0.25이며 임계값을 25% 낮추거나 높인 경우도 평가합니다. 임계값을 높이면 더 많은 기생체가 invaded로 분류될 수 있습니다. 변화를 해석하기 전에 효율 범위와 품질 플래그를 확인하세요. 실행 성공이 염색의 신뢰성을 입증하지는 않습니다.",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
@@ -3228,7 +3236,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class는 숙주 세포와 연결되지 않은 객체의 처리를 결정합니다. 여기서는 classify로 염색에 판단을 맡기지만 모든 교육용 기록은 이미 숙주와 연결되어 있습니다. 실제 데이터에서는 숙주 분할을 확인한 뒤 attached, exclude, classify 중 의도에 맞게 선택하세요.",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
@@ -3239,7 +3247,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run은 실제 그림 세 개를 생성합니다. 임계값 페이지는 기생체별이 아니라 웰별 분포를 보여 줍니다. 여기서는 적용된 선이 기준에서 유도되며 열두 웰이 모두 보입니다. 임계값이 타당한 집단 사이에 있는지 확인하세요. 가상 분포는 대표적인 염색 이미지 검토를 대신하지 못합니다.",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
@@ -3250,7 +3258,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "범례가 캔버스 밖으로 나가면 Figure settings를 열고 축 탭의 Legend position에서 best를 선택합니다. 대화상자를 확인해 레이블을 보이게 합니다. 이는 표시만 조정하는 것입니다. 그려진 값과 저장된 결과 표가 바뀌지 않는 것을 확인했습니다.",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3264,7 +3272,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "웰별 막대는 attached와 invaded 비율을 표시하며 각 막대 위에 분류한 기생체 120개가 표기됩니다. 기준 웰은 포함하지 않습니다. 비율과 함께 분모도 읽으세요. 극히 적은 객체에서 나온 높은 비율은 충분히 표본을 확보한 웰의 같은 비율과 동등하지 않습니다.",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
@@ -3275,7 +3283,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "두 가상 조건에는 각각 분류된 기생체 720개가 있습니다. invaded 비율은 약 39.7%와 68.9%입니다. 요약에는 웰 간 평균도 있으며, 일반적으로 모든 객체를 합쳐 계산한 비율과 같지는 않습니다. 여기서는 조건 이름이나 어떤 p값도 생물학적 효과를 입증하지 않습니다.",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
@@ -3286,7 +3294,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "콘솔과 결과 폴더에서 기생체 분류, 시야별 임계값, 웰별 효율, 조건 요약 및 비교 표를 검토하세요. 추론에는 독립적인 실험 웰을 사용하고 개별 기생체를 서로 대체 가능한 반복으로 취급하지 마세요. spaCR AI는 선택 사항이며 이번 로컬 분석에는 사용하지 않았습니다. 생물학적 결론을 내리기 전에 염색과 이미지를 검증하세요.",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3299,27 +3307,35 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "증식 분석",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "기생포별 기생충 수를 세고 분포를 확인하며, 데이터를 바꾸지 않고 범례를 조정합니다. 예제는 전부 합성 데이터이며 치료 효과를 입증하지 않습니다.",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "숙주세포가 아닌 기생포를 계수 단위로 선택하기.",
-        "2의 거듭제곱이 아닌 계수를 유지하고 웰별·조건별 요약 확인하기.",
-        "실제 그림 조작 기능을 사용하고 내보내기 경고 확인하기."
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "보관된 합성 교육용 데이터베이스의 새 복사본을 사용합니다. 가상의 기생충 1,992행, 기생포 480개, 숙주세포 그룹 240개, 인공 웰 12개로 구성됩니다. Vehicle과 inhibitor는 교육용 이름이며 각 그룹의 6개 웰은 같은 분포를 반복합니다. 실제 촬영한 이미지는 없고 이 모듈에는 전용 예제 데이터 다운로드 버튼도 없습니다. 원본 데이터베이스는 변경하지 않습니다. 독립 계산으로 CSV 필드 6,588개와 막대의 높이 및 누적 기준 위치를 확인했습니다. 분할, 추론 통계의 p값 또는 약효를 검증한 것은 아닙니다. 생물학적 분석에는 실측 데이터, 검증된 기생포 연결 관계와 독립 실험 반복이 필요합니다.",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home의 Assays에서 Replication Assay를 엽니다. 측정된 기생충을 기생포별로 세며, 여기서 이미지를 분할하지는 않습니다. 이 예제는 명시적으로 합성 데이터를 사용합니다. 그래프는 조작 방법과 계수 규칙을 가르치기 위한 것이며, 처리의 생물학적 효과를 보여 주지 않습니다.",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3333,7 +3349,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "measurements/measurements.db가 들어 있는 준비된 실험 폴더를 선택합니다. 새로 만든 비공개 복사본에는 가상 기생충 1,992행이 있습니다. 원본 데이터베이스를 보존하고 이전 결과 파일이 없는 상태에서 시작하므로, 표시되는 모든 출력은 이번 실행에서 나온 것입니다.",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
@@ -3344,7 +3360,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Vacuole key를 명시적인 기생포 ID 열로 설정합니다. 예제에는 기생포 480개가 있지만 숙주세포 그룹은 240개뿐이며, 각 숙주에 기생포 두 개가 연결됩니다. 숙주세포별로 세면 둘이 합쳐져 다른 질문에 답하게 됩니다. 자기 데이터를 분석하기 전에 실제 이미지에서 이 관계를 검증하세요.",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
@@ -3355,7 +3371,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell은 유효한 숙주 연결이 없는 객체를 제외합니다. 미할당 객체가 결과에 포함되는 것을 막지만, 숙주 분할에 실패했다면 실제 기생충도 제외할 수 있습니다. 교육용 행은 모두 유효한 연결을 갖습니다. 이 예제는 여러분의 분할 결과를 검증하지 않습니다.",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
@@ -3366,7 +3382,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "이름이 붙은 2의 거듭제곱 범주 중 가장 큰 것은 16이며, 더 큰 계수를 모두 잘라내는 상한선이 아닙니다. 더 큰 거듭제곱은 초과 범주에 들어가고 나머지 계수는 별도로 유지됩니다. 각 인공 웰에는 기생충 세 개를 가진 기생포 두 개가 있습니다. 계수 3을 4로 올려 반올림하지 마세요.",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
@@ -3377,7 +3393,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "조건과 웰의 대응 관계를 확인합니다. 여기서는 첫 번째 열을 vehicle, 두 번째를 inhibitor라고 부르며 그룹마다 인공 웰이 여섯 개 있습니다. 이 이름들은 가상의 교육 설계에 속합니다. 약물을 투여했다는 증거가 아니며, 그럴듯해 보이는 차이도 약효를 입증하지 않습니다.",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
@@ -3388,7 +3404,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "소스, 할당 키, 필터와 출력 설정을 확인한 뒤 Run을 누릅니다. 이것은 표 분석이지 새로운 Cellpose 분할이나 GPU 성능 측정이 아닙니다. 실제 작업 프로세스가 웰별 그림과 조건별 그림을 모두 만듭니다.",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
@@ -3399,7 +3415,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "각 누적 막대를 한 웰에서 기생포당 기생충 수가 어떻게 분포하는지 보여 주는 것으로 읽습니다. Vehicle 예제는 기생포 40개에 기생충 228개, inhibitor 예제는 40개에 104개가 있습니다. 두 경우 모두 계수가 2의 거듭제곱이 아닌 기생포 5퍼센트를 유지합니다. 저장된 파일 이름만 본 것이 아니라 표시된 막대 높이를 독립 계수와 대조했습니다.",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
@@ -3410,7 +3426,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "범례가 잘리면 Figure settings에서 축 탭을 열고 Legend position을 바꿉니다. 이 실제 조작 기능으로 그림 안쪽 위치를 선택합니다. 바뀌는 것은 표현 방식뿐이며, 모든 막대 값과 출력 데이터 파일은 그대로입니다.",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3421,7 +3437,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "조건별 보기에서는 예제의 기생포를 합쳐 두 분포로 나타냅니다. 각 그룹의 여섯 웰은 모두 같은 가상 패턴을 반복합니다. 여기서 얻은 유의성 검정을 치료 효과의 발견으로 인용하지 마세요. 실제 추론에는 진정한 반복과 타당한 독립 실험 단위가 필요합니다.",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
@@ -3432,7 +3448,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "그래프뿐 아니라 콘솔도 읽습니다. 이번 실행은 일부 선택한 색이 밝은 내보내기 페이지에서 대비가 낮다고 경고합니다. 내보낸 그림을 확인하고 구별하기 쉬운 팔레트를 선택하세요. 화면의 어두운 보기에서 읽기 쉽다고 해서 저장된 그림도 자동으로 읽기 쉬운 것은 아닙니다.",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
@@ -3443,7 +3459,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "Save를 켜면 results/analyze_replication 아래에 기생포 계수, 웰별 분포, 조건별 요약, 통계표와 그림이 저장됩니다. 설정과 소스 식별 정보도 함께 보관하세요. 자신의 실험에서는 요약을 해석하기 전에 실제 이미지와 생물학적 대조군을 검토해야 합니다.",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3456,7 +3472,15 @@
             "34_database"
           ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

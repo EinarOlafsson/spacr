@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
-EXPECTED_CACHE_KEY = "editor-api-20260923-y9yqqjva"
+EXPECTED_CACHE_KEY = "assays-20260924-xw4j5buw"
 EXPECTED_VOICE_KEY = "20260811-50-voices"
 EXPECTED_APP_KEY = "20260923-workflow78-learning-order"
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}

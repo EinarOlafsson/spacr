@@ -2715,87 +2715,85 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "Accord entre annotateurs",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Résultats et contrôle qualité",
-      "description": "Ouvrez l’outil intégré, comparez des étiquettes pédagogiques explicitement artificielles sur des copies de vrais recadrages téléchargés et distinguez l’accord par paire du résumé à plusieurs passes.",
+      "section": "Results and quality control",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "Ouvrir Annotator Agreement depuis Annotate.",
-        "Comparer les étiquettes, les observations manquantes et les matrices de confusion sans modifier les annotations.",
-        "Examiner les recadrages en désaccord et interpréter les résumés à deux et trois passes."
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "Les seize recadrages sont des copies inchangées de l’exemple téléchargeable d’Annotate. DEMO_A, DEMO_B et DEMO_C sont des étiquettes pédagogiques artificielles ajoutées à une nouvelle base privée, pas des classifications biologiques, des scores humains ou des prédictions. Les images et étiquettes sources restent inchangées ; png_path devient relatif seulement dans la copie. Pour votre évaluation, utilisez de vraies passes indépendantes. La détection par défaut exclut les colonnes connues de sortie des modèles. Des calculs indépendants en entiers et fractions vérifient chaque paire, matrice et agrégat ; trois aperçus correspondent exactement aux pixels des sources. Ce petit exemple enseigne les commandes, pas la fiabilité d’un essai. L’ancien film répétait un écran vide et décrivait une détection automatique des prédictions devenue incompatible avec l’API : il ne s’agit pas simplement d’une leçon déplacée.",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "Ouvrez Annotate, puis son bouton Annotator Agreement. C’est un outil intégré, pas un autre module de Home. La vue de comparaison lit les colonnes d’annotation sans les modifier ; revenez dans Annotate pour changer une étiquette.",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Annotate, puis son bouton Annotator Agreement. C’est un outil intégré, pas un autre module de Home. La vue de comparaison lit les colonnes d’annotation sans les modifier ; revenez dans Annotate pour changer une étiquette."
+          "hold_after": 0.7
         },
         {
           "visual": "04_demo_database",
-          "narration": "Ouvrez la base de démonstration préparée. Ses seize images sont de vrais recadrages de l’exemple téléchargeable, mais les trois colonnes DEMO contiennent des étiquettes pédagogiques artificielles. Elles ne mesurent ni les compétences d’une personne ni un phénotype biologique. Les images et étiquettes originales ont été préservées dans une copie source distincte.",
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez la base de démonstration préparée. Ses seize images sont de vrais recadrages de l’exemple téléchargeable, mais les trois colonnes DEMO contiennent des étiquettes pédagogiques artificielles. Elles ne mesurent ni les compétences d’une personne ni un phénotype biologique. Les images et étiquettes originales ont été préservées dans une copie source distincte."
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "Vérifiez explicitement les colonnes sélectionnées au lieu d’accepter les premiers choix par défaut. Une seule colonne ne permet pas de mesurer l’accord. La détection actuelle exclut par défaut les colonnes connues de sortie des modèles ; comparer un classifieur à une personne relève de la validation du modèle, pas de l’accord entre personnes.",
-          "hold_after": 0.7,
-          "speech_text": "Vérifiez explicitement les colonnes sélectionnées au lieu d’accepter les premiers choix par défaut. Une seule colonne ne permet pas de mesurer l’accord. La détection actuelle exclut par défaut les colonnes connues de sortie des modèles ; comparer un classifieur à une personne relève de la validation du modèle, pas de l’accord entre personnes."
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "Sélectionnez DEMO A et DEMO B, puis cliquez sur Compute agreement. Douze recadrages sont étiquetés dans les deux passes, trois dans une seule et un dans aucune. Les étiquettes manquantes ne sont pas silencieusement transformées en désaccords.",
-          "hold_after": 0.7,
-          "speech_text": "Sélectionnez DEMO A et DEMO B, puis cliquez sur Compute agreement. Douze recadrages sont étiquetés dans les deux passes, trois dans une seule et un dans aucune. Les étiquettes manquantes ne sont pas silencieusement transformées en désaccords."
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "Les deux passes pédagogiques concordent sur neuf des douze recadrages comparés : soixante-quinze pour cent, avec un kappa de Cohen de zéro virgule cinq. Examinez ensemble l’accord brut, le recouvrement et l’équilibre des classes. L’écran avertit que douze étiquettes partagées sont insuffisantes pour estimer la fiabilité de façon stable ; ces étiquettes inventées ne sont qu’une démonstration.",
-          "hold_after": 0.7,
-          "speech_text": "Les deux passes pédagogiques concordent sur neuf des douze recadrages comparés : soixante-quinze pour cent, avec un kappa de Cohen de zéro virgule cinq. Examinez ensemble l’accord brut, le recouvrement et l’équilibre des classes. L’écran avertit que douze étiquettes partagées sont insuffisantes pour estimer la fiabilité de façon stable ; ces étiquettes inventées ne sont qu’une démonstration."
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "Les lignes correspondent à DEMO A et les colonnes à DEMO B. Cinq recadrages portent la classe un dans les deux passes, et quatre la classe deux dans les deux. Les nombres hors diagonale, un et deux, représentent trois désaccords. Une qualification comme modéré est une convention, pas un seuil d’acceptation de votre essai.",
-          "hold_after": 0.7,
-          "speech_text": "Les lignes correspondent à DEMO A et les colonnes à DEMO B. Cinq recadrages portent la classe un dans les deux passes, et quatre la classe deux dans les deux. Les nombres hors diagonale, un et deux, représentent trois désaccords. Une qualification comme modéré est une convention, pas un seuil d’acceptation de votre essai."
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "Sélectionnez un désaccord pour examiner le recadrage correspondant et les deux étiquettes. Nous avons vérifié les trois aperçus par rapport aux pixels originaux. Dans une véritable étude, examinez des images représentatives et les définitions des classes avant de décider comment arbitrer ; cet écran en lecture seule ne tranche pas à votre place.",
-          "hold_after": 0.7,
-          "speech_text": "Sélectionnez un désaccord pour examiner le recadrage correspondant et les deux étiquettes. Nous avons vérifié les trois aperçus par rapport aux pixels originaux. Dans une véritable étude, examinez des images représentatives et les définitions des classes avant de décider comment arbitrer ; cet écran en lecture seule ne tranche pas à votre place."
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "Ajoutez DEMO C et relancez le calcul. Cocher une case ne déclenche pas à lui seul un nouveau calcul. Le tableau compare maintenant trois paires dont les nombres d’étiquettes partagées diffèrent, tandis que le résumé global de Fleiss utilise seulement les douze recadrages étiquetés dans toutes les passes sélectionnées.",
-          "hold_after": 0.7,
-          "speech_text": "Ajoutez DEMO C et relancez le calcul. Cocher une case ne déclenche pas à lui seul un nouveau calcul. Le tableau compare maintenant trois paires dont les nombres d’étiquettes partagées diffèrent, tandis que le résumé global de Fleiss utilise seulement les douze recadrages étiquetés dans toutes les passes sélectionnées."
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "Le kappa de Fleiss de l’exemple pédagogique vaut environ zéro virgule six six trois, et non la moyenne des trois kappas par paire. L’accord brut global compte ici les lignes complètes unanimes. La quatrième ligne à examiner n’a pas d’étiquette A mais présente un désaccord entre B et C : elle peut donc figurer dans la revue sans entrer dans le résumé des cas complets.",
-          "hold_after": 0.7,
-          "speech_text": "Le kappa de Fleiss de l’exemple pédagogique vaut environ zéro virgule six six trois, et non la moyenne des trois kappas par paire. L’accord brut global compte ici les lignes complètes unanimes. La quatrième ligne à examiner n’a pas d’étiquette A mais présente un désaccord entre B et C : elle peut donc figurer dans la revue sans entrer dans le résumé des cas complets."
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "En sélectionnant seulement A et B et en recalculant, vous retrouvez la comparaison initiale. Nous avons vérifié que la base et les fichiers de recadrage restent inchangés pendant les trois calculs. Utilisez des passes d’annotation réellement indépendantes pour votre analyse et revenez au tutoriel Annotate pour recueillir ces étiquettes.",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
-          "hold_after": 0.7,
-          "speech_text": "En sélectionnant seulement A et B et en recalculant, vous retrouvez la comparaison initiale. Nous avons vérifié que la base et les fichiers de recadrage restent inchangés pendant les trois calculs. Utilisez des passes d’annotation réellement indépendantes pour votre analyse et revenez au tutoriel Annotate pour recueillir ces étiquettes."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3264,21 +3262,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Essai d’invasion",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
-      "section": "Essais Toxoplasma",
-      "description": "Configurez l’essai à deux couleurs actuel, séparez les puits de référence du marquage des conditions expérimentales et examinez les vrais seuils, graphiques et fichiers. La base de démonstration est explicitement synthétique.",
+      "section": "Toxoplasma assays",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "Associer les marquages extérieur et total aux bonnes colonnes de mesure.",
-        "Utiliser le contrôle renommé de référence du marquage et examiner la sensibilité au seuil.",
-        "Lire les figures et les dénominateurs par puits sans attribuer de signification biologique aux motifs synthétiques."
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "La base synthétique existante est conservée ; l’interface actuelle travaille sur une nouvelle copie identique. Ses 1 800 mesures inventées comprennent 360 objets de référence et 1 440 objets d’essai répartis sur douze puits artificiels. Aucune image acquise à deux couleurs n’est fournie, et la plaque téléchargeable générale n’établit pas le protocole de marquage avant et après perméabilisation. Vehicle et inhibitor sont des noms pédagogiques, pas des traitements testés. La moyenne est choisie parce que ces colonnes existent, pas comme recommandation générale pour un marquage de surface. Des calculs indépendants vérifient classifications, seuils, comptes, résumés et géométrie des figures, sans valider images, efficacité ou inférence statistique. Les deux bases d’entrée restent inchangées. Le contrôle actuel est stain_baseline_wells, anciennement control_wells ; le seuil de bimodalité à six décimales est enregistré exactement.",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Ouvrez Invasion Assay dans la section Assays de Home. Ce module classe des parasites déjà mesurés ; il ne segmente pas les images ici. Notre base est explicitement synthétique. Les figures expliquent les réglages et les calculs, pas une invasion observée ni un effet de traitement.",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3288,108 +3286,99 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Invasion Assay dans la section Assays de Home. Ce module classe des parasites déjà mesurés ; il ne segmente pas les images ici. Notre base est explicitement synthétique. Les figures expliquent les réglages et les calculs, pas une invasion observée ni un effet de traitement."
+          "hold_after": 0.7
         },
         {
           "visual": "02_setting_src",
-          "narration": "Choisissez le dossier expérimental contenant measurements, barre oblique, measurements point db. Cette nouvelle copie privée comporte mille huit cents parasites inventés : trois cent soixante objets de référence du marquage et mille quatre cent quarante objets dans les puits d’essai. La plaque téléchargeable ordinaire ne remplace pas une expérience de marquage à deux couleurs validée.",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Choisissez le dossier expérimental contenant measurements, barre oblique, measurements point db. Cette nouvelle copie privée comporte mille huit cents parasites inventés : trois cent soixante objets de référence du marquage et mille quatre cent quarante objets dans les puits d’essai. La plaque téléchargeable ordinaire ne remplace pas une expérience de marquage à deux couleurs validée."
+          "hold_after": 0.7
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel correspond au marquage avant perméabilisation, ici le canal un. Total channel correspond au marquage effectué ensuite, ici le canal zéro. Un parasite positif pour le marquage extérieur est classé attached ; à une intensité égale ou inférieure au seuil, il est classé invaded. Un faible marquage extérieur peut donc créer de fausses classifications invaded.",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Outside channel correspond au marquage avant perméabilisation, ici le canal un. Total channel correspond au marquage effectué ensuite, ici le canal zéro. Un parasite positif pour le marquage extérieur est classé attached ; à une intensité égale ou inférieure au seuil, il est classé invaded. Un faible marquage extérieur peut donc créer de fausses classifications invaded."
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Nous choisissons mean parce que la base pédagogique contient des colonnes d’intensité moyenne. Ce n’est pas une recommandation générale pour un marquage de surface. Pour vos données, examinez les mesures de bordure ou de percentile disponibles et pertinentes. Un anneau local de fond n’est pas non plus le canal du marquage extérieur.",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Nous choisissons mean parce que la base pédagogique contient des colonnes d’intensité moyenne. Ce n’est pas une recommandation générale pour un marquage de surface. Pour vos données, examinez les mesures de bordure ou de percentile disponibles et pertinentes. Un anneau local de fond n’est pas non plus le canal du marquage extérieur."
+          "hold_after": 0.7
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Réglez Stain baseline wells sur la première colonne. Ce nom remplace l’ancien control wells et désigne la référence artificielle de marquage négatif, pas la condition véhicule. Ces objets définissent le seuil et sont exclus des dénominateurs de l’essai. Vehicle et inhibitor restent dans les colonnes deux et trois.",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Réglez Stain baseline wells sur la première colonne. Ce nom remplace l’ancien control wells et désigne la référence artificielle de marquage négatif, pas la condition véhicule. Ces objets définissent le seuil et sont exclus des dénominateurs de l’essai. Vehicle et inhibitor restent dans les colonnes deux et trois."
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile vaut zéro virgule quatre-vingt-dix-neuf. Les trois cent soixante objets de référence donnent un seuil d’environ vingt-deux virgule huit unités d’intensité. Nous laissons Outside threshold vide afin d’utiliser le seuil issu de la référence. La méthode automatique n’est pas le seuil appliqué dans cette exécution.",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Control quantile vaut zéro virgule quatre-vingt-dix-neuf. Les trois cent soixante objets de référence donnent un seuil d’environ vingt-deux virgule huit unités d’intensité. Nous laissons Outside threshold vide afin d’utiliser le seuil issu de la référence. La méthode automatique n’est pas le seuil appliqué dans cette exécution."
+          "hold_after": 0.7
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity vaut zéro virgule vingt-cinq : le seuil est encadré par une valeur vingt-cinq pour cent plus basse et une valeur vingt-cinq pour cent plus haute. Augmenter le seuil peut classer davantage de parasites invaded. Examinez l’intervalle d’efficacité et les indicateurs qualité ; une exécution réussie ne prouve pas la fiabilité du marquage.",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Threshold sensitivity vaut zéro virgule vingt-cinq : le seuil est encadré par une valeur vingt-cinq pour cent plus basse et une valeur vingt-cinq pour cent plus haute. Augmenter le seuil peut classer davantage de parasites invaded. Examinez l’intervalle d’efficacité et les indicateurs qualité ; une exécution réussie ne prouve pas la fiabilité du marquage."
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class détermine le traitement des objets sans lien avec une cellule hôte. L’exemple utilise classify et laisse la décision au marquage ; tous les objets pédagogiques ont déjà un lien hôte. Pour vos données, choisissez consciemment entre attached, exclude et classify après vérification de la segmentation des cellules hôtes.",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Extracellular class détermine le traitement des objets sans lien avec une cellule hôte. L’exemple utilise classify et laisse la décision au marquage ; tous les objets pédagogiques ont déjà un lien hôte. Pour vos données, choisissez consciemment entre attached, exclude et classify après vérification de la segmentation des cellules hôtes."
+          "hold_after": 0.7
         },
         {
           "visual": "15_figure_02",
-          "narration": "Run produit trois vraies figures. La page des seuils montre une distribution par puits, et non par parasite. Ici, la ligne appliquée provient de la référence et les douze puits sont visibles. Vérifiez si le seuil sépare des populations plausibles ; ces distributions inventées ne remplacent pas l’examen d’images de marquage représentatives.",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "Run produit trois vraies figures. La page des seuils montre une distribution par puits, et non par parasite. Ici, la ligne appliquée provient de la référence et les douze puits sont visibles. Vérifiez si le seuil sépare des populations plausibles ; ces distributions inventées ne remplacent pas l’examen d’images de marquage représentatives."
+          "hold_after": 0.7
         },
         {
           "visual": "16_legend_00",
-          "narration": "Si une légende dépasse du canevas, ouvrez Figure settings et choisissez best pour Legend position dans l’onglet des axes. Confirmez pour garder les libellés visibles. Il s’agit uniquement d’un réglage d’affichage : nous avons vérifié que les valeurs tracées et les tables enregistrées restent inchangées.",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3399,36 +3388,33 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Si une légende dépasse du canevas, ouvrez Figure settings et choisissez best pour Legend position dans l’onglet des axes. Confirmez pour garder les libellés visibles. Il s’agit uniquement d’un réglage d’affichage : nous avons vérifié que les valeurs tracées et les tables enregistrées restent inchangées."
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Les barres par puits montrent les fractions attached et invaded, avec cent vingt parasites classés au-dessus de chaque barre. Les puits de référence sont absents. Gardez le dénominateur à côté de la proportion : une forte fraction fondée sur très peu d’objets n’équivaut pas à la même fraction dans un puits bien échantillonné.",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "Les barres par puits montrent les fractions attached et invaded, avec cent vingt parasites classés au-dessus de chaque barre. Les puits de référence sont absents. Gardez le dénominateur à côté de la proportion : une forte fraction fondée sur très peu d’objets n’équivaut pas à la même fraction dans un puits bien échantillonné."
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Les deux conditions inventées comptent chacune sept cent vingt parasites classés. Leurs fractions invaded sont d’environ trente-neuf virgule sept et soixante-huit virgule neuf pour cent. Le résumé rapporte aussi la moyenne des puits, généralement différente d’un regroupement des objets. Ni les noms des conditions ni une valeur p n’établissent ici un effet biologique.",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "Les deux conditions inventées comptent chacune sept cent vingt parasites classés. Leurs fractions invaded sont d’environ trente-neuf virgule sept et soixante-huit virgule neuf pour cent. Le résumé rapporte aussi la moyenne des puits, généralement différente d’un regroupement des objets. Ni les noms des conditions ni une valeur p n’établissent ici un effet biologique."
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Consultez la console et le dossier de résultats : classifications, seuils par champ, efficacités par puits, résumés par condition et comparaisons. Pour l’inférence, utilisez des puits expérimentaux indépendants, pas les parasites comme répétitions interchangeables. spaCR AI est facultatif et n’a pas servi à cette analyse locale. Validez marquage et images avant toute conclusion biologique.",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3439,30 +3425,37 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Consultez la console et le dossier de résultats : classifications, seuils par champ, efficacités par puits, résumés par condition et comparaisons. Pour l’inférence, utilisez des puits expérimentaux indépendants, pas les parasites comme répétitions interchangeables. spakeur AI est facultatif et n’a pas servi à cette analyse locale. Validez marquage et images avant toute conclusion biologique."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Essai de réplication",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
-      "section": "Essais Toxoplasma",
-      "description": "Comptez les parasites par vacuole, examinez les distributions et réglez les légendes sans changer les données. L’exemple est entièrement synthétique et ne démontre aucun effet thérapeutique.",
+      "section": "Toxoplasma assays",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "Compter par vacuole et non par cellule hôte.",
-        "Conserver les nombres hors des puissances de deux et examiner les résumés par puits et condition.",
-        "Utiliser les commandes réelles des figures et lire les avertissements d’exportation."
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "Une nouvelle copie de la base pédagogique synthétique contient 1 992 lignes de parasites inventées, 480 vacuoles, 240 groupes de cellules hôtes et douze puits artificiels. Vehicle et inhibitor sont des noms pédagogiques ; les six puits de chaque groupe répètent la même distribution. Il n’y a ni images acquises ni bouton de téléchargement dédié dans ce module. La base originale reste inchangée. Des calculs indépendants vérifient 6 588 champs CSV ainsi que les hauteurs et bases des barres. Cela ne valide ni segmentation, ni valeurs p, ni efficacité. Pour une expérience biologique, utilisez des mesures, relations entre vacuoles et répétitions expérimentales réellement validées.",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Ouvrez Replication Assay dans la section Assays de Home. Ce module compte les parasites mesurés par vacuole ; il ne segmente pas les images ici. Cet exemple est explicitement synthétique : ses graphiques enseignent les commandes et les règles de comptage, pas un effet biologique du traitement.",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3472,132 +3465,121 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Ouvrez Replication Assay dans la section Assays de Home. Ce module compte les parasites mesurés par vacuole ; il ne segmente pas les images ici. Cet exemple est explicitement synthétique : ses graphiques enseignent les commandes et les règles de comptage, pas un effet biologique du traitement."
+          ]
         },
         {
           "visual": "03_setting_src",
-          "narration": "Choisissez le dossier d’expérience préparé contenant measurements, puis measurements point db. Notre nouvelle copie privée contient mille neuf cent quatre-vingt-douze lignes de parasites inventées. Nous préservons la base originale et partons sans anciens fichiers de résultats : chaque sortie montrée provient donc de cette exécution.",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Choisissez le dossier d’expérience préparé contenant measurements, puis measurements point db. Notre nouvelle copie privée contient mille neuf cent quatre-vingt-douze lignes de parasites inventées. Nous préservons la base originale et partons sans anciens fichiers de résultats : chaque sortie montrée provient donc de cette exécution."
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Définissez Vacuole key sur la colonne d’identifiants explicites des vacuoles. L’exemple contient quatre cent quatre-vingts vacuoles, mais seulement deux cent quarante groupes de cellules hôtes : chaque hôte partage deux vacuoles. Compter par cellule hôte les fusionnerait et répondrait à une autre question. Validez cette relation sur de vraies images avant d’analyser vos données.",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Définissez Vacuole key sur la colonne d’identifiants explicites des vacuoles. L’exemple contient quatre cent quatre-vingts vacuoles, mais seulement deux cent quarante groupes de cellules hôtes : chaque hôte partage deux vacuoles. Compter par cellule hôte les fusionnerait et répondrait à une autre question. Validez cette relation sur de vraies images avant d’analyser vos données."
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell exclut les objets sans lien valide vers un hôte. Cela empêche les objets non attribués d’entrer dans ce résultat, mais peut aussi éliminer de vrais parasites si la segmentation de l’hôte a échoué. Toutes les lignes pédagogiques ont des liens valides ; cet exemple ne valide pas votre segmentation.",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Require host cell exclut les objets sans lien valide vers un hôte. Cela empêche les objets non attribués d’entrer dans ce résultat, mais peut aussi éliminer de vrais parasites si la segmentation de l’hôte a échoué. Toutes les lignes pédagogiques ont des liens valides ; cet exemple ne valide pas votre segmentation."
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "La plus grande catégorie nommée correspondant à une puissance de deux est seize ; ce n’est pas une limite qui tronque tous les nombres supérieurs. Les puissances plus grandes ont une catégorie de dépassement et les autres nombres restent séparés. Chaque puits artificiel contient deux vacuoles à trois parasites : n’arrondissez pas un compte de trois à quatre.",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "La plus grande catégorie nommée correspondant à une puissance de deux est seize ; ce n’est pas une limite qui tronque tous les nombres supérieurs. Les puissances plus grandes ont une catégorie de dépassement et les autres nombres restent séparés. Chaque puits artificiel contient deux vacuoles à trois parasites : n’arrondissez pas un compte de trois à quatre."
+          "hold_after": 0.7
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Vérifiez la correspondance entre conditions et puits. Ici, la première colonne s’appelle vehicle et la seconde inhibitor, avec six puits artificiels par groupe. Ces noms appartiennent au plan pédagogique inventé. Ils ne prouvent pas qu’un médicament a été appliqué, et une différence visuellement convaincante ne prouve pas son efficacité.",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7,
-          "speech_text": "Vérifiez la correspondance entre conditions et puits. Ici, la première colonne s’appelle vehicle et la seconde inhibitor, avec six puits artificiels par groupe. Ces noms appartiennent au plan pédagogique inventé. Ils ne prouvent pas qu’un médicament a été appliqué, et une différence visuellement convaincante ne prouve pas son efficacité."
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_run",
-          "narration": "Lancez Run seulement après avoir vérifié la source, la clé d’attribution, les filtres et les paramètres de sortie. Il s’agit d’une analyse de tables, pas d’une nouvelle segmentation Cellpose ni d’un test de performance du processeur graphique. Le traitement réel produit les figures par puits et par condition.",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7,
-          "speech_text": "Lancez Run seulement après avoir vérifié la source, la clé d’attribution, les filtres et les paramètres de sortie. Il s’agit d’une analyse de tables, pas d’une nouvelle segmentation celle pose ni d’un test de performance du processeur graphique. Le traitement réel produit les figures par puits et par condition."
+          "hold_after": 0.7
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Chaque barre empilée représente la distribution des nombres de parasites par vacuole dans un puits. L’exemple vehicle contient deux cent vingt-huit parasites dans quarante vacuoles ; l’exemple inhibitor, cent quatre dans quarante. Les deux conservent cinq pour cent de vacuoles hors des puissances de deux. Nous avons comparé les hauteurs affichées à des comptes indépendants, pas seulement vérifié les noms des fichiers.",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "Chaque barre empilée représente la distribution des nombres de parasites par vacuole dans un puits. L’exemple vehicle contient deux cent vingt-huit parasites dans quarante vacuoles ; l’exemple inhibitor, cent quatre dans quarante. Les deux conservent cinq pour cent de vacuoles hors des puissances de deux. Nous avons comparé les hauteurs affichées à des comptes indépendants, pas seulement vérifié les noms des fichiers."
+          "hold_after": 0.7
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Si la légende est coupée, ouvrez Figure settings, puis l’onglet des axes, et modifiez Legend position. Nous choisissons une position intérieure avec ces commandes réelles. C’est un changement de présentation : les valeurs des barres et les fichiers de données restent inchangés.",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ],
-          "speech_text": "Si la légende est coupée, ouvrez Figure settings, puis l’onglet des axes, et modifiez Legend position. Nous choisissons une position intérieure avec ces commandes réelles. C’est un changement de présentation : les valeurs des barres et les fichiers de données restent inchangés."
+          ]
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "La vue par condition regroupe les vacuoles de l’exemple en deux distributions. Les six puits de chaque groupe répètent le même motif inventé. Ne présentez pas les tests de significativité obtenus comme un effet thérapeutique : une véritable inférence nécessite de vraies répétitions et une unité expérimentale indépendante justifiable.",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "La vue par condition regroupe les vacuoles de l’exemple en deux distributions. Les six puits de chaque groupe répètent le même motif inventé. Ne présentez pas les tests de significativité obtenus comme un effet thérapeutique : une véritable inférence nécessite de vraies répétitions et une unité expérimentale indépendante justifiable."
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Lisez la console autant que le graphique. Cette exécution avertit que certaines couleurs choisies contrastent mal sur une page exportée claire. Vérifiez les figures exportées et choisissez une palette accessible : une vue sombre lisible à l’écran ne garantit pas automatiquement une figure enregistrée lisible.",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7,
-          "speech_text": "Lisez la console autant que le graphique. Cette exécution avertit que certaines couleurs choisies contrastent mal sur une page exportée claire. Vérifiez les figures exportées et choisissez une palette accessible : une vue sombre lisible à l’écran ne garantit pas automatiquement une figure enregistrée lisible."
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_save",
-          "narration": "Avec Save activé, les résultats vont dans results, puis analyze replication : comptes par vacuole, distributions par puits, résumés par condition, tables statistiques et figures. Conservez les paramètres et identifiants sources avec eux. Pour votre essai, examinez de vraies images et des témoins biologiques avant d’interpréter ces résumés.",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3608,10 +3590,17 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ],
-          "speech_text": "Avec Save activé, les résultats vont dans results, puis analyze replication : comptes par vacuole, distributions par puits, résumés par condition, tables statistiques et figures. Conservez les paramètres et identifiants sources avec eux. Pour votre essai, examinez de vraies images et des témoins biologiques avant d’interpréter ces résumés."
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",

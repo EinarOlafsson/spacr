@@ -2,289 +2,163 @@
   "policy": "report-only; English fallback",
   "entries": [
     {
-      "lesson": "06_api",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "06_api",
+      "lesson": "01_pypi_github",
       "language": "da",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "14_make_masks",
+      "lesson": "01_pypi_github",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
       "language": "da",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "16_activation",
-      "language": "da",
+      "lesson": "05_home",
+      "language": "de",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "20_cellpose_masks",
-      "language": "da",
+      "lesson": "05_home",
+      "language": "es",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "21_model_compare",
-      "language": "da",
+      "lesson": "05_home",
+      "language": "fr",
       "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "28_training_runs",
+      "lesson": "05_home",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "06_api",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
@@ -296,32 +170,20 @@
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "de",
+      "lesson": "06_api",
+      "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "16_activation",
-      "language": "de",
+      "lesson": "06_api",
+      "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "20_cellpose_masks",
-      "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "de",
+      "lesson": "06_api",
+      "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -332,67 +194,19 @@
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "is",
+      "lesson": "06_api",
+      "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
       "lesson": "06_api",
-      "language": "ko",
+      "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
+      "lesson": "06_api",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
@@ -404,32 +218,8 @@
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "16_activation",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "20_cellpose_masks",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "21_model_compare",
-      "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "28_training_runs",
-      "language": "nb",
+      "lesson": "06_api",
+      "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -440,8 +230,776 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "06_api",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "07_mask",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "13_regression",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "14_make_masks",
       "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "14_make_masks",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "15_image_umap",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "16_activation",
+      "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -452,8 +1010,230 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "16_activation",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "18_motility",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "20_cellpose_masks",
       "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
@@ -464,10 +1244,424 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "21_model_compare",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "23_agreement",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "26_invasion",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "27_replication",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "28_training_runs",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "28_training_runs",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English fallback retained from the published catalog; translation requires review"
     }
   ]
 }

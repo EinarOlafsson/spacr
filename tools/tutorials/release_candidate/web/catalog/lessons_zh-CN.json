@@ -2715,87 +2715,85 @@
       "id": "23_agreement",
       "number": 23,
       "slug": "agreement",
-      "title": "标注者一致性",
+      "title": "Annotator Agreement: compare independent annotation passes",
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "结果与质量控制",
-      "description": "打开嵌套工具，在真实下载裁剪图像的副本上比较明确标为人工教学用途的标签，并区分两两一致性与多轮标注汇总。",
+      "section": "Results and quality control",
+      "description": "Choose annotation columns, compare agreement and inspect the crops where labels differ.",
       "objectives": [
-        "从 Annotate 打开 Annotator Agreement。",
-        "在不修改标注的情况下比较标签、缺失观测和混淆矩阵。",
-        "查看不一致的裁剪图像，理解两轮与三轮标注汇总。"
+        "Open the example database and select two annotation passes.",
+        "Read pairwise agreement and the confusion matrix.",
+        "Inspect disagreements and compare three annotation passes."
       ],
-      "prerequisite": "十六张裁剪图像是 Annotate 可下载示例的未修改副本。DEMO_A、DEMO_B 和 DEMO_C 是添加到新建私有数据库中的人工教学标签，不是生物学分类、人工审核者评分或模型预测。原始标签和图像保持不变，仅演示副本中的 png_path 改为相对路径。评估自己的数据时，请使用真正独立完成的标注。默认列发现排除已知模型输出列。独立的整数和分数计算核对每一对标注、混淆矩阵及汇总；三张预览与原始裁剪图像的像素完全一致。这个小示例用于学习操作，不用于证明实验可靠性。旧视频重复空白页面，而且自动发现预测列的说明已不符合当前 API，因此并非只需移动位置的旧教程。",
+      "prerequisite": "Extract the linked Annotator Agreement example and keep its database with the crop images. It contains sixteen images from the Annotate example and three artificial teaching-label columns, DEMO_A, DEMO_B and DEMO_C. For your own analysis, use independently collected annotations of the same images.",
       "scenes": [
         {
           "visual": "02_agreement_fold",
-          "narration": "打开 Annotate，然后点击其中的 Annotator Agreement 按钮。这是嵌套工具，不是 Home 上另一个模块。比较视图读取标注列而不修改它们；需要更改标签时，请返回 Annotate。",
+          "narration": "From Home, open Annotate, then choose Annotator Agreement. Use this tool to compare labels collected in separate annotation passes. The results help you find images that need review.",
           "related_lessons": [
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开 Annotate，然后点击其中的 Annotator Agreement 按钮。这是嵌套工具，不是 主页 上另一个模块。比较视图读取标注列而不修改它们；需要更改标签时，请返回 Annotate。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_demo_database",
-          "narration": "打开准备好的演示数据库。十六张图像是真实可下载示例中的裁剪图，但三个 DEMO 列是人工教学标签。它们不衡量某个人的能力，也不表示生物学表型。原始标签和图像保存在单独的源副本中。",
-          "hold_after": 0.7,
-          "speech_text": "打开准备好的演示数据库。十六张图像是真实可下载示例中的裁剪图，但三个 DEMO 列是人工教学标签。它们不衡量某个人的能力，也不表示生物学表型。原始标签和图像保存在单独的源副本中。"
+          "narration": "Open the example database. Keep the extracted crop folders beside it so the image previews can load. The DEMO columns contain artificial teaching labels; use your own independent annotation columns when assessing agreement in a study.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_one_column_not_a_comparison",
-          "narration": "请明确检查所选列，不要直接接受最初的默认选择。单独一列无法衡量一致性。当前列发现默认排除已知模型输出列；比较分类器与人工结果属于模型验证，而不是人与人之间的一致性。",
-          "hold_after": 0.7,
-          "speech_text": "请明确检查所选列，不要直接接受最初的默认选择。单独一列无法衡量一致性。当前列发现默认排除已知模型输出列；比较分类器与人工结果属于模型验证，而不是人与人之间的一致性。"
+          "narration": "Select at least two annotation columns from the list. For this example, start with DEMO A and DEMO B. Check the column names so you compare the intended passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_two_columns",
-          "narration": "选择 DEMO A 和 DEMO B，然后点击 Compute agreement。十二张图像在两轮中都有标签，三张只在其中一轮有标签，一张两轮都没有。缺失标签不会被悄悄算成不一致。",
-          "hold_after": 0.7,
-          "speech_text": "选择 DEMO A 和 DEMO B，然后点击 Compute agreement。十二张图像在两轮中都有标签，三张只在其中一轮有标签，一张两轮都没有。缺失标签不会被悄悄算成不一致。"
+          "narration": "Click Compute agreement. The two selected passes share twelve labelled crops. Three more crops have a label in only one pass, and one has neither label. Pairwise agreement uses the crops labelled by both passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_pairwise_results",
-          "narration": "两轮教学标注在十二张可比较图像中的九张上一致：一致率为百分之七十五，科恩卡帕为零点五。要结合原始一致率、共同标注范围和类别平衡解读。页面提醒，十二个共同标签不足以稳定估计可靠性；这些虚构标签仅供演示。",
-          "hold_after": 0.7,
-          "speech_text": "两轮教学标注在十二张可比较图像中的九张上一致：一致率为百分之七十五，科恩卡帕为零点五。要结合原始一致率、共同标注范围和类别平衡解读。页面提醒，十二个共同标签不足以稳定估计可靠性；这些虚构标签仅供演示。"
+          "narration": "Read the pairwise results. The passes agree on nine of twelve crops, giving seventy-five percent agreement and a Cohen kappa of zero point five. Read these values alongside the number of shared labels; a small sample gives an uncertain estimate.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_confusion_matrix",
-          "narration": "行代表 DEMO A，列代表 DEMO B。五张图像在两轮中都为类别一，四张都为类别二。非对角线上的计数一和二表示三处不一致。中等之类的汇总等级是一种惯例，不是您实验的验收阈值。",
-          "hold_after": 0.7,
-          "speech_text": "行代表 DEMO A，列代表 DEMO B。五张图像在两轮中都为类别一，四张都为类别二。非对角线上的计数一和二表示三处不一致。中等之类的汇总等级是一种惯例，不是您实验的验收阈值。"
+          "narration": "Open the confusion matrix. Rows represent DEMO A and columns represent DEMO B. The diagonal contains matching labels: five for class one and four for class two. The off-diagonal cells contain the three disagreements.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_disagreement_crop_1",
-          "narration": "选择一处不一致，查看对应图像和两个标签。我们已将三张预览与原始像素逐一核对。真实研究中，应先审阅代表性图像和类别定义，再决定如何裁定；这个只读页面不会替您做决定。",
-          "hold_after": 0.7,
-          "speech_text": "选择一处不一致，查看对应图像和两个标签。我们已将三张预览与原始像素逐一核对。真实研究中，应先审阅代表性图像和类别定义，再决定如何裁定；这个只读页面不会替您做决定。"
+          "narration": "Select a disagreement to view its crop and the labels assigned by each pass. Compare the image with your class definitions. To revise a label after review, return to Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_three_columns",
-          "narration": "加入 DEMO C 并重新计算。仅更改复选框不会自动产生新计算。表格现在比较三个标注对，各自共同标签数量不同；全局弗莱斯汇总则只使用所有所选轮次都标注的十二张图像。",
-          "hold_after": 0.7,
-          "speech_text": "加入 DEMO C 并重新计算。仅更改复选框不会自动产生新计算。表格现在比较三个标注对，各自共同标签数量不同；全局弗莱斯汇总则只使用所有所选轮次都标注的十二张图像。"
+          "narration": "Add DEMO C and click Compute agreement again. The pairwise table now shows all three pairs. Each pair uses its shared labels, while the overall summary uses crops labelled in all three selected passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_three_pass_results",
-          "narration": "教学示例的弗莱斯卡帕约为零点六六三，不是三个两两卡帕的平均值。这里的总体原始一致率统计完整行中的全体一致。审核表第四行缺少 A 标签，但 B 与 C 不一致，因此可以出现在审核列表中，却不进入完整案例汇总。",
-          "hold_after": 0.7,
-          "speech_text": "教学示例的弗莱斯卡帕约为零点六六三，不是三个两两卡帕的平均值。这里的总体原始一致率统计完整行中的全体一致。审核表第四行缺少 A 标签，但 B 与 C 不一致，因此可以出现在审核列表中，却不进入完整案例汇总。"
+          "narration": "Read the overall Fleiss kappa and the unanimous agreement summary. This example gives a Fleiss kappa of about zero point six six three. Review the disagreement list as well: it can include a crop that has labels in only two of the three passes.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_pairwise_restored",
-          "narration": "只选择 A 和 B 并重新计算，就能恢复原始比较。我们确认数据库和裁剪图像文件在三次计算中始终不变。自己的分析应使用真正独立的标注轮次，收集标签的方法请回到 Annotate 教程查看。",
+          "narration": "To focus on one pair again, select only A and B and click Compute agreement. The results stay in this comparison view; your annotation columns remain in the source database. Continue in Annotate to collect another independent pass or review the identified disagreements.",
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
-          "hold_after": 0.7,
-          "speech_text": "只选择 A 和 B 并重新计算，就能恢复原始比较。我们确认数据库和裁剪图像文件在三次计算中始终不变。自己的分析应使用真正独立的标注轮次，收集标签的方法请回到 Annotate 教程查看。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "Agreement_artificial_labels_real_crops.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "24_plaque",
@@ -3264,21 +3262,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "侵入实验",
+      "title": "Invasion Assay: score outside and total staining",
       "series": 3,
       "app_key": "invasion",
-      "section": "弓形虫实验",
-      "description": "配置当前的双色染色分析，区分染色基准孔和实验条件，检查真实阈值、图表与输出文件。演示数据库明确为合成数据。",
+      "section": "Toxoplasma assays",
+      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
       "objectives": [
-        "将细胞外染色和总染色对应到正确的测量列。",
-        "使用已更名的染色基准设置并检查阈值敏感性。",
-        "结合每孔分母解读图表，不把合成模式当作生物学效应。"
+        "Choose the measurement database and map outside and total staining.",
+        "Set baseline wells and threshold controls, then run the analysis.",
+        "Inspect distributions, well denominators and saved result tables."
       ],
-      "prerequisite": "保留原有合成数据库，在字节完全相同的新副本上运行当前GUI。1,800条虚构测量中，360条为染色基准对象，1,440条属于12个人工实验孔。没有实际采集的双色图像，通用下载示例板也不能证明通透处理前后的染色设计。Vehicle和inhibitor是教学标签，不是已测试的处理。选择平均强度是因为这些列可用，并不意味着它通常最适合表面染色。独立计算核对分类、阈值、计数、汇总及图形几何，但不验证图像、疗效或统计推断。原始和副本输入均保持不变。当前设置为stain_baseline_wells，旧名为control_wells，并准确记录六位小数的双峰性阈值。",
+      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在Home的Assays部分打开Invasion Assay。此模块对已经测量的寄生体分类，不在这里进行图像分割。本例数据库明确为合成数据。图表演示的是设置和计算，而非实际观察到的侵入或处理效应。",
+          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
           "focus": [
             346,
             50,
@@ -3288,108 +3286,99 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "在主页的Assays部分打开Invasion Assay。此模块对已经测量的寄生体分类，不在这里进行图像分割。本例数据库明确为合成数据。图表演示的是设置和计算，而非实际观察到的侵入或处理效应。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_setting_src",
-          "narration": "选择包含measurements、斜杠、measurements、点、db的实验文件夹。这个新的专用副本有一千八百条虚构寄生体记录，其中三百六十条是染色基准对象，一千四百四十条属于实验孔。普通下载示例板不能替代经过验证的双色染色实验。",
+          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择包含measurements、斜杠、measurements、点、db的实验文件夹。这个新的专用副本有一千八百条虚构寄生体记录，其中三百六十条是染色基准对象，一千四百四十条属于实验孔。普通下载示例板不能替代经过验证的双色染色实验。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Outside channel是通透处理前施加的染色，这里为通道一。Total channel是处理后的染色，这里为通道零。细胞外染色阳性的寄生体归为attached；强度等于或低于阈值时归为invaded。因此，细胞外染色偏弱可能导致错误的invaded分类。",
+          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Outside channel是通透处理前施加的染色，这里为通道一。Total channel是处理后的染色，这里为通道零。细胞外染色阳性的寄生体归为attached；强度等于或低于阈值时归为invaded。因此，细胞外染色偏弱可能导致错误的invaded分类。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "本教学数据库包含平均强度列，所以选择mean。这并不是针对表面染色的一般建议。对于真实数据，请检查哪些边界或百分位测量可用且适合。用于测量局部背景的环形区域也不同于细胞外染色通道本身。",
+          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "本教学数据库包含平均强度列，所以选择mean。这并不是针对表面染色的一般建议。对于真实数据，请检查哪些边界或百分位测量可用且适合。用于测量局部背景的环形区域也不同于细胞外染色通道本身。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "将Stain baseline wells设为第一列。它替代旧名control wells，指定人工的阴性染色基准，而不是溶媒条件。这些对象用于确定染色阈值，并从实验结果的分母中排除。Vehicle和inhibitor仍在第二列和第三列。",
+          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "将Stain baseline wells设为第一列。它替代旧名control wells，指定人工的阴性染色基准，而不是溶媒条件。这些对象用于确定染色阈值，并从实验结果的分母中排除。Vehicle和inhibitor仍在第二列和第三列。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Control quantile设为零点九九。三百六十个基准对象得到约二十二点八个强度单位的阈值。固定值Outside threshold保持为空，因此使用基准推导的阈值。本次运行并未应用自动方法产生的阈值。",
+          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Control quantile设为零点九九。三百六十个基准对象得到约二十二点八个强度单位的阈值。固定值Outside threshold保持为空，因此使用基准推导的阈值。本次运行并未应用自动方法产生的阈值。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Threshold sensitivity设为零点二五，分别评估阈值降低和提高百分之二十五时的结果。提高阈值可能使更多寄生体归为invaded。解释变化前，应检查效率变化范围和质量标记；运行成功并不能证明染色可靠。",
+          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Threshold sensitivity设为零点二五，分别评估阈值降低和提高百分之二十五时的结果。提高阈值可能使更多寄生体归为invaded。解释变化前，应检查效率变化范围和质量标记；运行成功并不能证明染色可靠。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Extracellular class决定如何处理没有宿主细胞关联的对象。本例选择classify，交由染色信号决定；但所有教学记录本来就有宿主关联。对于真实数据，请先检查宿主分割，再有意识地选择attached、exclude或classify。",
+          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Extracellular class决定如何处理没有宿主细胞关联的对象。本例选择classify，交由染色信号决定；但所有教学记录本来就有宿主关联。对于真实数据，请先检查宿主分割，再有意识地选择attached、exclude或classify。"
+          "hold_after": 0.7
         },
         {
           "visual": "15_figure_02",
-          "narration": "运行Run会产生三幅真实图表。阈值页面展示的是每孔一个分布，而不是每个寄生体一个分布。本例所用阈值线来自基准，十二个孔全部可见。请检查阈值是否位于合理的群体之间；这些虚构分布不能替代检查有代表性的染色图像。",
+          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "运行Run会产生三幅真实图表。阈值页面展示的是每孔一个分布，而不是每个寄生体一个分布。本例所用阈值线来自基准，十二个孔全部可见。请检查阈值是否位于合理的群体之间；这些虚构分布不能替代检查有代表性的染色图像。"
+          "hold_after": 0.7
         },
         {
           "visual": "16_legend_00",
-          "narration": "如果图例超出画布，请打开Figure settings，在坐标轴页的Legend position选择best。确认对话框，使标签保持可见。这只是显示调整：我们已核对绘制值和已保存的结果表没有改变。",
+          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
           "focus": [
             1420,
             330,
@@ -3399,36 +3388,33 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7,
-          "speech_text": "如果图例超出画布，请打开Figure settings，在坐标轴页的Legend position选择best。确认对话框，使标签保持可见。这只是显示调整：我们已核对绘制值和已保存的结果表没有改变。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "每孔的柱形显示attached和invaded的比例，每根柱子上标有一百二十个已分类寄生体。染色基准孔不在其中。请将分母与比例一起阅读：基于极少对象得到的高比例，不等同于充分采样的孔中相同的比例。",
+          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "每孔的柱形显示attached和invaded的比例，每根柱子上标有一百二十个已分类寄生体。染色基准孔不在其中。请将分母与比例一起阅读：基于极少对象得到的高比例，不等同于充分采样的孔中相同的比例。"
+          "hold_after": 0.7
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "两个虚构条件各有七百二十个已分类寄生体。invaded比例约为百分之三十九点七和百分之六十八点九。汇总还报告孔间平均值，它通常不等于将所有对象合并计算的比例。这里无论条件标签还是任何P值，都不能证明生物学效应。",
+          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7,
-          "speech_text": "两个虚构条件各有七百二十个已分类寄生体。invaded比例约为百分之三十九点七和百分之六十八点九。汇总还报告孔间平均值，它通常不等于将所有对象合并计算的比例。这里无论条件标签还是任何P值，都不能证明生物学效应。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_actual_completion",
-          "narration": "查看控制台和结果文件夹中的对象分类、视野阈值、每孔效率、条件汇总及比较表。推断应使用独立实验孔，不能把单个寄生体当作可互换的重复。spaCR AI是可选功能，本次本地分析未使用它。得出生物学结论前，请先验证染色和图像。",
+          "narration": "Open results/analyze_invasion inside Source. Review parasite_calls.csv, field_thresholds.csv, well_invasion.csv and condition_summary.csv, together with the saved figures and settings. Use independent experimental replicates when assessing differences in your own assay.",
           "focus": [
             1510,
             1200,
@@ -3439,30 +3425,37 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "查看控制台和结果文件夹中的对象分类、视野阈值、每孔效率、条件汇总及比较表。推断应使用独立实验孔，不能把单个寄生体当作可互换的重复。斯佩克尔 AI是可选功能，本次本地分析未使用它。得出生物学结论前，请先验证染色和图像。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_invasion_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "复制实验分析",
+      "title": "Replication Assay: count parasites per vacuole",
       "series": 3,
       "app_key": "replication",
-      "section": "弓形虫实验",
-      "description": "按寄生泡统计寄生虫，检查分布，并在不改变数据的情况下调整图例。整个示例使用合成数据，不证明治疗效果。",
+      "section": "Toxoplasma assays",
+      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
       "objectives": [
-        "以寄生泡而非宿主细胞作为计数单位。",
-        "保留非二的幂次计数，并检查按孔及按条件汇总的结果。",
-        "使用实际图形控件，阅读导出警告。"
+        "Choose a measurement database and its vacuole identifier.",
+        "Set host-assignment and size filters, then run the analysis.",
+        "Read per-well distributions and locate the saved result tables."
       ],
-      "prerequisite": "使用保留的合成教学数据库的新副本，其中包含1,992条虚构寄生虫记录、480个寄生泡、240个宿主细胞组和12个人工孔。Vehicle和inhibitor只是教学名称；每组6个孔重复同一分布。没有实际采集的图像，此模块也没有专用的示例数据下载按钮。原数据库保持不变。独立计算核对了6,588个CSV字段，以及柱子的高度和堆叠基线。这不验证分割、推断性p值或药效。真实生物学研究需要实测数据、经验证的寄生泡对应关系和独立实验重复。",
+      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在Home的Assays部分打开Replication Assay。它按寄生泡统计已测量的寄生虫，不在此处进行图像分割。本示例明确使用合成数据，因此图表用于讲解控件和计数规则，而不是展示处理的生物学效果。",
+          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
           "focus": [
             346,
             50,
@@ -3472,132 +3465,121 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "在主页的Assays部分打开Replication Assay。它按寄生泡统计已测量的寄生虫，不在此处进行图像分割。本示例明确使用合成数据，因此图表用于讲解控件和计数规则，而不是展示处理的生物学效果。"
+          ]
         },
         {
           "visual": "03_setting_src",
-          "narration": "选择准备好的实验文件夹，其中的measurements文件夹应包含measurements点db。我们新建的私有副本包含一千九百九十二条虚构的寄生虫记录。原数据库得到保留，并且开始时没有旧结果文件，因此展示的每项输出都来自本次运行。",
+          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择准备好的实验文件夹，其中的measurements文件夹应包含measurements点db。我们新建的私有副本包含一千九百九十二条虚构的寄生虫记录。原数据库得到保留，并且开始时没有旧结果文件，因此展示的每项输出都来自本次运行。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "将Vacuole key设为明确标识寄生泡的编号列。本例有四百八十个寄生泡，但只有二百四十个宿主细胞组，每个宿主对应两个寄生泡。按宿主细胞计数会把它们合并，回答的是另一个问题。分析自己的数据前，请在真实图像中验证这种对应关系。",
+          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "将Vacuole key设为明确标识寄生泡的编号列。本例有四百八十个寄生泡，但只有二百四十个宿主细胞组，每个宿主对应两个寄生泡。按宿主细胞计数会把它们合并，回答的是另一个问题。分析自己的数据前，请在真实图像中验证这种对应关系。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Require host cell会排除没有有效宿主关联的对象。这能避免未分配对象进入结果，但如果宿主分割失败，也可能排除真正的寄生虫。所有教学记录都有有效关联；本例并不验证您的分割。",
+          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "Require host cell会排除没有有效宿主关联的对象。这能避免未分配对象进入结果，但如果宿主分割失败，也可能排除真正的寄生虫。所有教学记录都有有效关联；本例并不验证您的分割。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "已命名的二的幂次类别中，最大的是十六，这不是截掉所有更大计数的上限。更大的幂次进入溢出类别，其他计数则单独保留。每个人工孔都有两个含三个寄生虫的寄生泡；不要把三的计数舍入成四。",
+          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7,
-          "speech_text": "已命名的二的幂次类别中，最大的是十六，这不是截掉所有更大计数的上限。更大的幂次进入溢出类别，其他计数则单独保留。每个人工孔都有两个含三个寄生虫的寄生泡；不要把三的计数舍入成四。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "检查条件与孔的对应关系。这里第一列叫vehicle，第二列叫inhibitor，每组有六个人工孔。这些名称属于虚构的教学设计，不证明施用了药物；看起来很有说服力的差异也不是药效证据。",
+          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7,
-          "speech_text": "检查条件与孔的对应关系。这里第一列叫vehicle，第二列叫inhibitor，每组有六个人工孔。这些名称属于虚构的教学设计，不证明施用了药物；看起来很有说服力的差异也不是药效证据。"
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_run",
-          "narration": "检查数据源、分配键、过滤器和输出设置后再按Run。这是表格分析，不是新的Cellpose分割，也不是GPU性能测试。实际运行的处理程序会生成按孔和按条件汇总的两张图。",
+          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7,
-          "speech_text": "检查数据源、分配键、过滤器和输出设置后再按Run。这是表格分析，不是新的塞尔波斯分割，也不是GPU性能测试。实际运行的处理程序会生成按孔和按条件汇总的两张图。"
+          "hold_after": 0.7
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "将每根堆叠柱理解为一个孔内每个寄生泡中寄生虫数量的分布。Vehicle示例在四十个寄生泡中有二百二十八个寄生虫；inhibitor示例在四十个中有一百零四个。两者都保留了百分之五的非二的幂次寄生泡。我们用独立计数核对了显示的柱高，而不只是检查保存文件的名称。",
+          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "将每根堆叠柱理解为一个孔内每个寄生泡中寄生虫数量的分布。Vehicle示例在四十个寄生泡中有二百二十八个寄生虫；inhibitor示例在四十个中有一百零四个。两者都保留了百分之五的非二的幂次寄生泡。我们用独立计数核对了显示的柱高，而不只是检查保存文件的名称。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "如果图例被裁切，打开Figure settings和坐标轴选项卡，再修改Legend position。我们通过这些实际控件选择图内位置。这只是显示方式的改变；全部柱值和输出数据文件都保持不变。",
+          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ],
-          "speech_text": "如果图例被裁切，打开Figure settings和坐标轴选项卡，再修改Legend position。我们通过这些实际控件选择图内位置。这只是显示方式的改变；全部柱值和输出数据文件都保持不变。"
+          ]
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "按条件显示时，会将示例中的寄生泡汇总成两个分布。每组的六个孔都重复相同的虚构模式。不要把所得的显著性检验当作治疗效果的发现；真实推断需要真正的重复，以及合理的独立实验单位。",
+          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7,
-          "speech_text": "按条件显示时，会将示例中的寄生泡汇总成两个分布。每组的六个孔都重复相同的虚构模式。不要把所得的显著性检验当作治疗效果的发现；真实推断需要真正的重复，以及合理的独立实验单位。"
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_completion",
-          "narration": "除了图表，还要阅读控制台。本次运行警告说，部分所选颜色在浅色导出页面上的对比度很低。请检查导出的图并选择易于辨识的配色；屏幕上深色背景的视图可读，并不自动保证保存的图也可读。",
+          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7,
-          "speech_text": "除了图表，还要阅读控制台。本次运行警告说，部分所选颜色在浅色导出页面上的对比度很低。请检查导出的图并选择易于辨识的配色；屏幕上深色背景的视图可读，并不自动保证保存的图也可读。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_setting_save",
-          "narration": "开启Save后，结果保存在results下的analyze replication中，包括寄生泡计数、按孔分布、按条件汇总、统计表和图。请同时保留设置和数据源标识。分析自己的实验时，应先检查真实图像和生物学对照，再解释这些汇总结果。",
+          "narration": "Open results/analyze_replication inside Source. Review vacuole_counts.csv for individual vacuoles, well_distribution.csv for each well, and the condition summaries and figures. Keep these outputs with the settings and source database so you can trace the analysis.",
           "focus": [
             346,
             170,
@@ -3608,10 +3590,17 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ],
-          "speech_text": "开启Save后，结果保存在results下的analyze replication中，包括寄生泡计数、按孔分布、按条件汇总、统计表和图。请同时保留设置和数据源标识。分析自己的实验时，应先检查真实图像和生物学对照，再解释这些汇总结果。"
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "SYNTHETIC_replication_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "28_training_runs",
