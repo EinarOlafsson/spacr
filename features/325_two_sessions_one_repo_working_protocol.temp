@@ -16794,3 +16794,14 @@ parallel feature completion claimed.493now records this groundwork and keeps
 device selection, worker scheduling/cancellation/progress and full Mask/
 Cluster Distribution integration explicitly pending. API owner: these two
 private helper descriptions/signatures are the only documentation delta.
+
+2026-09-24 — IMPLEMENTATION: MULTI-GPU493 ALLOCATION HELPERS
+Private accelerator._mask_devices() enumerates process-visible CUDA/ROCm
+indices/names/memory without tensor probes, honoring forced single-device/CPU
+choices. _mask_worker_environment(index, *, backend, count, environment=None)
+returns an independent environment restricted within the parent allocation;
+handles CUDA UUID/MIG identifiers and HIP aliases, keeps ROCR restrictions,
+and refuses invalid/changed selections or contradictory aliases.79 mocked-
+device/allocation/existing resolver tests pass. No real GPU execution, worker
+scheduler or UI wiring claimed. Both private APIs need inventory/prose follow-
+up; no new settings/strings/modules. Manifest groundwork241ff9622 is pushed.

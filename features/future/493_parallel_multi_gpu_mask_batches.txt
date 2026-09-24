@@ -48,3 +48,18 @@ was run and no parallel UI option is exposed yet. Remaining implementation:
 allocated-device discovery/selection, persistent per-device model workers,
 cooperative stop/resume and progress, serialization of shared QC/reporting,
 Mask/Cluster Distribution wiring and the real multi-GPU acceptance protocol.
+
+2026-09-24 — Allocated-device discovery and worker environment preparation
+Private accelerator helpers now enumerate the process-visible CUDA/ROCm
+ordinals, names and memory without tensor allocation. Explicit single-device
+or CPU overrides disable parallel discovery. A worker environment selects
+one allocated ordinal, preserves CUDA UUID/MIG identifiers and ROCR limits,
+and does not mutate the parent environment. Conflicting HIP/CUDA aliases,
+invalid ordinals and changed/disabled visibility are refused. These helpers
+are not yet wired to controls or model workers; no GPU execution is claimed.
+79 discovery/allocation/existing accelerator checks pass with mocked devices.
+Source contracts consulted: NVIDIA CUDA Environment Variables
+https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/environment-variables.html
+and AMD GPU isolation
+https://rocm.docs.amd.com/en/develop/reference/system-optimization/gpu-isolation.html
+The actual multi-GPU acceptance requirement remains unchanged and open.

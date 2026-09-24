@@ -507,6 +507,84 @@ def _forced_device(wanted: str, found: Accelerator) -> Accelerator:
 
 
 
+def _mask_devices():
+    """List CUDA/ROCm mask devices visible to this process, without tensors.
+
+    Logical indices belong to the current allocation, including scheduler
+    visibility restrictions. Other accelerator types are not multi-GPU mask
+    candidates. An explicit single-device override disables parallel discovery.
+    Unavailable or failed probes return an empty tuple.
+    """
+    forced = _forced()
+    if forced not in (None, 'auto', 'cuda', 'rocm'):
+        return ()
+    torch = _torch()
+    if torch is None:
+        return ()
+    try:
+        if not torch.cuda.is_available():
+            return ()
+        backend = 'rocm' if getattr(torch.version, 'hip', None) else 'cuda'
+        if forced in ('cuda', 'rocm') and forced != backend:
+            return ()
+        devices = []
+        for index in range(torch.cuda.device_count()):
+            properties = torch.cuda.get_device_properties(index)
+            devices.append({'index': index, 'name': str(properties.name),
+                            'memory_bytes': int(properties.total_memory),
+                            'backend': backend})
+        return tuple(devices)
+    except Exception:
+        LOG.debug('Could not enumerate mask GPUs', exc_info=True)
+        return ()
+
+
+def _mask_worker_environment(index, *, backend, count, environment=None):
+    """Restrict a fresh mask worker to one GPU from its parent's allocation.
+
+    CUDA visibility lists remap logical ordinals. HIP uses the same mapping
+    within any retained ROCR restriction. Never replace an allocated logical
+    ordinal with a host ordinal or remove a scheduler's ROCR restriction.
+    The returned environment is independent; this process is not modified.
+
+    :param index: selected logical device ordinal reported by _mask_devices.
+    :param backend: ``cuda`` or ``rocm`` from device discovery.
+    :param count: number of devices the parent actually discovered.
+    :param environment: parent environment, defaulting to os.environ.
+    :returns: child environment exposing the selected device as cuda:0.
+    :raises ValueError: for an invalid selection or contradictory HIP aliases.
+    """
+    import operator
+
+    try:
+        if isinstance(index, bool) or isinstance(count, bool):
+            raise TypeError
+        index, count = operator.index(index), operator.index(count)
+    except TypeError as exc:
+        raise ValueError('GPU selection and device count must be integers') from exc
+    if backend not in ('cuda', 'rocm') or not 0 <= index < count:
+        raise ValueError('Selected GPU is outside the available mask devices')
+    result = dict(os.environ if environment is None else environment)
+    key = 'CUDA_VISIBLE_DEVICES'
+    if backend == 'rocm' and 'HIP_VISIBLE_DEVICES' in result:
+        key = 'HIP_VISIBLE_DEVICES'
+        if ('CUDA_VISIBLE_DEVICES' in result
+                and result['CUDA_VISIBLE_DEVICES'] != result[key]):
+            raise ValueError('HIP_VISIBLE_DEVICES and CUDA_VISIBLE_DEVICES disagree')
+    if key in result:
+        visible = [token.strip() for token in result[key].split(',')]
+        if len(visible) < count or not visible[index] or visible[index] == '-1':
+            raise ValueError('GPU visibility changed since device discovery')
+        selected = visible[index]
+    else:
+        selected = str(index)
+    result['CUDA_VISIBLE_DEVICES'] = selected
+    if backend == 'rocm':
+        result['HIP_VISIBLE_DEVICES'] = selected
+    result[ENV_DEVICE] = backend
+    return result
+
+
 def torch_device():
     """``torch.device`` for the resolved accelerator.
 
