@@ -17104,3 +17104,8 @@ painting/painter-state preservation(93.84%,9tests) and safe zoom refusal plus
 existing anchoring(94.29%,20tests). No runtime/API/settings changes in this
 batch. Thresholds/exemptions/baseline unchanged. Native Qt prefix replay and
 protected full/minimum/Qt1jobs remain active; no replacement CI launched.
+
+2026-09-24 — IMPLEMENTATION: QC POLICY PRESERVATION288
+21image-quality tests pass,92.70%module coverage. Invalid saved policies cannot
+replace prior exclusions, QC files or raw images; missing planes/mapping are
+rejected. Test-only change, no API/settings/tutorial updates required.

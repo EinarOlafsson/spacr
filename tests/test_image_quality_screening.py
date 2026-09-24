@@ -77,6 +77,35 @@ def test_channel_mapping_is_explicit_and_invalid_policy_fails():
         assess_image(image, dict(image_qc_channels=[3]))
 
 
+@pytest.mark.parametrize('invalid', [
+    {'image_qc_mode': 'discard'}, {'image_qc_channels': [True]},
+    {'image_qc_channels': -1}, {'image_qc_min_focus': [1]},
+    {'image_qc_min_focus': {'bad-channel': 1}},
+    {'image_qc_min_focus': {0: float('inf')}},
+    {'image_qc_max_saturation': {0: 1.1}},
+    {'image_qc_saturation_level': {0: 0}},
+    {'image_qc_max_nonfinite': float('nan')},
+])
+def test_invalid_policy_cannot_replace_saved_exclusions_or_raw_images(tmp_path, invalid):
+    fields(tmp_path)
+    policy = dict(image_qc_mode='exclude', image_qc_min_focus={0: 1.})
+    assert screen_fields(tmp_path, policy) == ['blurred.npy']
+    before = {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
+    with pytest.raises(ValueError):
+        screen_fields(tmp_path, dict(policy, **invalid))
+    assert excluded_fields(tmp_path) == {'blurred.npy'}
+    assert before == {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
+
+
+@pytest.mark.parametrize('shape,channels,message', [
+    ((0, 4), None, 'nonempty'), ((4,), None, 'nonempty'),
+    ((4, 4, 2), [0], 'mapping must match'),
+])
+def test_missing_raw_planes_are_not_reported_as_good_quality(shape, channels, message):
+    with pytest.raises(ValueError, match=message):
+        assess_image(np.zeros(shape, np.uint16), {}, channels)
+
+
 def test_qc_dashboard_reads_excluded_fields_as_quality_flags(tmp_path):
     from spacr.qt.widgets.qc_summary import read_dashboard
 

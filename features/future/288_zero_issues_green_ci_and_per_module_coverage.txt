@@ -5362,3 +5362,12 @@ readout, blank/off-image behavior and restored painter state:9tests pass,
 singular mappings preserve the view; existing anchoring/peer checks remain:
 20tests pass,94.29%module coverage. These are local module results, not a claim
 that the old combined report or the full ratchet is green.
+
+2026-09-24 — Image-quality rejection preserves saved evidence
+New cases start from a real saved excluded-field report, then reject malformed
+modes/channels/threshold maps and invalid numeric limits. Every raw image and
+all prior QC artifacts remain byte-identical; saved exclusions still identify
+the same field. Empty/scalar-shaped images and mismatched channel mappings
+are refused rather than reported as good quality.21checks pass; isolated module
+coverage92.70% including branches, above the90%floor. No runtime change or
+coverage exemption. The full combined ratchet still needs a later complete run.
