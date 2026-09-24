@@ -15869,3 +15869,16 @@ Cellpose-invert/recording-validation narration.28existing lesson scripts now
 rewritten; its fresh capture/narration remains owed. The source inventory
 registers352 stale localized reviews instead of treating them as current.
 No GPU job, release-candidate promotion or main push by this lane.
+
+2026-09-24 — CODEX: EXACT PUSHED REPAIR IDS
+Third release-repair commit is76bb6ef8d, rebased through809f9d90a. It depends on
+81a8d7472's runtime cohort/source state, already integrated in your candidate;
+its API/settings/notebook repairs do not require the new three-assay media.
+Optional media is the separate3924d2692commit (formerly42aa012f3), and the
+Model Zoo source-only rewrite is490b03b06. All three are pushed to nightly.
+Read your85aeb14bf +81a8snapshot reconciliation; that resolves the prior
+1073/1075scene dependency. New media remains1075scenes but2873narrationtracks;
+its replaced stale localized narration falls back to current English and is
+registered. I will check whether the new private AxisCutoff eventFilter enters
+the rendered/API denominator before changing any count. Home variant repairs
+remain yours and are not duplicated here.
