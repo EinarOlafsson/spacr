@@ -183,3 +183,16 @@ routine now compares/writes current IDs and compacts only its returned mask.
 Six baseline failures cover parasite, nucleus and shared-perimeter merges
 with IDs7/300in both orders; all now match the dense-label result and preserve
 the full foreground.147related tests pass. No thresholds/settings changed.
+
+2026-09-24 — Separate adjusted masks preserve raw resume receipts
+adjust_cell_masks and process_mask_file_adjust_cell accept keyword-only
+output_folder=None. Defaults retain in-place behavior; a separate destination
+rebuilds selected fields from raw masks, atomically, preserving all raw bytes.
+Aliased source folders and unrelated destination fields are refused. An
+interrupted adjustment can be rerun without invalidating segmentation receipts.
+_load_and_concatenate_arrays accepts mask_folders role overrides, and shared
+_run_seg_qc accepts mask_folder, so merged planes and QC consume the adjusted
+cells while the source arrays and raw receipts remain valid.125checks pass,
+including actual adjustment, merged arrays, QC count/CSV, interruption/restart,
+source symlinks and invalid overrides. Parallel pipeline/control dispatch
+still needs wiring; these additions keep the ordinary default path unchanged.

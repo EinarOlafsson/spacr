@@ -4498,7 +4498,7 @@ def _load_array_any(path):
 def _load_and_concatenate_arrays(
         src, channels, cell_chann_dim, nucleus_chann_dim,
         pathogen_chann_dim, organelle_chann_dim, resume=False,
-        organelle_chann_dims=None):
+        organelle_chann_dims=None, mask_folders=None):
     """
     Load and concatenate arrays from multiple folders.
 
@@ -4524,6 +4524,10 @@ def _load_and_concatenate_arrays(
             behind by older, non-atomic versions of this function can be
             truncated, and those are re-merged rather than trusted. Default
             False, which redoes every field exactly as before.
+        mask_folders (dict or None): optional role-to-folder overrides for
+            finalized masks, for example ``{'cell': adjusted_cell_folder}``.
+            Other roles retain their ordinary masks folders. Unknown roles
+            and missing override directories are refused before any output.
 
     Returns:
         None
@@ -4531,6 +4535,12 @@ def _load_and_concatenate_arrays(
     from .utils import print_progress
     from .resume import completed_fields_in_merged, format_resume, plan_resume
 
+    overrides = dict(mask_folders or {})
+    if set(overrides) - {'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES}:
+        raise ValueError('Unknown object role in mask folder overrides')
+    for role, folder in overrides.items():
+        if not os.path.isdir(folder):
+            raise ValueError(f'Mask folder override for {role} is not a directory: {folder}')
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
@@ -4551,8 +4561,8 @@ def _load_and_concatenate_arrays(
         :param role: the object, e.g. ``'cell'``.
         :param enabled: that object's channel dimension, or None.
         """
-        folder = os.path.join(src, 'masks', f'{role}_mask_stack')
-        if enabled is not None or f'{role}_mask_stack' in _mask_stacks:
+        folder = overrides.get(role, os.path.join(src, 'masks', f'{role}_mask_stack'))
+        if enabled is not None or role in overrides or f'{role}_mask_stack' in _mask_stacks:
             folder_paths.append(folder)
             mask_roles.append(role)
 

@@ -216,7 +216,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
 
     return filtered_masks
 
-def _run_seg_qc(src, settings, object_type):
+def _run_seg_qc(src, settings, object_type, *, mask_folder=None):
     """Score the masks just written and surface the segmentation scorecard.
 
     Called at the end of every mask generator, once per object type, while the
@@ -237,6 +237,9 @@ def _run_seg_qc(src, settings, object_type):
     :param settings: pipeline settings; read for ``seg_qc``, the ``seg_qc_*``
         thresholds and ``verbose``. Mutated only in ``'flag'`` mode.
     :param object_type: which masks to score.
+    :param mask_folder: optional finalized-mask directory to score instead of
+        the raw mask stack. Report destination and object identity stay tied
+        to ``src`` and ``object_type``.
     :returns: the dict :func:`spacr.seg_qc.run_segmentation_qc` returns, or
         None when QC is off, unavailable or it failed.
     """
@@ -247,7 +250,8 @@ def _run_seg_qc(src, settings, object_type):
         if mode == 'off':
             return None
 
-        mask_folder = os.path.join(src, f'{object_type}_mask_stack')
+        if mask_folder is None:
+            mask_folder = os.path.join(src, f'{object_type}_mask_stack')
         dst = os.path.dirname(src) or src
         result = run_segmentation_qc(
             mask_folder,

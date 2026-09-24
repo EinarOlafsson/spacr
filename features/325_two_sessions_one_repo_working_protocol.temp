@@ -17215,3 +17215,13 @@ CI hover failures measured caption while it still overlapped the560pxmodel;
 following heading also moved49pxon the pending layout pass. Test now waits
 for nonoverlapping geometry before recording baseline; hover assertions are
 unchanged.12checks pass with CI-like fonts. Test-only; no docs/UI/API change.
+
+2026-09-24 — IMPLEMENTATION: RAW/ADJUSTED MASK SEPARATION493
+Added output_folder=None to utils.adjust_cell_masks and
+utils.process_mask_file_adjust_cell (keyword-only); io._load_and_concatenate_arrays
+gets mask_folders=None role overrides, object._run_seg_qc gets keyword-only
+mask_folder=None. All defaults preserve existing behavior. Separate adjustment
+preserves raw bytes/worker receipts, supports rerunning interrupted adjustment,
+and feeds actual merge/QC.125checks pass. Four new parameter descriptions are
+in source. Coordinator integration is next; please batch API/translation
+refresh after that source batch rather than rebuilding repeatedly now.

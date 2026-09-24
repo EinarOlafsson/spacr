@@ -8896,7 +8896,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     return relabeled_cell_mask.astype(np.uint16)
 
 
-def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30):
+def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, *, output_folder=None):
     """Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.
 
     :param file_name: mask file name (must exist in all folders).
@@ -8909,6 +8909,9 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     :param organelle_folder: optional folder of organelle masks.
     :param overlap_threshold: fractional overlap threshold used by the merger.
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
+    :param output_folder: optional separate destination for adjusted masks.
+        None retains in-place adjustment. An explicit destination must differ
+        from every source mask folder, including through directory symlinks.
     :returns: elapsed seconds.
     :raises ValueError: if the matching cell or nuclei mask file is missing,
         or a mask file holds pickled objects: masks are plain arrays, and
@@ -8919,6 +8922,11 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     parasite_path = os.path.join(parasite_folder, file_name)
     cell_path = os.path.join(cell_folder, file_name)
     nuclei_path = os.path.join(nuclei_folder, file_name)
+    if output_folder is not None and any(
+            os.path.realpath(output_folder) == os.path.realpath(folder)
+            for folder in (parasite_folder, cell_folder, nuclei_folder, organelle_folder)
+            if folder is not None):
+        raise ValueError('The adjusted-mask output folder must differ from all source folders')
 
     if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
@@ -8937,12 +8945,16 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
 
     from .io import _save_array_atomic
 
-    _save_array_atomic(cell_path, merged_cell_mask)
+    output_path = cell_path
+    if output_folder is not None:
+        os.makedirs(output_folder, exist_ok=True)
+        output_path = os.path.join(output_folder, file_name)
+    _save_array_atomic(output_path, merged_cell_mask)
 
     end = time.perf_counter()
     return end - start
 
-def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None):
+def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder=None, overlap_threshold=5, perimeter_threshold=30, n_jobs=None, *, output_folder=None):
     """Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.
 
     :param parasite_folder: folder of parasite masks.
@@ -8953,12 +8965,18 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
     :param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and
         values below two run inline without starting a child process.
+    :param output_folder: optional separate folder for adjusted masks. None
+        preserves the historical in-place behavior. A separate folder keeps
+        all source masks byte-identical, and every selected field is rebuilt
+        from its source on each invocation, including after interrupted work.
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files
         or mismatched filenames, or a mask is truncated, nonnumeric, empty,
         not two-dimensional or has different dimensions from its partners.
         Available organelle masks are checked too. Header-only validation of
         every field finishes before any mask is changed or workers are started.
+        An explicit output folder must differ from every source folder and
+        must not contain masks outside the selected field set.
     """
     from .io import _listdir_visible
 
@@ -8982,6 +9000,18 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
         organelle_folder = None
+
+    if output_folder is not None:
+        if any(os.path.realpath(output_folder) == os.path.realpath(folder)
+               for folder in (parasite_folder, cell_folder, nuclei_folder, organelle_folder)
+               if folder is not None):
+            raise ValueError('The adjusted-mask output folder must differ from all source folders')
+        if os.path.isdir(output_folder):
+            extra = {name for name in _listdir_visible(output_folder)
+                     if name.endswith('.npy')} - set(parasite_files)
+            if extra:
+                raise ValueError(f'Adjusted-mask output folder contains unrelated fields: '
+                                 f'{", ".join(sorted(extra)[:5])}')
 
     from .cancellation import checkpoint
     from .resume import read_npy_header
@@ -9020,7 +9050,8 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                          nuclei_folder=nuclei_folder,
                          organelle_folder=organelle_folder,
                          overlap_threshold=overlap_threshold,
-                         perimeter_threshold=perimeter_threshold)
+                         perimeter_threshold=perimeter_threshold,
+                         **({'output_folder': output_folder} if output_folder is not None else {}))
 
     if n_jobs == 1:
         durations = map(process_fn, parasite_files)
