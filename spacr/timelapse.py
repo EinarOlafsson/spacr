@@ -2831,36 +2831,8 @@ def _parse_merged_filename(fname):
        :func:`spacr.schema.parse_field_stem`, which returns the same identity
        the measurement tables carry.
     """
-    base = os.path.splitext(os.path.basename(fname))[0]
-    parts = base.split("_")
-
-    plateID = parts[0] if len(parts) > 0 else ""
-    wellID = parts[1] if len(parts) > 1 else ""
-    fieldID = parts[2] if len(parts) > 2 else "1"
-    time_str = parts[3] if len(parts) > 3 else "0"
-
-    digits = "".join(ch for ch in time_str if ch.isdigit())
-    timeID = int(digits) if digits else 0
-
-    rowID = wellID[0] if wellID else ""
-    col_part = "".join(ch for ch in wellID[1:] if ch.isdigit())
-    columnID = int(col_part) if col_part else 0
-
-    prcf = f"{plateID}_{wellID}_{fieldID}"
-    prcft = f"{prcf}_{timeID}"
-
-    meta = dict(
-        plateID=plateID,
-        wellID=wellID,
-        rowID=rowID,
-        columnID=columnID,
-        fieldID=fieldID,
-        timeID=timeID,
-        prcf=prcf,
-        prcft=prcft,
-        filename=os.path.basename(fname),
-    )
-    return meta
+    from ._merged_names import parse_merged_filename
+    return parse_merged_filename(fname)
 
 def _compute_parent_child_overlaps(
     parent_masks,

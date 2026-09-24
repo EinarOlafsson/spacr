@@ -54,6 +54,7 @@ from PySide6.QtCore import QMimeData, QObject, Qt, QTimer, QUrl
 from PySide6.QtWidgets import QFileDialog
 
 import spacr.qt.widgets.live_preview as LP
+from spacr.qt import gc_policy
 from spacr.qt.widgets.live_preview import LivePreviewPanel
 
 #: The longest the GUI thread may stop pumping events while a load runs.
@@ -112,7 +113,10 @@ class LoopWatchdog(QObject):
     same 400 ms budget: the measurement still catches work that moves back onto
     the GUI thread, it just no longer catches the garbage collector.
 
-    A sweep is taken *before* the window rather than merely skipped, so a
+    The GUI's collection timer is paused as well as automatic collection;
+    disabling CPython's automatic trigger does not stop timer-driven sweeps.
+    Both are restored when the measured window ends. A sweep is taken
+    *before* the window rather than merely skipped, so a
     window does not inherit a nearly-full generation and the deferred garbage
     does not accumulate across the file. Anything that collects anyway --
     an explicit ``gc.collect()`` from the code under test -- is counted, and
@@ -127,12 +131,17 @@ class LoopWatchdog(QObject):
         self.ticks = 0
         self.collections = 0
         self._gc_was_enabled = False
+        self._gui_gc_timer = None
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(interval_ms)
         self._timer.timeout.connect(self._tick)
 
     def start(self):
+        timer = gc_policy._timer
+        if timer is not None and timer.isActive():
+            self._gui_gc_timer = timer
+            timer.stop()
         gc.collect()
         self._gc_was_enabled = gc.isenabled()
         gc.disable()
@@ -151,6 +160,10 @@ class LoopWatchdog(QObject):
         if self._gc_was_enabled:
             gc.enable()
         self._gc_was_enabled = False
+        if self._gui_gc_timer is not None:
+            if gc_policy._timer is self._gui_gc_timer:
+                self._gui_gc_timer.start()
+            self._gui_gc_timer = None
 
     def _note_collection(self, phase, _info):
         """Count a collection that ran anyway, so ``_drive`` can name it."""
@@ -167,10 +180,10 @@ class LoopWatchdog(QObject):
 
 
 @pytest.fixture(autouse=True)
-def _collector_left_as_found():
+def _collector_left_as_found(qapp):
     """Hand the collector back however a test ends.
 
-    ``LoopWatchdog.stop`` restores both halves of what ``start`` changed, and
+    ``LoopWatchdog.stop`` restores everything ``start`` changed, and
     ``_drive`` calls it before any assertion -- but a test that raises anywhere
     else would leave automatic collection off, and a stale callback on a dead
     widget, for the whole session. Either is a far worse thing to leak into
@@ -178,12 +191,49 @@ def _collector_left_as_found():
     """
     was_enabled = gc.isenabled()
     callbacks = list(gc.callbacks)
+    timer = gc_policy._timer
+    timer_was_active = timer is not None and timer.isActive()
     try:
         yield
     finally:
         gc.callbacks[:] = callbacks
         if was_enabled and not gc.isenabled():
             gc.enable()
+        if timer is not None and gc_policy._timer is timer:
+            if timer_was_active:
+                timer.start()
+            else:
+                timer.stop()
+
+
+def test_timing_window_pauses_gui_collection_and_restores_pending_cleanup(qapp, qtbot):
+    timer = gc_policy._timer
+    assert timer is not None and timer.isActive()
+    dog = LoopWatchdog()
+    try:
+        dog.start()
+        assert not timer.isActive()
+        assert not gc.isenabled()
+        gc_policy._requested.set()
+        qtbot.wait(20)
+        assert dog.collections == 0
+        assert gc_policy._requested.is_set()
+    finally:
+        dog.stop()
+    assert timer.isActive()
+    assert not gc.isenabled()
+    qtbot.waitUntil(lambda: not gc_policy._requested.is_set(), timeout=3000)
+
+
+def test_timing_window_still_rejects_an_explicit_sweep(qtbot):
+    dog = LoopWatchdog()
+    try:
+        dog.start()
+        gc.collect()
+        with pytest.raises(AssertionError, match="cyclic collection"):
+            _drive(qtbot, dog, lambda: True)
+    finally:
+        dog.stop()
 
 
 @pytest.fixture

@@ -1573,3 +1573,19 @@ benchmark is retained in data/487_candidate_update_relaunch_2026-09-23.json.
 Twenty intervals report the500msstall ceiling breached; worst1878.96ms. This
 was a single capped CPU relaunch check on the shared host, not the paired native
 release-performance protocol.284remains OPEN; no timing gate/baseline changed.
+
+2026-09-24 — MOTILITY PLATE GROUPING NO LONGER IMPORTS ANALYSIS
+Opening a plate imported spacr.timelapse just to parse merged filenames,
+pulling Torch/utils/plotting into the scan worker. Cold plate-drop checks
+showed410and459msGUI heartbeat gaps against the unchanged400msbudget.
+Grouping now uses a standard-library-only shared parser; the existing
+spacr.timelapse._parse_merged_filename entry point delegates to it, keeping
+its signature and legacy grouping fields/numeric time ordering unchanged.
+A fresh-process import guard fails before and passes after the extraction.
+
+61preview/GC/import checks pass. Separate cold-window measurements: plate
+5.627msworst gap/1002ticks, merged-array85.663ms/3294ticks, zero collections;
+both pass. Five existing parser-compatibility tests pass. Timing windows now
+pause the GUI GC timer as well as automatic GC and restore pending cleanup;
+explicit sweeps still fail the accounting guard. No timing budget changed.
+This is a bounded motility/load fix, not full284release-performance acceptance.

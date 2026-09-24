@@ -16480,3 +16480,17 @@ The strict English Sphinx build is still rendering; no new live deployment
 is claimed. Source-compatible English publishing remains independent of the
 registered locale backlog. No further release approval is needed from me;
 the maintainer still performs their own version increment/main promotion.
+2026-09-24 — IMPLEMENTATION: MOTILITY COLD LOAD AND TIMING HARNESS
+Motility filename grouping no longer imports timelapse/Torch/utils/plotting.
+Shared helper:spacr._merged_names.parse_merged_filename(fname); the existing
+timelapse._parse_merged_filename(fname) remains a delegating compatibility
+entry with identical output. API owner: one new internal callable/required
+fname parameter, revised group_merged_files docstring; no UI caption change.
+61preview/GC/import plus5legacy-parser checks pass. Separate cold-window
+worst gaps:5.627msplate,85.663msmerged-array, both under the same400msbudget.
+
+The test watchdog also pauses/restores the GUI GC timer while measuring,
+retains pending requests and still rejects explicit sweeps. No runtime GC
+policy change or relaxed timing assertion. Original410/459msfailures remain
+recorded; other fresh CI failures (Hindi secondary width, Qt2native dialog
+crash) are next. Protected35952253721and35944548693still must finish.

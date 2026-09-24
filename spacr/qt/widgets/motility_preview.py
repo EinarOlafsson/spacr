@@ -152,15 +152,16 @@ def resolve_merged_dir(path) -> str:
 def group_merged_files(merged_dir: str) -> "Dict[tuple, List[dict]]":
     """Group ``merged/*.npy`` by (plate, well, field) and sort each by time.
 
-    Reuses :func:`spacr.timelapse._parse_merged_filename` so the preview and
-    the assay agree about what a filename means.
+    Shares the lightweight parser behind
+    :func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with
+    the assay without importing plotting or model dependencies.
     """
-    from spacr.timelapse import _parse_merged_filename
+    from spacr._merged_names import parse_merged_filename
     groups: "Dict[tuple, List[dict]]" = {}
     for name in sorted(os.listdir(merged_dir)):
         if not name.endswith(".npy"):
             continue
-        meta = _parse_merged_filename(name)
+        meta = parse_merged_filename(name)
         key = (meta["plateID"], meta["wellID"], meta["fieldID"])
         groups.setdefault(key, []).append(meta)
     for metas in groups.values():

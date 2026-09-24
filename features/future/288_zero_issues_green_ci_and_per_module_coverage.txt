@@ -5111,3 +5111,23 @@ copies validated labels before opening the destination. The atomic pipeline
 writer and read helper retain their safe existing no-copy paths. The added
 same-path mmap regression and mask capacity/I/O cohort now pass32checks.
 Logs:/tmp/spacr-mask-memmap-{baseline,fixed}.log. No signature/caption change.
+
+2026-09-24 — FRESH CI COVERAGE11: PREVIEW TIMING ISOLATION AND COLD IMPORT
+Protected35952253721coverage shard11failed two responsiveness checks because
+LoopWatchdog disabled automatic GC but left the GUI collection timer active.
+The timer now pauses during measured windows and resumes afterward; pending
+worker cleanup is retained, and direct explicit sweeps still trip the guard.
+The new lifecycle regression fails before this correction.
+
+With GC isolated, local cold plate-drop runs still exposed410and459msstalls.
+The filename grouping import was pulling in timelapse/Torch/utils/plotting.
+A lightweight shared parser removes that import; legacy parser API/output
+remain unchanged.61preview/GC/import checks,5parser checks and both separate
+cold-window checks pass. Measured plate gap5.627ms, merged-array gap85.663ms;
+400msbudgets unchanged. Logs:/tmp/spacr-preview-timing-lightweight.log,
+/tmp/spacr-preview-timing-receipt.log,/tmp/spacr-motility-parser-compatibility.log.
+Earlier410/459msfailures are retained in the fixed/single timing logs.
+
+Other fresh CI failures remain: coverage7Hindi secondary-control width and
+Qt2native crash at Annotate._SettingsDialog construction. Neither is claimed
+fixed by this work. The protected run continues; no green full-run claim.
