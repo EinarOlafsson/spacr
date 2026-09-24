@@ -175,6 +175,45 @@ def test_a_prefix_matches_when_nothing_is_exact(tmp_path):
     assert sd._stack_for(str(folder), "plate9_Z99_9") is None
 
 
+@pytest.mark.parametrize("wanted,names", [
+    ("", ["plate1_A01_1.npy"]),
+    ("plate1_A01_1", ["plate1_A01_10.npy"]),
+    ("plate1_A01_1", ["plate1_A01_10_0.npy"]),
+    ("plate1_r1_c1_1", ["plate1_A01_10.npy"]),
+    ("plate1_A01_1", ["plate1_A01_1_0.npy", "plate1_A01_1_1.npy"]),
+    ("plate1_r1_c1_1", ["plate1_A01_1_0.npy", "plate1_A01_1_1.npy"]),
+])
+def test_a_missing_or_ambiguous_stack_does_not_borrow_another_field(tmp_path, wanted, names):
+    for name in names:
+        (tmp_path / name).write_bytes(b"")
+    assert sd._stack_for(str(tmp_path), wanted) is None
+
+
+def test_exact_well_spelling_precedes_a_suffixed_identifier_name(tmp_path):
+    for name in ("plate1_r1_c1_1_0.npy", "plate1_A01_1.npy"):
+        (tmp_path / name).write_bytes(b"")
+    assert sd._stack_for(str(tmp_path), "plate1_r1_c1_1") == str(tmp_path / "plate1_A01_1.npy")
+
+
+@pytest.mark.parametrize("stem", ["plate1_A01_1", "plate1_r1_c1_1"])
+def test_stream_reports_the_missing_field_instead_of_writing_field_ten(tmp_path, stem):
+    folder = tmp_path / "merged"
+    folder.mkdir()
+    stack = np.ones((8, 8, 2), dtype=np.uint16)
+    np.save(folder / "plate1_A01_10.npy", stack)
+    table = pd.DataFrame({"source": [f"npy: {stem}.npy"],
+                          "objectID": [1], "split": ["train"]})
+    written = []
+
+    report = sd.stream(table, str(folder), str(tmp_path / "crops"),
+                       channel_arrays=[0], write=_collect(written))
+
+    assert report["missing"] == 1
+    assert report["fields"] == report["written"] == 0
+    assert report["trouble"] == [f"no merged stack for {stem}"]
+    assert written == []
+
+
 def test_the_stem_comes_from_the_recorded_source_when_there_is_one():
     """The parser's r1/c1 identifiers would rebuild a stem matching nothing."""
     row = {"source": "npy: plate1_A01_1_0.npy", "plateID": "plate1",

@@ -16576,3 +16576,12 @@ images or a separate raw-only folder to retry. Update io/core error guidance
 in the API/translations when convenient. No signature or settings additions.
 Next bounded #429 follow-ups: wrong-field stream prefix and visible importer
 temporary arrays; I own stream_dataset.py/external_masks.py for these fixes.
+
+2026-09-24 — IMPLEMENTATION: #429 STREAM FIELD IDENTITY
+Pushed field lookup correction in stream_dataset: no field1/field10 prefix
+collision, empty-stem wildcard, or first-timepoint choice when ambiguous.
+Both identifier and acquisition-well exact names precede a unique legacy
+underscore suffix. Existing missing/trouble reporting counts rejected crops.
+Nine baseline regressions; 49 stream/crop/channel checks pass. API owner:
+_stack_for/stream docstrings explain the revised missing/ambiguous behavior;
+no new public signature, settings or UI text. Importer temporary files next.

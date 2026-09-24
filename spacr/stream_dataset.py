@@ -346,23 +346,27 @@ def _stem_of(row) -> str:
 
 
 def _stack_for(merged_folder: str, stem: str) -> Optional[str]:
-    """Find the merged array matching a recorded field stem."""
-    if not os.path.isdir(str(merged_folder)):
-        return None
+    """Find an exact field, or its single unambiguous suffixed legacy array.
+
+    Identifier and acquisition-well spellings are equivalent. A suffix must
+    start at an underscore boundary; missing fields, empty stems and
+    multiple candidate timepoints return ``None`` instead of borrowing data.
+    """
     wanted = str(stem)
+    if not wanted or not os.path.isdir(str(merged_folder)):
+        return None
     names = sorted(name for name in os.listdir(str(merged_folder))
                    if name.endswith(".npy") and not name.startswith("."))
-    for name in names:
-        if os.path.splitext(name)[0] == wanted:
-            return os.path.join(str(merged_folder), name)
-    for name in names:
-        if name.startswith(wanted):
-            return os.path.join(str(merged_folder), name)
     well = _well_spelling(wanted)
-    if well and well != wanted:
+    spellings = (wanted, well) if well and well != wanted else (wanted,)
+    for spelling in spellings:
         for name in names:
-            if os.path.splitext(name)[0] == well or name.startswith(well):
+            if os.path.splitext(name)[0] == spelling:
                 return os.path.join(str(merged_folder), name)
+    candidates = [name for name in names
+                  if any(name.startswith(spelling + "_") for spelling in spellings)]
+    if len(candidates) == 1:
+        return os.path.join(str(merged_folder), candidates[0])
     return None
 
 
@@ -401,7 +405,8 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
     """Write crops described by a saved selection table.
 
     Each merged field is loaded once and all selected objects from that field
-    are extracted before advancing.
+    are extracted before advancing. Missing or ambiguous field matches are
+    reported as missing crops; a different field is never used as a fallback.
 
     Parameters
     ----------

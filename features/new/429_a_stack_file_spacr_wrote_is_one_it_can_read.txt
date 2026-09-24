@@ -351,3 +351,12 @@ Seven real-file regressions failed before; 49 conversion checks now pass,
 including byte-for-byte preservation of inputs/output/logs on refusal.
 The previously listed streamed-dataset prefix and importer temporary-file
 hazards remain separate follow-ups; this does not close those gaps.
+
+2026-09-24 — Streamed crops no longer substitute prefix-neighbour fields
+Resolved the recorded _stack_for hazard: field1 no longer matches field10,
+empty stems match nothing, and multiple suffixed candidates are ambiguous
+rather than choosing the first timepoint. Exact identifier/acquisition-well
+spellings take priority. A single underscore-delimited legacy suffix still
+works. Missing/ambiguous crops use the existing missing/trouble report.
+Nine regressions fail before (including two real streaming paths that wrote
+field10's object for field1); 49 stream/crop/channel checks now pass.
