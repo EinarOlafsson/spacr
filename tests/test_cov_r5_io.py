@@ -743,7 +743,7 @@ def test_a_tar_reports_the_pngs_that_were_not_in_it(tmp_path, capsys):
     # section at the end of this file).
     assert tar_name.startswith(os.path.join(src, 'datasets') + os.sep)
     with tarfile.open(tar_name) as tar:
-        assert tar.getnames() == ['plate1_A01_1_o1.png']
+        assert sorted(tar.getnames()) == ['.spacr_crop_format.json', 'plate1_A01_1_o1.png']
     out = capsys.readouterr().out
     assert "2 of 3 selected PNGs were missing" in out
     assert "Saved 1 images" in out
@@ -877,7 +877,8 @@ def test_a_comma_separated_class_metadata_string_is_two_classes_not_seventeen(
     assert sorted(os.listdir(train_dir)) == ['c1', 'c2']
     test_dir = os.path.join(os.path.dirname(train_dir), 'test')
     everything = {
-        (os.path.basename(root), cls): sorted(os.listdir(os.path.join(root, cls)))
+        (os.path.basename(root), cls): sorted(
+            name for name in os.listdir(os.path.join(root, cls)) if name.endswith('.png'))
         for root in (train_dir, test_dir)
         for cls in ('c1', 'c2')
     }
@@ -1002,7 +1003,7 @@ def test_a_crop_with_no_recorded_png_path_is_cut_but_not_marked(tmp_path):
     # random class ...
     written = [name
                for root in (train_dir, test_dir)
-               for name in os.listdir(os.path.join(root, 'test_random'))]
+               for name in os.listdir(os.path.join(root, 'test_random')) if name.endswith('.png')]
     assert len(written) == 4
     assert 'crop.png' in written
     # ... but only the three rows that have a png_path were marked.
@@ -1135,7 +1136,8 @@ def test_a_class_that_selected_nothing_is_refused_before_balancing(tmp_path):
         'class_metadata': [['c1']], 'metadata_type_by': 'columnID',
         'test_split': 0.5, 'cv_group_by': 'cell', 'random_seed': 1})
     assert sorted(os.listdir(train_dir)) == ['c1']
-    assert len(os.listdir(os.path.join(train_dir, 'c1'))) == 2
+    assert len([name for name in os.listdir(os.path.join(train_dir, 'c1'))
+                if name.endswith('.png')]) == 2
 
 
 def test_annotation_mode_refuses_an_empty_column_list_before_it_builds_classes(

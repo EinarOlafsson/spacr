@@ -106,6 +106,36 @@ def test_cancel_discards_late_success_and_error(qtbot, monkeypatch, config, fail
         panel.shutdown()
 
 
+def test_sorted_results_keep_measurements_and_image_selection_on_the_same_vacuole(qtbot, config):
+    from PySide6.QtCore import Qt
+
+    panel = HostPathogenPreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    panel.apply_settings(config)
+    assert panel.run_preview()
+    panel._table.sortItems(2, Qt.DescendingOrder)
+    assert panel.run_preview()
+    expected = panel._result['results']['vacuoles'].set_index('vacuole_id')
+    numbers = []
+    for row in range(panel._table.rowCount()):
+        vacuole = panel._table.item(row, 0).data(Qt.UserRole)
+        assert all(panel._table.item(row, column).data(Qt.UserRole) == vacuole
+                   for column in range(panel._table.columnCount()))
+        count = expected.loc[vacuole, 'parasite_count']
+        if count == count:
+            assert float(panel._table.item(row, 2).text()) == count
+            numbers.append(float(count))
+        panel._table.selectRow(row)
+        assert panel._selected == vacuole
+        assert f'Vacuole {vacuole};' in panel._details.text()
+    assert numbers == sorted(numbers, reverse=True)
+    panel._hover_pixel(73, 75)
+    panel._image_clicked()
+    assert panel._selected == 1
+    assert panel._table.item(panel._table.currentRow(), 0).data(Qt.UserRole) == 1
+    panel.shutdown()
+
+
 def test_visible_preview_updates_after_form_changes(qtbot, config):
     panel = HostPathogenPreviewPanel(threaded=False, settings_reader=lambda: config)
     qtbot.addWidget(panel)
