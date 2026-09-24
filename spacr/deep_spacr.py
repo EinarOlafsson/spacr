@@ -2,7 +2,9 @@
 
 import contextlib
 import functools
-import os, torch, time, gc, datetime, logging
+import os, torch, time, datetime, logging
+
+from . import _gc as gc
 import sys
 torch.backends.cudnn.benchmark = True
 import numpy as np

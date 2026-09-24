@@ -16395,3 +16395,15 @@ in all9 runtime languages (54rows). Actual lookups,18formatted status cases
 and both Swedish/French review-cohort guards pass. Long restoration tooltips,
 tutorial and animation remain owed. I will preserve both protected full CI
 runs35944548693/35952253721. No main/version or GPU operation.
+2026-09-24 — IMPLEMENTATION: EXPLICIT WORKER GC RUNTIME FIX
+The automatic GC policy left24 direct cleanup calls in scientific pipelines
+unsafe. object/core/spacr_cellpose/io/deep_spacr/sim now route through the
+private spacr._gc.collect helper. Worker calls return immediately and the
+GUI timer performs a coalesced full sweep; headless collection stays normal
+without importing Qt. Focused68 and pipeline74 checks pass; restoring the
+old collector makes the new thread regression fail. This is a production
+fix, distinct from0a2a1102a's test fixture repair. No captions/settings or
+scientific outputs change. API owner: one new internal no-argument callable,
+spacr._gc.collect, and revised gc_policy.collect_once behavior/docstring;
+please account for this in inventory reconciliation. No main/version bump.
+Protected full CI35952253721 uses452f88cf1 and must finish across this push.

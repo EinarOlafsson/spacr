@@ -28,10 +28,11 @@ WHAT THIS DOES. Automatic collection is switched off and driven from a QTimer
 instead. That timer lives on the GUI thread, so every destructor the collector
 runs is run there -- which is the thread that owns the widgets.
 
-WHAT IT IS NOT. ``gc.disable()`` stops only *automatic* collection; an explicit
-``gc.collect()`` from a worker thread still collects on that worker. This
-module therefore removes the common cause rather than making the failure
-impossible, and :func:`spacr.qt.thread_guard` still reports it if it recurs.
+Explicit pipeline cleanup uses :func:`spacr._gc.collect`, which requests a
+full sweep on the next GUI timer tick. ``gc.disable()`` stops only automatic
+collection, so third-party code calling the standard-library ``gc.collect``
+directly can still collect on a worker. :func:`spacr.qt.thread_guard` reports
+wrong-thread widget destruction if it recurs.
 
 Memory is NOT left to grow: the tick below reproduces CPython's own
 generational policy against the same thresholds, so collection happens at the
@@ -43,6 +44,8 @@ from __future__ import annotations
 import gc
 import logging
 from typing import Optional
+
+from .._gc import _requested
 
 LOG = logging.getLogger("spacr.qt.gc_policy")
 
@@ -73,8 +76,15 @@ def collect_once() -> int:
     it was before this module existed. A full sweep every second would walk
     every live numpy array in the process.
 
+    Explicit worker cleanup requests take precedence and collect all
+    generations, even below their normal thresholds.
+
     :returns: the generation collected, or ``-1`` when nothing was due.
     """
+    if _requested.is_set():
+        _requested.clear()
+        gc.collect()
+        return 2
     thresholds = _saved_thresholds or gc.get_threshold()
     counts = gc.get_count()
     for generation in (2, 1, 0):

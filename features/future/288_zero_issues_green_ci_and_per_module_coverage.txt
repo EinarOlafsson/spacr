@@ -5067,3 +5067,19 @@ header, so it is not used as a negative-control acceptance result.
 No runtime layout or pixel tolerance was loosened. Close-mark hover tests
 also pass in their nine-file preceding context:319checks. The original CI
 hover failure remains unreproduced, not claimed fixed by this assertion repair.
+
+2026-09-24 — EXPLICIT PIPELINE GC IS ALSO GUI-SAFE
+Automatic GC protection did not cover the24 explicit cleanup calls across
+object, core, spacr_cellpose, io, deep_spacr and sim. These now use
+spacr._gc.collect: worker requests coalesce into one full sweep on the
+existing GUI timer, even below normal thresholds. Workers never wait for
+the GUI. Headless and GUI-thread calls remain synchronous; headless jobs
+do not import Qt. Third-party direct stdlib gc.collect calls remain outside
+this protection. No model settings, source images or output formats change.
+68 focused GC/resource-cleanup checks and74 pipeline/GC checks pass under
+6GiB with CUDA disabled. Restoring the old collector in a fresh test process
+fails because the worker runs destructors before the GUI timer; the fixed
+implementation collects the20 cycles on the GUI thread. This addresses a
+runtime hole separately from the preceding test-harness repair. Full CI
+35952253721 predates this patch and remains protected; it is not reported
+green. Private logs: /tmp/spacr-explicit-gc-{tests,pipelines,negative}.log.

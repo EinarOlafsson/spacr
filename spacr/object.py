@@ -1,6 +1,8 @@
 """Object segmentation, filtering, mask generation, and post-processing."""
 
-import os, gc, torch, time
+import os, torch, time
+
+from . import _gc as gc
 
 from . import accelerator
 import numpy as np

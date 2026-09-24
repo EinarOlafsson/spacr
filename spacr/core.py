@@ -60,7 +60,9 @@ also removes those objects from the returned frame, keeping the table and the
 visible embedding aligned rather than silently returning different samples.
 """
 
-import os, gc, torch, time, random
+import os, torch, time, random
+
+from . import _gc as gc
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

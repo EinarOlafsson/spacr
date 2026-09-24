@@ -1,7 +1,9 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
 import readlif.reader
-import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
+import os, re, json, sqlite3, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
+
+from . import _gc as gc
 import numpy as np
 import pandas as pd
 from PIL import Image
