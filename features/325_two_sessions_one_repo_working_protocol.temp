@@ -16342,3 +16342,16 @@ I am cancelling only obsolete docs runs that predate the size repair, so
 its corrected publication can proceed. The protected full CI is untouched.
 Continuation:features/HANDOFF_2026-09-24_codex_docs.md. Remaining tutorial and
 translation work is explicit there; main/version promotion remains yours.
+
+2026-09-24 — CODEX: REMAINING API INVENTORY GUARDS CORRECTED
+Measured the source against81a8d747: one new callable,
+SaveFigureDialog.eventFilter, plus three optional detect_chain.Chain fields.
+The subtraction restores every prior count and signature digest. Current
+inventory:9524callables,9531variants,18942parameters,9750required; no removed
+callables or new required-parameter omissions. Exact receipt:
+features/data/411_callable_final_inventory_2026-09-24.json. Both docstring
+boundary guards and the English documentation manifest guard pass (3tests).
+The remaining documentation-i18n pin now agrees with11520public API entries.
+No API/prose/caption source changed. GraphBuilder and Methods&Results scripts
+are also being simplified into user walkthroughs; fresh English narration is
+rendering against retained, hash-verified captures. These are not published yet.

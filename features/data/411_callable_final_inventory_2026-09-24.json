@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "baseline": "81a8d74723814733b3863dcb360d72a750647d04",
+  "source_head": "8b8458b14856d6834ac84f96cc4978749402ae5a",
+  "before": {
+    "callables": 9523,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4106,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9518,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9530,
+    "variant_buckets": {
+      "1": 9516,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18937,
+    "required": 9748,
+    "signature_sha256": "dbd2302745753c6368e7507dca7113f533bfeb38f8e997924b4eae3afa2681ea"
+  },
+  "after": {
+    "callables": 9524,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4107,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9519,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9531,
+    "variant_buckets": {
+      "1": 9517,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18942,
+    "required": 9750,
+    "signature_sha256": "11d08732c28a1db3f8fad90a5a6a86efd06a3577e02b7dee68d09ee24f5fe3c8"
+  },
+  "added": [
+    "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.eventFilter"
+  ],
+  "removed": [],
+  "changed_signatures": {
+    "spacr.qt.detect_chain.Chain": {
+      "before": "spacr.qt.detect_chain.Chain\u0000namedtuple_constructor\u0000autoapi\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,psf,psf_error,psf_iterations,psf_operation,psf_sampling_um,sharpen,sharpen_amount,sharpen_radius,split\u0000\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,psf,psf_error,psf_iterations,psf_operation,psf_sampling_um,sharpen,sharpen_amount,sharpen_radius,split\u00000\u00001\u00000\u00000",
+      "after": "spacr.qt.detect_chain.Chain\u0000namedtuple_constructor\u0000autoapi\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,psf,psf_error,psf_iterations,psf_operation,psf_sampling_um,restoration,restoration_error,restoration_plan,sharpen,sharpen_amount,sharpen_radius,split\u0000\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,psf,psf_error,psf_iterations,psf_operation,psf_sampling_um,restoration,restoration_error,restoration_plan,sharpen,sharpen_amount,sharpen_radius,split\u00000\u00001\u00000\u00000"
+    }
+  },
+  "exact_subtraction_restores_baseline": true,
+  "omissions_before": 2295,
+  "omissions_after": 2290,
+  "added_omissions": [],
+  "removed_omissions": [
+    "spacr.point_spread.PSFResult:image",
+    "spacr.point_spread.PSFResult:provenance",
+    "spacr.psf_measurement.measurement_psf_signature:plan",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent:event",
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy:busy"
+  ]
+}
