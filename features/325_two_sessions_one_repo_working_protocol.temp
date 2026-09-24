@@ -16126,3 +16126,12 @@ not started. The generated index agrees. CIcoverage shard11also failed and
 is being inspected; full CI is NOTgreen. Main publication remains the user's
 next operation. These changes are on nightly, not silently substituted into
 the immutable06a7candidate run.
+
+2026-09-24 — IMPLEMENTATION: MINIMUM DEPENDENCY PROFILE OWNERSHIP
+Coverage shard11found that the new direct packaging>=21.3 dependency has no
+entry in .github/constraints/minimum-py39.txt. I am taking that one missing
+minimum pin now, then running the profile contract checks. No workflow trigger,
+version metadata or release operation changes.
+The profile now pins packaging21.3, exactly setup.py's declared floor.
+All17dependency-profile/floor/optimal-version checks pass. This repairs the
+specific shard11failure without changing the dependency floor or any test.
