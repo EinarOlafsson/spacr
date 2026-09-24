@@ -299,6 +299,7 @@ EXPECTED_SECTIONS = {
     'foreign': 'Data',
     'gate_editor': 'Tools',
     'graph_builder': 'Tools',
+    'host_pathogen': 'Assays',
     'invasion': 'Assays',
     # investigate_hit, profiler and train_compare moved Core -> Tools in
     # 571b6e77c, which split `app_is_visible` from the new `tiled_apps()`
@@ -334,6 +335,7 @@ EXPECTED_SECTIONS = {
 #: Absent from ``APP_STAGE`` means stable, so the two are checked
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
+    "host_pathogen": "alpha",
     "toxoplasma": "alpha", "plasmodium": "alpha", "candida": "alpha",
     # New module, so alpha: the two pipelines it dispatches to are trusted,
     # the merged screen has not been run on real data.
@@ -464,7 +466,7 @@ def test_every_app_carries_the_maturity_it_was_given():
     # registers them now. Each has declared stage='alpha' in `app_catalog`
     # since it was written; the column grew by three tiles, not by three
     # demotions.
-    assert counts == {"alpha": 32, "beta": 4, "stable": 6}
+    assert counts == {"alpha": 33, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -1168,6 +1170,10 @@ def test_clicking_a_sidebar_row_navigates(win):
 
 
 def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
+    from spacr.qt.organisms import ORGANISMS
+
+    organism_summaries = {key: summary for guide in ORGANISMS.values()
+                          for key, _title, summary, _icon in guide['modules'] if key}
     # The apps sit one level down since 2026-08-23: the spaCR menu opens
     # onto a submenu per section rather than onto sixty-five flat rows.
     seen = {}
@@ -1186,8 +1192,9 @@ def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
             continue
         collect(top.menu())
         break
-    for _key, name, desc, _s in APPS:
-        assert seen.get(name) == desc, f"{name} missing/mislabelled in menu"
+    for key, name, desc, _s in APPS:
+        assert seen.get(name) == organism_summaries.get(key, desc), (
+            f"{name} missing/mislabelled in menu")
     # Triggered through the section submenu it now lives in.
     def find(menu, label):
         for act in menu.actions():

@@ -78,6 +78,38 @@ def _set(screen, key, value):
     screen.apply_settings_dict({key: value})
 
 
+def test_closing_the_workbench_drains_jobs_owned_by_both_tabs(workbench, qtbot):
+    """Closing the parent must cancel real workers before Qt destroys its tabs."""
+    import threading
+    import time
+    from PySide6.QtCore import QThread
+
+    started = [threading.Event(), threading.Event()]
+    finished = [threading.Event(), threading.Event()]
+    results = []
+
+    def wait_for_close(index):
+        started[index].set()
+        deadline = time.monotonic() + 5
+        while not QThread.currentThread().isInterruptionRequested():
+            if time.monotonic() >= deadline:
+                return 'not cancelled'
+            time.sleep(0.01)
+        finished[index].set()
+        return 'cancelled'
+
+    pages = (workbench.train_screen, workbench.apply_screen)
+    for index, page in enumerate(pages):
+        assert page._jobs.submit(lambda i=index: wait_for_close(i), results.append)
+    qtbot.waitUntil(lambda: all(event.is_set() for event in started))
+    closed = workbench.close()
+    qtbot.waitUntil(lambda: all(not page._jobs.is_busy() for page in pages), timeout=6000)
+    assert closed
+    assert all(event.is_set() for event in finished)
+    assert all(not page._jobs.is_busy() for page in pages)
+    assert results == []
+
+
 def _read(screen, key):
     """Read one setting back out of a module page's form."""
     return screen._settings_model.collect().get(key)
