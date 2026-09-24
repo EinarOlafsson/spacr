@@ -121,23 +121,15 @@
     "80_image_analysis_pathways",
     "81_sequencing_pathways"
   ],
-  "live_verified_commit": "605aeb67a80eecb5453d94c70712e73b913054c8",
-  "live_catalog_sha256": "0c73f0525375f7c48b25e708d54afd40b702e8fb866e82fcbf0c7aa44766b2ee",
+  "live_verified_commit": "1e5c408b6e7d54e4cdedc52cea3cd0ba5cde991b",
+  "live_catalog_sha256": "ba0bf1b7649f00a92294cf4f7975fab4a390ff02dd41ee60a9799100670821e8",
   "narration_and_caption_refresh_required": [
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
     "17_timelapse",
     "19_train_cellpose",
-    "48_hit_list",
-    "56_lineage",
     "59_anndata_export",
-    "64_gate_editor",
-    "65_feature_explorer",
-    "66_outliers",
-    "67_experiment_design",
-    "68_power_design",
-    "69_dose_response",
     "70_explain_cv",
     "72_volcano_explorer",
     "73_parameter_sweep",
@@ -1345,7 +1337,7 @@
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [
         {
           "field": "prerequisite",
@@ -1368,7 +1360,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "49_methods_results",
@@ -1558,7 +1550,7 @@
       "scene_count": 14,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1576,7 +1568,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "57_layer_viewer",
@@ -1653,7 +1645,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false,
       "current_workflow_followup": "Normal exporter and six native GUI exports verified; current recording replaces the older helper route."
     },
@@ -1767,7 +1759,7 @@
       "scene_count": 22,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1785,7 +1777,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "65_feature_explorer",
@@ -1793,7 +1785,7 @@
       "scene_count": 14,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1811,7 +1803,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "66_outliers",
@@ -1819,7 +1811,7 @@
       "scene_count": 17,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1837,7 +1829,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "67_experiment_design",
@@ -1845,7 +1837,7 @@
       "scene_count": 14,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1863,7 +1855,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "68_power_design",
@@ -1871,7 +1863,7 @@
       "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1889,7 +1881,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "69_dose_response",
@@ -1897,7 +1889,7 @@
       "scene_count": 18,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewrite; media publication pending",
+      "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [
         "da",
@@ -1915,7 +1907,7 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": false
+      "published_rewrite": true
     },
     {
       "lesson": "70_explain_cv",
@@ -1940,7 +1932,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1978,7 +1970,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2004,7 +1996,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2030,7 +2022,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2056,7 +2048,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -2108,7 +2100,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {

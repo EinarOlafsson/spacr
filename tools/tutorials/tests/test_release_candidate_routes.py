@@ -40,7 +40,8 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     lessons = english['lessons']
     unavailable = [x for x in lessons if x.get('status') == 'coming_soon']
     ready = [x for x in lessons if x.get('status') != 'coming_soon']
-    # Embeddings and OPS are measured API examples, not fictitious GUI runs.
+    # Embeddings now demonstrates its native crop loader and encoder.
+    # OPS retains its explicitly recorded API example.
     # Model Compare/Zoo are likewise their explicitly recorded subsets.
     # Map now includes real search, mapped counts and its explicit API subset.
     # Investigate Hit still must not be counted as a completed tutorial.
@@ -48,7 +49,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     assert [x['id'] for x in unavailable] == REMAINING_HOLDS
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
-    assert len(embeddings['scenes']) == 11
+    assert len(embeddings['scenes']) == 9
     nav = build(english)
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert nav['missing_tutorials'] == manifest['outstanding_module_tutorials']
@@ -81,7 +82,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 819
+    assert manifest['narration_tracks'] == 525
     videos = {Path(r['path']).parts[2] for r in manifest['files']
               if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     assert videos == {x['id'] for x in ready}

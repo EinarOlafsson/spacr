@@ -1,0 +1,122 @@
+{
+  "source_commit": "1e5c408b6e7d54e4cdedc52cea3cd0ba5cde991b",
+  "workflow": 35966404286,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "79d71a92f7204c8b839b7b8c7aff5de7302394ef",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "1e5c408b6e7d54e4cdedc52cea3cd0ba5cde991b",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 564520400,
+    "media_files": 149
+  },
+  "english_api_entries": 11528,
+  "live_catalog_sha256": "ba0bf1b7649f00a92294cf4f7975fab4a390ff02dd41ee60a9799100670821e8",
+  "catalog_matches_source": true,
+  "api_matches_source": true,
+  "api_manifest_comparison": "Regenerated current English manifest; pipeline regenerates the source catalog before publication",
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "e83a819b00bbe4133d1e955c3ad79a686b27fbc57fd20bbafd1f394d27b7bad3"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "c3e75f695024aa19cb38cfe5bec0ccd9f6791f56998a7388c28af7777e2999ad"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617/07_mask/video/07_mask_silent.mp4",
+      "width": 3840,
+      "time": 44.780264,
+      "expected": 44.91510900996422,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "48_hit_list",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/48_hit_list/video/48_hit_list_silent.mp4",
+      "width": 3840,
+      "time": 21.553206,
+      "expected": 21.670330683286494,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "56_lineage",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/56_lineage/video/56_lineage_silent.mp4",
+      "width": 3840,
+      "time": 21.664565,
+      "expected": 21.77107855174078,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "64_gate_editor",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/64_gate_editor/video/64_gate_editor_silent.mp4",
+      "width": 3840,
+      "time": 21.318339,
+      "expected": 21.56481046383508,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "65_feature_explorer",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/65_feature_explorer/video/65_feature_explorer_silent.mp4",
+      "width": 3840,
+      "time": 24.588282,
+      "expected": 24.936553023494227,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "66_outliers",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/66_outliers/video/66_outliers_silent.mp4",
+      "width": 3840,
+      "time": 22.451649,
+      "expected": 22.853727118839643,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "67_experiment_design",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/67_experiment_design/video/67_experiment_design_silent.mp4",
+      "width": 3840,
+      "time": 20.233619,
+      "expected": 20.4171191834425,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "68_power_design",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/68_power_design/video/68_power_design_silent.mp4",
+      "width": 3840,
+      "time": 20.382812,
+      "expected": 20.501141660123,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "69_dose_response",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5fef816b732a14df2654c5eda9610baa071a080c/69_dose_response/video/69_dose_response_silent.mp4",
+      "width": 3840,
+      "time": 27.542204,
+      "expected": 27.6125314674243,
+      "error": null
+    }
+  ],
+  "passed": true
+}

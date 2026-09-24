@@ -109650,10 +109650,10 @@
         "80b386da954e29ff1ac472539c4cff73108f78046c9abd200d5da1ee0db9655d",
         "3236d76e2e0ce61aa5e4d2a63fc692452c19a3fad63766e7d8220bc85b8bc02e",
         "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
-        "2af0cae5c96dac29ffd0097ad4911511c158a2f49ae734e35529bfef210cf392"
+        "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4"
       ],
-      "source_sha256": "d865d1ac838ed43a1bdb7a614db31beebf0791ac3ea256a28493e00a22119cac",
-      "text": "Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.\n\n:param src: experiment root containing ``masks/`` and ``stack/`` subfolders.\n:param mask_fldr: subfolder name under ``masks/``.\n:param resume: accepted for the callers that pass it. Only structurally\n    complete mask arrays are counted whether or not it is set, so an\n    empty or truncated array left by an interrupted run is re-queued.\n:returns: ``True`` when the mask folder is missing or has fewer valid\n    ``.npy`` files than the stack folder."
+      "source_sha256": "384d352c4411802e1778070c61e5d92a259534dc0e641373ef0e400d753fc053",
+      "text": "Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.\n\n:param src: experiment root containing ``masks/`` and ``stack/`` subfolders.\n:param mask_fldr: subfolder name under ``masks/``.\n:param resume: accepted for the callers that pass it. Only structurally\n    complete mask arrays are counted whether or not it is set, so an\n    empty or truncated array left by an interrupted run is re-queued.\n:returns: ``True`` when the mask folder is missing or any expected stack\n    filename lacks a complete mask. Unrelated masks cannot substitute\n    for a missing field and do not force complete fields to run again."
     },
     "spacr.utils.check_multicollinearity": {
       "source_blocks_sha256": [

@@ -7563,145 +7563,78 @@
       "section": "Measure",
       "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Prepare a copied measurement database and the supplied export helper.",
+        "Open AnnData Export and select a measured project.",
         "Choose joined or single-table measurements and a missing-value policy.",
-        "Open the saved h5ad file and retain its source images and settings."
+        "Export an h5ad file with feature names and object metadata."
       ],
-      "example_files": [
-        "AnnData_API_workaround.zip"
-      ],
-      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
       "scenes": [
         {
-          "visual": "gui_02_current_anndata_form",
-          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+          "visual": "01_measure_host",
+          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate"
-          ],
+          ]
+        },
+        {
+          "visual": "03_private_downloaded_project",
+          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_private_downloaded_project",
-          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "visual": "05_joined_keep_settings",
+          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_01_unmodified_failure",
-          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-          "focus": [
-            190,
-            1660,
-            3450,
-            340
-          ],
+          "visual": "04_setting_anndata_row_limit",
+          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_02_explicit_workaround",
-          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1400
-          ],
+          "visual": "05_joined_keep_finished",
+          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_cell_keep_finished",
+          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_cell_mean_finished",
+          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_cell_drop_features_finished",
+          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_cell_drop_objects_finished",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_setting_anndata_register_artifact",
+          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_cell_keep",
-          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_05_cell_mean",
-          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_cell_drop_features",
-          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_cell_drop_objects",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_09_saved_shape",
-          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -9354,22 +9287,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "Explain CV Model",
+      "title": "Explain CV Model: compare predictions with measured features",
       "series": 5,
       "app_key": "explain_cv",
       "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "Inspect a real surrogate fit inside Classify, verify its held-out fidelity and recognise when feature explanations must not be interpreted.",
+      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
       "objectives": [
-        "Select matching measurements and existing classifier predictions through the nested workbench.",
-        "Distinguish surrogate agreement from independent classifier validation.",
-        "Inspect failed fidelity, class errors, table limits and complete saved artifacts."
+        "Match the measurement database to saved classifier predictions.",
+        "Choose prediction columns, a backend and held-out groups.",
+        "Read fidelity, confusion and saved feature summaries."
       ],
-      "prerequisite": "Use a measurements database and predictions CSV from the same cropped objects. This recording reuses 234 genuine saved predictions from the one-epoch Annotate/Classify example, not the separate portable Evaluation inspector bundle. Original filename and predicted_label columns are preserved. The earlier classifier split shares wells with training, so this is not independent classifier validation. The surrogate uses 89 complete cases and 1126 features; 145 joined rows are excluded for nonfinite features. It fits 68 objects from two wells and tests 21 from a third. All surrogate calls are class 1: fidelity 17/21, balanced accuracy 0.5. The displayed majority baseline is 81/89 across all complete cases. Importance is withheld; visible SHAP values are not a faithful account of the CV model. Eighteen cv_intensity measurement names are excluded by the name heuristic, which does not prove actual leakage. GUI correlations and distributions stop at 1000 rows; inspect full CSV exports. API: spacr.surrogate.explain_classifier, fit_surrogate and write_surrogate_result. No GUI controls for permutation repeats, feature exclusions or SHAP budget are claimed. CPU demonstration only; no new training, external AI request, native-listening approval or publication.",
+      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Open Classify, then the Explain CV Model icon at the upper right. It opens a nested workbench, not another Home module. We reuse existing image-classifier predictions and the matching measurements from the example workflow. Explaining those predictions does not validate the classifier itself.",
+          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
           "focus": [
             3579,
             100,
@@ -9384,12 +9317,12 @@
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "Choose the matching measurements database and saved predictions CSV. The file must identify the same cropped objects, not just use similar well names. Here we use unchanged copies of two hundred thirty-four real saved predictions. This is not a new training run or a newly validated dataset.",
+          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
           "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "If Browse leaves the old column choices, confirm the prediction path with Enter. Select filename for the crop path and predicted underscore label for the model's class calls, not the true labels or a continuous probability. Choose Random Forest, well grouping and a new output folder.",
+          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
           "focus": [
             462,
             463,
@@ -9400,7 +9333,7 @@
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "Click Explain model. The surrogate learns from measured features to imitate existing class calls; it does not rerun the vision model. This example uses CPU processing. The GUI offers backend and grouping choices; permutation repeats, feature exclusions and the SHAP budget are API options, not controls on this form.",
+          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
           "focus": [
             462,
             678,
@@ -9414,7 +9347,7 @@
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "Read Fidelity first. All predictions joined, but only eighty-nine rows had complete features. The surrogate fits sixty-eight objects from two wells and tests twenty-one from a third. Fidelity is about eighty-one percent, below the displayed ninety-one percent majority baseline. That baseline uses all complete cases, not only the held-out well.",
+          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
           "focus": [
             474,
             1010,
@@ -9425,7 +9358,7 @@
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "Importance is withheld because the fidelity gate failed. Do not turn this fit into a claim about what the vision classifier recognises. Also review automatic exclusions: the warning calls eighteen measurement names leaky, but names containing coefficient-of-variation intensity do not by themselves establish label leakage.",
+          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
           "focus": [
             465,
             937,
@@ -9436,7 +9369,7 @@
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Confusion compares the original model's class calls with the surrogate's calls, not biological truth. Here the surrogate calls every held-out object class one: seventeen agreements and four errors. Balanced accuracy is one half. A high-looking overall percentage can hide failure on the smaller class.",
+          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
           "focus": [
             465,
             948,
@@ -9447,7 +9380,7 @@
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "Per-cell SHAP is still visible even though fidelity failed. These values describe this surrogate; they do not rescue its explanation of the vision model or establish a biological mechanism. Keep this limitation attached to exported attribution tables. Activation maps answer a different, spatial question, covered in their own lesson.",
+          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
           "focus": [
             465,
             948,
@@ -9461,7 +9394,7 @@
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "Inspect Correlations and Feature distributions as data summaries, not proof of causation. Each GUI table stops at a thousand rows. The full exports here contain one thousand eighty-seven correlation pairs and two thousand two hundred fifty-two distribution rows. Read the saved files before reporting totals or missing features.",
+          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
           "focus": [
             465,
             948,
@@ -9472,7 +9405,7 @@
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Held-out cells retains the object identities and both sets of predictions. Open held-out objects is disabled in this recording, so no crop handoff is demonstrated. Keep the eleven saved artifacts, settings and fidelity warning together. The Evaluation lesson explains classifier validation limits; a plot, SHAP table or spaCR AI response cannot certify a classifier.",
+          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
           "focus": [
             465,
             865,
@@ -9485,7 +9418,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "71_investigate_hit",
@@ -9507,7 +9445,7 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer: inspect existing results and export a figure",
+      "title": "Volcano Explorer: inspect results and save a figure",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
@@ -9515,18 +9453,17 @@
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "Explore the real Regression example, synchronize the current style controls, distinguish visual thresholds from statistical testing, and save reproducible figure styles and exports.",
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
       "objectives": [
-        "Open the nested Volcano Explorer with the completed Regression guide family.",
-        "Synchronize initial controls through the verified Save style and Load style workaround.",
-        "Inspect point identities, effect and P-value axes, colour and reference lines without inventing new hits.",
-        "Restore a saved style and inspect vector PDF and PNG exports."
+        "Open a results family and inspect guide identities and support.",
+        "Choose adjusted values, display transforms and reference lines.",
+        "Save the style and export PDF or PNG figures."
       ],
-      "prerequisite": "Extract Volcano_real_guide_family.zip and open its results folder. These are unchanged outputs from the downloaded-data Regression tutorial, not a new analysis or a complete project archive. One family contains 434 guides, outcome log_pred, minimum_wells_threshold=2, plus-one permutation P values and BH correction. Minimum raw P=0.005, minimum adjusted P=0.39454545454545453; zero significant at original alpha=0.05. Standardized marginal effects are not simultaneously fitted multivariable coefficients or log2 fold changes. The native initial style-control defect remains: displayed alpha=1e-6, multiplier=0 and log=False disagree with rendered .05/3/True. Before editing, Save style then Load that same style synchronizes controls. All 67 style fields survive the later roundtrip. Moving alpha to .5 puts nineteen adjusted values below that cutoff but preserves zero source significance flags; it is not new testing. Restore .05 and adjusted_p_value before export. An explicit effect cut .1 with multiplier 3 gives lines at +/-0.3. Actual point coordinates, identities, source flags and support colours are checked. Nominal 7-by-5-inch, 150-DPI settings export a tightly cropped 492.536-by-348.485-point PDF and 1026-by-726-pixel PNG. The PDF has embedded fonts and no raster images; labels were visually rechecked. Some GUI labels remain clipped and the application warns about white marker outlines on light paper. Annotation merging, broken axes, localization and control-MAD rules are not certified by this example. The preserved recording was made with spaCR 1.5.0.4; its screen, widget and renderer source bytes still match the current checkout. No new regression, GPU, AI provider request, application modification, biological validation or publication. API: spacr.volcano_style.VolcanoStyle and render_volcano.",
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Open Regression and its nested Volcano Explorer. This lesson belongs under Regression in the submodule section. The explorer reads completed results; it does not rerun the analysis. We use the real downloaded-data Regression example, with a companion archive containing the exact result tables and recorded figure styles.",
+          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
           "related_lessons": [
             "13_regression"
           ],
@@ -9534,17 +9471,17 @@
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "Choose Open results and select the extracted results folder. Each point here is one guide from a single family of four hundred thirty-four tests, using the same outcome and minimum-well rule. Do not pool different correction families. No guide is significant at the original adjusted-P cutoff of zero point zero five.",
+          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
           "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "Before changing any setting, use Save style to save the actual rendered style, then Load style from that same file. In this build the initial controls disagree with the figure, and editing immediately can pull incorrect defaults into the plot. This normal save-and-load workaround synchronizes them; it does not fix the application.",
+          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "After reloading, confirm alpha zero point zero five, multiplier three, and the negative-log transform. Some setting labels remain clipped in this build, so check the values and saved JSON. The horizontal axis is standardized marginal effect, not log-two fold change or a coefficient from a simultaneously fitted multivariable model.",
+          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
           "focus": [
             2305,
             270,
@@ -9555,7 +9492,7 @@
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "Click an existing point to inspect its source row. The selected guide has raw P zero point zero zero five, but adjusted P about zero point three nine. Its large marginal effect and four supporting wells do not make it significant. Use the identity and source fields rather than guessing from a dot's position.",
+          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
           "focus": [
             305,
             1830,
@@ -9566,70 +9503,75 @@
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "Switching the vertical column to raw permutation P changes the plotted quantity, not the analysis. Small raw values do not replace the family-adjusted values. Restore adjusted P afterwards. The saved source significance flags remain unchanged; the explorer is a reader and figure editor, not a new statistical test.",
+          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "The negative-log-ten switch changes how P values are displayed. With it on, smaller P values appear higher; turning it off displays the original values. We restore the transformed adjusted-P view here. Always read the axis label, and do not confuse the transform with a different multiple-testing correction.",
+          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
           "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "For demonstration, moving alpha to zero point five moves the reference line. Nineteen adjusted values fall below that new P cutoff, but none gains a new source significance flag. This is not a valid claim of nineteen discoveries. Restore the original zero point zero five before exporting or interpreting this example.",
+          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
           "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "An explicit effect cutoff of zero point one combines with multiplier three, placing vertical lines at minus and plus zero point three. Check the multiplier rather than reading the cutoff field alone. An effect threshold does not replace statistical correction. Restore Auto after this exercise; no result-table values are rewritten.",
+          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
           "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "Colour by wells with guide displays actual support from the source table. It is not a confidence score or proof of accuracy. Return to the original significance colours before the final export. Optional annotation joins and other layouts need their own validation and are outside this verified example.",
+          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
           "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "Set the intended figure size, font sizes and resolution, then inspect the result. Here the nominal size is seven by five inches at one hundred fifty dots per inch. Tight bounding-box cropping changes the final dimensions. A readable exported figure does not mean every native settings label fits this window.",
+          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
           "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "Save the final style as JSON. After a temporary marker-size change, Load style restores every recorded style field. Keep that file with the original result table so another session can reproduce the appearance. Style settings describe presentation; they do not establish that a different regression or significance test was run.",
+          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
           "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF and PNG re-render the figure rather than capture the screen. Our PDF contains vector marks and embedded fonts; inspect labels, contrast and the warning about white marker outlines on light paper. Original data remain unchanged. Python provides VolcanoStyle and render_volcano for the same rendering workflow, without a GPU or AI provider.",
+          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "Parameter Sweep",
+      "title": "Parameter Sweep: compare saved Regression trials",
       "series": 5,
       "app_key": "parameter_sweep",
       "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "Run two bounded trials inside Regression, inspect saved guide and gene results, and distinguish execution success from valid inference.",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
       "objectives": [
-        "Find the nested sweep and select four ordered score/count pairs from Regression’s test data.",
-        "Limit a grid to two trials and one worker, then inspect saved results without refitting.",
-        "Keep failed inference checks and separate coefficient families visible when comparing outputs."
+        "Select paired score/count files and a sweep output folder.",
+        "Choose variable and fixed settings, estimate the trial count and run.",
+        "Inspect saved trials and their inference quality before comparison."
       ],
-      "prerequisite": "Use the four downloaded plate score/count pairs from the Regression lesson and a new output folder. This is a computational demonstration, not a validated hit-discovery analysis: both recorded ridge trials fail inference QC. The full recipe is visible in the sweep form; only alpha varies, 0.01 and 0.1. Parametric inference, well aggregation, mean response and no transform are fixed explicitly. Other parent settings are not automatically inherited. Do not use the displayed n_rows_fitted as sample size: it counts 1174 coefficient rows here, not 620 wells or 2955 prepared long-form rows. The trial table omits alpha and the saved QC verdicts; inspect sweep_results.csv and each trial’s actual settings. API: spacr.parameter_sweep.SweepSpace and run_sweep_parallel. No GPU acceleration benchmark, external AI request, native-speaker sign-off or publication is claimed.",
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "Open Regression, then Parameter sweep at the bottom right. This workflow lives inside Regression, not on a separate Home tile. The Regression lesson explains downloading the four example score and count pairs that we reuse here.",
+          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
           "focus": [
             3380,
             1880,
@@ -9643,12 +9585,12 @@
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "Check the sweep’s own input lists. They are initially empty even when the parent form contains paired data. Add the four score files and four count files in matching plate order. Choose a new output folder so this demonstration cannot overwrite an earlier analysis.",
+          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
           "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "Only tick alpha: the values are zero point zero one and zero point one. Unticked rows still supply fixed settings. Here we explicitly choose ridge, parametric inference, well-level mean aggregation and no transform. This bounded recipe demonstrates operation; it is not a recommendation for your experiment.",
+          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
           "focus": [
             850,
             490,
@@ -9659,7 +9601,7 @@
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "Set grid sampling, maximum trials two, and one worker, then click Estimate. Two valid combinations means the settings combinations are allowed, not that the statistical conclusions are valid. The time estimate assumes a minute per trial; it is not a benchmark. Read the available resource limits before starting.",
+          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
           "focus": [
             850,
             1190,
@@ -9670,12 +9612,12 @@
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "Click Start sweep, not the parent Regression Run button. Each trial writes into its own folder. These two real trials run sequentially; adding workers increases resource demand. This example demonstrates CPU regression, not GPU acceleration, and no request to spaCR AI is needed.",
+          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "Both rows report ok because computation finished. Crucially, both saved inference quality checks report fail. The table omits those verdicts and the varied alpha, so inspect the full sweep results file and each trial’s settings. Do not select a model just because it produces more small adjusted P values.",
+          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
           "focus": [
             1550,
             205,
@@ -9686,7 +9628,7 @@
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "Select the first row and click Show figures for selected row. This reads its saved results without refitting. The guide view contains seven hundred ninety-two coefficient rows, including an intercept; the plot excludes that nuisance term and shows seven hundred ninety-one guides. Height represents negative log ten of the raw P value.",
+          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
           "focus": [
             1545,
             510,
@@ -9697,7 +9639,7 @@
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "Switch Level to Gene. The table now contains three hundred eighty-two rows, including its intercept, and the plot shows three hundred eighty-one genes. Guides and genes are separate coefficient families. Changing this view does not make the failed inference valid or create independent evidence.",
+          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
           "focus": [
             1545,
             555,
@@ -9708,7 +9650,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Switch back to guides: the original rows and points return, and the saved files are unchanged. The summary’s rows fitted field is misleading here: it reports coefficient rows, not wells. Keep the input sample count, output coefficient count and plotted family distinct when reporting an analysis.",
+          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
           "focus": [
             1545,
             555,
@@ -9719,35 +9661,40 @@
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "Use the saved settings, summary and quality-control files together. A plot or an AI explanation cannot certify a study design. Regression Diagnostics explains further inspection, while the API reference documents sweep execution. This example teaches a reproducible workflow and its limitations, not validated biological hits.",
+          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images: inspect the plan before importing",
+      "title": "Import Images: map image identities and create a project",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "Open Import Images inside Import, check a real microscopy subset before writing, and save a reusable plan. The example explicitly distinguishes unsupported raw naming from prepared copies.",
+      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
       "objectives": [
-        "Find Import Images inside the Import module and distinguish it from importing existing measurements and masks.",
-        "Check image identities and unresolved filename tokens before writing a project.",
-        "Choose copying or linking, save and reload a plan, and verify the completed import."
+        "Scan microscope images and resolve naming questions.",
+        "Choose a destination, plate name and copy or link behavior.",
+        "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "Download Mask's real example first. This recording uses copied E01/F001 and L01/F009 fields, four C channels each. Prepared copies omit only the A token immediately before Z; originals remain unchanged. This is a specifically checked example, not a general instruction to delete unfamiliar filename metadata.",
+      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "Open Import from Home's Data category, then choose Import Images. This nested tool prepares raw image files. Import Project, Format Converter, and External Masks are related workflows with their own tutorials.",
+          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9758,7 +9705,7 @@
         },
         {
           "visual": "04_source_options",
-          "narration": "Our eight images are real microscopy data from Mask's downloadable example: one field from each of two wells, with four channels per field. We work on separate copies and leave the downloaded originals untouched.",
+          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -9766,17 +9713,17 @@
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Scan reveals an unresolved acquisition token in these raw names. Import stays disabled and nothing is written. Do not guess a channel mapping: two different channels share this acquisition value, so that answer would corrupt their identities.",
+          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
           "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "For this checked example, prepared copies omit only the redundant acquisition token. Their well, field, and channel names remain intact. Scan now shows eight rows, two wells, two field numbers, and four channels. This does not mean the original naming was accepted.",
+          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
           "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "Compare the proposal with the filenames before importing. Read inside each file checks embedded axis metadata as well as names. Sample limits the files inspected; ensure the proposal includes the images you intend to import. Resolve questions from acquisition records, not guesses.",
+          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -9787,7 +9734,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "Choose a destination outside the input folder and set the plate name. We turn off Link instead of copy for an independent project. Links save disk space, but depend on the originals staying accessible at their existing locations.",
+          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -9798,7 +9745,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "These example files are not tiles. For tiled acquisitions, read the Tiles choice carefully: stitching assembles fields, keeping tiles separately changes what a field means, and skipping loses those images. Check the report and any unverified seams before measuring.",
+          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
@@ -9806,7 +9753,7 @@
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Save plan writes a JSON record of the source and your mapping answers, not a backup of the images. Keep it with the acquisition notes. The same plan can be read through the Python image import API.",
+          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9814,40 +9761,45 @@
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Load plan reads the source folder again and reuses the saved answers. Check the new proposal before importing; a saved plan does not guarantee that a changed acquisition is correct. Here it restores the same eight checked image identities.",
+          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
           "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "Press Import and read the summary. This run wrote eight independent image copies with no skipped files; their contents match the source. Next, point Mask at the project and inspect its live preview before segmentation. Importing alone does not generate masks or measurements.",
+          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics: read the evidence behind the results",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "Open the diagnostic files produced by a real example-screen analysis, distinguish design warnings from permutation results, and recognize the limits of a short demonstration run.",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
       "objectives": [
-        "Open Diagnostics inside Regression and verify the output folder being inspected.",
-        "Interpret design identifiability, guide support and inference panels in the context of the selected analysis.",
-        "Recognize missing fitted-residual panels and limited permutation resolution without inventing a model fit."
+        "Open the diagnostic folder for the intended Regression run.",
+        "Read design support, identifiability and inference summaries.",
+        "Keep diagnostics with their settings and rerun after changing an analysis."
       ],
-      "prerequisite": "Complete the Regression example using its four downloadable score/count pairs. This recording inspects a bounded nonparametric run with 199 permutations, a minimum of two wells, and both guide and gene results. It demonstrates the software and diagnostic interpretation, not final discovery-quality inference.",
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "Inside Regression, hover over Diagnostics and open it after an analysis has completed. This button reads saved output; it does not fit another model. It opens the newest diagnostics folder found in the project, so verify the path when several runs exist.",
+          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9856,7 +9808,7 @@
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "The system file manager shows the actual files from our downloaded example-screen analysis. Here the figure preference was PNG. The folder contains design identifiability, design diagnostics, inference diagnostics, a summary table, and a table of collinear guide pairs.",
+          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
           "hold_after": 0.7,
           "focus": [
             535,
@@ -9867,37 +9819,37 @@
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "The design has six hundred and six wells, seven hundred and ninety-three parameters, and rank five hundred and ninety-nine. It cannot identify a unique simultaneous coefficient for every guide. This warning explains why we used a permutation analysis; it does not mean a simultaneous model was fitted successfully.",
+          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
           "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Guide support is uneven: three hundred and fifty-five guides occur in just one well in this design. Sparse support limits what the experiment can establish. Inspect coverage before interpreting effects, and distinguish the full design from the filtered family of guides actually tested.",
+          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
           "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "The design panel helps locate poor support and dependencies between guide predictors. Guides that always occur together are hard to distinguish statistically. Use the collinear-pairs table to inspect specific pairs rather than treating a warning badge as a complete explanation.",
+          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "The inference panel summarizes four hundred and thirty-four guide tests: their p-value distribution, comparison with a uniform null, and discoveries across adjusted thresholds. This short run has no discoveries at the displayed threshold. A calibration warning is a prompt to investigate, not proof of biological effects.",
+          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "We used only one hundred and ninety-nine permutations to keep the demonstration short. The minimum attainable empirical p-value is therefore zero point zero zero five. That resolution can be inadequate after multiple-testing correction; use an appropriately planned permutation count for the real analysis.",
+          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "There is no fitted-residual panel for this permutation run because it did not fit the simultaneous regression model. The p-value comparison we just viewed is not a residual diagnostic. Other analysis modes can write residual panels when they supply observed and fitted values.",
+          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "The summary records individual panel assessments and the worst assessment for the suite. Read each assessment in context rather than interpreting the overall badge as a software error. The Python regression diagnostics API writes the same kinds of panels from the inputs it is given.",
+          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9905,7 +9857,7 @@
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "Return to Regression to investigate the inputs or change an analysis choice deliberately. A change needs a new run and new diagnostics; opening this folder never updates old results. Use the Regression tutorial for the full dataset, console, interactive results, and assistance workflow.",
+          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -9913,139 +9865,129 @@
             "72_volcano_explorer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings: current screen and a real Python example",
+      "title": "Embeddings: load crops and compare channel policies",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "description": "Inspect the new Home module, encode real downloaded crops with the supported API, and compare channel policies without claiming a repaired GUI or a validated phenotype.",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
       "objectives": [
-        "Find Embeddings and distinguish its current GUI limitation from the working API.",
-        "Encode sixteen real crops, preserve identities and inspect both channel policies.",
-        "Read saved vectors and exploratory plots with appropriate limitations."
+        "Load a crop folder through the Embeddings screen.",
+        "Choose the backbone, batch size and channel policy.",
+        "Inspect the vector preview and save full results through the supplied Python helper."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "spaCR 1.5.0.7 with its embeddings extra; the recording uses timm 1.0.29 and cached pretrained ResNet18 weights on CPU. Download Annotate's real example as shown in that tutorial. Extract the helper ZIP, locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png, and use NEW output directories. The helper reads sixteen sorted PNGs without resizing; filenames identify the demonstration rows, not verified database join keys. The standalone Embeddings screen still lacks a crop-loading control. Successful operations here use the public Python API, not programmatic injection disguised as a GUI action. The default encoder is ImageNet-supervised, not microscopy-trained. No native-speaker signoff, biological validation, GPU benchmark or provider request is claimed. Read the included README for normalization, provenance, device and channel-mapping details.",
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Embeddings is a new Home module in spaCR. It turns image crops into numerical vectors without training on your annotations. This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+          "visual": "00_home",
+          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
           ],
           "related_lessons": [
             "05_home",
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_01_no_gui_crop_input",
-          "narration": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled. We will not simulate a successful GUI run. The supported Python API performs the actual encoding shown next.",
-          "focus": [
-            340,
-            55,
-            3480,
-            190
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_channel_policies",
-          "narration": "Per channel encodes each stored channel separately, then concatenates the vectors. Project to three encodes the combined image instead. That changes the representation, not just its speed. A saved PNG slot is not automatically a verified stain identity.",
-          "focus": [
-            340,
-            145,
-            1050,
-            270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_00_version",
-          "narration": "Install the optional embeddings extra in your spaCR environment. The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model. This small example uses the CPU; no GPU or remote AI service is required.",
-          "focus": [
-            200,
-            100,
-            3440,
-            700
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_01_inputs",
-          "narration": "Use Annotate's downloadable example and the crop folder named in the instructions. The linked helper selects sixteen existing images in sorted filename order. Each is two hundred twenty-four pixels square, with three stored channels. No resizing or new segmentation is performed.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "related_lessons": [
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
-          "visual": "api_02_per_channel",
-          "narration": "Run the helper with a new output directory. It calls embed_array with the real pretrained encoder and batches of four. Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions. The saved matrix is reopened and checked value by value.",
+          "visual": "01_crop_loader",
+          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_03_project",
-          "narration": "Now choose project and a different output directory. The same images produce sixteen rows and five hundred twelve dimensions. These combined-channel columns are not interchangeable with the earlier per-channel columns. Compare policies deliberately and retain the settings for each run.",
+          "visual": "02_folder_selected",
+          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_05_input_crops",
-          "narration": "Inspect the actual input montage in the image viewer. Its numbers match the output row order. Check crop quality and the export's channel mapping before interpreting vectors. Filenames identify this example; validate the object keys before joining to a measurements database.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_per_channel_pca",
-          "narration": "This saved plot projects the per-channel vectors onto two principal components. The numbered points refer to those same crops. It is exploratory visualization of a tiny sample, not proof of distinct phenotypes. A single embedding dimension is not a biological measurement.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_project_pca",
-          "narration": "The combined-channel vectors have their own projection. Do not compare axis coordinates across these separate plots as if they shared a fitted transformation. Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_provenance",
-          "narration": "Keep the vectors, source identities, weights checksum, settings and package versions. The helper checks that source images remain unchanged and refuses existing destinations. Match input crops, normalization and channel mapping between comparisons. Use the linked instructions to reproduce this API example.",
+          "visual": "03_crops_loaded",
+          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1200
-          ],
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "04_per_channel_settings",
+          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "05_per_channel_result",
+          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "04_project_settings",
+          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+            "06_api"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "76_ops",

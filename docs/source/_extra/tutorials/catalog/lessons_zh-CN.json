@@ -7619,145 +7619,78 @@
       "section": "Measure",
       "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Prepare a copied measurement database and the supplied export helper.",
+        "Open AnnData Export and select a measured project.",
         "Choose joined or single-table measurements and a missing-value policy.",
-        "Open the saved h5ad file and retain its source images and settings."
+        "Export an h5ad file with feature names and object metadata."
       ],
-      "example_files": [
-        "AnnData_API_workaround.zip"
-      ],
-      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
       "scenes": [
         {
-          "visual": "gui_02_current_anndata_form",
-          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+          "visual": "01_measure_host",
+          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate"
-          ],
+          ]
+        },
+        {
+          "visual": "03_private_downloaded_project",
+          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_private_downloaded_project",
-          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "visual": "05_joined_keep_settings",
+          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_01_unmodified_failure",
-          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-          "focus": [
-            190,
-            1660,
-            3450,
-            340
-          ],
+          "visual": "04_setting_anndata_row_limit",
+          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_02_explicit_workaround",
-          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1400
-          ],
+          "visual": "05_joined_keep_finished",
+          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_cell_keep_finished",
+          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_cell_mean_finished",
+          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_cell_drop_features_finished",
+          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_cell_drop_objects_finished",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_setting_anndata_register_artifact",
+          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_cell_keep",
-          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_05_cell_mean",
-          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_cell_drop_features",
-          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_cell_drop_objects",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_09_saved_shape",
-          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -9410,22 +9343,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "解释计算机视觉模型",
+      "title": "Explain CV Model: compare predictions with measured features",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "结果与质量控制",
+      "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "在Classify中检查真实的代理模型拟合，识别何时不能解读其解释结果。",
+      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
       "objectives": [
-        "在嵌套工具中选择相互对应的测量数据和已有预测。",
-        "区分代理模型的一致率与分类器的独立验证。",
-        "检查保真度不足、各类别的错误以及完整导出文件。"
+        "Match the measurement database to saved classifier predictions.",
+        "Choose prediction columns, a backend and held-out groups.",
+        "Read fidelity, confusion and saved feature summaries."
       ],
-      "prerequisite": "使用同一批裁剪对象的测量数据库和预测CSV。录像复用Annotate/Classify单轮训练示例中234条真实保存预测，不使用便携式Evaluation检查包。filename和predicted_label保持不变。原分类器的训练和测试共享孔，因此不是独立验证。代理模型使用89个完整案例和1126个特征，排除145行。用两个孔的68个对象训练，另一个孔的21个对象测试。全部预测为类别1：保真度17/21，平衡准确率0.5。显示的多数类基线81/89来自所有完整案例。重要性和SHAP不能忠实解释原分类器。名称过滤器排除18个cv_intensity测量特征，但这不证明标签泄漏。界面表格最多1000行，应检查完整CSV。API：spacr.surrogate.explain_classifier、fit_surrogate、write_surrogate_result。置换重复次数、特征排除和SHAP预算不是本表单的控件。本例使用CPU，没有重新训练视觉模型、向外部AI提问、母语听审批准或发布。",
+      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "打开Classify，再选择右上角的Explain CV Model图标。它打开的是嵌套工具，而不是另一个Home模块。我们复用示例流程中图像分类器的已有预测和相应测量数据。解释这些预测，并不等于验证分类器本身。",
+          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
           "focus": [
             3579,
             100,
@@ -9436,30 +9369,27 @@
             "09_annotate",
             "39_classifier_evaluation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Classify，再选择右上角的Explain CV Model图标。它打开的是嵌套工具，而不是另一个主页模块。我们复用示例流程中图像分类器的已有预测和相应测量数据。解释这些预测，并不等于验证分类器本身。"
+          "hold_after": 0.7
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "选择相互对应的测量数据库和保存的预测CSV。它们必须标识同一批裁剪对象，不能仅仅是孔名称相似。这里使用二百三十四条真实预测的未修改副本。这不是新训练，也不是新近得到验证的数据集。",
-          "hold_after": 0.7,
-          "speech_text": "选择相互对应的测量数据库和保存的预测CSV。它们必须标识同一批裁剪对象，不能仅仅是孔名称相似。这里使用二百三十四条真实预测的未修改副本。这不是新训练，也不是新近得到验证的数据集。"
+          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "如果Browse后仍显示旧的列选项，请在预测路径字段按Enter确认。裁剪路径选filename，模型预测类别选predicted_label，不要选择真实标签或连续概率。选择Random Forest、按well分组，以及一个新的输出文件夹。",
+          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
           "focus": [
             462,
             463,
             2680,
             459
           ],
-          "hold_after": 0.7,
-          "speech_text": "如果Browse后仍显示旧的列选项，请在预测路径字段按Enter确认。裁剪路径选filename，模型预测类别选predicted_label，不要选择真实标签或连续概率。选择Random Forest、按well分组，以及一个新的输出文件夹。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "点击Explain model。代理模型从测量特征学习模仿已有类别预测，不会重新运行视觉模型。本例使用CPU。界面可以选择后端和分组；置换重复次数、特征排除和SHAP预算属于API选项，而不是此表单上的控件。",
+          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
           "focus": [
             462,
             678,
@@ -9469,48 +9399,44 @@
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "点击Explain model。代理模型从测量特征学习模仿已有类别预测，不会重新运行视觉模型。本例使用CPU。界面可以选择后端和分组；置换重复次数、特征排除和SHAP预算属于API选项，而不是此表单上的控件。"
+          "hold_after": 0.7
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "先看Fidelity。所有预测都已关联，但只有八十九行具备完整特征。代理模型用两个孔的六十八个对象训练，用第三个孔的二十一个对象测试。保真度约百分之八十一，低于显示的百分之九十一多数类基线。该基线使用所有完整案例，而不只是留出孔。",
+          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
           "focus": [
             474,
             1010,
             2900,
             890
           ],
-          "hold_after": 0.7,
-          "speech_text": "先看Fidelity。所有预测都已关联，但只有八十九行具备完整特征。代理模型用两个孔的六十八个对象训练，用第三个孔的二十一个对象测试。保真度约百分之八十一，低于显示的百分之九十一多数类基线。该基线使用所有完整案例，而不只是留出孔。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "因为没有通过保真度门槛，Importance被隐藏。不要据此声称视觉分类器识别了什么。也要检查自动排除项：警告把十八个测量名称视为泄漏，但包含变异系数的强度测量名称本身，并不能证明标签泄漏。",
+          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
           "focus": [
             465,
             937,
             2420,
             810
           ],
-          "hold_after": 0.7,
-          "speech_text": "因为没有通过保真度门槛，Importance被隐藏。不要据此声称视觉分类器识别了什么。也要检查自动排除项：警告把十八个测量名称视为泄漏，但包含变异系数的强度测量名称本身，并不能证明标签泄漏。"
+          "hold_after": 0.7
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Confusion比较原模型与代理模型的类别预测，并非生物学真值。这里代理模型将所有留出对象都预测为类别一：十七个一致、四个错误。平衡准确率为零点五。看似较高的总体百分比，可能掩盖模型对少数类的失败。",
+          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
           "focus": [
             465,
             948,
             2000,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "Confusion比较原模型与代理模型的类别预测，并非生物学真值。这里代理模型将所有留出对象都预测为类别一：十七个一致、四个错误。平衡准确率为零点五。看似较高的总体百分比，可能掩盖模型对少数类的失败。"
+          "hold_after": 0.7
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "即使保真度不足，Per-cell SHAP仍然可见。这些数值描述的是此代理模型，不能挽救它对视觉模型的解释，也不能确立生物学机制。导出归因表时，应保留这项限制。激活图回答另一个空间层面的问题，专门的教程会介绍。",
+          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
           "focus": [
             465,
             948,
@@ -9520,24 +9446,22 @@
           "related_lessons": [
             "16_activation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "即使保真度不足，Per-cell SHAP仍然可见。这些数值描述的是此代理模型，不能挽救它对视觉模型的解释，也不能确立生物学机制。导出归因表时，应保留这项限制。激活图回答另一个空间层面的问题，专门的教程会介绍。"
+          "hold_after": 0.7
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "将Correlations和Feature distributions作为数据摘要查看，而不是因果关系证据。每个界面表格最多一千行。完整导出包含一千零八十七对相关性和两千二百五十二行分布摘要。报告总数或缺失特征前，请先检查保存文件。",
+          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
           "focus": [
             465,
             948,
             2910,
             1050
           ],
-          "hold_after": 0.7,
-          "speech_text": "将Correlations和Feature distributions作为数据摘要查看，而不是因果关系证据。每个界面表格最多一千行。完整导出包含一千零八十七对相关性和两千二百五十二行分布摘要。报告总数或缺失特征前，请先检查保存文件。"
+          "hold_after": 0.7
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Held-out cells保留对象身份以及两组预测。这次录像中的Open held-out objects不可用，因此没有演示打开裁剪图。将十一份保存文件、设置和保真度警告一起保留。Evaluation教程解释分类器验证的限制；图表、SHAP表格或spaCR AI的回答都不能保证分类器已经得到验证。",
+          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
           "focus": [
             465,
             865,
@@ -9548,10 +9472,14 @@
             "39_classifier_evaluation",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Held-out cells保留对象身份以及两组预测。这次录像中的Open held-out objects不可用，因此没有演示打开裁剪图。将十一份保存文件、设置和保真度警告一起保留。Evaluation教程解释分类器验证的限制；图表、SHAP表格或斯佩克尔 AI的回答都不能保证分类器已经得到验证。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "71_investigate_hit",
@@ -9573,142 +9501,133 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer：检查已有结果并导出图形",
+      "title": "Volcano Explorer: inspect results and save a figure",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
-      "section": "结果与质量控制",
+      "section": "Regression",
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "探索真实Regression示例，同步显示控件，区分视觉阈值与统计检验，并保存可复现的样式及导出图。",
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
       "objectives": [
-        "从Regression嵌套工具打开单一向导RNA检验家族。",
-        "通过Save style和Load style同步初始控件。",
-        "查看身份、坐标轴、颜色及参考线，不虚构新命中。",
-        "恢复样式并检查PDF和PNG。"
+        "Open a results family and inspect guide identities and support.",
+        "Choose adjusted values, display transforms and reference lines.",
+        "Save the style and export PDF or PNG figures."
       ],
-      "prerequisite": "解压Volcano_real_guide_family.zip，打开results。这是下载数据Regression示例的未修改输出，不是新分析或完整项目归档。单一家族：434条向导RNA、log_pred、minimum_wells_threshold=2，加一法置换P值及BH校正。最小原始P=.005，最小校正P=.39454545454545453，原alpha=.05时无显著结果。标准化边际效应不是同时拟合系数或log2倍数变化。初始缺陷未修复：控件1e-6/0/False，实际绘图.05/3/True；编辑前保存样式再加载同一文件可同步。后续恢复全部67项。Alpha .5使19个值低于新阈值，但不改变显著标志；导出前恢复.05及adjusted_p_value。效应阈值.1乘3给出±.3线。身份、点、颜色和源数据均核验。指定7×5英寸、150DPI；紧边界裁剪后PDF为492.536×348.485点，PNG为1026×726像素。PDF含嵌入字体且无栅格图，已复查可读性。部分GUI标签仍被裁切，浅色纸上的白色轮廓有警告。注释合并、断轴及MAD规则不在本验证范围。录制版本spaCR 1.5.0.4，相关三个源文件与当前一致。不运行新检验，不用GPU或AI，不修改应用、不作生物学认证、不发布。API：spacr.volcano_style.VolcanoStyle与render_volcano。",
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "打开Regression及其嵌套的Volcano Explorer。本课归在Regression子模块中。浏览器读取已完成的结果，不重新运行分析。这里使用可下载数据的真实示例，配套压缩包包含精确的结果表和记录的图形样式。",
+          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Regression及其嵌套的Volcano Explorer。本课归在Regression子模块中。浏览器读取已完成的结果，不重新运行分析。这里使用可下载数据的真实示例，配套压缩包包含精确的结果表和记录的图形样式。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "点击Open results，选择解压后的results文件夹。每个点是同一检验家族中的一条向导RNA，共四百三十四次检验，使用相同的结局变量和最少孔数规则。不要混合不同的校正家族。原校正P值阈值零点零五下，没有显著向导RNA。",
-          "hold_after": 0.7,
-          "speech_text": "点击Open results，选择解压后的results文件夹。每个点是同一检验家族中的一条向导RNA，共四百三十四次检验，使用相同的结局变量和最少孔数规则。不要混合不同的校正家族。原校正P值阈值零点零五下，没有显著向导RNA。"
+          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
+          "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "更改任何设置前，先用Save style保存实际绘图样式，再用Load style加载同一文件。本版本初始控件与图不一致，立即编辑可能把错误默认值带入图形。正常保存、加载可同步控件，但并未修复应用。",
-          "hold_after": 0.7,
-          "speech_text": "更改任何设置前，先用Save style保存实际绘图样式，再用Load style加载同一文件。本版本初始控件与图不一致，立即编辑可能把错误默认值带入图形。正常保存、加载可同步控件，但并未修复应用。"
+          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "加载后确认alpha为零点零五、乘数为三，并开启负对数变换。部分标签仍被裁切，请核对数值与JSON。横轴是标准化边际效应，不是以二为底的倍数变化，也不是同时拟合的多变量模型系数。",
+          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
           "focus": [
             2305,
             270,
             1500,
             570
           ],
-          "hold_after": 0.7,
-          "speech_text": "加载后确认alpha为零点零五、乘数为三，并开启负对数变换。部分标签仍被裁切，请核对数值与JSON。横轴是标准化边际效应，不是以二为底的倍数变化，也不是同时拟合的多变量模型系数。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "点击已有点查看原始行。选中向导RNA的原始P是零点零零五，但校正P约为零点三九。较大的边际效应和四个支持孔并不能使其显著。请根据身份和源字段判断，不要只看点的位置。",
+          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
           "focus": [
             305,
             1830,
             1990,
             275
           ],
-          "hold_after": 0.7,
-          "speech_text": "点击已有点查看原始行。选中向导RNA的原始P是零点零零五，但校正P约为零点三九。较大的边际效应和四个支持孔并不能使其显著。请根据身份和源字段判断，不要只看点的位置。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "把纵轴切到原始置换P值，只改变绘制量，不改变分析。较小的原始P不能替代家族校正值。随后恢复校正P。源数据的显著标志保持不变；这是结果浏览和图形编辑器，不是新的统计检验。",
-          "hold_after": 0.7,
-          "speech_text": "把纵轴切到原始置换P值，只改变绘制量，不改变分析。较小的原始P不能替代家族校正值。随后恢复校正P。源数据的显著标志保持不变；这是结果浏览和图形编辑器，不是新的统计检验。"
+          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "负的十进对数开关改变P值的显示方式。开启时P越小位置越高，关闭时显示原值。这里恢复经过变换的校正P视图。始终阅读轴标签，不要把显示变换当成不同的多重检验校正。",
-          "hold_after": 0.7,
-          "speech_text": "负的十进对数开关改变P值的显示方式。开启时P越小位置越高，关闭时显示原值。这里恢复经过变换的校正P视图。始终阅读轴标签，不要把显示变换当成不同的多重检验校正。"
+          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "演示中把alpha移到零点五会移动参考线。十九个校正值低于新阈值，但没有任何点得到新的显著标志。这不能称为十九项发现。导出或解读本例前，请恢复原来的零点零五。",
-          "hold_after": 0.7,
-          "speech_text": "演示中把alpha移到零点五会移动参考线。十九个校正值低于新阈值，但没有任何点得到新的显著标志。这不能称为十九项发现。导出或解读本例前，请恢复原来的零点零五。"
+          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "明确的效应阈值零点一与乘数三组合后，竖线位于负零点三和正零点三。不要只看阈值字段，还要核对乘数。效应阈值不能替代统计校正。练习后恢复Auto，结果表的值不会被改写。",
-          "hold_after": 0.7,
-          "speech_text": "明确的效应阈值零点一与乘数三组合后，竖线位于负零点三和正零点三。不要只看阈值字段，还要核对乘数。效应阈值不能替代统计校正。练习后恢复Auto，结果表的值不会被改写。"
+          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "按wells with guide着色，显示源表的实际支持孔数。它不是置信度分数或准确率证据。最终导出前恢复原显著性颜色。可选的注释合并和其他布局需要单独验证，不在这个已验证示例内。",
-          "hold_after": 0.7,
-          "speech_text": "按wells with guide着色，显示源表的实际支持孔数。它不是置信度分数或准确率证据。最终导出前恢复原显著性颜色。可选的注释合并和其他布局需要单独验证，不在这个已验证示例内。"
+          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "设置图形尺寸、字体大小和分辨率，再检查结果。这里指定七乘五英寸，每英寸一百五十点。紧边界裁剪会改变最终尺寸。导出的图可读，并不意味着所有原生设置标签都能在这个窗口中完整显示。",
-          "hold_after": 0.7,
-          "speech_text": "设置图形尺寸、字体大小和分辨率，再检查结果。这里指定七乘五英寸，每英寸一百五十点。紧边界裁剪会改变最终尺寸。导出的图可读，并不意味着所有原生设置标签都能在这个窗口中完整显示。"
+          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "把最终样式保存为JSON。临时改变标记大小后，Load style恢复每一个记录字段。将它与原始结果表一起保留，便于其他会话复现外观。样式描述展示方式，不能证明运行了另一种回归或显著性检验。",
-          "hold_after": 0.7,
-          "speech_text": "把最终样式保存为JSON。临时改变标记大小后，Load style恢复每一个记录字段。将它与原始结果表一起保留，便于其他会话复现外观。样式描述展示方式，不能证明运行了另一种回归或显著性检验。"
+          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF和PNG重新绘制图形，而非屏幕截图。PDF包含矢量图元和嵌入字体；请检查标签、对比度，以及浅色纸上白色标记轮廓的警告。原始数据保持不变。Python的VolcanoStyle和render_volcano提供相同绘图流程，无需GPU或AI服务。",
+          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Export PDF和PNG重新绘制图形，而非屏幕截图。PDF包含矢量图元和嵌入字体；请检查标签、对比度，以及浅色纸上白色标记轮廓的警告。原始数据保持不变。Python的VolcanoStyle和render_volcano提供相同绘图流程，无需GPU或AI服务。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "参数扫描",
+      "title": "Parameter Sweep: compare saved Regression trials",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "结果与质量控制",
+      "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "在 Regression 中运行两个试验，区分计算完成与统计推断有效。",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
       "objectives": [
-        "从 Regression 测试数据中选择顺序对应的四组评分和计数文件。",
-        "将网格限制为两个试验、一个工作进程，并检查已保存的结果。",
-        "区分系数族，并明确说明推断质量检查失败。"
+        "Select paired score/count files and a sweep output folder.",
+        "Choose variable and fixed settings, estimate the trial count and run.",
+        "Inspect saved trials and their inference quality before comparison."
       ],
-      "prerequisite": "使用 Regression 课程下载的四组板数据和新的输出文件夹。两个 ridge 试验的推断质量检查均失败；这不是经过验证的生物学命中分析。只改变 alpha，取 0.01 和 0.1，显式固定参数推断、按孔取均值、不变换响应。父表单的其他设置不会自动继承。此处 n_rows_fitted 计数的是1174行系数，不是620个孔或预处理后的2955行。表中没有 alpha 和质量判定，需检查 sweep_results.csv 及实际设置。API：spacr.parameter_sweep.SweepSpace 和 run_sweep_parallel。未进行GPU性能测试、外部AI请求、母语审核批准或发布。",
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "打开 Regression，再点击右下角的 Parameter sweep。这个流程嵌套在 Regression 中，不是独立的 Home 入口。Regression 课程说明了如何下载四组评分与计数文件，这里将重复使用这些数据。",
+          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
           "focus": [
             3380,
             1880,
@@ -9718,454 +9637,413 @@
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开 Regression，再点击右下角的 Parameter sweep。这个流程嵌套在 Regression 中，不是独立的 主页 入口。Regression 课程说明了如何下载四组评分与计数文件，这里将重复使用这些数据。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "检查扫描面板自己的输入列表。即使父表单已有配对数据，这些列表最初仍为空。按一致的板顺序添加四个评分文件和四个计数文件。选择新的输出文件夹，避免此次演示覆盖以前的分析。",
-          "hold_after": 0.7,
-          "speech_text": "检查扫描面板自己的输入列表。即使父表单已有配对数据，这些列表最初仍为空。按一致的板顺序添加四个评分文件和四个计数文件。选择新的输出文件夹，避免此次演示覆盖以前的分析。"
+          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "只勾选 alpha，值为零点零一和零点一。未勾选的行仍提供固定设置。这里明确选择 ridge、参数推断、按孔取均值以及不做变换。这组有限设置用于演示操作，并非对你的实验提出的推荐方案。",
+          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
           "focus": [
             850,
             490,
             680,
             680
           ],
-          "hold_after": 0.7,
-          "speech_text": "只勾选 alpha，值为零点零一和零点一。未勾选的行仍提供固定设置。这里明确选择 ridge、参数推断、按孔取均值以及不做变换。这组有限设置用于演示操作，并非对你的实验提出的推荐方案。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "将采样设为 grid，最多两个试验，一个工作进程，然后点击 Estimate。两个有效组合只表示设置组合被允许，不表示统计结论有效。时间估计假设每个试验一分钟，并不是性能测试。开始前请阅读可用的资源限制。",
+          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
           "focus": [
             850,
             1190,
             680,
             375
           ],
-          "hold_after": 0.7,
-          "speech_text": "将采样设为 grid，最多两个试验，一个工作进程，然后点击 Estimate。两个有效组合只表示设置组合被允许，不表示统计结论有效。时间估计假设每个试验一分钟，并不是性能测试。开始前请阅读可用的资源限制。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "点击 Start sweep，而不是父表单的 Run。每个试验写入自己的文件夹。这两个真实试验依次运行，增加工作进程会提高资源需求。本例使用CPU回归，不演示GPU加速，也不需要向 spaCR AI 发出请求。",
-          "hold_after": 0.7,
-          "speech_text": "点击 Start sweep，而不是父表单的 Run。每个试验写入自己的文件夹。这两个真实试验依次运行，增加工作进程会提高资源需求。本例使用CPU回归，不演示GPU加速，也不需要向 斯佩克尔 AI 发出请求。"
+          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "两行都显示 ok，因为计算已经完成。但关键是，两个已保存的推断质量检查都显示 fail。表格省略了这些判定和变化的 alpha，因此应检查完整的扫描结果文件及每个试验的设置。不要仅因为某个模型产生更多小的校正后P值就选择它。",
+          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
           "focus": [
             1550,
             205,
             2215,
             290
           ],
-          "hold_after": 0.7,
-          "speech_text": "两行都显示 ok，因为计算已经完成。但关键是，两个已保存的推断质量检查都显示 fail。表格省略了这些判定和变化的 alpha，因此应检查完整的扫描结果文件及每个试验的设置。不要仅因为某个模型产生更多小的校正后P值就选择它。"
+          "hold_after": 0.7
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "选择第一行，点击 Show figures for selected row。这会读取保存结果，不会重新拟合。向导RNA视图含七百九十二行系数，其中包括截距；图中排除这个辅助项，显示七百九十一个向导RNA。纵向高度表示原始P值以十为底的负对数。",
+          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
           "focus": [
             1545,
             510,
             2255,
             1040
           ],
-          "hold_after": 0.7,
-          "speech_text": "选择第一行，点击 Show figures for selected row。这会读取保存结果，不会重新拟合。向导RNA视图含七百九十二行系数，其中包括截距；图中排除这个辅助项，显示七百九十一个向导RNA。纵向高度表示原始P值以十为底的负对数。"
+          "hold_after": 0.7
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "将 Level 切换为 Gene。表格现在包含三百八十二行，包括该模型的截距；图中显示三百八十一个基因。向导RNA与基因是不同的系数族。切换视图不会让失败的推断变得有效，也不会产生独立证据。",
+          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
           "focus": [
             1545,
             555,
             2255,
             995
           ],
-          "hold_after": 0.7,
-          "speech_text": "将 Level 切换为 Gene。表格现在包含三百八十二行，包括该模型的截距；图中显示三百八十一个基因。向导RNA与基因是不同的系数族。切换视图不会让失败的推断变得有效，也不会产生独立证据。"
+          "hold_after": 0.7
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "切回向导RNA，原始行和点会恢复，保存文件保持不变。这里概要中的 rows fitted 容易误导：它统计系数行，而不是孔数。报告分析时，应区分输入样本数、输出系数数目和当前绘制的系数族。",
+          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
           "focus": [
             1545,
             555,
             2255,
             995
           ],
-          "hold_after": 0.7,
-          "speech_text": "切回向导RNA，原始行和点会恢复，保存文件保持不变。这里概要中的 rows fitted 容易误导：它统计系数行，而不是孔数。报告分析时，应区分输入样本数、输出系数数目和当前绘制的系数族。"
+          "hold_after": 0.7
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "结合已保存的设置、概要和质量控制文件进行检查。一幅图或AI解释不能为研究设计作保证。Regression Diagnostics 介绍进一步检查的方法，API参考说明扫描执行方式。本例教授可复现的流程及其限制，而不是经过验证的生物学命中。",
+          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "结合已保存的设置、概要和质量控制文件进行检查。一幅图或AI解释不能为研究设计作保证。Regression Diagnostics 介绍进一步检查的方法，API参考说明扫描执行方式。本例教授可复现的流程及其限制，而不是经过验证的生物学命中。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images：导入前先检查方案",
+      "title": "Import Images: map image identities and create a project",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "在Import中打开Import Images，写入文件前检查一小组真实显微图像，并保存可复用的方案。本示例明确区分无法识别的原始命名与经过准备的副本。",
+      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
       "objectives": [
-        "在Import中找到Import Images，并将其与导入已有测量数据和掩膜的流程区分开。",
-        "写入项目前检查图像身份，以及文件名中尚未解析的部分。",
-        "选择复制或链接，保存并重新加载方案，最后验证导入结果。"
+        "Scan microscope images and resolve naming questions.",
+        "Choose a destination, plate name and copy or link behavior.",
+        "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "先下载Mask的真实示例数据。录像使用E01/F001和L01/F009两个视野的副本，每个视野有4个C通道。准备好的副本只省略紧接Z之前的A字段，原始文件不变。这是经过核对的特定示例，并非让您随意删除不认识的文件名元数据。",
+      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "从Home的Data类别打开Import，然后选择Import Images。这个嵌套工具用于准备原始图像文件。Import Project、Format Converter和External Masks是相关但不同的流程，各有专门教程。",
+          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "36_import",
             "35_converter",
             "31_external_masks"
-          ],
-          "speech_text": "从主页的Data类别打开Import，然后选择Import Images。这个嵌套工具用于准备原始图像文件。Import Project、Format Converter和External Masks是相关但不同的流程，各有专门教程。"
+          ]
         },
         {
           "visual": "04_source_options",
-          "narration": "这8张图像来自Mask提供下载的真实显微数据：两个孔各取一个视野，每个视野包含4个通道。我们使用单独复制的文件，不修改下载得到的原始文件。",
+          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "这8张图像来自Mask提供下载的真实显微数据：两个孔各取一个视野，每个视野包含4个通道。我们使用单独复制的文件，不修改下载得到的原始文件。"
+          ]
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Scan发现原始文件名中有一个尚未解析的采集字段。Import仍然禁用，没有写入任何文件。不要猜测通道映射：两个不同通道共用这个采集值，把它当成通道会弄错图像身份。",
-          "hold_after": 0.7,
-          "speech_text": "Scan发现原始文件名中有一个尚未解析的采集字段。Import仍然禁用，没有写入任何文件。不要猜测通道映射：两个不同通道共用这个采集值，把它当成通道会弄错图像身份。"
+          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "在这个已核对的例子中，准备好的副本只省略冗余的采集字段，保留孔、视野和通道名称。Scan现在显示8行、两个孔、两个视野编号和4个通道。这不代表原始命名格式已经被接受。",
-          "hold_after": 0.7,
-          "speech_text": "在这个已核对的例子中，准备好的副本只省略冗余的采集字段，保留孔、视野和通道名称。Scan现在显示8行、两个孔、两个视野编号和4个通道。这不代表原始命名格式已经被接受。"
+          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "导入前逐项对照方案与文件名。Read inside each file除检查名称外，还读取文件内部的轴元数据。Sample限制检查的文件数量；请确认方案包含您要导入的图像。根据采集记录解决问题，不要猜测。",
+          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
           "hold_after": 0.7,
           "focus": [
             350,
             665,
             1770,
             675
-          ],
-          "speech_text": "导入前逐项对照方案与文件名。Read inside each file除检查名称外，还读取文件内部的轴元数据。Sample限制检查的文件数量；请确认方案包含您要导入的图像。根据采集记录解决问题，不要猜测。"
+          ]
         },
         {
           "visual": "07_copy_destination",
-          "narration": "在输入文件夹之外选择目标位置，并设置孔板名称。这里关闭Link instead of copy，建立独立副本组成的项目。链接可以节省磁盘空间，但要求原始文件一直能在当前路径访问。",
+          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
           "hold_after": 0.7,
           "focus": [
             345,
             1600,
             3420,
             210
-          ],
-          "speech_text": "在输入文件夹之外选择目标位置，并设置孔板名称。这里关闭Link instead of copy，建立独立副本组成的项目。链接可以节省磁盘空间，但要求原始文件一直能在当前路径访问。"
+          ]
         },
         {
           "visual": "07_copy_destination",
-          "narration": "这些示例文件不是拼接图块。对于分块采集，请仔细阅读Tiles选项：拼接会还原视野，分别保留图块会改变一个视野的含义，而跳过则会丢弃这些图像。测量前检查报告和未经验证的拼接边缘。",
+          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
-          ],
-          "speech_text": "这些示例文件不是拼接图块。对于分块采集，请仔细阅读Tiles选项：拼接会还原视野，分别保留图块会改变一个视野的含义，而跳过则会丢弃这些图像。测量前检查报告和未经验证的拼接边缘。"
+          ]
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Save plan把数据来源和您的映射答案写入JSON文件，并不备份图像。请与采集记录一起保存。Python的图像导入API也可以读取同一方案。",
+          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Save plan把数据来源和您的映射答案写入JSON文件，并不备份图像。请与采集记录一起保存。Python的图像导入API也可以读取同一方案。"
+          ]
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Load plan会重新读取来源文件夹，并复用保存的答案。导入前仍须检查新方案：保存过方案，并不能保证变更后的采集数据仍然正确。这里恢复了同样8张已核对图像的对应关系。",
-          "hold_after": 0.7,
-          "speech_text": "Load plan会重新读取来源文件夹，并复用保存的答案。导入前仍须检查新方案：保存过方案，并不能保证变更后的采集数据仍然正确。这里恢复了同样8张已核对图像的对应关系。"
+          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "点击Import并阅读摘要。本次运行写入8份独立图像副本，没有跳过文件，内容与来源一致。随后在Mask中选择这个项目，在分割前检查实时预览。仅导入文件不会生成掩膜或测量数据。",
+          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "speech_text": "点击Import并阅读摘要。本次运行写入8份独立图像副本，没有跳过文件，内容与来源一致。随后在Mask中选择这个项目，在分割前检查实时预览。仅导入文件不会生成掩膜或测量数据。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics：读懂结果背后的证据",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "打开真实示例筛选分析生成的诊断文件，区分实验设计警告与置换分析结果，并认识简短演示的局限。",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
       "objectives": [
-        "在 Regression 中打开 Diagnostics，核对当前查看的输出文件夹。",
-        "结合所选分析，解读设计可识别性、向导出现情况和推断面板。",
-        "认识拟合残差面板缺失的原因和置换分辨率的限制，不虚构模型拟合。"
+        "Open the diagnostic folder for the intended Regression run.",
+        "Read design support, identifiability and inference summaries.",
+        "Keep diagnostics with their settings and rerun after changing an analysis."
       ],
-      "prerequisite": "先使用四组可下载的得分与计数文件完成 Regression 示例。本录像检查一次限定规模的非参数分析：199 次置换、至少两个孔，同时输出向导和基因层面的结果。它用于演示软件和诊断解读，并非足以支持最终发现的正式推断。",
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "在 Regression 中，将鼠标移到 Diagnostics 上，并在分析完成后打开它。这个按钮读取已保存的输出，不会再拟合一个模型。它会打开项目中最新的诊断文件夹，因此存在多次运行时，请核对路径。",
+          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "13_regression"
-          ],
-          "speech_text": "在 Regression 中，将鼠标移到 Diagnostics 上，并在分析完成后打开它。这个按钮读取已保存的输出，不会再拟合一个模型。它会打开项目中最新的诊断文件夹，因此存在多次运行时，请核对路径。"
+          ]
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "系统文件管理器显示下载的示例筛选分析所生成的真实文件。这里选择的图片格式是 PNG。文件夹包含设计可识别性图、设计诊断图、推断诊断图、汇总表以及共线向导配对表。",
+          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
           "hold_after": 0.7,
           "focus": [
             535,
             230,
             1420,
             285
-          ],
-          "speech_text": "系统文件管理器显示下载的示例筛选分析所生成的真实文件。这里选择的图片格式是 PNG。文件夹包含设计可识别性图、设计诊断图、推断诊断图、汇总表以及共线向导配对表。"
+          ]
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "该设计有六百零六个孔、七百九十三个参数，秩为五百九十九。它无法同时为每个向导确定唯一的系数。这条警告说明了我们选择置换分析的原因，并不表示已成功拟合包含所有向导的模型。",
-          "hold_after": 0.7,
-          "speech_text": "该设计有六百零六个孔、七百九十三个参数，秩为五百九十九。它无法同时为每个向导确定唯一的系数。这条警告说明了我们选择置换分析的原因，并不表示已成功拟合包含所有向导的模型。"
+          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "向导的出现情况并不均匀：该设计中有三百五十五个向导仅出现在一个孔中。出现次数少会限制实验能够得出的结论。解读效应前先检查覆盖情况，并区分完整设计与经过筛选、实际接受检验的向导集合。",
-          "hold_after": 0.7,
-          "speech_text": "向导的出现情况并不均匀：该设计中有三百五十五个向导仅出现在一个孔中。出现次数少会限制实验能够得出的结论。解读效应前先检查覆盖情况，并区分完整设计与经过筛选、实际接受检验的向导集合。"
+          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "设计面板有助于定位出现次数不足的向导，以及向导预测变量之间的依赖关系。始终一起出现的向导很难在统计上区分。请查看共线配对表中的具体组合，不要把警告标记当作完整解释。",
-          "hold_after": 0.7,
-          "speech_text": "设计面板有助于定位出现次数不足的向导，以及向导预测变量之间的依赖关系。始终一起出现的向导很难在统计上区分。请查看共线配对表中的具体组合，不要把警告标记当作完整解释。"
+          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "推断面板汇总四百三十四项向导检验，包括 p 值分布、与均匀零假设分布的比较，以及不同校正阈值下的发现数。这次简短运行在显示的阈值下没有发现。校准警告提示需要调查，并不证明存在生物学效应。",
-          "hold_after": 0.7,
-          "speech_text": "推断面板汇总四百三十四项向导检验，包括 p 值分布、与均匀零假设分布的比较，以及不同校正阈值下的发现数。这次简短运行在显示的阈值下没有发现。校准警告提示需要调查，并不证明存在生物学效应。"
+          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "为了缩短演示，我们只进行了 一百九十九次置换。因此，能够得到的最小经验 p 值为零点零零五。经过多重检验校正后，这种分辨率可能不足；正式分析应事先合理规划置换次数。",
-          "hold_after": 0.7,
-          "speech_text": "为了缩短演示，我们只进行了 一百九十九次置换。因此，能够得到的最小经验 p 值为零点零零五。经过多重检验校正后，这种分辨率可能不足；正式分析应事先合理规划置换次数。"
+          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "这次置换运行没有拟合同时包含所有向导的回归模型，因此没有拟合残差面板。刚才看到的 p 值比较不是残差诊断。其他分析模式在提供观测值和拟合值时，可以输出残差面板。",
-          "hold_after": 0.7,
-          "speech_text": "这次置换运行没有拟合同时包含所有向导的回归模型，因此没有拟合残差面板。刚才看到的 p 值比较不是残差诊断。其他分析模式在提供观测值和拟合值时，可以输出残差面板。"
+          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "汇总表记录各面板的评估，以及整套诊断中最差的评估。请结合上下文理解各项评估，不要把总体标记视为软件错误。Python 回归诊断接口也会根据收到的输入生成同类面板。",
+          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "汇总表记录各面板的评估，以及整套诊断中最差的评估。请结合上下文理解各项评估，不要把总体标记视为软件错误。Python 回归诊断接口也会根据收到的输入生成同类面板。"
+          ]
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "返回 Regression，检查输入，或者有意识地更改分析选项。更改之后需要重新运行并生成新诊断；打开这个文件夹绝不会更新旧结果。完整的数据集、控制台、交互式结果和辅助功能流程，请参阅 Regression 教程。",
+          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "48_hit_list",
             "72_volcano_explorer"
-          ],
-          "speech_text": "返回 Regression，检查输入，或者有意识地更改分析选项。更改之后需要重新运行并生成新诊断；打开这个文件夹绝不会更新旧结果。完整的数据集、控制台、交互式结果和辅助功能流程，请参阅 Regression 教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings：当前界面与真实的Python示例",
+      "title": "Embeddings: load crops and compare channel policies",
       "series": 2,
       "app_key": "embeddings",
-      "section": "数据",
-      "description": "了解新模块，通过API编码真实图像，并区分界面限制、探索性展示与生物学验证。",
+      "section": "Data",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
       "objectives": [
-        "区分当前界面和可用的API。",
-        "用十六张图像比较两种通道策略。",
-        "保留标识信息并理解图表的局限。"
+        "Load a crop folder through the Embeddings screen.",
+        "Choose the backbone, batch size and channel policy.",
+        "Inspect the vector preview and save full results through the supplied Python helper."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "安装带embeddings附加依赖的spaCR 1.5.0.7；录制使用timm 1.0.29和CPU上的预训练ResNet18。下载Annotate示例和链接中的ZIP，使用README指定的cell_png目录及新的输出目录。文件名不是已验证的数据库关联键。当前界面没有图像加载控件，成功操作通过API完成。不声称生物学验证、母语审校或GPU运行已完成。",
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Embeddings是spaCR首页的新模块。它将裁剪图像转换为数值向量，不需要用您的标注进行训练。本课展示当前界面，以及使用真实下载图像的可运行Python示例。",
+          "visual": "00_home",
+          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
           ],
           "related_lessons": [
             "05_home",
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Embeddings是斯佩克尔首页的新模块。它将裁剪图像转换为数值向量，不需要用您的标注进行训练。本课展示当前界面，以及使用真实下载图像的可运行Python示例。"
-        },
-        {
-          "visual": "gui_01_no_gui_crop_input",
-          "narration": "在一点五点零点七版本中，这个界面没有裁剪图像加载控件，Embed按钮保持禁用。我们不会模拟一次成功的图形界面运行。接下来真正的编码操作由受支持的Python API完成。",
-          "focus": [
-            340,
-            55,
-            3480,
-            190
-          ],
-          "hold_after": 0.7,
-          "speech_text": "在一点五点零点七版本中，这个界面没有裁剪图像加载控件，Embed按钮保持禁用。我们不会模拟一次成功的图形界面运行。接下来真正的编码操作由受支持的Python API完成。"
-        },
-        {
-          "visual": "gui_02_channel_policies",
-          "narration": "Per channel分别编码每个已保存的通道，再拼接向量。Project to three则编码组合后的图像。这改变的是表示方式，不只是速度。PNG中的一个通道位置并不自动代表已验证的染色标记。",
-          "focus": [
-            340,
-            145,
-            1050,
-            270
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Per channel分别编码每个已保存的通道，再拼接向量。Project to three则编码组合后的图像。这改变的是表示方式，不只是速度。PNG中的一个通道位置并不自动代表已验证的染色标记。"
-        },
-        {
-          "visual": "api_00_version",
-          "narration": "在spaCR环境中安装可选的embeddings附加依赖。默认的ResNet十八使用ImageNet监督学习权重，并非以细胞图像训练的自监督模型。这个小示例使用CPU，不需要GPU或远程人工智能服务。",
-          "focus": [
-            200,
-            100,
-            3440,
-            700
-          ],
-          "hold_after": 0.7,
-          "speech_text": "在斯佩克尔环境中安装可选的embeddings附加依赖。默认的ResNet十八使用ImageNet监督学习权重，并非以细胞图像训练的自监督模型。这个小示例使用CPU，不需要GPU或远程人工智能服务。"
-        },
-        {
-          "visual": "api_01_inputs",
-          "narration": "使用Annotate提供的下载示例和说明中指定的裁剪图像目录。链接中的脚本按文件名排序选取十六张现有图像。每张图像边长二百二十四像素，含三个已保存的通道。不改变尺寸，也不重新分割。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "related_lessons": [
             "09_annotate"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "使用Annotate提供的下载示例和说明中指定的裁剪图像目录。链接中的脚本按文件名排序选取十六张现有图像。每张图像边长二百二十四像素，含三个已保存的通道。不改变尺寸，也不重新分割。"
+          ]
         },
         {
-          "visual": "api_02_per_channel",
-          "narration": "指定新的输出目录运行脚本。脚本以真实的预训练编码器调用embed_array，每批四张。逐通道编码得到十六行、一千五百三十六个维度。保存的矩阵会重新打开，并逐个核对数值。",
+          "visual": "01_crop_loader",
+          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7,
-          "speech_text": "指定新的输出目录运行脚本。脚本以真实的预训练编码器调用embed_array，每批四张。逐通道编码得到十六行、一千五百三十六个维度。保存的矩阵会重新打开，并逐个核对数值。"
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_03_project",
-          "narration": "现在选择project和另一个输出目录。同样的图像得到十六行、五百一十二个维度。这些组合通道列不能与之前的逐通道列互换。请有意识地比较两种策略，并保存每次运行的设置。",
+          "visual": "02_folder_selected",
+          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7,
-          "speech_text": "现在选择project和另一个输出目录。同样的图像得到十六行、五百一十二个维度。这些组合通道列不能与之前的逐通道列互换。请有意识地比较两种策略，并保存每次运行的设置。"
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_05_input_crops",
-          "narration": "在图像查看器中检查真实输入图像的拼图。编号与输出行顺序一致。解释向量前，先检查裁剪质量和导出时的通道对应关系。文件名用于标识本例；与测量数据库关联前，请验证对象键。",
+          "visual": "03_crops_loaded",
+          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
           "hold_after": 0.7,
-          "speech_text": "在图像查看器中检查真实输入图像的拼图。编号与输出行顺序一致。解释向量前，先检查裁剪质量和导出时的通道对应关系。文件名用于标识本例；与测量数据库关联前，请验证对象键。"
-        },
-        {
-          "visual": "api_06_per_channel_pca",
-          "narration": "这张保存的图将逐通道向量投影到两个主成分上。编号点对应同一批裁剪图像。这只是极小样本的探索性可视化，不是不同表型存在的证明。一个嵌入维度并不是一种生物学测量。",
-          "hold_after": 0.7,
-          "speech_text": "这张保存的图将逐通道向量投影到两个主成分上。编号点对应同一批裁剪图像。这只是极小样本的探索性可视化，不是不同表型存在的证明。一个嵌入维度并不是一种生物学测量。"
-        },
-        {
-          "visual": "api_07_project_pca",
-          "narration": "组合通道向量有自己的投影。不要把两张独立拟合的图中的坐标当作来自同一个变换而直接比较。这些图都没有测量检索准确率，也不能证明嵌入优于人工设计的测量特征集合。",
-          "hold_after": 0.7,
-          "speech_text": "组合通道向量有自己的投影。不要把两张独立拟合的图中的坐标当作来自同一个变换而直接比较。这些图都没有测量检索准确率，也不能证明嵌入优于人工设计的测量特征集合。"
-        },
-        {
-          "visual": "api_04_provenance",
-          "narration": "保留向量、来源标识、权重校验和、设置及软件包版本。脚本检查源图像未被修改，并拒绝已存在的输出位置。比较时应保持输入裁剪、归一化和通道对应关系一致。请按链接中的说明复现这个API示例。",
           "focus": [
-            200,
-            100,
-            3440,
-            1200
-          ],
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "04_per_channel_settings",
+          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "05_per_channel_result",
+          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "04_project_settings",
+          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "保留向量、来源标识、权重校验和、设置及软件包版本。脚本检查源图像未被修改，并拒绝已存在的输出位置。比较时应保持输入裁剪、归一化和通道对应关系一致。请按链接中的说明复现这个API示例。"
+            "06_api"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "76_ops",

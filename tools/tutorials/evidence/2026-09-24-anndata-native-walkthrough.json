@@ -69,5 +69,12 @@
     }
   ],
   "visual_review": "Home route, settings and completed export inspected; current dark/blobs GUI, neutral paths.",
-  "media_status": "Narration and publication pending"
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-ui5y3r18",
+    "commit": "f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65",
+    "tag": "tutorials-native-20260924-ui5y3r18",
+    "readback_files": 1134,
+    "all_ready_local_and_hosted_playback": true
+  }
 }

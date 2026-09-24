@@ -7502,145 +7502,78 @@
       "section": "Measure",
       "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Prepare a copied measurement database and the supplied export helper.",
+        "Open AnnData Export and select a measured project.",
         "Choose joined or single-table measurements and a missing-value policy.",
-        "Open the saved h5ad file and retain its source images and settings."
+        "Export an h5ad file with feature names and object metadata."
       ],
-      "example_files": [
-        "AnnData_API_workaround.zip"
-      ],
-      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
       "scenes": [
         {
-          "visual": "gui_02_current_anndata_form",
-          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+          "visual": "01_measure_host",
+          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate"
-          ],
+          ]
+        },
+        {
+          "visual": "03_private_downloaded_project",
+          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_private_downloaded_project",
-          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "visual": "05_joined_keep_settings",
+          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_01_unmodified_failure",
-          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-          "focus": [
-            190,
-            1660,
-            3450,
-            340
-          ],
+          "visual": "04_setting_anndata_row_limit",
+          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_02_explicit_workaround",
-          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1400
-          ],
+          "visual": "05_joined_keep_finished",
+          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_cell_keep_finished",
+          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_cell_mean_finished",
+          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_cell_drop_features_finished",
+          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_cell_drop_objects_finished",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_setting_anndata_register_artifact",
+          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_cell_keep",
-          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_05_cell_mean",
-          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_cell_drop_features",
-          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_cell_drop_objects",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_09_saved_shape",
-          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -9293,22 +9226,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "Útskýra CV-líkan",
+      "title": "Explain CV Model: compare predictions with measured features",
       "series": 5,
       "app_key": "explain_cv",
       "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "Skoðaðu raunverulegt staðgengilslíkan í Classify og lærðu hvenær ekki má túlka skýringar þess.",
+      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
       "objectives": [
-        "Velja mælingar og spár fyrir sömu hluti í innfellda verkfærinu.",
-        "Greina samræmi staðgengils frá óháðri sannprófun flokkarans.",
-        "Skoða ófullnægjandi samræmi, villur eftir flokkum og heilar útflutningsskrár."
+        "Match the measurement database to saved classifier predictions.",
+        "Choose prediction columns, a backend and held-out groups.",
+        "Read fidelity, confusion and saved feature summaries."
       ],
-      "prerequisite": "Notaðu mæligagnagrunn og CSV-spár fyrir sömu útskornu hlutina. Hér eru endurnýttar 234 raunverulegar spár úr Annotate/Classify-dæminu eftir eina þjálfunarlotu, ekki úr flytjanlega Evaluation-pakkanum. filename og predicted_label eru óbreytt. Upprunalegi flokkarinn deilir brunnum milli þjálfunar og prófunar; þetta er ekki óháð sannprófun. Staðgengillinn notar 89 tilvik með fullum gögnum og 1126 eiginleika; 145 línum er sleppt. Þjálfun: 68 hlutir úr tveimur brunnum; prófun: 21 úr þriðja brunni. Allar spár eru flokkur 1: samræmi 17/21, jafnað réttflokkunarhlutfall 0,5. Sýnt meirihlutaviðmið er 81/89 yfir öll tilvik með fullum gögnum. Importance og SHAP skýra flokkarann ekki áreiðanlega. Nafnasían útilokar 18 cv_intensity-mælingar án þess að sanna flokkamerkjaleka. Töflur sýna mest 1000 línur; lesið heilar CSV-skrár. API: spacr.surrogate.explain_classifier, fit_surrogate og write_surrogate_result. Endurtekningar, útilokanir og SHAP-hámark eru ekki reitir í þessu eyðublaði. CPU-dæmi, engin ný þjálfun, ytri gervigreindarfyrirspurn, samþykkt móðurmálshlustun eða útgáfa.",
+      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Opnaðu Classify og síðan Explain CV Model-táknið efst til hægri. Það opnar innfellt verkfæri, ekki nýja Home-einingu. Við endurnýtum fyrirliggjandi spár myndflokkarans og tilheyrandi mælingar úr dæminu. Að útskýra spárnar sannprófar ekki flokkarann sjálfan.",
+          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
           "focus": [
             3579,
             100,
@@ -9323,12 +9256,12 @@
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "Veldu tilheyrandi mæligagnagrunn og CSV-skrána með vistuðum spám. Þau verða að auðkenna sömu útskornu hlutina, ekki bara brunna með svipuðum nöfnum. Hér notum við óbreytt afrit af 234 raunverulegum spám. Þetta er hvorki ný þjálfun né nýlega sannprófað gagnasafn.",
+          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
           "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "Ef Browse heldur gömlu dálkavalkostunum skaltu staðfesta slóð spánna með Enter. Veldu filename fyrir slóð myndskurðarins og predicted_label fyrir flokka líkansins, ekki rétta flokkamerkingu eða samfelldar líkur. Veldu Random Forest, flokkun eftir well og nýja úttaksmöppu.",
+          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
           "focus": [
             462,
             463,
@@ -9339,7 +9272,7 @@
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "Smelltu á Explain model. Staðgengillinn lærir af mældum eiginleikum að líkja eftir núverandi flokkun; myndlíkanið er ekki keyrt aftur. Dæmið notar CPU. Eyðublaðið býður reiknirit og hópun; endurtekningar umraðana, útilokaðir eiginleikar og SHAP-hámark eru API-valkostir, ekki stjórntæki á þessu eyðublaði.",
+          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
           "focus": [
             462,
             678,
@@ -9353,7 +9286,7 @@
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "Lestu fyrst Fidelity. Allar spárnar tengdust gögnunum, en aðeins 89 línur höfðu fulla eiginleika. Staðgengillinn lærir af 68 hlutum úr tveimur brunnum og prófar 21 úr þeim þriðja. Samræmið er um 81 prósent, undir sýndu meirihlutaviðmiði sem er 91 prósent. Viðmiðið notar öll tilvik með fullum gögnum, ekki aðeins frátekna brunninn.",
+          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
           "focus": [
             474,
             1010,
@@ -9364,7 +9297,7 @@
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "Importance er falið því samræmisprófið stóðst ekki. Ekki nota þessa aðlögun til að fullyrða hvað myndflokkarinn þekkir. Skoðaðu einnig sjálfvirkar útilokanir: Viðvörunin merkir 18 mælinöfn sem leka, en styrkleikamælingar með breytileikastuðli sanna ekki einar og sér leka flokkamerkja.",
+          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
           "focus": [
             465,
             937,
@@ -9375,7 +9308,7 @@
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Confusion ber saman flokka upprunalega líkansins og staðgengilsins, ekki líffræðilegan sannleika. Hér gefur staðgengillinn öllum fráteknum hlutum flokk 1: 17 samræmast og fjórir eru rangir. Jafnað réttflokkunarhlutfall er 0,5. Há heildarprósenta getur falið mistök í minni flokknum.",
+          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
           "focus": [
             465,
             948,
@@ -9386,7 +9319,7 @@
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "Per-cell SHAP er enn sýnilegt þótt samræmisprófið hafi ekki staðist. Gildin lýsa staðgenglinum; þau bjarga ekki skýringu hans á myndlíkaninu og staðfesta enga líffræðilega verkun. Láttu þessa takmörkun fylgja útfluttum framlagstöflum. Virknikort svara annarri, rúmfræðilegri spurningu í sérstakri kennslustund.",
+          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
           "focus": [
             465,
             948,
@@ -9400,7 +9333,7 @@
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "Skoðaðu Correlations og Feature distributions sem samantektir gagna, ekki sannanir fyrir orsakasamhengi. Hver viðmótstafla stoppar við 1000 línur. Heilar útflutningsskrár innihalda 1087 fylgnipör og 2252 dreifingarlínur. Lestu skrárnar áður en þú greinir frá heildarfjölda eða eiginleikum sem vantar.",
+          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
           "focus": [
             465,
             948,
@@ -9411,7 +9344,7 @@
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Held-out cells varðveitir auðkenni hlutanna og báðar spárnar. Open held-out objects er óvirkt í upptökunni, svo opnun myndskurða er ekki sýnd. Varðveittu skrárnar ellefu, stillingarnar og samræmisviðvörunina saman. Evaluation útskýrir mörk sannprófunar; mynd, SHAP-tafla eða svar frá spaCR AI getur ekki sannprófað flokkara.",
+          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
           "focus": [
             465,
             865,
@@ -9424,7 +9357,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "71_investigate_hit",
@@ -9445,7 +9383,7 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer: skoða fyrirliggjandi niðurstöður og flytja út mynd",
+      "title": "Volcano Explorer: inspect results and save a figure",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
@@ -9453,18 +9391,17 @@
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "Skoða raunverulega Regression-dæmið, samstilla stýringar, aðgreina sjónræna þröskulda frá prófum og vista stíla og myndir.",
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
       "objectives": [
-        "Opna innbyggða verkfærið með einni leiðsögufjölskyldu.",
-        "Samstilla upphafsgildi með Save style og Load style.",
-        "Lesa auðkenni, ása, liti og línur án tilbúinna nýrra funda.",
-        "Endurheimta stíl og skoða PDF og PNG."
+        "Open a results family and inspect guide identities and support.",
+        "Choose adjusted values, display transforms and reference lines.",
+        "Save the style and export PDF or PNG figures."
       ],
-      "prerequisite": "Afþjappið Volcano_real_guide_family.zip og opnið results. Óbreytt úttak Regression-dæmis, ekki ný greining eða heildarsafn. Ein fjölskylda: 434 leiðsögur, log_pred, minimum_wells_threshold=2, plús-einn umraðana-P og BH-leiðrétting. Lægsta hráa P=.005, leiðrétta P=.39454545454545453; ekkert marktækt við upprunalegt alpha=.05. Staðlað jaðarhrif eru ekki samtímis metnir stuðlar eða log2-breytingar. Upphafsvilla helst: stýringar 1e-6/0/False en teikning .05/3/True. Vistið og lesið sama stíl fyrir breytingu; síðar endurheimtast allir 67 reitir. Alpha .5 setur 19 gildi undir þröskuld án nýrra marktæknimerkja. Endurstillið .05 og adjusted_p_value. Áhrifaþröskuldur .1 sinnum 3 gefur línur +/-0.3. Auðkenni, punktar, litir og frumgögn könnuð. Nafnstærð 7×5 tommur, 150 DPI; þétt skorin PDF 492.536×348.485 punktar, PNG 1026×726 mynddílar. Innfelld letur, engar rastamyndir í PDF, læsileiki endurskoðaður. Sum GUI-heiti eru skorin; viðvörun um hvítar útlínur á ljósum pappír. Samtenging athugasemda, rofnir ásar og MAD-reglur eru utan dæmisins. Upptaka spaCR 1.5.0.4; þrjár viðeigandi frumskrár óbreyttar. Ekkert nýtt próf, GPU, gervigreind, appbreyting, líffræðileg staðfesting eða birting. API: spacr.volcano_style.VolcanoStyle og render_volcano.",
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Opnið Regression og innbyggða Volcano Explorer. Kennslan tilheyrir undireiningum Regression. Verkfærið les tilbúnar niðurstöður en endurkeyrir ekki greininguna. Við notum raunverulega niðurhalsdæmið; meðfylgjandi safn inniheldur nákvæmar niðurstöðutöflur og skráða myndstíla.",
+          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
           "related_lessons": [
             "13_regression"
           ],
@@ -9472,17 +9409,17 @@
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "Veljið Open results og afþjöppuðu results-möppuna. Hver punktur er leiðsaga úr einni fjölskyldu 434 prófa með sömu útkomu og lágmarksbrunnareglu. Blandið ekki leiðréttingarfjölskyldum. Engin leiðsaga er marktæk við upprunalega leiðrétta P-þröskuldinn 0,05.",
+          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
           "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "Áður en stillingu er breytt skal vista raunverulega teiknaða stílinn með Save style og lesa sömu skrá með Load style. Upphafsstýringar passa ekki við myndina í þessari útgáfu; tafarlaus breyting getur dregið inn röng sjálfgefin gildi. Þessi venjulega vistunar- og lestrarleið samstillir þau en lagar ekki appið.",
+          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "Staðfestið síðan alfa 0,05, margfaldara þrjá og neikvæða lógaritmaumbreytingu. Sum heiti eru enn skorin, svo skoðið gildi og JSON. Lárétti ásinn sýnir stöðluð jaðarhrif, ekki log-tveggja hlutfallsbreytingu eða stuðul úr samtímis metnu fjölbreytulíkani.",
+          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
           "focus": [
             2305,
             270,
@@ -9493,7 +9430,7 @@
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "Smellið á fyrirliggjandi punkt til að lesa upprunaröðina. Valin leiðsaga hefur hrátt P=0,005 en leiðrétt P um 0,39. Mikil jaðarhrif og fjórir stuðningsbrunnar gera hana ekki marktæka. Notið auðkenni og frumreiti frekar en að giska út frá staðsetningu.",
+          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
           "focus": [
             305,
             1830,
@@ -9504,70 +9441,75 @@
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "Að breyta lóðrétta dálkinum í hrátt umraðana-P breytir stærðinni sem er teiknuð, ekki greiningunni. Lítil hrá gildi koma ekki í stað fjölskylduleiðréttra gilda. Endurheimtið leiðrétt P á eftir. Upprunaleg marktæknimerki haldast; verkfærið les og teiknar, það gerir ekki nýtt próf.",
+          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "Rofinn fyrir neikvæðan tíundarlógaritma breytir P-birtingu. Virkur sýnir lítil P ofar; óvirkur sýnir upprunagildin. Hér endurheimtum við umbreytt leiðrétt P. Lesið alltaf ásinn og ruglið ekki þessari umbreytingu við aðra fjölprófunarleiðréttingu.",
+          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
           "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "Í sýnikennslunni er alfa fært í 0,5 og viðmiðunarlínan færist. Nítján leiðrétt gildi liggja undir nýja P-þröskuldinum en ekkert fær nýtt marktæknimerki. Þetta eru ekki nítján uppgötvanir. Endurheimtið upprunalegt 0,05 áður en flutt er út eða túlkað.",
+          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
           "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "Skýr áhrifaþröskuldur 0,1 með margfaldara þremur setur lóðréttar línur við mínus og plús 0,3. Athugið margfaldarann, ekki aðeins þröskuldsreitinn. Áhrifaþröskuldur kemur ekki í stað tölfræðilegrar leiðréttingar. Endurheimtið Auto; engin niðurstöðugildi eru endurskrifuð.",
+          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
           "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "Litur eftir wells with guide sýnir raunverulegan stuðning úr frumtöflunni. Hann er ekki traustseinkunn eða sönnun nákvæmni. Farið aftur í upprunalega marktækniliti fyrir útflutning. Valfrjáls samtenging athugasemda og önnur uppsetning krefjast eigin sannprófunar og eru utan dæmisins.",
+          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
           "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "Stillið myndstærð, letur og upplausn og skoðið útkomuna. Hér er nafnstærð sjö sinnum fimm tommur við 150 punkta á tommu. Þétt skurður breytir lokastærðinni. Læsileg útflutt mynd þýðir ekki að öll innbyggð stillingaheiti rúmist í glugganum.",
+          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
           "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "Vistið lokastílinn sem JSON. Eftir tímabundna breytingu á punktastærð endurheimtir Load style alla skráða reiti. Geymið skrána með frumtöflunni svo endurskapa megi útlitið. Stíll lýsir framsetningu, ekki að önnur aðhvarfsgreining eða nýtt próf hafi verið keyrt.",
+          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
           "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF og PNG teikna myndina aftur, en taka ekki skjáskot. PDF hefur vigurmerki og innfelld letur; skoðið heiti, birtuskil og viðvörun um hvítar útlínur á ljósum pappír. Frumgögn haldast óbreytt. Python býður VolcanoStyle og render_volcano án GPU eða gervigreindarþjónustu.",
+          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "Prófun á stikum",
+      "title": "Parameter Sweep: compare saved Regression trials",
       "series": 5,
       "app_key": "parameter_sweep",
       "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "Keyrðu tvær prófanir í Regression og greindu á milli lokinnar útreikningskeyrslu og gildrar ályktunar.",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
       "objectives": [
-        "Velja fjögur pör skráa með skor og talningar í sömu röð.",
-        "Takmarka leitina við tvær prófanir og eitt vinnsluferli og skoða vistaðar niðurstöður.",
-        "Halda stuðlafjölskyldum aðskildum og taka fram að ályktunarprófanir standist ekki."
+        "Select paired score/count files and a sweep output folder.",
+        "Choose variable and fixed settings, estimate the trial count and run.",
+        "Inspect saved trials and their inference quality before comparison."
       ],
-      "prerequisite": "Notaðu fjögur niðurhöluð plötupör úr Regression-kennslunni og nýja úttaksmöppu. Báðar ridge-keyrslurnar falla á gæðaprófun ályktana; þetta er ekki staðfest líffræðileg niðurstaða. Aðeins alpha breytist, 0.01 og 0.1. Stikabundin ályktun, meðaltal á hvern brunn og engin umbreyting eru valin sérstaklega. Aðrar stillingar yfirskipaða formsins erfast ekki sjálfkrafa. n_rows_fitted telur hér 1174 stuðlaraðir, ekki 620 brunna eða 2955 undirbúnar gagnaraðir. Skoðaðu sweep_results.csv og raunverulegar stillingar; taflan sleppir alpha og gæðaniðurstöðum. API: spacr.parameter_sweep.SweepSpace og run_sweep_parallel. Engin GPU-hraðamæling, ytri AI-fyrirspurn, samþykki móðurmálshafa eða birting.",
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "Opnaðu Regression og síðan Parameter sweep neðst til hægri. Þetta verkflæði er inni í Regression, ekki á sérstökum Home-reit. Regression-kennslan sýnir hvernig fjögur pör skráa með skor og talningar eru sótt; þau eru notuð aftur hér.",
+          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
           "focus": [
             3380,
             1880,
@@ -9581,12 +9523,12 @@
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "Athugaðu eigin inntakslista stikaprófunarinnar. Þeir eru upphaflega tómir þótt yfirskipaða formið innihaldi pöruð gögn. Bættu við fjórum skorskrám og fjórum talningarskrám í sömu plöturöð. Veldu nýja úttaksmöppu svo sýnidæmið skrifi ekki yfir eldri greiningu.",
+          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
           "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "Merktu aðeins alpha, með núll komma núll einum og núll komma einum. Ómerktar raðir gefa samt fastar stillingar. Hér veljum við sérstaklega ridge, stikabundna ályktun, meðaltal á hvern brunn og enga umbreytingu. Þessi afmarkaða uppskrift sýnir notkun, ekki ráðleggingu fyrir þína tilraun.",
+          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
           "focus": [
             850,
             490,
@@ -9597,7 +9539,7 @@
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "Veldu grid, að hámarki tvær prófanir og eitt vinnsluferli, og smelltu á Estimate. Tvær gildar samsetningar merkir að stillingarnar séu leyfðar, ekki að tölfræðilegar ályktanir séu gildar. Tímaáætlunin gerir ráð fyrir mínútu á prófun; hún er ekki hraðamæling. Lestu auðlindamörkin áður en þú byrjar.",
+          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
           "focus": [
             850,
             1190,
@@ -9608,12 +9550,12 @@
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "Smelltu á Start sweep, ekki Run í yfirskipaða Regression-forminu. Hver prófun skrifar í eigin möppu. Þessar tvær raunverulegu prófanir keyra í röð; fleiri vinnsluferli auka auðlindaþörf. Dæmið sýnir aðhvarf á CPU, ekki GPU-hröðun, og þarf enga fyrirspurn til spaCR AI.",
+          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "Báðar raðir sýna ok því útreikningum er lokið. En báðar vistaðar gæðaprófanir ályktana sýna fail. Taflan sleppir þessum niðurstöðum og breytilega alpha: skoðaðu alla niðurstöðuskrána og stillingar hverrar prófunar. Veldu ekki líkan aðeins vegna þess að það gefur fleiri lítil leiðrétt P-gildi.",
+          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
           "focus": [
             1550,
             205,
@@ -9624,7 +9566,7 @@
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "Veldu fyrstu röð og smelltu á Show figures for selected row. Vistaðar niðurstöður eru lesnar án nýrrar líkanaðlögunar. Leiðsögusýnin hefur 792 stuðlaraðir, þar á meðal skurðpunkt; myndin sleppir þessum hjálparlið og sýnir 791 leiðsögur. Hæðin er neikvæður tuglogri hráa P-gildisins.",
+          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
           "focus": [
             1545,
             510,
@@ -9635,7 +9577,7 @@
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "Breyttu Level í Gene. Taflan hefur nú 382 raðir með sínum skurðpunkti og myndin sýnir 381 gen. Leiðsögur og gen eru aðskildar stuðlafjölskyldur. Breytt sýn gerir fallna ályktunarprófun ekki gilda og skapar ekki óháðar sannanir.",
+          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
           "focus": [
             1545,
             555,
@@ -9646,7 +9588,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Farðu aftur í leiðsögur: upphaflegar raðir og punktar koma aftur og vistuðu skrárnar eru óbreyttar. Reiturinn rows fitted í samantektinni er villandi hér: hann telur stuðlaraðir, ekki brunna. Greindu á milli fjölda inntakssýna, úttaksstuðla og fjölskyldunnar sem birtist þegar þú skýrir frá greiningu.",
+          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
           "focus": [
             1545,
             555,
@@ -9657,35 +9599,40 @@
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "Lestu vistaðar stillingar, samantekt og gæðaeftirlitsskrár saman. Mynd eða AI-skýring getur ekki staðfest rannsóknarsnið. Regression Diagnostics fjallar um frekari skoðun, en API-heimildin lýsir keyrslu stikaprófana. Dæmið kennir endurtakanlegt verkflæði og takmarkanir þess, ekki staðfestar líffræðilegar niðurstöður.",
+          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images: skoðaðu áætlunina áður en þú flytur inn",
+      "title": "Import Images: map image identities and create a project",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "Opnaðu Import Images innan Import, skoðaðu lítið úrval raunverulegra smásjármynda áður en skrár eru skrifaðar og vistaðu endurnýtanlega áætlun. Dæmið greinir á milli upprunalegra nafna sem ekki eru studd og undirbúinna afrita.",
+      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
       "objectives": [
-        "Finna Import Images innan Import og greina það frá innflutningi fyrirliggjandi mælinga og gríma.",
-        "Athuga auðkenni mynda og óleysta hluta skráarheita áður en verkefnið er skrifað.",
-        "Velja afrit eða tengla, vista og endurhlaða áætlun og sannreyna innflutninginn."
+        "Scan microscope images and resolve naming questions.",
+        "Choose a destination, plate name and copy or link behavior.",
+        "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "Sæktu fyrst raunverulega Mask-dæmið. Upptakan notar afrit af myndsviðunum E01/F001 og L01/F009, með fjórum C-rásum á hvoru sviði. Í undirbúnu afritunum er aðeins A-hlutanum beint á undan Z sleppt; frumritin breytast ekki. Þetta er sérstaklega yfirfarið dæmi, ekki almenn ráðlegging um að eyða óþekktum lýsigögnum.",
+      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "Opnaðu Import í Data-flokknum á Home og veldu Import Images. Þetta undirverkfæri undirbýr hráar myndskrár. Import Project, Format Converter og External Masks eru tengd verkferli með eigin kennsluefni.",
+          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9696,7 +9643,7 @@
         },
         {
           "visual": "04_source_options",
-          "narration": "Myndirnar átta eru raunveruleg smásjárgögn úr Mask-dæminu sem hægt er að sækja: eitt myndsvið úr hvorum tveggja brunna, með fjórum rásum á sviði. Við vinnum með sérstök afrit og látum sóttu frumritin vera óbreytt.",
+          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -9704,17 +9651,17 @@
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Scan finnur óleystan myndtökuhluta í upprunalegu heitunum. Import er áfram óvirkt og ekkert er skrifað. Ekki giska á rásavörpun: Tvær ólíkar rásir deila þessu myndtökugildi og slík vörpun myndi rugla auðkennum þeirra.",
+          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
           "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Í þessu yfirfarna dæmi sleppa undirbúnu afritin aðeins óþarfa myndtökuhlutanum. Heiti brunns, myndsviðs og rásar haldast óbreytt. Scan sýnir nú átta línur, tvo brunna, tvö myndsviðsnúmer og fjórar rásir. Það þýðir ekki að upprunalega nafngiftin hafi verið samþykkt.",
+          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
           "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "Berðu tillöguna saman við skráarheitin áður en þú flytur inn. Read inside each file kannar innbyggð ásalýsigögn auk heitanna. Sample takmarkar fjölda skoðaðra skráa; gakktu úr skugga um að tillagan nái yfir myndirnar sem þú ætlar að flytja inn. Svaraðu spurningum út frá myndtökuskráningum, ekki ágiskunum.",
+          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -9725,7 +9672,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "Veldu áfangastað utan inntaksmöppunnar og stilltu heiti plötunnar. Við slökkvum á Link instead of copy til að búa til sjálfstætt verkefni. Tenglar spara diskpláss, en frumritin þurfa áfram að vera aðgengileg á núverandi stöðum.",
+          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -9736,7 +9683,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "Þessar dæmismyndir eru ekki hlutar af myndflísamósaík. Lestu Tiles vandlega við slíka myndtöku: Samsetning endurbyggir myndsvið, að halda flísum aðskildum breytir því hvað myndsvið merkir og að sleppa þeim tapar þessum myndum. Athugaðu skýrsluna og óstaðfest samskeyti áður en þú mælir.",
+          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
@@ -9744,7 +9691,7 @@
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Save plan skrifar uppruna og vörpunarsvör þín í JSON-skrá, ekki öryggisafrit af myndunum. Geymdu hana með myndtökunótunum. Sama áætlun má lesa í gegnum Python-forritaskilin fyrir myndainnflutning.",
+          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9752,40 +9699,45 @@
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Load plan les upprunamöppuna aftur og endurnýtir vistuðu svörin. Skoðaðu nýju tillöguna áður en þú flytur inn; vistuð áætlun tryggir ekki að breytt myndtaka sé rétt túlkuð. Hér endurheimtir hún sömu átta yfirförnu myndauðkennin.",
+          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
           "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "Ýttu á Import og lestu samantektina. Þessi keyrsla skrifaði átta sjálfstæð myndafrit án þess að sleppa skrám; innihaldið samsvarar upprunanum. Veldu síðan verkefnið í Mask og skoðaðu lifandi forskoðun áður en myndirnar eru hlutaðar. Innflutningur einn og sér býr hvorki til grímur né mælingar.",
+          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics: skildu forsendurnar að baki niðurstöðunum",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "Opnaðu greiningarskrár úr raunverulegri úrvinnslu skimunar með dæmigögnum, greindu á milli viðvarana um tilraunasniðið og niðurstaðna umröðunarprófa og þekktu takmarkanir stuttrar sýnikeyrslu.",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
       "objectives": [
-        "Opna Diagnostics í Regression og staðfesta hvaða úttaksmappa er skoðuð.",
-        "Túlka auðkennanleika tilraunasniðs, tíðni leiðsöguraða og ályktunarmyndir í samhengi við valda greiningu.",
-        "Þekkja ástæðu þess að leifamyndir vantar og takmarkaða upplausn umröðunarprófa án þess að gera ráð fyrir að líkan hafi verið aðlagað."
+        "Open the diagnostic folder for the intended Regression run.",
+        "Read design support, identifiability and inference summaries.",
+        "Keep diagnostics with their settings and rerun after changing an analysis."
       ],
-      "prerequisite": "Ljúktu Regression-dæminu með fjórum niðurhalanlegum pörum af skor- og talningarskrám. Upptakan skoðar afmarkaða óstikaða keyrslu með 199 umröðunum, að lágmarki tveimur brunnum og niðurstöðum fyrir bæði leiðsöguraðir og gen. Hún sýnir hugbúnaðinn og túlkun greiningarmynda, ekki fullnægjandi lokagreiningu til að staðfesta uppgötvanir.",
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "Haltu bendlinum yfir Diagnostics í Regression og opnaðu það þegar greiningu er lokið. Hnappurinn les vistað úttak; hann aðlagar ekki annað líkan. Hann opnar nýjustu greiningarmöppuna í verkefninu, svo athugaðu slóðina ef margar keyrslur eru til.",
+          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9794,7 +9746,7 @@
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Skráastjóri kerfisins sýnir raunverulegar skrár úr greiningu niðurhalaðra skimunardæmigagna. Hér var myndasniðið stillt á PNG. Mappan inniheldur myndir um auðkennanleika tilraunasniðsins, greiningu sniðsins og tölfræðilega ályktun, ásamt yfirlitstöflu og töflu yfir samlínuleg pör leiðsöguraða.",
+          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
           "hold_after": 0.7,
           "focus": [
             535,
@@ -9805,37 +9757,37 @@
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Tilraunasniðið hefur 606 brunna, 793 stika og fylkisröð 599. Ekki er hægt að ákvarða ótvíræðan stuðul fyrir hverja leiðsöguröð samtímis. Viðvörunin skýrir hvers vegna við notuðum umröðunargreiningu; hún þýðir ekki að sameiginlegt líkan hafi verið aðlagað með árangri.",
+          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
           "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Leiðsöguraðirnar koma misoft fyrir: 355 þeirra eru aðeins í einum brunni í þessu sniði. Fá tilvik takmarka hvað tilraunin getur sýnt. Skoðaðu þekjuna áður en áhrif eru túlkuð og greindu á milli alls sniðsins og síaða hópsins sem var raunverulega prófaður.",
+          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
           "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "Myndin af tilraunasniðinu hjálpar til við að finna litla þekju og háð milli skýribreyta leiðsöguraða. Erfitt er að aðgreina tölfræðilega raðir sem koma alltaf saman fyrir. Skoðaðu tiltekin pör í samlínuleikatöflunni í stað þess að líta á viðvörunartákn sem fullnægjandi skýringu.",
+          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "Ályktunarmyndin tekur saman 434 próf á leiðsöguröðum: dreifingu p-gilda, samanburð við jafna dreifingu undir núlltilgátunni og uppgötvanir við leiðrétt viðmið. Þessi stutta keyrsla hefur engar uppgötvanir við sýnt viðmið. Viðvörun um kvörðun kallar á athugun, en er ekki sönnun fyrir líffræðilegum áhrifum.",
+          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "Við notuðum aðeins 199 umröðanir til að hafa sýnikeyrsluna stutta. Lægsta mögulega reynslubundna p-gildið er því 0,005. Þessi upplausn getur verið ófullnægjandi eftir leiðréttingu fyrir mörgum prófum. Veldu vel skipulagðan fjölda umröðana fyrir raunverulegu greininguna.",
+          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Þessi umröðunarkeyrsla hefur enga mynd af leifum aðlagaðs líkans því hún aðlagaði ekki sameiginlega aðhvarfslíkanið. Samanburður p-gildanna sem við sáum var ekki leifagreining. Aðrar greiningaraðferðir geta skrifað leifamyndir þegar þær skila mældum og aðlöguðum gildum.",
+          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Yfirlitið skráir mat á hverri mynd og versta matið fyrir greininguna í heild. Lestu hvert mat í samhengi í stað þess að túlka heildartáknið sem hugbúnaðarvillu. Python-forritaskilin fyrir aðhvarfsgreiningarmyndir skrifa sams konar myndir út frá gögnunum sem þau fá.",
+          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9843,7 +9795,7 @@
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "Farðu aftur í Regression til að skoða inntakið eða breyta greiningarvali af ásettu ráði. Breyting krefst nýrrar keyrslu og nýrra greiningarmynda; það uppfærir aldrei eldri niðurstöður að opna möppuna. Regression-leiðbeiningarnar fara yfir allt gagnasafnið, stjórnborðið, gagnvirkar niðurstöður og aðstoðina.",
+          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -9851,139 +9803,129 @@
             "72_volcano_explorer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings: núverandi skjár og raunverulegt Python-dæmi",
+      "title": "Embeddings: load crops and compare channel policies",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "description": "Skoðaðu nýju eininguna og kóðaðu raunmyndir með API án þess að halda fram lagfærðu myndviðmóti eða líffræðilegri staðfestingu.",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
       "objectives": [
-        "Greina á milli núverandi myndviðmóts og virks API.",
-        "Bera rásastefnur saman á sextán myndum.",
-        "Varðveita auðkenni og túlka myndrit með varúð."
+        "Load a crop folder through the Embeddings screen.",
+        "Choose the backbone, batch size and channel policy.",
+        "Inspect the vector preview and save full results through the supplied Python helper."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "spaCR 1.5.0.7 með embeddings-viðbót; upptakan notar timm 1.0.29 og forþjálfað ResNet18 á örgjörva. Sæktu Annotate-dæmið og tengdu ZIP-skrána. Notaðu cell_png-möppuna í README og nýjar úttaksmöppur. Skráarnöfn eru ekki staðfestir gagnagrunnslyklar. Skjárinn hefur ekki myndahleðslu; árangursrík vinnsla fer fram með API. Ekki er fullyrt um líffræðilega staðfestingu, yfirferð móðurmálshafa eða GPU-keyrslu.",
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Embeddings er ný eining á Home-síðu spaCR. Hún breytir myndútskurðum í talnavigra án þess að þjálfa á merkingunum þínum. Kennslan sýnir núverandi skjá og virkt Python-dæmi með raunverulegum niðurhöluðum myndum.",
+          "visual": "00_home",
+          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
           ],
           "related_lessons": [
             "05_home",
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_01_no_gui_crop_input",
-          "narration": "Í útgáfu eitt punktur fimm punktur núll punktur sjö hefur þessi skjár enga stýringu til að hlaða myndútskurðum og Embed er óvirkt. Við líkjum ekki eftir árangursríkri myndviðmótskeyrslu. Raunverulega kóðunin sem kemur næst er framkvæmd með studdu Python-API.",
-          "focus": [
-            340,
-            55,
-            3480,
-            190
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_channel_policies",
-          "narration": "Per channel kóðar hverja vistaða rás sérstaklega og tengir vigurna saman. Project to three kóðar samsettu myndina í staðinn. Þetta breytir framsetningunni, ekki aðeins hraðanum. Rásasæti í PNG auðkennir ekki sjálfkrafa staðfesta litun.",
-          "focus": [
-            340,
-            145,
-            1050,
-            270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_00_version",
-          "narration": "Settu valkvæðu embeddings-viðbótina upp í spaCR-umhverfinu. Sjálfgefna ResNet átján notar ImageNet-vogir úr stýrðu námi, ekki sjálfstýrt líkan þjálfað á frumum. Þetta litla dæmi notar örgjörvann; hvorki GPU né ytri gervigreindarþjónusta er nauðsynleg.",
-          "focus": [
-            200,
-            100,
-            3440,
-            700
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_01_inputs",
-          "narration": "Notaðu niðurhalanlega Annotate-dæmið og útskurðamöppuna í leiðbeiningunum. Tengda skriftan velur sextán fyrirliggjandi myndir í röð eftir skráarnafni. Hver mynd er tvö hundruð tuttugu og fjórir pixlar á hvorn veg með þremur vistuðum rásum. Hvorki stærðarbreyting né ný hlutun fer fram.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "related_lessons": [
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
-          "visual": "api_02_per_channel",
-          "narration": "Keyrðu skriftuna með nýrri úttaksmöppu. Hún kallar á embed_array með raunverulegum forþjálfuðum kóðara og fjögurra mynda lotum. Kóðun eftir rás gefur sextán raðir og eitt þúsund fimm hundruð þrjátíu og sex víddir. Vistaða fylkið er opnað aftur og hvert gildi athugað.",
+          "visual": "01_crop_loader",
+          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_03_project",
-          "narration": "Veldu nú project og aðra úttaksmöppu. Sömu myndir gefa sextán raðir og fimm hundruð tólf víddir. Þessir dálkar með samsettum rásum koma ekki í stað fyrri rásaskiptu dálkanna. Berðu stefnurnar saman af ásettu ráði og geymdu stillingar hverrar keyrslu.",
+          "visual": "02_folder_selected",
+          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_05_input_crops",
-          "narration": "Skoðaðu yfirlitið yfir raunverulegu inntaksmyndirnar í myndskoðaranum. Númerin fylgja röð úttaksraðanna. Athugaðu gæði útskurða og rásavörpun útflutningsins áður en vigur er túlkaður. Skráarnöfn auðkenna dæmið; staðfestu hlutalykla fyrir samtengingu við mæligagnagrunn.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_per_channel_pca",
-          "narration": "Þetta vistaða myndrit varpar rásaskiptu vigrunum á tvo aðalþætti. Númeruðu punktarnir vísa til sömu útskurða. Þetta er könnunarmynd af mjög litlu úrtaki, ekki sönnun fyrir ólíkum svipgerðum. Ein vídd í vigri er ekki líffræðileg mæling.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_project_pca",
-          "narration": "Vigrarnir með samsettum rásum hafa sína eigin vörpun. Ekki bera ásahnit þessara aðskildu myndrita saman eins og þau notuðu sömu aðlöguðu umbreytingu. Hvorugt myndrit mælir endurheimtarnákvæmni eða sýnir að vigrar séu betri en safn mældra eiginleika.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_provenance",
-          "narration": "Geymdu vigra, auðkenni upprunamynda, gátsummu voganna, stillingar og útgáfur hugbúnaðarpakka. Skriftan athugar að upprunamyndir séu óbreyttar og hafnar fyrirliggjandi úttaksstöðum. Samræmdu útskurði, stöðlun og rásavörpun við samanburð. Fylgdu tengdu leiðbeiningunum til að endurtaka API-dæmið.",
+          "visual": "03_crops_loaded",
+          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1200
-          ],
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "04_per_channel_settings",
+          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "05_per_channel_result",
+          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "04_project_settings",
+          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+            "06_api"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "76_ops",

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "d1ea6a8c8940ca70e41ca927023562e4fe8cb9ae",
+  "source_commit": "67237fa895826efa4e6e9d2046abfb3345c691fa",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
@@ -15,8 +15,8 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/mask-batch-translation-compatibility.json",
-  "full_report_sha256": "7d94badff5e9f8fab594bad5e7a644fd631978d5156839a62e06347d5c1c1c33",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/current-mask-translation-compatibility.json",
+  "full_report_sha256": "051783f04b168550556e8d5b64a682bfd23add3a49cc31e6b95a86a90086e766",
   "locales": {
     "api": {
       "sv": {

@@ -7502,145 +7502,78 @@
       "section": "Measure",
       "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Prepare a copied measurement database and the supplied export helper.",
+        "Open AnnData Export and select a measured project.",
         "Choose joined or single-table measurements and a missing-value policy.",
-        "Open the saved h5ad file and retain its source images and settings."
+        "Export an h5ad file with feature names and object metadata."
       ],
-      "example_files": [
-        "AnnData_API_workaround.zip"
-      ],
-      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
       "scenes": [
         {
-          "visual": "gui_02_current_anndata_form",
-          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+          "visual": "01_measure_host",
+          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate"
-          ],
+          ]
+        },
+        {
+          "visual": "03_private_downloaded_project",
+          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_private_downloaded_project",
-          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "visual": "05_joined_keep_settings",
+          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_01_unmodified_failure",
-          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-          "focus": [
-            190,
-            1660,
-            3450,
-            340
-          ],
+          "visual": "04_setting_anndata_row_limit",
+          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_02_explicit_workaround",
-          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1400
-          ],
+          "visual": "05_joined_keep_finished",
+          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_cell_keep_finished",
+          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_cell_mean_finished",
+          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_cell_drop_features_finished",
+          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_cell_drop_objects_finished",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_setting_anndata_register_artifact",
+          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_cell_keep",
-          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_05_cell_mean",
-          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_cell_drop_features",
-          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_cell_drop_objects",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_09_saved_shape",
-          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -9293,22 +9226,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "CV-Modell erklären",
+      "title": "Explain CV Model: compare predictions with measured features",
       "series": 5,
       "app_key": "explain_cv",
       "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "Ein echtes Ersatzmodell in Classify prüfen und erkennen, wann seine Erklärungen nicht interpretiert werden dürfen.",
+      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
       "objectives": [
-        "Zusammengehörige Messungen und Vorhersagen im verschachtelten Werkzeug auswählen.",
-        "Übereinstimmung des Ersatzmodells von unabhängiger Klassifikatorvalidierung unterscheiden.",
-        "Unzureichende Modelltreue, Klassenfehler und vollständige Exporte prüfen."
+        "Match the measurement database to saved classifier predictions.",
+        "Choose prediction columns, a backend and held-out groups.",
+        "Read fidelity, confusion and saved feature summaries."
       ],
-      "prerequisite": "Messdatenbank und Vorhersage-CSV müssen dieselben ausgeschnittenen Objekte beschreiben. Hier werden 234 echte Vorhersagen des über eine Epoche trainierten Annotate/Classify-Beispiels wiederverwendet, nicht das portable Evaluation-Paket. filename und predicted_label bleiben unverändert. Das ursprüngliche Klassifikatortraining teilt Wells mit dem Test; keine unabhängige Validierung. Das Ersatzmodell verwendet 89 vollständige Fälle und 1126 Merkmale, 145 Zeilen entfallen. Training: 68 Objekte aus zwei Wells; Test: 21 aus einem dritten. Alle Vorhersagen sind Klasse 1: Treue 17/21, ausgewogene Genauigkeit 0,5. Die angezeigte Referenz ist 81/89 über alle vollständigen Fälle. Merkmalswichtigkeit und SHAP erklären den Klassifikator nicht zuverlässig. Der Namensfilter entfernt 18 cv_intensity-Messungen ohne Nachweis eines Label-Lecks. GUI-Tabellen enden bei 1000 Zeilen; vollständige CSVs lesen. API: spacr.surrogate.explain_classifier, fit_surrogate, write_surrogate_result. Wiederholungen, Ausschlüsse und SHAP-Budget sind keine Formularfelder. CPU-Beispiel, kein neues Training, externer KI-Aufruf, muttersprachlicher Hörtest oder Veröffentlichung.",
+      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Öffnen Sie Classify und oben rechts das Symbol Explain CV Model. Es öffnet ein verschachteltes Werkzeug, kein weiteres Home-Modul. Wir verwenden vorhandene Bildklassifikator-Vorhersagen und die zugehörigen Messungen des Beispiels. Diese Vorhersagen zu erklären validiert den Klassifikator selbst nicht.",
+          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
           "focus": [
             3579,
             100,
@@ -9323,12 +9256,12 @@
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "Wählen Sie die passende Messdatenbank und die gespeicherte Vorhersage-CSV. Beide müssen dieselben ausgeschnittenen Objekte identifizieren, nicht bloß ähnlich benannte Wells. Hier verwenden wir unveränderte Kopien von 234 echten Vorhersagen. Das ist weder ein neues Training noch ein neu validierter Datensatz.",
+          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
           "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "Bleiben nach Browse alte Spaltenoptionen stehen, bestätigen Sie den Vorhersagepfad mit Enter. Wählen Sie filename als Bildpfad und predicted_label für die vorhergesagten Klassen, nicht wahre Labels oder kontinuierliche Wahrscheinlichkeiten. Wählen Sie Random Forest, Gruppierung well und einen neuen Ausgabeordner.",
+          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
           "focus": [
             462,
             463,
@@ -9339,7 +9272,7 @@
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "Klicken Sie Explain model. Das Ersatzmodell lernt aus Messmerkmalen, vorhandene Klassenaufrufe nachzubilden; das Bildmodell läuft nicht erneut. Dieses Beispiel verwendet die CPU. Das Formular bietet Backend und Gruppierung; Permutationswiederholungen, Merkmalsausschlüsse und SHAP-Budget sind API-Optionen, keine Bedienelemente dieses Formulars.",
+          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
           "focus": [
             462,
             678,
@@ -9353,7 +9286,7 @@
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "Lesen Sie zuerst Fidelity. Alle Vorhersagen wurden zugeordnet, aber nur 89 Zeilen hatten vollständige Merkmale. Das Ersatzmodell trainiert mit 68 Objekten aus zwei Wells und testet 21 aus einem dritten. Seine Treue liegt bei etwa 81 Prozent, unter der angezeigten Mehrheitsreferenz von 91 Prozent. Diese Referenz nutzt alle vollständigen Fälle, nicht nur das zurückgehaltene Well.",
+          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
           "focus": [
             474,
             1010,
@@ -9364,7 +9297,7 @@
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "Importance bleibt verborgen, weil die Treueprüfung scheiterte. Leiten Sie daraus keine Aussage darüber ab, was der Bildklassifikator erkennt. Prüfen Sie auch automatische Ausschlüsse: Die Warnung bezeichnet 18 Messnamen als Lecks, doch Intensitätsnamen mit Variationskoeffizient belegen allein keine Übernahme von Ziel-Labels in die Merkmale.",
+          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
           "focus": [
             465,
             937,
@@ -9375,7 +9308,7 @@
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Confusion vergleicht Klassenaufrufe des ursprünglichen Modells mit denen des Ersatzmodells, nicht mit biologischer Wahrheit. Hier sagt das Ersatzmodell für alle zurückgehaltenen Objekte Klasse 1 voraus: 17 Übereinstimmungen und vier Fehler. Die ausgewogene Genauigkeit beträgt 0,5. Eine hohe Gesamtquote kann das Versagen bei der kleineren Klasse verdecken.",
+          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
           "focus": [
             465,
             948,
@@ -9386,7 +9319,7 @@
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "Per-cell SHAP bleibt trotz gescheiterter Treueprüfung sichtbar. Diese Werte beschreiben das Ersatzmodell; sie retten weder seine Erklärung des Bildmodells noch belegen sie einen biologischen Mechanismus. Fügen Sie diese Einschränkung exportierten Attributionstabellen bei. Aktivierungskarten beantworten eine andere, räumliche Frage und haben eine eigene Lektion.",
+          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
           "focus": [
             465,
             948,
@@ -9400,7 +9333,7 @@
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "Prüfen Sie Correlations und Feature distributions als Datenzusammenfassungen, nicht als Kausalitätsbelege. Jede GUI-Tabelle endet bei 1000 Zeilen. Die vollständigen Exporte enthalten hier 1087 Korrelationspaare und 2252 Verteilungszeilen. Lesen Sie die Dateien, bevor Sie Gesamtzahlen oder fehlende Merkmale berichten.",
+          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
           "focus": [
             465,
             948,
@@ -9411,7 +9344,7 @@
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Held-out cells bewahrt Objektidentitäten und beide Vorhersagen. Open held-out objects ist in dieser Aufnahme deaktiviert; eine Übergabe der Bildausschnitte wird daher nicht gezeigt. Bewahren Sie die elf Dateien, Einstellungen und Treuewarnung gemeinsam auf. Evaluation erläutert die Validierungsgrenzen; weder Grafik noch SHAP-Tabelle noch Antwort von spaCR AI validiert einen Klassifikator.",
+          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
           "focus": [
             465,
             865,
@@ -9424,7 +9357,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "71_investigate_hit",
@@ -9445,7 +9383,7 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer: vorhandene Ergebnisse prüfen und Figuren exportieren",
+      "title": "Volcano Explorer: inspect results and save a figure",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
@@ -9453,18 +9391,17 @@
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "Das echte Regression-Beispiel untersuchen, Steuerelemente synchronisieren, Darstellungsschwellen von Tests trennen und Stile sowie Exporte sichern.",
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
       "objectives": [
-        "Das verschachtelte Werkzeug mit einer einzigen Guide-Familie öffnen.",
-        "Anfangswerte durch Save style und Load style synchronisieren.",
-        "Identitäten, Achsen, Farben und Linien ohne erfundene neue Treffer lesen.",
-        "Einen Stil wiederherstellen und PDF sowie PNG prüfen."
+        "Open a results family and inspect guide identities and support.",
+        "Choose adjusted values, display transforms and reference lines.",
+        "Save the style and export PDF or PNG figures."
       ],
-      "prerequisite": "Volcano_real_guide_family.zip entpacken, results öffnen. Unveränderte Ausgaben des Regression-Downloadbeispiels, keine neue Analyse oder vollständiges Archiv. Eine Familie: 434 Guides, log_pred, minimum_wells_threshold=2, Plus-eins-Permutations-P und BH-Korrektur. Kleinstes rohes P=.005, korrigiertes P=.39454545454545453; null signifikant bei ursprünglichem alpha=.05. Standardisierte marginale Effekte sind keine simultan geschätzten Koeffizienten oder log2-Änderungen. Anfangsfehler bleibt: Kontrollen 1e-6/0/False gegenüber Darstellung .05/3/True. Vor Bearbeitung Stil speichern und dieselbe Datei laden; später werden alle 67 Felder wiederhergestellt. Alpha .5 bringt 19 Werte unter die Schwelle, ändert aber keine Signifikanzkennzeichen. .05 und adjusted_p_value vor Export wiederherstellen. Effektschwelle .1 mal 3 ergibt Linien bei +/-0.3. Identitäten, Punkte, Farben und Quellen geprüft. Nominell 7×5 Zoll und 150 DPI, nach engem Beschnitt PDF 492.536×348.485 Punkte, PNG 1026×726 Pixel. Eingebettete Schriften, keine Rasterbilder im PDF, Lesbarkeit erneut geprüft. Einige GUI-Beschriftungen bleiben abgeschnitten; Warnung vor weißen Markerrändern auf hellem Papier. Annotationsverknüpfungen, Achsenbrüche und MAD-Regeln sind nicht geprüft. Aufnahme spaCR 1.5.0.4; drei relevante Quelldateien sind unverändert. Kein neuer Test, GPU, KI, App-Umbau, biologische Validierung oder Veröffentlichung. API: spacr.volcano_style.VolcanoStyle und render_volcano.",
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Öffnen Sie Regression und den verschachtelten Volcano Explorer. Diese Lektion gehört zu den Regression-Untermodulen. Der Explorer liest fertige Ergebnisse und wiederholt die Analyse nicht. Wir verwenden das echte Downloadbeispiel; das Begleitarchiv enthält die exakten Ergebnistabellen und aufgezeichneten Figurenstile.",
+          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
           "related_lessons": [
             "13_regression"
           ],
@@ -9472,17 +9409,17 @@
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "Wählen Sie Open results und den entpackten results-Ordner. Jeder Punkt ist ein Guide aus einer einzigen Familie von 434 Tests mit gleicher Zielgröße und Mindest-Well-Regel. Vermischen Sie keine Korrekturfamilien. Kein Guide ist bei der ursprünglichen korrigierten P-Schwelle 0,05 signifikant.",
+          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
           "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "Vor jeder Einstellungsänderung speichern Sie mit Save style den tatsächlich gerenderten Stil und laden genau diese Datei mit Load style. Anfangs stimmen Kontrollen und Figur in dieser Version nicht überein; sofortiges Bearbeiten kann falsche Vorgaben übernehmen. Dieser normale Speicher-Lade-Umweg synchronisiert sie, behebt aber nicht den App-Fehler.",
+          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "Prüfen Sie danach Alpha 0,05, Multiplikator drei und die negative Logarithmustransformation. Einige Beschriftungen sind abgeschnitten; kontrollieren Sie Werte und JSON. Die horizontale Achse zeigt den standardisierten marginalen Effekt, keine log2-fache Änderung und keinen Koeffizienten eines simultan angepassten multivariablen Modells.",
+          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
           "focus": [
             2305,
             270,
@@ -9493,7 +9430,7 @@
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "Klicken Sie einen vorhandenen Punkt an, um die Quellzeile zu sehen. Der gewählte Guide hat rohes P=0,005, aber korrigiertes P ungefähr 0,39. Ein großer marginaler Effekt und vier unterstützende Wells machen ihn nicht signifikant. Verwenden Sie Identität und Quellfelder, statt nur die Punktlage zu deuten.",
+          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
           "focus": [
             305,
             1830,
@@ -9504,70 +9441,75 @@
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "Der Wechsel der vertikalen Spalte zum rohen Permutations-P ändert die dargestellte Größe, nicht die Analyse. Kleine rohe Werte ersetzen keine familienkorrigierten Werte. Stellen Sie danach korrigiertes P wieder her. Die ursprünglichen Signifikanzkennzeichen bleiben gleich: Der Explorer liest und gestaltet, er führt keinen neuen Test aus.",
+          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "Der Schalter für den negativen Zehnerlogarithmus ändert die P-Darstellung. Aktiviert erscheinen kleine P höher; deaktiviert werden die ursprünglichen Werte gezeigt. Hier stellen wir transformiertes korrigiertes P wieder her. Lesen Sie die Achse und verwechseln Sie diese Transformation nicht mit einer anderen Mehrfachtestkorrektur.",
+          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
           "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "Zur Demonstration verschiebt Alpha 0,5 die Referenzlinie. Neunzehn korrigierte Werte liegen unter dieser neuen P-Schwelle, aber keiner erhält ein neues Signifikanzkennzeichen. Das sind keine neunzehn Entdeckungen. Stellen Sie vor Export oder Interpretation die ursprünglichen 0,05 wieder her.",
+          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
           "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "Eine explizite Effektschwelle 0,1 mit Multiplikator drei setzt vertikale Linien bei minus und plus 0,3. Prüfen Sie den Multiplikator, nicht nur das Schwellenfeld. Eine Effektgrenze ersetzt keine statistische Korrektur. Stellen Sie Auto wieder her; keine Werte der Ergebnistabelle werden überschrieben.",
+          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
           "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "Färbung nach wells with guide zeigt die echte Unterstützung aus der Tabelle. Sie ist weder Vertrauenswert noch Genauigkeitsbeleg. Kehren Sie vor dem Export zu den ursprünglichen Signifikanzfarben zurück. Optionale Annotationsverknüpfungen und andere Layouts benötigen eigene Prüfungen und liegen außerhalb dieses Beispiels.",
+          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
           "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "Stellen Sie Figurengröße, Schriftgrößen und Auflösung ein und prüfen Sie das Ergebnis. Hier werden nominell sieben mal fünf Zoll bei 150 Punkten pro Zoll gewählt. Enger Beschnitt verändert die Endmaße. Ein lesbarer Export beweist nicht, dass alle nativen Einstellungsbeschriftungen in dieses Fenster passen.",
+          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
           "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "Speichern Sie den endgültigen Stil als JSON. Nach einer vorübergehenden Markergrößenänderung stellt Load style jedes Feld wieder her. Bewahren Sie ihn zusammen mit der Originaltabelle auf, um das Aussehen zu reproduzieren. Stile beschreiben Präsentation, nicht die Ausführung einer anderen Regression oder eines neuen Tests.",
+          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
           "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF und PNG rendern neu, statt den Bildschirm aufzunehmen. Unser PDF enthält Vektormarken und eingebettete Schriften; prüfen Sie Beschriftungen, Kontrast und die Warnung vor weißen Markerrändern auf hellem Papier. Originaldaten bleiben unverändert. Python bietet VolcanoStyle und render_volcano für dieselbe Darstellung ohne GPU oder KI-Anbieter.",
+          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "Parameter-Sweep",
+      "title": "Parameter Sweep: compare saved Regression trials",
       "series": 5,
       "app_key": "parameter_sweep",
       "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "Zwei Versuche in Regression ausführen und erfolgreichen Abschluss von gültiger Inferenz unterscheiden.",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
       "objectives": [
-        "Vier geordnete Paare von Score- und Zähldateien auswählen.",
-        "Das Raster auf zwei Versuche und einen Prozess begrenzen und gespeicherte Ergebnisse prüfen.",
-        "Getrennte Koeffizientenfamilien und fehlgeschlagene Inferenzprüfungen berücksichtigen."
+        "Select paired score/count files and a sweep output folder.",
+        "Choose variable and fixed settings, estimate the trial count and run.",
+        "Inspect saved trials and their inference quality before comparison."
       ],
-      "prerequisite": "Die vier heruntergeladenen Plattenpaare aus der Regression-Lektion und einen neuen Ausgabeordner verwenden. Beide Ridge-Versuche bestehen die Inferenzprüfung nicht; dies ist keine validierte Trefferanalyse. Nur alpha variiert: 0.01 und 0.1. Parametrische Inferenz, Mittelwerte je Well und keine Transformation sind explizit festgelegt. Weitere Elterneinstellungen werden nicht automatisch übernommen. n_rows_fitted zählt hier 1174 Koeffizienten, nicht 620 Wells oder 2955 vorbereitete Zeilen. sweep_results.csv und tatsächliche Einstellungen prüfen: Die Tabelle verschweigt alpha und QC-Urteile. API: spacr.parameter_sweep.SweepSpace und run_sweep_parallel. Kein GPU-Benchmark, externer KI-Aufruf, muttersprachliches Abnahmeurteil oder Veröffentlichung.",
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "Öffnen Sie Regression und danach Parameter sweep unten rechts. Dieser Workflow liegt innerhalb von Regression, nicht auf einer eigenen Home-Kachel. Die Regression-Lektion erklärt das Herunterladen der vier Score- und Zähldateipaare, die wir hier wiederverwenden.",
+          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
           "focus": [
             3380,
             1880,
@@ -9581,12 +9523,12 @@
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "Prüfen Sie die eigenen Eingabelisten des Sweeps. Anfangs sind sie leer, selbst wenn das Elternformular gepaarte Daten enthält. Fügen Sie vier Score-Dateien und vier Zähldateien in übereinstimmender Plattenreihenfolge hinzu. Wählen Sie einen neuen Ausgabeordner, damit keine frühere Analyse überschrieben wird.",
+          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
           "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "Markieren Sie nur alpha mit null Komma null eins und null Komma eins. Nicht markierte Zeilen liefern weiterhin feste Einstellungen. Hier wählen wir ausdrücklich Ridge, parametrische Inferenz, Mittelwerte pro Well und keine Transformation. Dieses begrenzte Rezept zeigt die Bedienung; es ist keine Empfehlung für Ihr Experiment.",
+          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
           "focus": [
             850,
             490,
@@ -9597,7 +9539,7 @@
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "Wählen Sie grid, höchstens zwei Versuche und einen Arbeitsprozess, dann Estimate. Zwei gültige Kombinationen bedeutet erlaubte Einstellungen, nicht gültige statistische Schlussfolgerungen. Die Zeitschätzung nimmt eine Minute pro Versuch an und ist kein Benchmark. Lesen Sie vor dem Start die verfügbaren Ressourcengrenzen.",
+          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
           "focus": [
             850,
             1190,
@@ -9608,12 +9550,12 @@
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "Klicken Sie auf Start sweep, nicht auf Run im Elternformular. Jeder Versuch schreibt in seinen eigenen Ordner. Diese zwei echten Versuche laufen nacheinander; zusätzliche Prozesse erhöhen den Ressourcenbedarf. Das Beispiel zeigt CPU-Regression, keine GPU-Beschleunigung, und benötigt keine Anfrage an spaCR AI.",
+          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "Beide Zeilen melden ok, weil die Berechnung fertig ist. Entscheidend ist jedoch: Beide gespeicherten Inferenzprüfungen melden fail. Diese Urteile und das variierte alpha fehlen in der Tabelle; prüfen Sie die vollständige Ergebnisdatei und die Einstellungen jedes Versuchs. Wählen Sie kein Modell allein wegen mehr kleiner adjustierter P-Werte.",
+          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
           "focus": [
             1550,
             205,
@@ -9624,7 +9566,7 @@
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "Wählen Sie die erste Zeile und Show figures for selected row. Gespeicherte Ergebnisse werden ohne erneute Modellanpassung gelesen. Die Guide-Ansicht enthält 792 Koeffizientenzeilen einschließlich einer Konstante; der Plot lässt diesen Störterm weg und zeigt 791 Guides. Die Höhe ist der negative Zehnerlogarithmus des rohen P-Werts.",
+          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
           "focus": [
             1545,
             510,
@@ -9635,7 +9577,7 @@
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "Stellen Sie Level auf Gene. Nun enthält die Tabelle 382 Zeilen einschließlich ihrer Konstante; der Plot zeigt 381 Gene. Guides und Gene sind getrennte Koeffizientenfamilien. Der Ansichtswechsel macht die fehlgeschlagene Inferenz nicht gültig und erzeugt keine unabhängige Evidenz.",
+          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
           "focus": [
             1545,
             555,
@@ -9646,7 +9588,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Wechseln Sie zurück zu Guides: Die ursprünglichen Zeilen und Punkte kehren zurück, die gespeicherten Dateien bleiben unverändert. Das Feld rows fitted ist hier irreführend: Es zählt Koeffizientenzeilen, keine Wells. Unterscheiden Sie Eingabestichprobe, Zahl der ausgegebenen Koeffizienten und dargestellte Familie im Analysebericht.",
+          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
           "focus": [
             1545,
             555,
@@ -9657,35 +9599,40 @@
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "Lesen Sie gespeicherte Einstellungen, Zusammenfassung und Qualitätskontrolldateien gemeinsam. Ein Plot oder eine KI-Erklärung zertifiziert kein Studiendesign. Regression Diagnostics erläutert weitere Prüfungen, die API-Referenz dokumentiert Sweep-Ausführung. Dieses Beispiel lehrt einen reproduzierbaren Ablauf und seine Grenzen, keine validierten biologischen Treffer.",
+          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images: den Plan vor dem Import prüfen",
+      "title": "Import Images: map image identities and create a project",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "Öffnen Sie Import Images innerhalb von Import, prüfen Sie einen kleinen echten Mikroskopiedatensatz vor dem Schreiben und speichern Sie einen wiederverwendbaren Plan. Das Beispiel unterscheidet nicht unterstützte Originalnamen von vorbereiteten Kopien.",
+      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
       "objectives": [
-        "Import Images in Import finden und vom Import vorhandener Messwerte und Masken unterscheiden.",
-        "Bildidentitäten und ungeklärte Namensbestandteile vor dem Schreiben prüfen.",
-        "Kopien oder Verknüpfungen wählen, einen Plan speichern und laden und den Import überprüfen."
+        "Scan microscope images and resolve naming questions.",
+        "Choose a destination, plate name and copy or link behavior.",
+        "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "Laden Sie zuerst das echte Mask-Beispiel herunter. Die Aufnahme verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit jeweils vier C-Kanälen. Nur der A-Bestandteil direkt vor Z wird in den vorbereiteten Kopien weggelassen; die Originale bleiben unverändert. Das ist ein geprüftes Einzelbeispiel, keine allgemeine Aufforderung zum Löschen unbekannter Metadaten.",
+      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "Öffnen Sie Import in der Kategorie Data von Home und wählen Sie Import Images. Dieses untergeordnete Werkzeug bereitet rohe Bilddateien vor. Import Project, Format Converter und External Masks sind verwandte Abläufe mit eigenen Tutorials.",
+          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9696,7 +9643,7 @@
         },
         {
           "visual": "04_source_options",
-          "narration": "Die acht Bilder sind echte Mikroskopiedaten aus dem herunterladbaren Mask-Beispiel: je ein Bildfeld aus zwei Wells mit vier Kanälen pro Bildfeld. Wir arbeiten mit separaten Kopien und lassen die heruntergeladenen Originale unverändert.",
+          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -9704,17 +9651,17 @@
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Scan zeigt einen ungeklärten Aufnahmebestandteil in den Originalnamen. Import bleibt deaktiviert und nichts wird geschrieben. Raten Sie keine Kanalzuordnung: Zwei verschiedene Kanäle teilen diesen Aufnahmewert; eine solche Zuordnung würde ihre Identität verfälschen.",
+          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
           "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Für dieses geprüfte Beispiel lassen die vorbereiteten Kopien nur den redundanten Aufnahmebestandteil weg. Well-, Bildfeld- und Kanalnamen bleiben erhalten. Scan zeigt nun acht Zeilen, zwei Wells, zwei Bildfeldnummern und vier Kanäle. Das bedeutet nicht, dass die Originalnamen akzeptiert wurden.",
+          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
           "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "Vergleichen Sie den Vorschlag vor dem Import mit den Dateinamen. Read inside each file prüft zusätzlich die eingebetteten Achsenmetadaten. Sample begrenzt die untersuchten Dateien; prüfen Sie, ob der Vorschlag die gewünschten Bilder umfasst. Klären Sie Fragen anhand der Aufnahmeprotokolle statt durch Vermutungen.",
+          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -9725,7 +9672,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "Wählen Sie ein Ziel außerhalb des Eingabeordners und setzen Sie den Plattennamen. Für ein unabhängiges Projekt schalten wir Link instead of copy aus. Verknüpfungen sparen Speicherplatz, benötigen aber dauerhaft erreichbare Originale an ihren bisherigen Speicherorten.",
+          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -9736,7 +9683,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "Diese Beispieldateien sind keine Mosaikkacheln. Lesen Sie bei gekachelten Aufnahmen die Auswahl Tiles genau: Zusammenfügen rekonstruiert Bildfelder, getrennte Kacheln verändern die Bedeutung eines Bildfelds und Überspringen verliert diese Bilder. Prüfen Sie Bericht und unbestätigte Übergänge vor der Messung.",
+          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
@@ -9744,7 +9691,7 @@
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Save plan schreibt Quelle und Zuordnungsantworten in eine JSON-Datei, nicht in eine Sicherung der Bilder. Bewahren Sie sie mit dem Aufnahmeprotokoll auf. Derselbe Plan lässt sich über die Python-API für den Bildimport lesen.",
+          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9752,40 +9699,45 @@
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Load plan liest den Quellordner erneut und verwendet die gespeicherten Antworten wieder. Prüfen Sie den neuen Vorschlag vor dem Import: Ein gespeicherter Plan garantiert nicht, dass eine veränderte Aufnahme korrekt ist. Hier werden dieselben acht geprüften Bildidentitäten wiederhergestellt.",
+          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
           "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "Drücken Sie Import und lesen Sie die Zusammenfassung. Dieser Lauf schrieb acht unabhängige Bildkopien ohne ausgelassene Dateien; ihr Inhalt entspricht den Quellen. Wählen Sie das Projekt anschließend in Mask und prüfen Sie die Live-Vorschau vor der Segmentierung. Der Import allein erzeugt weder Masken noch Messwerte.",
+          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics: die Belege hinter den Ergebnissen verstehen",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "Öffnen Sie die Diagnosedateien einer echten Analyse des Beispiel-Screens, unterscheiden Sie Warnungen zum Versuchsdesign von Permutationsergebnissen und erkennen Sie die Grenzen eines kurzen Demonstrationslaufs.",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
       "objectives": [
-        "Diagnostics in Regression öffnen und den untersuchten Ausgabeordner prüfen.",
-        "Identifizierbarkeit des Designs, Vorkommen der Guides und Inferenzdiagramme im Kontext der gewählten Analyse interpretieren.",
-        "Fehlende Anpassungsresiduen und begrenzte Permutationsauflösung erkennen, ohne eine Modellanpassung zu unterstellen."
+        "Open the diagnostic folder for the intended Regression run.",
+        "Read design support, identifiability and inference summaries.",
+        "Keep diagnostics with their settings and rerun after changing an analysis."
       ],
-      "prerequisite": "Führen Sie das Regression-Beispiel mit den vier herunterladbaren Paaren aus Score- und Zähltabellen aus. Diese Aufnahme untersucht einen begrenzten nichtparametrischen Lauf mit 199 Permutationen, mindestens zwei Wells und Ergebnissen auf Guide- und Genebene. Sie erklärt Software und Diagnostik, nicht eine abschließende Inferenz für belastbare Entdeckungen.",
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "Zeigen Sie in Regression auf Diagnostics und öffnen Sie es nach Abschluss einer Analyse. Die Schaltfläche liest gespeicherte Ausgaben; sie passt kein weiteres Modell an. Sie öffnet den neuesten Diagnoseordner im Projekt. Prüfen Sie deshalb den Pfad, wenn mehrere Läufe vorliegen.",
+          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9794,7 +9746,7 @@
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Der Dateimanager des Systems zeigt die tatsächlichen Dateien unserer Analyse des heruntergeladenen Beispiel-Screens. Als Grafikformat war hier PNG eingestellt. Der Ordner enthält Diagramme zur Identifizierbarkeit, zum Design und zur Inferenz sowie eine Zusammenfassung und eine Tabelle kollinearer Guide-Paare.",
+          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
           "hold_after": 0.7,
           "focus": [
             535,
@@ -9805,37 +9757,37 @@
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Das Design hat 606 Wells, 793 Parameter und Rang 599. Es kann nicht für jeden Guide gleichzeitig einen eindeutigen Koeffizienten bestimmen. Diese Warnung erklärt, warum wir eine Permutationsanalyse verwendet haben; sie bedeutet nicht, dass ein simultanes Modell erfolgreich angepasst wurde.",
+          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
           "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Die Guides sind ungleich vertreten: 355 kommen in diesem Design nur in einem Well vor. Ein geringes Vorkommen begrenzt die Aussagekraft des Experiments. Prüfen Sie die Abdeckung vor der Interpretation von Effekten und unterscheiden Sie das vollständige Design von der gefilterten Familie tatsächlich getesteter Guides.",
+          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
           "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "Das Designdiagramm hilft, geringe Abdeckung und Abhängigkeiten zwischen Guide-Prädiktoren zu erkennen. Stets gemeinsam auftretende Guides lassen sich statistisch schwer unterscheiden. Untersuchen Sie konkrete Paare in der Kollinearitätstabelle, statt ein Warnsymbol als vollständige Erklärung anzusehen.",
+          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "Das Inferenzdiagramm fasst 434 Guide-Tests zusammen: die Verteilung der p-Werte, den Vergleich mit einer Gleichverteilung unter der Nullhypothese und Entdeckungen bei verschiedenen korrigierten Schwellen. Dieser kurze Lauf hat an der angezeigten Schwelle keine Entdeckungen. Eine Kalibrierungswarnung fordert zur Untersuchung auf; sie beweist keinen biologischen Effekt.",
+          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "Für die kurze Demonstration haben wir nur 199 Permutationen verwendet. Der kleinste erreichbare empirische p-Wert beträgt deshalb 0,005. Nach Korrektur für multiples Testen kann diese Auflösung unzureichend sein. Planen Sie für die eigentliche Analyse eine angemessene Permutationszahl.",
+          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Dieser Permutationslauf hat kein Diagramm mit Anpassungsresiduen, weil er das simultane Regressionsmodell nicht angepasst hat. Der eben gezeigte p-Wert-Vergleich ist keine Residuendiagnostik. Andere Analysemodi können Residuendiagramme schreiben, wenn sie beobachtete und angepasste Werte liefern.",
+          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Die Zusammenfassung enthält die Bewertung jedes Diagramms und die schlechteste Bewertung der gesamten Diagnostik. Lesen Sie jede Bewertung im Kontext, statt die Gesamtanzeige als Softwarefehler zu verstehen. Die Python-API für Regressionsdiagnostik schreibt dieselben Arten von Diagrammen aus den übergebenen Eingaben.",
+          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9843,7 +9795,7 @@
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "Kehren Sie zu Regression zurück, um Eingaben zu untersuchen oder eine Analyseentscheidung bewusst zu ändern. Eine Änderung verlangt einen neuen Lauf und neue Diagnosen; das Öffnen dieses Ordners aktualisiert niemals alte Ergebnisse. Das Regression-Tutorial erklärt den vollständigen Datensatz, die Konsole, interaktive Ergebnisse und die Assistenzfunktionen.",
+          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -9851,139 +9803,129 @@
             "72_volcano_explorer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings: aktuelle Oberfläche und echtes Python-Beispiel",
+      "title": "Embeddings: load crops and compare channel policies",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "description": "Das neue Modul kennenlernen und echte Bilder per API kodieren, ohne eine reparierte Oberfläche oder biologische Validierung zu behaupten.",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
       "objectives": [
-        "Die aktuelle Oberfläche von der funktionierenden API unterscheiden.",
-        "Kanalstrategien an sechzehn Bildern vergleichen.",
-        "Identitäten erhalten und Abbildungen vorsichtig interpretieren."
+        "Load a crop folder through the Embeddings screen.",
+        "Choose the backbone, batch size and channel policy.",
+        "Inspect the vector preview and save full results through the supplied Python helper."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "spaCR 1.5.0.7 mit dem Extra embeddings; Aufnahme mit timm 1.0.29 und vortrainiertem ResNet18 auf der CPU. Laden Sie das Annotate-Beispiel und die verknüpfte ZIP herunter. Verwenden Sie den im README genannten cell_png-Ordner und neue Ausgabeordner. Dateinamen sind keine geprüften Datenbankschlüssel. Der Oberfläche fehlt ein Ladeelement; erfolgreiche Verarbeitung erfolgt per API. Keine biologische Validierung, muttersprachliche Prüfung oder GPU-Ausführung wird behauptet.",
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Embeddings ist ein neues Modul auf der Home-Seite von spaCR. Es wandelt Bildausschnitte in numerische Vektoren um, ohne mit Ihren Annotationen zu trainieren. Diese Lektion zeigt die aktuelle Oberfläche und ein funktionierendes Python-Beispiel mit echten heruntergeladenen Bildern.",
+          "visual": "00_home",
+          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
           ],
           "related_lessons": [
             "05_home",
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_01_no_gui_crop_input",
-          "narration": "In Version eins Punkt fünf Punkt null Punkt sieben gibt es hier kein Bedienelement zum Laden von Bildausschnitten, und Embed bleibt deaktiviert. Wir täuschen keinen erfolgreichen GUI-Lauf vor. Die anschließend gezeigte tatsächliche Kodierung erfolgt über die unterstützte Python-API.",
-          "focus": [
-            340,
-            55,
-            3480,
-            190
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_channel_policies",
-          "narration": "Per channel kodiert jeden gespeicherten Kanal einzeln und hängt die Vektoren aneinander. Project to three kodiert stattdessen das zusammengesetzte Bild. Das ändert die Darstellung, nicht nur die Geschwindigkeit. Eine PNG-Kanalposition ist nicht automatisch eine bestätigte Färbungsidentität.",
-          "focus": [
-            340,
-            145,
-            1050,
-            270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_00_version",
-          "narration": "Installieren Sie das optionale Extra embeddings in Ihrer spaCR-Umgebung. Der voreingestellte ResNet achtzehn nutzt überwacht trainierte ImageNet-Gewichte, kein auf Zellen trainiertes selbstüberwachtes Modell. Dieses kleine Beispiel nutzt die CPU; GPU oder externer KI-Dienst sind nicht erforderlich.",
-          "focus": [
-            200,
-            100,
-            3440,
-            700
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_01_inputs",
-          "narration": "Verwenden Sie das herunterladbare Annotate-Beispiel und den genannten Bildausschnittordner. Das verknüpfte Skript wählt sechzehn vorhandene Bilder nach Dateinamen sortiert aus. Jedes ist zweihundertvierundzwanzig Pixel groß je Seite und enthält drei gespeicherte Kanäle. Es wird weder skaliert noch neu segmentiert.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "related_lessons": [
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
-          "visual": "api_02_per_channel",
-          "narration": "Starten Sie das Skript mit einem neuen Ausgabeordner. Es ruft embed_array mit dem echten vortrainierten Encoder und Vierer-Batches auf. Kanalweise Kodierung ergibt sechzehn Zeilen und eintausendfünfhundertsechsunddreißig Dimensionen. Die gespeicherte Matrix wird erneut geöffnet und Wert für Wert geprüft.",
+          "visual": "01_crop_loader",
+          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_03_project",
-          "narration": "Wählen Sie nun project und einen anderen Ausgabeordner. Dieselben Bilder ergeben sechzehn Zeilen und fünfhundertzwölf Dimensionen. Diese kanalübergreifenden Spalten sind nicht mit den vorherigen kanalweisen Spalten austauschbar. Vergleichen Sie die Strategien bewusst und bewahren Sie die Einstellungen jedes Laufs auf.",
+          "visual": "02_folder_selected",
+          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_05_input_crops",
-          "narration": "Prüfen Sie die tatsächliche Eingabemontage im Bildbetrachter. Ihre Nummern entsprechen der Reihenfolge der Ausgabezeilen. Kontrollieren Sie Ausschnittqualität und exportierte Kanalzuordnung vor der Interpretation. Die Dateinamen identifizieren dieses Beispiel; prüfen Sie die Objektschlüssel vor einer Verknüpfung mit einer Messdatenbank.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_per_channel_pca",
-          "narration": "Diese gespeicherte Grafik projiziert die kanalweisen Vektoren auf zwei Hauptkomponenten. Die nummerierten Punkte gehören zu denselben Ausschnitten. Das ist eine explorative Darstellung einer sehr kleinen Stichprobe, kein Beleg für unterschiedliche Phänotypen. Eine einzelne Vektordimension ist keine biologische Messgröße.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_project_pca",
-          "narration": "Die kanalübergreifenden Vektoren haben ihre eigene Projektion. Vergleichen Sie die Achsenkoordinaten dieser getrennten Grafiken nicht so, als beruhten sie auf derselben angepassten Transformation. Keine Grafik misst die Retrieval-Genauigkeit oder belegt eine Überlegenheit gegenüber dem Panel gemessener Merkmale.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_provenance",
-          "narration": "Bewahren Sie Vektoren, Quellidentitäten, Gewichtsprüfsumme, Einstellungen und Paketversionen auf. Das Skript prüft unveränderte Originalbilder und lehnt vorhandene Ziele ab. Gleichen Sie Eingabeausschnitte, Normalisierung und Kanalzuordnung bei Vergleichen ab. Mit der verknüpften Anleitung können Sie dieses API-Beispiel reproduzieren.",
+          "visual": "03_crops_loaded",
+          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1200
-          ],
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "04_per_channel_settings",
+          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "05_per_channel_result",
+          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "04_project_settings",
+          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+            "06_api"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "76_ops",

@@ -49,7 +49,7 @@
       "finite": true,
       "preview_rows": 16,
       "matrix_sha256": "d5442bb673382c94f8bedcf14cf714eaae9f75eeadd590d2096964800d74b2d8",
-      "status": "16 objects x 1536 dimensions. Encoder resnet18 (per_channel), weights 80c49dee3da4\u2026."
+      "status": "16 objects x 1536 dimensions. Encoder resnet18 (per_channel), weights 80c49dee3da4…."
     },
     {
       "policy": "project",
@@ -60,7 +60,7 @@
       "finite": true,
       "preview_rows": 16,
       "matrix_sha256": "8414d65766d0205d35def428a02b1457a3eb4f334c647bbf8641385bdcebc159",
-      "status": "16 objects x 512 dimensions. Encoder resnet18 (project), weights 80c49dee3da4\u2026."
+      "status": "16 objects x 512 dimensions. Encoder resnet18 (project), weights 80c49dee3da4…."
     }
   ],
   "app_source_modified": false,
@@ -70,5 +70,12 @@
   "source_unchanged": true,
   "published": false,
   "visual_review": "Current GUI loader and projected result inspected; native dark/blobs capture with neutral paths.",
-  "media_status": "Narration and publication pending"
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-ui5y3r18",
+    "commit": "f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65",
+    "tag": "tutorials-native-20260924-ui5y3r18",
+    "readback_files": 1134,
+    "all_ready_local_and_hosted_playback": true
+  }
 }

@@ -4916,6 +4916,474 @@
       "reason": "English changed after the translation review"
     },
     {
+      "lesson": "70_explain_cv",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "74_import_images",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
       "lesson": "79_module_inputs_outputs",
       "language": "is",
       "status": "english_fallback",

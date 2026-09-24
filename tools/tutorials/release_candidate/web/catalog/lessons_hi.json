@@ -7619,145 +7619,78 @@
       "section": "Measure",
       "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Prepare a copied measurement database and the supplied export helper.",
+        "Open AnnData Export and select a measured project.",
         "Choose joined or single-table measurements and a missing-value policy.",
-        "Open the saved h5ad file and retain its source images and settings."
+        "Export an h5ad file with feature names and object metadata."
       ],
-      "example_files": [
-        "AnnData_API_workaround.zip"
-      ],
-      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
       "scenes": [
         {
-          "visual": "gui_02_current_anndata_form",
-          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+          "visual": "01_measure_host",
+          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate"
-          ],
+          ]
+        },
+        {
+          "visual": "03_private_downloaded_project",
+          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_private_downloaded_project",
-          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "visual": "05_joined_keep_settings",
+          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_01_unmodified_failure",
-          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-          "focus": [
-            190,
-            1660,
-            3450,
-            340
-          ],
+          "visual": "04_setting_anndata_row_limit",
+          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_02_explicit_workaround",
-          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1400
-          ],
+          "visual": "05_joined_keep_finished",
+          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_cell_keep_finished",
+          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_cell_mean_finished",
+          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_cell_drop_features_finished",
+          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_cell_drop_objects_finished",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_setting_anndata_register_artifact",
+          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_cell_keep",
-          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_05_cell_mean",
-          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_cell_drop_features",
-          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_cell_drop_objects",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_09_saved_shape",
-          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -9410,22 +9343,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "CV मॉडल की व्याख्या",
+      "title": "Explain CV Model: compare predictions with measured features",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "Classify में वास्तविक सरोगेट मॉडल की जाँच करें और पहचानें कि उसकी व्याख्याओं का अर्थ कब नहीं निकालना चाहिए।",
+      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
       "objectives": [
-        "नेस्टेड टूल में एक ही ऑब्जेक्ट के माप और मौजूदा पूर्वानुमान चुनना।",
-        "सरोगेट की सहमति और क्लासिफ़ायर के स्वतंत्र सत्यापन में अंतर समझना।",
-        "कम फ़िडेलिटी, वर्गों की गलतियाँ और पूरी निर्यात फ़ाइलें जाँचना।"
+        "Match the measurement database to saved classifier predictions.",
+        "Choose prediction columns, a backend and held-out groups.",
+        "Read fidelity, confusion and saved feature summaries."
       ],
-      "prerequisite": "उन्हीं क्रॉप किए गए ऑब्जेक्ट का माप डेटाबेस और पूर्वानुमान CSV इस्तेमाल करें। रिकॉर्डिंग में एक एपोक वाले Annotate/Classify उदाहरण के 234 वास्तविक सहेजे हुए पूर्वानुमान दोबारा उपयोग होते हैं, पोर्टेबल Evaluation पैकेज नहीं। filename और predicted_label अपरिवर्तित हैं। मूल क्लासिफ़ायर के प्रशिक्षण और परीक्षण में कुछ वेल साझा हैं; यह स्वतंत्र सत्यापन नहीं है। सरोगेट 89 पूर्ण मामलों और 1126 फ़ीचर का उपयोग करता है; 145 पंक्तियाँ हटती हैं। प्रशिक्षण में दो वेल के 68 ऑब्जेक्ट और परीक्षण में तीसरे वेल के 21 ऑब्जेक्ट हैं। सभी पूर्वानुमान वर्ग 1 हैं: फ़िडेलिटी 17/21, संतुलित सटीकता 0.5। दिखाया गया बहुसंख्यक आधार 81/89 सभी पूर्ण मामलों पर आधारित है। Importance और SHAP मूल क्लासिफ़ायर की विश्वसनीय व्याख्या नहीं करते। नाम फ़िल्टर 18 cv_intensity माप हटाता है, लेकिन इससे लेबल लीक सिद्ध नहीं होता। GUI तालिकाएँ 1000 पंक्तियों पर रुकती हैं; पूरी CSV फ़ाइलें देखें। API: spacr.surrogate.explain_classifier, fit_surrogate और write_surrogate_result। दोहराव, फ़ीचर निष्कासन और SHAP बजट इस फ़ॉर्म के कंट्रोल नहीं हैं। यह CPU प्रदर्शन है; नया प्रशिक्षण, बाहरी AI अनुरोध, मातृभाषी द्वारा सुनकर स्वीकृति या प्रकाशन नहीं किया गया।",
+      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Classify खोलें, फिर ऊपर दाईं ओर Explain CV Model आइकन चुनें। यह एक नेस्टेड टूल खोलता है, कोई दूसरा Home मॉड्यूल नहीं। हम उदाहरण के इमेज क्लासिफ़ायर के मौजूदा पूर्वानुमान और संबंधित माप दोबारा इस्तेमाल करते हैं। इन पूर्वानुमानों की व्याख्या करना, क्लासिफ़ायर का सत्यापन करना नहीं है।",
+          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
           "focus": [
             3579,
             100,
@@ -9436,30 +9369,27 @@
             "09_annotate",
             "39_classifier_evaluation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Classify खोलें, फिर ऊपर दाईं ओर Explain CV Model आइकन चुनें। यह एक नेस्टेड टूल खोलता है, कोई दूसरा Home मॉड्यूल नहीं। हम उदाहरण के इमेज क्लासिफ़ायर के मौजूदा पूर्वानुमान और संबंधित माप दोबारा इस्तेमाल करते हैं। इन पूर्वानुमानों की व्याख्या करना, क्लासिफ़ायर का सत्यापन करना नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "संबंधित माप डेटाबेस और सहेजे गए पूर्वानुमानों की CSV चुनें। दोनों को उन्हीं क्रॉप किए गए ऑब्जेक्ट की पहचान करनी चाहिए, केवल मिलते-जुलते वेल नामों की नहीं। यहाँ दो सौ चौंतीस वास्तविक पूर्वानुमानों की अपरिवर्तित प्रतियाँ हैं। यह नया प्रशिक्षण या नया सत्यापित डेटासेट नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "संबंधित माप डेटाबेस और सहेजे गए पूर्वानुमानों की CSV चुनें। दोनों को उन्हीं क्रॉप किए गए ऑब्जेक्ट की पहचान करनी चाहिए, केवल मिलते-जुलते वेल नामों की नहीं। यहाँ दो सौ चौंतीस वास्तविक पूर्वानुमानों की अपरिवर्तित प्रतियाँ हैं। यह नया प्रशिक्षण या नया सत्यापित डेटासेट नहीं है।"
+          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "यदि Browse के बाद पुराने कॉलम विकल्प बने रहें, तो पूर्वानुमान फ़ाइल का पथ Enter से पुष्ट करें। क्रॉप के पथ के लिए filename और मॉडल के अनुमानित वर्ग के लिए predicted_label चुनें, वास्तविक लेबल या लगातार बदलने वाली प्रायिकता नहीं। Random Forest, well के आधार पर समूह और नया आउटपुट फ़ोल्डर चुनें।",
+          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
           "focus": [
             462,
             463,
             2680,
             459
           ],
-          "hold_after": 0.7,
-          "speech_text": "यदि Browse के बाद पुराने कॉलम विकल्प बने रहें, तो पूर्वानुमान फ़ाइल का पथ Enter से पुष्ट करें। क्रॉप के पथ के लिए filename और मॉडल के अनुमानित वर्ग के लिए predicted_label चुनें, वास्तविक लेबल या लगातार बदलने वाली प्रायिकता नहीं। Random Forest, well के आधार पर समूह और नया आउटपुट फ़ोल्डर चुनें।"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "Explain model दबाएँ। सरोगेट मापे गए फ़ीचर से मौजूदा वर्ग अनुमानों की नकल करना सीखता है; विज़न मॉडल दोबारा नहीं चलता। इस उदाहरण में CPU उपयोग होता है। फ़ॉर्म में बैकएंड और समूह चुन सकते हैं; पर्म्यूटेशन के दोहराव, फ़ीचर निष्कासन और SHAP बजट API विकल्प हैं, इस फ़ॉर्म के कंट्रोल नहीं।",
+          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
           "focus": [
             462,
             678,
@@ -9469,48 +9399,44 @@
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Explain model दबाएँ। सरोगेट मापे गए फ़ीचर से मौजूदा वर्ग अनुमानों की नकल करना सीखता है; विज़न मॉडल दोबारा नहीं चलता। इस उदाहरण में CPU उपयोग होता है। फ़ॉर्म में बैकएंड और समूह चुन सकते हैं; पर्म्यूटेशन के दोहराव, फ़ीचर निष्कासन और SHAP बजट API विकल्प हैं, इस फ़ॉर्म के कंट्रोल नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "पहले Fidelity पढ़ें। सभी पूर्वानुमान जुड़े, लेकिन केवल नवासी पंक्तियों में पूरे फ़ीचर थे। सरोगेट दो वेल के अड़सठ ऑब्जेक्ट से सीखता है और तीसरे के इक्कीस पर परीक्षण करता है। फ़िडेलिटी लगभग इक्यासी प्रतिशत है, जो दिखाए गए इक्यानवे प्रतिशत बहुसंख्यक आधार से कम है। यह आधार सभी पूर्ण मामलों का उपयोग करता है, केवल अलग रखे गए वेल का नहीं।",
+          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
           "focus": [
             474,
             1010,
             2900,
             890
           ],
-          "hold_after": 0.7,
-          "speech_text": "पहले Fidelity पढ़ें। सभी पूर्वानुमान जुड़े, लेकिन केवल नवासी पंक्तियों में पूरे फ़ीचर थे। सरोगेट दो वेल के अड़सठ ऑब्जेक्ट से सीखता है और तीसरे के इक्कीस पर परीक्षण करता है। फ़िडेलिटी लगभग इक्यासी प्रतिशत है, जो दिखाए गए इक्यानवे प्रतिशत बहुसंख्यक आधार से कम है। यह आधार सभी पूर्ण मामलों का उपयोग करता है, केवल अलग रखे गए वेल का नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "फ़िडेलिटी की शर्त पूरी नहीं हुई, इसलिए Importance छिपा है। इस फ़िट के आधार पर दावा न करें कि विज़न क्लासिफ़ायर क्या पहचानता है। स्वचालित निष्कासन भी देखें: चेतावनी अठारह माप नामों को लीक बताती है, लेकिन परिवर्तन गुणांक वाले तीव्रता माप का नाम अपने-आप लेबल लीक सिद्ध नहीं करता।",
+          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
           "focus": [
             465,
             937,
             2420,
             810
           ],
-          "hold_after": 0.7,
-          "speech_text": "फ़िडेलिटी की शर्त पूरी नहीं हुई, इसलिए Importance छिपा है। इस फ़िट के आधार पर दावा न करें कि विज़न क्लासिफ़ायर क्या पहचानता है। स्वचालित निष्कासन भी देखें: चेतावनी अठारह माप नामों को लीक बताती है, लेकिन परिवर्तन गुणांक वाले तीव्रता माप का नाम अपने-आप लेबल लीक सिद्ध नहीं करता।"
+          "hold_after": 0.7
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Confusion मूल मॉडल के वर्ग अनुमानों की सरोगेट के अनुमानों से तुलना करता है, जैविक सच्चाई से नहीं। यहाँ सरोगेट हर परीक्षण ऑब्जेक्ट को वर्ग एक देता है: सत्रह मेल और चार गलतियाँ। संतुलित सटीकता आधी है। ऊँचा दिखने वाला कुल प्रतिशत छोटे वर्ग पर विफलता छिपा सकता है।",
+          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
           "focus": [
             465,
             948,
             2000,
             650
           ],
-          "hold_after": 0.7,
-          "speech_text": "Confusion मूल मॉडल के वर्ग अनुमानों की सरोगेट के अनुमानों से तुलना करता है, जैविक सच्चाई से नहीं। यहाँ सरोगेट हर परीक्षण ऑब्जेक्ट को वर्ग एक देता है: सत्रह मेल और चार गलतियाँ। संतुलित सटीकता आधी है। ऊँचा दिखने वाला कुल प्रतिशत छोटे वर्ग पर विफलता छिपा सकता है।"
+          "hold_after": 0.7
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "फ़िडेलिटी कम होने के बावजूद Per-cell SHAP दिखता है। ये मान इस सरोगेट का वर्णन करते हैं; वे विज़न मॉडल की उसकी व्याख्या को सही नहीं बनाते और कोई जैविक क्रियाविधि सिद्ध नहीं करते। निर्यात की गई योगदान तालिकाओं के साथ यह सीमा रखें। एक्टिवेशन मैप एक अलग, स्थान-संबंधी प्रश्न का उत्तर देते हैं, जिसे उनके अपने पाठ में समझाया गया है।",
+          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
           "focus": [
             465,
             948,
@@ -9520,24 +9446,22 @@
           "related_lessons": [
             "16_activation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "फ़िडेलिटी कम होने के बावजूद Per-cell SHAP दिखता है। ये मान इस सरोगेट का वर्णन करते हैं; वे विज़न मॉडल की उसकी व्याख्या को सही नहीं बनाते और कोई जैविक क्रियाविधि सिद्ध नहीं करते। निर्यात की गई योगदान तालिकाओं के साथ यह सीमा रखें। एक्टिवेशन मैप एक अलग, स्थान-संबंधी प्रश्न का उत्तर देते हैं, जिसे उनके अपने पाठ में समझाया गया है।"
+          "hold_after": 0.7
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "Correlations और Feature distributions को डेटा सारांश समझकर देखें, कारण-परिणाम के प्रमाण की तरह नहीं। हर GUI तालिका एक हज़ार पंक्तियों पर रुकती है। पूरी निर्यात फ़ाइलों में एक हज़ार सत्तासी सहसंबंध जोड़े और दो हज़ार दो सौ बावन वितरण पंक्तियाँ हैं। कुल संख्या या गायब फ़ीचर बताने से पहले सहेजी फ़ाइलें देखें।",
+          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
           "focus": [
             465,
             948,
             2910,
             1050
           ],
-          "hold_after": 0.7,
-          "speech_text": "Correlations और Feature distributions को डेटा सारांश समझकर देखें, कारण-परिणाम के प्रमाण की तरह नहीं। हर GUI तालिका एक हज़ार पंक्तियों पर रुकती है। पूरी निर्यात फ़ाइलों में एक हज़ार सत्तासी सहसंबंध जोड़े और दो हज़ार दो सौ बावन वितरण पंक्तियाँ हैं। कुल संख्या या गायब फ़ीचर बताने से पहले सहेजी फ़ाइलें देखें।"
+          "hold_after": 0.7
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Held-out cells ऑब्जेक्ट की पहचान और दोनों पूर्वानुमान रखता है। रिकॉर्डिंग में Open held-out objects बंद है, इसलिए क्रॉप खोलना नहीं दिखाया गया। ग्यारह फ़ाइलें, सेटिंग और फ़िडेलिटी की चेतावनी साथ रखें। Evaluation पाठ क्लासिफ़ायर सत्यापन की सीमाएँ समझाता है; कोई चित्र, SHAP तालिका या spaCR AI का उत्तर क्लासिफ़ायर के सत्यापन की गारंटी नहीं देता।",
+          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
           "focus": [
             465,
             865,
@@ -9548,10 +9472,14 @@
             "39_classifier_evaluation",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Held-out cells ऑब्जेक्ट की पहचान और दोनों पूर्वानुमान रखता है। रिकॉर्डिंग में Open held-out objects बंद है, इसलिए क्रॉप खोलना नहीं दिखाया गया। ग्यारह फ़ाइलें, सेटिंग और फ़िडेलिटी की चेतावनी साथ रखें। Evaluation पाठ क्लासिफ़ायर सत्यापन की सीमाएँ समझाता है; कोई चित्र, SHAP तालिका या स्पेकर AI का उत्तर क्लासिफ़ायर के सत्यापन की गारंटी नहीं देता।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "71_investigate_hit",
@@ -9573,142 +9501,133 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer: मौजूद परिणाम देखें और चित्र निर्यात करें",
+      "title": "Volcano Explorer: inspect results and save a figure",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Regression",
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "वास्तविक Regression उदाहरण देखें, शैली नियंत्रण मिलाएँ, दृश्य सीमाओं को सांख्यिकीय परीक्षण से अलग समझें और शैली व निर्यात सुरक्षित करें।",
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
       "objectives": [
-        "Regression के भीतर एक ही गाइड परीक्षण-समूह खोलें।",
-        "Save style और Load style से शुरुआती नियंत्रण समन्वित करें।",
-        "नई हिट गढ़े बिना पहचान, अक्ष, रंग और संदर्भ रेखाएँ पढ़ें।",
-        "शैली बहाल करके PDF और PNG जाँचें।"
+        "Open a results family and inspect guide identities and support.",
+        "Choose adjusted values, display transforms and reference lines.",
+        "Save the style and export PDF or PNG figures."
       ],
-      "prerequisite": "Volcano_real_guide_family.zip निकालें और results खोलें। यह डाउनलोड डेटा वाले Regression उदाहरण का अपरिवर्तित आउटपुट है, नया विश्लेषण या पूरा संग्रह नहीं। एक समूह: 434 गाइड, log_pred, minimum_wells_threshold=2, प्लस-वन permutation P और BH सुधार। न्यूनतम कच्चा P=.005, समायोजित P=.39454545454545453; मूल alpha=.05 पर शून्य महत्वपूर्ण परिणाम। मानकीकृत सीमांत प्रभाव एक साथ फिट किए गुणांक या log2 परिवर्तन नहीं हैं। शुरुआती दोष बना है: नियंत्रण 1e-6/0/False, वास्तविक चित्र .05/3/True। संपादन से पहले शैली सेव करके वही लोड करें; बाद के चक्र में सभी 67 फ़ील्ड लौटते हैं। Alpha .5 पर 19 मान नई सीमा से नीचे होते हैं, पर महत्वपूर्ण फ़्लैग नहीं बदलते; .05 और adjusted_p_value बहाल करें। प्रभाव सीमा .1 गुणा 3 से रेखाएँ ±.3 पर हैं। पहचान, बिंदु, रंग और स्रोत जाँचे गए हैं। नाममात्र आकार 7×5 इंच, 150 DPI; tight crop के बाद PDF 492.536×348.485 पॉइंट, PNG 1026×726 पिक्सेल। PDF में फ़ॉन्ट एम्बेड हैं और रास्टर चित्र नहीं; पठनीयता फिर जाँची है। कुछ GUI लेबल कटे हैं; हल्के कागज़ पर सफेद बाहरी रेखा का चेतावनी संदेश है। annotation merge, broken axes और MAD नियम इस उदाहरण से प्रमाणित नहीं। रिकॉर्डिंग spaCR 1.5.0.4 की है; संबंधित तीन स्रोत फ़ाइलें वर्तमान जैसी हैं। नया परीक्षण, GPU, AI, ऐप परिवर्तन, जैविक सत्यापन या प्रकाशन नहीं। API: spacr.volcano_style.VolcanoStyle और render_volcano।",
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Regression खोलें और उसके भीतर Volcano Explorer चुनें। यह पाठ Regression के उपमॉड्यूलों में आता है। एक्सप्लोरर पूरे हो चुके परिणाम पढ़ता है, विश्लेषण फिर नहीं चलाता। हम वास्तविक डाउनलोड डेटा उदाहरण उपयोग करते हैं; साथ के संग्रह में सटीक परिणाम तालिकाएँ और दर्ज चित्र शैलियाँ हैं।",
+          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Regression खोलें और उसके भीतर Volcano Explorer चुनें। यह पाठ Regression के उपमॉड्यूलों में आता है। एक्सप्लोरर पूरे हो चुके परिणाम पढ़ता है, विश्लेषण फिर नहीं चलाता। हम वास्तविक डाउनलोड डेटा उदाहरण उपयोग करते हैं; साथ के संग्रह में सटीक परिणाम तालिकाएँ और दर्ज चित्र शैलियाँ हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "Open results चुनकर निकाला हुआ results फ़ोल्डर खोलें। हर बिंदु एक ही चार सौ चौंतीस परीक्षणों वाले समूह का गाइड है, जिसमें समान आउट्कम और न्यूनतम वेल नियम है। अलग correction समूह न मिलाएँ। मूल समायोजित P सीमा शून्य दशमलव शून्य पाँच पर कोई गाइड महत्वपूर्ण नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "Open results चुनकर निकाला हुआ results फ़ोल्डर खोलें। हर बिंदु एक ही चार सौ चौंतीस परीक्षणों वाले समूह का गाइड है, जिसमें समान आउट्कम और न्यूनतम वेल नियम है। अलग correction समूह न मिलाएँ। मूल समायोजित P सीमा शून्य दशमलव शून्य पाँच पर कोई गाइड महत्वपूर्ण नहीं है।"
+          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
+          "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "सेटिंग बदलने से पहले Save style से वास्तविक बनी शैली सेव करें, फिर वही फ़ाइल Load style करें। इस बिल्ड में शुरुआती नियंत्रण चित्र से मेल नहीं खाते; तुरंत संपादन गलत डिफॉल्ट चित्र में ला सकता है। सामान्य सेव-लोड उपाय उन्हें मिलाता है, लेकिन ऐप का दोष ठीक नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "सेटिंग बदलने से पहले Save style से वास्तविक बनी शैली सेव करें, फिर वही फ़ाइल Load style करें। इस बिल्ड में शुरुआती नियंत्रण चित्र से मेल नहीं खाते; तुरंत संपादन गलत डिफॉल्ट चित्र में ला सकता है। सामान्य सेव-लोड उपाय उन्हें मिलाता है, लेकिन ऐप का दोष ठीक नहीं करता।"
+          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "लोड के बाद अल्फा शून्य दशमलव शून्य पाँच, गुणक तीन और नेगेटिव लॉग परिवर्तन जाँचें। कुछ लेबल कटे हैं, इसलिए मान और JSON देखें। क्षैतिज अक्ष मानकीकृत सीमांत प्रभाव है, log दो fold change या एक साथ फिट किए बहुचर मॉडल का गुणांक नहीं।",
+          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
           "focus": [
             2305,
             270,
             1500,
             570
           ],
-          "hold_after": 0.7,
-          "speech_text": "लोड के बाद अल्फा शून्य दशमलव शून्य पाँच, गुणक तीन और नेगेटिव लॉग परिवर्तन जाँचें। कुछ लेबल कटे हैं, इसलिए मान और JSON देखें। क्षैतिज अक्ष मानकीकृत सीमांत प्रभाव है, log दो fold change या एक साथ फिट किए बहुचर मॉडल का गुणांक नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "मौजूद बिंदु पर क्लिक करके स्रोत पंक्ति देखें। चुने गाइड का कच्चा P शून्य दशमलव शून्य शून्य पाँच है, लेकिन समायोजित P लगभग शून्य दशमलव तीन नौ। बड़ा प्रभाव और चार सहायक वेल उसे महत्वपूर्ण नहीं बनाते। बिंदु की जगह से अनुमान लगाने के बजाय पहचान और स्रोत फ़ील्ड पढ़ें।",
+          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
           "focus": [
             305,
             1830,
             1990,
             275
           ],
-          "hold_after": 0.7,
-          "speech_text": "मौजूद बिंदु पर क्लिक करके स्रोत पंक्ति देखें। चुने गाइड का कच्चा P शून्य दशमलव शून्य शून्य पाँच है, लेकिन समायोजित P लगभग शून्य दशमलव तीन नौ। बड़ा प्रभाव और चार सहायक वेल उसे महत्वपूर्ण नहीं बनाते। बिंदु की जगह से अनुमान लगाने के बजाय पहचान और स्रोत फ़ील्ड पढ़ें।"
+          "hold_after": 0.7
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "ऊर्ध्वाधर कॉलम को कच्चे permutation P में बदलने से चित्र की मात्रा बदलती है, विश्लेषण नहीं। छोटे कच्चे मान समूह-समायोजित मानों की जगह नहीं लेते। बाद में समायोजित P लौटाएँ। मूल महत्वपूर्ण फ़्लैग नहीं बदलते; एक्सप्लोरर परिणाम पढ़ता और चित्र संपादित करता है, नया परीक्षण नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "ऊर्ध्वाधर कॉलम को कच्चे permutation P में बदलने से चित्र की मात्रा बदलती है, विश्लेषण नहीं। छोटे कच्चे मान समूह-समायोजित मानों की जगह नहीं लेते। बाद में समायोजित P लौटाएँ। मूल महत्वपूर्ण फ़्लैग नहीं बदलते; एक्सप्लोरर परिणाम पढ़ता और चित्र संपादित करता है, नया परीक्षण नहीं।"
+          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "नेगेटिव लॉग दस स्विच P का प्रदर्शन बदलता है। चालू होने पर छोटे P ऊपर दिखते हैं; बंद होने पर मूल मान दिखते हैं। यहाँ transformed adjusted P फिर बहाल है। अक्ष का नाम हमेशा पढ़ें और इस परिवर्तन को दूसरी multiple-testing correction न समझें।",
-          "hold_after": 0.7,
-          "speech_text": "नेगेटिव लॉग दस स्विच P का प्रदर्शन बदलता है। चालू होने पर छोटे P ऊपर दिखते हैं; बंद होने पर मूल मान दिखते हैं। यहाँ transformed adjusted P फिर बहाल है। अक्ष का नाम हमेशा पढ़ें और इस परिवर्तन को दूसरी multiple-testing correction न समझें।"
+          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "प्रदर्शन के लिए अल्फा शून्य दशमलव पाँच करने पर संदर्भ रेखा खिसकती है। उन्नीस समायोजित मान नई सीमा से नीचे आते हैं, लेकिन कोई नया महत्वपूर्ण फ़्लैग नहीं मिलता। यह उन्नीस खोजों का दावा नहीं है। निर्यात या व्याख्या से पहले मूल शून्य दशमलव शून्य पाँच लौटाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "प्रदर्शन के लिए अल्फा शून्य दशमलव पाँच करने पर संदर्भ रेखा खिसकती है। उन्नीस समायोजित मान नई सीमा से नीचे आते हैं, लेकिन कोई नया महत्वपूर्ण फ़्लैग नहीं मिलता। यह उन्नीस खोजों का दावा नहीं है। निर्यात या व्याख्या से पहले मूल शून्य दशमलव शून्य पाँच लौटाएँ।"
+          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "प्रभाव सीमा शून्य दशमलव एक और गुणक तीन से लंबवत रेखाएँ ऋण और धन शून्य दशमलव तीन पर आती हैं। केवल सीमा फ़ील्ड नहीं, गुणक भी जाँचें। प्रभाव सीमा सांख्यिकीय correction का विकल्प नहीं। अभ्यास के बाद Auto लौटाएँ; परिणाम तालिका के मान नहीं लिखे जाते।",
-          "hold_after": 0.7,
-          "speech_text": "प्रभाव सीमा शून्य दशमलव एक और गुणक तीन से लंबवत रेखाएँ ऋण और धन शून्य दशमलव तीन पर आती हैं। केवल सीमा फ़ील्ड नहीं, गुणक भी जाँचें। प्रभाव सीमा सांख्यिकीय correction का विकल्प नहीं। अभ्यास के बाद Auto लौटाएँ; परिणाम तालिका के मान नहीं लिखे जाते।"
+          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "wells with guide से रंग देने पर स्रोत तालिका का वास्तविक वेल समर्थन दिखता है। यह विश्वास स्कोर या सटीकता का प्रमाण नहीं। अंतिम निर्यात से पहले मूल महत्वपूर्णता रंग लौटाएँ। वैकल्पिक annotation joins और दूसरी layouts की अपनी जाँच चाहिए; वे इस प्रमाणित उदाहरण से बाहर हैं।",
-          "hold_after": 0.7,
-          "speech_text": "wells with guide से रंग देने पर स्रोत तालिका का वास्तविक वेल समर्थन दिखता है। यह विश्वास स्कोर या सटीकता का प्रमाण नहीं। अंतिम निर्यात से पहले मूल महत्वपूर्णता रंग लौटाएँ। वैकल्पिक annotation joins और दूसरी layouts की अपनी जाँच चाहिए; वे इस प्रमाणित उदाहरण से बाहर हैं।"
+          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "चित्र आकार, फ़ॉन्ट और रिज़ॉल्यूशन तय करके परिणाम देखें। यहाँ नाममात्र आकार सात गुणा पाँच इंच और प्रति इंच एक सौ पचास डॉट है। tight bounding-box crop अंतिम आयाम बदलता है। पठनीय निर्यात का अर्थ यह नहीं कि हर मूल सेटिंग लेबल इस खिड़की में पूरा आता है।",
-          "hold_after": 0.7,
-          "speech_text": "चित्र आकार, फ़ॉन्ट और रिज़ॉल्यूशन तय करके परिणाम देखें। यहाँ नाममात्र आकार सात गुणा पाँच इंच और प्रति इंच एक सौ पचास डॉट है। tight bounding-box crop अंतिम आयाम बदलता है। पठनीय निर्यात का अर्थ यह नहीं कि हर मूल सेटिंग लेबल इस खिड़की में पूरा आता है।"
+          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "अंतिम शैली JSON में सेव करें। मार्कर आकार अस्थायी रूप से बदलने के बाद Load style हर दर्ज फ़ील्ड बहाल करता है। दूसरी सत्र में रूप दोहराने के लिए इसे मूल परिणाम तालिका के साथ रखें। शैली प्रस्तुति बताती है, दूसरी regression या परीक्षण चलने का प्रमाण नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "अंतिम शैली JSON में सेव करें। मार्कर आकार अस्थायी रूप से बदलने के बाद Load style हर दर्ज फ़ील्ड बहाल करता है। दूसरी सत्र में रूप दोहराने के लिए इसे मूल परिणाम तालिका के साथ रखें। शैली प्रस्तुति बताती है, दूसरी regression या परीक्षण चलने का प्रमाण नहीं।"
+          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF और PNG चित्र फिर बनाते हैं, स्क्रीन की तस्वीर नहीं लेते। PDF में vector marks और embedded fonts हैं; लेबल, contrast और हल्के कागज़ पर सफेद outlines की चेतावनी देखें। मूल डेटा नहीं बदलता। Python में VolcanoStyle और render_volcano वही चित्र प्रक्रिया देते हैं, बिना GPU या AI प्रदाता के।",
+          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Export PDF और PNG चित्र फिर बनाते हैं, स्क्रीन की तस्वीर नहीं लेते। PDF में vector marks और embedded fonts हैं; लेबल, contrast और हल्के कागज़ पर सफेद outlines की चेतावनी देखें। मूल डेटा नहीं बदलता। Python में VolcanoStyle और render_volcano वही चित्र प्रक्रिया देते हैं, बिना GPU या AI प्रदाता के।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "पैरामीटर स्वीप",
+      "title": "Parameter Sweep: compare saved Regression trials",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "Regression में दो परीक्षण चलाएँ और गणना पूरी होने को वैध सांख्यिकीय निष्कर्ष से अलग समझें।",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
       "objectives": [
-        "Regression के परीक्षण डेटा से स्कोर और गिनती फ़ाइलों के चार जोड़े सही क्रम में चुनना।",
-        "ग्रिड को दो परीक्षण और एक वर्कर तक सीमित रखकर सहेजे परिणाम देखना।",
-        "गुणांक समूहों और असफल निष्कर्ष-जाँचों को अलग और स्पष्ट रखना।"
+        "Select paired score/count files and a sweep output folder.",
+        "Choose variable and fixed settings, estimate the trial count and run.",
+        "Inspect saved trials and their inference quality before comparison."
       ],
-      "prerequisite": "Regression पाठ से डाउनलोड किए चार प्लेटों के फ़ाइल-जोड़े और नया आउटपुट फ़ोल्डर लें। दोनों ridge परीक्षण निष्कर्ष की गुणवत्ता-जाँच में असफल हैं; यह सत्यापित जैविक खोज का उदाहरण नहीं है। केवल alpha बदलता है: 0.01 और 0.1। पैरामीट्रिक निष्कर्ष, प्रति वेल औसत और कोई रूपांतरण नहीं, स्पष्ट रूप से तय हैं। मुख्य फ़ॉर्म की दूसरी सेटिंग अपने-आप नहीं आतीं। n_rows_fitted यहाँ 1174 गुणांक पंक्तियाँ गिनता है, 620 वेल या तैयार डेटा की 2955 पंक्तियाँ नहीं। sweep_results.csv और वास्तविक सेटिंग देखें; तालिका alpha और गुणवत्ता-निर्णय नहीं दिखाती। API: spacr.parameter_sweep.SweepSpace और run_sweep_parallel। GPU गति-परीक्षण, बाहरी AI अनुरोध, मातृभाषी स्वीकृति या प्रकाशन का दावा नहीं है।",
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "Regression खोलें, फिर नीचे दाईं ओर Parameter sweep चुनें। यह काम Regression के अंदर है, Home पर अलग टाइल नहीं है। यहाँ दोबारा इस्तेमाल होने वाले स्कोर और गिनती फ़ाइलों के चार जोड़े डाउनलोड करना Regression पाठ में समझाया गया है।",
+          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
           "focus": [
             3380,
             1880,
@@ -9718,454 +9637,413 @@
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Regression खोलें, फिर नीचे दाईं ओर Parameter sweep चुनें। यह काम Regression के अंदर है, Home पर अलग टाइल नहीं है। यहाँ दोबारा इस्तेमाल होने वाले स्कोर और गिनती फ़ाइलों के चार जोड़े डाउनलोड करना Regression पाठ में समझाया गया है।"
+          "hold_after": 0.7
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "स्वीप की अपनी इनपुट सूचियाँ जाँचें। मुख्य फ़ॉर्म में जोड़ा हुआ डेटा होने पर भी ये शुरू में खाली हैं। चार स्कोर फ़ाइलें और चार गिनती फ़ाइलें, प्लेटों के एक जैसे क्रम में जोड़ें। नया आउटपुट फ़ोल्डर चुनें, ताकि यह उदाहरण पिछला विश्लेषण न लिख मिटाए।",
-          "hold_after": 0.7,
-          "speech_text": "स्वीप की अपनी इनपुट सूचियाँ जाँचें। मुख्य फ़ॉर्म में जोड़ा हुआ डेटा होने पर भी ये शुरू में खाली हैं। चार स्कोर फ़ाइलें और चार गिनती फ़ाइलें, प्लेटों के एक जैसे क्रम में जोड़ें। नया आउटपुट फ़ोल्डर चुनें, ताकि यह उदाहरण पिछला विश्लेषण न लिख मिटाए।"
+          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "केवल alpha पर निशान लगाएँ; मान शून्य दशमलव शून्य एक और शून्य दशमलव एक हैं। बिना निशान वाली पंक्तियाँ भी तय सेटिंग देती हैं। यहाँ ridge, पैरामीट्रिक निष्कर्ष, प्रति वेल औसत और कोई रूपांतरण नहीं, स्पष्ट रूप से चुना गया है। यह सीमित विधि संचालन दिखाती है, आपके प्रयोग की अनुशंसा नहीं है।",
+          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
           "focus": [
             850,
             490,
             680,
             680
           ],
-          "hold_after": 0.7,
-          "speech_text": "केवल alpha पर निशान लगाएँ; मान शून्य दशमलव शून्य एक और शून्य दशमलव एक हैं। बिना निशान वाली पंक्तियाँ भी तय सेटिंग देती हैं। यहाँ ridge, पैरामीट्रिक निष्कर्ष, प्रति वेल औसत और कोई रूपांतरण नहीं, स्पष्ट रूप से चुना गया है। यह सीमित विधि संचालन दिखाती है, आपके प्रयोग की अनुशंसा नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "grid, अधिकतम दो परीक्षण और एक वर्कर चुनें, फिर Estimate दबाएँ। दो वैध संयोजन का अर्थ अनुमत सेटिंग है, वैध सांख्यिकीय निष्कर्ष नहीं। समय का अनुमान प्रति परीक्षण एक मिनट मानता है; यह गति-परीक्षण नहीं है। शुरू करने से पहले उपलब्ध संसाधन सीमाएँ पढ़ें।",
+          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
           "focus": [
             850,
             1190,
             680,
             375
           ],
-          "hold_after": 0.7,
-          "speech_text": "grid, अधिकतम दो परीक्षण और एक वर्कर चुनें, फिर Estimate दबाएँ। दो वैध संयोजन का अर्थ अनुमत सेटिंग है, वैध सांख्यिकीय निष्कर्ष नहीं। समय का अनुमान प्रति परीक्षण एक मिनट मानता है; यह गति-परीक्षण नहीं है। शुरू करने से पहले उपलब्ध संसाधन सीमाएँ पढ़ें।"
+          "hold_after": 0.7
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "Start sweep दबाएँ, मुख्य Regression फ़ॉर्म का Run नहीं। हर परीक्षण अपने फ़ोल्डर में लिखता है। ये दो वास्तविक परीक्षण एक के बाद एक चलते हैं; अधिक वर्कर अधिक संसाधन माँगते हैं। यह CPU रिग्रेशन का उदाहरण है, GPU त्वरण का नहीं, और spaCR AI को अनुरोध भेजना आवश्यक नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "Start sweep दबाएँ, मुख्य Regression फ़ॉर्म का Run नहीं। हर परीक्षण अपने फ़ोल्डर में लिखता है। ये दो वास्तविक परीक्षण एक के बाद एक चलते हैं; अधिक वर्कर अधिक संसाधन माँगते हैं। यह CPU रिग्रेशन का उदाहरण है, GPU त्वरण का नहीं, और स्पेकर AI को अनुरोध भेजना आवश्यक नहीं है।"
+          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "दोनों पंक्तियों में ok है क्योंकि गणना पूरी हुई। लेकिन दोनों सहेजी गई निष्कर्ष-गुणवत्ता जाँचों में fail है। तालिका ये निर्णय और बदला हुआ alpha नहीं दिखाती। पूरी स्वीप परिणाम फ़ाइल और हर परीक्षण की सेटिंग देखें। केवल अधिक छोटे समायोजित P मान मिलने के कारण मॉडल न चुनें।",
+          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
           "focus": [
             1550,
             205,
             2215,
             290
           ],
-          "hold_after": 0.7,
-          "speech_text": "दोनों पंक्तियों में ok है क्योंकि गणना पूरी हुई। लेकिन दोनों सहेजी गई निष्कर्ष-गुणवत्ता जाँचों में fail है। तालिका ये निर्णय और बदला हुआ alpha नहीं दिखाती। पूरी स्वीप परिणाम फ़ाइल और हर परीक्षण की सेटिंग देखें। केवल अधिक छोटे समायोजित P मान मिलने के कारण मॉडल न चुनें।"
+          "hold_after": 0.7
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "पहली पंक्ति चुनकर Show figures for selected row दबाएँ। यह दोबारा मॉडल फिट किए बिना सहेजे परिणाम पढ़ता है। गाइड दृश्य में इंटरसेप्ट समेत सात सौ बानवे गुणांक पंक्तियाँ हैं; चित्र इस सहायक पद को छोड़कर सात सौ इक्यानवे गाइड दिखाता है। ऊँचाई असमायोजित P मान के दस-आधारी लघुगणक का ऋणात्मक मान है।",
+          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
           "focus": [
             1545,
             510,
             2255,
             1040
           ],
-          "hold_after": 0.7,
-          "speech_text": "पहली पंक्ति चुनकर Show figures for selected row दबाएँ। यह दोबारा मॉडल फिट किए बिना सहेजे परिणाम पढ़ता है। गाइड दृश्य में इंटरसेप्ट समेत सात सौ बानवे गुणांक पंक्तियाँ हैं; चित्र इस सहायक पद को छोड़कर सात सौ इक्यानवे गाइड दिखाता है। ऊँचाई असमायोजित P मान के दस-आधारी लघुगणक का ऋणात्मक मान है।"
+          "hold_after": 0.7
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "Level को Gene करें। तालिका में अब उसके इंटरसेप्ट समेत तीन सौ बयासी पंक्तियाँ हैं, और चित्र तीन सौ इक्यासी जीन दिखाता है। गाइड और जीन अलग गुणांक समूह हैं। दृश्य बदलने से असफल निष्कर्ष वैध नहीं होता और स्वतंत्र प्रमाण नहीं बनता।",
+          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
           "focus": [
             1545,
             555,
             2255,
             995
           ],
-          "hold_after": 0.7,
-          "speech_text": "Level को Gene करें। तालिका में अब उसके इंटरसेप्ट समेत तीन सौ बयासी पंक्तियाँ हैं, और चित्र तीन सौ इक्यासी जीन दिखाता है। गाइड और जीन अलग गुणांक समूह हैं। दृश्य बदलने से असफल निष्कर्ष वैध नहीं होता और स्वतंत्र प्रमाण नहीं बनता।"
+          "hold_after": 0.7
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "गाइड पर लौटें: मूल पंक्तियाँ और बिंदु वापस आते हैं, सहेजी फ़ाइलें नहीं बदलतीं। सारांश का rows fitted यहाँ भ्रामक है: यह वेल नहीं, गुणांक पंक्तियाँ गिनता है। विश्लेषण बताते समय इनपुट नमूनों की संख्या, आउटपुट गुणांक संख्या और दिखाए समूह को अलग रखें।",
+          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
           "focus": [
             1545,
             555,
             2255,
             995
           ],
-          "hold_after": 0.7,
-          "speech_text": "गाइड पर लौटें: मूल पंक्तियाँ और बिंदु वापस आते हैं, सहेजी फ़ाइलें नहीं बदलतीं। सारांश का rows fitted यहाँ भ्रामक है: यह वेल नहीं, गुणांक पंक्तियाँ गिनता है। विश्लेषण बताते समय इनपुट नमूनों की संख्या, आउटपुट गुणांक संख्या और दिखाए समूह को अलग रखें।"
+          "hold_after": 0.7
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "सहेजी सेटिंग, सारांश और गुणवत्ता-जाँच फ़ाइलें साथ पढ़ें। चित्र या AI की व्याख्या अध्ययन की रूपरेखा प्रमाणित नहीं करती। आगे की जाँच Regression Diagnostics में और स्वीप संचालन API संदर्भ में समझाया गया है। यह उदाहरण दोहराने योग्य कार्यप्रवाह और उसकी सीमाएँ सिखाता है, सत्यापित जैविक खोज नहीं।",
+          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "सहेजी सेटिंग, सारांश और गुणवत्ता-जाँच फ़ाइलें साथ पढ़ें। चित्र या AI की व्याख्या अध्ययन की रूपरेखा प्रमाणित नहीं करती। आगे की जाँच Regression Diagnostics में और स्वीप संचालन API संदर्भ में समझाया गया है। यह उदाहरण दोहराने योग्य कार्यप्रवाह और उसकी सीमाएँ सिखाता है, सत्यापित जैविक खोज नहीं।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images: आयात से पहले योजना जाँचें",
+      "title": "Import Images: map image identities and create a project",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "Import के भीतर Import Images खोलें, फ़ाइलें लिखने से पहले वास्तविक माइक्रोस्कोपी चित्रों के एक छोटे समूह को जाँचें और दोबारा उपयोग करने योग्य योजना सहेजें। उदाहरण में असमर्थित मूल नामों और तैयार प्रतियों के बीच स्पष्ट अंतर रखा गया है।",
+      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
       "objectives": [
-        "Import के भीतर Import Images खोजें और इसे पहले से मौजूद मापों और मास्क के आयात से अलग समझें।",
-        "प्रोजेक्ट लिखने से पहले चित्रों की पहचान और फ़ाइल नाम के अनसुलझे हिस्सों की जाँच करें।",
-        "कॉपी या लिंक चुनें, योजना सहेजें और फिर लोड करें, तथा आयात का परिणाम जाँचें।"
+        "Scan microscope images and resolve naming questions.",
+        "Choose a destination, plate name and copy or link behavior.",
+        "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "पहले Mask का वास्तविक उदाहरण डाउनलोड करें। रिकॉर्डिंग में E01/F001 और L01/F009 दृश्य क्षेत्रों की प्रतियाँ हैं, हर क्षेत्र में चार C चैनल हैं। तैयार प्रतियों में केवल Z के ठीक पहले वाला A भाग हटाया गया है; मूल फ़ाइलें नहीं बदली गईं। यह एक जाँचा हुआ विशिष्ट उदाहरण है, अनजान मेटाडेटा हटाने का सामान्य निर्देश नहीं।",
+      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "Home की Data श्रेणी से Import खोलें, फिर Import Images चुनें। यह भीतर स्थित टूल कच्ची चित्र फ़ाइलें तैयार करता है। Import Project, Format Converter और External Masks संबंधित कार्यप्रवाह हैं, जिनके अपने ट्यूटोरियल हैं।",
+          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "36_import",
             "35_converter",
             "31_external_masks"
-          ],
-          "speech_text": "Home की Data श्रेणी से Import खोलें, फिर Import Images चुनें। यह भीतर स्थित टूल कच्ची चित्र फ़ाइलें तैयार करता है। Import Project, Format Converter और External Masks संबंधित कार्यप्रवाह हैं, जिनके अपने ट्यूटोरियल हैं।"
+          ]
         },
         {
           "visual": "04_source_options",
-          "narration": "हमारे आठ चित्र Mask के डाउनलोड योग्य उदाहरण के वास्तविक माइक्रोस्कोपी डेटा हैं: दो वेल में से प्रत्येक का एक दृश्य क्षेत्र, और हर क्षेत्र के चार चैनल। हम अलग प्रतियों पर काम करते हैं और डाउनलोड किए हुए मूल चित्रों को नहीं बदलते।",
+          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "हमारे आठ चित्र Mask के डाउनलोड योग्य उदाहरण के वास्तविक माइक्रोस्कोपी डेटा हैं: दो वेल में से प्रत्येक का एक दृश्य क्षेत्र, और हर क्षेत्र के चार चैनल। हम अलग प्रतियों पर काम करते हैं और डाउनलोड किए हुए मूल चित्रों को नहीं बदलते।"
+          ]
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Scan मूल नामों में डेटा अधिग्रहण का एक अनसुलझा भाग दिखाता है। Import निष्क्रिय रहता है और कुछ भी नहीं लिखा जाता। चैनल मैपिंग का अनुमान न लगाएँ: दो अलग चैनल अधिग्रहण का यही मान साझा करते हैं, इसलिए ऐसा उत्तर उनकी पहचान गलत कर देगा।",
-          "hold_after": 0.7,
-          "speech_text": "Scan मूल नामों में डेटा अधिग्रहण का एक अनसुलझा भाग दिखाता है। Import निष्क्रिय रहता है और कुछ भी नहीं लिखा जाता। चैनल मैपिंग का अनुमान न लगाएँ: दो अलग चैनल अधिग्रहण का यही मान साझा करते हैं, इसलिए ऐसा उत्तर उनकी पहचान गलत कर देगा।"
+          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "इस जाँचे हुए उदाहरण के लिए तैयार प्रतियाँ केवल अधिग्रहण के अनावश्यक दोहराव वाले भाग को छोड़ती हैं। वेल, दृश्य क्षेत्र और चैनल के नाम वैसे ही रहते हैं। Scan अब आठ पंक्तियाँ, दो वेल, दो क्षेत्र संख्याएँ और चार चैनल दिखाता है। इसका अर्थ यह नहीं कि मूल नाम स्वीकार किए गए थे।",
-          "hold_after": 0.7,
-          "speech_text": "इस जाँचे हुए उदाहरण के लिए तैयार प्रतियाँ केवल अधिग्रहण के अनावश्यक दोहराव वाले भाग को छोड़ती हैं। वेल, दृश्य क्षेत्र और चैनल के नाम वैसे ही रहते हैं। Scan अब आठ पंक्तियाँ, दो वेल, दो क्षेत्र संख्याएँ और चार चैनल दिखाता है। इसका अर्थ यह नहीं कि मूल नाम स्वीकार किए गए थे।"
+          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "आयात से पहले प्रस्ताव की तुलना फ़ाइल नामों से करें। Read inside each file नामों के साथ फ़ाइल के भीतर मौजूद अक्षों का मेटाडेटा भी जाँचता है। Sample जाँची जाने वाली फ़ाइलों की संख्या सीमित करता है; सुनिश्चित करें कि प्रस्ताव में आपके सभी इच्छित चित्र हैं। सवालों के उत्तर अधिग्रहण के रिकॉर्ड से दें, अनुमान से नहीं।",
+          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
           "hold_after": 0.7,
           "focus": [
             350,
             665,
             1770,
             675
-          ],
-          "speech_text": "आयात से पहले प्रस्ताव की तुलना फ़ाइल नामों से करें। Read inside each file नामों के साथ फ़ाइल के भीतर मौजूद अक्षों का मेटाडेटा भी जाँचता है। Sample जाँची जाने वाली फ़ाइलों की संख्या सीमित करता है; सुनिश्चित करें कि प्रस्ताव में आपके सभी इच्छित चित्र हैं। सवालों के उत्तर अधिग्रहण के रिकॉर्ड से दें, अनुमान से नहीं।"
+          ]
         },
         {
           "visual": "07_copy_destination",
-          "narration": "इनपुट फ़ोल्डर के बाहर गंतव्य चुनें और प्लेट का नाम सेट करें। स्वतंत्र प्रोजेक्ट बनाने के लिए हम Link instead of copy बंद करते हैं। लिंक डिस्क स्थान बचाते हैं, लेकिन मूल फ़ाइलें अपने वर्तमान स्थानों पर उपलब्ध रहनी चाहिए।",
+          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
           "hold_after": 0.7,
           "focus": [
             345,
             1600,
             3420,
             210
-          ],
-          "speech_text": "इनपुट फ़ोल्डर के बाहर गंतव्य चुनें और प्लेट का नाम सेट करें। स्वतंत्र प्रोजेक्ट बनाने के लिए हम Link instead of copy बंद करते हैं। लिंक डिस्क स्थान बचाते हैं, लेकिन मूल फ़ाइलें अपने वर्तमान स्थानों पर उपलब्ध रहनी चाहिए।"
+          ]
         },
         {
           "visual": "07_copy_destination",
-          "narration": "इस उदाहरण के चित्र टाइल नहीं हैं। टाइल वाली अधिग्रहण प्रक्रिया में Tiles विकल्प ध्यान से पढ़ें: जोड़ना दृश्य क्षेत्र बनाता है, टाइल अलग रखने से क्षेत्र का अर्थ बदलता है, और छोड़ने पर वे चित्र खो जाते हैं। मापने से पहले रिपोर्ट और अप्रमाणित जोड़ जाँचें।",
+          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
-          ],
-          "speech_text": "इस उदाहरण के चित्र टाइल नहीं हैं। टाइल वाली अधिग्रहण प्रक्रिया में Tiles विकल्प ध्यान से पढ़ें: जोड़ना दृश्य क्षेत्र बनाता है, टाइल अलग रखने से क्षेत्र का अर्थ बदलता है, और छोड़ने पर वे चित्र खो जाते हैं। मापने से पहले रिपोर्ट और अप्रमाणित जोड़ जाँचें।"
+          ]
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Save plan स्रोत और आपके मैपिंग उत्तरों को JSON फ़ाइल में सहेजता है, चित्रों का बैकअप नहीं बनाता। इसे अधिग्रहण की टिप्पणियों के साथ रखें। Python के चित्र आयात API से भी यही योजना पढ़ी जा सकती है।",
+          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Save plan स्रोत और आपके मैपिंग उत्तरों को JSON फ़ाइल में सहेजता है, चित्रों का बैकअप नहीं बनाता। इसे अधिग्रहण की टिप्पणियों के साथ रखें। Python के चित्र आयात API से भी यही योजना पढ़ी जा सकती है।"
+          ]
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Load plan स्रोत फ़ोल्डर को फिर पढ़ता है और सहेजे गए उत्तरों का दोबारा उपयोग करता है। आयात से पहले नया प्रस्ताव जाँचें; सहेजी गई योजना बदले हुए अधिग्रहण की शुद्धता की गारंटी नहीं देती। यहाँ वही आठ जाँची हुई चित्र पहचानें वापस आती हैं।",
-          "hold_after": 0.7,
-          "speech_text": "Load plan स्रोत फ़ोल्डर को फिर पढ़ता है और सहेजे गए उत्तरों का दोबारा उपयोग करता है। आयात से पहले नया प्रस्ताव जाँचें; सहेजी गई योजना बदले हुए अधिग्रहण की शुद्धता की गारंटी नहीं देती। यहाँ वही आठ जाँची हुई चित्र पहचानें वापस आती हैं।"
+          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "Import दबाएँ और सारांश पढ़ें। इस रन ने किसी फ़ाइल को छोड़े बिना आठ स्वतंत्र चित्र प्रतियाँ लिखीं; उनकी सामग्री स्रोत से मेल खाती है। अब Mask में यह प्रोजेक्ट चुनें और विभाजन से पहले लाइव प्रीव्यू जाँचें। केवल आयात करने से मास्क या माप उत्पन्न नहीं होते।",
+          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "speech_text": "Import दबाएँ और सारांश पढ़ें। इस रन ने किसी फ़ाइल को छोड़े बिना आठ स्वतंत्र चित्र प्रतियाँ लिखीं; उनकी सामग्री स्रोत से मेल खाती है। अब Mask में यह प्रोजेक्ट चुनें और विभाजन से पहले लाइव प्रीव्यू जाँचें। केवल आयात करने से मास्क या माप उत्पन्न नहीं होते।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics: परिणामों के पीछे के प्रमाण समझें",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "डाउनलोड किए गए उदाहरण स्क्रीन के वास्तविक विश्लेषण के निदान खोलें, डिज़ाइन की चेतावनियों और परम्यूटेशन परिणामों में अंतर समझें और छोटी प्रदर्शन प्रक्रिया की सीमाएँ पहचानें।",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
       "objectives": [
-        "Regression में Diagnostics खोलें और जाँचे जा रहे परिणाम फ़ोल्डर की पुष्टि करें।",
-        "चुने गए विश्लेषण के संदर्भ में डिज़ाइन की पहचानयोग्यता, गाइड की उपलब्धता और सांख्यिकीय निष्कर्ष के पैनल समझें।",
-        "मॉडल फ़िट होने का दावा किए बिना फ़िट किए गए अवशेषों के पैनल की अनुपस्थिति और सीमित परम्यूटेशन रिज़ॉल्यूशन पहचानें।"
+        "Open the diagnostic folder for the intended Regression run.",
+        "Read design support, identifiability and inference summaries.",
+        "Keep diagnostics with their settings and rerun after changing an analysis."
       ],
-      "prerequisite": "Regression का उदाहरण पूरा करें, जिसमें स्कोर और काउंट की चार डाउनलोड करने योग्य फ़ाइल-जोड़ियाँ हैं। इस रिकॉर्डिंग में 199 परम्यूटेशन, कम से कम दो वेल और गाइड तथा जीन दोनों स्तरों के परिणाम वाला सीमित गैर-पैरामीट्रिक विश्लेषण दिखाया गया है। यह सॉफ़्टवेयर और निदान समझने का प्रदर्शन है, अंतिम खोजों के लिए पर्याप्त विश्लेषण नहीं।",
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "Regression के भीतर Diagnostics पर माउस ले जाएँ और विश्लेषण पूरा होने के बाद इसे खोलें। यह बटन सहेजे गए परिणाम पढ़ता है, कोई नया मॉडल फ़िट नहीं करता। यह प्रोजेक्ट का सबसे नया निदान फ़ोल्डर खोलता है, इसलिए कई रन हों तो उसका पथ जाँचें।",
+          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "13_regression"
-          ],
-          "speech_text": "Regression के भीतर Diagnostics पर माउस ले जाएँ और विश्लेषण पूरा होने के बाद इसे खोलें। यह बटन सहेजे गए परिणाम पढ़ता है, कोई नया मॉडल फ़िट नहीं करता। यह प्रोजेक्ट का सबसे नया निदान फ़ोल्डर खोलता है, इसलिए कई रन हों तो उसका पथ जाँचें।"
+          ]
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "सिस्टम का फ़ाइल प्रबंधक डाउनलोड किए गए उदाहरण स्क्रीन के विश्लेषण की वास्तविक फ़ाइलें दिखाता है। यहाँ चित्रों का चुना गया प्रारूप पी एन जी था। फ़ोल्डर में डिज़ाइन की पहचानयोग्यता, डिज़ाइन निदान, सांख्यिकीय निष्कर्ष के निदान, सारांश तालिका और समरेखीय गाइड जोड़ियों की तालिका हैं।",
+          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
           "hold_after": 0.7,
           "focus": [
             535,
             230,
             1420,
             285
-          ],
-          "speech_text": "सिस्टम का फ़ाइल प्रबंधक डाउनलोड किए गए उदाहरण स्क्रीन के विश्लेषण की वास्तविक फ़ाइलें दिखाता है। यहाँ चित्रों का चुना गया प्रारूप पी एन जी था। फ़ोल्डर में डिज़ाइन की पहचानयोग्यता, डिज़ाइन निदान, सांख्यिकीय निष्कर्ष के निदान, सारांश तालिका और समरेखीय गाइड जोड़ियों की तालिका हैं।"
+          ]
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "डिज़ाइन में छह सौ छह वेल, सात सौ तिरानवे पैरामीटर और पाँच सौ निन्यानवे रैंक है। हर गाइड के लिए एक अद्वितीय गुणांक को एक साथ निर्धारित नहीं किया जा सकता। यह चेतावनी हमारे परम्यूटेशन विश्लेषण चुनने का कारण बताती है; इसका अर्थ यह नहीं है कि सभी गाइड वाला मॉडल सफलतापूर्वक फ़िट हुआ।",
-          "hold_after": 0.7,
-          "speech_text": "डिज़ाइन में छह सौ छह वेल, सात सौ तिरानवे पैरामीटर और पाँच सौ निन्यानवे रैंक है। हर गाइड के लिए एक अद्वितीय गुणांक को एक साथ निर्धारित नहीं किया जा सकता। यह चेतावनी हमारे परम्यूटेशन विश्लेषण चुनने का कारण बताती है; इसका अर्थ यह नहीं है कि सभी गाइड वाला मॉडल सफलतापूर्वक फ़िट हुआ।"
+          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "गाइडों की उपस्थिति असमान है: इस डिज़ाइन में तीन सौ पचपन गाइड केवल एक वेल में हैं। कम उपस्थिति से प्रयोग के निष्कर्ष सीमित होते हैं। प्रभावों को समझने से पहले कवरेज देखें और पूरे डिज़ाइन को वास्तव में जाँचे गए गाइडों के फ़िल्टर किए गए समूह से अलग समझें।",
-          "hold_after": 0.7,
-          "speech_text": "गाइडों की उपस्थिति असमान है: इस डिज़ाइन में तीन सौ पचपन गाइड केवल एक वेल में हैं। कम उपस्थिति से प्रयोग के निष्कर्ष सीमित होते हैं। प्रभावों को समझने से पहले कवरेज देखें और पूरे डिज़ाइन को वास्तव में जाँचे गए गाइडों के फ़िल्टर किए गए समूह से अलग समझें।"
+          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "डिज़ाइन पैनल कम उपस्थिति और गाइड प्रेडिक्टरों के बीच निर्भरता पहचानने में मदद करता है। जो गाइड हमेशा साथ आते हैं, उनमें सांख्यिकीय अंतर करना कठिन है। चेतावनी चिह्न को पूरी व्याख्या मानने के बजाय समरेखीय जोड़ियों की तालिका में विशिष्ट जोड़ियाँ जाँचें।",
-          "hold_after": 0.7,
-          "speech_text": "डिज़ाइन पैनल कम उपस्थिति और गाइड प्रेडिक्टरों के बीच निर्भरता पहचानने में मदद करता है। जो गाइड हमेशा साथ आते हैं, उनमें सांख्यिकीय अंतर करना कठिन है। चेतावनी चिह्न को पूरी व्याख्या मानने के बजाय समरेखीय जोड़ियों की तालिका में विशिष्ट जोड़ियाँ जाँचें।"
+          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "सांख्यिकीय निष्कर्ष का पैनल चार सौ चौंतीस गाइड परीक्षणों का सारांश देता है: पी-मूल्यों का वितरण, समान वितरण वाली शून्य परिकल्पना से तुलना और समायोजित सीमाओं पर खोजों की संख्या। इस छोटे रन में दिखाई गई सीमा पर कोई खोज नहीं है। कैलिब्रेशन की चेतावनी जाँच का संकेत है, जैविक प्रभाव का प्रमाण नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "सांख्यिकीय निष्कर्ष का पैनल चार सौ चौंतीस गाइड परीक्षणों का सारांश देता है: पी-मूल्यों का वितरण, समान वितरण वाली शून्य परिकल्पना से तुलना और समायोजित सीमाओं पर खोजों की संख्या। इस छोटे रन में दिखाई गई सीमा पर कोई खोज नहीं है। कैलिब्रेशन की चेतावनी जाँच का संकेत है, जैविक प्रभाव का प्रमाण नहीं।"
+          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "प्रदर्शन छोटा रखने के लिए हमने केवल एक सौ निन्यानवे परम्यूटेशन किए। इसलिए सबसे छोटा संभव अनुभवजन्य पी-मूल्य शून्य दशमलव शून्य शून्य पाँच है। अनेक परीक्षणों के सुधार के बाद यह रिज़ॉल्यूशन अपर्याप्त हो सकता है; वास्तविक विश्लेषण के लिए परम्यूटेशन की संख्या सोच-समझकर तय करें।",
-          "hold_after": 0.7,
-          "speech_text": "प्रदर्शन छोटा रखने के लिए हमने केवल एक सौ निन्यानवे परम्यूटेशन किए। इसलिए सबसे छोटा संभव अनुभवजन्य पी-मूल्य शून्य दशमलव शून्य शून्य पाँच है। अनेक परीक्षणों के सुधार के बाद यह रिज़ॉल्यूशन अपर्याप्त हो सकता है; वास्तविक विश्लेषण के लिए परम्यूटेशन की संख्या सोच-समझकर तय करें।"
+          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "इस परम्यूटेशन रन में फ़िट किए गए अवशेषों का पैनल नहीं है, क्योंकि इसने सभी गाइड वाला रिग्रेशन मॉडल फ़िट नहीं किया। अभी देखी गई पी-मूल्य तुलना अवशेषों का निदान नहीं है। अन्य विश्लेषण मोड प्रेक्षित और फ़िट किए गए मान उपलब्ध होने पर अवशेषों के पैनल बना सकते हैं।",
-          "hold_after": 0.7,
-          "speech_text": "इस परम्यूटेशन रन में फ़िट किए गए अवशेषों का पैनल नहीं है, क्योंकि इसने सभी गाइड वाला रिग्रेशन मॉडल फ़िट नहीं किया। अभी देखी गई पी-मूल्य तुलना अवशेषों का निदान नहीं है। अन्य विश्लेषण मोड प्रेक्षित और फ़िट किए गए मान उपलब्ध होने पर अवशेषों के पैनल बना सकते हैं।"
+          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "सारांश हर पैनल का आकलन और पूरे समूह का सबसे खराब आकलन दर्ज करता है। समग्र चिह्न को सॉफ़्टवेयर की त्रुटि मानने के बजाय प्रत्येक आकलन को उसके संदर्भ में पढ़ें। पाइथन का रिग्रेशन डायग्नोस्टिक्स ए पी आई दिए गए इनपुट से इसी तरह के पैनल बनाता है।",
+          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "सारांश हर पैनल का आकलन और पूरे समूह का सबसे खराब आकलन दर्ज करता है। समग्र चिह्न को सॉफ़्टवेयर की त्रुटि मानने के बजाय प्रत्येक आकलन को उसके संदर्भ में पढ़ें। पाइथन का रिग्रेशन डायग्नोस्टिक्स ए पी आई दिए गए इनपुट से इसी तरह के पैनल बनाता है।"
+          ]
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "इनपुट जाँचने या विश्लेषण का कोई विकल्प सोच-समझकर बदलने के लिए Regression पर लौटें। बदलाव के बाद नया रन और नए निदान आवश्यक हैं; फ़ोल्डर खोलने से पुराने परिणाम कभी अपडेट नहीं होते। पूरे डेटासेट, कंसोल, इंटरैक्टिव परिणामों और सहायता प्रक्रिया के लिए Regression ट्यूटोरियल देखें।",
+          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "48_hit_list",
             "72_volcano_explorer"
-          ],
-          "speech_text": "इनपुट जाँचने या विश्लेषण का कोई विकल्प सोच-समझकर बदलने के लिए Regression पर लौटें। बदलाव के बाद नया रन और नए निदान आवश्यक हैं; फ़ोल्डर खोलने से पुराने परिणाम कभी अपडेट नहीं होते। पूरे डेटासेट, कंसोल, इंटरैक्टिव परिणामों और सहायता प्रक्रिया के लिए Regression ट्यूटोरियल देखें।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings: वर्तमान स्क्रीन और वास्तविक Python उदाहरण",
+      "title": "Embeddings: load crops and compare channel policies",
       "series": 2,
       "app_key": "embeddings",
-      "section": "डेटा",
-      "description": "नया मॉड्यूल देखें और API से वास्तविक चित्रों को एन्कोड करें; इसे GUI की मरम्मत या जैविक सत्यापन न समझें।",
+      "section": "Data",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
       "objectives": [
-        "वर्तमान GUI और काम करने वाली API में अंतर समझें।",
-        "सोलह चित्रों पर दोनों चैनल नीतियों की तुलना करें।",
-        "पहचान सुरक्षित रखें और ग्राफ़ की सीमाएँ समझें।"
+        "Load a crop folder through the Embeddings screen.",
+        "Choose the backbone, batch size and channel policy.",
+        "Inspect the vector preview and save full results through the supplied Python helper."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "embeddings अतिरिक्त पैकेज वाला spaCR 1.5.0.7; रिकॉर्डिंग में timm 1.0.29 और CPU पर पूर्वप्रशिक्षित ResNet18 है। Annotate का उदाहरण और लिंक किया ZIP डाउनलोड करें। README में दी cell_png फ़ोल्डर और नए आउटपुट फ़ोल्डर इस्तेमाल करें। फ़ाइल नाम सत्यापित डेटाबेस कुंजियाँ नहीं हैं। स्क्रीन में चित्र लोड करने का नियंत्रण नहीं है; सफल कार्य API से होता है। जैविक सत्यापन, मातृभाषी समीक्षा या GPU निष्पादन का दावा नहीं है।",
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Embeddings, spaCR के Home का नया मॉड्यूल है। यह आपकी टिप्पणियों पर प्रशिक्षण किए बिना चित्रों के क्रॉप को संख्यात्मक वेक्टरों में बदलता है। इस पाठ में वर्तमान स्क्रीन और वास्तविक डाउनलोड किए चित्रों वाला काम करने योग्य Python उदाहरण दिखाया गया है।",
+          "visual": "00_home",
+          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
           ],
           "related_lessons": [
             "05_home",
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Embeddings, स्पेकर के Home का नया मॉड्यूल है। यह आपकी टिप्पणियों पर प्रशिक्षण किए बिना चित्रों के क्रॉप को संख्यात्मक वेक्टरों में बदलता है। इस पाठ में वर्तमान स्क्रीन और वास्तविक डाउनलोड किए चित्रों वाला काम करने योग्य Python उदाहरण दिखाया गया है।"
-        },
-        {
-          "visual": "gui_01_no_gui_crop_input",
-          "narration": "संस्करण एक दशमलव पाँच दशमलव शून्य दशमलव सात में इस स्क्रीन पर क्रॉप लोड करने का नियंत्रण नहीं है और Embed निष्क्रिय रहता है। हम सफल GUI रन का अनुकरण नहीं करेंगे। आगे दिखाया वास्तविक एन्कोडिंग समर्थित Python API करती है।",
-          "focus": [
-            340,
-            55,
-            3480,
-            190
-          ],
-          "hold_after": 0.7,
-          "speech_text": "संस्करण एक दशमलव पाँच दशमलव शून्य दशमलव सात में इस स्क्रीन पर क्रॉप लोड करने का नियंत्रण नहीं है और Embed निष्क्रिय रहता है। हम सफल GUI रन का अनुकरण नहीं करेंगे। आगे दिखाया वास्तविक एन्कोडिंग समर्थित Python API करती है।"
-        },
-        {
-          "visual": "gui_02_channel_policies",
-          "narration": "Per channel प्रत्येक संग्रहीत चैनल को अलग एन्कोड करके वेक्टर जोड़ता है। Project to three संयुक्त चित्र को एन्कोड करता है। इससे केवल गति नहीं, निरूपण भी बदलता है। PNG का चैनल स्थान अपने आप किसी सत्यापित स्टेन की पहचान नहीं बताता।",
-          "focus": [
-            340,
-            145,
-            1050,
-            270
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Per channel प्रत्येक संग्रहीत चैनल को अलग एन्कोड करके वेक्टर जोड़ता है। Project to three संयुक्त चित्र को एन्कोड करता है। इससे केवल गति नहीं, निरूपण भी बदलता है। PNG का चैनल स्थान अपने आप किसी सत्यापित स्टेन की पहचान नहीं बताता।"
-        },
-        {
-          "visual": "api_00_version",
-          "narration": "अपने spaCR वातावरण में वैकल्पिक embeddings अतिरिक्त पैकेज स्थापित करें। डिफ़ॉल्ट ResNet अठारह ImageNet के पर्यवेक्षित वज़न इस्तेमाल करता है, कोशिकाओं पर प्रशिक्षित स्वपर्यवेक्षित मॉडल नहीं। यह छोटा उदाहरण CPU पर चलता है; GPU या दूरस्थ कृत्रिम बुद्धिमत्ता सेवा आवश्यक नहीं है।",
-          "focus": [
-            200,
-            100,
-            3440,
-            700
-          ],
-          "hold_after": 0.7,
-          "speech_text": "अपने स्पेकर वातावरण में वैकल्पिक embeddings अतिरिक्त पैकेज स्थापित करें। डिफ़ॉल्ट ResNet अठारह ImageNet के पर्यवेक्षित वज़न इस्तेमाल करता है, कोशिकाओं पर प्रशिक्षित स्वपर्यवेक्षित मॉडल नहीं। यह छोटा उदाहरण CPU पर चलता है; GPU या दूरस्थ कृत्रिम बुद्धिमत्ता सेवा आवश्यक नहीं है।"
-        },
-        {
-          "visual": "api_01_inputs",
-          "narration": "Annotate का डाउनलोड योग्य उदाहरण और निर्देशों में दी क्रॉप फ़ोल्डर इस्तेमाल करें। लिंक की स्क्रिप्ट फ़ाइल नाम के क्रम में सोलह मौजूदा चित्र चुनती है। प्रत्येक चित्र की हर भुजा दो सौ चौबीस पिक्सेल है और उसमें तीन संग्रहीत चैनल हैं। आकार नहीं बदला जाता और नया विभाजन नहीं किया जाता।",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "related_lessons": [
             "09_annotate"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Annotate का डाउनलोड योग्य उदाहरण और निर्देशों में दी क्रॉप फ़ोल्डर इस्तेमाल करें। लिंक की स्क्रिप्ट फ़ाइल नाम के क्रम में सोलह मौजूदा चित्र चुनती है। प्रत्येक चित्र की हर भुजा दो सौ चौबीस पिक्सेल है और उसमें तीन संग्रहीत चैनल हैं। आकार नहीं बदला जाता और नया विभाजन नहीं किया जाता।"
+          ]
         },
         {
-          "visual": "api_02_per_channel",
-          "narration": "नए आउटपुट फ़ोल्डर के साथ स्क्रिप्ट चलाएँ। यह वास्तविक पूर्वप्रशिक्षित एन्कोडर और चार के बैचों के साथ embed_array को बुलाती है। प्रति-चैनल एन्कोडिंग सोलह पंक्तियाँ और एक हज़ार पाँच सौ छत्तीस आयाम देती है। सहेजी मैट्रिक्स दोबारा खोलकर हर मान जाँचा जाता है।",
+          "visual": "01_crop_loader",
+          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7,
-          "speech_text": "नए आउटपुट फ़ोल्डर के साथ स्क्रिप्ट चलाएँ। यह वास्तविक पूर्वप्रशिक्षित एन्कोडर और चार के बैचों के साथ embed_array को बुलाती है। प्रति-चैनल एन्कोडिंग सोलह पंक्तियाँ और एक हज़ार पाँच सौ छत्तीस आयाम देती है। सहेजी मैट्रिक्स दोबारा खोलकर हर मान जाँचा जाता है।"
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_03_project",
-          "narration": "अब project और दूसरा आउटपुट फ़ोल्डर चुनें। वही चित्र सोलह पंक्तियाँ और पाँच सौ बारह आयाम देते हैं। संयुक्त चैनलों के ये कॉलम पिछले प्रति-चैनल कॉलमों के बदले इस्तेमाल नहीं किए जा सकते। नीतियों की सोच-समझकर तुलना करें और हर रन की सेटिंग सुरक्षित रखें।",
+          "visual": "02_folder_selected",
+          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7,
-          "speech_text": "अब project और दूसरा आउटपुट फ़ोल्डर चुनें। वही चित्र सोलह पंक्तियाँ और पाँच सौ बारह आयाम देते हैं। संयुक्त चैनलों के ये कॉलम पिछले प्रति-चैनल कॉलमों के बदले इस्तेमाल नहीं किए जा सकते। नीतियों की सोच-समझकर तुलना करें और हर रन की सेटिंग सुरक्षित रखें।"
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_05_input_crops",
-          "narration": "चित्र दर्शक में वास्तविक इनपुट का मोंटाज देखें। उसकी संख्याएँ आउटपुट पंक्तियों के क्रम से मेल खाती हैं। वेक्टर समझने से पहले क्रॉप की गुणवत्ता और निर्यात का चैनल मानचित्र जाँचें। फ़ाइल नाम इस उदाहरण की पहचान हैं; माप डेटाबेस से जोड़ने से पहले ऑब्जेक्ट कुंजियाँ सत्यापित करें।",
+          "visual": "03_crops_loaded",
+          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
           "hold_after": 0.7,
-          "speech_text": "चित्र दर्शक में वास्तविक इनपुट का मोंटाज देखें। उसकी संख्याएँ आउटपुट पंक्तियों के क्रम से मेल खाती हैं। वेक्टर समझने से पहले क्रॉप की गुणवत्ता और निर्यात का चैनल मानचित्र जाँचें। फ़ाइल नाम इस उदाहरण की पहचान हैं; माप डेटाबेस से जोड़ने से पहले ऑब्जेक्ट कुंजियाँ सत्यापित करें।"
-        },
-        {
-          "visual": "api_06_per_channel_pca",
-          "narration": "यह सहेजा ग्राफ़ प्रति-चैनल वेक्टरों को दो प्रमुख घटकों पर प्रक्षेपित करता है। क्रमांकित बिंदु उन्हीं क्रॉप के हैं। यह बहुत छोटे नमूने का अन्वेषणात्मक चित्रण है, अलग फीनोटाइप का प्रमाण नहीं। वेक्टर का एक आयाम कोई जैविक माप नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "यह सहेजा ग्राफ़ प्रति-चैनल वेक्टरों को दो प्रमुख घटकों पर प्रक्षेपित करता है। क्रमांकित बिंदु उन्हीं क्रॉप के हैं। यह बहुत छोटे नमूने का अन्वेषणात्मक चित्रण है, अलग फीनोटाइप का प्रमाण नहीं। वेक्टर का एक आयाम कोई जैविक माप नहीं है।"
-        },
-        {
-          "visual": "api_07_project_pca",
-          "narration": "संयुक्त चैनल वेक्टरों का अपना प्रक्षेपण है। इन अलग ग्राफ़ों के अक्ष निर्देशांकों की तुलना ऐसे न करें जैसे दोनों पर एक ही फिट किया रूपांतरण लागू हो। कोई भी चित्र पुनर्प्राप्ति की सटीकता नहीं मापता और न यह सिद्ध करता है कि वेक्टर मापी विशेषताओं के पैनल से बेहतर हैं।",
-          "hold_after": 0.7,
-          "speech_text": "संयुक्त चैनल वेक्टरों का अपना प्रक्षेपण है। इन अलग ग्राफ़ों के अक्ष निर्देशांकों की तुलना ऐसे न करें जैसे दोनों पर एक ही फिट किया रूपांतरण लागू हो। कोई भी चित्र पुनर्प्राप्ति की सटीकता नहीं मापता और न यह सिद्ध करता है कि वेक्टर मापी विशेषताओं के पैनल से बेहतर हैं।"
-        },
-        {
-          "visual": "api_04_provenance",
-          "narration": "वेक्टर, स्रोत पहचान, वज़नों का चेकसम, सेटिंग और पैकेज संस्करण सुरक्षित रखें। स्क्रिप्ट स्रोत चित्रों के अपरिवर्तित रहने की जाँच करती है और मौजूदा गंतव्य अस्वीकार करती है। तुलना में इनपुट क्रॉप, सामान्यीकरण और चैनल मानचित्र समान रखें। उदाहरण दोहराने के लिए लिंक किए निर्देश पढ़ें।",
           "focus": [
-            200,
-            100,
-            3440,
-            1200
-          ],
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "04_per_channel_settings",
+          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "05_per_channel_result",
+          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "04_project_settings",
+          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "वेक्टर, स्रोत पहचान, वज़नों का चेकसम, सेटिंग और पैकेज संस्करण सुरक्षित रखें। स्क्रिप्ट स्रोत चित्रों के अपरिवर्तित रहने की जाँच करती है और मौजूदा गंतव्य अस्वीकार करती है। तुलना में इनपुट क्रॉप, सामान्यीकरण और चैनल मानचित्र समान रखें। उदाहरण दोहराने के लिए लिंक किए निर्देश पढ़ें।"
+            "06_api"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "76_ops",

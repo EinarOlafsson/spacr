@@ -7502,145 +7502,78 @@
       "section": "Measure",
       "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
       "objectives": [
-        "Prepare a copied measurement database and the supplied export helper.",
+        "Open AnnData Export and select a measured project.",
         "Choose joined or single-table measurements and a missing-value policy.",
-        "Open the saved h5ad file and retain its source images and settings."
+        "Export an h5ad file with feature names and object metadata."
       ],
-      "example_files": [
-        "AnnData_API_workaround.zip"
-      ],
-      "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
       "scenes": [
         {
-          "visual": "gui_02_current_anndata_form",
-          "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+          "visual": "01_measure_host",
+          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate"
-          ],
+          ]
+        },
+        {
+          "visual": "03_private_downloaded_project",
+          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_03_private_downloaded_project",
-          "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+          "visual": "05_joined_keep_settings",
+          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_01_unmodified_failure",
-          "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-          "focus": [
-            190,
-            1660,
-            3450,
-            340
-          ],
+          "visual": "04_setting_anndata_row_limit",
+          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
           "hold_after": 0.7
         },
         {
-          "visual": "api_02_explicit_workaround",
-          "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1400
-          ],
+          "visual": "05_joined_keep_finished",
+          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_cell_keep_finished",
+          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_cell_mean_finished",
+          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_cell_drop_features_finished",
+          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_cell_drop_objects_finished",
+          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_setting_anndata_register_artifact",
+          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_nucleus_keep_finished",
+          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_cell_keep",
-          "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_05_cell_mean",
-          "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_cell_drop_features",
-          "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_cell_drop_objects",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_08_nucleus_keep",
-          "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_09_saved_shape",
-          "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_03_joined_keep",
-          "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-          "focus": [
-            190,
-            80,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -9293,22 +9226,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "CV 모델 설명",
+      "title": "Explain CV Model: compare predictions with measured features",
       "series": 5,
       "app_key": "explain_cv",
       "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "Classify 안에서 실제 대리 모델을 확인하고 언제 설명 결과를 해석하면 안 되는지 알아봅니다.",
+      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
       "objectives": [
-        "중첩 도구에서 서로 대응하는 측정값과 기존 예측을 선택합니다.",
-        "대리 모델의 일치도와 분류기의 독립 검증을 구분합니다.",
-        "낮은 충실도, 클래스별 오류, 전체 내보내기 파일을 확인합니다."
+        "Match the measurement database to saved classifier predictions.",
+        "Choose prediction columns, a backend and held-out groups.",
+        "Read fidelity, confusion and saved feature summaries."
       ],
-      "prerequisite": "동일한 잘라낸 객체의 측정 데이터베이스와 예측 CSV를 사용합니다. 녹화는 1에포크 Annotate/Classify 예제의 실제 저장 예측 234개를 재사용하며, 휴대용 Evaluation 검사 패키지를 사용하지 않습니다. filename과 predicted_label은 그대로입니다. 원래 분류기는 학습과 시험에 공통 웰이 있으므로 독립 검증이 아닙니다. 대리 모델은 완전한 사례 89개와 특징 1126개를 사용하고 145행을 제외합니다. 두 웰의 객체 68개로 학습하고 세 번째 웰의 21개로 시험합니다. 모두 클래스 1로 예측하여 충실도는 17/21, 균형 정확도는 0.5입니다. 표시된 다수 클래스 기준 81/89는 전체 완전 사례 기준입니다. 중요도와 SHAP은 원래 분류기를 충실하게 설명하지 않습니다. 이름 필터가 cv_intensity 측정값 18개를 제외하지만 이것이 레이블 누출을 입증하지는 않습니다. GUI 표는 1000행까지만 표시하므로 전체 CSV를 확인합니다. API: spacr.surrogate.explain_classifier, fit_surrogate, write_surrogate_result. 반복 횟수, 특징 제외, SHAP 예산은 이 양식의 제어 항목이 아닙니다. CPU 시연이며 새 학습, 외부 AI 요청, 원어민 청취 승인, 게시를 수행하지 않았습니다.",
+      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Classify를 열고 오른쪽 위의 Explain CV Model 아이콘을 선택합니다. 별도의 Home 모듈이 아니라 중첩 도구가 열립니다. 예제의 이미지 분류기에서 이미 생성한 예측과 해당 측정값을 재사용합니다. 예측을 설명하는 것이 분류기 자체를 검증하는 것은 아닙니다.",
+          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
           "focus": [
             3579,
             100,
@@ -9323,12 +9256,12 @@
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "서로 대응하는 측정 데이터베이스와 저장된 예측 CSV를 선택합니다. 웰 이름이 비슷한 것만으로는 부족하며, 동일한 잘라낸 객체를 식별해야 합니다. 여기서는 실제 예측 234개의 변경하지 않은 복사본을 사용합니다. 새 학습도, 새롭게 검증된 데이터셋도 아닙니다.",
+          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
           "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "Browse 후에도 이전 열 선택지가 남아 있으면 예측 파일 경로를 Enter로 확정합니다. 잘라낸 이미지 경로는 filename, 모델의 예측 클래스는 predicted_label을 선택합니다. 정답 레이블이나 연속 확률값이 아닙니다. Random Forest, well 단위 그룹화, 새 출력 폴더를 선택합니다.",
+          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
           "focus": [
             462,
             463,
@@ -9339,7 +9272,7 @@
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "Explain model을 누릅니다. 대리 모델은 측정 특징으로 기존 클래스 예측을 모방하도록 학습하며, 비전 모델을 다시 실행하지 않습니다. 이 예제는 CPU를 사용합니다. GUI에서는 백엔드와 그룹화를 선택하지만, 순열 반복 횟수, 특징 제외, SHAP 예산은 이 양식의 제어 항목이 아니라 API 옵션입니다.",
+          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
           "focus": [
             462,
             678,
@@ -9353,7 +9286,7 @@
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "Fidelity부터 읽습니다. 모든 예측이 연결되었지만 특징이 완전한 행은 89개뿐입니다. 대리 모델은 두 웰의 객체 68개로 학습하고 세 번째 웰의 21개로 시험합니다. 충실도는 약 81%로 표시된 다수 클래스 기준 91%보다 낮습니다. 그 기준은 홀드아웃 웰만이 아니라 모든 완전 사례를 사용합니다.",
+          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
           "focus": [
             474,
             1010,
@@ -9364,7 +9297,7 @@
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "충실도 기준에 미달하여 Importance는 숨겨집니다. 이 적합 결과로 비전 분류기가 무엇을 인식하는지 주장하지 마세요. 자동 제외도 확인합니다. 경고는 측정 이름 18개를 누출로 표시하지만, 변동계수를 포함한 강도 측정 이름만으로 레이블 누출이 입증되지는 않습니다.",
+          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
           "focus": [
             465,
             937,
@@ -9375,7 +9308,7 @@
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Confusion은 원래 모델의 클래스 예측과 대리 모델의 예측을 비교하며 생물학적 참값과 비교하는 것이 아닙니다. 여기서는 홀드아웃 객체를 모두 클래스 1로 예측하여 17개가 일치하고 4개가 틀립니다. 균형 정확도는 0.5입니다. 높아 보이는 전체 비율이 소수 클래스의 실패를 감출 수 있습니다.",
+          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
           "focus": [
             465,
             948,
@@ -9386,7 +9319,7 @@
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "충실도에 미달해도 Per-cell SHAP은 표시됩니다. 이 값은 해당 대리 모델을 설명할 뿐, 비전 모델에 대한 설명을 회복시키거나 생물학적 기전을 입증하지 않습니다. 기여도 표를 내보낼 때도 이 한계를 함께 남깁니다. 활성화 맵은 별도의 공간적 질문을 다루며 전용 튜토리얼에서 설명합니다.",
+          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
           "focus": [
             465,
             948,
@@ -9400,7 +9333,7 @@
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "Correlations와 Feature distributions는 데이터 요약으로 살펴보고 인과관계의 증거로 보지 마세요. 각 GUI 표는 1000행에서 끝납니다. 전체 내보내기에는 상관 쌍 1087개와 분포 요약 2252행이 있습니다. 총계나 누락된 특징을 보고하기 전에 저장 파일을 확인합니다.",
+          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
           "focus": [
             465,
             948,
@@ -9411,7 +9344,7 @@
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Held-out cells는 객체 식별 정보와 두 예측 집합을 보존합니다. 이 녹화에서는 Open held-out objects가 비활성화되어 잘라낸 이미지로 이동하는 과정은 시연하지 않습니다. 저장 파일 11개와 설정, 충실도 경고를 함께 보관합니다. Evaluation 튜토리얼은 분류기 검증의 한계를 설명합니다. 그림, SHAP 표, spaCR AI의 응답은 분류기의 타당성을 보증할 수 없습니다.",
+          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
           "focus": [
             465,
             865,
@@ -9424,7 +9357,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "71_investigate_hit",
@@ -9445,7 +9383,7 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer: 기존 결과를 살펴보고 그림 내보내기",
+      "title": "Volcano Explorer: inspect results and save a figure",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
@@ -9453,18 +9391,17 @@
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "실제 Regression 예제를 탐색하고 표시 설정을 동기화하며 시각적 임계값과 통계 검정을 구분하고 스타일과 그림을 저장합니다.",
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
       "objectives": [
-        "Regression 내부 도구에서 단일 가이드 검정군을 엽니다.",
-        "Save style과 Load style로 초기 컨트롤을 동기화합니다.",
-        "새 히트를 만들었다고 주장하지 않고 식별 정보, 축, 색, 기준선을 읽습니다.",
-        "스타일을 복원하고 PDF와 PNG를 확인합니다."
+        "Open a results family and inspect guide identities and support.",
+        "Choose adjusted values, display transforms and reference lines.",
+        "Save the style and export PDF or PNG figures."
       ],
-      "prerequisite": "Volcano_real_guide_family.zip을 풀고 results를 엽니다. 다운로드 데이터 Regression 예제의 변경 없는 출력이며 새 분석이나 전체 프로젝트 보관본이 아닙니다. 단일 검정군: 가이드 434개, log_pred, minimum_wells_threshold=2, 더하기 1 순열 P와 BH 보정. 최소 원시 P=.005, 보정 P=.39454545454545453, 원 alpha=.05에서 유의한 가이드 0개. 표준화된 주변 효과는 동시 적합 계수나 log2 배수 변화가 아닙니다. 초기 결함은 유지됩니다. 컨트롤 1e-6/0/False와 실제 그림 .05/3/True가 다릅니다. 편집 전에 스타일 저장 후 같은 파일을 로드하면 동기화됩니다. 이후 복원에서 67개 필드가 모두 돌아옵니다. Alpha .5에서 19개 값이 새 기준 아래에 있지만 유의성 표시는 바뀌지 않습니다. .05와 adjusted_p_value로 복원합니다. 효과 기준 .1에 배수 3은 ±.3 선을 만듭니다. 식별 정보, 점, 색, 원본을 검증했습니다. 지정 7×5인치, 150DPI지만 여백 절단 후 PDF는492.536×348.485포인트, PNG는1026×726픽셀입니다. PDF는 포함된 글꼴과 벡터이며 래스터 이미지가 없고 가독성을 재확인했습니다. 일부 GUI 라벨은 잘리고 밝은 종이의 흰 윤곽 경고가 있습니다. 주석 결합, 분할 축, MAD 규칙은 범위 밖입니다. spaCR 1.5.0.4 녹화지만 관련 소스 3개는 현재와 같습니다. 새 검정, GPU, AI, 앱 변경, 생물학적 인증, 게시는 없습니다. API: spacr.volcano_style.VolcanoStyle과 render_volcano.",
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Regression을 열고 내부의 Volcano Explorer를 선택합니다. 이 수업은 Regression 하위 모듈에 속합니다. 도구는 완료된 결과를 읽으며 분석을 다시 실행하지 않습니다. 다운로드 데이터의 실제 예제를 사용하고, 동반 파일에는 정확한 결과표와 기록된 그림 스타일이 있습니다.",
+          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
           "related_lessons": [
             "13_regression"
           ],
@@ -9472,17 +9409,17 @@
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "Open results에서 압축을 푼 results 폴더를 선택합니다. 각 점은 같은 결과 변수와 최소 웰 규칙을 쓰는 단일 검정군의 가이드이며 검정은 434개입니다. 서로 다른 보정군을 섞지 마세요. 원래 보정 P 기준 0.05에서 유의한 가이드는 없습니다.",
+          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
           "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "설정을 바꾸기 전에 Save style로 실제 그려진 스타일을 저장한 뒤 같은 파일을 Load style로 읽습니다. 이 빌드의 초기 컨트롤은 그림과 다르므로 바로 편집하면 잘못된 기본값이 적용될 수 있습니다. 정상적인 저장·로드로 동기화되지만 앱 결함을 고친 것은 아닙니다.",
+          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "로드 후 알파 0.05, 배수 3, 음의 로그 변환을 확인합니다. 일부 라벨은 잘려 있으므로 값과 JSON을 확인하세요. 가로축은 표준화된 주변 효과이며 log2 배수 변화나 동시에 적합한 다변수 모델의 계수가 아닙니다.",
+          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
           "focus": [
             2305,
             270,
@@ -9493,7 +9430,7 @@
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "기존 점을 눌러 원본 행을 확인합니다. 선택 가이드의 원시 P는 0.005지만 보정 P는 약 0.39입니다. 큰 주변 효과와 지원 웰 4개가 있다고 유의해지는 것은 아닙니다. 점 위치만 보고 추측하지 말고 식별 정보와 원본 필드를 사용하세요.",
+          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
           "focus": [
             305,
             1830,
@@ -9504,70 +9441,75 @@
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "세로 열을 원시 순열 P로 바꾸면 그리는 양만 바뀌고 분석은 바뀌지 않습니다. 작은 원시 값이 검정군 보정값을 대신하지 못합니다. 이후 보정 P로 복원합니다. 원래 유의성 표시는 그대로이며 이 도구는 결과 읽기와 그림 편집이지 새 검정이 아닙니다.",
+          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
           "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "음의 상용로그 스위치는 P 표시 방식을 바꿉니다. 켜면 작은 P가 높게 나타나고 끄면 원래 값을 표시합니다. 여기서는 변환한 보정 P로 복원합니다. 축 이름을 읽고 표시 변환과 다른 다중검정 보정을 혼동하지 마세요.",
+          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
           "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "시연으로 알파를 0.5로 옮기면 기준선이 움직입니다. 보정값 19개가 새 기준 아래에 놓이지만 새 유의성 표시는 생기지 않습니다. 19개 발견이라고 주장할 수 없습니다. 내보내거나 해석하기 전에 원래 0.05로 복원하세요.",
+          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
           "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "명시적 효과 기준 0.1과 배수 3을 적용하면 세로선은 -0.3과 +0.3에 놓입니다. 기준 필드만 보지 말고 배수를 확인합니다. 효과 기준은 통계 보정을 대체하지 않습니다. 연습 후 Auto로 복원하며 결과표 값은 다시 쓰지 않습니다.",
+          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
           "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "wells with guide로 색칠하면 원본 표의 실제 지원 웰 수를 표시합니다. 신뢰도 점수나 정확도 증거가 아닙니다. 최종 내보내기 전에 원래 유의성 색으로 돌아갑니다. 선택적 주석 결합과 다른 레이아웃은 별도 검증이 필요하며 이 예제의 범위 밖입니다.",
+          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
           "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "그림 크기, 글꼴 크기, 해상도를 정하고 결과를 살펴봅니다. 여기서는 명목상 7×5인치와 150DPI를 설정합니다. 꽉 맞춘 경계 자르기가 최종 치수를 바꿉니다. 내보낸 그림이 읽힌다고 모든 기본 설정 라벨이 이 창에 들어간다는 뜻은 아닙니다.",
+          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
           "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "최종 스타일을 JSON으로 저장합니다. 마커 크기를 잠시 바꾼 뒤 Load style을 쓰면 모든 기록 필드가 복원됩니다. 다른 세션에서 외관을 재현하도록 원본 결과표와 함께 보관합니다. 스타일은 표현 방식이지 다른 회귀나 검정을 실행했다는 증거가 아닙니다.",
+          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
           "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF와 PNG는 화면을 캡처하지 않고 그림을 다시 렌더링합니다. PDF에는 벡터 요소와 포함된 글꼴이 있습니다. 라벨, 대비, 밝은 종이의 흰 마커 윤곽 경고를 확인하세요. 원본 데이터는 그대로입니다. Python의 VolcanoStyle과 render_volcano도 GPU나 AI 제공업체 없이 같은 렌더링을 제공합니다.",
+          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "매개변수 스윕",
+      "title": "Parameter Sweep: compare saved Regression trials",
       "series": 5,
       "app_key": "parameter_sweep",
       "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "Regression 안에서 두 번의 시험을 실행하고 계산 완료와 추론의 타당성을 구분합니다.",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
       "objectives": [
-        "Regression 테스트 데이터의 점수·카운트 파일 네 쌍을 같은 플레이트 순서로 선택합니다.",
-        "그리드를 두 시험, 한 작업 프로세스로 제한하고 저장 결과를 확인합니다.",
-        "계수 집단을 구분하고 추론 품질 검사 실패를 명시합니다."
+        "Select paired score/count files and a sweep output folder.",
+        "Choose variable and fixed settings, estimate the trial count and run.",
+        "Inspect saved trials and their inference quality before comparison."
       ],
-      "prerequisite": "Regression 강좌에서 다운로드한 네 플레이트의 파일 쌍과 새 출력 폴더를 사용합니다. 두 ridge 시험 모두 추론 품질 검사에 실패하므로 검증된 생물학적 후보 분석이 아닙니다. alpha만 0.01과 0.1로 바꾸고, 모수적 추론, 웰별 평균, 변환 없음을 명시적으로 고정합니다. 상위 폼의 다른 설정은 자동 상속되지 않습니다. 여기서 n_rows_fitted는 1174개 계수 행이며, 620개 웰이나 전처리된 2955개 행이 아닙니다. 표에는 alpha와 품질 판정이 없으므로 sweep_results.csv와 실제 설정을 확인해야 합니다. API: spacr.parameter_sweep.SweepSpace, run_sweep_parallel. GPU 성능 측정, 외부 AI 요청, 원어민 승인 또는 게시를 주장하지 않습니다.",
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "Regression을 열고 오른쪽 아래의 Parameter sweep을 선택합니다. 이 작업은 Regression 내부에 있으며 별도의 Home 타일이 아닙니다. 여기서 재사용하는 점수·카운트 파일 네 쌍의 다운로드 방법은 Regression 강좌에서 설명합니다.",
+          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
           "focus": [
             3380,
             1880,
@@ -9581,12 +9523,12 @@
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "스윕 자체의 입력 목록을 확인하세요. 상위 폼에 짝지어진 데이터가 있어도 이 목록은 처음에 비어 있습니다. 점수 파일 네 개와 카운트 파일 네 개를 같은 플레이트 순서로 추가합니다. 이전 분석을 덮어쓰지 않도록 새 출력 폴더를 선택합니다.",
+          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
           "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "alpha만 체크하고 값을 영 점 영 일과 영 점 일로 지정합니다. 체크하지 않은 행도 고정 설정을 제공합니다. 여기서는 ridge, 모수적 추론, 웰별 평균, 변환 없음을 명시적으로 선택합니다. 이 제한된 설정은 작동 예시이며 여러분의 실험에 대한 권장 설정이 아닙니다.",
+          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
           "focus": [
             850,
             490,
@@ -9597,7 +9539,7 @@
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "grid, 최대 두 시험, 한 작업 프로세스로 설정한 뒤 Estimate를 누릅니다. 유효한 조합 두 개란 설정 조합이 허용된다는 뜻이지 통계적 결론이 타당하다는 뜻은 아닙니다. 예상 시간은 시험당 일 분을 가정하며 성능 측정이 아닙니다. 시작 전에 자원 제한을 읽으세요.",
+          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
           "focus": [
             850,
             1190,
@@ -9608,12 +9550,12 @@
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "상위 Regression의 Run이 아니라 Start sweep을 누릅니다. 각 시험은 자체 폴더에 기록됩니다. 실제 두 시험은 순서대로 실행되며 작업 프로세스를 늘리면 자원 요구량도 증가합니다. 이 예시는 CPU 회귀를 보여주며 GPU 가속이나 spaCR AI 요청은 필요하지 않습니다.",
+          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "두 행의 ok는 계산이 끝났다는 뜻입니다. 하지만 저장된 추론 품질 판정은 둘 다 fail입니다. 표에는 이 판정과 바꾼 alpha가 빠져 있으므로 전체 스윕 결과 파일과 각 시험의 설정을 확인하세요. 작은 보정 P값이 더 많다는 이유만으로 모델을 선택하지 마세요.",
+          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
           "focus": [
             1550,
             205,
@@ -9624,7 +9566,7 @@
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "첫 행을 선택하고 Show figures for selected row를 누릅니다. 재적합 없이 저장된 결과를 읽습니다. 가이드 화면의 계수 표는 절편을 포함한 칠백구십이 행이며, 그래프는 이 보조항을 제외한 칠백구십일 개 가이드를 보여줍니다. 높이는 원시 P값의 음의 상용로그입니다.",
+          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
           "focus": [
             1545,
             510,
@@ -9635,7 +9577,7 @@
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "Level을 Gene으로 바꿉니다. 표는 해당 절편을 포함해 삼백팔십이 행이고 그래프는 삼백팔십일 개 유전자를 보여줍니다. 가이드와 유전자는 별도의 계수 집단입니다. 화면을 바꿔도 실패한 추론이 타당해지거나 독립적인 증거가 생기지는 않습니다.",
+          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
           "focus": [
             1545,
             555,
@@ -9646,7 +9588,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "가이드로 돌아가면 원래 행과 점이 복원되고 저장 파일은 바뀌지 않습니다. 요약의 rows fitted는 여기서 오해를 일으킵니다. 웰이 아니라 계수 행을 세기 때문입니다. 분석 보고 시 입력 표본 수, 출력 계수 수, 표시된 계수 집단을 구분하세요.",
+          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
           "focus": [
             1545,
             555,
@@ -9657,35 +9599,40 @@
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "저장 설정, 요약, 품질 관리 파일을 함께 확인합니다. 그래프나 AI 설명이 연구 설계를 보증하지는 못합니다. 추가 검사는 Regression Diagnostics, 스윕 실행은 API 문서를 참고하세요. 이 예시는 재현 가능한 작업과 한계를 가르치며 검증된 생물학적 후보를 제시하지 않습니다.",
+          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images: 가져오기 전에 계획 확인하기",
+      "title": "Import Images: map image identities and create a project",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "Import 안에서 Import Images를 열고, 파일을 쓰기 전에 실제 현미경 이미지 일부를 확인한 뒤 재사용 가능한 계획을 저장합니다. 이 예제는 해석되지 않는 원래 파일명과 준비된 복사본을 명확히 구분합니다.",
+      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
       "objectives": [
-        "Import 안의 Import Images를 찾고 기존 측정값과 마스크를 가져오는 작업과 구분한다.",
-        "프로젝트를 쓰기 전에 이미지 식별 정보와 해석되지 않은 파일명 부분을 확인한다.",
-        "복사와 링크 중에서 선택하고, 계획을 저장하고 다시 불러와 가져오기 결과를 확인한다."
+        "Scan microscope images and resolve naming questions.",
+        "Choose a destination, plate name and copy or link behavior.",
+        "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "먼저 Mask의 실제 예제 데이터를 다운로드하세요. 녹화에는 E01/F001과 L01/F009 시야를 각각 4개의 C 채널로 복사한 파일을 사용합니다. 준비된 복사본은 Z 바로 앞의 A 부분만 생략하며 원본은 바꾸지 않습니다. 이는 검증한 특정 예제이지, 알 수 없는 메타데이터를 일반적으로 삭제하라는 지시가 아닙니다.",
+      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "Home의 Data 범주에서 Import를 열고 Import Images를 선택합니다. 이 하위 도구는 원시 이미지 파일을 준비합니다. Import Project, Format Converter, External Masks는 관련된 별도 작업이며 각각 전용 튜토리얼이 있습니다.",
+          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9696,7 +9643,7 @@
         },
         {
           "visual": "04_source_options",
-          "narration": "8개의 이미지는 Mask에서 다운로드할 수 있는 실제 현미경 예제 데이터입니다. 두 웰에서 시야를 하나씩 선택했고 각 시야에 4개 채널이 있습니다. 별도 복사본으로 작업하며 다운로드한 원본은 변경하지 않습니다.",
+          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -9704,17 +9651,17 @@
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Scan이 원래 파일명에서 해석되지 않은 촬영 정보 부분을 발견합니다. Import는 비활성 상태로 유지되고 아무것도 기록되지 않습니다. 채널 매핑을 추측하지 마세요. 서로 다른 두 채널이 이 촬영 값을 공유하므로 그렇게 매핑하면 이미지 식별 정보가 잘못됩니다.",
+          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
           "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "이 검증된 예제에서는 준비된 복사본에서 중복되는 촬영 정보 부분만 생략합니다. 웰, 시야, 채널 이름은 그대로 유지합니다. Scan은 이제 8개 행, 2개 웰, 2개의 시야 번호, 4개 채널을 보여 줍니다. 원래 명명 형식을 받아들였다는 뜻은 아닙니다.",
+          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
           "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "가져오기 전에 제안된 계획과 파일명을 비교합니다. Read inside each file은 이름뿐 아니라 파일 내부의 축 메타데이터도 확인합니다. Sample은 검사할 파일 수를 제한하므로 가져오려는 이미지가 계획에 포함되어 있는지 확인하세요. 추측하지 말고 촬영 기록을 근거로 문제를 해결합니다.",
+          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -9725,7 +9672,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "입력 폴더 밖에 저장할 위치를 선택하고 플레이트 이름을 설정합니다. 독립적인 프로젝트를 만들기 위해 Link instead of copy를 끕니다. 링크는 디스크 공간을 절약하지만 원본이 현재 위치에서 계속 접근 가능해야 합니다.",
+          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -9736,7 +9683,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "이 예제 파일은 모자이크 타일이 아닙니다. 타일 촬영에서는 Tiles를 주의해서 읽으세요. 이어 붙이기는 시야를 재구성하고, 타일을 따로 보관하면 시야의 의미가 바뀌며, 건너뛰면 해당 이미지를 잃습니다. 측정 전에 보고서와 검증되지 않은 연결 경계를 확인하세요.",
+          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
@@ -9744,7 +9691,7 @@
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Save plan은 입력 위치와 매핑 답변을 JSON 파일로 저장하며, 이미지를 백업하지는 않습니다. 촬영 기록과 함께 보관하세요. 같은 계획을 Python 이미지 가져오기 API로 읽을 수도 있습니다.",
+          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9752,40 +9699,45 @@
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Load plan은 원본 폴더를 다시 읽고 저장된 답변을 재사용합니다. 가져오기 전에 새 계획을 확인하세요. 저장된 계획이 있다고 해서 변경된 촬영 데이터까지 올바르게 해석된다는 보장은 없습니다. 여기서는 확인한 8개 이미지의 대응 관계가 그대로 복원됩니다.",
+          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
           "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "Import를 누르고 요약을 읽습니다. 이 실행은 파일을 건너뛰지 않고 독립적인 이미지 복사본 8개를 기록했으며 내용은 원본과 일치합니다. 다음으로 Mask에서 프로젝트를 지정하고 분할 전에 실시간 미리보기를 확인하세요. 가져오기만으로 마스크나 측정값이 생성되지는 않습니다.",
+          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics: 결과를 뒷받침하는 근거 읽기",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "실제 예제 스크리닝 분석에서 생성된 진단 파일을 열고, 실험 설계 경고와 순열 분석 결과를 구분하며, 짧은 시연의 한계를 이해합니다.",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
       "objectives": [
-        "Regression 안에서 Diagnostics를 열고 확인 중인 출력 폴더를 검증합니다.",
-        "선택한 분석의 맥락에서 설계의 식별 가능성, 가이드의 출현 현황, 추론 패널을 해석합니다.",
-        "모델을 적합했다고 가정하지 않고 적합 잔차 패널이 없는 이유와 제한된 순열 해상도를 이해합니다."
+        "Open the diagnostic folder for the intended Regression run.",
+        "Read design support, identifiability and inference summaries.",
+        "Keep diagnostics with their settings and rerun after changing an analysis."
       ],
-      "prerequisite": "다운로드할 수 있는 점수 및 계수 파일 네 쌍으로 Regression 예제를 완료하세요. 이 녹화는 순열 199회, 최소 두 웰, 가이드와 유전자 양쪽 수준의 결과를 사용하는 제한된 비모수 분석을 살펴봅니다. 소프트웨어와 진단 해석을 보여 주는 시연이며, 최종 발견을 판단하기에 충분한 추론은 아닙니다.",
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "Regression에서 Diagnostics 위에 포인터를 놓고 분석이 완료된 뒤 여세요. 이 버튼은 저장된 출력을 읽으며, 다른 모델을 적합하지 않습니다. 프로젝트에서 가장 최근의 진단 폴더를 여므로 여러 실행 결과가 있으면 경로를 확인하세요.",
+          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -9794,7 +9746,7 @@
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "시스템 파일 관리자에 다운로드한 예제 스크리닝 분석의 실제 파일이 표시됩니다. 여기서는 그림 형식을 PNG로 설정했습니다. 폴더에는 설계 식별 가능성, 설계 진단, 추론 진단 그림과 요약 표, 공선성이 있는 가이드 쌍의 표가 있습니다.",
+          "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
           "hold_after": 0.7,
           "focus": [
             535,
@@ -9805,37 +9757,37 @@
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "설계에는 606개 웰과 793개 매개변수가 있으며, 행렬의 계수는 599입니다. 모든 가이드에 대해 유일한 계수를 동시에 식별할 수 없습니다. 이 경고는 순열 분석을 선택한 이유를 설명하며, 동시 모델을 성공적으로 적합했다는 뜻이 아닙니다.",
+          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
           "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "가이드의 출현은 불균등합니다. 이 설계에서는 355개 가이드가 한 웰에만 나타납니다. 출현 횟수가 적으면 실험으로 밝힐 수 있는 범위가 제한됩니다. 효과를 해석하기 전에 커버리지를 살펴보고, 전체 설계와 필터링 후 실제 검정한 가이드 집합을 구분하세요.",
+          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
           "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "설계 패널은 출현 횟수가 부족한 가이드와 가이드 예측 변수 간의 의존성을 찾는 데 도움이 됩니다. 항상 함께 나타나는 가이드는 통계적으로 구분하기 어렵습니다. 경고 표시를 완전한 설명으로 받아들이지 말고 공선성 표에서 구체적인 쌍을 확인하세요.",
+          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "추론 패널은 434개 가이드 검정의 p값 분포, 균등한 귀무분포와의 비교, 보정된 기준값별 발견 수를 요약합니다. 이 짧은 실행에서는 표시된 기준값에서 발견이 없습니다. 보정 상태에 대한 경고는 조사가 필요하다는 뜻이지 생물학적 효과의 증거가 아닙니다.",
+          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "시연 시간을 줄이기 위해 순열을 199회만 사용했습니다. 따라서 가능한 가장 작은 경험적 p값은 0.005입니다. 다중 검정 보정 후에는 이 해상도가 충분하지 않을 수 있습니다. 실제 분석에서는 적절한 순열 횟수를 미리 계획하세요.",
+          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "이 순열 실행은 동시 회귀 모델을 적합하지 않았으므로 적합 잔차 패널이 없습니다. 방금 본 p값 비교는 잔차 진단이 아닙니다. 다른 분석 모드는 관측값과 적합값을 제공할 때 잔차 패널을 출력할 수 있습니다.",
+          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "요약에는 각 패널의 평가와 전체 진단 중 가장 나쁜 평가가 기록됩니다. 종합 표시를 소프트웨어 오류로 해석하지 말고 각 평가를 맥락에 맞게 읽으세요. 파이썬 회귀 진단 API도 전달받은 입력으로 같은 종류의 패널을 만듭니다.",
+          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9843,7 +9795,7 @@
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "입력을 조사하거나 분석 선택을 의도적으로 바꾸려면 Regression으로 돌아가세요. 변경 후에는 새 실행과 새 진단이 필요하며, 이 폴더를 여는 것만으로 기존 결과가 갱신되지는 않습니다. 전체 데이터셋, 콘솔, 대화형 결과 및 도움 기능의 흐름은 Regression 튜토리얼을 참고하세요.",
+          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -9851,139 +9803,129 @@
             "72_volcano_explorer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings: 현재 화면과 실제 Python 예제",
+      "title": "Embeddings: load crops and compare channel policies",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "description": "새 모듈을 살펴보고 API로 실제 이미지를 인코딩합니다. GUI 수정이나 생물학적 검증과는 구분합니다.",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
       "objectives": [
-        "현재 GUI와 작동하는 API를 구분합니다.",
-        "열여섯 이미지로 채널 정책을 비교합니다.",
-        "식별 정보를 보존하고 그림의 한계를 이해합니다."
+        "Load a crop folder through the Embeddings screen.",
+        "Choose the backbone, batch size and channel policy.",
+        "Inspect the vector preview and save full results through the supplied Python helper."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "embeddings 추가 의존성이 설치된 spaCR 1.5.0.7이 필요합니다. 녹화는 timm 1.0.29와 CPU의 사전 학습 ResNet18을 사용합니다. Annotate 예제와 연결된 ZIP을 받고 README의 cell_png 폴더 및 새 출력 폴더를 사용하세요. 파일명은 검증된 데이터베이스 결합 키가 아닙니다. 화면에 이미지 로딩 컨트롤이 없어 성공한 처리는 API를 사용합니다. 생물학적 검증, 원어민 검토 또는 GPU 실행을 주장하지 않습니다.",
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Embeddings는 spaCR의 Home에 추가된 모듈입니다. 사용자의 주석으로 학습하지 않고 잘라낸 이미지를 수치 벡터로 바꿉니다. 이 강의는 현재 화면과 실제로 다운로드한 이미지로 작동하는 Python 예제를 보여 줍니다.",
+          "visual": "00_home",
+          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
           ],
           "related_lessons": [
             "05_home",
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_01_no_gui_crop_input",
-          "narration": "일 점 오 점 영 점 칠 버전에서는 이 화면에 잘라낸 이미지를 불러오는 컨트롤이 없고 Embed는 비활성 상태입니다. GUI 실행이 성공한 것처럼 연출하지 않습니다. 다음에 보여 주는 실제 인코딩은 지원되는 Python API가 수행합니다.",
-          "focus": [
-            340,
-            55,
-            3480,
-            190
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_channel_policies",
-          "narration": "Per channel은 저장된 각 채널을 따로 인코딩하고 벡터를 이어 붙입니다. Project to three는 결합한 이미지를 인코딩합니다. 속도뿐 아니라 표현 자체가 바뀝니다. PNG의 채널 위치만으로 검증된 염색 표지를 알 수 있는 것은 아닙니다.",
-          "focus": [
-            340,
-            145,
-            1050,
-            270
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_00_version",
-          "narration": "spaCR 환경에 선택 사항인 embeddings 추가 의존성을 설치합니다. 기본 ResNet 십팔은 ImageNet 지도 학습 가중치를 쓰며, 세포로 학습한 자기지도 모델이 아닙니다. 이 작은 예제는 CPU를 사용하므로 GPU나 원격 인공지능 서비스가 필요하지 않습니다.",
-          "focus": [
-            200,
-            100,
-            3440,
-            700
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_01_inputs",
-          "narration": "Annotate의 다운로드 예제와 설명에 지정된 이미지 폴더를 사용합니다. 연결된 스크립트는 파일명 순으로 기존 이미지 열여섯 장을 선택합니다. 각 이미지는 가로세로 이백이십사 픽셀이고 저장된 채널은 세 개입니다. 크기를 바꾸거나 다시 분할하지 않습니다.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "related_lessons": [
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
-          "visual": "api_02_per_channel",
-          "narration": "새 출력 폴더를 지정해 스크립트를 실행합니다. 실제 사전 학습 인코더와 네 장씩의 배치로 embed_array를 호출합니다. 채널별 인코딩은 열여섯 행과 천오백삼십육 차원을 만듭니다. 저장한 행렬을 다시 열고 모든 값을 확인합니다.",
+          "visual": "01_crop_loader",
+          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_03_project",
-          "narration": "이제 project와 다른 출력 폴더를 선택합니다. 같은 이미지가 열여섯 행과 오백십이 차원을 만듭니다. 결합 채널의 열은 앞선 채널별 열과 서로 대체할 수 없습니다. 정책을 의도적으로 비교하고 실행마다 설정을 보존하세요.",
+          "visual": "02_folder_selected",
+          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            330,
+            40,
+            3500,
+            450
+          ]
         },
         {
-          "visual": "api_05_input_crops",
-          "narration": "이미지 뷰어에서 실제 입력 몽타주를 확인합니다. 번호는 출력 행 순서와 일치합니다. 벡터를 해석하기 전에 이미지 품질과 내보내기의 채널 매핑을 확인하세요. 파일명은 이 예제의 식별자이며, 측정 데이터베이스와 결합하기 전에 객체 키를 검증해야 합니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_06_per_channel_pca",
-          "narration": "저장한 이 그림은 채널별 벡터를 두 주성분에 투영합니다. 번호가 있는 점은 동일한 이미지에 대응합니다. 매우 작은 표본의 탐색적 시각화이지 서로 다른 표현형의 증거는 아닙니다. 임베딩의 한 차원은 생물학적 측정값이 아닙니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_07_project_pca",
-          "narration": "결합 채널 벡터는 별도의 투영을 갖습니다. 따로 적합한 두 그림의 축 좌표를 같은 변환을 공유하는 것처럼 비교하지 마세요. 어느 그림도 검색 정확도를 측정하거나 임베딩이 직접 측정한 특징 패널보다 우수하다는 사실을 입증하지 않습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "api_04_provenance",
-          "narration": "벡터, 원본 식별 정보, 가중치 체크섬, 설정과 패키지 버전을 보존하세요. 스크립트는 원본 이미지가 변하지 않았는지 확인하고 기존 출력 위치를 거부합니다. 비교할 때 입력 이미지, 정규화와 채널 매핑을 맞추세요. 연결된 설명으로 이 API 예제를 재현할 수 있습니다.",
+          "visual": "03_crops_loaded",
+          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1200
-          ],
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "04_per_channel_settings",
+          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            40,
+            3500,
+            450
+          ]
+        },
+        {
+          "visual": "05_per_channel_result",
+          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "04_project_settings",
+          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "hold_after": 0.7,
+          "focus": [
+            335,
+            295,
+            1600,
+            700
+          ]
+        },
+        {
+          "visual": "05_project_result",
+          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "hold_after": 0.7
+            "06_api"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "76_ops",
