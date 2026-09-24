@@ -973,7 +973,14 @@ def test_comparison_models_receive_independent_float_inputs(monkeypatch):
         def __init__(self, **kwargs):
             pass
 
-        def eval(self, x, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True, rescale=None,
+                 diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+                 do_3D=False, anisotropy=None, flow3D_smooth=0,
+                 stitch_threshold=0.0, min_size=15, max_size_fraction=0.4,
+                 niter=None, augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
             seen.append([image.copy() for image in x])
             for image in x:
                 image -= image.min()

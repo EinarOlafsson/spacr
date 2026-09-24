@@ -355,7 +355,6 @@ def test_offline_it_shows_the_local_docstring_and_says_so(qtbot, field,
 
         dialog = next(w for w in QApplication.topLevelWidgets()
                       if isinstance(w, help_search.ApiEntryDialog))
-    qtbot.addWidget(dialog)
     body = dialog.findChild(QTextBrowser)
     assert "Cellpose" in body.toPlainText()
     assert "not reachable" in dialog._note.text()

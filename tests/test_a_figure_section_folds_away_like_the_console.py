@@ -93,15 +93,17 @@ def test_a_run_heading_carries_a_disclosure_chevron(grid):
     assert header.is_expanded() is True
 
 
-def test_the_heading_says_it_is_clickable_before_it_is_clicked(grid):
-    """A pointing hand and a focus stop, exactly as the console's topic bar:
-    a control only a mouse can reach is one some users cannot reach at all."""
+def test_the_heading_keeps_the_native_cursor_and_keyboard_focus(grid, qapp):
+    """Disclosure chevrons signal folding; the OS cursor stays unchanged."""
     from PySide6.QtCore import Qt
+    from spacr.qt.widgets.cursor_policy import install_cursor_policy
 
+    install_cursor_policy(qapp)
     _two_runs(grid)
     header = _header(grid, "first run")
 
-    assert header.cursor().shape() == Qt.PointingHandCursor
+    assert header.cursor().shape() == Qt.ArrowCursor
+    assert header.cursor().pixmap().isNull()
     assert header.focusPolicy() == Qt.StrongFocus
 
 

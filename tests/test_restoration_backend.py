@@ -19,7 +19,7 @@ def restoration(tmp_path, monkeypatch):
     weights.write_bytes(b'known restoration checkpoint')
     built = []
 
-    class Model:
+    class Cellpose3DenoiseModel:
         def __init__(self, *, model_type, device, gpu):
             self.pretrained_model = str(weights)
             self.device = device
@@ -29,15 +29,19 @@ def restoration(tmp_path, monkeypatch):
             self.result = None
             built.append(self)
 
-        def eval(self, image, **kwargs):
-            self.calls.append((image.copy(), kwargs))
+        def eval(self, image, batch_size=8, channels=None, channel_axis=None,
+                 z_axis=None, normalize=True, rescale=None, diameter=None,
+                 tile=True, do_3D=False, tile_overlap=0.1, bsize=224):
+            self.calls.append((image.copy(), dict(channels=channels,
+                channel_axis=channel_axis, diameter=diameter,
+                normalize=normalize, batch_size=batch_size)))
             if self.result is not None:
                 return self.result
             image[:] = -0.125
             return image[..., None]
 
     package = types.ModuleType('cellpose')
-    package.denoise = types.SimpleNamespace(DenoiseModel=Model)
+    package.denoise = types.SimpleNamespace(DenoiseModel=Cellpose3DenoiseModel)
     monkeypatch.setitem(sys.modules, 'cellpose', package)
     source = tmp_path / 'input.npy'
     image = np.arange(120, dtype=np.uint16).reshape(10, 12)

@@ -16236,3 +16236,23 @@ source-derived callable count failures in shards8/2, in addition to the
 normalize flow artifact. Your newer API refresh may cover those; please
 verify current nightly. Native Qt GC crashes remain unresolved. None of
 these notes change the user's ownership of the version bump/main push.
+
+2026-09-24 — IMPLEMENTATION: MODEL CONTRACTS AND TWO QT TEST CLEANUPS
+The comparison doubles now declare the complete Cellpose4.2 eval signature
+and exercise the real image/channel conversion contract, including the
+independent-float-input regression. The current-API fixture patches the
+real models module so the conversion check can import real transforms.
+Restoration's double now declares the distinct Cellpose3.1.1.3 DenoiseModel
+API, verified against the pinned upstream source; the static sweep asserts
+its exact ordered arguments/defaults separately. No partial-signature
+ratchet allowance or threshold was increased. Final targeted selection:
+48passed (model comparisons, restoration worker and contract/hygiene checks).
+The preceding combined run had191passes and3restoration-double failures;
+those three are included in the final passing selection.
+The figure-header test now explicitly installs the native-arrow policy
+and checks the OS arrow, no custom pixmap, and keyboard focus. The Help
+fallback test no longer registers a self-deleting dialog for a second close
+by pytest-qt. Both passed in the combined run. All changes in this batch are
+tests only; no captions/API inventories change. Existing candidate CI is
+still running and red; native GC crashes remain unresolved. This batch and
+the conda correction go to nightly, not the frozen candidate or main.
