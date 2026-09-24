@@ -1,7 +1,8 @@
 493 — PARALLEL MULTI-GPU MASK BATCHES
 ====================================
-Status: IN PROGRESS, requested2026-09-23. Batch-manifest groundwork implemented;
-device controls, worker scheduling and real multi-GPU validation remain open.
+Status: IN PROGRESS, requested2026-09-23. Manifest, device allocation, process
+workers and resume helpers implemented; pipeline/control integration and real
+multi-GPU validation remain open.
 Scope: Cluster Distribution and Mask Generation. Filed for later work;
 this request does not add a prerequisite to the1.5.1.0release plan.
 
@@ -107,3 +108,16 @@ archives and preserves the first mask's bytes and modification time.
 Still required: resolve model-content signatures at the actual pipeline entry,
 handle post-segmentation adjustments/shared QC and timelapse aggregation,
 connect Mask/Cluster controls and perform the real multi-GPU acceptance.
+
+2026-09-24 — Serialize motility analysis after complete frame merging
+The SAM and legacy generators previously called automated_motility_assay
+inside each inference batch, before saving masks and before merged frames
+existed. Core now runs the requested assay once per plate after every object
+role and the merge finish. It passes the experiment root (not masks/) and
+rebuilds assay measurements from current merged masks. Per-object workers no
+longer launch competing whole-plate analyses. Direct generator calls perform
+segmentation/tracking only; the full pipeline owns the optional assay.
+Two order regressions fail before the fix;114SAM/core/assignment checks and
+93legacy/core checks pass. Failure/cancellation checks confirm no analysis on
+failed merges and no input cleanup after a failed or cancelled finalization.
+Pipeline/control integration and actual multi-GPU acceptance remain open.

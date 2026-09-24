@@ -693,3 +693,85 @@ def test_adjusted_cell_masks_are_rescored_before_merge(run_dir, stubs, monkeypat
     core.preprocess_generate_masks(_mask_settings(
         run_dir, adjust_cells=True, pathogen_channel=2, seg_qc='report'))
     assert merged == [True]
+
+
+def test_motility_runs_once_after_all_roles_and_merged_frames(run_dir, stubs, monkeypatch):
+    from spacr import core, io, object as objects, timelapse
+
+    events = []
+
+    def generate(src, settings, role):
+        settings['src'] = src
+        events.append(role)
+
+    def merge(src, *args, **kwargs):
+        assert events == ['cell', 'nucleus', 'pathogen']
+        merged = run_dir / 'merged'
+        merged.mkdir()
+        np.save(merged / 'frame.npy', np.ones((8, 8, 6), np.uint16))
+        events.append('merge')
+
+    def assay(settings):
+        assert settings['src'] == str(run_dir)
+        assert settings['reuse_existing_measurements'] is False
+        assert np.load(run_dir / 'merged' / 'frame.npy').shape == (8, 8, 6)
+        events.append('motility')
+
+    monkeypatch.setattr(objects, 'generate_cellpose_masks_sam', generate)
+    monkeypatch.setattr(io, '_load_and_concatenate_arrays', merge)
+    monkeypatch.setattr(timelapse, 'automated_motility_assay', assay)
+    core.preprocess_generate_masks(_mask_settings(
+        run_dir, timelapse=True, motility_analysis=True, pathogen_channel=2))
+    assert events == ['cell', 'nucleus', 'pathogen', 'merge', 'motility']
+    assert stubs['cleanup'].n == 1
+
+
+@pytest.mark.parametrize('timelapse_enabled,analysis_enabled', [(False, True), (True, False)])
+def test_motility_requires_both_pipeline_gates(run_dir, stubs, monkeypatch,
+                                            timelapse_enabled, analysis_enabled):
+    from spacr import core, timelapse
+
+    monkeypatch.setattr(timelapse, 'automated_motility_assay',
+                        lambda settings: pytest.fail('unexpected motility analysis'))
+    core.preprocess_generate_masks(_mask_settings(
+        run_dir, timelapse=timelapse_enabled, motility_analysis=analysis_enabled))
+
+
+def test_failed_frame_merge_never_starts_motility_or_cleans_inputs(run_dir, stubs, monkeypatch):
+    from spacr import core, timelapse
+
+    stubs['concat'].fail_on = lambda *args, **kwargs: True
+    monkeypatch.setattr(timelapse, 'automated_motility_assay',
+                        lambda settings: pytest.fail('assay read incomplete merged data'))
+    with pytest.raises(RuntimeError, match='boom'):
+        core.preprocess_generate_masks(_mask_settings(
+            run_dir, timelapse=True, motility_analysis=True))
+    assert stubs['cleanup'].n == 0
+
+
+def test_failed_motility_preserves_pipeline_inputs(run_dir, stubs, monkeypatch):
+    from spacr import core, timelapse
+
+    def fail(settings):
+        raise RuntimeError('assay failed')
+
+    monkeypatch.setattr(timelapse, 'automated_motility_assay', fail)
+    with pytest.raises(RuntimeError, match='assay failed'):
+        core.preprocess_generate_masks(_mask_settings(
+            run_dir, timelapse=True, motility_analysis=True))
+    assert stubs['concat'].n == 1
+    assert stubs['cleanup'].n == 0
+
+
+def test_cancellation_after_merge_prevents_motility_and_cleanup(run_dir, stubs, monkeypatch):
+    from spacr import core, io, timelapse
+    from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
+
+    token = CancellationToken()
+    monkeypatch.setattr(io, '_load_and_concatenate_arrays', lambda *args, **kwargs: token.cancel())
+    monkeypatch.setattr(timelapse, 'automated_motility_assay',
+                        lambda settings: pytest.fail('analysis started after cancellation'))
+    with installed_token(token), pytest.raises(PipelineCancelled):
+        core.preprocess_generate_masks(_mask_settings(
+            run_dir, timelapse=True, motility_analysis=True))
+    assert stubs['cleanup'].n == 0

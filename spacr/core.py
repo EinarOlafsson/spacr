@@ -192,6 +192,9 @@ def preprocess_generate_masks(settings):
         - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.
         - ``timelapse`` — enable trackpy linking; forces
           ``randomize=False``.
+        - ``motility_analysis`` — when timelapse is enabled, analyze the
+          completed merged frames once per plate, rebuilding measurements
+          from the current masks rather than reusing an older assay table.
         - ``dry_run`` — validate only: inspect the input folders, print the
           preflight report and plan and return, without writing anything or
           loading a model.
@@ -544,6 +547,12 @@ def preprocess_generate_masks(settings):
                                     f'{role}_channel')) is not None},
                             resume=settings.get('resume', False)
                         )
+
+                        if settings['timelapse'] and settings.get('motility_analysis', False):
+                            cancellation_checkpoint()
+                            from .timelapse import automated_motility_assay
+                            automated_motility_assay(dict(
+                                settings, src=src, reuse_existing_measurements=False))
 
                         if settings['plot']:
                             if not settings['timelapse']:

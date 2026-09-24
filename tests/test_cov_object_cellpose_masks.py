@@ -921,7 +921,7 @@ def test_timelapse_recuts_the_batch_to_the_frame_limits(
     assert fake_timelapse["movie"][0]["filenames"] == names[1:4]
 
 
-def test_the_motility_hook_runs_when_both_flags_are_set(
+def test_the_legacy_generator_leaves_motility_to_the_merged_frame_pipeline(
         tmp_path, fake_cellpose, fake_timelapse):
     src = tmp_path / "stack"
     _write_npz(src, n=3)
@@ -929,8 +929,7 @@ def test_the_motility_hook_runs_when_both_flags_are_set(
 
     O.generate_cellpose_masks(str(src), settings, "nucleus")
 
-    assert len(fake_timelapse["motility"]) == 1
-    assert fake_timelapse["motility"][0] is settings
+    assert not fake_timelapse["motility"]
 
 
 def test_timelapse_plot_draws_one_frame_at_a_time(

@@ -16937,3 +16937,18 @@ https://github.com/EinarOlafsson/spacr/actions/runs/35966906164
 Do not cancel/restart while live. Prior35952253721 is terminal/failure and its
 last crash sequence has been replayed successfully. GitHub currently has zero
 open issues. No version bump/main promotion or real GPU inference occurred.
+
+2026-09-24 — IMPLEMENTATION: MOTILITY AFTER MERGED MASKS493
+core.preprocess_generate_masks now runs motility_analysis once per plate only
+after all object roles and merged frames finish. SAM/legacy object generators
+no longer invoke a whole-plate assay per batch before saving/merging. The
+assay receives the experiment root and reuse_existing_measurements=False so
+new masks cannot reuse an old motility table. Direct assay entry keeps its
+existing reuse option. Cancellation/failure preserves inputs and prevents
+cleanup.114SAM/core/assignment checks plus93legacy/core checks pass.
+Docs owner: update these public docstrings and the motility_analysis setting
+explanation/tutorial to say after merging, once per plate. Direct generator
+calls now only segment/track; use core for optional automatic assay. The old
+comment at qt/screens/mask.py near105 also incorrectly attributes the assay
+to spacr.object. No new settings or UI added. Protected35966906164 remains
+queued/live and untouched; no version/main change.

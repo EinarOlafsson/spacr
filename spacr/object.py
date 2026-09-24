@@ -685,7 +685,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     the run's SQLite database. Time-stack archives must contain one filename
     per timepoint, regardless of the declared time-axis position; each raw
     filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its
-    ``(Y, X, C)`` image for a flat ``TYX`` series.
+    ``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis
+    belongs to :func:`spacr.core.preprocess_generate_masks` after all object
+    masks have been merged with their images; this generator does not run it.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -1087,10 +1089,6 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 mask_stack = _masks_to_masks_stack(masks)
         
-            if timelapse and settings.get("motility_analysis", False):
-                from .timelapse import automated_motility_assay
-                _ = automated_motility_assay(settings)
-            
             if not np.any(mask_stack):
                 avg_num_objects_per_image, average_obj_size = 0, 0
             else:
@@ -1139,6 +1137,10 @@ def generate_cellpose_masks(src, settings, object_type):
     runs per-batch inference with the object-specific channel/threshold
     settings, applies :func:`spacr.utils._filter_cp_masks`, optionally tracks
     timelapse objects, and writes ``.npy`` masks plus per-object counts.
+
+    Whole-plate motility analysis runs through
+    :func:`spacr.core.preprocess_generate_masks` after frame merging, rather
+    than within this per-object generator.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -1398,10 +1400,6 @@ def generate_cellpose_masks(src, settings, object_type):
                 elif not object_settings['merge']:
                     mask_stack = _masks_to_masks_stack(masks)
         
-            if timelapse and settings.get("motility_analysis", False):
-                from .timelapse import automated_motility_assay
-                _ = automated_motility_assay(settings)
-            
             if not np.any(mask_stack):
                 avg_num_objects_per_image, average_obj_size = 0, 0
             else:
