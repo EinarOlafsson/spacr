@@ -13,7 +13,7 @@ suite. Stage explicit paths, rebase before pushing, preserve other work.
 
 ## Current English sources
 
-The English API manifest contains 11,520 public entries; the Help index is
+The English API manifest contains 11,522 rendered entries; the Help index is
 current. Existing parameter-description debt remains. The shared module map
 is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and

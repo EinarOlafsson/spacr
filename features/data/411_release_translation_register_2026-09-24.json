@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "source_commit": "efbd35a3326dbb6376ea47498f05ce801b7fcbca",
+  "source_commit": "fb73c44e2e72866785de132c29a0b8d81f87ea6e",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
     "api": {
       "status": "compatible",
       "exit_code": 0,
-      "diagnostics": "verified API catalogs: languages=0 symbols=11520\n"
+      "diagnostics": "verified API catalogs: languages=0 symbols=11522\n"
     },
     "runtime": {
       "status": "compatible",
@@ -15,88 +15,88 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/final-translation-compatibility.json",
-  "full_report_sha256": "5bc991cee71e707fe4f65d3c4fcadae538744ed5026614e2630cd8bda9330086",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/practical-final-translation-compatibility.json",
+  "full_report_sha256": "20f9d3cc071b966d1c086692c5656435aa2b288c842ff838a6ae0bb654257d8d",
   "locales": {
     "api": {
       "sv": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "de": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 718,
-          "stale": 351,
-          "translation_blocks": 107,
+          "missing": 720,
+          "stale": 359,
+          "translation_blocks": 109,
           "obsolete": 3
         }
       },
       "es": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 784,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 786,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "zh_CN": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "pt": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "hi": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "ko": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "is": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       },
       "fr": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 909,
-          "stale": 387,
-          "translation_blocks": 117,
+          "missing": 911,
+          "stale": 395,
+          "translation_blocks": 119,
           "obsolete": 3
         }
       }
@@ -105,7 +105,7 @@
       "sv": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 717,
+          "missing": 704,
           "stale": 4,
           "placeholders": 1,
           "obsolete": 44
@@ -114,7 +114,7 @@
       "de": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 717,
+          "missing": 704,
           "stale": 4,
           "placeholders": 1,
           "obsolete": 44
@@ -123,7 +123,7 @@
       "es": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 717,
+          "missing": 704,
           "stale": 4,
           "placeholders": 1,
           "obsolete": 44
@@ -132,7 +132,7 @@
       "zh_CN": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 699,
+          "missing": 686,
           "stale": 3,
           "placeholders": 1,
           "obsolete": 45
@@ -141,7 +141,7 @@
       "pt": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 717,
+          "missing": 704,
           "stale": 4,
           "placeholders": 1,
           "obsolete": 44
@@ -150,7 +150,7 @@
       "hi": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 924,
+          "missing": 911,
           "stale": 20,
           "obsolete": 82,
           "placeholders": 1
@@ -159,7 +159,7 @@
       "ko": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 1061,
+          "missing": 1048,
           "obsolete": 79,
           "stale": 4,
           "placeholders": 1
@@ -168,7 +168,7 @@
       "is": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 1128,
+          "missing": 1115,
           "stale": 20,
           "obsolete": 79,
           "placeholders": 1
@@ -177,7 +177,7 @@
       "fr": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 717,
+          "missing": 704,
           "stale": 4,
           "placeholders": 1,
           "obsolete": 44
