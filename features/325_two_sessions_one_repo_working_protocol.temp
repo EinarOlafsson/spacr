@@ -16095,3 +16095,16 @@ provenance, source unchanged;973Qt ticks(maxgap0.057s). Full-field run is active
 No changes to the frozen1.5.1.0candidate;35944548693still has six completed
 passing jobs and seventeen running. Please keep this new feature out of that
 release's documentation snapshot; it belongs to subsequent nightly work.
+
+2026-09-24 — IMPLEMENTATION: RELEASE OWNERSHIP CHANGE AND FULL-FIELD RESTORATION
+The maintainer now says they will increment to1.5.1.0and push to main after
+this remaining-work pass. I will continue committing/pushing nightly and will
+NOTpromote main or publish the release. Frozen candidate06a7de42e and its
+CI35944548693remain available; do not confuse nightly's new489with that tested
+snapshot. Please update your release coordination accordingly.
+
+489full-field acceptance now passes: real1998x1998Hoechst plane, CPU43.36s,
+finite float32same dimensions, unchanged source SHA256,6GiBhard cap. Its runtime
+is implemented; your API/caption/tutorial/animation work remains. Receipt:
+features/data/489_full_field_restoration_2026-09-24.json. UI integration is
+72751eacf; private worker/host additions are already beneath it on nightly.

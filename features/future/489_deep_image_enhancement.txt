@@ -1,6 +1,7 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: IN PROGRESS. Compare/Apply integration verified; documentation and full-field acceptance pending.
+Status: RUNTIME IMPLEMENTED. Compare/Apply and full-field CPU acceptance verified;
+documentation, translations and tutorial/animation remain with their owner.
 
 Add opt-in network-based enhancement to Make Masks, with useful choices for
 different structures and acquisition noise. Research primary documentation and
@@ -125,3 +126,16 @@ updated API inventory and a restoration tutorial/animation. Notify the API
 lane about Chain's three restoration fields, prepare/provenance/order changes,
 the Wand output-unit explanation and restoration_controls.py captions. This
 remains follow-on nightly work; candidate06a7de42e is unchanged.
+
+2026-09-24 — FULL-FIELD CPU ACCEPTANCE
+The real1998x1998THP1Hoechst plane completed denoise_nuclei restoration in
+43.36s under a6GiB hard memory cap with CPU only. Output is finite float32,
+retains exact dimensions and has nonzero contrast; source SHA256 is unchanged.
+Negative values and values just above1remain model output rather than being
+clipped to integers. Captured weight/package/device/diameter provenance is
+retained. Receipt:features/data/489_full_field_restoration_2026-09-24.json.
+Together with real Compare/Apply/detection/save acceptance this completes the
+runtime implementation. Documentation/translation/tutorial work is handed to
+the other session. No claim of improved biological accuracy: users must inspect
+restoration for their own structure and acquisition. CARE/N2V require suitable
+trained acquisition-specific models and are suggestions, not shipped engines.
