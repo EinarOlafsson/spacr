@@ -109,7 +109,11 @@ def test_hover_and_selection_keep_model_text_and_following_sections_fixed(key, q
 
     for width in (360, 640, 900):
         screen._splitter.setSizes([width, 1366-width])
-        qtbot.wait(30)
+        qtbot.waitUntil(lambda:
+            diagram.caption.geometry().top() > diagram._model_row.geometry().bottom()
+            and diagram.height() > diagram.caption.geometry().bottom()
+            and following.mapTo(screen._intro, QPoint()).y()
+                > diagram.mapTo(screen._intro, diagram.rect().bottomLeft()).y())
         baseline = geometry()
         legend_right = diagram.selector.mapTo(diagram, diagram.selector.rect().topRight()).x()
         assert legend_right < diagram.artwork.mapTo(diagram, QPoint()).x()

@@ -5436,3 +5436,13 @@ Six reproduced failures fixed: the same geometry with labels7/300instead of
 1/2now has identical parasite/nucleus/perimeter merge output.147related utils
 checks pass; comparison and mutation no longer mix component IDs and stored
 cell IDs. Existing thresholds and connected-component return behavior remain.
+
+2026-09-24 — Organism hover baseline waits for usable geometry
+Qt1's three failures captured captiony580while artwork at y63was already
+560pxhigh: the baseline caption still overlapped the model. On the next
+layout pass captiony629and the following heading both shifted49px. The test
+now waits for nonoverlapping row/caption/following-section geometry after each
+splitter resize, rather than assuming30msis enough. All original hover,
+selection, clear and text-height assertions remain.12checks pass with the
+limited CI-like font configuration. No runtime/UI change; native Qt2crash is
+still a separate unresolved issue and the full current CI run remains live.

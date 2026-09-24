@@ -17209,3 +17209,9 @@ IDs with actual cell IDs. All three merge reasons now handle labels7/300in
 either order correctly;6reproduced failures fixed,147related checks pass.
 Private docstring expanded; no signature/settings/UI text change. Please
 include this with the latest adjust_cell_masks raises prose in API refresh.
+
+2026-09-24 — IMPLEMENTATION: ORGANISM GEOMETRY BASELINE288
+CI hover failures measured caption while it still overlapped the560pxmodel;
+following heading also moved49pxon the pending layout pass. Test now waits
+for nonoverlapping geometry before recording baseline; hover assertions are
+unchanged.12checks pass with CI-like fonts. Test-only; no docs/UI/API change.
