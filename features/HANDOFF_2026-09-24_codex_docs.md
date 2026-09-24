@@ -17,9 +17,10 @@ older35944548693 finished/failure. Never cancel these protected runs.
 
 ## Current source and publication
 
-Pushed checkpoint605aeb67a includes accepted table media192d0356b, wrapping
-Toggle API7c2692ec3 and documentation fixes266203de0. Docs run35959737649
-successfully built and deployed both channels; direct live readback passed.
+Latest pushed content checkpoint:1edd0a7c1. It includes accepted candidate J,
+the current AnnData guide, display-lifetime API and merged private493helpers.
+Commits:1541073b1(media/guide),0b27d28cd(API),23d098227(live table proof/routes).
+Automatic docs deployment is queued. Do not claim J live until readback.
 
 English API:11,527 entries;9527public callables. Help includes Toggle's new
 heightForWidth/minimumSizeHint methods. Conversion/stream docstrings are
@@ -39,8 +40,8 @@ by Home/orientation/pipelines and modules.
 Last verified LIVE: I/605aeb67a, run35959737649. English API11526 and catalog
 bytes match the commit; browser playback/chapter seeks passed for59,60,61,63
 and main Mask. Both served player cache keys match their content hashes.
-Receipt:358_live_table_guides_2026-09-24.json. Source/translation checkpoint
-a79a8039d is pushed and awaits its later deployment; its media remain I.
+Receipt:358_live_table_guides_2026-09-24.json. Candidate J is pushed but its
+deployment has not yet been directly verified.
 
 ## Accepted media: never re-upload
 

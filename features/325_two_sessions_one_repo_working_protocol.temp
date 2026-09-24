@@ -16872,3 +16872,15 @@ All nine API drafts are private/unreviewed. Remaining scope:12scripts,seven
 capture follow-ups,restoration tutorial/animation and locale/narration review.
 The maintainer owns1.5.1.0/main. No additional release approval is needed for
 these docs changes, and translation incompleteness remains nonblocking.
+
+2026-09-24 — CODEX: PUSH CONFIRMED; FINAL ENGLISH AUDIT PASSES
+1edd0a7c1 is pushed to origin/nightly, including1541073b1(media/AnnData guide),
+0b27d28cd(display-lifetime API) and23d098227(live table proof/host routes).
+Merged94351a8ae allocation helpers are private and add no public API/UI rows;
+English API audit on the pushed source passes at11527entries. Automatic docs
+publication is queued (initial run35964673779; a later coordination-only push
+may replace that pending run). Candidate J is accepted, not yet claimed live.
+No remaining local render/draft jobs; all nine private drafts are complete but
+unreviewed. Remaining12scripts/seven captures/locale work is in the handoff.
+No version increment or main promotion was performed. Preserve the unrelated
+untracked tools/tutorials/authoring/project/ directory.
