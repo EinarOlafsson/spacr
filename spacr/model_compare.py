@@ -1094,7 +1094,7 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
         pretrained_model=config.resolved_model,
         **cellpose_kwargs(),
     )
-    batch = [np.asarray(image, dtype=np.float32) for image in images]
+    batch = [np.array(image, dtype=np.float32, copy=True) for image in images]
     output = model.eval(x=batch, **config.eval_kwargs())
     masks = output[0] if isinstance(output, tuple) else output
     return [np.asarray(m).astype(np.int32) for m in masks]

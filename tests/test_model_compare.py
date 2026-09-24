@@ -963,6 +963,34 @@ def test_segment_with_cellpose_forwards_only_what_cellpose_4_reads(monkeypatch):
 # the cost guarantee: the metric layer carries no model stack
 # ---------------------------------------------------------------------------
 
+def test_comparison_models_receive_independent_float_inputs(monkeypatch):
+    """Cellpose normalizes float arrays in place; both sides need raw pixels."""
+    from cellpose import models as cp_models
+
+    seen = []
+
+    class NormalizingModel:
+        def __init__(self, **kwargs):
+            pass
+
+        def eval(self, x, **kwargs):
+            seen.append([image.copy() for image in x])
+            for image in x:
+                image -= image.min()
+                image /= max(1.0, image.max())
+            return [np.zeros(image.shape, np.int32) for image in x], None, None
+
+    monkeypatch.setattr(cp_models, "CellposeModel", NormalizingModel)
+    image = np.arange(16, dtype=np.float32).reshape(4, 4) + 70
+    original = image.copy()
+    segment_with_cellpose([image], ModelConfig(model="first"))
+    segment_with_cellpose([image], ModelConfig(model="second"))
+    np.testing.assert_array_equal(image, original)
+    assert len(seen) == 2
+    for images in seen:
+        np.testing.assert_array_equal(images[0], original)
+
+
 def test_comparing_masks_does_not_pull_in_torch_or_cellpose():
     """In-process guard: the metric layer must not *add* the model stack."""
     before = {m.split(".")[0] for m in list(sys.modules)}

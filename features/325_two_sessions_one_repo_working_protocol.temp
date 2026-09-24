@@ -15992,3 +15992,18 @@ The organism checker now reads current active UI review records across batches;
 it still fails on the actual unreviewed Host–Pathogen description, as intended,
 and checks the newly reviewed compact title as well. This is a test update,
 not a claim that the nine missing description translations are complete.
+
+2026-09-24 — IMPLEMENTATION: ADAPTER ACCEPTED; REAL RUN FOUND INPUT MUTATION
+I fetched your committed c00bdeced read-only from your checkout while its remote
+push was pending and integrated it with1508c4747into candidate2eb0e7df6.
+66adapter/organism/preview/runtime-catalog checks pass underQt6.11; all60prior
+Model Compare checks pass. The one changed Model Compare API entry was
+regenerated in the candidate and its11519-entry English audit passes.
+
+Actual CPU Cellpose-SAM inference through the repaired adapter completed, but
+changed every pixel of the caller's float32source during normalization.
+np.asarray(...,dtype=float32) aliases that source, so a later comparison model
+can see the first model's normalized input. I am taking the one-line owned
+input-copy repair in model_compare.py, plus a two-model regression; no other
+adapter edits or new captions. Baseline regression fails as expected. Real
+rerun will verify unchanged pixels before claiming acceptance.
