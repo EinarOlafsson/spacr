@@ -2,7 +2,17 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    OPEN, 2026-09-19 -- about 92% done; the last sections say what
+Status:    IMPLEMENTATION COMPLETE, reconciled 2026-09-24. Nine-language
+           translation/review work remains under future/411. The three
+           formerly parked runtime changes are already in nightly:
+           ee6a608e6 declares every enabled slot's background switch;
+           7d619d78b renames straightness_filter to drop_straight_tracks;
+           7ac759f3f renames zscore_thresh to track_outlier_zscore.
+           Both old motility keys migrate before defaults are applied.
+           infection_pca_n_clusters was retired in 7c9760cc6. The notes
+           below are historical; they do not reopen those decisions.
+
+Historical status, 2026-09-19 -- about 92% done; the last sections say what
            is left and why. Everything the maintainer approved is BUILT:
            the 2026-09-02 group (the retired _size pair, the four renames,
            the per-object table) and all three 2026-09-09 groups -- the
@@ -3012,3 +3022,10 @@ flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
 remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
 future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
+
+2026-09-24 — Reconciled the remaining implementation entries
+The header now reflects the already-merged commits above. No runtime changes
+were needed in this reconciliation. Current old-settings migration and
+per-slot preprocessing/measurement checks pass (see the shared325handoff).
+The translation lane remains open under411; no all-language completion is
+claimed and the original audit/decision history is retained.

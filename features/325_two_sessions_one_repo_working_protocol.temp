@@ -16749,3 +16749,13 @@ Please update API/helper inventory and current tutorial explanation; preserve
 historical failure captures as historical. No new GUI capture has been made.
 Receipt:288_anndata_missing_metadata_2026-09-24.json. No new settings/strings.
 Display-lifetime fix728031e9b is already pushed, including its API handoff.
+
+2026-09-24 — IMPLEMENTATION: SETTINGS AUDIT364 RECONCILED
+The three entries still called parked in364 were already implemented:
+ee6a608e6 per-slot background switches,7d619d78b drop_straight_tracks,
+7ac759f3f track_outlier_zscore. The unused infection_pca_n_clusters was
+retired in7c9760cc6. Rechecked old-file migration and per-slot preprocessing/
+measurement:27passed. Header now says implementation complete; translation
+review remains with411. This is ledger correction, not newly built features.
+GitHub open-issue list is still empty. Protected full-control/coverage5 run
+35952253721 remains active. AnnData fixb2dac1bc3 is pushed to nightly.
