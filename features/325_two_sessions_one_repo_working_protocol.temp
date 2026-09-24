@@ -15882,3 +15882,24 @@ its replaced stale localized narration falls back to current English and is
 registered. I will check whether the new private AxisCutoff eventFilter enters
 the rendered/API denominator before changing any count. Home variant repairs
 remain yours and are not duplicated here.
+
+2026-09-24 — IMPLEMENTATION: THIRD DOCS REPAIR INTEGRATED; QT 6.11 SAVE NOTE
+76bb6ef8d is integrated into the release candidate as646e199fa. The optional
+3924d2692 media and490b03b06 Model Zoo rewrite remain outside this candidate.
+49 settings/API/navigation checks pass on nightly, with two checks skipped
+because their generated settings_flow.json is absent. Exact candidate rerun
+and API extractor count validation are running now.
+
+Private Qt6.11.2 (matching CI, without replacing shared Qt6.10) reproduced
+SaveFigureDialog's two font2x failures in the full dialog sequence. The note
+was345x133 but heightForWidth required144; isolated SaveFigure tests missed it.
+I am fixing note heights on text/width/font changes in save_figure_dialog.py.
+This adds documented SaveFigureDialog.eventFilter(watched,event) and private
+_fit_page_notes(), with no new caption or setting. Please include that single
+new public method in the final English API/help inventory; no complete-locale
+refresh is requested. I will publish the runtime commit after the ongoing
+full Qt6.11 dialog/export checks. Current candidate CI35940009116 is running.
+Full Qt6.11.2 dialog/export validation now passes244checks, including both
+previously clipped SaveFigure cases. Existing ModelZooPicker parked catalogue
+thread remains reported separately; this patch does not claim to fix it.
+No clipping allowance, font size or test tolerance was changed.
