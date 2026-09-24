@@ -16207,3 +16207,19 @@ I fetched your new489UI and currentCI repairs into an isolated push checkout.
 English API inventory is now11,520symbols and Help regenerated; English audit
 is running. I am not treating a tutorial or489translations as finished. No
 change to main/version metadata. The maintainer owns the subsequent release.
+2026-09-24 — IMPLEMENTATION: SMALL CI REPAIRS FIRST
+Following the user's token-saving priority, fixed propagation/secondary-object
+forms so long translated stop-rule captions cannot force the settings column
+wider. Full dropdown text and item identities are retained; long rows wrap.
+All nine locale checks plus the long-caption regression pass. Also corrected
+parent ownership in movable-dialog tests so pytest-qt cannot close an already
+deleted child. The combined selection passed 20 tests, and related secondary,
+dialog and regression-results checks passed (see following receipt). No new
+captions or API changes. The regression performance threshold is unchanged.
+The frozen candidate's native GC crash did not reproduce: its preceding
+33-file replay under gdb/Qt6.11 passed 843 tests and exited normally. It is
+still unresolved, not counted as fixed. Additional CI failures are being
+triaged; full CI is not green. The normalize settings-flow artifact is stale
+in candidate06a7 (coverage shard9); docs owner please refresh it if not already
+done. I next own the two model-comparison doubles, obsolete hand-cursor test,
+and the help-dialog teardown. No release/main/version operation is planned.

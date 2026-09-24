@@ -25,43 +25,47 @@ def _window_type(widget):
     return widget.windowFlags() & Qt.WindowType.WindowType_Mask
 
 
+@pytest.fixture
+def dialog_parent(qtbot):
+    """Keep the Qt owner alive until pytest-qt closes the registered widgets."""
+    from PySide6.QtWidgets import QWidget
+
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    yield parent
+
+
 class TestTheFilterDetaches:
 
-    def test_a_dialog_becomes_a_window(self, qtbot):
+    def test_a_dialog_becomes_a_window(self, qtbot, dialog_parent):
         from PySide6.QtCore import Qt
-        from PySide6.QtWidgets import QApplication, QDialog, QWidget
+        from PySide6.QtWidgets import QApplication, QDialog
 
         from spacr.qt.dialogs import detach_all_dialogs
 
         detach_all_dialogs(QApplication.instance())
-        parent = QWidget()
-        qtbot.addWidget(parent)
-        dialog = QDialog(parent)
-        qtbot.addWidget(dialog)
+        dialog = QDialog(dialog_parent)
         dialog.show()
         qtbot.waitExposed(dialog)
 
         assert _window_type(dialog) == Qt.WindowType.Window
 
-    def test_it_still_shows_and_keeps_its_parent(self, qtbot):
+    def test_it_still_shows_and_keeps_its_parent(self, qtbot, dialog_parent):
         """`setWindowFlags` on a VISIBLE widget destroys and recreates the
         native window, so Qt hides it. Detaching on `Show` makes the dialog
         flash or vanish; `Polish` is delivered before the window is mapped.
         """
-        from PySide6.QtWidgets import QApplication, QDialog, QWidget
+        from PySide6.QtWidgets import QApplication, QDialog
 
         from spacr.qt.dialogs import detach_all_dialogs
 
         detach_all_dialogs(QApplication.instance())
-        parent = QWidget()
-        qtbot.addWidget(parent)
-        dialog = QDialog(parent)
-        qtbot.addWidget(dialog)
+        dialog = QDialog(dialog_parent)
         dialog.show()
         qtbot.waitExposed(dialog)
 
         assert dialog.isVisible()
-        assert dialog.parent() is parent
+        assert dialog.parent() is dialog_parent
 
     def test_installing_twice_on_the_same_app_leaves_one_filter(self):
         from PySide6.QtWidgets import QApplication

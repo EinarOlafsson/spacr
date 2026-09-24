@@ -9868,6 +9868,7 @@ class MakeMasksScreen(QWidget):
 
         card = _MethodGroup()
         form = QFormLayout()
+        form.setRowWrapPolicy(QFormLayout.WrapLongRows)
         widgets = {}
         if secondary:
             from ..widgets.primary_mask_selector import PrimaryMaskSelector
@@ -9952,6 +9953,8 @@ class MakeMasksScreen(QWidget):
             "so what grows from it is the wrong shape.")
 
         stop = QComboBox()
+        stop.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        stop.setMinimumContentsLength(18)
         stop.addItem("Fraction of this centre's own peak", "seed_fraction")
         stop.addItem("Absolute intensity", "absolute")
         stop.addItem("Percentile of the image", "percentile")

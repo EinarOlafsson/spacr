@@ -12,6 +12,29 @@ ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi')
 
 
+def test_long_stop_caption_does_not_force_a_wider_settings_column(qtbot, qt_theme_applied):
+    from spacr.qt import cpu_modes
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    try:
+        stop = screen._secondary_widgets['propagate_stop']
+        caption = 'A long localized description of the stopping rule ' * 3
+        stop.setItemText(0, caption)
+        screen._mag_mode.setCurrentIndex(screen._mag_mode.findData(cpu_modes.SECONDARY))
+        screen._methods_card.set_expanded(True)
+        screen.resize(1707, 900)
+        screen.show()
+        qtbot.wait(100)
+        group = screen._method_groups['secondary']
+        assert group.minimumSizeHint().width() <= screen._settings_scroll.viewport().width()
+        assert stop.itemText(0) == caption
+        assert stop.itemData(0) == 'seed_fraction'
+    finally:
+        screen.close()
+
+
 @pytest.mark.parametrize('language', LANGUAGES)
 def test_secondary_controls_and_relationships_are_localized(
         qtbot, qt_theme_applied, monkeypatch, tmp_path, language):
