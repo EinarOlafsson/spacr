@@ -3739,6 +3739,72 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "check", check_for_updates, self._on_update_check_done)
 
+    def _refresh_news(self) -> None:
+        """Read the published releases for Home's News panel, off-thread.
+
+        Home's News panel is already drawn from the resource bundled in
+        this wheel when this runs -- the panel asks for the refresh from
+        its own show event, one event-loop turn later -- so nothing here is
+        on the path to the first paint, and nothing here can stop the page
+        appearing.
+
+        It runs on :class:`_UpdateWorker`, the same thread wrapper the
+        manual update check uses, but on its OWN worker: a background
+        refresh must never make "Check for updates…" answer "an update
+        operation is already running", and the manual check must never be
+        the reason the news is stale.
+
+        Failure is silent by construction:
+        :func:`spacr.updater.fetch_release_notes` absorbs every error and
+        returns ``[]``, which :meth:`HomePage.apply_release_news` treats as
+        "nothing newer than the bundle". Offline, rate-limited and switched
+        off are therefore the same thing to the reader: the bundled list.
+        """
+        from .preferences import get_refresh_news
+
+        if not get_refresh_news():
+            LOG.debug("News refresh is switched off in Preferences")
+            return
+        worker = getattr(self, "_news_worker", None)
+        try:
+            if worker is not None and worker.isRunning():
+                return
+        except RuntimeError:
+            pass
+        try:
+            from spacr.updater import fetch_release_notes
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("Could not import the release-notes reader",
+                      exc_info=True)
+            return
+        worker = _UpdateWorker("news", fetch_release_notes, self)
+        worker.succeeded.connect(self._on_news_ready)
+        worker.failed.connect(self._on_news_failed)
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+        self._news_worker = worker
+
+    def _on_news_ready(self, releases) -> None:
+        """Merge a fetched release list into Home, on the GUI thread."""
+        if self._closing:
+            return
+        page = getattr(self, "_startup", None)
+        if page is None:
+            return
+        try:
+            page.apply_release_news(releases)
+        except RuntimeError:
+            LOG.debug("Home went away before the release news arrived")
+
+    def _on_news_failed(self, operation: str, details: str) -> None:
+        """Swallow a news-refresh exception into the log.
+
+        Deliberately NOT :meth:`_on_update_worker_failed`: that one opens a
+        message box, which is right for a check the user pressed a button
+        for and wrong for a background refresh nobody asked for.
+        """
+        LOG.debug("News refresh failed:\n%s", details)
+
     def _start_update_worker(self, operation, fn, on_done) -> None:
         """Start one updater callable and retain it until shutdown."""
         worker = _UpdateWorker(operation, fn, self)
@@ -4086,12 +4152,13 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
-        worker = getattr(self, "_update_worker", None)
-        if worker is not None:
-            try:
-                worker.wait(5000)
-            except RuntimeError:
-                pass
+        for attribute in ("_update_worker", "_news_worker"):
+            worker = getattr(self, attribute, None)
+            if worker is not None:
+                try:
+                    worker.wait(5000)
+                except RuntimeError:
+                    pass
         super().closeEvent(event)
         if event.isAccepted():
             app = QApplication.instance()
@@ -4415,6 +4482,7 @@ class MainWindow(QMainWindow):
         self._startup.tile_clicked.connect(self._on_nav_selected)
         self._startup.sample_project_requested.connect(self._start_a_sample_project)
         self._startup.update_check_requested.connect(self._check_for_updates)
+        self._startup.news_refresh_requested.connect(self._refresh_news)
         try:
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
         except Exception:

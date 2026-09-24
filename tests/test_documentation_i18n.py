@@ -202,7 +202,10 @@ TOOLS = ROOT / "tools"
 # Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
 # PSF module and metadata-only doctor: 411_psf_doctor_api_2026-09-23.json.
 # Mask PSF integration: 411_psf_integration_api_2026-09-23.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_528
+# +10 for the News panel's live release refresh: the panel's merge and
+# apply entries, Home's relay, the release-refresh preference pair and
+# the updater's release-notes reader and its cache path.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_538
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

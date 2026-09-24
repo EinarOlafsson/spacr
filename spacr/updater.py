@@ -12,6 +12,10 @@ The updater talks to two sources:
 * **GitHub** — the nightly branch's HEAD commit hash, so nightly
   users see how many commits they're behind.
 
+It also answers Home's News panel, through :func:`fetch_release_notes`:
+the published releases, cached for a day, so a running copy can show a
+release newer than the one bundled in its own wheel.
+
 Both fetches use ``urllib`` from the stdlib to avoid pulling in an
 extra HTTP dependency. Timeouts are short (3 s) so a slow / offline
 network doesn't block the UI. Errors are absorbed and surfaced as
@@ -30,9 +34,11 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple
@@ -111,6 +117,140 @@ def check_for_updates(timeout: float = 3.0) -> UpdateInfo:
         nightly_sha=nightly or None,
         error=err,
     )
+
+
+GITHUB_RELEASES_API = (
+    "https://api.github.com/repos/EinarOlafsson/spacr/releases?per_page=100"
+)
+
+#: Redirects the news cache, for tests and for read-only homes. The same
+#: escape hatch :func:`spacr.qt.space.cache_dir` and
+#: :func:`spacr.qt.iconset.icon_cache_dir` offer, for the same reasons.
+ENV_NEWS_CACHE = "SPACR_NEWS_CACHE"
+
+#: One question a day, and the question is asked whether or not the last
+#: one was answered. A failed attempt is stamped like a successful one
+#: because the failure mode worth avoiding is a whole lab behind one NAT
+#: asking api.github.com on every launch and being rate-limited together.
+#: The cost of stamping a failure is that a machine that was offline at
+#: launch keeps the bundled list until tomorrow, which is exactly what the
+#: bundled list is for.
+NEWS_MAX_AGE_S = 24 * 60 * 60
+
+
+def news_cache_path() -> Path:
+    """Where the fetched release list is remembered between launches."""
+    override = os.environ.get(ENV_NEWS_CACHE)
+    root = Path(override) if override else Path.home() / ".spacr" / "news"
+    return root / "releases.json"
+
+
+def _news_links(body: str) -> list:
+    """Every URL in ``body``, in order, de-duplicated.
+
+    The same shape ``tools/build_release_notes.py`` writes into the bundled
+    resource, so a fetched record and a bundled one are interchangeable and
+    nothing downstream has to know which it is holding.
+    """
+    seen, out = set(), []
+    for url in re.findall(r"https?://[^\s<>)\]\"']+", body or ""):
+        url = url.rstrip(".,;:")
+        if url not in seen:
+            seen.add(url)
+            out.append(url)
+    return out
+
+
+def _news_entries(payload) -> list:
+    """Normalise the releases API's answer into bundled-resource records."""
+    entries = []
+    for release in payload or []:
+        if not isinstance(release, dict) or release.get("draft"):
+            continue
+        body = (release.get("body") or "").strip()
+        entries.append({
+            "tag": str(release.get("tag_name") or ""),
+            "name": str(release.get("name")
+                        or release.get("tag_name") or "").strip(),
+            "published": str(release.get("published_at") or "")[:10],
+            "url": str(release.get("html_url") or ""),
+            "body": body,
+            "links": _news_links(body),
+            "prerelease": bool(release.get("prerelease")),
+        })
+    return entries
+
+
+def _read_news_cache(max_age: float):
+    """The cached release list when it is younger than ``max_age``.
+
+    :returns: the cached list, which may be empty when the last attempt
+        failed, or ``None`` when there is no usable cache to honour.
+    """
+    try:
+        path = news_cache_path()
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        fetched = float(payload.get("fetched") or 0.0)
+    except Exception:
+        return None
+    if not 0 < (time.time() - fetched) < max_age:
+        return None
+    releases = payload.get("releases")
+    if not isinstance(releases, list):
+        return None
+    return [r for r in releases if isinstance(r, dict)]
+
+
+def _write_news_cache(releases: list) -> None:
+    """Stamp this attempt, so the next launch does not repeat it."""
+    try:
+        path = news_cache_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps({"fetched": time.time(), "releases": releases}),
+            encoding="utf-8")
+    except Exception as e:
+        LOG.debug("could not write the news cache: %s", e)
+
+
+def fetch_release_notes(timeout: float = 4.0,
+                        max_age: float = NEWS_MAX_AGE_S) -> list:
+    """The repository's releases, newest first, or ``[]``.
+
+    NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News
+    panel asks for it through the same :class:`_UpdateWorker` the manual
+    update check runs on, after the page has been shown.
+
+    Unauthenticated, because the alternative is a token the user does not
+    have. That means the shared, per-address rate limit, which is why the
+    answer is cached for a day and why every failure is silent: the
+    bundled ``spacr/resources/release_notes.json`` remains the offline
+    source of truth and an empty list simply leaves it alone.
+
+    :param timeout: request timeout in seconds. Short on purpose.
+    :param max_age: how old a cached answer may be before it is asked
+        again, in seconds.
+    :returns: release records shaped like the bundled resource's, or an
+        empty list when the answer is unavailable for any reason at all.
+    """
+    cached = _read_news_cache(max_age)
+    if cached is not None:
+        return cached
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            GITHUB_RELEASES_API,
+            headers={"User-Agent": "spacr-updater",
+                     "Accept": "application/vnd.github+json"},
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            entries = _news_entries(json.loads(r.read()))
+    except Exception as e:
+        LOG.debug("release-notes fetch failed: %s", e)
+        _write_news_cache([])
+        return []
+    _write_news_cache(entries)
+    return entries
 
 
 def _installed_version() -> str:

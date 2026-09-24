@@ -108,6 +108,19 @@
       "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
       "text": ":returns: the path of this queue's ``curate_status.csv``."
     },
+    "10393a968f43633a39abfcab30df26c0c92068352ce6d6f7d2992ac9e2b5e9a6": {
+      "source_blocks_sha256": [
+        "383cebb9b3f9bd83970e35c85fa7480a1c5be9506a4d5bd2cc6a88c70e6c8e66",
+        "52ac554e1fc2f07eaf51d6a645ac9fefc41edfe8ec2595465622b2ca88075d55",
+        "9181ae69a993d04462f88fb49695d2bd282dcb0a23d0680a826f612c1724184e",
+        "a8886323d66465733175cd65df4f6e93a911b01ec83d82edbf44b9eaef719c56",
+        "5ced0e0fb67945dac0e6dab2c32134df509aaffc84c0d3ac80d003815d568bc1",
+        "2118db53ccdb2a02cd5498acbdeb58a48b17fd617d779f9a245e2fe28ef656f1",
+        "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665"
+      ],
+      "source_sha256": "10393a968f43633a39abfcab30df26c0c92068352ce6d6f7d2992ac9e2b5e9a6",
+      "text": "Auto-updater — compare local ``spacr`` to PyPI + the nightly branch.\n\nExposes a small API the Qt GUI's Help → \"Check for updates\" menu\nentry can call. Nothing runs automatically; users always trigger a\ncheck + confirm any upgrade.\n\nThe updater talks to two sources:\n\n* **PyPI** — ``https://pypi.org/pypi/spacr/json`` for the latest\n  released version.\n* **GitHub** — the nightly branch's HEAD commit hash, so nightly\n  users see how many commits they're behind.\n\nBoth fetches use ``urllib`` from the stdlib to avoid pulling in an\nextra HTTP dependency. Timeouts are short (3 s) so a slow / offline\nnetwork doesn't block the UI. Errors are absorbed and surfaced as\n\"couldn't check\" — never a crash.\n\nPublic API::\n\n    from spacr.updater import check_for_updates, run_pip_upgrade\n\n    info = check_for_updates()   # UpdateInfo\n    if info.upgrade_available:\n        run_pip_upgrade()"
+    },
     "106e3b3159d69d117144e8c1a332713778fa3a75ed041bf5f3802330dd3944db": {
       "source_blocks_sha256": [
         "3fc1762e735ac6c30c45da0434210d2c869a22a745fcb706629bdf15e3f88c8f",
@@ -1358,6 +1371,21 @@
       ],
       "source_sha256": "893fde9faf389e5edb8eb72158932e5f149202b71e9598b87c0492fd69eff6e4",
       "text": "Upgrade ``spacr`` in place, capturing what the packaging tool said.\n\n:param pre_release: pass ``--pre`` so pre-releases and ``.postN``\n    versions are considered.\n:returns: ``(exit_code, output)`` with combined stdout and stderr. Captured\n    output remains available to desktop installations launched without a\n    terminal."
+    },
+    "896ef9c8f88e0fc4bbe3d546fc674f62d5216603795afda833fe9120cc400fb2": {
+      "source_blocks_sha256": [
+        "6f0a65e1b60eb649ff57a5dda81e9a3121b4d141765fbc1683d16ed6269972e3",
+        "77d0240580d960dcbdf66e540fe067651900756ed753415a8fea45b678c53d28",
+        "65c2a34112f12a45e60563c18c577c99f6d34c89a07f4a6446914e520769529e",
+        "7166fef3502cb6416d2fef11326874ba2c30e06a845ca4f770648328481d7da5",
+        "5a022fa4a44e2a449a4897da7e9d558fa5ea71655175a1014b3f62e3dd7f4868",
+        "7f506567a28dac7d03658d94e9d6a3e68ed5aaf72b9de6de98b78e86605732a7",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "da49e68b97882585b12dd874425ea54359919715d76e1bafa57b37d68dba4e1f",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ],
+      "source_sha256": "896ef9c8f88e0fc4bbe3d546fc674f62d5216603795afda833fe9120cc400fb2",
+      "text": "Every spaCR release, with links, in a box the reader can resize.\n\nTHE NOTES ARE BUNDLED, not fetched. They come from\n``spacr/resources/release_notes.json``, which\n``tools/build_release_notes.py`` writes from the GitHub releases before\na tag. This panel is on the first screen the application shows, so\nmaking its content depend on api.github.com would mean a dashboard that\nis empty offline, throttled behind a shared NAT, and slower to draw than\nthe window it is in. The notes also belong to the release: what shipped\nin 1.5.0.4 does not change afterwards.\n\nThere was previously no feed at all and this panel said so -- \"No\nrelease notes bundled with this build\" -- which was honest and useless.\nWhat it shows now is the real thing: \"News should contain all the\nreleas information with links. i nkow that there was release information\nfor the current 1.5.0.4 version. this one as well as all of the other\nones should be scrollable and the user should be able to controll the\nheight.\"\n\nSo: every release newest-first, each one's body rendered with its links\nlive, the whole list inside a scroll area, and a grip along the bottom\nedge that drags the box taller or shorter. The height is remembered\nbetween sessions -- a reader who made it tall wants it tall next time.\n\nThe update check stays a BUTTON. It is the one thing here that does\ntouch the network, and it does so only when pressed.\n\n:param version: the build to name in the heading. Empty leaves the\n    heading as the translated word alone -- the two are kept separate\n    because the catalog is keyed on \"News\", so composing the release into\n    the caption first would leave the only aside panel that names a build\n    in English.\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
     },
     "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9": {
       "source_blocks_sha256": [

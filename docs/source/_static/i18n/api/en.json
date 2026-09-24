@@ -19311,13 +19311,13 @@
         "f83c14af97a285657ba1118e0031144a5b2abb1cc70531bdd730ec46d3bf39dc",
         "e800c2bf3096eb81d9d8f46d220638d177af5b5ce3f5c3df23166b585f7bd596",
         "357283e2cc7dfc66051ec3bbabe804606bbb8ac2b0df3240ebb6ce8358df9952",
-        "23c9e9870d952934ba83a2f0420046214f50209180738a302bf160b840bd54d1",
+        "727339531ac3bbc4a83c03f3b4759906db0041ad765d78fae8122330b3f1e273",
         "d336c912476209abc42ab47b4f263e1a5e00c97cb0b167a8be3ce96520af3529",
         "cd23e71d0cbc04fdc701c709b24d032e53e42992da0ddcf6a61451a0b58af549",
         "70c12bd33ac370b1d5b19d7ada0c9f085e1d0aa74d41ab823f9dad610018da98"
       ],
-      "source_sha256": "a434b8b08fbf13996eafe4c4c79087000802fe81305f38464c546f5652bf779f",
-      "text": "Join per-vacuole signals to host references and retain every host cell.\n\n:param cells: one row per host, including uninfected cells.\n:param vacuoles: one row per segmented vacuole, with object_label/cell_id.\n:param reference: one row per host reference compartment, object_label\n    identifying its host, with channel mean-intensity columns.\n:param parasites: optional independently segmented parasites with an\n    explicit parent-vacuole column; never infer parentage from cell ID.\n:param settings: hp_* options. Marker thresholds apply to vacuole/reference\n    ratios. A count column or parasite table is required for replication;\n    otherwise counts remain missing. These two inputs are mutually exclusive.\n:param source: experiment/acquisition identity, preserved in every output.\n:returns: dict of vacuoles, cells, wells, marker_states and orphan_parasites\n    DataFrames. Missing references and invalid denominators stay unknown;\n    extracellular or unlinked vacuoles do not inflate host infection rates.\n:raises ValueError: ambiguous identities, missing columns or invalid policy."
+      "source_sha256": "2af9d1cca14a4278acf01b81ef53f5bfb0a7c4751855f39065c1ef7112aca3c5",
+      "text": "Join per-vacuole signals to host references and retain every host cell.\n\n:param cells: one row per host, including uninfected cells.\n:param vacuoles: one row per segmented vacuole, with object_label/cell_id.\n:param reference: one row per host reference compartment, object_label\n    identifying its host, with channel mean-intensity columns.\n:param parasites: optional independently segmented parasites with an\n    explicit parent-vacuole column; never infer parentage from cell ID.\n:param settings: hp_* options. Marker thresholds apply to vacuole/reference\n    ratios. Threshold channel keys must be integer indices or their JSON\n    string form; duplicate aliases are rejected. A count column or parasite\n    table is required for replication;\n    otherwise counts remain missing. These two inputs are mutually exclusive.\n:param source: experiment/acquisition identity, preserved in every output.\n:returns: dict of vacuoles, cells, wells, marker_states and orphan_parasites\n    DataFrames. Missing references and invalid denominators stay unknown;\n    extracellular or unlinked vacuoles do not inflate host infection rates.\n:raises ValueError: ambiguous identities, missing columns or invalid policy."
     },
     "spacr.host_pathogen.vacuole_links": {
       "source_blocks_sha256": [
@@ -48872,6 +48872,14 @@
       "source_sha256": "8d6379188f60f4ffdeea6b4e93cda8478c130a9fc7abe4d7d0f7f213e8de08ed",
       "text": "When to import torch and the rest. 'on_demand' or 'eager'."
     },
+    "spacr.qt.preferences.get_refresh_news": {
+      "source_blocks_sha256": [
+        "2a8346c418124e56f0a72f1b03149b39e073485dd3d4cb87c51c8115ca23dab6",
+        "ea41667059ff60daea98a6f64d0f0aa58c1b183cbc89b47831e1071bb5183e6b"
+      ],
+      "source_sha256": "fa80a031b679cdbe53bc271729d1f94b8d2c1505d31e3f110ec3cffaf31e2fed",
+      "text": "Whether Home's News panel may ask GitHub for newer releases.\n\nRead by :meth:`spacr.qt.app.MainWindow._refresh_news`, which is the one\nplace that starts the fetch. The bundled\n``spacr/resources/release_notes.json`` is drawn either way."
+    },
     "spacr.qt.preferences.get_rim_alignment": {
       "source_blocks_sha256": [
         "0f94e69b823c316bc25c6f93e6ba7e81b5fd4d47a029e641dcd66bf7e85b1738",
@@ -49606,6 +49614,13 @@
       ],
       "source_sha256": "bca19c3c159a70e7b3d5f3c76a61fcd93e6dfe68a17dffb939230f540eea1f17",
       "text": "Persist it. Takes effect at the next launch, and says so.\n\n:raises ValueError: on anything but the two policies."
+    },
+    "spacr.qt.preferences.set_refresh_news": {
+      "source_blocks_sha256": [
+        "16ce307b43fb6a5a2fdd4e2a2f04c99413480d3237b51c9d3a7a17c14749bd64"
+      ],
+      "source_sha256": "16ce307b43fb6a5a2fdd4e2a2f04c99413480d3237b51c9d3a7a17c14749bd64",
+      "text": "Persist the News panel's release-refresh opt-out."
     },
     "spacr.qt.preferences.set_rim_alignment": {
       "source_blocks_sha256": [
@@ -83013,6 +83028,15 @@
       "source_sha256": "e4c99819c12942e30051c0bbe26fef5d6290670941073611d89fe8ddf3a0def1",
       "text": "How many journal-reading threads are still winding down."
     },
+    "spacr.qt.widgets.home.HomePage.apply_release_news": {
+      "source_blocks_sha256": [
+        "db83c7b3b95e72324cff1c2b7d67637e49c670667b71f8d495a305eb01ee4440",
+        "6f64d31eddf4ef719b12ae065fd8a340b583dde618e1f1ce10ec86e5444912e9",
+        "feb0b335f2b7fbe1a65813f338239baced2ef1aca2faabb054d912f9590605dd"
+      ],
+      "source_sha256": "146a2300e484440840bd7730fdb1fea43eadeb9979a7784a2fd96e12bb0f1d37",
+      "text": "Hand a fetched release list to the News panel.\n\nThe answer to :attr:`news_refresh_requested`, and the only way in:\nthe window never reaches into the panel, so a page rebuilt at a new\nfont scale simply asks again.\n\n:param releases: records from\n    :func:`spacr.updater.fetch_release_notes`, or anything at all."
+    },
     "spacr.qt.widgets.home.HomePage.closeEvent": {
       "source_blocks_sha256": [
         "6abe561d53445b733d8b834721240db52d2b362252b5e0c94696307e280004d1",
@@ -83037,6 +83061,13 @@
       ],
       "source_sha256": "201d7c02c56f2c4ae83979cf493b9e1c5c004cc80649c25c8fa366cd955d1e0b",
       "text": "The colour-to-maturity key at the foot of the right column."
+    },
+    "spacr.qt.widgets.home.HomePage.news_panel": {
+      "source_blocks_sha256": [
+        "1e6a6539c251b86071253af9a005a0ab38b0645a029db62936f2ccb180760a62"
+      ],
+      "source_sha256": "1e6a6539c251b86071253af9a005a0ab38b0645a029db62936f2ccb180760a62",
+      "text": "The News panel. For tests and for the window's own wiring."
     },
     "spacr.qt.widgets.home.HomePage.page_fill": {
       "source_blocks_sha256": [
@@ -83093,17 +83124,27 @@
     "spacr.qt.widgets.home.NewsPanel": {
       "source_blocks_sha256": [
         "6f0a65e1b60eb649ff57a5dda81e9a3121b4d141765fbc1683d16ed6269972e3",
-        "77d0240580d960dcbdf66e540fe067651900756ed753415a8fea45b678c53d28",
+        "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
+        "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
         "65c2a34112f12a45e60563c18c577c99f6d34c89a07f4a6446914e520769529e",
         "7166fef3502cb6416d2fef11326874ba2c30e06a845ca4f770648328481d7da5",
-        "5a022fa4a44e2a449a4897da7e9d558fa5ea71655175a1014b3f62e3dd7f4868",
+        "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
         "7f506567a28dac7d03658d94e9d6a3e68ed5aaf72b9de6de98b78e86605732a7",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "da49e68b97882585b12dd874425ea54359919715d76e1bafa57b37d68dba4e1f",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "896ef9c8f88e0fc4bbe3d546fc674f62d5216603795afda833fe9120cc400fb2",
-      "text": "Every spaCR release, with links, in a box the reader can resize.\n\nTHE NOTES ARE BUNDLED, not fetched. They come from\n``spacr/resources/release_notes.json``, which\n``tools/build_release_notes.py`` writes from the GitHub releases before\na tag. This panel is on the first screen the application shows, so\nmaking its content depend on api.github.com would mean a dashboard that\nis empty offline, throttled behind a shared NAT, and slower to draw than\nthe window it is in. The notes also belong to the release: what shipped\nin 1.5.0.4 does not change afterwards.\n\nThere was previously no feed at all and this panel said so -- \"No\nrelease notes bundled with this build\" -- which was honest and useless.\nWhat it shows now is the real thing: \"News should contain all the\nreleas information with links. i nkow that there was release information\nfor the current 1.5.0.4 version. this one as well as all of the other\nones should be scrollable and the user should be able to controll the\nheight.\"\n\nSo: every release newest-first, each one's body rendered with its links\nlive, the whole list inside a scroll area, and a grip along the bottom\nedge that drags the box taller or shorter. The height is remembered\nbetween sessions -- a reader who made it tall wants it tall next time.\n\nThe update check stays a BUTTON. It is the one thing here that does\ntouch the network, and it does so only when pressed.\n\n:param version: the build to name in the heading. Empty leaves the\n    heading as the translated word alone -- the two are kept separate\n    because the catalog is keyed on \"News\", so composing the release into\n    the caption first would leave the only aside panel that names a build\n    in English.\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
+      "source_sha256": "6f0dd30b86aed448cd2050c877b10618c1e7bb97a68f5b3a5948d60d78ebd28d",
+      "text": "Every spaCR release, with links, in a box the reader can resize.\n\nTHE NOTES ARE BUNDLED, and the bundle is what draws. They come from\n``spacr/resources/release_notes.json``, which\n``tools/build_release_notes.py`` writes from the GitHub releases and\nwhich ``.github/workflows/release.yml`` refreshes on every release.\nThis panel is on the first screen the application shows, so making its\nCONTENT depend on api.github.com would mean a dashboard that is empty\noffline, throttled behind a shared NAT, and slower to draw than the\nwindow it is in. The bundled file therefore remains the offline source\nof truth and the panel is complete before anything touches a socket.\n\nAND THEN IT CATCHES UP. The wheel for a release cannot contain its own\nrelease note -- the note is written when the GitHub release is\npublished, which is after that wheel is on PyPI -- so a bundled file is\nalways one release behind the build carrying it, and that is what went\nwrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news\nsection should always automatically reflect the latest spacr release\nnews.\" So after the page is shown,\n:attr:`refresh_requested` asks the window to read the public releases\nlist on a worker thread, and :meth:`apply_releases` merges whatever\ncomes back in front of the bundled list. Nothing here opens a socket:\nthe panel only asks, and a fetch that fails, is rate-limited, is\nswitched off in Preferences, or simply finds nothing newer leaves the\nbundled list exactly as it was drawn.\n\nThere was previously no feed at all and this panel said so -- \"No\nrelease notes bundled with this build\" -- which was honest and useless.\nWhat it shows now is the real thing: \"News should contain all the\nreleas information with links. i nkow that there was release information\nfor the current 1.5.0.4 version. this one as well as all of the other\nones should be scrollable and the user should be able to controll the\nheight.\"\n\nSo: every release newest-first, each one's body rendered with its links\nlive, the whole list inside a scroll area, and a grip along the bottom\nedge that drags the box taller or shorter. The height is remembered\nbetween sessions -- a reader who made it tall wants it tall next time.\n\nThe update check stays a BUTTON. Offering to install something is a\ndecision, so it is still made only when pressed.\n\n:param version: the build to name in the heading. Empty leaves the\n    heading as the translated word alone -- the two are kept separate\n    because the catalog is keyed on \"News\", so composing the release into\n    the caption first would leave the only aside panel that names a build\n    in English.\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
+    },
+    "spacr.qt.widgets.home.NewsPanel.apply_releases": {
+      "source_blocks_sha256": [
+        "f165da0bf51c42f9e6e5d3606624766aa1f9659a8305773e37eb24727f6fb6cd",
+        "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
+        "d291184d2f8fc34a6282157c9fd93e3562a25b1f154638b7dd5641c1f4ef8591"
+      ],
+      "source_sha256": "29d093780c2ec05a0a1cf288b27284999ef3d41623a5325d7bc3c3e612c1511a",
+      "text": "Merge a fetched release list into the list on screen.\n\nSilence is the contract. An empty list, a list of rubbish, or a\nlist that says nothing the bundled file did not already say leaves\nthe panel untouched and says nothing to the reader -- the failure\nof an unasked-for background fetch is not the reader's problem.\n\n:param fetched: release records from\n    :func:`spacr.updater.fetch_release_notes`, or anything at all."
     },
     "spacr.qt.widgets.home.NewsPanel.grip": {
       "source_blocks_sha256": [
@@ -83111,6 +83152,17 @@
       ],
       "source_sha256": "b4b1af45476b9c20e078080c0ac1747a3de96f440d1ce22ce2084c2cd748cbc7",
       "text": "The drag handle under the list. For tests."
+    },
+    "spacr.qt.widgets.home.NewsPanel.merge_releases": {
+      "source_blocks_sha256": [
+        "a93b263dea3e9a18d39f76418b430bd48c2e6012c265407516236d5971d07648",
+        "850ea5eeb7f06e67d51a20980b0538d8dbcd94e6b0b38bf7e58b913250db6fa6",
+        "a25db742a93754ae9fc6b12ce8d26e2d39bb5a16c459278bdf1132759623a4fb",
+        "2770aac6f3142f6af86eea3bcbe674549928675774269f2dc4d9193a9a75571d",
+        "c4e88a48b06c793e4a7e7477011c617a9c2c354a32034ba8b4b6be57bce58f59"
+      ],
+      "source_sha256": "f64b2976bbad2e3af8e7c300690ff0449147803fcbe2fa88a93bf34c18d8bd67",
+      "text": "The bundled and fetched lists as one, newest first.\n\nOne record per tag, and a fetched record wins: the same release can\nhave its notes edited on GitHub after it ships, and the live copy\nis then the true one. Ordering is by publication date and then by\nthe version in the tag, so a release published on the same day as\nthe one before it still lands above it.\n\n:param bundled: the records read from the wheel.\n:param fetched: the records read from GitHub, or ``None``.\n:returns: a new list; neither argument is modified."
     },
     "spacr.qt.widgets.home.NewsPanel.notes_view": {
       "source_blocks_sha256": [
@@ -83126,6 +83178,13 @@
       ],
       "source_sha256": "fe4b3f0e28fb5e805fc6ab0650c133ebbf6440d74bc573dea26495dbc6946b8a",
       "text": "The bundled release records, newest first, or ``[]``.\n\nDegrades to an empty list on ANY failure, and the panel then draws\nthe placeholder it drew before there was a feed. A dashboard must\nnot fail to appear because a resource file is missing from a wheel."
+    },
+    "spacr.qt.widgets.home.NewsPanel.releases": {
+      "source_blocks_sha256": [
+        "7aa265af7aaa4729c5780b439942483ad21578c375ef6a880df263fc1953747d"
+      ],
+      "source_sha256": "7aa265af7aaa4729c5780b439942483ad21578c375ef6a880df263fc1953747d",
+      "text": "The release records currently drawn, newest first."
     },
     "spacr.qt.widgets.home.NewsPanel.render_body": {
       "source_blocks_sha256": [
@@ -83143,6 +83202,15 @@
       ],
       "source_sha256": "a9f6e676b0c887a3300d83d795e0333640c7aaa24e2e87b3fb56673de48edaf7",
       "text": "Replace the release list with real content.\n\nThe escape hatch :meth:`HomePage.set_reserved_content` exposes. It\nhides the bundled notes rather than deleting them, so a caller that\ndrops content in has not thrown the feed away."
+    },
+    "spacr.qt.widgets.home.NewsPanel.showEvent": {
+      "source_blocks_sha256": [
+        "1559d2001773ac5ed6bad9101f35f22c26b6b9c808f05bb7a04724123bdcc75f",
+        "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "2766eb707f8ec085ef6d65d13416fd32d605f2a2cfe561cd0bb0308101431de0",
+      "text": "Ask for a refresh the first time the panel is shown.\n\nAFTER the page exists and ON THE EVENT LOOP, not during\nconstruction: the single-shot timer means the emit lands on a later\nturn than this show, so Home's first paint is never waiting on it.\nOnce per panel, because a page that is shown again -- a tab\nrevisited, a font-scale rebuild -- is not news.\n\n:param event: the Qt show event."
     },
     "spacr.qt.widgets.home.PAUSE_UNAVAILABLE": {
       "source_blocks_sha256": [
@@ -108574,11 +108642,12 @@
         "9181ae69a993d04462f88fb49695d2bd282dcb0a23d0680a826f612c1724184e",
         "a8886323d66465733175cd65df4f6e93a911b01ec83d82edbf44b9eaef719c56",
         "5ced0e0fb67945dac0e6dab2c32134df509aaffc84c0d3ac80d003815d568bc1",
+        "0e7dc016793ee4ca9c3efac211012bb100c2424a61828b5b80dd3417f193c667",
         "2118db53ccdb2a02cd5498acbdeb58a48b17fd617d779f9a245e2fe28ef656f1",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665"
       ],
-      "source_sha256": "10393a968f43633a39abfcab30df26c0c92068352ce6d6f7d2992ac9e2b5e9a6",
-      "text": "Auto-updater — compare local ``spacr`` to PyPI + the nightly branch.\n\nExposes a small API the Qt GUI's Help → \"Check for updates\" menu\nentry can call. Nothing runs automatically; users always trigger a\ncheck + confirm any upgrade.\n\nThe updater talks to two sources:\n\n* **PyPI** — ``https://pypi.org/pypi/spacr/json`` for the latest\n  released version.\n* **GitHub** — the nightly branch's HEAD commit hash, so nightly\n  users see how many commits they're behind.\n\nBoth fetches use ``urllib`` from the stdlib to avoid pulling in an\nextra HTTP dependency. Timeouts are short (3 s) so a slow / offline\nnetwork doesn't block the UI. Errors are absorbed and surfaced as\n\"couldn't check\" — never a crash.\n\nPublic API::\n\n    from spacr.updater import check_for_updates, run_pip_upgrade\n\n    info = check_for_updates()   # UpdateInfo\n    if info.upgrade_available:\n        run_pip_upgrade()"
+      "source_sha256": "b350761eded2cbafabcd182c9bcdc4e2094f08a742e30859d756e6faeae9a5cf",
+      "text": "Auto-updater — compare local ``spacr`` to PyPI + the nightly branch.\n\nExposes a small API the Qt GUI's Help → \"Check for updates\" menu\nentry can call. Nothing runs automatically; users always trigger a\ncheck + confirm any upgrade.\n\nThe updater talks to two sources:\n\n* **PyPI** — ``https://pypi.org/pypi/spacr/json`` for the latest\n  released version.\n* **GitHub** — the nightly branch's HEAD commit hash, so nightly\n  users see how many commits they're behind.\n\nIt also answers Home's News panel, through :func:`fetch_release_notes`:\nthe published releases, cached for a day, so a running copy can show a\nrelease newer than the one bundled in its own wheel.\n\nBoth fetches use ``urllib`` from the stdlib to avoid pulling in an\nextra HTTP dependency. Timeouts are short (3 s) so a slow / offline\nnetwork doesn't block the UI. Errors are absorbed and surfaced as\n\"couldn't check\" — never a crash.\n\nPublic API::\n\n    from spacr.updater import check_for_updates, run_pip_upgrade\n\n    info = check_for_updates()   # UpdateInfo\n    if info.upgrade_available:\n        run_pip_upgrade()"
     },
     "spacr.updater.DryRun": {
       "source_blocks_sha256": [
@@ -108773,6 +108842,18 @@
       "source_sha256": "7dcdc3aa2f6ec62ff1961c354f99aaf54d57fa2fb676c13b6db59aa756313e2b",
       "text": "Return the active spaCR checkout, or ``None`` for a regular install.\n\n:returns: the absolute path of the working tree, when this interpreter is\n    running spaCR out of one.\n\nDetection first reads the PEP 610 ``direct_url.json`` editable-install\nrecord. If that metadata is unavailable, it checks whether the imported\npackage resides outside ``site-packages`` and inside a directory containing\n``.git`` or ``pyproject.toml``."
     },
+    "spacr.updater.fetch_release_notes": {
+      "source_blocks_sha256": [
+        "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
+        "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
+        "9c8f9d735106e346dcb83b0bdd2b598bca41999abde8f32fc6bc56166655395f",
+        "683518d92d4d70fc6ea8b92a696d78f230cda680870e99eec4cc2dfa61b68c30",
+        "9b0b3f334aeb242980613aa333fbc09ab61078ae0ed1724ad3401262b7ffa1ec",
+        "b6df52cba5b0cb072e39cd81c374730d8a36e4857495705144f09ff1fdec9b26"
+      ],
+      "source_sha256": "ffa76eeb34ca6db6b71cf85f09eb92414b23ed8ba5a8bc7f29976e74141e1b27",
+      "text": "The repository's releases, newest first, or ``[]``.\n\nNEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News\npanel asks for it through the same :class:`_UpdateWorker` the manual\nupdate check runs on, after the page has been shown.\n\nUnauthenticated, because the alternative is a token the user does not\nhave. That means the shared, per-address rate limit, which is why the\nanswer is cached for a day and why every failure is silent: the\nbundled ``spacr/resources/release_notes.json`` remains the offline\nsource of truth and an empty list simply leaves it alone.\n\n:param timeout: request timeout in seconds. Short on purpose.\n:param max_age: how old a cached answer may be before it is asked\n    again, in seconds.\n:returns: release records shaped like the bundled resource's, or an\n    empty list when the answer is unavailable for any reason at all."
+    },
     "spacr.updater.find_uv": {
       "source_blocks_sha256": [
         "619a7c997ffc55cd836f533a76b4aa9b5355b27a3bc3876abc3d784d81cdcbbf",
@@ -108817,6 +108898,13 @@
       ],
       "source_sha256": "c1f1620b1c7ec3fddafcdcf4cbff3344e35795fe7b3d5410f3331f6c30e20348",
       "text": "Launch the updated Qt application after the old event loop has stopped.\n\n:returns: process identifier of the detached replacement application.\n:raises OSError: the replacement could not be started."
+    },
+    "spacr.updater.news_cache_path": {
+      "source_blocks_sha256": [
+        "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac"
+      ],
+      "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
+      "text": "Where the fetched release list is remembered between launches."
     },
     "spacr.updater.offer_elsewhere": {
       "source_blocks_sha256": [
@@ -109423,11 +109511,12 @@
         "d74578ab692f965d7efea3bf728580ac8c18902e00741fe0e22efa017dec0b87",
         "dff55e4243c14516fe9c847db3eb36e681080993c99e65223219aa327babd7a8",
         "59ceb0811f3faf7cb794370e1be41ecba7ca420530e8d63a137256781e06903f",
+        "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
-        "9be4b41d9f3e165a91bec4e199eed1ac0a49c0156cc03ac207a6526a19e5b8a0"
+        "0b483d7e974fd7bf8fed14df4cbebc83f61407b8f7b7e074e855fc405e605482"
       ],
-      "source_sha256": "93bd11d3069200a1cb44657cbdfa6265995d1481b722d369281bdd1bd8b907fc",
-      "text": "Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.\n\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place).\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and\n    values below two run inline without starting a child process.\n:returns: None.\n:raises ValueError: if the three folders contain different numbers of files\n    or mismatched filenames. These checks finish before any mask is changed."
+      "source_sha256": "0b03e678ada5806886d3994e7760e8739d37dc9073a60cd840242f95f7fa8892",
+      "text": "Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.\n\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place).\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and\n    values below two run inline without starting a child process.\n:param output_folder: optional separate folder for adjusted masks. None\n    preserves the historical in-place behavior. A separate folder keeps\n    all source masks byte-identical, and every selected field is rebuilt\n    from its source on each invocation, including after interrupted work.\n:returns: None.\n:raises ValueError: if the three folders contain different numbers of files\n    or mismatched filenames, or a mask is truncated, nonnumeric, empty,\n    not two-dimensional or has different dimensions from its partners.\n    Available organelle masks are checked too. Header-only validation of\n    every field finishes before any mask is changed or workers are started.\n    An explicit output folder must differ from every source folder and\n    must not contain masks outside the selected field set."
     },
     "spacr.utils.all_elements_match": {
       "source_blocks_sha256": [
@@ -110798,11 +110887,12 @@
         "4fa9f7bc2dc2cc28fc94c1f2bbe02b6cb0af09c286cdff588c496694c8115eb2",
         "d74578ab692f965d7efea3bf728580ac8c18902e00741fe0e22efa017dec0b87",
         "dff55e4243c14516fe9c847db3eb36e681080993c99e65223219aa327babd7a8",
+        "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
         "2d1f90c2a487534d206f3cd50d00c1726a2fdbdb2e09ab8424ff0835013754b4",
         "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb"
       ],
-      "source_sha256": "ce1af91080e404572f4003ed87fcf8682780c10fd707957e5fef6f1009b2da55",
-      "text": "Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.\n\n:param file_name: mask file name (must exist in all folders).\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place). The\n    adjusted mask replaces the old one atomically, so a run killed\n    during the write leaves the previous whole mask, never a truncated\n    one.\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:returns: elapsed seconds.\n:raises ValueError: if the matching cell or nuclei mask file is missing,\n    or a mask file holds pickled objects: masks are plain arrays, and\n    nothing is unpickled."
+      "source_sha256": "8003480d8fedbeb4f6f7ba72a322b354902191abc68a2152665919222b62526c",
+      "text": "Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.\n\n:param file_name: mask file name (must exist in all folders).\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place). The\n    adjusted mask replaces the old one atomically, so a run killed\n    during the write leaves the previous whole mask, never a truncated\n    one.\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:param output_folder: optional separate destination for adjusted masks.\n    None retains in-place adjustment. An explicit destination must differ\n    from every source mask folder, including through directory symlinks.\n:returns: elapsed seconds.\n:raises ValueError: if the matching cell or nuclei mask file is missing,\n    or a mask file holds pickled objects: masks are plain arrays, and\n    nothing is unpickled."
     },
     "spacr.utils.process_masks": {
       "source_blocks_sha256": [

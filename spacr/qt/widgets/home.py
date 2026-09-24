@@ -1347,14 +1347,29 @@ class StageLegend(Panel):
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
-    THE NOTES ARE BUNDLED, not fetched. They come from
+    THE NOTES ARE BUNDLED, and the bundle is what draws. They come from
     ``spacr/resources/release_notes.json``, which
-    ``tools/build_release_notes.py`` writes from the GitHub releases before
-    a tag. This panel is on the first screen the application shows, so
-    making its content depend on api.github.com would mean a dashboard that
-    is empty offline, throttled behind a shared NAT, and slower to draw than
-    the window it is in. The notes also belong to the release: what shipped
-    in 1.5.0.4 does not change afterwards.
+    ``tools/build_release_notes.py`` writes from the GitHub releases and
+    which ``.github/workflows/release.yml`` refreshes on every release.
+    This panel is on the first screen the application shows, so making its
+    CONTENT depend on api.github.com would mean a dashboard that is empty
+    offline, throttled behind a shared NAT, and slower to draw than the
+    window it is in. The bundled file therefore remains the offline source
+    of truth and the panel is complete before anything touches a socket.
+
+    AND THEN IT CATCHES UP. The wheel for a release cannot contain its own
+    release note -- the note is written when the GitHub release is
+    published, which is after that wheel is on PyPI -- so a bundled file is
+    always one release behind the build carrying it, and that is what went
+    wrong: "im on 1.5.1.0 and the news only goes to 1.5.0.7. the news
+    section should always automatically reflect the latest spacr release
+    news." So after the page is shown,
+    :attr:`refresh_requested` asks the window to read the public releases
+    list on a worker thread, and :meth:`apply_releases` merges whatever
+    comes back in front of the bundled list. Nothing here opens a socket:
+    the panel only asks, and a fetch that fails, is rate-limited, is
+    switched off in Preferences, or simply finds nothing newer leaves the
+    bundled list exactly as it was drawn.
 
     There was previously no feed at all and this panel said so -- "No
     release notes bundled with this build" -- which was honest and useless.
@@ -1369,8 +1384,8 @@ class NewsPanel(Panel):
     edge that drags the box taller or shorter. The height is remembered
     between sessions -- a reader who made it tall wants it tall next time.
 
-    The update check stays a BUTTON. It is the one thing here that does
-    touch the network, and it does so only when pressed.
+    The update check stays a BUTTON. Offering to install something is a
+    decision, so it is still made only when pressed.
 
     :param version: the build to name in the heading. Empty leaves the
         heading as the translated word alone -- the two are kept separate
@@ -1381,6 +1396,14 @@ class NewsPanel(Panel):
     """
 
     check_requested = Signal()
+
+    #: Emitted once, after the panel has been shown, to ask the window for
+    #: a newer release list than the one in this wheel. It carries nothing
+    #: and it opens nothing: the window answers it on a worker thread and
+    #: hands the result back through :meth:`apply_releases`. A panel built
+    #: in a test, or on a window that does not connect it, simply never
+    #: gets an answer and keeps drawing the bundled list.
+    refresh_requested = Signal()
 
     #: Height of the scrolling list in px at 100 % font scale: the default,
     #: and how far the grip may drag it. The floor has to show a heading and
@@ -1412,6 +1435,7 @@ class NewsPanel(Panel):
         P = active_palette()
         self.content: Optional[QWidget] = None
         self._releases = self.read_releases()
+        self._refresh_asked = False
 
         self._notes = QScrollArea()
         self._notes.setObjectName("HomeNewsScroll")
@@ -1435,11 +1459,7 @@ class NewsPanel(Panel):
         self._placeholder.setStyleSheet(
             f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
-        self._notes_column.addWidget(self._placeholder)
-        self._placeholder.setVisible(not self._releases)
-        for entry in self._releases:
-            self._notes_column.addWidget(self._release_block(entry))
-        self._notes_column.addStretch(1)
+        self._fill()
 
         self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
                                  self.NOTES_H_MAX,
@@ -1473,6 +1493,104 @@ class NewsPanel(Panel):
             return [r for r in releases if isinstance(r, dict)]
         except Exception:                                        # noqa: BLE001
             return []
+
+    def _fill(self) -> None:
+        """Draw :attr:`_releases` into the scrolling column.
+
+        Called once while the panel is built and again whenever a fetched
+        list arrives, so the two paths cannot diverge. The placeholder is
+        kept rather than rebuilt: it is what a build with no bundled
+        resource shows, and :meth:`set_content` holds a reference to it.
+        """
+        while self._notes_column.count():
+            item = self._notes_column.takeAt(0)
+            widget = item.widget()
+            if widget is not None and widget is not self._placeholder:
+                widget.setParent(None)
+                widget.deleteLater()
+        self._notes_column.addWidget(self._placeholder)
+        self._placeholder.setVisible(not self._releases
+                                     and self.content is None)
+        for entry in self._releases:
+            self._notes_column.addWidget(self._release_block(entry))
+        self._notes_column.addStretch(1)
+
+    def showEvent(self, event):                                  # noqa: N802
+        """Ask for a refresh the first time the panel is shown.
+
+        AFTER the page exists and ON THE EVENT LOOP, not during
+        construction: the single-shot timer means the emit lands on a later
+        turn than this show, so Home's first paint is never waiting on it.
+        Once per panel, because a page that is shown again -- a tab
+        revisited, a font-scale rebuild -- is not news.
+
+        :param event: the Qt show event.
+        """
+        super().showEvent(event)
+        if self._refresh_asked:
+            return
+        self._refresh_asked = True
+        QTimer.singleShot(0, self._ask_for_newer_releases)
+
+    def _ask_for_newer_releases(self) -> None:
+        """Emit :attr:`refresh_requested`, unless the panel is already gone."""
+        try:
+            self.refresh_requested.emit()
+        except RuntimeError:                                     # noqa: BLE001
+            pass
+
+    def apply_releases(self, fetched) -> None:
+        """Merge a fetched release list into the list on screen.
+
+        Silence is the contract. An empty list, a list of rubbish, or a
+        list that says nothing the bundled file did not already say leaves
+        the panel untouched and says nothing to the reader -- the failure
+        of an unasked-for background fetch is not the reader's problem.
+
+        :param fetched: release records from
+            :func:`spacr.updater.fetch_release_notes`, or anything at all.
+        """
+        try:
+            merged = self.merge_releases(self._releases, fetched)
+        except Exception:                                        # noqa: BLE001
+            return
+        if merged == self._releases:
+            return
+        self._releases = merged
+        self._fill()
+
+    @staticmethod
+    def merge_releases(bundled, fetched) -> list:
+        """The bundled and fetched lists as one, newest first.
+
+        One record per tag, and a fetched record wins: the same release can
+        have its notes edited on GitHub after it ships, and the live copy
+        is then the true one. Ordering is by publication date and then by
+        the version in the tag, so a release published on the same day as
+        the one before it still lands above it.
+
+        :param bundled: the records read from the wheel.
+        :param fetched: the records read from GitHub, or ``None``.
+        :returns: a new list; neither argument is modified.
+        """
+        by_tag = {}
+        for entry in list(bundled or []) + list(fetched or []):
+            if not isinstance(entry, dict):
+                continue
+            tag = str(entry.get("tag") or entry.get("name") or "").strip()
+            if not tag:
+                continue
+            by_tag[tag] = entry
+        return sorted(by_tag.values(), key=NewsPanel._newest_first,
+                      reverse=True)
+
+    @staticmethod
+    def _newest_first(entry: dict) -> tuple:
+        """Sort key: publication date, then the version the tag names."""
+        digits = re.findall(r"\d+", str(entry.get("tag") or ""))[:4]
+        version = tuple(int(d) for d in digits)
+        return (str(entry.get("published") or ""),
+                version + (0,) * (4 - len(version)))
 
     def _release_block(self, entry: dict) -> QWidget:
         """One release: its name, its date, and its notes with links live."""
@@ -1570,6 +1688,11 @@ class NewsPanel(Panel):
         set_news_height(int(round(px / scale)))
 
     @property
+    def releases(self) -> list:
+        """The release records currently drawn, newest first."""
+        return list(self._releases)
+
+    @property
     def notes_view(self) -> QScrollArea:
         """The scrolling list of releases. For tests."""
         return self._notes
@@ -1640,6 +1763,11 @@ class HomePage(QWidget):
     sample_project_requested = Signal()
     #: Emitted when the page wants the window to run its update check.
     update_check_requested = Signal()
+    #: Emitted once, after the News panel has been shown, to ask the window
+    #: for a release list newer than the one bundled in this wheel. The
+    #: window answers it on a worker thread; see
+    #: :meth:`spacr.qt.app.MainWindow._refresh_news`.
+    news_refresh_requested = Signal()
 
     #: Declared on the class so a paint that arrives mid-construction —
     #: a nested layout activation delivers one on some styles — finds an
@@ -2345,6 +2473,7 @@ class HomePage(QWidget):
         self._recent.cleared.connect(self.refresh)
         self._news = NewsPanel(self._version())
         self._news.check_requested.connect(self.update_check_requested)
+        self._news.refresh_requested.connect(self.news_refresh_requested)
         self._totals = TotalsPanel()
         self._system = SystemPanel()
         self._legend = StageLegend()
@@ -2436,6 +2565,23 @@ class HomePage(QWidget):
     def set_reserved_content(self, widget: QWidget) -> None:
         """Fill the featured/news surface with real content."""
         self._news.set_content(widget)
+
+    def apply_release_news(self, releases) -> None:
+        """Hand a fetched release list to the News panel.
+
+        The answer to :attr:`news_refresh_requested`, and the only way in:
+        the window never reaches into the panel, so a page rebuilt at a new
+        font scale simply asks again.
+
+        :param releases: records from
+            :func:`spacr.updater.fetch_release_notes`, or anything at all.
+        """
+        self._news.apply_releases(releases)
+
+    @property
+    def news_panel(self) -> "NewsPanel":
+        """The News panel. For tests and for the window's own wiring."""
+        return self._news
 
     @property
     def _reserved_content(self) -> Optional[QWidget]:

@@ -176,6 +176,7 @@ _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_PERFORMANCE_LOG = "prefs/performance_logging"
 _KEY_SHARE_DIAGNOSTICS = "privacy/share_diagnostic_logs"
+_KEY_REFRESH_NEWS = "privacy/refresh_news_from_github"
 _KEY_LOG_FILE_LEVELS = "prefs/log_file_levels"
 _KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
@@ -4416,6 +4417,31 @@ def set_share_diagnostic_logs(on: bool) -> None:
     _settings().setValue(_KEY_SHARE_DIAGNOSTICS, bool(on))
 
 
+#: On, because "the news section should always automatically reflect the
+#: latest spaCR release news" (2026-09-24) and a wheel's bundled notes stop
+#: at the release before its own. Nothing is sent: the request is a GET of
+#: the public releases list, unauthenticated, at most once a day, on a
+#: worker thread, after Home has been drawn. Off leaves the panel exactly
+#: as it was -- the bundled resource, and no socket.
+DEFAULT_REFRESH_NEWS = True
+
+
+def get_refresh_news() -> bool:
+    """Whether Home's News panel may ask GitHub for newer releases.
+
+    Read by :meth:`spacr.qt.app.MainWindow._refresh_news`, which is the one
+    place that starts the fetch. The bundled
+    ``spacr/resources/release_notes.json`` is drawn either way.
+    """
+    return _as_bool(_settings().value(_KEY_REFRESH_NEWS,
+                                      DEFAULT_REFRESH_NEWS),
+                    DEFAULT_REFRESH_NEWS)
+
+
+def set_refresh_news(on: bool) -> None:
+    """Persist the News panel's release-refresh opt-out."""
+    _settings().setValue(_KEY_REFRESH_NEWS, bool(on))
+
 
 #: The Database Browser opens ``measurements.db`` read-only. Editing is a
 #: separate, deliberate opt-in because an UPDATE against a measurements
@@ -5919,6 +5945,21 @@ class PreferencesDialog:
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
 
+        refresh_news_check = Toggle(
+            tr("Show newer releases than this build in Home's News panel")
+        )
+        refresh_news_check.setObjectName("RefreshNews")
+        refresh_news_check.setToolTip(
+            "On by default. A build's bundled release notes stop at the "
+            "release before its own, so with this on spaCR reads the public "
+            "list of releases from GitHub once a day, on a background "
+            "thread, after Home is drawn, and shows anything newer at the "
+            "top of News. Nothing is sent and nothing is signed in. Off "
+            "shows only the notes bundled in this build."
+        )
+        refresh_news_check.setChecked(get_refresh_news())
+        modules.addRow(tr("Release news"), refresh_news_check)
+
         db_edit_check = Toggle(tr("Allow editing in the Database Browser"))
         db_edit_check.setToolTip(
             "Off by default. The Database Browser opens measurements.db "
@@ -6759,6 +6800,7 @@ class PreferencesDialog:
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
+                refresh_news_check.setChecked(get_refresh_news())
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
@@ -6822,6 +6864,7 @@ class PreferencesDialog:
             set_verbose_logging(verbose_check.isChecked())
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
+            set_refresh_news(refresh_news_check.isChecked())
             verbose_holds_debug = verbose_check.isChecked()
             set_log_levels(
                 [level for level, (file_t, _c) in log_level_toggles.items()
