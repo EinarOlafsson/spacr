@@ -17190,3 +17190,8 @@ new nightly commits before pushing this and the strict host-marker key fix.
 identity, visible loader errors, closed controls and installation acceptance
 are tested alongside existing asynchronous Compare/Apply behavior. Test-only;
 no new settings/API/text. Existing real-model acceptance remains separate.
+
+2026-09-24 — IMPLEMENTATION: PLAQUE PASSIVE NAVIGATION288
+123plaque GUI checks pass,90.09%preview module coverage. Added actual Qt
+pre-load navigation/plain-scroll/hover checks; no API/settings/text change.
+Full/Minimum jobs in protected35966906164 remain live; not restarting them.

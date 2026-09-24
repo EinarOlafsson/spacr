@@ -56,3 +56,50 @@ def test_pan_does_not_select_well_but_click_does(qtbot):
     assert not selected
     assert view._pan == QPointF(40,20)
     assert view.cursor().shape() == Qt.ArrowCursor
+
+
+@pytest.mark.parametrize("loaded", [False, True])
+def test_ordinary_scrolling_and_hover_never_move_the_image(qtbot, loaded):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QMouseEvent
+
+    view = _ImageView()
+    qtbot.addWidget(view)
+    view.resize(500, 400)
+    view.show()
+    if loaded:
+        view.set_image(np.zeros((400, 800, 3), np.uint8))
+    before = (view._scale, QPointF(view._pan), view.image_rect())
+    selected = []
+    view.clicked.connect(lambda *point: selected.append(point))
+    position = QPointF(200, 180)
+    wheel = QWheelEvent(position, view.mapToGlobal(position.toPoint()),
+                        QPoint(), QPoint(0, 120), Qt.NoButton, Qt.NoModifier,
+                        Qt.NoScrollPhase, False)
+    view.wheelEvent(wheel)
+    move = QMouseEvent(QEvent.MouseMove, position, position,
+                      Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+    view.mouseMoveEvent(move)
+    qtbot.mouseRelease(view, Qt.LeftButton, pos=position.toPoint())
+    assert (view._scale, view._pan, view.image_rect()) == before
+    assert not selected and not wheel.isAccepted()
+    assert view.cursor().shape() == Qt.ArrowCursor
+
+
+def test_navigation_before_image_load_does_not_change_initial_fit(qtbot):
+    view = _ImageView()
+    qtbot.addWidget(view)
+    view.resize(500, 400)
+    view.show()
+    selected = []
+    view.clicked.connect(lambda *point: selected.append(point))
+    view.fit_image()
+    view.zoom(2, QPointF(100, 100))
+    qtbot.mouseClick(view, Qt.LeftButton, pos=QPoint(250, 200))
+    assert view.image_rect().isEmpty()
+    assert view.image_point(250, 200) is None
+    assert not selected
+    view.set_image(np.zeros((1000, 2000, 3), np.uint8))
+    assert view.image_rect().width() <= 480
+    assert view.image_rect().height() <= 260
+    assert view._pan == QPointF()

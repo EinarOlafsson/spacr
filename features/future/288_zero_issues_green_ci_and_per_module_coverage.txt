@@ -5416,3 +5416,11 @@ captured request/CPU identity, loading-error, post-close publication and
 accepted-versus-cancelled installation retry checks. Existing asynchronous
 Compare/Apply/cancellation checks still run. Loader stubs verify only control
 protocol, not model quality. No thresholds/exemptions/baseline were weakened.
+
+2026-09-24 — Plaque navigation covers pre-load and passive input
+Added real Qt checks that plain scrolling, unpressed pointer movement and an
+unmatched release never move/select the image. Fit/zoom/click before loading
+leave the first image at the screen-safe initial size. All eight plaque GUI
+files:123passed,90.09%module coverage. Test-only; no baseline/exemption change.
+All eight nonexempt modules below90%in the old complete CI report now have
+focused local runs above90%; the full aggregate and ratchet are still open.
