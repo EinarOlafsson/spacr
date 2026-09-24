@@ -17035,3 +17035,10 @@ suppressed. Transport cleanup/failure/input preservation tested.47worker tests,
 96.64%coverage;18Qt tests including realQThread→process→GUIreceiver. Final7
 plot checks verify PNG paths outside masks. No new public settings/UI. Update
 private API inventory only; final pipeline/control/adjustment integration open.
+
+2026-09-24 — IMPLEMENTATION: CONVERTER CI GUARD USES REAL OUTPUT288
+Coverage10's only failure was a source-string check for the old listdir loop.
+It now converts two real multichannel TIFFs and verifies distinct stable wells,
+channel reuse and output pixels. No runtime/API change.38combined conversion
+and worker-plot checks pass. Protected35966906164 remains live; Coverage10/11
+failures are repaired on current nightly, not retroactively called green.

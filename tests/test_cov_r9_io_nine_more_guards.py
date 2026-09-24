@@ -261,20 +261,26 @@ class TestTheDatasetModeDispatch:
 
 class TestOneWellPerOriginalFile:
 
-    def test_one_listdir_iteration_mints_exactly_one_well(self):
-        """THE PIN for deleting the impossible dictionary-reuse arm.
+    def test_one_listdir_iteration_mints_exactly_one_well(self, tmp_path):
+        """All channels of each original share one distinct, stable well."""
+        import tifffile
 
-        ``_listdir_visible`` contributes each filename once, and all channels and
-        timepoints are expanded inside that iteration. A local well therefore
-        carries the required reuse without a dictionary that cannot be hit.
-        """
         from spacr import io as IO
 
-        source = inspect.getsource(IO.convert_to_yokogawa)
-        loop = source.index("for file in sorted(_listdir_visible(folder)):")
-        well = source.index("well = _get_next_well(used_wells)", loop)
-        assert loop < well
-        assert "file_to_well" not in source
+        for name, value in [('b.tif', 20), ('a.tif', 10)]:
+            tifffile.imwrite(tmp_path / name, np.stack([
+                np.full((8, 9), value, np.uint16),
+                np.full((8, 9), value + 1, np.uint16)]), photometric='minisblack')
+        IO.convert_to_yokogawa(str(tmp_path))
+        log = pd.read_csv(tmp_path / 'rename_log.csv')
+        assert len(log) == 4
+        for original, well, value in [('a.tif', 'A01', 10), ('b.tif', 'A02', 20)]:
+            names = log.loc[log['Original File'] == original, 'Renamed TIFF'].tolist()
+            assert names == [f'plate1_{well}_T0001F001L01C0{channel}.tif'
+                             for channel in (1, 2)]
+            for channel, name in enumerate(names):
+                np.testing.assert_array_equal(tifffile.imread(tmp_path / name),
+                                              np.full((8, 9), value + channel, np.uint16))
 
     def test_the_walk_is_sorted_so_the_wells_are_stable(self):
         """Two runs over the same folder must assign the same wells, or a

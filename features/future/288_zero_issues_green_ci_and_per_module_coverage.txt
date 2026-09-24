@@ -5284,3 +5284,13 @@ asserts None for an empty identity, the exact real image for valid identifiers,
 and None for every identifier when only the AppleDouble sidecar remains.
 No runtime behavior was loosened.43measure/resume/stream checks pass in7.44s.
 Other jobs in the protected run remain active and are not restarted.
+
+2026-09-24 — Fresh Coverage10 converter assertion
+Protected35966906164 job107527435671 is terminal/failure with one stale
+source-text assertion looking for the old inline listdir loop. Conversion
+now snapshots the sorted filenames before its overwrite preflight. Replaced
+that spelling check with a real two-file/two-channel TIFF conversion: each
+original has one distinct well, sorted originals map to A01/A02, and every
+written plane retains its pixels. The combined conversion/worker-plot cohort
+passes38checks. Existing overwrite/reconversion guards remain intact. Other
+protected jobs remain live; this is not a full-CI success claim.
