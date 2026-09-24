@@ -2,14 +2,12 @@
 A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
 ================================================================================
 
-Status:    DONE 2026-09-19 for the Mask path: v1, metadata_type 'auto'
-           (both Yokogawa conversions), consolidate, pipeline_style 'v2'
-           and the preflight. Landed on nightly after review, which found
-           those last four still reading sidecars (see the 2026-09-19
-           review note). The owed follow-ups -- Measure, its resume and
-           test mode, the streamed dataset, the silent regex fallback and
-           allow_pickle -- are done in code on home/correctness-followups,
-           committed locally and NOT yet reviewed or pushed (last note).
+Status:    Implementation complete on nightly, updated 2026-09-24.
+           Original Mask/Measure/sidecar/regex/pickle fixes are integrated.
+           The three recorded runtime follow-ups are now fixed: converted
+           folder reruns, wrong-field streamed crops and visible importer
+           temporary arrays. See the dated validation notes at the end.
+           Consolidated API/translation follow-up belongs to the docs lane.
 Requested: GitHub #121 (auto-filed from the spaCR AI Console) and #117, both
            opened 2026-09-17 by jak18015 (Jacob Kellermeier). spaCR 1.5.0.8,
            macOS 26.7 on an Apple M4, plate on /Volumes/jk-ummi:
@@ -360,3 +358,13 @@ spellings take priority. A single underscore-delimited legacy suffix still
 works. Missing/ambiguous crops use the existing missing/trouble report.
 Nine regressions fail before (including two real streaming paths that wrote
 field10's object for field1); 49 stream/crop/channel checks now pass.
+
+2026-09-24 — Importer scratch arrays no longer look like finished fields
+external_masks._save_npy now delegates to the existing atomic NumPy writer:
+hidden unique .partial sibling, flush/fsync, then replacement. Ordinary
+save/replace failures clean scratch and retain the previous destination;
+a killed writer can leave a partial, but never a new visible .npy field.
+Three regressions fail before (visible temporary array and two leftover
+failure paths); 61 import/rollback/partial-sweep/Qt import checks pass.
+No public signature change. This completes the three runtime hazards
+recorded at the end of the September19 review. Docs handoff is in #325.

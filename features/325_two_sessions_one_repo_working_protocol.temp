@@ -16585,3 +16585,16 @@ underscore suffix. Existing missing/trouble reporting counts rejected crops.
 Nine baseline regressions; 49 stream/crop/channel checks pass. API owner:
 _stack_for/stream docstrings explain the revised missing/ambiguous behavior;
 no new public signature, settings or UI text. Importer temporary files next.
+
+2026-09-24 — IMPLEMENTATION: #429 IMPORT SCRATCH, RUNTIME COMPLETE
+external_masks._save_npy now reuses io._save_array_atomic through a lazy
+function import. Temporary files are hidden .partial siblings; errors clean
+them and preserve previous output. Three baseline failures,61 importer/
+rollback/partial-sweep/Qt checks pass. Updated private helper docstring;
+no new callable/signature/settings. #429's three recorded runtime follow-ups
+are complete; consolidated API/error-guidance translations remain yours.
+
+One CI diagnosis correction: Qt1 job107483090711's animation test worker
+was terminated exactly20minutes after start, following a15minute stack dump.
+It is a timeout, not evidence of another native segmentation fault. Qt2's
+separate native crash remains unresolved. No open GitHub issues on recheck.

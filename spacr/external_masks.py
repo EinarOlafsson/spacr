@@ -665,17 +665,19 @@ def plan_external_masks(settings: Optional[Mapping[str, Any]] = None
 
 
 def _save_npy(path: str, array: np.ndarray) -> str:
-    """Atomically replace one NumPy destination through a PID-specific file.
+    """Atomically replace one NumPy destination through a hidden partial file.
+
+    An interrupted write cannot look like a finished field to array readers.
+    Ordinary save/replace failures remove the scratch file and preserve the
+    previous destination; a killed process can leave only a hidden partial.
 
     :param path: destination ``.npy`` path.
     :param array: array to serialize.
     :returns: ``path`` after replacement succeeds.
     """
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    temporary = f"{path}.tmp-{os.getpid()}.npy"
-    np.save(temporary, array)
-    os.replace(temporary, path)
-    return path
+    from .io import _save_array_atomic
+
+    return _save_array_atomic(path, array)
 
 
 def _tables(path: str) -> List[str]:
