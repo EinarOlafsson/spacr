@@ -139,3 +139,23 @@ GitHub131is still the sole open issue and is excluded from this release by the
 maintainer. Post-publication observation is a release operation, not a new
 unfinished feature or a reason to reduce completion percentages. Record only
 an actual publication/installer failure as new work if one occurs.
+
+2026-09-24 — MAINTAINER OWNS VERSION BUMP AND MAIN PROMOTION
+The maintainer now explicitly says they will increment1.5.1.0and push main
+after this remaining-work pass. Implementation continues on nightly; do not
+promote or publish on their behalf under the older release instruction.
+
+Frozen candidate06a7de42e has built/Twine-validated artifacts and explicit
+CI35944548693. That run is not green: Qt shard2had one font-rasterization
+assumption and one native GC crash during static translation extraction;
+coverage shard11found the missing packaging minimum pin. Nightly7b149384b
+repairs the text assertion and isolates static extraction(39checks pass);
+cdd7b91a6adds packaging21.3to the minimum profile(17checks pass). Neither
+changes production runtime. These commits are NOTin that candidate snapshot.
+Eight jobs have passed, two failed and thirteen remain running at this note.
+
+Nightly also includes subsequent489restoration runtime work through782770ecb,
+which is deliberately absent from the frozen candidate. Its real GUI and
+full-field acceptance are recorded in489; translations/API/tutorial updates
+are handed to the documentation owner. Preserve that distinction when choosing
+the release source. Main and PyPI remain1.5.0.9; no publication claim.
