@@ -9353,6 +9353,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.regression_results.for_table', '``frame`` without the columns that are blank for every row shown.'),
     ('spacr.qt.widgets.regression_results.read_run_tables', "Read a run's primary table, and any LEVEL it left in a sibling file."),
     ('spacr.qt.widgets.regression_results.summary_text', 'Return a model summary or an explanation of its absence.'),
+    ('spacr.qt.widgets.restoration_controls', 'Asynchronous Cellpose 3 restoration controls for Make Masks enhancement.'),
     ('spacr.qt.widgets.row_exclusion', 'Column/value editor for excluding rows from UMAP input data.'),
     ('spacr.qt.widgets.row_exclusion.RowExclusionEditor', 'Add one or more UMAP row exclusions by choosing columns and values.'),
     ('spacr.qt.widgets.row_exclusion.RowExclusionEditor.active_jobs', 'How many worker threads are still winding down.'),
