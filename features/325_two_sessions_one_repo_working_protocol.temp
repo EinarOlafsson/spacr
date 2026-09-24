@@ -16929,3 +16929,11 @@ controls remain open. Docs: private API inventory only for this batch.
 Protected CI35952253721 is fully terminal. Last Coverage5 showed an old Qt
 QWidget-creation native crash; its exact313-test pre-crash sequence passes
 current source after the existing QScreen fix. Fresh protected CI is next.
+
+2026-09-24 — IMPLEMENTATION: FRESH PROTECTED CI STARTED
+435239bf3 and preceding83ba3ed08/1e5c408b6 are pushed to nightly. Protected
+workflow_dispatch run35966906164 now tests435239bf3:
+https://github.com/EinarOlafsson/spacr/actions/runs/35966906164
+Do not cancel/restart while live. Prior35952253721 is terminal/failure and its
+last crash sequence has been replayed successfully. GitHub currently has zero
+open issues. No version bump/main promotion or real GPU inference occurred.
