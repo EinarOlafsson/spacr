@@ -1,8 +1,9 @@
 {
-  "candidate": "419bf0967ced92981d5d017b25b4b7bddb6b3f2a",
+  "candidate": "06a7de42ed49be873ec908f0c0fe6e0b9148c085",
   "version": "1.5.1.0",
   "readme_images": 49,
   "all_readme_images_https": true,
+  "image_count_method": "Actual PyPI readme_renderer HTML img elements",
   "release_contract_fixtures": [
     "spacr-1.5.1.0/tests/data/release_contracts/288_section_title_inventory_2026-09-22.json",
     "spacr-1.5.1.0/tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json",
@@ -13,14 +14,27 @@
   ],
   "artifacts": {
     "spacr-1.5.1.0-py3-none-any.whl": {
-      "sha256": "1ad97e6e9d7a0048c922afa1560c85d768124a10757c237d85add5fa75a9e547",
-      "bytes": 38354787
+      "sha256": "fe1211b586407e3fb260818f8d52eb42f9c7a7587deaea54bd218fa6994d3eaf",
+      "bytes": 38357142
     },
     "spacr-1.5.1.0.tar.gz": {
-      "sha256": "1df3533ea8500f426fe9317a5b6db14fcfbc8bf9f93d85c1c6638120b677ea7f",
-      "bytes": 46179472
+      "sha256": "49030461da58b9e73bc178442fabd1063f8c0f871b35fccd826a62d29d95f7f5",
+      "bytes": 46181048
     }
   },
   "published": false,
-  "image_count_method": "Actual PyPI readme_renderer HTML img elements"
+  "ci_dispatch": 35944548693,
+  "model_compare_real_acceptance": {
+    "cellpose": "4.2.1.1",
+    "device": "cpu",
+    "shape": [
+      128,
+      128
+    ],
+    "labels": 2,
+    "elapsed_seconds": 18.75271327397786,
+    "source_unchanged": true,
+    "source": "/mnt/firecuda2/Claude/implementation-20260922/restoration-489/source.npy",
+    "scope": "Actual repaired Model Compare adapter; no model-quality comparison claimed."
+  }
 }

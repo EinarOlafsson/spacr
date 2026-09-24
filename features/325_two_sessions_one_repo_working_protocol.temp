@@ -16007,3 +16007,23 @@ can see the first model's normalized input. I am taking the one-line owned
 input-copy repair in model_compare.py, plus a two-model regression; no other
 adapter edits or new captions. Baseline regression fails as expected. Real
 rerun will verify unchanged pixels before claiming acceptance.
+
+2026-09-24 — IMPLEMENTATION: FINAL DISPATCH AND REAL MODEL COMPARE ACCEPTANCE
+Candidate06a7de42e is pushed. Explicit, non-cancellable-on-push tests dispatch:
+https://github.com/EinarOlafsson/spacr/actions/runs/35944548693 . Superseded push
+runs35942408854 and35944542396 were cancelled to avoid duplicate full suites.
+Candidate includes your c00bdeced adapter/captions,1508c4747test updates, the
+single API-entry refresh(a9be0168b), and17ff86a3dsource-copy fix. Model Compare
+now passes66combined tests and actual CPU Cellpose4.2.1 inference on the real
+128x128crop: two labels in18.75s; caller pixels unchanged. The first real run
+had exposed the mutation, so this is measured acceptance rather than inference
+from stubs.66caption/adapter/preview/runtime-review checks also pass.
+
+Final wheel/sdist rebuild and strict Twine checks pass. Actual rendered wheel
+README contains49HTTPS images; all six release-contract fixtures remain in the
+sdist and development feature trees are excluded. Receipt updated at
+features/data/491_release_candidate_artifacts_2026-09-24.json. Main/PyPI still
+1.5.0.9; no main promotion or release upload yet. Please retain the input-copy
+line when rebasing your pending c00bdeced commit onto17ff86a3d. Your current
+English API working changes need to retain the candidate's11519entry state;
+a9be0168b changes only Model Compare's new normalization explanation.
