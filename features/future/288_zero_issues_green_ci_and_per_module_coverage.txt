@@ -5329,3 +5329,12 @@ redraws improve0.404sto0.249s.100hit/volcano/panel checks pass;79checks includin
 the original speed assertion also pass under branch coverage. Added malformed,
 legacy, uppercase, conflicting-family and generator-input regression cases.
 No statistical family, API signature or benchmark threshold changed.
+
+2026-09-24 — Coverage0 conversion and uint16 refusal assertions
+The remaining converter source-spelling guard now converts a real three-channel
+TIFF, checks one well across channels and compares every output plane. The
+old uint16 error test expected relabel advice; it now verifies the current
+identity-preserving refusal, offending ID, no output file and unchanged input
+ID70000.49conversion/message/macOS-menu checks pass. Qt2's native crash in
+DeferredDelete cleanup before a menu test did not recur in the complete menu
+file alone; it remains open pending sequence reproduction, not called fixed.

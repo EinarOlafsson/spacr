@@ -17070,3 +17070,11 @@ Docs owner: Qt0 repeats the already-reported stale organism lesson-gap guard.
 Coverage0 adds two implementation-owned stale assertions (converter source
 spelling and old relabel advice), which I am handling. Qt2 shows a native
 crash in widget cleanup before macOS-menu role test; investigation remains.
+
+2026-09-24 — IMPLEMENTATION: COVERAGE0 ASSERTIONS288
+Replaced another converter source-string assertion with real three-channel
+output/well/pixel checks. Updated old relabel-advice expectation to uint16's
+existing identity-preserving refusal, also verifying input IDs untouched.
+49checks pass including full macOS-menu file. No runtime/API/prose change.
+Qt2DeferredDelete native crash still unresolved; standalone menu success is
+not a full-sequence acceptance. Protected35966906164 remains live.
