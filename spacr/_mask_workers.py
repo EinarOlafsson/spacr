@@ -3,12 +3,150 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import multiprocessing
 import os
 import queue
 import sys
 import time
 from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
+
+
+def _mask_output_digest(path):
+    """Validate a saved array and fingerprint its complete bytes in bounded memory."""
+    from .resume import validate_merged_field
+
+    before = path.stat()
+    valid, reason = validate_merged_field(str(path))
+    if not valid:
+        raise ValueError(f'Incomplete mask output {path}: {reason}')
+    digest = hashlib.sha256()
+    with path.open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(block)
+    after = path.stat()
+    if any(getattr(before, key) != getattr(after, key)
+           for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
+        raise ValueError(f'Mask changed during verification: {path}')
+    return digest.hexdigest()
+
+
+class _MaskBatchLedger:
+    """Persist archive provenance and verify outputs before trusting completion.
+
+    ``records`` come from ``io._mask_batch_manifest``. ``signature`` must cover
+    the caller's material settings and resolved model content, not merely a
+    checkpoint filename. ``excluded_fields`` records deliberate quality/time
+    selection exclusions. Environments and credentials are never persisted.
+    This ledger owns segmentation only; downstream adjustment/QC must finish
+    separately and must not be mistaken for raw segmentation on a later run.
+    """
+
+    def __init__(self, src, records, object_type, signature, *, excluded_fields=()):
+        from .checkpoint import CheckpointStore
+
+        if object_type not in ('cell', 'nucleus', 'pathogen'):
+            raise ValueError('Unsupported parallel mask object type')
+        if (not isinstance(signature, str) or len(signature) != 64
+                or any(letter not in '0123456789abcdef' for letter in signature)):
+            raise ValueError('A settings/model SHA256 signature is required')
+        root = Path(src).resolve()
+        self.records = {record['path']: copy.deepcopy(record) for record in records}
+        if not self.records or len(self.records) != len(records):
+            raise ValueError('A nonempty manifest with unique archive paths is required')
+        self.output_root = root / f'{object_type}_mask_stack'
+        excluded = set(excluded_fields)
+        self.expected = {path: [name for name in record['fields'] if name not in excluded]
+                         for path, record in self.records.items()}
+        path = root / f'.mask-workers-{object_type}.json'
+        if not path.exists() and any(self.output_root.glob('*.npy')):
+            raise ValueError('Existing masks have no parallel-run provenance; use a separate output folder')
+        self.store = CheckpointStore(
+            path, workflow='parallel_mask_batches', boundary='archive', resume=True,
+            signature={'settings_model': signature, 'object_type': object_type,
+                       'records': records, 'expected_outputs': self.expected})
+        if set(self.store.completed) - set(self.records):
+            raise ValueError('Mask checkpoint contains an unknown archive')
+        self.store.update(meta={'manifest': records, 'expected_outputs': self.expected})
+
+    def verified(self):
+        """Return durable completed archives whose saved masks still match.
+
+        Missing/truncated files return an archive to pending work. A complete
+        but changed file is refused: the generator would otherwise skip it as
+        valid, silently accepting an edited or differently generated mask.
+        """
+        from .resume import validate_merged_field
+
+        complete = set()
+        for path, payload in self.store.completed.items():
+            if not isinstance(payload, dict) or set(payload) != set(self.expected[path]):
+                raise ValueError(f'Invalid output receipt for {path}')
+            intact = True
+            for name, expected in payload.items():
+                output = self.output_root / name
+                if not validate_merged_field(str(output))[0]:
+                    intact = False
+                    continue
+                actual = _mask_output_digest(output)
+                if actual != expected:
+                    raise ValueError(f'Completed mask changed: {self.output_root / name}')
+            if intact:
+                complete.add(path)
+        return complete
+
+    def mark(self, path):
+        """Record completion only after every selected output validates and hashes."""
+        from .cancellation import installed_token
+
+        payload = {name: _mask_output_digest(self.output_root / name)
+                   for name in self.expected[path]}
+        with installed_token(None):
+            self.store.mark(path, payload)
+
+
+def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
+                                   environments, ledger, *, on_progress=None,
+                                   context=None, segmenter=None):
+    """Resume verified archives and persist new safe boundaries during dispatch.
+
+    The caller creates a ledger from a fresh input manifest and material/model
+    signature before entering. This adapter never deletes prepared inputs or
+    declares shared QC finished; successful workers leave status ``segmented``.
+    """
+    from .cancellation import PipelineCancelled
+
+    paths = [os.path.abspath(os.fspath(path))
+             for assigned in assignments.values() for path in assigned]
+    if len(paths) != len(set(paths)) or set(paths) != set(ledger.records):
+        raise ValueError('Worker assignments must cover the manifest exactly once')
+    complete = ledger.verified()
+    pending = {device: [path for path in assigned if os.path.abspath(path) not in complete]
+               for device, assigned in assignments.items()}
+    ledger.store.update(status='running')
+
+    def progress(state):
+        """Persist each newly completed archive before publishing aggregate progress."""
+        for path in state['completed_batches']:
+            if path not in complete:
+                ledger.mark(path)
+                complete.add(path)
+        state['completed_batches'] = sorted(complete)
+        state['total_batches'] = len(ledger.records)
+        if on_progress is not None:
+            on_progress(state)
+
+    try:
+        result = _run_mask_workers(src, settings, object_type, pending, environments,
+            on_progress=progress, context=context, segmenter=segmenter)
+        result['completed_batches'] = sorted(complete)
+        result['total_batches'] = len(ledger.records)
+        ledger.store.update(status='segmented')
+        return result
+    except BaseException as error:
+        ledger.store.update(status='cancelled' if isinstance(error, PipelineCancelled) else 'failed')
+        raise
 
 
 def _partition_batches(records, devices):

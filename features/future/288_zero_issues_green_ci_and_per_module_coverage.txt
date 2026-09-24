@@ -5264,3 +5264,14 @@ CPU protocol and device-binding checks pass alongside manifest, assignment
 and allocation checks:72passed in23.20s; module coverage94.12% including
 branches. No coverage threshold/exemption changed. Protected Coverage5 on
 35952253721 remains in progress; no replacement full run was started.
+
+2026-09-24 — Last protected CI shard reaped; checkpoint coverage
+Coverage5 job107483091050 finally ended cancelled at06:49UTC. Its log records
+a native Qt crash while creating a QWidget in the diagnostics-verdict fixture,
+then hangs until the job timeout. This is old452f88cf1, before728031e9b's
+QScreen lifetime repair. Its exact pre-crash worker sequence plus failing
+fixture now passes313tests across12files in89.12s. No assertion was relaxed.
+The entire protected run35952253721 is now terminal/failure. All its completed
+logs have been read; a fresh protected checkpoint can now be started.
+The new mask receipt/resume adapter raises worker-module coverage to95.49%
+with29process/provenance checks. Source-module denominator remains643.

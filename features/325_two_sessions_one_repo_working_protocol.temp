@@ -16915,3 +16915,17 @@ a missing field and an unrelated mask no longer skip generation; unrelated
 extras do not force a complete set to run again. Public signature unchanged;
 docstring updated. Three regressions fail before/fix passes128cohort checks.
 Please reflect exact field identity in the API/resume guidance when updating.
+
+2026-09-24 — IMPLEMENTATION: MASK RESUME RECEIPTS493 / OLD CI REAPED
+Private _MaskBatchLedger and _run_checkpointed_mask_workers reuse atomic
+CheckpointStore persistence. Input manifest/exclusions and explicit caller
+settings/model-content signature govern resume; saved mask byte digests govern
+completed archives. Missing/truncated outputs requeue, changed valid outputs
+or provenance refuse. Unclaimed existing masks never acquire a fresh ledger.
+Cancelled/failed runs retain all inputs and durable completed receipts; success
+means segmented, pending shared QC. 29checks pass, worker coverage95.49%.
+No public setting/UI added yet; pipeline model resolution, finalization and
+controls remain open. Docs: private API inventory only for this batch.
+Protected CI35952253721 is fully terminal. Last Coverage5 showed an old Qt
+QWidget-creation native crash; its exact313-test pre-crash sequence passes
+current source after the existing QScreen fix. Fresh protected CI is next.

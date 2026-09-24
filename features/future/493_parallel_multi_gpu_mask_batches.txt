@@ -91,3 +91,19 @@ peers cooperatively. Completed outputs and all prepared inputs are retained.
 concurrency and process isolation; this is not a real multi-GPU inference
 acceptance. Persistent resume provenance, shared finalization, controls and
 Mask/Cluster Distribution integration remain open.
+
+2026-09-24 — Durable archive receipts and interrupted-worker resume
+The process coordinator now has an atomic CheckpointStore adapter. It binds
+prepared-input records and explicit field exclusions to a caller-supplied
+material-settings/resolved-model SHA256 signature. Existing masks without a
+ledger are refused before a new ledger can claim them, including on a second
+attempt. Every completion receipt validates and hashes all selected saved
+arrays. Resume skips verified archives, requeues missing/truncated outputs,
+and refuses complete masks whose bytes changed. It preserves prepared inputs
+and records failed/cancelled/segmented status; segmented is not final QC.
+29 real-process/provenance/partial-write checks pass in36.12s; combined module
+coverage95.49%. A cancelled CPU process run resumes only its two pending
+archives and preserves the first mask's bytes and modification time.
+Still required: resolve model-content signatures at the actual pipeline entry,
+handle post-segmentation adjustments/shared QC and timelapse aggregation,
+connect Mask/Cluster controls and perform the real multi-GPU acceptance.
