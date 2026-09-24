@@ -248,7 +248,12 @@ def _rows(screen) -> dict:
     return found
 
 
-def test_opening_a_module_leaves_its_closed_categories_unbuilt(qtbot):
+def test_opening_a_module_leaves_its_closed_categories_unbuilt(qtbot, monkeypatch):
+    from spacr.qt.screens.app_screen import _IdlePrebuild
+
+    # Opening must defer the rows; a later idle slice is tested separately.
+    # Coverage can make the event pumping below exceed the real idle delay.
+    monkeypatch.setattr(_IdlePrebuild, "IDLE_MS", 10 ** 8)
     _window_, screen = _window(qtbot, "classify_merged")
     model = screen._settings_model
     assert len(_waiting(screen)) >= 5

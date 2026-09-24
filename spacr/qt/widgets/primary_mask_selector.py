@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
     QFormLayout,
-    QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
@@ -23,6 +22,7 @@ from PySide6.QtWidgets import (
 from ..bridge import drain_thread
 from ..i18n import tr
 from ..secondary_masks import read_primary_source
+from .flow import FlowHost, FlowLayout
 
 
 class _SourceWorker(QThread):
@@ -87,14 +87,15 @@ class PrimaryMaskSelector(QWidget):
         self.path.setPlaceholderText(tr('Primary-mask file or folder'))
         form.addRow(tr('Primary masks'), self.path)
         layout.addLayout(form)
-        buttons = QHBoxLayout()
+        button_host = FlowHost(self)
+        buttons = FlowLayout(button_host)
         for caption, callback in ((tr('File…'), self._choose_file),
                                   (tr('Folder…'), self._choose_folder),
                                   (tr('Reload'), self.reload)):
             button = QPushButton(caption)
             button.clicked.connect(callback)
             buttons.addWidget(button)
-        layout.addLayout(buttons)
+        layout.addWidget(button_host)
         self.status = QLabel(tr('Choose a primary mask from a different file than the editable output mask.'))
         self.status.setWordWrap(True)
         layout.addWidget(self.status)

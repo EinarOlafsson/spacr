@@ -5304,3 +5304,16 @@ compares actual filtered and unfiltered inventories instead of subtracting
 from a historical total; the exact224excluded-entry contract is unchanged.
 Its two API guards plus live settings class pass10checks in58.66s. Protected
 35966906164 remains active; these fixes do not make that old revision green.
+
+2026-09-24 — Reproduced Hindi overflow and idle-test timing
+Coverage7's Hindi493pxminimum in a483pxpane reproduced locally by restricting
+fontconfig to CI's DejaVu fallback. PrimaryMaskSelector's File/Folder/Reload
+row demanded493px(130+130+221plusspacing); labels were not the cause. Its
+buttons now use existing FlowHost/FlowLayout and wrap without shortening
+translations or reducing font size. All18selector/localization checks pass
+in9.00s under the same limited fonts that reproduced the failure.
+Coverage5's unopened-category assertion raced the legitimate400msidle build
+while pumping GUI events under coverage. That opening-only test now defers
+the idle timer; the separate real idle-build suite remains enabled.14checks
+pass in88.62s. Baseline26layout/lazy/redraw checks also passed locally; the
+CI regression redraw performance failure remains under investigation.

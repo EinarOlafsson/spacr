@@ -17052,3 +17052,11 @@ lesson gaps, nested-helper rollout inventory and README1764-word limit.
 Please reconcile these documentation-owned guards with your current changes;
 I will handle closed-category construction and secondary Hindi sizing.
 The running protected suite is not cancelled/restarted. No version/main work.
+
+2026-09-24 — IMPLEMENTATION: HINDI SELECTOR WRAPPING288
+Reproduced the493pxHindi selector overflow with CI-equivalent missing fonts.
+File/Folder/Reload buttons now wrap via existing FlowHost/FlowLayout; no text,
+setting, signature or translation changed.18selector/localization checks pass
+with limited fonts. Lazy-opening test now isolates the idle timer;14checks
+including actual idle builds pass. No API/tutorial update needed for settings;
+visual captures may now show the Reload button on the next row when narrow.
