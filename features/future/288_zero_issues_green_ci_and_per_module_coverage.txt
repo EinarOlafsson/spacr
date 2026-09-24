@@ -5346,3 +5346,19 @@ All3package-wide docstring scan checks pass in10.62s; no callable exemption,
 API signature, public inventory or runtime behavior changed.
 Coverage8's reviewed README translation/current English catalog failures are
 handed to the documentation owner. Protected full/minimum/Qt1jobs still live.
+
+2026-09-24 — Complete coverage report and three targeted gaps
+Combined report107540899956 has complete12/12shard integrity and checks all
+643modules, but reports9below90% and86ratchet failures. It also caught the
+workflow's stale642module denominator; workflow and its independent pin now
+expect643, matching the existing shipped-source inventory.10gate tests pass.
+No coverage baseline, threshold or exemption was weakened.
+Targeted new behavior checks cover TTA rejection before model execution,
+malformed/nonfinite model evidence and reflection-sensitive predictions with
+unchanged input pixels. The TTA test file passes; module coverage100% including
+branches. Real QImage ruler painting verifies transformed endpoints, the
+readout, blank/off-image behavior and restored painter state:9tests pass,
+93.84%module coverage. Cursor-zoom invalid multipliers, missing scenes and
+singular mappings preserve the view; existing anchoring/peer checks remain:
+20tests pass,94.29%module coverage. These are local module results, not a claim
+that the old combined report or the full ratchet is green.

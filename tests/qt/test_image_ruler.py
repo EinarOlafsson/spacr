@@ -68,6 +68,53 @@ def test_ruler_calibration_is_explicit_and_supports_rectangular_pixels(qapp):
     assert ruler.label() == '5.00 px'
 
 
+def test_ruler_paints_transformed_endpoints_and_readout_without_leaking_painter_state(qapp):
+    from PySide6.QtGui import QColor, QImage, QPainter, QPen
+
+    ruler = ImageRuler()
+    ruler.start, ruler.end = (5, 5), (45, 5)
+    ruler.set_spacing(.5)
+    image = QImage(320, 160, QImage.Format_ARGB32)
+    image.fill(Qt.transparent)
+    painter = QPainter(image)
+    pen = QPen(QColor('magenta'), 7)
+    painter.setPen(pen)
+    painter.setBrush(QColor('green'))
+    brush = painter.brush()
+    try:
+        ruler.paint(painter, lambda x, y: QPointF(x * 2 + 10, y * 2 + 10))
+        assert painter.pen() == pen
+        assert painter.brush() == brush
+    finally:
+        painter.end()
+    assert image.pixelColor(20, 20).alpha() > 0
+    assert image.pixelColor(100, 20).alpha() > 0
+    assert image.pixelColor(60, 20).alpha() > 0
+    assert any(image.pixelColor(x, y).alpha() for x in range(68, 250)
+               for y in range(29, 55))
+    assert image.pixelColor(0, 0).alpha() == 0
+    assert ruler.start == (5, 5) and ruler.end == (45, 5)
+    assert ruler.length() == 40 and ruler.length(True) == 20
+
+
+@pytest.mark.parametrize('endpoints', [None, ((1, 1), (2, 2))])
+def test_ruler_with_no_drawable_endpoints_leaves_the_canvas_clear(qapp, endpoints):
+    from PySide6.QtGui import QImage, QPainter
+
+    ruler = ImageRuler()
+    if endpoints:
+        ruler.start, ruler.end = endpoints
+    image = QImage(40, 40, QImage.Format_ARGB32)
+    image.fill(Qt.transparent)
+    before = image.copy()
+    painter = QPainter(image)
+    try:
+        ruler.paint(painter, lambda x, y: None)
+    finally:
+        painter.end()
+    assert image == before
+
+
 def test_preview_ruler_is_shared_preserved_by_render_and_cleared_on_new_field(qtbot, tmp_path):
     image = np.arange(64*64, dtype=np.uint16).reshape(64, 64)
     path = tmp_path/'field.tif'

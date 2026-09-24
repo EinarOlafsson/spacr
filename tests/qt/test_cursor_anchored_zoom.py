@@ -11,6 +11,34 @@ from spacr.qt.widgets.zoom_view import ZoomableImageView
 pytestmark = pytest.mark.qt
 
 
+@pytest.mark.parametrize('factor', [0, -1, float('nan'), float('inf')])
+def test_invalid_zoom_factor_preserves_the_view(qtbot, factor):
+    from spacr.qt.widgets.cursor_zoom import zoom_at_pointer
+
+    view = _ZoomView()
+    qtbot.addWidget(view)
+    view.set_pixmap(QPixmap(600, 400))
+    before = view.transform(), view.sceneRect(), view.transformationAnchor()
+    assert zoom_at_pointer(view, factor, QPointF(30, 40)) is False
+    assert (view.transform(), view.sceneRect(), view.transformationAnchor()) == before
+
+
+@pytest.mark.parametrize('has_scene', [False, True])
+def test_zoom_without_a_scene_or_invertible_mapping_preserves_state(qtbot, has_scene):
+    from PySide6.QtGui import QTransform
+    from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
+    from spacr.qt.widgets.cursor_zoom import zoom_at_pointer
+
+    view = QGraphicsView()
+    qtbot.addWidget(view)
+    if has_scene:
+        view.setScene(QGraphicsScene(view))
+        view.setTransform(QTransform().scale(0, 0))
+    before = view.transform(), view.sceneRect(), view.transformationAnchor()
+    assert zoom_at_pointer(view, 1.2) is False
+    assert (view.transform(), view.sceneRect(), view.transformationAnchor()) == before
+
+
 def wheel(view, position, delta):
     event = QWheelEvent(QPointF(position), QPointF(view.viewport().mapToGlobal(position)),
                         QPoint(), QPoint(0, delta), Qt.NoButton, Qt.NoModifier,

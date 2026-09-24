@@ -89,6 +89,53 @@ def test_multiclass_retains_all_probabilities_and_input():
     assert sum(extra[f'prob_class_{i}'] for i in range(3)).tolist() == pytest.approx([1., 1.])
 
 
+@pytest.mark.parametrize('settings', [
+    {'tta_aggregation': 'sum'}, {'score_threshold': float('nan')},
+    {'score_threshold': -0.01}, {'tta_min_agreement': 1.01},
+    {'tta_max_std': float('inf')},
+])
+def test_invalid_scoring_policy_is_rejected_before_model_execution(settings):
+    model = CornerModel().eval()
+    images = torch.zeros(2, 1, 3, 3)
+    with pytest.raises(ValueError):
+        predict_augmented(model, images, settings)
+    assert model.calls == 0
+    assert not images.any()
+
+
+@pytest.mark.parametrize('logits,message', [
+    (torch.tensor(0.), 'N, Nx1 or NxC'),
+    (torch.zeros(2, 0), 'N, Nx1 or NxC'),
+    (torch.zeros(2, 1, 1), 'N, Nx1 or NxC'),
+    (torch.zeros(3, 1), 'batch does not match'),
+    (torch.tensor([[float('nan')], [0.]]), 'non-finite'),
+    (torch.tensor([[float('inf'), 0., 1.], [0., 1., 2.]]), 'non-finite'),
+])
+def test_invalid_model_evidence_cannot_be_averaged_into_predictions(logits, message):
+    images = torch.arange(18.).reshape(2, 1, 3, 3)
+    before = images.clone()
+    with pytest.raises(ValueError, match=message):
+        predict_augmented(lambda view: logits, images, {'tta_rotations': True})
+    assert torch.equal(images, before)
+
+
+def test_horizontal_reflection_changes_evidence_without_changing_input():
+    model = CornerModel().eval()
+    images = torch.zeros(1, 1, 3, 3)
+    images[0, 0, 0, 0] = 1
+    before = images.clone()
+    score, label, extra = predict_augmented(
+        model, images, {'tta_horizontal_flip': True})
+    assert model.calls == 2
+    assert score.tolist() == pytest.approx([.5])
+    assert label.tolist() == [1]
+    assert extra['original_pred'].tolist() == pytest.approx([torch.sigmoid(torch.tensor(4.)).item()])
+    assert extra['transform_agreement'].tolist() == [.5]
+    assert extra['tta_views'].tolist() == [2]
+    assert extra['review_flag'].tolist() == [True]
+    assert torch.equal(images, before)
+
+
 def test_folder_and_tar_use_same_augmentation_and_save_diagnostics(tmp_path, monkeypatch):
     from spacr import deep_spacr as deep
 

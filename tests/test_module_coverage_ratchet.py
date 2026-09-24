@@ -738,7 +738,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 604 -> 605: the installed Gate Editor volume view (f6e92893b).
     # 605 -> 606: the collapsible splitter (item 471).
     # 606 -> 608: the GUI scale and the preview scale (471 slice A).
-    assert "--expected-file-count 642" in combine_script
+    assert "--expected-file-count 643" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
