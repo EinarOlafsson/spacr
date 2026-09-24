@@ -17078,3 +17078,12 @@ existing identity-preserving refusal, also verifying input IDs untouched.
 49checks pass including full macOS-menu file. No runtime/API/prose change.
 Qt2DeferredDelete native crash still unresolved; standalone menu success is
 not a full-sequence acceptance. Protected35966906164 remains live.
+
+2026-09-24 — IMPLEMENTATION: WORKER CONSTRUCTOR DOCS288
+Coverage1's three missing _mask_workers.__init__ docstrings are added: ledger
+ownership/provenance, shared cancellation event and bounded logging transport.
+Package-wide docstring scan3passes; no new callables/settings/API signatures.
+Docs owner: Coverage8job107527435625 fails reviewed GitHub summary translation
+for the full-clone5.8GB/1186MB paragraph and English API catalog inventory.
+Please reconcile with your latest source/catalog work. Current implementation
+nightly includes c4592679d and the earlier f33805514,c70ee58c8,bb4f0d6e7 fixes.

@@ -103,6 +103,12 @@ class _MaskBatchLedger:
     """
 
     def __init__(self, src, records, object_type, signature, *, excluded_fields=()):
+        """Validate batch ownership and open this role's settings/model ledger.
+
+        ``records`` describe the input archives; ``excluded_fields`` removes
+        intentionally skipped outputs from receipt validation. Existing mask
+        files must belong to a compatible checkpoint before work can resume.
+        """
         from .checkpoint import CheckpointStore
 
         if object_type not in ('cell', 'nucleus', 'pathogen'):
@@ -233,6 +239,7 @@ class _SharedCancellation:
     """Expose a process-shared event through the pipeline token protocol."""
 
     def __init__(self, event):
+        """Adapt the coordinator's shared stop event to cancellation checkpoints."""
         self.event = event
 
     @property
@@ -336,6 +343,7 @@ class _WorkerOutput:
     encoding = 'utf-8'
 
     def __init__(self, messages, device):
+        """Route worker text to the bounded message queue with its device identity."""
         self.messages = messages
         self.device = device
 

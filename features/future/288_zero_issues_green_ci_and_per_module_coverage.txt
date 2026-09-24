@@ -5338,3 +5338,11 @@ identity-preserving refusal, offending ID, no output file and unchanged input
 ID70000.49conversion/message/macOS-menu checks pass. Qt2's native crash in
 DeferredDelete cleanup before a menu test did not recur in the complete menu
 file alone; it remains open pending sequence reproduction, not called fixed.
+
+2026-09-24 — Worker constructor documentation restored
+Coverage1 identified three undocumented _mask_workers constructors. Added
+specific ledger-ownership, cancellation-event and bounded-log-queue descriptions.
+All3package-wide docstring scan checks pass in10.62s; no callable exemption,
+API signature, public inventory or runtime behavior changed.
+Coverage8's reviewed README translation/current English catalog failures are
+handed to the documentation owner. Protected full/minimum/Qt1jobs still live.
