@@ -2,7 +2,9 @@
 MAKE MASKS OFFERS EVERY DETECTION METHOD, AND WAYS TO MAKE OBJECTS EASIER TO SEE
 ================================================================================
 
-Status:    OPEN, filed 2026-09-22. Not started.
+Status:    RUNTIME IMPLEMENTED. Detection methods, enhancement, Compare/Apply
+           and request provenance are built and tested. Later notes carry the
+           current contracts; API/tutorial/translation follow-up belongs to411.
 Owner:     Claude (spacr/qt/screens/make_masks.py and the detection engine).
 Requested: 2026-09-22, by the maintainer, in these words:
 

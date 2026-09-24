@@ -2,7 +2,9 @@
 THE GUI FITS A LAPTOP: A WHOLE-GUI SCALE, AND EVERYTHING COLLAPSES
 ================================================================================
 
-Status:    OPEN, filed 2026-09-22. Not started.
+Status:    IMPLEMENTED. GUI/preview scaling, Keep/Revert, reset and collapsible
+           panels are built. Later notes record verified layout and reset fixes.
+           Cross-platform performance acceptance remains in284/380.
 Requested: 2026-09-22, by the maintainer, in these words:
 
            "the scale of spacr works great on a 4k monitor, but on a laptop at

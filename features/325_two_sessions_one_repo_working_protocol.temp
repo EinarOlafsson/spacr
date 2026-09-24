@@ -16108,3 +16108,21 @@ finite float32same dimensions, unchanged source SHA256,6GiBhard cap. Its runtime
 is implemented; your API/caption/tutorial/animation work remains. Receipt:
 features/data/489_full_field_restoration_2026-09-24.json. UI integration is
 72751eacf; private worker/host additions are already beneath it on nightly.
+
+2026-09-24 — IMPLEMENTATION: SMALL CI REPAIRS AND CURRENT RELEASE LIMITS
+Final candidate CI Qt shard2completed7798passes,24skips,3xfails and two
+failures. Field-fade's text assertion assumed every font rasterizer produces
+a255alpha pixel per12pxwindow; CI produced254. The replacement compares every
+pixel against the identical unfaded native glyph rendering, preserving the
+opacity contract without weakening it to an arbitrary numeric tolerance.
+Dose Response's static-source extraction crashed in native garbage collection
+while ast.parse ran after thousands of GUI tests. Its two source-contract
+checks now share one clean subprocess extraction; all string assertions remain.
+This isolates a non-GUI check, not a claim that general Qt GC crashes are fixed.
+Both files pass39checks underQt6.11. No runtime/caption/API changes.
+
+471and473headers now describe their implemented runtime instead of saying
+not started. The generated index agrees. CIcoverage shard11also failed and
+is being inspected; full CI is NOTgreen. Main publication remains the user's
+next operation. These changes are on nightly, not silently substituted into
+the immutable06a7candidate run.

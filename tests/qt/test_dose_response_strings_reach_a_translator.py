@@ -11,6 +11,8 @@ A stand-in `tr` that visibly marks its input proves the call is made.
 """
 from __future__ import annotations
 
+import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -30,6 +32,29 @@ from tests.qt.test_dose_response_screen import frame, screen  # noqa: F401
 pytestmark = pytest.mark.qt
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture(scope='module')
+def literal_sources():
+    """Extract static sources without collecting thousands of prior Qt objects.
+
+    CI's long Qt shard crashed in native garbage collection during ast.parse,
+    before asserting anything about these strings. Static extraction needs no
+    QApplication; a fresh interpreter keeps that contract independent of the
+    GUI tests' accumulated native objects. Extraction errors remain failures.
+    """
+    code = (
+        "import contextlib, json, sys\n"
+        "sys.path.insert(0, 'tools')\n"
+        "with contextlib.redirect_stdout(sys.stderr):\n"
+        "    import build_i18n_catalogs as generator\n"
+        "    sources = generator.extract_static_ui_sources()\n"
+        "print(json.dumps(sources))\n"
+    )
+    result = subprocess.run([sys.executable, '-c', code], cwd=ROOT,
+                            capture_output=True, text=True, timeout=180)
+    assert result.returncode == 0, result.stderr[-12000:]
+    return set(json.loads(result.stdout))
 
 
 def _marked(text, *args, **values):
@@ -82,15 +107,9 @@ def test_the_button_says_fit_curve_not_the_zoom_word(screen):
     assert screen.fit_button.text() == "Fit curve"
 
 
-def test_every_wrapped_string_is_a_source_the_generator_collects():
+def test_every_wrapped_string_is_a_source_the_generator_collects(literal_sources):
     """Wrapping is half the fix; the catalog pass has to see the string too."""
-    sys.path.insert(0, str(ROOT / "tools"))
-    try:
-        import build_i18n_catalogs as generator
-    finally:
-        sys.path.remove(str(ROOT / "tools"))
-
-    literal = set(generator.extract_static_ui_sources())
+    literal = literal_sources
     for source in ("Fit curve", "all rows", "could not read {name}: {reason}",
                    "loading {name}…", "{rows} rows × {columns} columns",
                    "{name} · {rows} rows × {columns} columns"):
@@ -226,14 +245,8 @@ def test_a_refusal_the_plot_and_the_whole_table_item_go_through_tr(
     assert "⟦all rows⟧" in labels, labels
 
 
-def test_the_report_and_plot_templates_are_sources_the_generator_collects():
-    sys.path.insert(0, str(ROOT / "tools"))
-    try:
-        import build_i18n_catalogs as generator
-    finally:
-        sys.path.remove(str(ROOT / "tools"))
-
-    literal = set(generator.extract_static_ui_sources())
+def test_the_report_and_plot_templates_are_sources_the_generator_collects(literal_sources):
+    literal = literal_sources
     for source in (*REPORT_TEMPLATES, "concentration", "response"):
         assert source in literal, source
     assert screen_module.NO_GROUP in _DOSE_RESPONSE_UI_SOURCES

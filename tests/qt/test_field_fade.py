@@ -269,10 +269,10 @@ def test_the_text_stays_fully_opaque_all_the_way_across(qtbot, prefs_sandbox,
                                                         qapp):
     """The constraint that ruled out an opacity mask over the widget.
 
-    Rendered at a size where a glyph stem covers whole pixels, so "fully
-    opaque" is a measurable 255 rather than an antialiasing coin-flip.
-    Asserted per 12px window across the ENTIRE width, including the last
-    quarter where the container behind it has all but vanished.
+    Compare each glyph pixel with the identical native rendering without
+    container chrome. Font rasterizers may cover only 254/255 of a pixel;
+    that is antialiasing, not a fade applied to the text. Every 12px window
+    must contain reference ink, including the transparent right-hand end.
     """
     _apply(qapp)
     widget = _field(qtbot, height=40,
@@ -280,13 +280,18 @@ def test_the_text_stays_fully_opaque_all_the_way_across(qtbot, prefs_sandbox,
     widget.setText("M" * 40)
     image = _render(widget)
     empty = _render(_field(qtbot, height=40))
+    ff.uninstall_field_fade(qapp)
+    reference = _render(widget)
 
     band = range(6, 34)
-    text_max = [max(image.pixelColor(x, y).alpha() for y in band)
-                for x in range(6, 234)]
-    for start in range(0, len(text_max) - 11, 6):
-        window = text_max[start:start + 12]
-        assert max(window) == 255, (start + 6, max(window))
+    for start in range(6, 223, 6):
+        ink = []
+        for x in range(start, start + 12):
+            for y in band:
+                native = reference.pixelColor(x, y).alpha()
+                ink.append(native)
+                assert image.pixelColor(x, y).alpha() >= native, (x, y, native)
+        assert max(ink) > 0, ('reference window contains no glyph', start)
 
     # Meanwhile the container underneath that text is fading normally:
     # by the last quarter it is nearly gone, which is what makes the
