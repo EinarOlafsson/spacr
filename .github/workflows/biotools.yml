@@ -6,10 +6,10 @@ name: sync bio.tools registry
 # once PyPI has confirmed the new version, so the registry moves with the
 # release rather than by hand.
 #
-# ONLY the version is sent. bio.tools is curated -- ELIXIR curators may
-# improve the EDAM terms, the functions or the description on their side --
-# and a full PUT from this repository would silently overwrite that work
-# every release. A PATCH of one field cannot.
+# bio.tools does NOT accept PATCH; it answers 405. The only write is a PUT of
+# the whole entry, so tools/biotools_set_version.py FETCHES the live entry
+# first and changes only its version. Curator edits ride back out untouched.
+# Sending a copy kept in this repository would revert their work each release.
 #
 # The token is a personal API token for the account that owns the entry,
 # stored as the BIOTOOLS_TOKEN repository secret. It does not expire on its
@@ -79,61 +79,16 @@ jobs:
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Patch the version
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Publish the version
         if: steps.token.outputs.configured == 'true'
         env:
-          TOKEN: ${{ secrets.BIOTOOLS_TOKEN }}
+          BIOTOOLS_TOKEN: ${{ secrets.BIOTOOLS_TOKEN }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          status=$(curl --proto '=https' --tlsv1.2 --silent \
-            --retry 3 --retry-all-errors \
-            --output response.json --write-out '%{http_code}' \
-            --request PATCH "https://bio.tools/api/tool/spacr/?format=json" \
-            --header "Authorization: Token $TOKEN" \
-            --header "Content-Type: application/json" \
-            --data "{\"version\": [\"$VERSION\"]}")
-          echo "bio.tools returned HTTP $status."
-          if [ "$status" = "401" ] || [ "$status" = "403" ]; then
-            echo "::error::bio.tools rejected the token. It is most likely"
-            echo "::error::invalidated -- sign in and replace BIOTOOLS_TOKEN."
-            exit 1
-          fi
-          # The POST that created this entry answered 500 after writing the
-          # row successfully, so the status alone is not evidence either way.
-          # The verification step below is what decides.
-          if [ "$status" -ge 400 ]; then
-            echo "::warning::bio.tools answered HTTP $status; body follows."
-            head -c 2000 response.json || true
-            echo
-          fi
-
-      - name: Verify the registry now reports that version
-        if: steps.token.outputs.configured == 'true'
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 6); do
-            curl --proto '=https' --tlsv1.2 --silent --retry 3 \
-              --retry-all-errors --output live.json \
-              "https://bio.tools/api/tool/spacr/?format=json"
-            if python - <<'PY'
-          import json
-          import os
-          import sys
-
-          live = json.load(open("live.json"))
-          sys.exit(0 if os.environ["VERSION"] in (live.get("version") or []) else 1)
-          PY
-            then
-              echo "bio.tools reports version $VERSION."
-              echo "bio.tools now reports **$VERSION**." >> "$GITHUB_STEP_SUMMARY"
-              exit 0
-            fi
-            echo "Attempt $attempt/6: not visible yet; retrying."
-            sleep 10
-          done
-          echo "::error::bio.tools does not report $VERSION after 1 minute."
-          echo "::error::Check https://bio.tools/spacr by hand."
-          exit 1
+          python tools/biotools_set_version.py --version "$VERSION"
+          echo "bio.tools reports **$VERSION**." >> "$GITHUB_STEP_SUMMARY"
