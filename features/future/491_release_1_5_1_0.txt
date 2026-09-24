@@ -122,3 +122,20 @@ remaining full-suite steps are explicitly informational. Full candidate Linux
 CI35932234009continues, with Integration/Network/NAS/GPU partitions green so far.
 A green GPU partition on a hosted CPU runner is not physical GPU validation.
 Main remains unchanged and no PyPI release has been uploaded.
+
+2026-09-24 — RELEASE RUNTIME REPAIRS COMPLETE; FINAL INVENTORY RECONCILIATION
+Candidate81154d8ec includes repaired Cellpose worker shutdown, Qt6.11 enlarged
+SaveFigure notes, axis explanation wrapping, numeric Host–Pathogen preview
+sorting and reviewed documentation/settings/notebook updates. Latest isolated
+Qt6.11 dialog/export sequence passes244checks. Documentation destinations and
+settings pass49checks (two build-artifact-only skips). Exact API extraction
+revealed stale special-member/full-surface test pins; the API lane has the
+set-difference proof and the one new SaveFigure eventFilter to publish.
+
+CI35940009116 remains active on the preceding3ae17candidate; its completed
+lint, Integration, Network, NAS, Slow and hosted GPU partitions pass. Hosted
+GPU tests are not proof of physical GPU execution. Main/PyPI remain1.5.0.9.
+GitHub131is still the sole open issue and is excluded from this release by the
+maintainer. Post-publication observation is a release operation, not a new
+unfinished feature or a reason to reduce completion percentages. Record only
+an actual publication/installer failure as new work if one occurs.

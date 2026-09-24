@@ -15912,3 +15912,11 @@ with the SaveFigure inventory delta. My source comparison after16c0b4805 is
 11519 symbols: exactly one addition, SaveFigureDialog.eventFilter, no removed
 or changed existing English entries. Probe /tmp/spacr-api-surface-delta-final.json.
 These are inventory assertions, not missing API prose or broken destinations.
+Exact special-member proof is now /tmp/spacr-api-final-member-proof.json:
+215dunders/23assignment docs. The added member is
+spacr.point_spread.PSF.__post_init__. Current digest is
+e287c1b880ad2cfeb73fa91c11ae468e19f6c5871adcfabc2f4b02dbd7611206;
+removing only that member reproduces the old
+cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3 exactly.
+No extractor visibility change is needed. Candidate81154d8ec includes the
+validated SaveFigure code and awaits this small final inventory repair.
