@@ -17024,3 +17024,14 @@ push/deployment; do not infer live availability from accepted hosted media.
 No version/main operation. Maintainer owns1.5.1.0. Full locale/narration review,
 remaining scripts/captures and restoration material remain open. Untracked
 authoring/project is untouched. All nine private API drafts remain unreviewed.
+
+2026-09-24 — IMPLEMENTATION: MASK WORKER FIGURE DELIVERY493
+_mask_workers now transfers detached Agg figures from children through bounded
+queued transport paths. Existing figure_sink publishes them to the GUI;
+headless output goes to <experiment>/mask_worker_plots outside temporary masks.
+Private worker/coordinator functions gain optional on_figure callbacks. Images,
+colormaps, lines, legends and titles survive; duplicate static publication is
+suppressed. Transport cleanup/failure/input preservation tested.47worker tests,
+96.64%coverage;18Qt tests including realQThread→process→GUIreceiver. Final7
+plot checks verify PNG paths outside masks. No new public settings/UI. Update
+private API inventory only; final pipeline/control/adjustment integration open.

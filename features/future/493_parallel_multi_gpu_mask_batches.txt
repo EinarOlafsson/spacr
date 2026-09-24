@@ -138,3 +138,19 @@ https://github.com/MouseLand/cellpose/blob/v4.0.7/cellpose/models.py
 Remaining integration includes invoking this helper at pipeline dispatch,
 figure delivery, finalized/adjusted-mask provenance, shared QC, controls and
 real multi-GPU acceptance. Source-module inventory remains643.
+
+2026-09-24 — Worker plots survive process isolation
+Workers capture Matplotlib output with Agg and send private transport-file
+paths through the bounded event queue. Figures retain their image arrays,
+colormaps, axes, labels and legends; decoding does not recreate child pyplot
+windows. The parent delivers figures to the existing figure sink or a supplied
+on_figure callback. Headless runs save PNGs in <experiment>/mask_worker_plots,
+outside the temporary masks folder, so ordinary input cleanup retains them.
+Repeated show/publish calls do not duplicate static figures. Transport storage
+is cleaned on success/failure; failed delivery preserves the prepared inputs.
+47worker/model/resume/plot checks pass,96.64% module coverage.18Qt bridge checks
+pass, including a real analysis QThread spawning a process and delivering two
+readable PNGs through figure_ready to a GUI-thread QObject. Final image-array,
+colormap and durable-path checks pass7tests. No GPU inference was performed.
+Pipeline/control integration, adjusted-mask finalization and real multi-GPU
+acceptance remain open. The source module inventory is unchanged at643.

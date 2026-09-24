@@ -6,10 +6,13 @@ import copy
 import hashlib
 import multiprocessing
 import os
+import pickle
 import queue
 import sys
+import tempfile
 import time
-from contextlib import redirect_stderr, redirect_stdout
+import weakref
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
 
 
@@ -164,7 +167,7 @@ class _MaskBatchLedger:
 
 def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
                                    environments, ledger, *, on_progress=None,
-                                   context=None, segmenter=None):
+                                   on_figure=None, context=None, segmenter=None):
     """Resume verified archives and persist new safe boundaries during dispatch.
 
     The caller creates a ledger from a fresh input manifest and material/model
@@ -195,7 +198,7 @@ def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
 
     try:
         result = _run_mask_workers(src, settings, object_type, pending, environments,
-            on_progress=progress, context=context, segmenter=segmenter)
+            on_progress=progress, on_figure=on_figure, context=context, segmenter=segmenter)
         result['completed_batches'] = sorted(complete)
         result['total_batches'] = len(ledger.records)
         ledger.store.update(status='segmented')
@@ -249,6 +252,84 @@ class _SharedCancellation:
             raise PipelineCancelled(self.reason)
 
 
+@contextmanager
+def _worker_figures(directory, messages, device):
+    """Capture child plots with Agg and queue files rather than large figures.
+
+    Figures are serialized without pyplot manager restoration, so decoding in
+    the coordinator cannot create a GUI window on its analysis thread. The
+    directory belongs to the parent and survives a child's normal exit.
+    """
+    if directory is None:
+        yield
+        return
+    import matplotlib
+    matplotlib.use('Agg', force=True)
+    from matplotlib import pyplot as plt
+
+    from . import figure_sink
+
+    seen = weakref.WeakSet()
+    errors = []
+
+    def publish(fig, path=None):
+        """Freeze the figure now, before the child can change or close it."""
+        if fig in seen and not getattr(fig, '_spacr_live_update', False):
+            return
+        try:
+            with tempfile.NamedTemporaryFile(dir=directory, prefix=f'gpu{device}-',
+                                             suffix='.pickle', delete=False) as output:
+                manager = fig.canvas.manager
+                fig.canvas.manager = None
+                try:
+                    pickle.dump(fig, output, protocol=pickle.HIGHEST_PROTOCOL)
+                finally:
+                    fig.canvas.manager = manager
+                path = output.name
+            seen.add(fig)
+            messages.put(('figure', device, path))
+        except Exception as error:
+            errors.append(error)
+            raise
+
+    def show(*args, **kwargs):
+        """Publish each shown figure once and release child pyplot ownership."""
+        for number in plt.get_fignums():
+            fig = plt.figure(number)
+            publish(fig)
+            if not getattr(fig, '_spacr_live_update', False):
+                plt.close(fig)
+
+    previous_show = plt.show
+    previous_sink = figure_sink.set_sink(publish)
+    plt.show = show
+    try:
+        yield
+        if errors:
+            raise RuntimeError(f'Worker figure delivery failed: {errors[0]}')
+    finally:
+        plt.show = previous_show
+        figure_sink.set_sink(previous_sink)
+        plt.close('all')
+
+
+def _read_worker_figure(path, directory):
+    """Read only this run's private transport files, then release their storage."""
+    from matplotlib.figure import Figure
+
+    path = Path(path).resolve()
+    if directory is None or path.parent != Path(directory).resolve() or path.suffix != '.pickle':
+        raise ValueError('Worker figure is outside the run transport directory')
+    try:
+        with path.open('rb') as stream:
+            figure = pickle.load(stream)
+        if not isinstance(figure, Figure):
+            raise ValueError('Worker figure payload is not a Matplotlib Figure')
+        return figure
+    finally:
+        path.unlink(missing_ok=True)
+
+
 class _WorkerOutput:
     """Forward child output without inheriting a GUI-thread stream wrapper."""
 
@@ -273,7 +354,7 @@ class _WorkerOutput:
 
 
 def _mask_worker(src, settings, object_type, device, paths, environment,
-                 messages, stop, segmenter=None):
+                 messages, stop, segmenter=None, figure_directory=None):
     """Bind a fresh process before loading its model, then report safe units.
 
     ``segmenter`` is an injectable CPU test seam; ordinary workers load the
@@ -290,23 +371,24 @@ def _mask_worker(src, settings, object_type, device, paths, environment,
             os.environ.update(environment)
             token = _SharedCancellation(stop)
             token.checkpoint()
-            if segmenter is None:
-                import torch
-                if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
-                    raise RuntimeError('Mask worker must see exactly its assigned GPU')
-                from . import accelerator
-                accelerator._CACHED = None
-                from .object import generate_cellpose_masks_sam
-                segmenter = generate_cellpose_masks_sam
-            messages.put(('started', device, os.getpid()))
+            with _worker_figures(figure_directory, messages, device):
+                if segmenter is None:
+                    import torch
+                    if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
+                        raise RuntimeError('Mask worker must see exactly its assigned GPU')
+                    from . import accelerator
+                    accelerator._CACHED = None
+                    from .object import generate_cellpose_masks_sam
+                    segmenter = generate_cellpose_masks_sam
+                messages.put(('started', device, os.getpid()))
 
-            def completed(path):
-                """Publish completion only after the pipeline's save boundary."""
-                messages.put(('batch', device, os.path.abspath(os.fspath(path))))
+                def completed(path):
+                    """Publish completion only after the pipeline's save boundary."""
+                    messages.put(('batch', device, os.path.abspath(os.fspath(path))))
 
-            with installed_token(token):
-                segmenter(src, dict(settings), object_type, batch_paths=paths,
-                          on_batch_done=completed, run_qc=False)
+                with installed_token(token):
+                    segmenter(src, dict(settings), object_type, batch_paths=paths,
+                              on_batch_done=completed, run_qc=False)
             messages.put(('finished', device, ('success', '')))
         except PipelineCancelled:
             messages.put(('finished', device, ('cancelled', '')))
@@ -317,13 +399,17 @@ def _mask_worker(src, settings, object_type, device, paths, environment,
 
 
 def _run_mask_workers(src, settings, object_type, assignments, environments, *,
-                      on_progress=None, context=None, segmenter=None):
+                      on_progress=None, on_figure=None, context=None, segmenter=None):
     """Run one persistent model process per nonempty assignment.
 
     Worker events report individual completed archives. Cancellation waits for
     safe pipeline boundaries; a failed or crashed worker stops its peers.
     Inputs are never deleted here. Shared QC belongs to the caller after all
     workers succeed. ``on_progress`` receives independent state snapshots.
+    ``on_figure`` receives detached figures on this calling thread. By default
+    figures reach the existing GUI sink or are saved under mask_worker_plots
+    beside the batch source for headless runs, outside the temporary masks
+    folder. Transport files are cleaned on every exit path.
     This layer neither decides resume eligibility nor declares output integrity.
 
     :returns: final worker states and the unique completed archive paths.
@@ -353,6 +439,7 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                  'total': len(paths), 'error': ''}
         for device, paths in assignments.items()}}
     requested = False
+    figures = tempfile.TemporaryDirectory(prefix='spacr-mask-figures-') if settings.get('plot') else None
 
     def publish():
         """Do not let consumers mutate scheduler bookkeeping."""
@@ -366,6 +453,22 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
         worker = state['workers'][device]
         if kind == 'log':
             print(f'[GPU {device}] {value}', end='')
+            return
+        if kind == 'figure':
+            figure = _read_worker_figure(value, figures.name if figures else None)
+            if on_figure is not None:
+                on_figure(figure)
+            else:
+                from .figure_sink import publish as publish_figure
+                from .figure_sink import sink
+                if sink() is not None:
+                    publish_figure(figure)
+                else:
+                    destination = Path(src).parent / 'mask_worker_plots'
+                    destination.mkdir(exist_ok=True)
+                    target = destination / f'{object_type}_{Path(value).stem}.png'
+                    figure.savefig(target)
+                    print(f'[GPU {device}] Saved figure: {target}')
             return
         if kind == 'started':
             worker.update(state='running', pid=value)
@@ -389,7 +492,8 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
         for device, paths in assignments.items():
             process = context.Process(target=_mask_worker, args=(
                 src, settings, object_type, device, paths, environments[device],
-                messages, stop, segmenter), name=f'spacr-mask-gpu-{device}')
+                messages, stop, segmenter, figures.name if figures else None),
+                name=f'spacr-mask-gpu-{device}')
             process.start()
             processes[device] = process
             state['workers'][device]['pid'] = process.pid
@@ -450,3 +554,5 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
             process.close()
         messages.close()
         messages.join_thread()
+        if figures is not None:
+            figures.cleanup()
