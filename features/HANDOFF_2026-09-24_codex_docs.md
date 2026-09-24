@@ -1,239 +1,110 @@
 # Documentation and tutorial continuation
 
-The maintainer requested maximum useful completion with the remaining token
-budget before they bump to 1.5.1.0 and push main. Do not block a release on
-incomplete translations. Keep registered English fallbacks. Do not claim
-private drafts, old captures or unfinished narration as reviewed completion.
+The maintainer requested useful completion within the remaining token budget,
+then will bump to 1.5.1.0 and push main. Do not perform that promotion here.
+Incompatible translations are registered and fall back to English; they do
+not block publication. Do not call drafts or pending media complete.
 
-Work only in `/mnt/firecuda2/codex/repo/spacr`, branch nightly. Read the END of
-`325_two_sessions_one_repo_working_protocol.temp` before acting. Claude owns
-GPU jobs; the maintainer owns the version bump and main promotion. All Python, including probes and pytest, must
-use `tools/run_capped.sh`; probes need private HOME/XDG_CONFIG_HOME. No whole
-suite. Stage explicit paths, rebase before pushing, preserve other work.
+## Working rules
 
-## Current English sources
+Use `/mnt/firecuda2/codex/repo/spacr`, branch nightly. Read the END of
+`325_two_sessions_one_repo_working_protocol.temp` first. Claude owns GPU jobs.
+All Python/pytest uses `tools/run_capped.sh`; private HOME/XDG_CONFIG_HOME for
+probes, named test files, offscreen Qt. No whole suite. Explicit staging and
+rebase before push. Preserve unrelated `tools/tutorials/authoring/project/`.
+No new agents were spawned. Protected full CI35952253721 remains unclaimed;
+older35944548693 finished/failure. Never cancel these protected runs.
 
-The English API manifest contains 11,526 rendered entries; the Help index is
-current. Existing parameter-description debt remains. The shared module map
-is `spacr/resources/module_workflows.json`. Four new guides are linked there:
-82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
-workflow pages use this same map.
+## Current source and publication
 
-67 of the original 81 scripts have practical walkthrough rewrites; four more
-organism guides were authored. See the exact per-lesson audit in
-`tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`. Rewritten
-source does not imply new native screenshots or publication. 846 older
-translation review records are currently incompatible with their English
-sources; they remain registered work, not accepted translations.
+Pushed checkpoint605aeb67a includes accepted table media192d0356b, wrapping
+Toggle API7c2692ec3 and documentation fixes266203de0. Docs run35959737649 is
+building both channels; inspect its result before claiming deployment.
 
-The one unavailable catalog entry is **71_investigate_hit**. OPS76 already has
-an introductory/alignment lesson, but the complete current OPS recording and
-native Train recording remain queued with Claude. Do not call OPS the sole
-ComingSoon entry.
+English API:11,526 entries;9526public callables. Help includes Toggle's new
+heightForWidth/minimumSizeHint methods. Conversion/stream docstrings are
+current through738fb293b. English API/runtime audits pass. Strict Sphinx
+passed atfc47d0194 before the two incoming docstring-only changes. Receipts:
+411_wrapping_toggle_inventory_2026-09-24.json and
+411_conversion_stream_api_2026-09-24.json. Remaining parameter-description
+debt is unchanged; English publication does not imply all prose is complete.
 
-## Media workspace
+The shared map is `spacr/resources/module_workflows.json`. API/workflow pages
+and tutorials use it. New guides82Toxoplasma,83Plasmodium,84Candida and
+85Host–Pathogen are linked. Setup order is GitHub,PyPI,Conda,installers, followed
+by Home/orientation/pipelines and modules.
 
-`W=/mnt/firecuda2/codex/workflow-authoring-20260922`
-`U=$W/user-walkthrough-stage`
+Last verified LIVE: H/32e760991, run35955044338. English API11522 and catalog
+bytes matched the commit; browser playback/chapter seeks passed for49,57,58,62
+and main Mask. Both served player cache keys match their content hashes.
+Receipt:358_live_practical_guides_2026-09-24.json. Do not confuse this older
+live API count with the latest pushed source count.
 
-The last verified deployed baseline is `release-candidate-append-8vaimbg8`,
-published by run35951320497 at nightly8b8458b14. Live API/catalog bytes exactly
-match the committed sources. Real browser playback and chapter seeks pass in
-both channels. Receipt:411_live_current_documentation_2026-09-24.json.
-Do not upload it again.
+## Accepted media: never re-upload
 
-The organism candidate is `release-candidate-append-_h__k19q`, manifest SHA256
-497ba62c9e87f1cee9daf617cdc1d5fb54f9412660967fe03ea15d8398923b0d.
-It contains 85 routes, 84 playable entries, 4 new guides, and refreshes 22,24,25,
-29,30,31. All 84 playable checks and 14 localized unavailable views passed.
-The media upload uses branch `candidate-organisms-20260924-hk19q` and tag
-`tutorials-organisms-20260924-hk19q`; check the publication receipt and
-`organism-candidate-upload.log` before any retry. Never upload to main or reuse
-an existing media branch. It was accepted and pushed at61688f2d6: all5250
-hosted files SHA256matched revision931a7e95feac3730cde47f02d6a76f805aa59038,
-and all84 hosted playback cases plus14 placeholder views passed. Do not
-re-upload it. Pipeline79/80 links changed without changing prose,
-translations, audio or timing; rebinding evidence records exact equivalence.
+Workspace `W=/mnt/firecuda2/codex/workflow-authoring-20260922`,
+stage `U=$W/user-walkthrough-stage`. Original captures are under
+`/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09`.
 
-Additional staged practical lessons:
-- 32 Align & Stitch and 35 Converter: `align-converter-media-rerun.log`.
-- 34 Database,36 Import,37 Batch,38 Distributed Jobs,39 Evaluation,40 History:
-  `utilities-media.log`.
-- 42 Curate,43 Illumination,44 Data Manager,45 Project Browser,46 Napari,
-  47 Barcode QC: `data-tools-media.log`.
-- 50 Run Compare,51 Control Charts,52 Pipeline Graph,53 Profiler,54 QC,
-  55 Image Scatter: `analysis-views-media.log`.
+Latest accepted candidate I: `$U/release-candidate-append-hpih30qn`.
+Four refreshed lessons59AnnData,60PCA,61Tabulate,63SmallMultiples.
+2506/2506 hosted files SHA256match immutable revision
+077895c4c53658d9af5a0b08cc38d814775c25f4;2,950,025,020bytes;1211compatible
+narration tracks;85routes/84ready. All84hosted playback cases and14localized
+unavailable views pass; mutation guards observed red; hold lifted. Eight
+focused publication guards pass. Logs:table-candidate-{upload,pages}.log.
+Do not upload candidate I again. Its predecessor H/6kuath0f is also accepted
+at3295e3d747743e67517bd0a13a1a80fef74a5619. Earlier candidates are historical.
 
-All20 additional lessons finished their narration, master, rendition and
-Chromium checks. Their combined candidate is
-`release-candidate-append-8vaimbg8`, built against the exact organism baseline.
-All84 local playback cases and14 placeholder views passed, and both mutation
-guards observed red. Upload/readback is in `data-candidate-upload.log` using
-branch `candidate-data-tools-20260924-8vaimbg8` and tag
-`tutorials-data-tools-20260924-8vaimbg8`. Inspect receipts before any retry;
-never overwrite or reuse an existing media branch.
+## Current remaining work
 
-The data candidate is now accepted:3290/3290 hosted files SHA256matched
-revision948fd55c6d13ee107b8bce22c26957178e7415dd (3,742,683,994bytes).
-All84 hosted playback cases and14 placeholder-language views passed; the
-checkpoint hold is lifted. It contains1603 source-compatible narration tracks.
-47 of the53 rewritten existing lessons now have matching prepared media;
-the six listed capture gaps remain. Four new organism guides are also ready.
+69of81existing scripts have practical walkthrough rewrites, plus four new
+organism guides. Latest eight source rewrites:48HitList,56Lineage,64GateEditor,
+65FeatureExplorer,66Outliers,67ExperimentDesign,68PowerDesign,69DoseResponse.
+Their capture sequences/hashes match the originals. Matching English media
+is rendering/checking in exploration-media.log, design-dose-media.log and
+outliers-power-media.log. Inspect terminal results; do not publish new prose
+with old audio. Prior prepared matching media covers55rewritten existing
+lessons; last verified live covers51. Audit:
+`tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`.
 
-Four later rewrites are now accepted for publication:49Methods&Results,57LayerViewer,58GraphBuilder
-and62FeatureDictionary. Their original capture hashes and visual sequences
-are retained, with shorter practical narration. Rendering/check logs are
-`graph-reporting-media.log` and `layer-dictionary-media.log`. The new downloadable
-Layer_Viewer_real_image_mask.zip contains the exact image/mask TIFFs from the
-recording; archive readback and original hashes pass. Update publication only
-after the complete media pipeline passes.
+Twelve sources remain for review/rewrite:33PlateViewer,70ExplainCV,
+71InvestigateHit,72VolcanoExplorer,73ParameterSweep,74ImportImages,
+75RegressionDiagnostics,77Embeddings,78Screens,79InputsOutputs,
+80ImagePathways,81SequencingPathways.78–81are generated: edit the shared map
+or generator, not only their JSON.71is the sole unavailable catalog lesson.
+Six fresh-capture gaps remain:02Conda,03PyPI,04installers,17Timelapse,19Train,
+76OPS. OPS has introductory/alignment media; full native OPS and Train remain
+queued with Claude. Restoration tutorial/animation work remains owed.
 
-Docs run35948635800 built both branches successfully but failed assembly:
-1,081,843,213bytes exceeded the950MiB Pages budget. The publisher now uses
-immutable full-resolution video URLs only when local renditions match the
-manifest and the corresponding hosted recordings have complete readback
-evidence. Other media remains locally deduplicated.
-This avoids dropping either documentation channel or weakening the size limit.
-The real main build plus current nightly site assembles to682,878,218bytes
-(651MiB); all15 focused publisher checks pass. The source trees retain their
-local videos; only disposable Pages artifacts use the hosted recordings.
+AnnData's normal writer still raises the string-conversion TypeError on the
+actual copied example. The supplied helper successfully preserves2341x261
+values,28missing values,27metadata columns and database bytes. The current
+lesson explicitly uses that helper. GUI writer repair remains owed.
+Evidence:2026-09-24-anndata-current-workaround.json.
 
-New example downloads: `Align_Stitch_nine_tiles.zip` (nine original pixel crops,
-row-major3x3,overlap0.25,reference channel1) and
-`Control_Charts_SYNTHETIC_campaign.csv` (synthetic fixture values, LF newlines).
-They are in the committed tutorial examples directory and linked by their
-respective current lesson sources.
+## Translations and checks
 
-## Checks and evidence
+All20new restoration captions/help sources have source-bound translations in
+all9runtime languages;189runtime lookups and review cohorts pass. Nine updated
+score-threshold tooltips are now source-bound and their runtime lookups pass;
+review-cohort subtraction accounts for the exact single-source addition.
 
-309 data-tool checks,66 analysis-view checks,42 workflow/review checks and
-40 incremental candidate tests pass. Native Host–Pathogen receipt records
-164 cells,97 vacuoles,2 wells; unknown parasite counts stay unknown. Native
-Model Zoo CPU receipt records149 labels from three unchanged uint16 fields.
-These are execution examples, not biological accuracy claims. Source evidence
-is in `tools/tutorials/evidence/2026-09-24-*`.
-The final strict English Sphinx build passed with11,520 API entries;73 actual
-rendered module tutorial links preserve both channels. English runtime/API
-audits pass. Translation incompatibilities remain report-only; per-locale
-issue counts are in `features/data/411_release_translation_register_2026-09-24.json`.
+Locale debt is registered in411_release_translation_register_2026-09-24.json.
+Most full API/runtime catalogs and matching tutorial narration still require
+review. Frozen API drafting is isolated at3ee2a1809; eight languages completed
+private drafts, Icelandic reached3365/3365 but must finish reconstruction.
+Inspect api-full-draft-20260923-is-continuation.log and the actual output.
+Known semantic errors remain: never promote these drafts wholesale.
 
-Frozen API translation drafting runs in a separate checkout at3ee2a1809.
-Eight languages have complete private drafts. Korean completed11,387documents
-in `api-full-draft-20260923-3ee2a1809-ko.json`; Icelandic follows. These drafts
-contain known semantic errors and are NOT approved translations. Do not
-promote a full machine-generated catalog. Review and rebind to current source.
+Documentation-owned CI failures were reconciled:85routes/1080scenes, actual
+organism lessons, current objectives, restored help rows, PSF GIF review and
+README checkout size. Full tutorial audit:13passed,2locale tests report-only.
+PSF GIF reviewed all18frames and87assets markedGOOD. Checkout1607MiB excludes
+Git history;5.8GBwas the historical full-clone download. All9README translations
+preserve the historical shallow-clone filter comparison. See
+288_documentation_ci_repairs_2026-09-24.json and328_checkout_size_2026-09-24.json.
 
-Six restoration control labels and the updated PSF/restoration stage-order
-caption now have source-bound translations in all nine runtime languages.
-All nine actual runtime lookups and both Swedish/French review-cohort checks
-pass. English fallback is allowed. The settings-flow page has also
-been regenerated for the new Model Zoo normalization reader.
-
-Six more restoration choices/status strings now have source-bound translations
-in all nine languages, including the ready/error format placeholders. Eighteen
-formatted runtime lookups and both review-cohort checks pass. The subsequent
-readiness/help batches complete all20 newly added restoration UI sources in
-all nine languages. The shared Compare label is corrected in Portuguese and
-Icelandic, with a command form in German. All189 runtime lookups and source
-hash bindings pass; receipt:411_restoration_runtime_complete_2026-09-24.json.
-The restoration tutorial and animation remain owed.
-
-The four later videos completed their per-lesson checks. Their private
-candidate is `release-candidate-append-6kuath0f`, built against8vaimbg8.
-All84 local playback cases and14 placeholder-language views pass; both
-placeholder mutation guards observed red. Upload/readback is in
-`four-guide-candidate-upload.log`, branch
-`candidate-practical-guides-20260924-6kuath0f`, tag
-`tutorials-practical-guides-20260924-6kuath0f`. Inspect the receipt before any
-retry. The candidate has1407 valid narration tracks. Remaining translated
-tracks stay registered pending review and synthesis.
-
-All remaining API inventory guards are reconciled at403a5d279:9524callables,
-11520API entries and2290preexisting required-parameter omissions. The exact
-subtraction proof and four passing focused guards preserve the prior boundary.
-Claude's full test workflows35944548693 and35952253721 are protected and must
-be allowed to finish across pushes. No current full-CI success is claimed.
-
-No new agents were spawned. Preserve the unrelated untracked
-`tools/tutorials/authoring/project/` directory.
-
-## Latest accepted batch
-
-Candidate6kuath0f passed all84 hosted playback checks and14 localized unavailable
-views. All2898 files SHA256matched immutable revision
-3295e3d747743e67517bd0a13a1a80fef74a5619 (3,395,194,044bytes). Hold lifted;
-1407 source-compatible narration tracks. Do not re-upload. This brings prepared
-matching media to51of57 rewritten existing lessons, plus four new guides.
-Last directly verified live checkpoint remains8b8458b14 until HTTP readback.
-
-The publisher now derives the browser player cache key from its transformed
-contents, including the immutable media map.16 tests pass, including changing
-only a nightly video while main stays identical. Restoration readiness and
-long tooltips complete the20new UI sources in all9runtime languages;189actual
-lookups/source bindings and both review-cohort checks pass. The restoration
-tutorial and animation remain open.
-
-Claude's GC/mask validation changes add two rendered API entries (11522total)
-and update four existing API documents. The public callable boundary remains
-9524 because these helpers are private. Exact receipt:
-411_gc_mask_inventory_2026-09-24.json. Four inventory/source guards pass.
-
-Final strict English Sphinx build passed for the GC/mask API refresh; log
-`gc-mask-sphinx.log`, receipt411_gc_mask_inventory_2026-09-24.json. All source
-changes are pushed through32e760991; docs run35955044338 is building both
-channels. This is deployment pending, not a failed English/translation gate.
-
-The subsequent lightweight Motility parser adds two rendered API entries
-(11524total) and updates group_merged_files. Four source/inventory guards
-pass; Help is regenerated. The locale register includes this exact delta.
-The strict Sphinx receipt covers the immediately preceding11522-entry build;
-the publication workflow rebuilds current sources. Receipt:411_motility_lightweight_api_2026-09-24.json.
-
-## Table walkthroughs and documentation CI follow-up
-
-H candidate6kuath0f is live at32e760991, run35955044338. All four refreshed
-lessons49/57/58/62 and main Mask pass live playback/chapter seeking, and both
-player cache keys equal generated content hashes. Live API is11522; the
-subsequent11524/11526API updates require their later deployments.
-
-Four further source rewrites59AnnData/60PCA/61Tabulate/63SmallMultiples and
-matching English media pass individual browser checks. Candidatehpih30qn
-contains85routes/84ready/1211compatible narration tracks. Its local84playback
-cases and14placeholder views pass; both mutation guards observed red. Upload
-branchcandidate-table-guides-20260924-hpih30qn, tagtutorials-table-guides-20260924-hpih30qn.
-Inspect table-candidate-upload.log and its receipt before any retry.
-
-20existing scripts and six recapture gaps remain;768older translation reviews
-are stale. The current AnnData normal writer failure is reproduced on a copy
-of the actual example; the supplied helper preserves2341x261values, metadata
-and source hashes. Current receipt:2026-09-24-anndata-current-workaround.json.
-
-Documentation CI repairs are itemized in288_documentation_ci_repairs_2026-09-24.json.
-The full tutorial audit files have13passes and2registered nonblocking locale
-failures. PSF animation review, checkout-size measurement/all9README updates,
-restoration help and English route/objective checks are reconciled.
-The wrapping Toggle API refresh is privately committed atbf63d6e16:11526API
-entries,9526public callables; exact subtraction and four source guards pass.
-
-Table candidatehpih30qn is now accepted:2506/2506hosted files SHA256match
-077895c4c53658d9af5a0b08cc38d814775c25f4 (2,950,025,020bytes). All84hosted
-playback cases and14localized unavailable views pass. Hold lifted;1211valid
-narration tracks. Do not re-upload. Matching prepared media now covers55of61
-rewritten existing lessons, plus four new guides. Last directly verified live
-table is stillH/32e760991 until this newer batch has deployed and been read back.
-The latest full English source audit passes at11526APIentries and5303UI sources.
-The wrapping Toggle proof and documentation CI repairs are integrated. The
-strict English Sphinx build passed at fc47d0194 with 11,526 API entries
-(table-toggle-sphinx.log). Eight focused publication checks also passed.
-The last directly verified deployed baseline is H/32e760991, recorded in
-358_live_practical_guides_2026-09-24.json; older live-baseline notes above are
-historical. Candidate I is accepted locally and awaits its nightly deployment.
-
-Latest follow-up: current conversion/stream docstrings are reflected in the
-11,526-entry English API and history; Help includes both Toggle methods.
-English API/runtime audits pass; updated locale debt is report-only.
-Six more scripts (48,56,64,65,67,69) are now practical walkthroughs with
-retained capture hashes. English media rendering is in exploration-media.log
-and design-dose-media.log. This brings source rewrites to67of81 (14remain),
-with846stale translation reviews. Prepared matching media remains55until this
-new batch passes its checks. Do not publish new prose over mismatched audio.
+The Pages publisher uses verified immutable media to retain both channels
+within its size limit. It hashes the transformed player to invalidate browser
+caches. Seventeen publisher tests pass. Do not weaken size or hash guards.

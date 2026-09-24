@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review. Preserves per-view thresholding before agreement/voting, available probabilities and default. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "score_threshold",
+      "source": "Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5.",
+      "source_sha256": "4ac7d466720508704bc9a5a1e24952d1ed154bd2c6cb35393ef41791d33c7948",
+      "translation": "이진 예측을 도출할 때 모델의 양성 클래스 점수에 적용하는 확률 임계값(0–1)입니다. 테스트 시 증강을 사용할 경우, 일치도와 투표 결과를 계산하기 전에 이 임계값으로 각 뷰를 분류합니다. 확률 점수는 계속 사용할 수 있습니다. 기본값은 0.5입니다."
+    }
+  ]
+}

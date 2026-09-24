@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "192d0356b8e714804d3a17499139fc65f182e69a",
+  "source_commit": "605aeb67a80eecb5453d94c70712e73b913054c8",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
@@ -15,8 +15,8 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/table-merged-translation-compatibility.json",
-  "full_report_sha256": "4902c9d958a6fdf21acc90ad8cc5274280f56de3e7eb4166128697ba74048748",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/score-final-translation-compatibility.json",
+  "full_report_sha256": "4a087214398c5b6e092f8c9d29c7204de53fd2ff792e2f183955d50ebf67e30d",
   "locales": {
     "api": {
       "sv": {
@@ -106,7 +106,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 704,
-          "stale": 4,
+          "stale": 3,
           "placeholders": 1,
           "obsolete": 44
         }
@@ -115,7 +115,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 704,
-          "stale": 4,
+          "stale": 3,
           "placeholders": 1,
           "obsolete": 44
         }
@@ -124,7 +124,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 704,
-          "stale": 4,
+          "stale": 3,
           "placeholders": 1,
           "obsolete": 44
         }
@@ -133,7 +133,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 686,
-          "stale": 3,
+          "stale": 2,
           "placeholders": 1,
           "obsolete": 45
         }
@@ -142,7 +142,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 704,
-          "stale": 4,
+          "stale": 3,
           "placeholders": 1,
           "obsolete": 44
         }
@@ -151,7 +151,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 911,
-          "stale": 20,
+          "stale": 19,
           "obsolete": 82,
           "placeholders": 1
         }
@@ -161,7 +161,7 @@
         "issue_counts": {
           "missing": 1048,
           "obsolete": 79,
-          "stale": 4,
+          "stale": 3,
           "placeholders": 1
         }
       },
@@ -169,7 +169,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 1115,
-          "stale": 20,
+          "stale": 19,
           "obsolete": 79,
           "placeholders": 1
         }
@@ -178,7 +178,7 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 704,
-          "stale": 4,
+          "stale": 3,
           "placeholders": 1,
           "obsolete": 44
         }

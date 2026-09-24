@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1699,
+      "current_total": 1700,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 781,
+      "later_distinct_additions": 782,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -268,16 +268,22 @@
           "records": 2,
           "sources": 2,
           "sha256": "ec285fece52d231cf8cd378e6a5a888f54099cc121c1963fdf61f45420d6d91a"
+        },
+        {
+          "name": "2026-09-24-score-threshold.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "2ad1f04060ecb740e69ba91e478d9d1b914a7e6576802d18201d61b5b64a1263"
         }
       ],
-      "added_sources_sha256": "4d83b275003e01b17cbe2e3f9c23424b061ce89865d78a1294394c0b22c156c7"
+      "added_sources_sha256": "358d85b2b92d9527719b305e2eb18a54115875f48cdd79fac06cfd3333ea7f25"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1695,
+      "current_total": 1696,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 781,
+      "later_distinct_additions": 782,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -537,9 +543,15 @@
           "records": 2,
           "sources": 2,
           "sha256": "f5ff4a2924db0e7bf44cd38e282a01eb88125aa58410608bcaae6d154ed7942d"
+        },
+        {
+          "name": "2026-09-24-score-threshold.json",
+          "records": 1,
+          "sources": 1,
+          "sha256": "53917479df2ce0a03389ccd24e558ca7c32a5580fac313c766372750bd52b87c"
         }
       ],
-      "added_sources_sha256": "4d83b275003e01b17cbe2e3f9c23424b061ce89865d78a1294394c0b22c156c7"
+      "added_sources_sha256": "358d85b2b92d9527719b305e2eb18a54115875f48cdd79fac06cfd3333ea7f25"
     }
   }
 }

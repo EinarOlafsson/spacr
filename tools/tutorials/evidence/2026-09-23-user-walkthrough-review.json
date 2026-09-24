@@ -77,7 +77,9 @@
     "63_small_multiples",
     "64_gate_editor",
     "65_feature_explorer",
+    "66_outliers",
     "67_experiment_design",
+    "68_power_design",
     "69_dose_response",
     "76_ops"
   ],
@@ -105,8 +107,6 @@
   ],
   "remaining_existing_scripts": [
     "33_plate_viewer",
-    "66_outliers",
-    "68_power_design",
     "70_explain_cv",
     "71_investigate_hit",
     "72_volcano_explorer",
@@ -135,7 +135,9 @@
     "63_small_multiples",
     "64_gate_editor",
     "65_feature_explorer",
+    "66_outliers",
     "67_experiment_design",
+    "68_power_design",
     "69_dose_response",
     "76_ops"
   ],
@@ -1807,42 +1809,27 @@
     },
     {
       "lesson": "66_outliers",
-      "english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+      "english_sha256": "b297a7cd12aeaad42d5963f30fa9bcdeae4db12186ad0e986e67ce99cad2aa74",
       "scene_count": 17,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "scenes[1].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[4].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[6].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "authoring_or_test_details"
-        },
-        {
-          "field": "scenes[12].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[14].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[16].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "manual_review": "source rewrite; media publication pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },
@@ -1874,38 +1861,27 @@
     },
     {
       "lesson": "68_power_design",
-      "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+      "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
       "scene_count": 11,
-      "source_revised": false,
+      "source_revised": true,
       "newly_authored": false,
-      "manual_review": "pending",
-      "automated_review_flags": [
-        {
-          "field": "prerequisite",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[2].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[3].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[4].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[8].narration",
-          "reason": "negative_framing_to_review"
-        },
-        {
-          "field": "scenes[10].narration",
-          "reason": "negative_framing_to_review"
-        }
+      "manual_review": "source rewrite; media publication pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
       ],
-      "incompatible_translation_reviews": [],
       "prepared_rewrite": false,
       "published_rewrite": false
     },

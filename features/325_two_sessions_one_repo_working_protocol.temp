@@ -16694,3 +16694,17 @@ missing-crop and statistical cautions remain. Original capture sequences/hashes
 are retained. English rendering/checks underway; no new capture or publication
 claimed for these six. Source rewrites67of81;14remain, plus six capture gaps,
 restoration tutorial and full locale/narration review (846stale reviews).
+
+2026-09-24 — CODEX: EIGHT EXPLORATION SCRIPTS AND SCORE TOOLTIP
+605aeb67a is pushed; docs run35959737649 is building both branches. The latest
+accepted table candidate remains I/hpih30qn; do not upload it again.
+Added practical Outliers and Power & Design walkthroughs to the six already
+reported.69of81existing scripts now rewritten;12remain. All eight retain their
+original capture hashes. Matching narration/master/playback work is underway.
+The audit registers872stale tutorial translation reviews; English may publish.
+
+The score_threshold tooltip now has source-bound translations in all9runtime
+languages. Nine actual runtime lookups and both Swedish/French review-cohort
+guards pass. Exact cohort subtraction preserves the old counts; current
+English API/runtime audits also pass. The compatibility register is refreshed.
+Receipt:411_score_threshold_translations_2026-09-24.json. No full-CI/main claim.

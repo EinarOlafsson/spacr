@@ -1,0 +1,20 @@
+{
+  "scope": "Practical flagging and simulation controls; preserve unscored groups, transform refusal and current report/headline cautions.",
+  "lessons": [
+    {
+      "lesson": "66_outliers",
+      "old_spoken_words": 921,
+      "new_spoken_words": 500,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "68_power_design",
+      "old_spoken_words": 532,
+      "new_spoken_words": 320,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "media_status": "Source rewrite; matching narration and publication pending."
+}
