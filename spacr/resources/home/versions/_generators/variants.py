@@ -839,8 +839,8 @@ def v16(ctx: Ctx) -> QWidget:
 
 @variant(
     "split-apps-aside", "Apps left, everything-about-your-machine right",
-    changes="A hard vertical split. The left two thirds are apps and "
-            "nothing else; the right third is state — recent runs, "
+    changes="A vertical split with five columns of apps on the left and "
+            "a compact status pane on the right — recent runs, "
             "system, what changed.",
     adds="A persistent right-hand aside carrying recent runs, disk/GPU "
             "state and a what's-new panel.",
@@ -861,14 +861,14 @@ def v17(ctx: Ctx) -> QWidget:
     left, lcol = transparent(spacing=10)
     for title, keys in CATS_BROAD3:
         lcol.addWidget(cat_header(ctx, title, note=f"{len(keys)}"))
-        lcol.addWidget(htile_grid(ctx, keys, cols=4, width=250,
+        lcol.addWidget(htile_grid(ctx, keys, cols=5, width=212,
                                   icon_px=36, name_px=13, height=62))
     lcol.addStretch(1)
     brow.addWidget(left, 1)
     aside, acol = transparent(spacing=12)
-    acol.addWidget(recent_runs_list(ctx, count=4, width=328))
-    acol.addWidget(system_panel(ctx, width=328))
-    acol.addWidget(whats_new_panel(ctx, width=328, items=3))
+    acol.addWidget(recent_runs_list(ctx, count=4, width=260))
+    acol.addWidget(system_panel(ctx, width=260))
+    acol.addWidget(whats_new_panel(ctx, width=260, items=3))
     acol.addStretch(1)
     brow.addWidget(aside, 0)
     page.body.addWidget(body, 1)

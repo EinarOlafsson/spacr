@@ -154,6 +154,8 @@ def app_map() -> Dict[str, Tuple[str, str, str, str]]:
 
 def name_of(key: str) -> str:
     """Display name of an app key."""
+    if key == "host_pathogen":
+        return "Host–Pathogen"
     return app_map()[key][1]
 
 
@@ -423,7 +425,7 @@ CATS_BROAD3 = _with_late_registrations([
     ("Run", ["mask", "measure", "annotate",
              "classify_merged",
              "map_barcodes", "regression", "queue", "batch", "distributed_jobs", "analyze_plaques",
-             "recruitment", "invasion", "replication",
+             "recruitment", "invasion", "replication", "host_pathogen",
              "toxoplasma", "plasmodium", "candida"]),
     ("Review", ["plate_view", "umap", "layer_viewer",
                 "graph_builder", "tabulate", "trellis", "gate_editor",
@@ -443,7 +445,7 @@ CATS_STAGE5 = _with_late_registrations([
                  "distributed_jobs", "data_manager", "project_browser"]),
     ("Segment", ["mask", "make_masks", "layer_viewer", "annotate"]),
     ("Measure", ["measure", "lineage", "analyze_plaques",
-                 "recruitment", "invasion", "replication", "tabulate",
+                 "recruitment", "invasion", "replication", "host_pathogen", "tabulate",
                  "feature_dict", "toxoplasma", "plasmodium", "candida"]),
     ("Analyse", ["classify_merged", "map_barcodes", "regression", "umap",
                  "graph_builder", "profiler", "investigate_hit", "trellis",
@@ -472,7 +474,7 @@ CATS_NARROW8 = _with_late_registrations([
                           "db_browser", "data_manager", "project_browser"]),
     ("Assays",           ["toxoplasma", "plasmodium", "candida",
                           "analyze_plaques", "recruitment", "invasion",
-                          "replication"]),
+                          "replication", "host_pathogen"]),
     ("Design",            ["power", "experiment_design", "dose_response"]),
 ], fallback="Screens & reports")
 
@@ -482,7 +484,7 @@ CATS_QUESTIONS = _with_late_registrations([
       "external_masks", "power", "experiment_design", "project_browser"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "analyze_plaques", "recruitment",
-      "invasion", "replication", "layer_viewer", "tabulate", "lineage",
+      "invasion", "replication", "host_pathogen", "layer_viewer", "tabulate", "lineage",
       "feature_dict", "toxoplasma", "plasmodium", "candida"]),
     ("I have a screen. Which genes matter?",
      ["classify_merged", "map_barcodes",
