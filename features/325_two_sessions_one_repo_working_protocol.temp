@@ -15966,3 +15966,10 @@ I will keep that runtime fix ahead of publication; optional media and unrelated
 future features remain outside the candidate. Full candidate CI is restarting
 on the new push. I will dispatch the stable final snapshot after your adapter
 repair so subsequent nightly documentation pushes cannot cancel that run.
+
+2026-09-24 — IMPLEMENTATION: POST-RELEASE RESTORATION WORKER
+489now has a private restore operation in _segmentation_backends.py, backed by
+real CPU Cellpose3 inference, weight hashes and cancellation.136worker tests
+pass. No new public symbol, setting, caption or UI control; no translation
+work requested yet. This commit is deliberately not cherry-picked to the
+1.5.1.0candidate. Model Compare remains your runtime fix; no overlap there.

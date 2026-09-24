@@ -57,3 +57,23 @@ No GPU used. Diameter25px is a feasibility parameter, not estimated optical
 calibration. This is not a segmentation-accuracy or biological-fidelity result,
 and does not complete the Compare/Apply UI or worker integration. Receipt:
 features/data/489_cellpose3_restoration_feasibility_2026-09-24.json.
+
+2026-09-24 — ISOLATED RESTORATION WORKER IMPLEMENTED
+The Cellpose3 worker now accepts a restore request for one finite2D intensity
+plane and the nine same-grid denoise/deblur/oneclick models across cyto3,
+cyto2 and nuclei. It rejects unsupported/upscaling models, invalid diameters,
+nonfinite or nonreal inputs, and outputs with changed geometry/nonfinite values.
+Successful output remains float32, including negative model values. Models are
+cached separately from segmentation and return checkpoint SHA256, package,
+device, diameter, normalization and intensity-unit provenance. Invalid outputs
+cannot replace an existing valid output. No public API or UI option added yet.
+
+136worker/isolation checks pass. A real isolated CPU process ran denoise_nuclei
+twice on the recorded microscopy crop; both outputs match direct Cellpose3
+inference within rtol1e-5/atol1e-6, with unchanged source bytes. Cancelling a
+1024x1024request stopped the isolated process in0.365s. Receipt:
+features/data/489_isolated_restoration_worker_2026-09-24.json.
+Remaining: host wrapper, Compare/Apply controls and channel/provenance wiring,
+GUI cancellation/stale-result acceptance, full-field behavior and scientific
+quality comparisons. This worker is follow-on nightly work, excluded from
+1.5.1.0until its user-facing integration is complete.

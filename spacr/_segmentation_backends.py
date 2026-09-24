@@ -124,6 +124,12 @@ _BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
 #: The models the Cellpose 3 backend names, as Cellpose 3 names them.
 _CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
 
+_RESTORATION_MODELS = tuple(
+    f"{operation}_{structure}"
+    for operation in ("denoise", "deblur", "oneclick")
+    for structure in ("cyto3", "cyto2", "nuclei")
+)
+
 #: The request/response protocol between spaCR and a backend worker.
 _PROTOCOL = 1
 
@@ -2266,6 +2272,69 @@ def _worker_segment(name, request, adapters):
     return reply
 
 
+def _worker_restore(name, request, adapters):
+    """Restore one intensity plane without changing its coordinate system.
+
+    Only the isolated Cellpose3 environment supports this operation. Model
+    output remains float32 in normalized model units, including negative
+    values; callers must not interpret it as calibrated fluorescence. The
+    existing worker protocol supplies cancellation by terminating the isolated
+    process. Cache keys distinguish restoration from segmentation models.
+    """
+    if name != _CELLPOSE3:
+        raise ValueError("image restoration requires the Cellpose 3 backend")
+    model_name = request.get("model")
+    if model_name not in _RESTORATION_MODELS:
+        raise ValueError(f"unsupported same-grid restoration model: {model_name!r}")
+    diameter = float(request.get("diameter", 30.0))
+    if not math.isfinite(diameter) or diameter <= 0:
+        raise ValueError("restoration diameter must be finite and positive")
+    image = np.load(request["input"], allow_pickle=False)
+    if (image.ndim != 2 or min(image.shape) < 2
+            or image.dtype.kind not in "uif"
+            or not np.isfinite(image).all()):
+        raise ValueError("restoration needs one finite real intensity plane")
+    image = np.array(image, dtype=np.float32, copy=True)
+    if not np.isfinite(image).all():
+        raise ValueError("restoration intensity exceeds the float32 range")
+    device = _worker_device(request.get("device") or "cpu")
+    key = ("restore", model_name, device)
+    cached = adapters.get(key)
+    if cached is None:
+        import hashlib
+        from importlib.metadata import version
+
+        import torch
+        from cellpose import denoise
+
+        where = torch.device(device)
+        model = denoise.DenoiseModel(
+            model_type=model_name, device=where, gpu=where.type != "cpu")
+        digest = hashlib.sha256()
+        with open(model.pretrained_model, "rb") as weights:
+            for block in iter(lambda: weights.read(1024 * 1024), b""):
+                digest.update(block)
+        identity = {"backend": name, "model": model_name,
+                    "cellpose_version": version("cellpose"),
+                    "weights_sha256": digest.hexdigest(), "device": str(model.device)}
+        cached = (model, identity)
+        adapters[key] = cached
+    model, identity = cached
+    restored = np.asarray(model.eval(
+        image, channels=None, channel_axis=None, diameter=diameter,
+        normalize=True, batch_size=1), dtype=np.float32)
+    if restored.shape == (*image.shape, 1):
+        restored = restored[..., 0]
+    if restored.shape != image.shape or not np.isfinite(restored).all():
+        raise ValueError("restoration returned invalid values or changed image dimensions")
+    np.save(request["output"], restored, allow_pickle=False)
+    return {"output": request["output"], "provenance": {
+        **identity, "diameter_px": diameter,
+        "normalization": "Cellpose 1st/99th percentile",
+        "intensity_units": "normalized model output", "dtype": "float32",
+        "shape": list(restored.shape)}}
+
+
 def _worker_detect(request, adapters):
     """Find plaque images in one figure with the YOLO detector, per size.
 
@@ -2424,6 +2493,8 @@ def _handle(name, request, adapters):
             body = _worker_hello(name)
         elif op == "segment":
             body = _worker_segment(name, request, adapters)
+        elif op == "restore":
+            body = _worker_restore(name, request, adapters)
         elif op == "detect":
             body = _worker_detect(request, adapters)
         elif op == "detect_spots":
