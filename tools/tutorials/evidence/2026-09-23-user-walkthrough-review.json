@@ -84,6 +84,7 @@
     "76_ops"
   ],
   "new_capture_required": [
+    "59_anndata_export",
     "02_conda_install",
     "03_pip_install",
     "04_platform_installers",
@@ -1358,7 +1359,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1566,7 +1567,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1645,7 +1646,8 @@
         "zh-CN"
       ],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": true,
+      "current_workflow_followup": "Normal exporter repaired after the helper-route recording. Current written guide is verified; fresh native export capture remains required."
     },
     {
       "lesson": "60_pca",
@@ -1774,12 +1776,12 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
       "lesson": "65_feature_explorer",
-      "english_sha256": "422bef442dc080296a69ed35cec5a6b230488aaa31665c71564832d660959401",
+      "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
       "scene_count": 14,
       "source_revised": true,
       "newly_authored": false,
@@ -1800,12 +1802,12 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
       "lesson": "66_outliers",
-      "english_sha256": "b297a7cd12aeaad42d5963f30fa9bcdeae4db12186ad0e986e67ce99cad2aa74",
+      "english_sha256": "11fc8373bff222df7688c809af9a0f13ee7ffe05927b59ef7fbdf36f1c883ca7",
       "scene_count": 17,
       "source_revised": true,
       "newly_authored": false,
@@ -1826,7 +1828,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1852,7 +1854,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1878,7 +1880,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1904,7 +1906,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {

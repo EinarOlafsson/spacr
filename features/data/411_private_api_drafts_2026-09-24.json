@@ -1,0 +1,72 @@
+{
+  "status": "Private reconstruction finished for nine languages. Not reviewed, accepted or published.",
+  "source_commit": "3ee2a18093c21b77fc852f1a65aade42d8cdf587",
+  "current_english_entries": 11527,
+  "review_required": "Known semantic errors and unresolved English blocks remain. Review and bind to current source before promotion; do not copy a full draft catalog into publication.",
+  "icelandic_unresolved_blocks": 138,
+  "languages": [
+    {
+      "language": "sv",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-sv.json",
+      "sha256": "51095624ac0e556dcc4c3fdaf183e6d054ec3c926fe0ec0a72a0bdbf8ab8e363",
+      "bytes": 7558427
+    },
+    {
+      "language": "de",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-de.json",
+      "sha256": "b1ac34ea7267490cee9e156bf684690d02f5bd4b4880fb61677e1cc282bf1849",
+      "bytes": 7986340
+    },
+    {
+      "language": "es",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-es.json",
+      "sha256": "042c33d5f7c9d356c83e7878bdf2d579f0300cf9b50d83ed23bc433191ebc1be",
+      "bytes": 7961986
+    },
+    {
+      "language": "zh_CN",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-zh_CN.json",
+      "sha256": "73947be92f0a4bf8551e5b6831fe275e864d57acf139e588a38604ee230ed88a",
+      "bytes": 6594381
+    },
+    {
+      "language": "pt",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-pt.json",
+      "sha256": "2375010e567ee29191c54a93eb810d1f17db3673dfa287cff789c61b378aec17",
+      "bytes": 7820755
+    },
+    {
+      "language": "hi",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-hi.json",
+      "sha256": "4cb198730f8726831a56f32f52da5de2c6328b4957e33dda40a7e53fb142383b",
+      "bytes": 13907917
+    },
+    {
+      "language": "ko",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-ko.json",
+      "sha256": "27fe831136590c0333d4b9787b77429546a33d60e137c98ca6b99f3449d9b805",
+      "bytes": 8125301
+    },
+    {
+      "language": "is",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-is.json",
+      "sha256": "1fe87491acd9ce82cb5a292ca6a2d4ab09193c2c2dc52ce00644b0143aa60bcc",
+      "bytes": 7324400
+    },
+    {
+      "language": "fr",
+      "documents": 11387,
+      "path": "/mnt/firecuda2/codex/workflow-authoring-20260922/api-full-draft-20260923-3ee2a1809-fr.json",
+      "sha256": "14c120f4978e0265eb3eee2583a9b11c7a09cc28282f974a57efe9e3d9e2e444",
+      "bytes": 8085207
+    }
+  ]
+}

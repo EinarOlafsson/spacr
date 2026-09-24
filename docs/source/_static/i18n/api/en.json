@@ -1690,7 +1690,7 @@
     "spacr.anndata_export.export_anndata": {
       "source_blocks_sha256": [
         "e0ef8a70b377e71536e8dfbebcb9e0283f173036b9d38bce6ab74b8875af0775",
-        "d1c14186d219f684eaf94b356ad02821bc030e6f0f0031ab0916ab1e1a699225",
+        "74c0b12d18be373f05529fc4896f8d9d6a1893deda9f11e581fa17a1345ab6d0",
         "a6396cc9873312de70363b1e6529617747dc01225c4aeb836a73d9c22b288033",
         "7fe99e1337ec37c80dad92410ab4607472a7cb8a290f4e9fa4ed2c3985d1fb03",
         "fed8427099574b52aa1d1d3ed78f8a67cc936b3d9a18c8251cc1a711823e855d",
@@ -1701,8 +1701,8 @@
         "74597ff06d35e16aaccd5099661787461e3870c04ab8aeb262443d393addd16b",
         "16a8ba9917a04bb807df88640c3f84e194ad4f007c310953e398ba5089931217"
       ],
-      "source_sha256": "7433f72588dc4e6666e4901a6247eb6ed7dc79501f5f21372b5b5841a859547d",
-      "text": "Write a spaCR measurements database to ``out_path`` as ``.h5ad``.\n\nEverything :func:`build_anndata` accepts is accepted here and passed\nthrough; this adds the write and the artifact registration.\n\n:param db_path: a ``measurements.db``.\n:param out_path: the ``.h5ad`` to write. Parent directories are created.\n:param compression: ``h5py`` compression for ``X`` and the layers;\n    ``None`` for an uncompressed file. ``gzip`` typically halves a\n    feature matrix and costs a few seconds.\n:param register: record the file with :mod:`spacr.artifacts`, with the\n    project's ``measurements-db`` as its input so a re-run of Measure\n    marks this export stale.\n:param project: the project root the artifact belongs to. Inferred from\n    ``db_path`` (``<project>/measurements/measurements.db``) when\n    omitted.\n:param settings: the run settings, hashed into the artifact and ``uns``.\n:param kwargs: passed to :func:`build_anndata`.\n:returns: the :class:`ExportResult`, with ``path`` and ``artifact_id``\n    filled in.\n:raises AnnDataExtraMissing: when ``anndata`` is not installed."
+      "source_sha256": "20c2a87074bcde88c1d8e064716f9e863f4f801fcebec1686ac2fc7f3edb9d2b",
+      "text": "Write a spaCR measurements database to ``out_path`` as ``.h5ad``.\n\nEverything :func:`build_anndata` accepts is accepted here and passed\nthrough; this adds the write and the artifact registration.\nA failed write preserves any existing destination; only a completed file\nreplaces it and is registered as an artifact.\n\n:param db_path: a ``measurements.db``.\n:param out_path: the ``.h5ad`` to write. Parent directories are created.\n:param compression: ``h5py`` compression for ``X`` and the layers;\n    ``None`` for an uncompressed file. ``gzip`` typically halves a\n    feature matrix and costs a few seconds.\n:param register: record the file with :mod:`spacr.artifacts`, with the\n    project's ``measurements-db`` as its input so a re-run of Measure\n    marks this export stale.\n:param project: the project root the artifact belongs to. Inferred from\n    ``db_path`` (``<project>/measurements/measurements.db``) when\n    omitted.\n:param settings: the run settings, hashed into the artifact and ``uns``.\n:param kwargs: passed to :func:`build_anndata`.\n:returns: the :class:`ExportResult`, with ``path`` and ``artifact_id``\n    filled in.\n:raises AnnDataExtraMissing: when ``anndata`` is not installed."
     },
     "spacr.anndata_export.export_anndata_set": {
       "source_blocks_sha256": [

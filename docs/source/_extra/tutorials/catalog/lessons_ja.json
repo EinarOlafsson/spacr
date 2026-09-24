@@ -6242,96 +6242,90 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List：外部補助ウィンドウで候補を確認する",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "結果と品質管理",
+      "section": "Regression",
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "変更していないRegressionの結果で実際のHit Listフィルターと出力を確認し、非表示パネルを回避する外部手順を明示します。",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "動作しない標準ショートカットと外部補助プログラムを区別する。",
-        "順位付き候補を有意な発見と誤解せずに読む。",
-        "実際の行を絞り込み、復元して出力する。"
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCR環境を有効にしてpython hit_list_companion.pyを実行します。Browseでresultsを選択してください。補助プログラムは変更のないHitListScreenを開きます。ナビゲーションの修正やInvestigateの接続は行いません。元の結果を含みますが、完全なプロジェクトではありません。325遺伝子、434ガイド行があり、q <= .05の遺伝子はありません。標準化限界効果は、同時に推定した多変数係数ではありません。欠けた区間は利用不能です。n_obs=0は実際のウェル数ではなく、results_gene.csvのwells_with_geneは2〜48です。メタデータ結合、罰則付き順位付け、Investigateは対象外です。学習、新規回帰、GPU、AI提供元への要求は不要です。API：spacr.hits.build_hit_list、HitList.filter/write_csv/to_markdown/to_html。",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit ListはRegressionの配下にあります。この版ではHitsを押しても非表示のパネル内のページが選ばれるだけで、一覧は現れません。この制限を隠さずに示します。次の画面は外部補助プログラムであり、標準ショートカットが修正された証拠ではありません。",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hit ListはRegressionの配下にあります。この版ではHitsを押しても非表示のパネル内のページが選ばれるだけで、一覧は現れません。この制限を隠さずに示します。次の画面は外部補助プログラムであり、標準ショートカットが修正された証拠ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "リンク先の例を展開し、spaCR環境を有効にして付属のHit List補助スクリプトを実行します。明示されたウィンドウは、計算を変えずにspaCRの既存ウィジェットを開きます。Browseでresultsフォルダーを選びます。回帰は再実行せず、Investigate連携も接続していません。",
-          "hold_after": 0.7,
-          "speech_text": "リンク先の例を展開し、スペーカー環境を有効にして付属のHit List補助スクリプトを実行します。明示されたウィンドウは、計算を変えずにスペーカーの既存ウィジェットを開きます。Browseでresultsフォルダーを選びます。回帰は再実行せず、Investigate連携も接続していません。"
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "元の例では三百二十五の遺伝子を読み込みます。値が切れる場合は列の境界をダブルクリックします。効果の方向、生のP、補正済みq、ガイド一致を区別して読みましょう。欠けた信頼区間は利用不能です。これは標準化限界効果であり、出力の観測数ゼロは実際の支持ウェル数ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "元の例では三百二十五の遺伝子を読み込みます。値が切れる場合は列の境界をダブルクリックします。効果の方向、生のP、補正済みq、ガイド一致を区別して読みましょう。欠けた信頼区間は利用不能です。これは標準化限界効果であり、出力の観測数ゼロは実際の支持ウェル数ではありません。"
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Max qを〇点〇五にします。最小の遺伝子q値が約〇点二七一なので、遺伝子は残りません。絞り込み後の空表は読み込み失敗ではありません。Max qを一に戻すと全候補が戻りますが、発見と認定されたわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Max qを〇点〇五にします。最小の遺伝子q値が約〇点二七一なので、遺伝子は残りません。絞り込み後の空表は読み込み失敗ではありません。Max qを一に戻すと全候補が戻りますが、発見と認定されたわけではありません。"
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Minimum guidesを二にすると、試験済みガイド行が少なくとも二つある百十七遺伝子が残ります。数えているのは利用できる証拠であり、最初に設計した全ガイドではありません。フィルターは表示範囲を変えるだけで、多重検定補正を再計算しません。",
-          "hold_after": 0.7,
-          "speech_text": "Minimum guidesを二にすると、試験済みガイド行が少なくとも二つある百十七遺伝子が残ります。数えているのは利用できる証拠であり、最初に設計した全ガイドではありません。フィルターは表示範囲を変えるだけで、多重検定補正を再計算しません。"
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Minimum agreementを一にすると、試験済みガイドすべてが遺伝子効果と同じ符号を持つ五十七遺伝子が残ります。一致は有意性や因果関係を証明しません。これらの候補に一致したガイドがあっても、要約の有意で裏づけられた遺伝子数はゼロのままです。",
-          "hold_after": 0.7,
-          "speech_text": "Minimum agreementを一にすると、試験済みガイドすべてが遺伝子効果と同じ符号を持つ五十七遺伝子が残ります。一致は有意性や因果関係を証明しません。これらの候補に一致したガイドがあっても、要約の有意で裏づけられた遺伝子数はゼロのままです。"
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controlsは対照の一行を除き、この集合は五十六候補になります。出力前には戻します。対照を隠してもモデルの再推定や補正ファミリーの変更は行われません。解析を読む際は対照の識別情報を保ってください。",
-          "hold_after": 0.7,
-          "speech_text": "Hide controlsは対照の一行を除き、この集合は五十六候補になります。出力前には戻します。対照を隠してもモデルの再推定や補正ファミリーの変更は行われません。解析を読む際は対照の識別情報を保ってください。"
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "ほかのフィルターを解除すると、Direction upは正の効果を示します。絶対効果の下限〇点一を加えると十六行が残ります。説明用の表示条件であり、推奨閾値ではありません。検索や別の集合との比較の前に方向と効果を戻します。",
-          "hold_after": 0.7,
-          "speech_text": "ほかのフィルターを解除すると、Direction upは正の効果を示します。絶対効果の下限〇点一を加えると十六行が残ります。説明用の表示条件であり、推奨閾値ではありません。検索や別の集合との比較の前に方向と効果を戻します。"
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "記録された識別子を検索して実際の一行を確認します。一致しない検索は空表になり、既知の識別子に戻すと行が復元され、検索を消すと全体が戻ります。可逆的な絞り込みの例です。注釈の読み込みとInvestigateには別の確認が必要です。",
-          "hold_after": 0.7,
-          "speech_text": "記録された識別子を検索して実際の一行を確認します。一致しない検索は空表になり、既知の識別子に戻すと行が復元され、検索を消すと全体が戻ります。可逆的な絞り込みの例です。注釈の読み込みとInvestigateには別の確認が必要です。"
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "出力ではガイド二つ、完全一致、対照を含む設定、空の検索に戻します。この例では三形式とも同じ五十七候補を含みます。MarkdownとHTMLは数値を丸め、CSVは数値の詳細を保ちます。全設定がファイルに記録されるわけではないため、フィルター条件を別に保存します。",
-          "hold_after": 0.7,
-          "speech_text": "出力ではガイド二つ、完全一致、対照を含む設定、空の検索に戻します。この例では三形式とも同じ五十七候補を含みます。MarkdownとHTMLは数値を丸め、CSVは数値の詳細を保ちます。全設定がファイルに記録されるわけではないため、フィルター条件を別に保存します。"
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "フィルターを解除すると三百二十五遺伝子すべてが戻ります。出力した部分集合は変更のない原本と分け、有意でない候補を検証済みヒットと呼ばないでください。Pythonでも同じ読み込みとフィルターを利用できますが、大きな一覧では形式ごとの出力行数制限を確認します。",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "フィルターを解除すると三百二十五遺伝子すべてが戻ります。出力した部分集合は変更のない原本と分け、有意でない候補を検証済みヒットと呼ばないでください。Pythonでも同じ読み込みとフィルターを利用できますが、大きな一覧では形式ごとの出力行数制限を確認します。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7260,16 +7254,15 @@
       "series": 5,
       "app_key": "lineage",
       "host_app_key": "db_browser",
-      "section": "探索",
-      "title": "Lineage：包含関係の識別と確認済み親細胞の画像",
-      "description": "保存された親子関係と表示上限を調べ、正しい親細胞画像と欠落した子画像の誤置換を区別します。",
+      "section": "Explore",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "Database Browser内のLineageで実際の包含ツリーを開く。",
-        "全体数、表示されたグループ、型付き識別情報を区別する。",
-        "誤った子画像への置換を認識し、確認済みの親だけを見る。",
-        "標準ズームを使い、Python出力とGUI操作を区別する。"
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "測定値と細胞画像が対応するAnnotateのサンプルを使います。Graph Builderのアーカイブには同じデータベースがありますが画像はありません。Lineageのアーカイブは確認済みAPIのCSVとレビューで、代替データベースではありません。欠落した子画像の識別やラベル付けに現在の誤った代替処理を使わないでください。",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7277,98 +7270,89 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "HelpからDatabase Browserを開き、その中のLineageを選びます。ここでのlineageは、どの細胞にどのオブジェクトが含まれるかという保存済みの包含関係です。細胞分裂の履歴や遺伝的な系譜、新しいセグメンテーションではありません。周囲のデータベース操作はホストモジュールの機能です。",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "HelpからDatabase Browserを開き、その中のLineageを選びます。ここでのlineageは、どの細胞にどのオブジェクトが含まれるかという保存済みの包含関係です。細胞分裂の履歴や遺伝的な系譜、新しいセグメンテーションではありません。周囲のデータベース操作はホストモジュールの機能です。"
+          ]
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Annotateの実例にあるmeasurementsドットdbを選んでツリーを作ります。変更していない専用コピーを使います。名前が窮屈ならObject列と仕切りを広げてください。番号は視野や型の間で重複するため、番号だけでは識別できません。",
-          "hold_after": 0.7,
-          "speech_text": "Annotateの実例にあるmeasurementsドットdbを選んでツリーを作ります。変更していない専用コピーを使います。名前が窮屈ならObject列と仕切りを広げてください。番号は視野や型の間で重複するため、番号だけでは識別できません。"
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "元データ全体には二千三百四十一個の細胞、二千六百八十二個の核、pathogenテーブルの二千百七十八個のオブジェクトがあります。ツリーに表示される親グループは二千だけです。三百四十一グループは表示されないのであって、データベースから削除されたわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "元データ全体には二千三百四十一個の細胞、二千六百八十二個の核、pathogenテーブルの二千百七十八個のオブジェクトがあります。ツリーに表示される親グループは二千だけです。三百四十一グループは表示されないのであって、データベースから削除されたわけではありません。"
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "概要で空の細胞がゼロなのは、核も子として数えるためです。すべての細胞にpathogenテーブルのオブジェクトがあるという意味ではありません。千百六十八個にはありません。未接続の子がないとは、記録された親が存在するという意味で、生物学的に正しい分割の証明ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "概要で空の細胞がゼロなのは、核も子として数えるためです。すべての細胞にpathogenテーブルのオブジェクトがあるという意味ではありません。千百六十八個にはありません。未接続の子がないとは、記録された親が存在するという意味で、生物学的に正しい分割の証明ではありません。"
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "親を展開して子を見ます。この視野では保存された関係により、細胞三が核五とpathogen一を含みます。これらは型付きの識別情報であり、交換可能な番号ではありません。子一つの選択とグループ全体の選択は異なります。",
-          "hold_after": 0.7,
-          "speech_text": "親を展開して子を見ます。この視野では保存された関係により、細胞三が核五とpathogen一を含みます。これらは型付きの識別情報であり、交換可能な番号ではありません。子一つの選択とグループ全体の選択は異なります。"
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contentsは親と子の識別キーを通知します。親とその子を同時に選んでも、子を重複させる必要はありません。キーには視野と型が残りますが、その列はこの画面では非表示です。キーが通知されたからといって、対応する画像が存在するとは限りません。",
-          "hold_after": 0.7,
-          "speech_text": "Select with contentsは親と子の識別キーを通知します。親とその子を同時に選んでも、子を重複させる必要はありません。キーには視野と型が残りますが、その列はこの画面では非表示です。キーが通知されたからといって、対応する画像が存在するとは限りません。"
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "大きなグループは確認が必要で、自動的に生物学的な意味を与えるべきではありません。この例には計三十三個のオブジェクトを持つグループがあります。分割や取得の問題が関係に反映されることもあります。ツリーは保存された関係を示すだけで、珍しい個数を発見として検証しません。",
-          "hold_after": 0.7,
-          "speech_text": "大きなグループは確認が必要で、自動的に生物学的な意味を与えるべきではありません。この例には計三十三個のオブジェクトを持つグループがあります。分割や取得の問題が関係に反映されることもあります。ツリーは保存された関係を示すだけで、珍しい個数を発見として検証しません。"
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "見出しをクリックすると表示グループの順序が変わりますが、包含関係は変わりません。親二千個の表示上限は残ります。全表示オブジェクトの識別と親子の接続、さらに全階層を確認しました。並べ替えや表示の省略を測定テーブルの編集と混同しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "見出しをクリックすると表示グループの順序が変わりますが、包含関係は変わりません。親二千個の表示上限は残ります。全表示オブジェクトの識別と親子の接続、さらに全階層を確認しました。並べ替えや表示の省略を測定テーブルの編集と混同しないでください。"
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open cropsには画像を表示するAnnotateが必要です。実際のメッセージも先にAnnotateを開くよう求めます。ビューアーの不在と画像の欠落は別です。画像を要求する前に対応するプロジェクトを読み、偶然番号が似た別の実行を使わないでください。",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Open cropsには画像を表示するAnnotateが必要です。実際のメッセージも先にAnnotateを開くよう求めます。ビューアーの不在と画像の欠落は別です。画像を要求する前に対応するプロジェクトを読み、偶然番号が似た別の実行を使わないでください。"
+          ]
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "ダウンロードしたプロジェクトには実際の細胞切り抜きがあります。データベースだけのアーカイブでは画像は提供できません。対応する完全なサンプルを使い、元の切り抜きはすべて保持しています。ソースを開くだけでは分類器を学習せず、新たなラベルも確定しません。",
-          "hold_after": 0.7,
-          "speech_text": "ダウンロードしたプロジェクトには実際の細胞切り抜きがあります。データベースだけのアーカイブでは画像は提供できません。対応する完全なサンプルを使い、元の切り抜きはすべて保持しています。ソースを開くだけでは分類器を学習せず、新たなラベルも確定しません。"
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "この版には重大な制限があります。三つのオブジェクトのグループを開くと、細胞三に続いて無関係な細胞五と一の画像が表示され、要求した核とpathogenの画像にはなりません。元データには細胞画像しかありません。この置換を認めず、欠落した子としてラベルを付けないでください。チュートリアルは不具合を修正しません。",
-          "hold_after": 0.7,
-          "speech_text": "この版には重大な制限があります。三つのオブジェクトのグループを開くと、細胞三に続いて無関係な細胞五と一の画像が表示され、要求した核とpathogenの画像にはなりません。元データには細胞画像しかありません。この置換を認めず、欠落した子としてラベルを付けないでください。チュートリアルは不具合を修正しません。"
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "確認済みの代替操作は、もっと限定的です。Lineageに戻って親細胞だけをダブルクリックします。Open cropsと違い、グループ全体ではなく親だけを送ります。Annotateには要求した細胞画像だけが表示されます。識別情報と元画像のバイトを確認しましたが、子画像の対応は意味しません。",
-          "hold_after": 0.7,
-          "speech_text": "確認済みの代替操作は、もっと限定的です。Lineageに戻って親細胞だけをダブルクリックします。Open cropsと違い、グループ全体ではなく親だけを送ります。Annotateには要求した細胞画像だけが表示されます。識別情報と元画像のバイトを確認しましたが、子画像の対応は意味しません。"
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shiftを押して親のサムネイルをクリックすると、クラスを割り当てずに既存のプレビューを拡大できます。Escapeで一覧に戻ります。観察しやすくなりますが、新しい解像度は得られません。通常の左クリックはアノテーション操作であり、ここで示すズームではないことに注意してください。",
-          "hold_after": 0.7,
-          "speech_text": "Shiftを押して親のサムネイルをクリックすると、クラスを割り当てずに既存のプレビューを拡大できます。Escapeで一覧に戻ります。観察しやすくなりますが、新しい解像度は得られません。通常の左クリックはアノテーション操作であり、ここで示すズームではないことに注意してください。"
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build treeは包含ビューを更新します。Pythonのread_object_tables、build_forest、lineage_frameでも同じ構造を扱えます。リンク先CSVには、非表示グループを含む七千二百一個のノードすべてがあります。APIで書き出したもので、Lineageの出力ボタンによるものではなく、生物学的検証でもありません。",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Build treeは包含ビューを更新します。Pythonのread_object_tables、build_forest、lineage_frameでも同じ構造を扱えます。リンク先CSVには、非表示グループを含む七千二百一個のノードすべてがあります。APIで書き出したもので、Lineageの出力ボタンによるものではなく、生物学的検証でもありません。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8419,173 +8403,151 @@
       "slug": "gate_editor",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "探索",
-      "title": "Gate Editor：実測データの集団、元に戻せる表示、正確な出力",
-      "description": "ダウンロードした細胞測定値にゲートを描き、保存した所属情報を確認します。三つの実測値を使う三次元表示と射影表示を比較し、生物学的なラベルを作り出すことなく、範囲を限定したクラスタリングを検討します。",
+      "section": "Tools",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "実測値を読み込み、ゲート、表示フィルター、表示・非表示を区別する。",
-        "特徴量の境界を保存・復元し、正確なオブジェクト識別情報とともに所属情報を出力する。",
-        "射影表示と再利用可能な適合済み変換を混同せずに、三次元の境界と主成分を調べる。",
-        "実際のクラスタ探索結果を比較し、ローカルの測定値コンソールを使う。"
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "先に Annotate のサンプルをダウンロードし、測定値データベースの作業用コピーを作成してください。Gate Editor に専用のサンプルダウンロードボタンはありません。録画では実測された細胞の全2,341行を使い、出力時に変更するのは作業用コピーだけです。チュートリアルのゲート名は確認用のラベルであり、生物学的な正解ラベルではありません。",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "Home の Tools カテゴリから Gate Editor を開きます。仕切りをドラッグして、プロット、ゲート表、サイドパネルの操作部に十分な幅を確保します。このレッスンではダウンロード済みの Annotate の測定値を使います。Gate Editor に専用のサンプルダウンロードボタンはありません。",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "ホーム の Tools カテゴリから ゲートエディタ を開きます。仕切りをドラッグして、プロット、ゲート表、サイドパネルの操作部に十分な幅を確保します。このレッスンではダウンロード済みの Annotate の測定値を使います。ゲートエディタ に専用のサンプルダウンロードボタンはありません。"
+          ]
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Load table で measurements.db の作業用コピーを開きます。cell テーブルを選びます。このサンプルには二千三百四十一個の実測オブジェクトがあります。Export gates はデータベースに書き込むため、元のサンプルを変更せず、コピーで作業してください。",
-          "hold_after": 0.7,
-          "speech_text": "Load table で メジャメンツ・ドット・ディービー の作業用コピーを開きます。cell テーブルを選びます。このサンプルには二千三百四十一個の実測オブジェクトがあります。Export gates はデータベースに書き込むため、元のサンプルを変更せず、コピーで作業してください。"
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "X に cell_area、Y に cell_channel_1_mean_intensity を選び、Rectangle ツールを使います。各点は測定された一つのオブジェクトです。描く前に特徴量の名前と単位を確認してください。面積と強度で定めた領域だけでは、感染細胞やその他の生物学的な分類は確定できません。",
-          "hold_after": 0.7,
-          "speech_text": "X に cell_area、Y に cell_channel_1_mean_intensity を選び、Rectangle ツールを使います。各点は測定された一つのオブジェクトです。描く前に特徴量の名前と単位を確認してください。面積と強度で定めた領域だけでは、感染細胞やその他の生物学的な分類は確定できません。"
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "散布図上をドラッグして離し、内容が分かるゲート名を入力します。このチュートリアルの集団は、確認のための例として意図的に設定しています。図形が記録するのは、この二つの測定値における数値の境界です。画像から細胞を認識するように学習させたモデルではありません。",
-          "hold_after": 0.7,
-          "speech_text": "散布図上をドラッグして離し、内容が分かるゲート名を入力します。このチュートリアルの集団は、確認のための例として意図的に設定しています。図形が記録するのは、この二つの測定値における数値の境界です。画像から細胞を認識するように学習させたモデルではありません。"
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "描いた領域には六百五十五個のオブジェクトが含まれ、表全体の約二十八パーセントに当たります。ゲート名の横にある個数と割合を確認します。マウスの位置が変われば境界も個数も変わるため、正確に再現する必要がある場合は保存したゲート戦略を使ってください。",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "描いた領域には六百五十五個のオブジェクトが含まれ、表全体の約二十八パーセントに当たります。ゲート名の横にある個数と割合を確認します。マウスの位置が変われば境界も個数も変わるため、正確に再現する必要がある場合は保存したゲート戦略を使ってください。"
+          ]
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "ゲートのチェックを外すと重ね描きされた輪郭が非表示になりますが、定義は削除されず、所属も変わりません。再びチェックを入れると表示が戻ります。これは Delete gate とは異なり、ゲートの下に表示されるオブジェクトを変える Filter タブとも異なります。",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "ゲートのチェックを外すと重ね描きされた輪郭が非表示になりますが、定義は削除されず、所属も変わりません。再びチェックを入れると表示が戻ります。これは Delete gate とは異なり、ゲートの下に表示されるオブジェクトを変える Filter タブとも異なります。"
+          ]
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Save gates で名前付きの特徴量の境界を JSON のゲート戦略として保存します。ここでは保存後にゲートを実際に削除し、保存したファイルを読み込みます。戦略を再利用するには、測定値の名前、単位、前処理が一致する必要があります。列数が同じ表というだけでは不十分です。",
-          "hold_after": 0.7,
-          "speech_text": "Save gates で名前付きの特徴量の境界を JSON のゲート戦略として保存します。ここでは保存後にゲートを実際に削除し、保存したファイルを読み込みます。戦略を再利用するには、測定値の名前、単位、前処理が一致する必要があります。列数が同じ表というだけでは不十分です。"
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates で同じ境界と六百五十五個すべての所属が復元されます。ファイルを保存しただけでなく、ゲートを実際に削除して再読み込みした後に所属を確認しました。別のデータセットでは、その個数を信頼する前に、復元された境界とオブジェクトの識別情報を確認してください。",
-          "hold_after": 0.7,
-          "speech_text": "Load gates で同じ境界と六百五十五個すべての所属が復元されます。ファイルを保存しただけでなく、ゲートを実際に削除して再読み込みした後に所属を確認しました。別のデータセットでは、その個数を信頼する前に、復元された境界とオブジェクトの識別情報を確認してください。"
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
+          "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph は実際の図をファイルに保存します。この録画の環境設定では PNG と PDF が作られます。図はゲート戦略や出力された所属情報とは別のものです。表示された集団の定義を再現する必要がある場合は、対応するデータと戦略を保管してください。",
-          "hold_after": 0.7,
-          "speech_text": "Save graph は実際の図をファイルに保存します。この録画の環境設定では PNG と PDF が作られます。図はゲート戦略や出力された所属情報とは別のものです。表示された集団の定義を再現する必要がある場合は、対応するデータと戦略を保管してください。"
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates は作業用データベースの filters テーブルに所属フラグを書き込みます。最初のゲートでは、プレート、行、列、視野、オブジェクトラベル、オブジェクト種別で照合した、ちょうど六百五十五個の細胞の識別情報にフラグが付きます。元のダウンロードと基になる細胞測定値は変更されません。",
-          "hold_after": 0.7,
-          "speech_text": "Export gates は作業用データベースの filters テーブルに所属フラグを書き込みます。最初のゲートでは、プレート、行、列、視野、オブジェクトラベル、オブジェクト種別で照合した、ちょうど六百五十五個の細胞の識別情報にフラグが付きます。元のダウンロードと基になる細胞測定値は変更されません。"
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "最初のゲートを選択したまま、二つ目の図形を描きます。その二百五十九個のオブジェクトには、最初のゲートの外側のものも含まれます。古いステータス表示の文言とは異なり、新しい図形が自動的に入れ子になることはありません。この二つのゲートの戦略を別名で保存し、既存の階層を読み込む場合は親子関係を明示的に確認してください。",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             520
-          ],
-          "speech_text": "最初のゲートを選択したまま、二つ目の図形を描きます。その二百五十九個のオブジェクトには、最初のゲートの外側のものも含まれます。古いステータス表示の文言とは異なり、新しい図形が自動的に入れ子になることはありません。この二つのゲートの戦略を別名で保存し、既存の階層を読み込む場合は親子関係を明示的に確認してください。"
+          ]
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "3D を選び、Z に cell_perimeter を指定して、三つの実測値を確認します。回転軸のボタンで回転の向きを調整します。回転で変わるのは表示であり、既存の二つの面積・強度ゲートに保存された境界は変わりません。それらの図形を再び確認するには 2D に戻ります。",
-          "hold_after": 0.7,
-          "speech_text": "スリーディー を選び、Z に cell_perimeter を指定して、三つの実測値を確認します。回転軸のボタンで回転の向きを調整します。回転で変わるのは表示であり、既存の二つの面積・強度ゲートに保存された境界は変わりません。それらの図形を再び確認するには ツーディー に戻ります。"
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view は表示中の三つの測定値すべてに境界を持つ、名前付きの直方体を作成します。この全体積の例には読み込んだすべてのオブジェクトが含まれます。操作を示す例であり、特定の生物学的集団を濃縮したものではありません。以前の二つのゲートのファイルを残すため、三つのゲートの戦略は別名で保存します。",
-          "hold_after": 0.7,
-          "speech_text": "From view は表示中の三つの測定値すべてに境界を持つ、名前付きの直方体を作成します。この全体積の例には読み込んだすべてのオブジェクトが含まれます。操作を示す例であり、特定の生物学的集団を濃縮したものではありません。以前の二つのゲートのファイルを残すため、三つのゲートの戦略は別名で保存します。"
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "xD の切り替えは、対象となる測定値から主成分を計算します。これは 2D または 3D の表示選択とは独立しています。ここではソースラベルに、最初の三つの成分の寄与率として十七、十三、六パーセントが示されています。これらは説明される分散の割合であり、分類の正解率ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "エックスディー の切り替えは、対象となる測定値から主成分を計算します。これは ツーディー または スリーディー の表示選択とは独立しています。ここではソースラベルに、最初の三つの成分の寄与率として十七、十三、六パーセントが示されています。これらは説明される分散の割合であり、分類の正解率ではありません。"
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "xD をオフにしても主成分の列は残ります。元の特徴量のゲートに戻るときは、元の軸を選び直してください。保存したゲート戦略には、データに適合させた射影変換は保存されません。成分名が同じだけでは、個別に適合させた射影同士に互換性があるとは限らないため、確認せずにゲートの境界を再利用しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "エックスディー をオフにしても主成分の列は残ります。元の特徴量のゲートに戻るときは、元の軸を選び直してください。保存したゲート戦略には、データに適合させた射影変換は保存されません。成分名が同じだけでは、個別に適合させた射影同士に互換性があるとは限らないため、確認せずにゲートの境界を再利用しないでください。"
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "Search を使うためにサイドパネルを広げ、一時的なゲートを保存してから削除します。同じ二つの元の特徴量を使い、スケーリングを有効にして、最小近傍数を二十、Walk のステップ数を五に設定します。このビルドでは Run walk を押すと確認画面が開きます。その値が表示中の操作部と一致するか確認してください。",
-          "hold_after": 0.7,
-          "speech_text": "Search を使うためにサイドパネルを広げ、一時的なゲートを保存してから削除します。同じ二つの元の特徴量を使い、スケーリングを有効にして、最小近傍数を二十、Walk のステップ数を五に設定します。このビルドでは Run walk を押すと確認画面が開きます。その値が表示中の操作部と一致するか確認してください。"
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "実際の Walk は約零点一六七の半径を選び、二つの集団を報告します。オブジェクトの三十三パーセントはその外側にあります。得られた輪郭を確認してください。密度クラスタリングとそこから保存される多角形のゲートは探索的な記述です。検証済みの細胞種を示したり、除外されたオブジェクトが無効であると証明したりするものではありません。",
-          "hold_after": 0.7,
-          "speech_text": "実際の Walk は約零点一六七の半径を選び、二つの集団を報告します。オブジェクトの三十三パーセントはその外側にあります。得られた輪郭を確認してください。密度クラスタリングとそこから保存される多角形のゲートは探索的な記述です。検証済みの細胞種を示したり、除外されたオブジェクトが無効であると証明したりするものではありません。"
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Walk の戦略を保存し、その一時的なゲートを削除して、Walk をオフにし、半径零点五で実行します。この別の選択では、二千二百三十九個のオブジェクトを含む一つの大きな多角形ゲートが作られます。より多くの細胞を含むだけで、より良い答えになるわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Walk の戦略を保存し、その一時的なゲートを削除して、Walk をオフにし、半径零点五で実行します。この別の選択では、二千二百三十九個のオブジェクトを含む一つの大きな多角形ゲートが作られます。より多くの細胞を含むだけで、より良い答えになるわけではありません。"
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "元の特徴量による、保存済みの二つのゲートの戦略を再読み込みし、Filter に cell_area を追加します。下限を二万千九百二十五にすると、表示されるオブジェクトは千百七十一個になります。この即時プレビューは、保存されたゲートの境界を書き換えずに表示範囲を絞ります。",
-          "hold_after": 0.7,
-          "speech_text": "元の特徴量による、保存済みの二つのゲートの戦略を再読み込みし、Filter に cell_area を追加します。下限を二万千九百二十五にすると、表示されるオブジェクトは千百七十一個になります。この即時プレビューは、保存されたゲートの境界を書き換えずに表示範囲を絞ります。"
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "フィルターを解除すると、二千三百四十一個すべてのオブジェクトが再び表示されます。個数を解釈したり出力したりする前に、有効な表示フィルターとゲート定義の両方を確認してください。重ね描きされた輪郭を隠すこと、表示をフィルターで絞ること、ゲートを削除することは、それぞれ異なる操作です。",
-          "hold_after": 0.7,
-          "speech_text": "フィルターを解除すると、二千三百四十一個すべてのオブジェクトが再び表示されます。個数を解釈したり出力したりする前に、有効な表示フィルターとゲート定義の両方を確認してください。重ね描きされた輪郭を隠すこと、表示をフィルターで絞ること、ゲートを削除することは、それぞれ異なる操作です。"
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
+          "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "右端の仕切りを左にドラッグしてコンソールを表示します。len(df)、つまり len の後の丸括弧内に df を入れた式を入力すると、実際の表から二千三百四十一が返ります。式のコンソールはローカルで動作します。人工知能モデルが生成した回答ではありません。",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
             320,
             740,
             1795
-          ],
-          "speech_text": "右端の仕切りを左にドラッグしてコンソールを表示します。len(df)、つまり len の後の丸括弧内に df を入れた式を入力すると、実際の表から二千三百四十一が返ります。式のコンソールはローカルで動作します。人工知能モデルが生成した回答ではありません。"
+          ]
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "チャット欄は式の入力とは別です。ここでは下書きを送信せずに残し、アシスタントの動作や生物学的な解釈は実演しません。Python では spacr.qt.widgets.gate_spec の GateSet が定義を保持します。spacr.filters の gate_mask_over_table と export_gate が、表全体にわたるオブジェクトの所属フラグを評価・保存します。後続のアノテーションを行う前に、識別情報を確認してください。",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8596,10 +8558,14 @@
           "related_lessons": [
             "06_api",
             "09_annotate"
-          ],
-          "speech_text": "チャット欄は式の入力とは別です。ここでは下書きを送信せずに残し、アシスタントの動作や生物学的な解釈は実演しません。Python では スペーカー.キュー ティー.widgets.gate_spec の GateSet が定義を保持します。スペーカー.filters の gate_mask_over_table と export_gate が、表全体にわたるオブジェクトの所属フラグを評価・保存します。後続のアノテーションを行う前に、識別情報を確認してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8607,165 +8573,155 @@
       "slug": "feature_explorer",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "探索",
-      "title": "Feature Explorer：実測値を順位付けし、比較対象を確認する",
-      "description": "Classify のサブモジュールを開き、実測値をプレート行間で比較します。分布の確認、ライブフィルター、計算列の追加、目的の順位表の書き出しを行います。分類器は学習しません。",
+      "section": "Explore",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "Classify 内の Feature Explorer を開き、既存の細胞測定値を読み込む。",
-        "AUC と分離度を区別し、クラスごとの件数と分布の違いを確認する。",
-        "ライブフィルターで比較列が自動変更されても見落とさない。",
-        "Top を意図的に設定し、再スケールした計算列と実際の書き出し内容を検証する。"
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "架空の測定値ではなく、ダウンロードした Annotate のサンプルを使います。録画では、2,341 細胞・276 列のデータベースをバイト単位で同一の専用コピーとして開きます。rowID の r12 と r5 は空間的なプレート行で、確立された処理群ではありません。細胞は視野やウェルを共有し、独立した実験ではありません。元データは変更しません。意図した二群比較では、AUC、KS、順位、有限値のクラス別件数を独立に検証しています。自動選択された八群比較は注意例であり、独立に検証された推論ではありません。Shuffle test はオフのままです。学習、新たな画像解析、専用ダウンロード、GPU 操作、AI へのリクエストは行いません。表示するヒストグラムは、このモジュール自身のグラフです。",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Classify を開き、その中の Feature Explorer ボタンを選びます。この入れ子のツールは既存の測定値を順位付けします。開くだけで分類器が学習されることはありません。ダウンロードできる実際の Annotate サンプルを、専用のデータベースコピーで使います。入手方法は Annotate のレッスンを参照し、元の実験データは変更しないでください。",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Classify を開き、その中の Feature Explorer ボタンを選びます。この入れ子のツールは既存の測定値を順位付けします。開くだけで分類器が学習されることはありません。ダウンロードできる実際の Annotate サンプルを、専用のデータベースコピーで使います。入手方法は Annotate のレッスンを参照し、元の実験データは変更しないでください。"
+          ]
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Load table で測定データベースと cell テーブルを選び、Split by を rowID にします。細胞は二千三百四十一個、列は二百七十六本です。二つの群は記録されたプレート行であり、確立された処理群ではありません。これらの細胞は独立した実験ではありません。",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
             280,
             3460,
             370
-          ],
-          "speech_text": "Load table で測定データベースと cell テーブルを選び、Split by を rowID にします。細胞は二千三百四十一個、列は二百七十六本です。二つの群は記録されたプレート行であり、確立された処理群ではありません。これらの細胞は独立した実験ではありません。"
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Rank by を AUC にして、二つの数値列を確認します。Separation は AUC の二倍から一を引いた値の絶対値です。分離度が約〇・三四でも、AUC が〇・三四という意味ではありません。Higher in は方向を示します。min n は小さい方のクラスの有限な測定値の件数であり、実験の反復数ではありません。",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
             380,
             950,
             275
-          ],
-          "speech_text": "Rank by を AUC にして、二つの数値列を確認します。Separation は AUC の二倍から一を引いた値の絶対値です。分離度が約〇・三四でも、AUC が〇・三四という意味ではありません。Higher in は方向を示します。min n は小さい方のクラスの有限な測定値の件数であり、実験の反復数ではありません。"
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Top を四にして、四つの重ね合わせヒストグラムを確認します。同じ特徴量では、各クラスに共通のビン境界を使い、棒の高さは件数です。最上位の特徴量が自動的に有用なバイオマーカーになるわけではありません。警告を読みましょう。分布が違っていても、AUC は広がりの違いを見逃すことがあります。",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
             460,
             1810,
             1590
-          ],
-          "speech_text": "Top を四にして、四つの重ね合わせヒストグラムを確認します。同じ特徴量では、各クラスに共通のビン境界を使い、棒の高さは件数です。最上位の特徴量が自動的に有用なバイオマーカーになるわけではありません。警告を読みましょう。分布が違っていても、AUC は広がりの違いを見逃すことがあります。"
+          ]
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Top が四の状態で Export ranking を使うと、特徴量四行を書き出します。この版では、全順位表を示唆する説明文と違い、書き出しも Top に従います。元の細胞データの書き出しや、学習済みモデルの保存ではありません。書き出した全値を、実際の現在の順位表と照合しました。",
-          "hold_after": 0.7,
-          "speech_text": "Top が四の状態で Export ranking を使うと、特徴量四行を書き出します。この版では、全順位表を示唆する説明文と違い、書き出しも Top に従います。元の細胞データの書き出しや、学習済みモデルの保存ではありません。書き出した全値を、実際の現在の順位表と照合しました。"
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "この例で採点できた全特徴量を書き出すには、先に Top を五百にします。二百六十一特徴量を採点でき、数値候補のうち二つは採点できません。書き出しは全二百六十一行ですが、画面に描く分布は最大八つです。特徴量数、表の行数、グラフのパネル数はそれぞれ異なります。",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             1650
-          ],
-          "speech_text": "この例で採点できた全特徴量を書き出すには、先に Top を五百にします。二百六十一特徴量を採点でき、数値候補のうち二つは採点できません。書き出しは全二百六十一行ですが、画面に描く分布は最大八つです。特徴量数、表の行数、グラフのパネル数はそれぞれ異なります。"
+          ]
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Rank by を KS に変え、累積分布間の最大の差を比較してから、AUC に戻します。KS は AUC が見逃す分布差を示せますが、それ自体では方向を示しません。他の統計量にも限界があります。順位を有意性検定と扱うのではなく、画面の警告を読んでください。",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             400
-          ],
-          "speech_text": "Rank by を KS に変え、累積分布間の最大の差を比較してから、AUC に戻します。KS は AUC が見逃す分布差を示せますが、それ自体では方向を示しません。他の統計量にも限界があります。順位を有意性検定と扱うのではなく、画面の警告を読んでください。"
+          ]
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Filter で cell_area を追加し、最小値を二万一千九百二十五にします。表示対象は千百七十一細胞になり、採点可能な特徴量は二百五十五になります。中央値を使うこの実演用閾値は、生物学的な品質基準ではありません。画像を再測定せずに、順位と分布が更新されます。",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             420
-          ],
-          "speech_text": "Filter で cell_area を追加し、最小値を二万一千九百二十五にします。表示対象は千百七十一細胞になり、採点可能な特徴量は二百五十五になります。中央値を使うこの実演用閾値は、生物学的な品質基準ではありません。画像を再測定せずに、順位と分布が更新されます。"
+          ]
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all は表示フィルターを解除する操作で、データは削除しません。全二千三百四十一細胞と元の順位表に戻ります。フィルターを変えたら、対象集団と Split by を再確認してください。フィルターで変わった差は、別の選択集団を記述しているのであり、新たな実験ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "Clear all は表示フィルターを解除する操作で、データは削除しません。全二千三百四十一細胞と元の順位表に戻ります。フィルターを変えたら、対象集団と Split by を再確認してください。フィルターで変わった差は、別の選択集団を記述しているのであり、新たな実験ではありません。"
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "この版には重要な落とし穴があります。rowID を r12 に絞ると、もう一方の行は消えますが、画面の Split by が通知なく cell_channel_0_maxima_count に切り替わります。今度は八群の比較となり、最小の群には対象が一個しかありません。高いスコアでも、元の行間比較ではなく、生物学的発見の証拠でもありません。",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             400
-          ],
-          "speech_text": "この版には重要な落とし穴があります。rowID を r12 に絞ると、もう一方の行は消えますが、画面の Split by が通知なく cell_channel_0_maxima_count に切り替わります。今度は八群の比較となり、最小の群には対象が一個しかありません。高いスコアでも、元の行間比較ではなく、生物学的発見の証拠でもありません。"
+          ]
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "フィルターを解除し、rowID を明示的に選び直します。解除だけでは元の比較に戻るとは限りません。書き出す前に、クラスの列と対象集団の両方を確認します。Shuffle test はラベルのシャッフルを五十回行う機能ですが、ここではオフにします。相関する細胞を自由にシャッフルしても、ウェル単位や処理単位の証拠にはなりません。",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             275
-          ],
-          "speech_text": "フィルターを解除し、rowID を明示的に選び直します。解除だけでは元の比較に戻るとは限りません。書き出す前に、クラスの列と対象集団の両方を確認します。Shuffle test はラベルのシャッフルを五十回行う機能ですが、ここではオフにします。相関する細胞を自由にシャッフルしても、ウェル単位や処理単位の証拠にはなりません。"
+          ]
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Columns を開き、新しい列名を area_k にします。式は cell_area を一イー三、つまり千で割ったものです。置換をオフにして Add column を選びます。これは面積の再スケールで、物理単位への較正や新たな測定ではありません。Preview は先頭二千行を調べますが、列の追加時には表全体に式が適用されます。",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             1030
-          ],
-          "speech_text": "Columns を開き、新しい列名を area_k にします。式は cell_area を一イー三、つまり千で割ったものです。置換をオフにして Add column を選びます。これは面積の再スケールで、物理単位への較正や新たな測定ではありません。Preview は先頭二千行を調べますが、列の追加時には表全体に式が適用されます。"
+          ]
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "再スケールした列が順位表と書き出しに加わり、採点済み特徴量は二百六十二になります。正の倍率による変換は順序を保つため、AUC と KS は cell_area と同じです。計算された全値を確認しました。式を削除すると元の二百六十一特徴量に戻り、測定データベースは変更されません。",
-          "hold_after": 0.7,
-          "speech_text": "再スケールした列が順位表と書き出しに加わり、採点済み特徴量は二百六十二になります。正の倍率による変換は順序を保つため、AUC と KS は cell_area と同じです。計算された全値を確認しました。式を削除すると元の二百六十一特徴量に戻り、測定データベースは変更されません。"
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "この順位表は記述的な探索に使います。選んだ特徴量や学習済み分類器の独立した検証ではありません。Python では spacr.qt.widgets.feature_rank が rank_features と ExplorerSpec を提供します。生の表や別の比較を調べるには、Database Browser と Graph Builder に進んでください。新しい画像解析パイプラインや AI へのリクエストは実行していません。",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "58_graph_builder"
-          ],
-          "speech_text": "この順位表は記述的な探索に使います。選んだ特徴量や学習済み分類器の独立した検証ではありません。Python では スペーカー.キュー ティー.widgets.feature_rank が rank_features と ExplorerSpec を提供します。生の表や別の比較を調べるには、Database Browser と Graph Builder に進んでください。新しい画像解析パイプラインや AI へのリクエストは実行していません。"
+          ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8773,210 +8729,193 @@
       "slug": "outliers",
       "series": 5,
       "app_key": "outliers",
-      "section": "探索",
-      "title": "Outliers：観測を削除せず、実際のフラグを確認する",
-      "description": "QC 内の Outliers で実測の細胞データに頑健なルールを適用し、未評価のウェルと問題なしのウェルを区別します。実際の対数変換エラーを確認し、全行をフラグ付きで書き出します。",
+      "section": "Explore",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "QC のサブモジュールを見つけ、Scan 前に測定特徴量を意図的に選ぶ。",
-        "MAD、IQR、明示的な対数変換を比較し、フラグを確認済みの誤りと見なさない。",
-        "対象数、表示行数、未評価のウェル比較を区別する。",
-        "元の測定値をフラグ付きで書き出し、無効な変換から安全に復旧する。"
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "ダウンロードできる Annotate サンプルの、バイト単位で同一の専用データベースコピーを使います。2,341 細胞は四つの記録済みウェルにあり、独立した実験でも既知の不良対象でもありません。元の測定値を編集・削除しません。このレッスンでは、有限で非退化な単一特徴量の MAD/IQR 計算、各行のフラグ位置、ウェルの中央値と件数、五ウェル未満での比較拒否を独立に検証します。全特徴量の自動スキャン、ゼロスケール時の代替処理、多変量 MCD 推論、生物学的品質は検証しません。既存の測定表のスキャンであり、新たな画像分割、GPU 解析、分類器学習ではありません。この画面には画像プレビュー、Plot 切替、専用ダウンロード、AI コンソールはありません。Objects、Wells、Report が実際の出力です。",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "Home から QC を開き、その Outliers ボタンを選びます。QC のダッシュボードは保存済みの確認結果を読みますが、この入れ子のツールは測定表からフラグを計算します。実際にダウンロードできる Annotate サンプルを専用コピーで使います。入手方法はそのレッスンを参照し、元の実験データは変更しないでください。",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "54_qc_dashboard"
-          ],
-          "speech_text": "ホーム から QC を開き、その Outliers ボタンを選びます。QC のダッシュボードは保存済みの確認結果を読みますが、この入れ子のツールは測定表からフラグを計算します。実際にダウンロードできる Annotate サンプルを専用コピーで使います。入手方法はそのレッスンを参照し、元の実験データは変更しないでください。"
+          ]
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Load table でデータベースの cell テーブルを選びます。読み込み時には、選択中の連続特徴量をすべて自動スキャンします。ここでは二千三百四十一細胞に対して二百五十五特徴量です。この広い初期設定では二千三百三十八対象にフラグが付きます。ほぼすべての細胞が不良だという証明ではありません。列の多い結果表の読み込みには時間がかかる場合があります。",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Load table でデータベースの cell テーブルを選びます。読み込み時には、選択中の連続特徴量をすべて自動スキャンします。ここでは二千三百四十一細胞に対して二百五十五特徴量です。この広い初期設定では二千三百三十八対象にフラグが付きます。ほぼすべての細胞が不良だという証明ではありません。列の多い結果表の読み込みには時間がかかる場合があります。"
+          ]
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "特徴量検索を空にして None を選び、すべてのチェックを外します。cell_area を検索して、その正確な特徴量だけを選び、Scan を押します。検索で絞るのは特徴量名であり、細胞の行ではありません。選択変更では自動再スキャンされず、新しいルールを実行するまで古い結果が残ることがあります。",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
             455,
             390,
             1595
-          ],
-          "speech_text": "特徴量検索を空にして None を選び、すべてのチェックを外します。cell_area を検索して、その正確な特徴量だけを選び、Scan を押します。検索で絞るのは特徴量名であり、細胞の行ではありません。選択変更では自動再スキャンされず、新しいルールを実行するまで古い結果が残ることがあります。"
+          ]
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "MAD では変換を none、k を三・五にします。中央値からの絶対距離を、中央絶対偏差のおよそ一・四八二六倍で割るルールです。二十六細胞にフラグが付きます。確認すべき候補であって、画像分割の誤りが確定したわけではありません。行は一つも削除していません。",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "MAD では変換を none、k を三・五にします。中央値からの絶対距離を、中央絶対偏差のおよそ一・四八二六倍で割るルールです。二十六細胞にフラグが付きます。確認すべき候補であって、画像分割の誤りが確定したわけではありません。行は一つも削除していません。"
+          ]
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Wells を開きます。四つのウェルすべてに五百を超える対象がありますが、評価されたウェルはありません。ウェル間比較には適格なウェルが少なくとも五つ必要です。Wells のゼロだけでなく、well_scored と具体的な理由を読んでください。Flagged share は対象のフラグの割合であり、ウェル単位のスコアや問題なしの証拠ではありません。",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "Wells を開きます。四つのウェルすべてに五百を超える対象がありますが、評価されたウェルはありません。ウェル間比較には適格なウェルが少なくとも五つ必要です。Wells のゼロだけでなく、well_scored と具体的な理由を読んでください。Flagged share は対象のフラグの割合であり、ウェル単位のスコアや問題なしの証拠ではありません。"
+          ]
         },
         {
           "visual": "08_area_report",
-          "narration": "Report にはルール、測定された中心、スケール、注意点が出ます。この版の注意文の一つは、四ウェルの対象数が二十未満だったと誤って書いています。実際の件数は五百一から七百で、不足しているのはウェル数です。ウェル表の具体的な理由を読み、誤った件数の説明を繰り返さないでください。",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "Report にはルール、測定された中心、スケール、注意点が出ます。この版の注意文の一つは、四ウェルの対象数が二十未満だったと誤って書いています。実際の件数は五百一から七百で、不足しているのはウェル数です。ウェル表の具体的な理由を読み、誤った件数の説明を繰り返さないでください。"
+          ]
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "より大きい距離を要求すると、フラグが付く対象は減ります。k を二に下げると百四十二、〇・五にすると千四百七十九になりました。最後の設定は実演用に意図的に広くしたもので、推奨の品質基準ではありません。対象表は五百行だけを表示するため、表示行数はフラグ総数ではありません。",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "より大きい距離を要求すると、フラグが付く対象は減ります。k を二に下げると百四十二、〇・五にすると千四百七十九になりました。最後の設定は実演用に意図的に広くしたもので、推奨の品質基準ではありません。対象表は五百行だけを表示するため、表示行数はフラグ総数ではありません。"
+          ]
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Export で新しいファイル名を選びます。objects CSV は二千三百四十一行すべてを保ってフラグを追加し、flagged はフラグ付きの千四百七十九行を含みます。Wells は四つの要約、report はテキストファイルです。書き出した測定値とフラグをすべて確認しました。書き出しは削除ではなく、表示中の五百行にも制限されません。",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Export で新しいファイル名を選びます。objects CSV は二千三百四十一行すべてを保ってフラグを追加し、flagged はフラグ付きの千四百七十九行を含みます。Wells は四つの要約、report はテキストファイルです。書き出した測定値とフラグをすべて確認しました。書き出しは削除ではなく、表示中の五百行にも制限されません。"
+          ]
         },
         {
           "visual": "13_area_iqr",
-          "narration": "元のルールを復元してから IQR を選びます。閾値は頑健な標準偏差ではなく、四分位範囲の c 倍という意味になります。c が一・五なら、未変換の細胞面積で五十五対象にフラグが付きます。両側の境界と全フラグ位置を独立に検証しました。歪んだ分布の裾は、測定値が有効でもフラグの対象になり得ます。",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "元のルールを復元してから IQR を選びます。閾値は頑健な標準偏差ではなく、四分位範囲の c 倍という意味になります。c が一・五なら、未変換の細胞面積で五十五対象にフラグが付きます。両側の境界と全フラグ位置を独立に検証しました。歪んだ分布の裾は、測定値が有効でもフラグの対象になり得ます。"
+          ]
         },
         {
           "visual": "14_iqr_report",
-          "narration": "もう一つ、表記の誤りがあります。この IQR レポートは二万二千六百六十三を中央値と呼んでいますが、これは第一・第三四分位数の中点です。本当の中央値は二万一千九百二十五です。検証した境界値は正しいものの、表示された中心を中央値として引用しないでください。",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "もう一つ、表記の誤りがあります。この IQR レポートは二万二千六百六十三を中央値と呼んでいますが、これは第一・第三四分位数の中点です。本当の中央値は二万一千九百二十五です。検証した境界値は正しいものの、表示された中心を中央値として引用しないでください。"
+          ]
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "log10 を明示的に選び、再スキャンします。この正の面積データでは IQR が七十九、MAD の三・五に戻すと三十六になります。対数変換は距離と問いを変えるもので、フラグの減少や生物学的な正しさを保証しません。報告される中心とスケールは log10 単位になります。",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "log10 を明示的に選び、再スキャンします。この正の面積データでは IQR が七十九、MAD の三・五に戻すと三十六になります。対数変換は距離と問いを変えるもので、フラグの減少や生物学的な正しさを保証しません。報告される中心とスケールは log10 単位になります。"
+          ]
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "実際の拒否例を見るため、変換なしに戻し、cell_channel_0_min_intensity だけを選びます。Scan は成功し、六十八対象にフラグが付きます。測定値の一つが実際にゼロです。この成功例は重要です。その値が定義域外になる変換を求める前は、表も特徴量も正常に使えています。",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1700,
             315
-          ],
-          "speech_text": "実際の拒否例を見るため、変換なしに戻し、cell_channel_0_min_intensity だけを選びます。Scan は成功し、六十八対象にフラグが付きます。測定値の一つが実際にゼロです。この成功例は重要です。その値が定義域外になる変換を求める前は、表も特徴量も正常に使えています。"
+          ]
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "次に log10 を選んで Scan を押します。実際のエラーが、ゼロまたは負の値一つとその特徴量を示します。擬似カウントの追加も対象の削除もなく、Export は無効になります。失敗後も古い表の行や件数が見えることがありますが、新しい成功結果ではありません。エラーを読み、有効なルールに戻してください。",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
             375,
             3540,
             230
-          ],
-          "speech_text": "次に log10 を選んで Scan を押します。実際のエラーが、ゼロまたは負の値一つとその特徴量を示します。擬似カウントの追加も対象の削除もなく、Export は無効になります。失敗後も古い表の行や件数が見えることがありますが、新しい成功結果ではありません。エラーを読み、有効なルールに戻してください。"
+          ]
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "未変換の cell_area と MAD 三・五に戻してスキャンし、元の二十六フラグを復元します。Min objects per well を七百に上げると適格性が変わり、この数に達するのは一ウェルだけで、残る三ウェルには件数不足の理由が残ります。最小値を下げても、欠けている第五のウェルは作れません。未評価は問題なしと同義ではありません。",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "未変換の cell_area と MAD 三・五に戻してスキャンし、元の二十六フラグを復元します。Min objects per well を七百に上げると適格性が変わり、この数に達するのは一ウェルだけで、残る三ウェルには件数不足の理由が残ります。最小値を下げても、欠けている第五のウェルは作れません。未評価は問題なしと同義ではありません。"
+          ]
         },
         {
           "visual": "22_objects_only",
-          "narration": "最小値を二十に戻し、Score wells too をオフにしてスキャンします。対象のフラグは二十六のままで、ウェル比較は要求されません。オンにして再スキャンすると、四つの未評価ウェルの要約が戻ります。この設定は解析の単位を変えるもので、データベースの細胞やウェルを絞り込んだり削除したりはしません。",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "最小値を二十に戻し、Score wells too をオフにしてスキャンします。対象のフラグは二十六のままで、ウェル比較は要求されません。オンにして再スキャンすると、四つの未評価ウェルの要約が戻ります。この設定は解析の単位を変えるもので、データベースの細胞やウェルを絞り込んだり削除したりはしません。"
+          ]
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "復元したルールを別名で書き出します。最終ファイルには二千三百四十一対象行、フラグ付き二十六行、四ウェルの要約とレポートがあります。元と専用コピーの測定データベースは変更されていません。閾値の違う結果を同じ解析と取り違えないよう、ルールとレポートをフラグと一緒に保存してください。",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "復元したルールを別名で書き出します。最終ファイルには二千三百四十一対象行、フラグ付き二十六行、四ウェルの要約とレポートがあります。元と専用コピーの測定データベースは変更されていません。閾値の違う結果を同じ解析と取り違えないよう、ルールとレポートをフラグと一緒に保存してください。"
+          ]
         },
         {
           "visual": "method_choices_mad",
-          "narration": "メニューには頑健な多変量 Mahalanobis もありますが、このレッスンでは実行していません。アルファは分布の仮定に依存し、誤り率を保証するものではありません。Python で計算するのは spacr.qt.widgets.outlier_model の detect_outliers と OutlierSpec です。分布や画像の確認は Feature Explorer や Annotate に進んでください。ここでは画像プレビューや AI リクエストは行っていません。",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8988,11 +8927,15 @@
             1785,
             395,
             155
-          ],
-          "speech_text": "メニューには頑健な多変量 Mahalanobis もありますが、このレッスンでは実行していません。アルファは分布の仮定に依存し、誤り率を保証するものではありません。Python で計算するのは スペーカー.キュー ティー.widgets.outlier_model の detect_outliers と OutlierSpec です。分布や画像の確認は Feature Explorer や Annotate に進んでください。ここでは画像プレビューや AI リクエストは行っていません。"
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -9000,222 +8943,205 @@
       "slug": "experiment_design",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "設計",
-      "title": "Experiment Design：再現可能なプレート計画と正確な出力",
-      "description": "実際の操作で配置案を編集し、容量と反復数の警告を確認して、ランダムな割り当てを再現し、正確なウェルマップを出力します。",
+      "section": "Data",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "撮像前に条件と対照の役割を計画する。",
-        "配置チェックを生物学的検証と混同せず、警告と復旧を実演する。",
-        "同じランダム配置を再現し、選択したウェルと割り当てた条件を区別する。",
-        "行・列の設定では表現できない設計について、正確なウェル表を出力・保存する。"
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "この計画モジュールには撮像済み画像やダウンロードしたデータは不要です。録画ではアプリの実際の初期案を使います。陰性対照六ウェル、陽性対照六ウェル、処理十二ウェルで、名前は tutorial_plan です。個数は操作説明用であり、検出力計算や取得済み実験結果ではありません。",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "撮像前に、Home の Data カテゴリから Experiment Design を開きます。このモジュールはプレート配置の案を作り、測定済みの生物学的結果は生成しません。陰性、陽性、処理という名前は仮のラベルです。実験に適した名前と対照を選んでください。",
-          "hold_after": 0.7,
-          "speech_text": "撮像前に、ホーム の Data カテゴリから Experiment Design を開きます。このモジュールはプレート配置の案を作り、測定済みの生物学的結果は生成しません。陰性、陽性、処理という名前は仮のラベルです。実験に適した名前と対照を選んでください。"
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "後で画像や測定値と識別子が一致するようにプレート名を付けます。表の列が狭い場合は、見出しの境界をダブルクリックして内容に合わせます。Condition、Replicates、Role をまとめて確認します。六、六、十二という個数は操作例であり、根拠のあるサンプルサイズではありません。",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
-          ],
-          "speech_text": "後で画像や測定値と識別子が一致するようにプレート名を付けます。表の列が狭い場合は、見出しの境界をダブルクリックして内容に合わせます。Condition、Replicates、Role をまとめて確認します。六、六、十二という個数は操作例であり、根拠のあるサンプルサイズではありません。"
+          ]
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "二十四ウェルを要求したまま六ウェル形式を選ぶと、容量エラーになります。余分な反復が黙って削除されることはありません。メッセージを読み、形式か実験計画を変更します。空のマップを有効な割り当てと考えないでください。",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
             1910,
             3150,
             205
-          ],
-          "speech_text": "二十四ウェルを要求したまま六ウェル形式を選ぶと、容量エラーになります。余分な反復が黙って削除されることはありません。メッセージを読み、形式か実験計画を変更します。空のマップを有効な割り当てと考えないでください。"
+          ]
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "九十六ウェルに戻すと、二十四の割り当てがすべて復元されます。マップは現在の表に従って更新されます。Add condition と Remove selected は条件の行を管理します。下の四角いウェルは別の選択領域であり、表の行ではありません。",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
             365,
             3370,
             285
-          ],
-          "speech_text": "九十六ウェルに戻すと、二十四の割り当てがすべて復元されます。マップは現在の表に従って更新されます。Add condition と Remove selected は条件の行を管理します。下の四角いウェルは別の選択領域であり、表の行ではありません。"
+          ]
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "反復数のセルを選び、F 二で編集します。陰性対照を一ウェルに減らすと警告が出て、六に戻すと消えます。同じウェルに多数の細胞があっても、独立した実験反復の代わりにはなりません。",
-          "hold_after": 0.7,
-          "speech_text": "反復数のセルを選び、F 二で編集します。陰性対照を一ウェルに減らすと警告が出て、六に戻すと消えます。同じウェルに多数の細胞があっても、独立した実験反復の代わりにはなりません。"
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Block 配置は同じ条件を近くに置き、位置との交絡について警告します。自動的な生物学的結論ではなく、設計を確認するための注意として読んでください。光学的な照明補正は蒸発や温度の影響を補正しません。実験配置と画像の照明むらは別の問題です。",
-          "hold_after": 0.7,
-          "speech_text": "Block 配置は同じ条件を近くに置き、位置との交絡について警告します。自動的な生物学的結論ではなく、設計を確認するための注意として読んでください。光学的な照明補正は蒸発や温度の影響を補正しません。実験配置と画像の照明むらは別の問題です。"
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "random 配置、外周を空ける設定、シード四十二を選びます。九十六ウェルから外周を除くと使用可能なのは六十で、計画は二十四を割り当てます。外周を避けると容量が減り、すべての空間的影響がなくなる保証もありません。",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "random 配置、外周を空ける設定、シード四十二を選びます。九十六ウェルから外周を除くと使用可能なのは六十で、計画は二十四を割り当てます。外周を避けると容量が減り、すべての空間的影響がなくなる保証もありません。"
+          ]
         },
         {
           "visual": "08_seed43",
-          "narration": "シードを四十三に変えると、条件ごとの要求数はそのままで実際の割り当てが変わります。無作為化は系統的な配置バイアスを減らしますが、個々の配置の確認は必要です。望む結果に有利になるようにシードを選ばないでください。",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "シードを四十三に変えると、条件ごとの要求数はそのままで実際の割り当てが変わります。無作為化は系統的な配置バイアスを減らしますが、個々の配置の確認は必要です。望む結果に有利になるようにシードを選ばないでください。"
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "四十二に戻すと、ウェルと条件の対応が完全に復元されます。シードに加え、プレート形式、外周の方針、条件表も記録します。ほかの入力が変われば、シードだけでは設計を定義できません。",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "四十二に戻すと、ウェルと条件の対応が完全に復元されます。シードに加え、プレート形式、外周の方針、条件表も記録します。ほかの入力が変われば、シードだけでは設計を定義できません。"
+          ]
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "B ゼロ二から C ゼロ四までドラッグし、六ウェルを選びます。選択の輪郭は変わりますが、条件は変わりません。この操作はウェルの選択であって、処理の割り当てではありません。割り当てを見直すときは条件表と表示マップを確認します。",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "B ゼロ二から C ゼロ四までドラッグし、六ウェルを選びます。選択の輪郭は変わりますが、条件は変わりません。この操作はウェルの選択であって、処理の割り当てではありません。割り当てを見直すときは条件表と表示マップを確認します。"
+          ]
         },
         {
           "visual": "11_export_folder",
-          "narration": "Export plate map を使い、専用のフォルダーを選びます。実際に出力されるのは plate_map ドット CSV、plate_map ドット JSON、plate_map_settings ドット JSON です。三つを一緒に保存します。出力先を選ぶことは、計画した実験を実施することとは違います。",
-          "hold_after": 0.7,
-          "speech_text": "Export plate map を使い、専用のフォルダーを選びます。実際に出力されるのは plate_map ドット CSV、plate_map ドット JSON、plate_map_settings ドット JSON です。三つを一緒に保存します。出力先を選ぶことは、計画した実験を実施することとは違います。"
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "CSV は割り当て済みの各ウェルに一行を持ちます。ここでは二十四行で、すべての条件と役割が表示と一致します。測定値との結合には plate I D、row I D、column I D を合わせて使います。JSON にはシード、設計、指摘事項が記録され、警告も隠されずに残ります。",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "CSV は割り当て済みの各ウェルに一行を持ちます。ここでは二十四行で、すべての条件と役割が表示と一致します。測定値との結合には plate I D、row I D、column I D を合わせて使います。JSON にはシード、設計、指摘事項が記録され、警告も隠されずに残ります。"
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "このランダム配置は、行または列単位の処理設定では表現できません。設定ファイルは expressible を明示的に false とし、完全な解析設定ではありません。混在するウェルを行全体のラベルで近似せず、正確な出力表を明示的に結合してください。",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "このランダム配置は、行または列単位の処理設定では表現できません。設定ファイルは expressible を明示的に false とし、完全な解析設定ではありません。混在するウェルを行全体のラベルで近似せず、正確な出力表を明示的に結合してください。"
+          ]
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Python インターフェースは spacr.qt.widgets.plate_layout にあります。Condition と PlateDesign が計画を表し、assign_wells、check_design、write_design が割り当て、確認、保存を行います。配置チェックは統計的検出力や生物学的妥当性を証明しません。撮像前に設計を確認し、後の解析のために正確なマップを保持してください。",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "68_power_design",
             "33_plate_viewer"
-          ],
-          "speech_text": "Python インターフェースは スペーカー.キュー ティー.widgets.plate_layout にあります。Condition と PlateDesign が計画を表し、assign_wells、check_design、write_design が割り当て、確認、保存を行います。配置チェックは統計的検出力や生物学的妥当性を証明しません。撮像前に設計を確認し、後の解析のために正確なマップを保持してください。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design：シミュレーターと限界を読む",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
-      "section": "設計",
+      "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "実際の設定、模擬検出曲線、警告を理解し、小規模な実演や矛盾した要約を検証済みの設計助言と混同しないようにします。",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "シミュレーションの仮定と取得した実験データを区別する。",
-        "利用可能な適合、検出割合、不確実性を正しく読む。",
-        "同一設計への誤った推奨を認識し、記録を保存する。"
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "記録された実際のシミュレーターを批判的に読む教材です。較正済みの統計的検出力や標本数の助言ではありません。Power_recorded_simulation_review.zipは元のJSONと説明を保存した外部資料で、GUIに読み込める実行結果や標準出力の実演ではありません。spaCR 1.5.0.4で記録した画面、設計アダプター、模擬生成、適合コードは現在のソースと一致します。二つの周辺走査で九点、各二反復、計18適合を実行し、未収束の四適合も分母に含めています。二つの模擬スクリーニングで確率を切り詰めました。同じ名目設計でも乱数抽出が異なり、検出は1/2と2/2です。既存のウェル数まで増やすという助言を明確に拒否し、修正済みとは扱いません。一部の端のラベルは切れますが、確認済みの表には九座標があります。新規シミュレーション、実測、生物学的較正、GPU処理、AI要求、公開は主張しません。API：spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve、spacr.qt.screens.power.run_power_sweep。spacr.power_simulateとspacr.power_modelが生成と適合を行います。",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "PowerとDesignは模擬データで仮定を調べます。取得した実験を読み込む機能ではなく、仮定が自分の実験に合うことも証明しません。実際の記録を警告や誤解を招く推奨とともに読みます。この小規模な実演を、検証済みの標本数の助言として使わないでください。",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
-          "hold_after": 0.7,
-          "speech_text": "PowerとDesignは模擬データで仮定を調べます。取得した実験を読み込む機能ではなく、仮定が自分の実験に合うことも証明しません。実際の記録を警告や誤解を招く推奨とともに読みます。この小規模な実演を、検証済みの標本数の助言として使わないでください。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_guide_library",
-          "narration": "まずライブラリーと評価単位を確認します。ガイドと遺伝子を切り替えると評価対象が変わります。四十遺伝子にそれぞれ四ガイドなら、ガイド評価では百六十単位です。遺伝子評価ではガイド情報をまとめます。教材用の仮定であり、新しい生物学的測定ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "まずライブラリーと評価単位を確認します。ガイドと遺伝子を切り替えると評価対象が変わります。四十遺伝子にそれぞれ四ガイドなら、ガイド評価では百六十単位です。遺伝子評価ではガイド情報をまとめます。教材用の仮定であり、新しい生物学的測定ではありません。"
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "プレートと効果の設定は仮定した設計を表します。陽性判定率は模擬的な分類確率であり、生物の個体数や測定した感染率ではありません。背景、効果、陽性割合を合わせて確認します。表示した仮定によってモデルが検証されるわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "プレートと効果の設定は仮定した設計を表します。陽性判定率は模擬的な分類確率であり、生物の個体数や測定した感染率ではありません。背景、効果、陽性割合を合わせて確認します。表示した仮定によってモデルが検証されるわけではありません。"
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "効果を一未満にすると、未対応方向の標準警告が出てRunが無効になります。記録では対応する値に戻し、操作が回復します。ソフトウェア上の保護であり、反対方向の効果が生物学的に不可能という意味ではありません。都合のよい曲線のために警告を回避しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "効果を一未満にすると、未対応方向の標準警告が出てRunが無効になります。記録では対応する値に戻し、操作が回復します。ソフトウェア上の保護であり、反対方向の効果が生物学的に不可能という意味ではありません。都合のよい曲線のために警告を回避しないでください。"
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "この限定的な実演は各点で二反復だけを使います。検出には、利用可能な適合が選んだROC曲線下面積の閾値に達することが必要です。仮説検定のP値閾値ではありません。乱数シードとバックエンドは記録されていますが、Torchの選択だけではGPU実行を証明できません。",
-          "hold_after": 0.7,
-          "speech_text": "この限定的な実演は各点で二反復だけを使います。検出には、利用可能な適合が選んだROC曲線下面積の閾値に達することが必要です。仮説検定のP値閾値ではありません。乱数シードとバックエンドは記録されていますが、Torchの選択だけではGPU実行を証明できません。"
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Runは実際のシミュレーターをワーカースレッドで開始します。細胞数とウェル数は別々に変化させ、全組合せは評価しません。記録では九点で十八適合を完了しました。設定と各反復の生の記録を一緒に保存し、曲線の割合を元の適合に追跡できるようにします。",
-          "hold_after": 0.7,
-          "speech_text": "Runは実際のシミュレーターをワーカースレッドで開始します。細胞数とウェル数は別々に変化させ、全組合せは評価しません。記録では九点で十八適合を完了しました。設定と各反復の生の記録を一緒に保存し、曲線の割合を元の適合に追跡できるようにします。"
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "検出数の分母は要求した全反復です。収束しなかった四適合も非検出として分母に残り、黙って除外されません。ここで百パーセントとは二回中二回にすぎません。これほど少ない標本では精密な検出確率は確立できません。",
-          "hold_after": 0.7,
-          "speech_text": "検出数の分母は要求した全反復です。収束しなかった四適合も非検出として分母に残り、黙って除外されません。ここで百パーセントとは二回中二回にすぎません。これほど少ない標本では精密な検出確率は確立できません。"
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
@@ -9225,9 +9151,8 @@
             2380,
             460
           ],
-          "narration": "表は検出割合と利用可能な適合の平均性能を区別します。利用不能な平均はゼロではありません。平均適合率には陽性割合の基準値も必要です。端のラベルが切れていれば表を読み、青い線だけで判断せず未収束数を確認します。",
-          "hold_after": 0.7,
-          "speech_text": "表は検出割合と利用可能な適合の平均性能を区別します。利用不能な平均はゼロではありません。平均適合率には陽性割合の基準値も必要です。端のラベルが切れていれば表を読み、青い線だけで判断せず未収束数を確認します。"
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
@@ -9237,26 +9162,28 @@
             2380,
             110
           ],
-          "narration": "見出しには誤りがあります。両方の基準推定は既に九十六ウェルですが、乱数抽出が違うため一方では二回中一回、他方では二回中二回を検出しました。同じ九十六ウェルにすることは設計改善ではありません。この助言を拒否してください。教材はその誤りを修正しません。",
-          "hold_after": 0.7,
-          "speech_text": "見出しには誤りがあります。両方の基準推定は既に九十六ウェルですが、乱数抽出が違うため一方では二回中一回、他方では二回中二回を検出しました。同じ九十六ウェルにすることは設計改善ではありません。この助言を拒否してください。教材はその誤りを修正しません。"
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "残りの注意事項を開きます。二つの模擬スクリーニングで一を超える確率を切り詰めたため、実現した占有数は要求値と異なります。他にもモデルの仮定と限界がありますが、列挙は検証ではありません。結論の前に警告と失敗した適合を確認します。",
-          "hold_after": 0.7,
-          "speech_text": "残りの注意事項を開きます。二つの模擬スクリーニングで一を超える確率を切り詰めたため、実現した占有数は要求値と異なります。他にもモデルの仮定と限界がありますが、列挙は検証ではありません。結論の前に警告と失敗した適合を確認します。"
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "リンクした資料は実際の仕様、反復出力、曲線、表、誤った見出しを保存します。外部の証拠資料であり、標準GUIのエクスポートや読み込まれた結果ではありません。Pythonの設計アダプターと模擬生成APIも同じ処理を提供しますが、実際の計画には仮定と不確実性の別途検証が必要です。",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "リンクした資料は実際の仕様、反復出力、曲線、表、誤った見出しを保存します。外部の証拠資料であり、標準GUIのエクスポートや読み込まれた結果ではありません。Pythonの設計アダプターと模擬生成APIも同じ処理を提供しますが、実際の計画には仮定と不確実性の別途検証が必要です。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9264,61 +9191,57 @@
       "slug": "dose_response",
       "series": 5,
       "app_key": "dose_response",
-      "section": "設計",
-      "title": "用量反応：曲線の当てはめ、不確実性、妥当な拒否",
-      "description": "再現可能な合成データ表で現在の Dose Response 画面を使い、プロファイル尤度区間と Wald 区間を比較して、推定可能、範囲を定められない、拒否された結果を区別します。",
+      "section": "Data",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "濃度と応答を明示して読み込み、名前付き系列ごとに曲線を当てはめる。",
-        "半最大応答濃度、区間法、溶媒対照、拒否された曲線を解釈する。",
-        "並べ替え前に比較を終え、実際のレポートをコピーし、画面操作と API のエクスポートを区別する。"
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "添付の合成 CSV をダウンロードしてください。構成した120行には四つの系列があり、各系列は九つの正の濃度、用量ゼロの溶媒対照、各濃度三つの観測からなります。−0.5、ゼロ、+0.5の対称なずれは生物学的反復でも統計的校正の研究でもありません。設定した半最大応答濃度は1.5、2、範囲外の500で、第四系列は途中で傾向が反転します。Dose Response 専用データのダウンローダー、正規化、重み付け、反復の選択欄、画面のエクスポートボタン、AI コンソールは実演していません。Unit は表示ラベルだけを変更します。このビルドでは並べ替え後の再当てはめで表示行の識別情報が混ざるため、録画ではすべての再当てはめを先に終えています。拒否された結果を残し、レポート全体を読んでください。API：spacr.qt.widgets.dose_response.DoseResponseSpec、fit_frame、DoseResponseSet.table。データと描画の検査は spaCR の当てはめ関数から独立しています。プロファイル区間端点は実装が定める log10 の探索区間精度で検査しており、被覆率を保証するものではありません。",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Home の Data セクションから Dose Response を開きます。この独立したビューは、濃度系列に四パラメーターのロジスティック曲線を当てはめます。入力する濃度と応答が必要で、ウェル名、画像座標、処理ラベルから用量を推測することはありません。",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
-          ],
-          "speech_text": "ホーム の Data セクションから Dose Response を開きます。この独立したビューは、濃度系列に四パラメーターのロジスティック曲線を当てはめます。入力する濃度と応答が必要で、ウェル名、画像座標、処理ラベルから用量を推測することはありません。"
+          ]
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "このレッスンの前提条件にあるリンクから合成 CSV をダウンロードし、Load table を選びます。これは意図的に構成したソフトウェアの例で、化合物の実測データではありません。ファイルと各系列の名前に合成であることを明記し、整った曲線を実験結果と取り違えないようにしています。",
-          "hold_after": 0.7,
-          "speech_text": "このレッスンの前提条件にあるリンクから合成 CSV をダウンロードし、Load table を選びます。これは意図的に構成したソフトウェアの例で、化合物の実測データではありません。ファイルと各系列の名前に合成であることを明記し、整った曲線を実験結果と取り違えないようにしています。"
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "ファイルには四つの系列、合計百二十行があります。各系列には九つの正の濃度、用量ゼロの溶媒対照、各濃度三つの観測があります。小さく対称な人工的ずれは各用量のモデル平均を保ちますが、この便利な例で実際の実験の統計性能を検証したことにはなりません。",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             40,
             2200,
             170
-          ],
-          "speech_text": "ファイルには四つの系列、合計百二十行があります。各系列には九つの正の濃度、用量ゼロの溶媒対照、各濃度三つの観測があります。小さく対称な人工的ずれは各用量のモデル平均を保ちますが、この便利な例で実際の実験の統計性能を検証したことにはなりません。"
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "濃度列に concentration、応答列に response、One curve per に series を選びます。対数ではなく、元の濃度を入力してください。グループ分けは重要です。異なる四つの系列を一本の曲線として当てはめると、誤った問いに答えてしまいます。",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "濃度列に concentration、応答列に response、One curve per に series を選びます。対数ではなく、元の濃度を入力してください。グループ分けは重要です。異なる四つの系列を一本の曲線として当てはめると、誤った問いに答えてしまいます。"
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Unit は単なるラベルです。ここでは u M と入力し、例示する濃度をマイクロモーラーと表示しますが、この文字を変えても数値の尺度は変わりません。必要な正規化や単位換算は事前に行ってください。この画面には正規化や重み付けの設定がありません。",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9328,156 +9251,143 @@
           ],
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "Unit は単なるラベルです。ここでは u M と入力し、例示する濃度をマイクロモーラーと表示しますが、この文字を変えても数値の尺度は変わりません。必要な正規化や単位換算は事前に行ってください。この画面には正規化や重み付けの設定がありません。"
+          ]
         },
         {
           "visual": "06_profile_results",
-          "narration": "Profile likelihood を選択したまま、Fit non-monotone data をオフにして Fit を押します。曲線と結果表が一緒に更新されます。範囲を定められない結果や拒否された結果も含め、四つの系列はすべて残ります。推定値がないことと系列がないことは違います。",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "Profile likelihood を選択したまま、Fit non-monotone data をオフにして Fit を押します。曲線と結果表が一緒に更新されます。範囲を定められない結果や拒否された結果も含め、四つの系列はすべて残ります。推定値がないことと系列がないことは違います。"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "合成の抑制系列を選びます。求められた半最大応答濃度は一点五で、濃度が増すと応答が下がるため Hill の傾きは負です。半最大応答は当てはめた二つのプラトーの中間を意味し、ここでは五と九十五の中間です。自動的に五十パーセントの生存率を意味するわけではありません。",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "合成の抑制系列を選びます。求められた半最大応答濃度は一点五で、濃度が増すと応答が下がるため Hill の傾きは負です。半最大応答は当てはめた二つのプラトーの中間を意味し、ここでは五と九十五の中間です。自動的に五十パーセントの生存率を意味するわけではありません。"
+          ]
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "合成の活性化系列を選びます。求められた半最大応答濃度は二で、Hill の傾きは正です。選択した曲線が強調され、他の当てはめた曲線も見えています。選択行と対応するレポートを一緒に読み、別の曲線の推定値をこの系列に割り当てないでください。",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "合成の活性化系列を選びます。求められた半最大応答濃度は二で、Hill の傾きは正です。選択した曲線が強調され、他の当てはめた曲線も見えています。選択行と対応するレポートを一緒に読み、別の曲線の推定値をこの系列に割り当てないでください。"
+          ]
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "範囲外の例は半最大応答濃度を五百として作りましたが、濃度は百までしかありません。画面は範囲を定められない結果として扱い、点推定と区間のセルを空欄にし、端に境界を表示します。当てはめによる外挿は、データに裏付けられた点推定ではありません。",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "範囲外の例は半最大応答濃度を五百として作りましたが、濃度は百までしかありません。画面は範囲を定められない結果として扱い、点推定と区間のセルを空欄にし、端に境界を表示します。当てはめによる外挿は、データに裏付けられた点推定ではありません。"
+          ]
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "途中で傾向が反転する系列は、単調なロジスティック曲線と形が合わないため拒否されます。表の下の説明を最後まで読んでください。応答の反転だけで細胞毒性などの生物学的原因が確定するわけではありません。むやみに用量を除外したり、強制的に当てはめたりせず、実験を調べましょう。",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "途中で傾向が反転する系列は、単調なロジスティック曲線と形が合わないため拒否されます。表の下の説明を最後まで読んでください。応答の反転だけで細胞毒性などの生物学的原因が確定するわけではありません。むやみに用量を除外したり、強制的に当てはめたりせず、実験を調べましょう。"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "抑制のレポートには、当てはめに使った二十七の観測と三つの用量ゼロ対照が記載されます。ゼロ濃度は対数を使う当てはめから除外して別に要約され、小さな正の用量へ密かに置き換えられることはありません。合成の溶媒対照の平均は九十五で、構成した低用量側のプラトーと一致します。",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "抑制のレポートには、当てはめに使った二十七の観測と三つの用量ゼロ対照が記載されます。ゼロ濃度は対数を使う当てはめから除外して別に要約され、小さな正の用量へ密かに置き換えられることはありません。合成の溶媒対照の平均は九十五で、構成した低用量側のプラトーと一致します。"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "R 二乗だけでなく、残差誤差と不適合の評価も読みます。この意図的に釣り合いを取った例の診断は非常に整っています。濃度ごとの反復観測は専用の反復選択欄なしで使われますが、人工的な反復が実際の実験での測定の独立性を示すわけではありません。",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "R 二乗だけでなく、残差誤差と不適合の評価も読みます。この意図的に釣り合いを取った例の診断は非常に整っています。濃度ごとの反復観測は専用の反復選択欄なしで使われますが、人工的な反復が実際の実験での測定の独立性を示すわけではありません。"
+          ]
         },
         {
           "visual": "13_choose_wald",
-          "narration": "区間法を比較するには Wald を選び、もう一度 Fit を押します。選択欄を変えただけでは既存の結果は再計算されません。区間は半最大応答濃度の対数に対して計算してから元の尺度へ戻します。濃度に対称な誤差を直接足すものではありません。",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "区間法を比較するには Wald を選び、もう一度 Fit を押します。選択欄を変えただけでは既存の結果は再計算されません。区間は半最大応答濃度の対数に対して計算してから元の尺度へ戻します。濃度に対称な誤差を直接足すものではありません。"
+          ]
         },
         {
           "visual": "14_wald_results",
-          "narration": "半最大応答の位置を十分に挟む例では点推定は変わらず、区間端点だけが少し変わります。範囲外の例は引き続き点推定を示しません。この整った例で区間が有限でも、別の実験で半最大応答濃度を識別できることや、そのノイズと標本設計で公称被覆率を満たすことは証明できません。",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "半最大応答の位置を十分に挟む例では点推定は変わらず、区間端点だけが少し変わります。範囲外の例は引き続き点推定を示しません。この整った例で区間が有限でも、別の実験で半最大応答濃度を識別できることや、そのノイズと標本設計で公称被覆率を満たすことは証明できません。"
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Profile likelihood に戻し、再び Fit を押します。結果が今の方法に対応しているか確認してください。曲線、表、選択したレポートは完了した当てはめの連動する表示であり、設定を変えるたびに自動で再当てはめするライブプレビューではありません。",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "Profile likelihood に戻し、再び Fit を押します。結果が今の方法に対応しているか確認してください。曲線、表、選択したレポートは完了した当てはめの連動する表示であり、設定を変えるたびに自動で再当てはめするライブプレビューではありません。"
+          ]
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "表を並べ替える前に、当てはめの比較を終えてください。このビルドでは、並べ替えた表を再当てはめすると表示行が混ざることがあるため、その順序の結果を信頼しないでください。ここではすべての当てはめ後に並べ替え、抑制を選び、対応するレポートが表示されることを確認します。",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "表を並べ替える前に、当てはめの比較を終えてください。このビルドでは、並べ替えた表を再当てはめすると表示行が混ざることがあるため、その順序の結果を信頼しないでください。ここではすべての当てはめ後に並べ替え、抑制を選び、対応するレポートが表示されることを確認します。"
+          ]
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "通常のコピー用ショートカットでレポート本文を選択してコピーします。警告、拒否理由、入力濃度、選んだ区間法を結果と一緒に残してください。文脈を省いて点推定だけをコピーすると、解釈できる結果かを判断するための情報が失われます。",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             500
-          ],
-          "speech_text": "通常のコピー用ショートカットでレポート本文を選択してコピーします。警告、拒否理由、入力濃度、選んだ区間法を結果と一緒に残してください。文脈を省いて点推定だけをコピーすると、解釈できる結果かを判断するための情報が失われます。"
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "この画面にはエクスポートボタンがありません。プログラムから出力する場合、用量反応 API は fit_frame と結果表を提供します。Python での操作は API のレッスンを参照してください。都合のよい数値が得られた化合物だけを残すのではなく、範囲を定められない行や拒否された行もエクスポートに含めましょう。",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9487,10 +9397,14 @@
             190,
             1810,
             210
-          ],
-          "speech_text": "この画面にはエクスポートボタンがありません。プログラムから出力する場合、用量反応 API は fit_frame と結果表を提供します。Python での操作は API のレッスンを参照してください。都合のよい数値が得られた化合物だけを残すのではなく、範囲を定められない行や拒否された行もエクスポートに含めましょう。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

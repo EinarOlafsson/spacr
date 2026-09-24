@@ -58,8 +58,7 @@ in rather than gone. Home lists whatever the running build offers.
       :link: tutorials/
       :link-type: url
 
-      The lesson library — |lesson-count| narrated, step-by-step lessons covering the
-      whole pipeline.
+      Narrated, step-by-step lessons for spaCR workflows and modules.
 
    .. grid-item-card:: 📖 API reference
       :link: api/index
@@ -143,6 +142,7 @@ Contents
    plaque_assay
    timeflows_training
    python_api
+   anndata_export
    settings_flow
    model_zoo
    Language <localization>

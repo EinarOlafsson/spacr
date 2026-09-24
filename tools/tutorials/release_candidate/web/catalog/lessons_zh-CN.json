@@ -6242,96 +6242,90 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List：在明确标识的外部辅助窗口中检查候选项",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "结果与质量控制",
+      "section": "Regression",
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "使用未改动的Regression结果演示真实Hit List筛选和导出，并明确说明绕过隐藏面板的外部操作。",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "区分失效的内置入口与外部辅助程序。",
-        "解读排序候选项，不把它们宣称为显著发现。",
-        "筛选、恢复并导出真实结果行。"
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "解压Hit_List_real_results_companion.zip，激活spaCR环境，运行python hit_list_companion.py，再用Browse选择results。辅助程序使用未修改的HitListScreen，不修复导航，也不连接Investigate。压缩包包含原始结果，不是完整项目：325个基因、434行向导数据，没有基因满足q <= .05。标准化边际效应不是同时拟合的多变量系数。缺失区间表示不可用。n_obs=0不是实际支持孔数；results_gene.csv中的wells_with_gene为2到48。元数据合并、惩罚模型排序和Investigate不在本演示范围。无需训练、新回归、GPU或请求AI服务商。API：spacr.hits.build_hit_list及HitList.filter/write_csv/to_markdown/to_html。",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit List归在Regression下。这个版本中，点击Hits只会选中隐藏面板内的页面，列表不会出现。教程明确展示这一限制。接下来的窗口是外部辅助程序，不代表内置入口已经修好。",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hit List归在Regression下。这个版本中，点击Hits只会选中隐藏面板内的页面，列表不会出现。教程明确展示这一限制。接下来的窗口是外部辅助程序，不代表内置入口已经修好。"
+          "hold_after": 0.7
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "解压链接中的示例，激活spaCR环境，运行随包提供的Hit List辅助脚本。带明确标识的窗口打开spaCR已有控件，不改变计算。点击Browse并选择results文件夹。不重新运行回归，也没有连接Investigate集成功能。",
-          "hold_after": 0.7,
-          "speech_text": "解压链接中的示例，激活斯佩克尔环境，运行随包提供的Hit List辅助脚本。带明确标识的窗口打开斯佩克尔已有控件，不改变计算。点击Browse并选择results文件夹。不重新运行回归，也没有连接Investigate集成功能。"
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "原始示例加载三百二十五个基因。如果数值被截断，双击列边界。分别阅读效应方向、原始P、校正q和向导一致性。缺失的置信区间表示不可用。这些是标准化边际效应；导出的观测数零并不是实际支持孔数。",
-          "hold_after": 0.7,
-          "speech_text": "原始示例加载三百二十五个基因。如果数值被截断，双击列边界。分别阅读效应方向、原始P、校正q和向导一致性。缺失的置信区间表示不可用。这些是标准化边际效应；导出的观测数零并不是实际支持孔数。"
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "把Max q设为零点零五。没有基因留下，因为最小基因q值约为零点二七一。筛选后空表不等于导入失败。把Max q恢复为一即可找回所有候选项，但这不把它们变成发现。",
-          "hold_after": 0.7,
-          "speech_text": "把Max q设为零点零五。没有基因留下，因为最小基因q值约为零点二七一。筛选后空表不等于导入失败。把Max q恢复为一即可找回所有候选项，但这不把它们变成发现。"
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "把Minimum guides设为二，保留至少两行已测试向导的基因，共一百一十七个。它统计可用证据，不是最初设计的全部向导。筛选只改变显示子集，不重新计算原来的多重检验校正。",
-          "hold_after": 0.7,
-          "speech_text": "把Minimum guides设为二，保留至少两行已测试向导的基因，共一百一十七个。它统计可用证据，不是最初设计的全部向导。筛选只改变显示子集，不重新计算原来的多重检验校正。"
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "再把Minimum agreement设为一，留下五十七个基因，其已测试向导都与基因效应同号。一致性不证明显著性或因果关系。虽然这些候选行有一致的向导，摘要中显著且获一致支持的基因数仍为零。",
-          "hold_after": 0.7,
-          "speech_text": "再把Minimum agreement设为一，留下五十七个基因，其已测试向导都与基因效应同号。一致性不证明显著性或因果关系。虽然这些候选行有一致的向导，摘要中显著且获一致支持的基因数仍为零。"
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controls隐藏一行对照，这个子集剩下五十六个候选项。导出前将其恢复。隐藏对照不重新拟合模型，也不改变校正检验族；解释分析时保留对照身份信息。",
-          "hold_after": 0.7,
-          "speech_text": "Hide controls隐藏一行对照，这个子集剩下五十六个候选项。导出前将其恢复。隐藏对照不重新拟合模型，也不改变校正检验族；解释分析时保留对照身份信息。"
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "清除其他筛选后，Direction up显示正效应。再加入零点一的最小绝对效应，这里留下十六行。这些只是展示用选择，不是推荐阈值。搜索或比较另一子集前，恢复方向和效应设置。",
-          "hold_after": 0.7,
-          "speech_text": "清除其他筛选后，Direction up显示正效应。再加入零点一的最小绝对效应，这里留下十六行。这些只是展示用选择，不是推荐阈值。搜索或比较另一子集前，恢复方向和效应设置。"
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "搜索记录中的标识符，查看一条真实结果。没有匹配的查询会清空表格；改回已知标识符会恢复该行，清除搜索会恢复总体。这展示了可逆筛选。注释导入与Investigate流程需要各自验证。",
-          "hold_after": 0.7,
-          "speech_text": "搜索记录中的标识符，查看一条真实结果。没有匹配的查询会清空表格；改回已知标识符会恢复该行，清除搜索会恢复总体。这展示了可逆筛选。注释导入与Investigate流程需要各自验证。"
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "导出时恢复两条向导、完全一致、包含对照和空搜索。本例三种导出都包含相同的五十七个候选项。Markdown与HTML会对数值取舍，CSV保留数值细节。请另存筛选条件，因为文件不会记录每个设置。",
-          "hold_after": 0.7,
-          "speech_text": "导出时恢复两条向导、完全一致、包含对照和空搜索。本例三种导出都包含相同的五十七个候选项。Markdown与HTML会对数值取舍，CSV保留数值细节。请另存筛选条件，因为文件不会记录每个设置。"
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "清除筛选，恢复全部三百二十五个基因。导出子集应与未改动原始文件分开，不要把不显著的候选项称为已验证命中。Python提供同样的读取与筛选功能，但导出更长列表时，要检查各格式的行数限制。",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "清除筛选，恢复全部三百二十五个基因。导出子集应与未改动原始文件分开，不要把不显著的候选项称为已验证命中。Python提供同样的读取与筛选功能，但导出更长列表时，要检查各格式的行数限制。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7260,16 +7254,15 @@
       "series": 5,
       "app_key": "lineage",
       "host_app_key": "db_browser",
-      "section": "探索",
-      "title": "Lineage：包含关系身份与已核实的父细胞图像",
-      "description": "检查保存的父子关系和显示上限，区分正确的父细胞裁剪图与缺失子图像的错误替代。",
+      "section": "Explore",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "在Database Browser中打开Lineage并构建真实包含树。",
-        "区分完整数量、显示家族和带类型的对象身份。",
-        "识别错误子图像替代，只检查已核实的父细胞。",
-        "使用原生缩放，区分Python导出与界面控件。"
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "使用测量值与细胞图像相匹配的Annotate完整示例。Graph Builder压缩包提供同一数据库但不含图像；Lineage压缩包提供已核实的API CSV和审查说明，并非替代数据库。不要用当前错误的家族图像替代行为识别或标注缺失的子对象。",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7277,98 +7270,89 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "从Help找到Database Browser，再打开其中嵌套的Lineage。这里的lineage指保存的包含关系，也就是哪些对象属于哪些细胞内部。它不是细胞分裂历史、遗传谱系或新的分割结果。周围的数据库控件属于宿主模块。",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "从Help找到Database Browser，再打开其中嵌套的Lineage。这里的lineage指保存的包含关系，也就是哪些对象属于哪些细胞内部。它不是细胞分裂历史、遗传谱系或新的分割结果。周围的数据库控件属于宿主模块。"
+          ]
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "选择真实Annotate示例中的measurements点db并构建树。我们使用未修改的专用副本。如果标签拥挤，可以加宽Object列和分隔区域。数字标签会在不同视野和对象类型间重复，单个数字不是完整身份。",
-          "hold_after": 0.7,
-          "speech_text": "选择真实Annotate示例中的measurements点db并构建树。我们使用未修改的专用副本。如果标签拥挤，可以加宽Object列和分隔区域。数字标签会在不同视野和对象类型间重复，单个数字不是完整身份。"
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "完整来源包括两千三百四十一个细胞、两千六百八十二个细胞核，以及pathogen表中的两千一百七十八个对象。树只显示两千个父对象家族，另外三百四十一个仅未显示，并没有从数据库删除。",
-          "hold_after": 0.7,
-          "speech_text": "完整来源包括两千三百四十一个细胞、两千六百八十二个细胞核，以及pathogen表中的两千一百七十八个对象。树只显示两千个父对象家族，另外三百四十一个仅未显示，并没有从数据库删除。"
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "摘要显示没有空细胞，因为细胞核也算子对象。这不表示每个细胞都有pathogen表对象，其中一千一百六十八个没有。不存在未连接的子对象，只说明记录的父对象都存在，不说明分割在生物学上正确。",
-          "hold_after": 0.7,
-          "speech_text": "摘要显示没有空细胞，因为细胞核也算子对象。这不表示每个细胞都有pathogen表对象，其中一千一百六十八个没有。不存在未连接的子对象，只说明记录的父对象都存在，不说明分割在生物学上正确。"
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "展开父对象即可查看子对象。在这个视野中，保存的关系表示细胞三包含细胞核五和pathogen一。这些是带类型的身份，不是三个可互换的数字。只选择一个子对象与选择整个家族不同。",
-          "hold_after": 0.7,
-          "speech_text": "展开父对象即可查看子对象。在这个视野中，保存的关系表示细胞三包含细胞核五和pathogen一。这些是带类型的身份，不是三个可互换的数字。只选择一个子对象与选择整个家族不同。"
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contents会发布父对象和子对象的键。同时选择父对象和其中一个子对象，不需要重复该子对象。键保留视野和类型，但对应列在这里隐藏。发布身份并不能证明存在匹配的裁剪图像。",
-          "hold_after": 0.7,
-          "speech_text": "Select with contents会发布父对象和子对象的键。同时选择父对象和其中一个子对象，不需要重复该子对象。键保留视野和类型，但对应列在这里隐藏。发布身份并不能证明存在匹配的裁剪图像。"
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "较大的家族需要检查，而不是自动赋予生物学解释。示例中有一个家族共含三十三个对象。包含关系可能反映分割或采集问题。树报告保存的关系，并不把异常数量验证为新发现。",
-          "hold_after": 0.7,
-          "speech_text": "较大的家族需要检查，而不是自动赋予生物学解释。示例中有一个家族共含三十三个对象。包含关系可能反映分割或采集问题。树报告保存的关系，并不把异常数量验证为新发现。"
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "点击表头会对显示的家族排序，但不会改变包含关系。两千个父对象的显示上限仍然存在。我们检查了每个显示身份和父子连接，也核对了完整层级。不要把排序或截断的视图理解为测量表被修改。",
-          "hold_after": 0.7,
-          "speech_text": "点击表头会对显示的家族排序，但不会改变包含关系。两千个父对象的显示上限仍然存在。我们检查了每个显示身份和父子连接，也核对了完整层级。不要把排序或截断的视图理解为测量表被修改。"
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open crops需要由Annotate提供图像查看器。实际提示要求先打开Annotate。缺少查看器和缺少图像是两回事。请求裁剪图前，应加载匹配的项目，而不是另一次运行中数字碰巧相似的数据。",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Open crops需要由Annotate提供图像查看器。实际提示要求先打开Annotate。缺少查看器和缺少图像是两回事。请求裁剪图前，应加载匹配的项目，而不是另一次运行中数字碰巧相似的数据。"
+          ]
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "下载的项目包含真实细胞裁剪图。只有数据库的压缩包无法提供这些图像。我们使用完整匹配示例，并保留所有原始裁剪图。打开来源不会训练分类器，也不会建立新的标签。",
-          "hold_after": 0.7,
-          "speech_text": "下载的项目包含真实细胞裁剪图。只有数据库的压缩包无法提供这些图像。我们使用完整匹配示例，并保留所有原始裁剪图。打开来源不会训练分类器，也不会建立新的标签。"
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "此版本有严重限制。打开三对象家族时，先显示细胞三，随后却显示无关的细胞五和一，而不是请求的细胞核和pathogen图像。来源只有细胞裁剪图。应拒绝这种替代，不要把这些图标成缺失的子对象。教程没有修复这个问题。",
-          "hold_after": 0.7,
-          "speech_text": "此版本有严重限制。打开三对象家族时，先显示细胞三，随后却显示无关的细胞五和一，而不是请求的细胞核和pathogen图像。来源只有细胞裁剪图。应拒绝这种替代，不要把这些图标成缺失的子对象。教程没有修复这个问题。"
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "已核实的替代操作更有限：返回Lineage，只双击父细胞。与Open crops不同，这只发送父对象而不是整个家族。Annotate此时准确显示请求的细胞图。我们核对了身份和原图字节，但这不代表支持子对象图像。",
-          "hold_after": 0.7,
-          "speech_text": "已核实的替代操作更有限：返回Lineage，只双击父细胞。与Open crops不同，这只发送父对象而不是整个家族。Annotate此时准确显示请求的细胞图。我们核对了身份和原图字节，但这不代表支持子对象图像。"
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "按住Shift点击父细胞缩略图，可放大现有预览而不分配类别。Escape返回网格。这样便于观察，但不会增加图像分辨率。注意使用正确手势：普通左键单击是标注操作，不是这里演示的缩放。",
-          "hold_after": 0.7,
-          "speech_text": "按住Shift点击父细胞缩略图，可放大现有预览而不分配类别。Escape返回网格。这样便于观察，但不会增加图像分辨率。注意使用正确手势：普通左键单击是标注操作，不是这里演示的缩放。"
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build tree刷新包含视图。Python中的read_object_tables、build_forest和lineage_frame提供相同结构。链接CSV包含全部七千两百零一个节点，也包括未显示的家族。它由API写出，而非Lineage导出按钮生成，也不是生物学验证。",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Build tree刷新包含视图。Python中的read_object_tables、build_forest和lineage_frame提供相同结构。链接CSV包含全部七千两百零一个节点，也包括未显示的家族。它由API写出，而非Lineage导出按钮生成，也不是生物学验证。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8419,173 +8403,151 @@
       "slug": "gate_editor",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "探索",
-      "title": "Gate Editor：实测群体、可还原的视图与精确导出",
-      "description": "在下载的细胞测量数据上绘制门，核验保存的归属信息，比较三个实际测量维度的视图与投影视图，并在限定范围内检查聚类，不凭空赋予生物学标签。",
+      "section": "Tools",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "加载实际测量数据，区分门、视图筛选与可见性。",
-        "保存并恢复特征边界，再结合精确的对象标识导出归属信息。",
-        "探索三维边界和主成分，不把投影与可复用的已拟合变换混为一谈。",
-        "比较实际的聚类搜索结果，并使用本地测量数据控制台。"
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "先下载 Annotate 示例，再为其测量数据库制作一份自用副本。Gate Editor 没有单独的示例下载按钮。录制使用全部2,341行真实细胞数据，导出时只修改这份副本。教程中的门名称只是检查用的标签，不是生物学真值标签。",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "从 Home 的 Tools 类别打开 Gate Editor。拖动分隔条，为绘图、门列表和侧边控件留出足够空间。本课使用下载的 Annotate 测量数据；Gate Editor 没有自己的示例下载按钮。",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "从 主页 的 Tools 类别打开 门控编辑器。拖动分隔条，为绘图、门列表和侧边控件留出足够空间。本课使用下载的 Annotate 测量数据；门控编辑器 没有自己的示例下载按钮。"
+          ]
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "使用 Load table 打开 measurements.db 的自用副本。选择 cell 表：这个示例包含两千三百四十一个真实对象。Export gates 会写入数据库，因此请保留原始示例不变，并在副本上操作。",
-          "hold_after": 0.7,
-          "speech_text": "使用 Load table 打开 测量数据库文件 的自用副本。选择 cell 表：这个示例包含两千三百四十一个真实对象。Export gates 会写入数据库，因此请保留原始示例不变，并在副本上操作。"
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "将 X 设为 cell_area，Y 设为 cell_channel_1_mean_intensity，并选择 Rectangle 工具。每个点代表一个被测量的对象。绘制前先检查特征名称和单位；仅凭面积与强度划定的区域，不能确认某个细胞已感染或属于其他生物学类别。",
-          "hold_after": 0.7,
-          "speech_text": "将 X 设为 cell_area，Y 设为 cell_channel_1_mean_intensity，并选择 Rectangle 工具。每个点代表一个被测量的对象。绘制前先检查特征名称和单位；仅凭面积与强度划定的区域，不能确认某个细胞已感染或属于其他生物学类别。"
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "在散点图上拖动，松开后输入一个能描述此门的名称。教程中的群体特意只作为检查示例。这个形状记录的是两项测量值的数值边界，并不是一个经过训练、能从图像中识别细胞的模型。",
-          "hold_after": 0.7,
-          "speech_text": "在散点图上拖动，松开后输入一个能描述此门的名称。教程中的群体特意只作为检查示例。这个形状记录的是两项测量值的数值边界，并不是一个经过训练、能从图像中识别细胞的模型。"
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "绘出的区域包含六百五十五个对象，约占整张表的百分之二十八。查看门名称旁的计数和百分比。鼠标位置不同，边界和计数也会不同，因此需要精确复现时，请使用保存的门控策略。",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "绘出的区域包含六百五十五个对象，约占整张表的百分之二十八。查看门名称旁的计数和百分比。鼠标位置不同，边界和计数也会不同，因此需要精确复现时，请使用保存的门控策略。"
+          ]
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "取消勾选门会隐藏它叠加显示的轮廓，但不会删除定义或改变归属。重新勾选即可恢复显示。这与 Delete gate 不同，也与 Filter 选项卡不同，后者会改变门下方显示哪些对象。",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "取消勾选门会隐藏它叠加显示的轮廓，但不会删除定义或改变归属。重新勾选即可恢复显示。这与 Delete gate 不同，也与 Filter 选项卡不同，后者会改变门下方显示哪些对象。"
+          ]
         },
         {
           "visual": "09_save_strategy",
-          "narration": "使用 Save gates 将带名称的特征边界保存在 JSON 策略中。这里先保存，再实际删除门，然后加载已保存的文件。复用策略要求测量名称、单位和预处理相匹配，仅仅拥有相同数量的列并不够。",
-          "hold_after": 0.7,
-          "speech_text": "使用 Save gates 将带名称的特征边界保存在 JSON 策略中。这里先保存，再实际删除门，然后加载已保存的文件。复用策略要求测量名称、单位和预处理相匹配，仅仅拥有相同数量的列并不够。"
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates 恢复相同的边界，以及全部六百五十五个成员。我们是在实际删除并重新加载门后核验归属，而不只是保存一个文件。换用其他数据集时，应先核对恢复的边界和对象标识，再依赖其计数。",
-          "hold_after": 0.7,
-          "speech_text": "Load gates 恢复相同的边界，以及全部六百五十五个成员。我们是在实际删除并重新加载门后核验归属，而不只是保存一个文件。换用其他数据集时，应先核对恢复的边界和对象标识，再依赖其计数。"
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
+          "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph 保存实际图形；本次录制的偏好设置会生成一个 PNG 和一个 PDF。图形与门控策略或导出的归属信息不同。需要复现所显示群体的定义方式时，请保留对应的数据和策略。",
-          "hold_after": 0.7,
-          "speech_text": "Save graph 保存实际图形；本次录制的偏好设置会生成一个 PNG 和一个 PDF。图形与门控策略或导出的归属信息不同。需要复现所显示群体的定义方式时，请保留对应的数据和策略。"
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates 将归属标记写入自用数据库的 filters 表。第一个门精确标记六百五十五个细胞的身份，匹配依据是板、行、列、视野、对象标签和对象类型。原始下载文件和底层细胞测量数据保持不变。",
-          "hold_after": 0.7,
-          "speech_text": "Export gates 将归属标记写入自用数据库的 filters 表。第一个门精确标记六百五十五个细胞的身份，匹配依据是板、行、列、视野、对象标签和对象类型。原始下载文件和底层细胞测量数据保持不变。"
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "保持第一个门处于选中状态，绘制第二个形状。它的两百五十九个对象中，有些位于第一个门之外：尽管旧版状态文字可能有不同暗示，新绘制的门并不会自动嵌套。单独保存这份含两个门的策略；加载已有层级结构时，请明确检查其中的父子关系。",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             520
-          ],
-          "speech_text": "保持第一个门处于选中状态，绘制第二个形状。它的两百五十九个对象中，有些位于第一个门之外：尽管旧版状态文字可能有不同暗示，新绘制的门并不会自动嵌套。单独保存这份含两个门的策略；加载已有层级结构时，请明确检查其中的父子关系。"
+          ]
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "选择 3D，并将 Z 设为 cell_perimeter，以检查三项实际测量值。旋转轴按钮用于控制旋转方向。旋转改变的是视图，不会改变已有两个面积与强度门的已保存边界；返回 2D 即可再次检查这些形状。",
-          "hold_after": 0.7,
-          "speech_text": "选择 三维，并将 Z 设为 cell_perimeter，以检查三项实际测量值。旋转轴按钮用于控制旋转方向。旋转改变的是视图，不会改变已有两个面积与强度门的已保存边界；返回 二维 即可再次检查这些形状。"
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view 创建一个有名称的长方体，在当前显示的三项测量值上都设有边界。这个覆盖完整体积的示例包含所有已加载对象：它用于演示控件，并不代表富集了某个生物学群体。请单独保存含三个门的策略，以便保留先前的双门文件。",
-          "hold_after": 0.7,
-          "speech_text": "From view 创建一个有名称的长方体，在当前显示的三项测量值上都设有边界。这个覆盖完整体积的示例包含所有已加载对象：它用于演示控件，并不代表富集了某个生物学群体。请单独保存含三个门的策略，以便保留先前的双门文件。"
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "xD 开关从符合条件的测量数据中计算主成分，与选择 2D 或 3D 视图相互独立。这里的来源标签显示，前三个成分的方差解释率依次为百分之十七、百分之十三和百分之六。这些是解释的方差比例，不是分类准确率。",
-          "hold_after": 0.7,
-          "speech_text": "艾克斯迪 开关从符合条件的测量数据中计算主成分，与选择 二维 或 三维 视图相互独立。这里的来源标签显示，前三个成分的方差解释率依次为百分之十七、百分之十三和百分之六。这些是解释的方差比例，不是分类准确率。"
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "关闭 xD 后，主成分列仍然保留；返回原始特征门时，请重新选择原始坐标轴。保存的门控策略不会保存已拟合的投影变换。成分名称相同，并不意味着分别拟合的投影相互兼容，因此不要未经检查就复用它们的门边界。",
-          "hold_after": 0.7,
-          "speech_text": "关闭 艾克斯迪 后，主成分列仍然保留；返回原始特征门时，请重新选择原始坐标轴。保存的门控策略不会保存已拟合的投影变换。成分名称相同，并不意味着分别拟合的投影相互兼容，因此不要未经检查就复用它们的门边界。"
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "使用 Search 时，先加宽侧边面板，保存临时门后将其删除。使用相同的两项原始特征，启用缩放，将最少邻居数设为二十，Walk 步数设为五。在这个版本中，Run walk 会打开确认窗口；请检查其中的值是否与可见控件一致。",
-          "hold_after": 0.7,
-          "speech_text": "使用 Search 时，先加宽侧边面板，保存临时门后将其删除。使用相同的两项原始特征，启用缩放，将最少邻居数设为二十，Walk 步数设为五。在这个版本中，Run walk 会打开确认窗口；请检查其中的值是否与可见控件一致。"
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "实际运行的 Walk 选择了约零点一六七的半径，并报告两个群体，百分之三十三的对象位于这两个群体之外。检查生成的轮廓。密度聚类及其保存的多边形门只是探索性描述，不是经过验证的细胞类型，也不能证明被排除的对象无效。",
-          "hold_after": 0.7,
-          "speech_text": "实际运行的 Walk 选择了约零点一六七的半径，并报告两个群体，百分之三十三的对象位于这两个群体之外。检查生成的轮廓。密度聚类及其保存的多边形门只是探索性描述，不是经过验证的细胞类型，也不能证明被排除的对象无效。"
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "保存 Walk 策略，删除它的临时门，关闭 Walk，然后用零点五的半径运行。这个单独选择会生成一个更大的多边形门，包含两千两百三十九个对象。它并不会因为包含更多细胞就成为更好的答案。",
-          "hold_after": 0.7,
-          "speech_text": "保存 Walk 策略，删除它的临时门，关闭 Walk，然后用零点五的半径运行。这个单独选择会生成一个更大的多边形门，包含两千两百三十九个对象。它并不会因为包含更多细胞就成为更好的答案。"
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "重新加载已保存的、基于原始特征的双门策略，然后在 Filter 中添加 cell_area。将下限设为两万一千九百二十五后，显示的对象剩下一千一百七十一个。这个实时预览缩小了视图范围，但不会改写已保存的门边界。",
-          "hold_after": 0.7,
-          "speech_text": "重新加载已保存的、基于原始特征的双门策略，然后在 Filter 中添加 cell_area。将下限设为两万一千九百二十五后，显示的对象剩下一千一百七十一个。这个实时预览缩小了视图范围，但不会改写已保存的门边界。"
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "清除筛选后，全部两千三百四十一个对象重新显示。在解释计数或导出之前，应同时检查当前生效的视图筛选和门定义。隐藏叠加轮廓、筛选视图和删除门是三种不同的操作。",
-          "hold_after": 0.7,
-          "speech_text": "清除筛选后，全部两千三百四十一个对象重新显示。在解释计数或导出之前，应同时检查当前生效的视图筛选和门定义。隐藏叠加轮廓、筛选视图和删除门是三种不同的操作。"
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
+          "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "将最右侧的分隔条向左拖动，显示控制台。输入 len(df)，也就是 len 后面的圆括号内填入 df：实际表格返回两千三百四十一。表达式控制台在本地运行，这不是由人工智能模型生成的答案。",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
             320,
             740,
             1795
-          ],
-          "speech_text": "将最右侧的分隔条向左拖动，显示控制台。输入 len(df)，也就是 len 后面的圆括号内填入 df：实际表格返回两千三百四十一。表达式控制台在本地运行，这不是由人工智能模型生成的答案。"
+          ]
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "聊天框与表达式分开。这里保留一份未发送的草稿，不演示助手或生物学解释。在 Python 中，spacr.qt.widgets.gate_spec 的 GateSet 保存定义；spacr.filters 中的 gate_mask_over_table 和 export_gate 对全表对象的归属标记进行计算和保存。在后续注释之前，请核验对象标识。",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8596,10 +8558,14 @@
           "related_lessons": [
             "06_api",
             "09_annotate"
-          ],
-          "speech_text": "聊天框与表达式分开。这里保留一份未发送的草稿，不演示助手或生物学解释。在 Python 中，斯佩克尔.Q T.widgets.gate_spec 的 GateSet 保存定义；斯佩克尔.filters 中的 gate_mask_over_table 和 export_gate 对全表对象的归属标记进行计算和保存。在后续注释之前，请核验对象标识。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8607,165 +8573,155 @@
       "slug": "feature_explorer",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "探索",
-      "title": "Feature Explorer：为真实测量值排序，并明确比较对象",
-      "description": "打开 Classify 中的子模块，比较真实的孔板行测量值、检查分布、实时筛选、添加计算列，并导出所需的排名；不训练分类器。",
+      "section": "Explore",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "在 Classify 中找到 Feature Explorer 并加载已有细胞测量值。",
-        "区分 AUC 与分离度，检查各类数量及分布差异。",
-        "实时筛选时留意比较列的自动切换。",
-        "明确设置 Top，验证缩放后的计算列，并导出实际排名。"
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "使用下载的 Annotate 示例，不编造测量值。录制打开的是含 2,341 个细胞、276 列的数据库的逐字节相同私有副本。rowID 分组 r12 和 r5 表示孔板上的空间行，不是已确认的处理组；细胞共享视野和孔，并非独立实验。原始数据不变。对预定的两类比较，已独立检查 AUC、KS、排名顺序以及各类有限值数量。自动选择的八类比较只是警示示例，并非经过独立验证的推断。Shuffle test 保持关闭。此处不训练模型、不进行新的图像分析、专门下载、GPU 操作或 AI 请求；显示的直方图是模块自身的图表。",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "打开 Classify，再点击其中的 Feature Explorer 按钮。这个嵌套工具为已有测量值排序；打开它不会训练分类器。我们使用可下载的真实 Annotate 示例，并在数据库的私有副本上操作。获取方法请参见 Annotate 教程，同时保持原始实验数据不变。",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "打开 Classify，再点击其中的 Feature Explorer 按钮。这个嵌套工具为已有测量值排序；打开它不会训练分类器。我们使用可下载的真实 Annotate 示例，并在数据库的私有副本上操作。获取方法请参见 Annotate 教程，同时保持原始实验数据不变。"
+          ]
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "选择 Load table，选取测量数据库及其中的 cell 表，再将 Split by 设为 rowID。这里有两千三百四十一个细胞、两百七十六列。两个组是记录中的孔板行，不是已确认的处理组；这些细胞并非独立实验。",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
             280,
             3460,
             370
-          ],
-          "speech_text": "选择 Load table，选取测量数据库及其中的 cell 表，再将 Split by 设为 rowID。这里有两千三百四十一个细胞、两百七十六列。两个组是记录中的孔板行，不是已确认的处理组；这些细胞并非独立实验。"
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "按 AUC 排名，并同时查看两列数值。Separation 是二倍 AUC 减一的绝对值，因此约零点三四的分离度并不表示 AUC 为零点三四。Higher in 表示方向；min n 是较小类别中有限测量值的数量，不是实验重复数。",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
             380,
             950,
             275
-          ],
-          "speech_text": "按 AUC 排名，并同时查看两列数值。Separation 是二倍 AUC 减一的绝对值，因此约零点三四的分离度并不表示 AUC 为零点三四。Higher in 表示方向；min n 是较小类别中有限测量值的数量，不是实验重复数。"
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "将 Top 设为四，检查四个叠加直方图。同一特征内各类使用相同的分箱边界，柱高表示数量。排名最高的特征不一定是有用的生物标志物。请阅读警告：即使分布不同，AUC 也可能漏掉离散程度的差异。",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
             460,
             1810,
             1590
-          ],
-          "speech_text": "将 Top 设为四，检查四个叠加直方图。同一特征内各类使用相同的分箱边界，柱高表示数量。排名最高的特征不一定是有用的生物标志物。请阅读警告：即使分布不同，AUC 也可能漏掉离散程度的差异。"
+          ]
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Top 为四时，Export ranking 会写出四行特征。在这个版本中，尽管说明文字暗示导出完整排名，实际导出范围仍遵循 Top。它既不导出底层细胞数据，也不保存训练好的模型。我们逐一比较了导出值与当前实际排名。",
-          "hold_after": 0.7,
-          "speech_text": "Top 为四时，Export ranking 会写出四行特征。在这个版本中，尽管说明文字暗示导出完整排名，实际导出范围仍遵循 Top。它既不导出底层细胞数据，也不保存训练好的模型。我们逐一比较了导出值与当前实际排名。"
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "要导出本例中所有可评分特征，先把 Top 设为五百。两百六十一个特征可以评分，另有两个数值候选项不能评分。导出包含全部两百六十一行，而画面最多绘制八个分布。特征数量、表格行数和图表面板数是不同的概念。",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             1650
-          ],
-          "speech_text": "要导出本例中所有可评分特征，先把 Top 设为五百。两百六十一个特征可以评分，另有两个数值候选项不能评分。导出包含全部两百六十一行，而画面最多绘制八个分布。特征数量、表格行数和图表面板数是不同的概念。"
+          ]
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "将 Rank by 切换为 KS，比较累积分布之间的最大差距，然后回到 AUC。KS 可以显示 AUC 漏掉的分布差异，但它本身不提供方向。其他可选统计量也各有限制；请阅读屏幕上的警告，不要把排名当成显著性检验。",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             400
-          ],
-          "speech_text": "将 Rank by 切换为 KS，比较累积分布之间的最大差距，然后回到 AUC。KS 可以显示 AUC 漏掉的分布差异，但它本身不提供方向。其他可选统计量也各有限制；请阅读屏幕上的警告，不要把排名当成显著性检验。"
+          ]
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "在 Filter 中添加 cell_area，把最小值设为两万一千九百二十五。可见群体变为一千一百七十一个细胞，仍可评分的特征有两百五十五个。这个基于中位数的演示阈值不是生物学质量界限。排名和分布会更新，无须重新测量图像。",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             420
-          ],
-          "speech_text": "在 Filter 中添加 cell_area，把最小值设为两万一千九百二十五。可见群体变为一千一百七十一个细胞，仍可评分的特征有两百五十五个。这个基于中位数的演示阈值不是生物学质量界限。排名和分布会更新，无须重新测量图像。"
+          ]
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all 清除显示筛选，不删除数据。全部两千三百四十一个细胞和原始排名都会恢复。每次修改筛选，都要重新检查群体和 Split by。筛选后发生变化的差异描述的是另一个选定群体，而不是一项新实验。",
-          "hold_after": 0.7,
-          "speech_text": "Clear all 清除显示筛选，不删除数据。全部两千三百四十一个细胞和原始排名都会恢复。每次修改筛选，都要重新检查群体和 Split by。筛选后发生变化的差异描述的是另一个选定群体，而不是一项新实验。"
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "这个版本有一个重要陷阱。把 rowID 筛到 r12 后，另一行被排除，但屏幕会悄悄把 Split by 改为 cell_channel_0_maxima_count。此时比较的是八个组，最小组只有一个对象。那些看似很高的分数并非原先的行间比较，也不是生物学发现的证据。",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             400
-          ],
-          "speech_text": "这个版本有一个重要陷阱。把 rowID 筛到 r12 后，另一行被排除，但屏幕会悄悄把 Split by 改为 cell_channel_0_maxima_count。此时比较的是八个组，最小组只有一个对象。那些看似很高的分数并非原先的行间比较，也不是生物学发现的证据。"
+          ]
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "清除筛选，并明确重新选择 rowID。仅仅清除筛选不一定恢复原先的比较。导出前请同时核对类别列和群体。Shuffle test 提供五十次标签打乱，但这里保持关闭：自由打乱这些相互关联的细胞，不能建立孔级别或处理级别的证据。",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             275
-          ],
-          "speech_text": "清除筛选，并明确重新选择 rowID。仅仅清除筛选不一定恢复原先的比较。导出前请同时核对类别列和群体。Shuffle test 提供五十次标签打乱，但这里保持关闭：自由打乱这些相互关联的细胞，不能建立孔级别或处理级别的证据。"
+          ]
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "打开 Columns，把新列命名为 area_k。输入 cell_area 除以一 e 三，也就是一千，并在关闭替换选项时选择 Add column。这只是重新缩放面积，不会校准物理单位，也不增加一次新测量。Preview 检查前两千行，添加列时才把公式应用于整张表。",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             1030
-          ],
-          "speech_text": "打开 Columns，把新列命名为 area_k。输入 cell_area 除以一 e 三，也就是一千，并在关闭替换选项时选择 Add column。这只是重新缩放面积，不会校准物理单位，也不增加一次新测量。Preview 检查前两千行，添加列时才把公式应用于整张表。"
+          ]
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "缩放后的列进入排名和导出，可评分特征达到两百六十二个。由于正比例缩放保留顺序，它的 AUC 和 KS 与 cell_area 相同。我们检查了每一个计算值。删除公式后恢复原来的两百六十一个特征；测量数据库保持不变。",
-          "hold_after": 0.7,
-          "speech_text": "缩放后的列进入排名和导出，可评分特征达到两百六十二个。由于正比例缩放保留顺序，它的 AUC 和 KS 与 cell_area 相同。我们检查了每一个计算值。删除公式后恢复原来的两百六十一个特征；测量数据库保持不变。"
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "这些排名用于描述性探索，不是对选定特征或训练好的分类器进行独立验证。在 Python 中，spacr.qt.widgets.feature_rank 提供 rank_features 和 ExplorerSpec。要检查原始表格或绘制其他比较，请继续学习 Database Browser 和 Graph Builder。此处没有运行新的图像分析流程，也没有发送 AI 请求。",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "58_graph_builder"
-          ],
-          "speech_text": "这些排名用于描述性探索，不是对选定特征或训练好的分类器进行独立验证。在 Python 中，斯佩克尔.Q T.widgets.feature_rank 提供 rank_features 和 ExplorerSpec。要检查原始表格或绘制其他比较，请继续学习 Database Browser 和 Graph Builder。此处没有运行新的图像分析流程，也没有发送 AI 请求。"
+          ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8773,210 +8729,193 @@
       "slug": "outliers",
       "series": 5,
       "app_key": "outliers",
-      "section": "探索",
-      "title": "Outliers：检查真实标记，不删除观测值",
-      "description": "在 QC 内打开 Outliers，对真实细胞测量值比较稳健规则，区分未评分的孔与没有问题的孔，检查一次真实的对数变换拒绝，并导出保留标记的所有数据行。",
+      "section": "Explore",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "找到 QC 子模块，并在 Scan 前有意识地选择测量特征。",
-        "比较 MAD、IQR 和显式对数变换，不把标记等同于确认的错误。",
-        "区分对象数、显示行数和未评分的孔间比较。",
-        "导出原始测量值及标记，并从无效变换中安全恢复。"
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "使用可下载 Annotate 示例的逐字节相同私有数据库副本。其 2,341 个细胞来自四个记录中的孔，并非独立实验，也不是已知有缺陷的对象。原始测量值从不编辑或删除。本课独立检查有限、非退化单特征的 MAD/IQR 计算、每个对象的标记位置、各孔中位数和数量，以及少于五个孔时明确不进行比较的行为。不验证默认全特征扫描、零尺度的替代处理、多变量 MCD 推断或生物学质量。这里扫描已有测量表，不进行新的图像分割、GPU 分析或分类器训练。本屏没有图像预览、Plot 开关、专用示例下载器或 AI 控制台；Objects、Wells 和 Report 才是实际输出。",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "从 Home 打开 QC，再选择其中的 Outliers 按钮。QC 主面板读取已保存的检查，而这个嵌套工具根据测量表计算标记。我们使用可下载的真实 Annotate 示例，在数据库私有副本上操作。获取方式请参阅相应教程，并保持原始实验数据不变。",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "54_qc_dashboard"
-          ],
-          "speech_text": "从 主页 打开 QC，再选择其中的 Outliers 按钮。QC 主面板读取已保存的检查，而这个嵌套工具根据测量表计算标记。我们使用可下载的真实 Annotate 示例，在数据库私有副本上操作。获取方式请参阅相应教程，并保持原始实验数据不变。"
+          ]
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "选择 Load table 和数据库中的 cell 表。加载会自动扫描所有已选的连续特征：这里是两千三百四十一个细胞、两百五十五个特征。这个宽泛默认设置标记了两千三百三十八个对象，并不证明几乎所有细胞都有问题。加载列数很多的结果表可能需要一些时间。",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "选择 Load table 和数据库中的 cell 表。加载会自动扫描所有已选的连续特征：这里是两千三百四十一个细胞、两百五十五个特征。这个宽泛默认设置标记了两千三百三十八个对象，并不证明几乎所有细胞都有问题。加载列数很多的结果表可能需要一些时间。"
+          ]
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "先清空特征搜索，再选择 None 取消所有勾选。搜索 cell_area，只勾选这个准确的特征名，然后点击 Scan。搜索缩小的是特征名范围，不是细胞行范围。修改选择不会自动重新扫描；运行新规则前，旧结果可能仍显示在屏幕上。",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
             455,
             390,
             1595
-          ],
-          "speech_text": "先清空特征搜索，再选择 None 取消所有勾选。搜索 cell_area，只勾选这个准确的特征名，然后点击 Scan。搜索缩小的是特征名范围，不是细胞行范围。修改选择不会自动重新扫描；运行新规则前，旧结果可能仍显示在屏幕上。"
+          ]
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "对 MAD，保持变换为 none，k 为三点五。规则把到中位数的绝对距离，除以约一点四八二六倍的中位绝对偏差。结果标记二十六个细胞。它们是待检查的候选对象，不是已确认的分割错误，而且没有删除任何一行。",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "对 MAD，保持变换为 none，k 为三点五。规则把到中位数的绝对距离，除以约一点四八二六倍的中位绝对偏差。结果标记二十六个细胞。它们是待检查的候选对象，不是已确认的分割错误，而且没有删除任何一行。"
+          ]
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "打开 Wells。四个孔各有五百多个对象，但没有一个孔被评分：孔间比较至少需要五个合格的孔。请读取 well_scored 和具体原因，不要只看 Wells 零。Flagged share 汇总对象标记的比例，并不是孔级评分，也不证明这个孔没有问题。",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "打开 Wells。四个孔各有五百多个对象，但没有一个孔被评分：孔间比较至少需要五个合格的孔。请读取 well_scored 和具体原因，不要只看 Wells 零。Flagged share 汇总对象标记的比例，并不是孔级评分，也不证明这个孔没有问题。"
+          ]
         },
         {
           "visual": "08_area_report",
-          "narration": "Report 给出规则、测得的中心、尺度和注意事项。这个版本的一条注意事项错误地说四个孔都少于二十个对象。实际数量是五百零一到七百，真正的原因是孔数不足。请采用孔表中的具体原因，不要转述错误的数量解释。",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "Report 给出规则、测得的中心、尺度和注意事项。这个版本的一条注意事项错误地说四个孔都少于二十个对象。实际数量是五百零一到七百，真正的原因是孔数不足。请采用孔表中的具体原因，不要转述错误的数量解释。"
+          ]
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "要求更大的距离会减少标记对象。把 k 降为二时标记一百四十二个；降为零点五时标记一千四百七十九个。后者是为演示故意设置的宽泛规则，不是推荐的质量阈值。对象表只显示五百行，因此显示行数并不是标记总数。",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "要求更大的距离会减少标记对象。把 k 降为二时标记一百四十二个；降为零点五时标记一千四百七十九个。后者是为演示故意设置的宽泛规则，不是推荐的质量阈值。对象表只显示五百行，因此显示行数并不是标记总数。"
+          ]
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "选择 Export 和一个新文件名。objects CSV 保留全部两千三百四十一行并添加标记；flagged 包含一千四百七十九个被标记的行。Wells 包含四个摘要，report 是文本文件。我们检查了每个导出的测量值和标记。导出不是删除，也不受五百条显示行的限制。",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "选择 Export 和一个新文件名。objects CSV 保留全部两千三百四十一行并添加标记；flagged 包含一千四百七十九个被标记的行。Wells 包含四个摘要，report 是文本文件。我们检查了每个导出的测量值和标记。导出不是删除，也不受五百条显示行的限制。"
+          ]
         },
         {
           "visual": "13_area_iqr",
-          "narration": "恢复原规则，然后选择 IQR。此时阈值表示四分位距的 c 倍，而不是稳健标准差倍数。c 为一点五时，原始细胞面积产生五十五个标记。我们独立检查了上下边界及每个标记的位置。即使测量有效，偏态分布的尾部也可能被标记。",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "恢复原规则，然后选择 IQR。此时阈值表示四分位距的 c 倍，而不是稳健标准差倍数。c 为一点五时，原始细胞面积产生五十五个标记。我们独立检查了上下边界及每个标记的位置。即使测量有效，偏态分布的尾部也可能被标记。"
+          ]
         },
         {
           "visual": "14_iqr_report",
-          "narration": "这里还有一个措辞错误。这份 IQR 报告把两万两千六百六十三称为中位数，但它实际上是第一和第三四分位数的中点。真正的中位数是两万一千九百二十五。已核对的边界是正确的，但不要把显示的中心引用为中位数。",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "这里还有一个措辞错误。这份 IQR 报告把两万两千六百六十三称为中位数，但它实际上是第一和第三四分位数的中点。真正的中位数是两万一千九百二十五。已核对的边界是正确的，但不要把显示的中心引用为中位数。"
+          ]
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "明确选择 log10 并重新扫描。对于这些正面积，IQR 产生七十九个标记，切回 k 为三点五的 MAD 则是三十六个。对数变换改变了距离和所问的问题，并不保证标记更少或结果在生物学上正确。报告中的中心和尺度现在使用 log10 单位。",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "明确选择 log10 并重新扫描。对于这些正面积，IQR 产生七十九个标记，切回 k 为三点五的 MAD 则是三十六个。对数变换改变了距离和所问的问题，并不保证标记更少或结果在生物学上正确。报告中的中心和尺度现在使用 log10 单位。"
+          ]
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "为了展示真实的拒绝，恢复无变换，只选择 cell_channel_0_min_intensity。Scan 成功并标记六十八个对象。其中一个测量值确实为零。这个成功对照很重要：在要求一种定义域不包含该值的变换之前，表格和特征本身可以正常使用。",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1700,
             315
-          ],
-          "speech_text": "为了展示真实的拒绝，恢复无变换，只选择 cell_channel_0_min_intensity。Scan 成功并标记六十八个对象。其中一个测量值确实为零。这个成功对照很重要：在要求一种定义域不包含该值的变换之前，表格和特征本身可以正常使用。"
+          ]
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "现在选择 log10 并点击 Scan。实际错误指出了唯一的零值或负值及其特征。系统没有编造伪计数，也没有删除对象，而是禁用 Export。失败后，旧对象表的行和数量可能仍然可见，但它们不是新运行成功的结果。请读取错误并恢复有效规则。",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
             375,
             3540,
             230
-          ],
-          "speech_text": "现在选择 log10 并点击 Scan。实际错误指出了唯一的零值或负值及其特征。系统没有编造伪计数，也没有删除对象，而是禁用 Export。失败后，旧对象表的行和数量可能仍然可见，但它们不是新运行成功的结果。请读取错误并恢复有效规则。"
+          ]
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "回到原始 cell_area 和 k 为三点五的 MAD，扫描后恢复原来的二十六个标记。把 Min objects per well 提高到七百会改变资格：只有一个孔达到该数量，其余三个保留明确的数量不足说明。降低最小值不能创造出缺少的第五个孔。未评分绝不等于已确认没有问题。",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "回到原始 cell_area 和 k 为三点五的 MAD，扫描后恢复原来的二十六个标记。把 Min objects per well 提高到七百会改变资格：只有一个孔达到该数量，其余三个保留明确的数量不足说明。降低最小值不能创造出缺少的第五个孔。未评分绝不等于已确认没有问题。"
+          ]
         },
         {
           "visual": "22_objects_only",
-          "narration": "把最小值恢复为二十，关闭 Score wells too，然后扫描。对象标记仍为二十六个，且不再请求孔间比较。重新开启并扫描，恢复四个未评分孔的摘要。这个设置改变分析层级，不是在数据库中筛除或删除细胞、孔。",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "把最小值恢复为二十，关闭 Score wells too，然后扫描。对象标记仍为二十六个，且不再请求孔间比较。重新开启并扫描，恢复四个未评分孔的摘要。这个设置改变分析层级，不是在数据库中筛除或删除细胞、孔。"
+          ]
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "将恢复的规则用另一个文件名导出。最终文件包含两千三百四十一行对象、二十六行被标记对象、四个孔摘要和报告。原始数据库与私有副本都没有改变。请把规则和报告与标记一起保存，避免将不同阈值的结果误当成同一次分析。",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "将恢复的规则用另一个文件名导出。最终文件包含两千三百四十一行对象、二十六行被标记对象、四个孔摘要和报告。原始数据库与私有副本都没有改变。请把规则和报告与标记一起保存，避免将不同阈值的结果误当成同一次分析。"
+          ]
         },
         {
           "visual": "method_choices_mad",
-          "narration": "菜单还提供稳健多变量 Mahalanobis，但本课没有运行它。其 alpha 依赖分布假设，并不是有保证的错误率。Python 中实际执行计算的是 spacr.qt.widgets.outlier_model 里的 detect_outliers，配置使用 OutlierSpec。要检查分布或图像，请继续学习 Feature Explorer 或 Annotate；这里没有进行图像预览或发送 AI 请求。",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8988,11 +8927,15 @@
             1785,
             395,
             155
-          ],
-          "speech_text": "菜单还提供稳健多变量 Mahalanobis，但本课没有运行它。其 alpha 依赖分布假设，并不是有保证的错误率。Python 中实际执行计算的是 斯佩克尔.Q T.widgets.outlier_model 里的 detect_outliers，配置使用 OutlierSpec。要检查分布或图像，请继续学习 Feature Explorer 或 Annotate；这里没有进行图像预览或发送 AI 请求。"
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -9000,222 +8943,205 @@
       "slug": "experiment_design",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "实验设计",
-      "title": "Experiment Design：可重现的板布局与精确导出",
-      "description": "通过实际控件编辑拟定的板布局，检查容量和重复数警告，重现随机分配，并导出精确的孔位图。",
+      "section": "Data",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "在采集前规划条件和对照角色。",
-        "演示警告与恢复，不把布局检查当作生物学验证。",
-        "重现相同随机布局，区分选中的孔与分配的条件。",
-        "当按行或列的设置无法表达设计时，导出并保留精确孔位表。"
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "此规划模块不需要已采集图像或下载的数据集。录制使用应用的实际草稿：六个阴性对照孔、六个阳性对照孔和十二个处理孔，命名为 tutorial_plan。这些数量用于展示界面，不是统计功效计算，也不是已获取的实验结果。",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在采集之前，从 Home 的 Data 类别打开 Experiment Design。这个模块创建拟定的板布局，不生成测得的生物学结果。这里的阴性、阳性和处理名称都是草稿标签；请为自己的实验选择有意义的名称和对照。",
-          "hold_after": 0.7,
-          "speech_text": "在采集之前，从 主页 的 Data 类别打开 Experiment Design。这个模块创建拟定的板布局，不生成测得的生物学结果。这里的阴性、阳性和处理名称都是草稿标签；请为自己的实验选择有意义的名称和对照。"
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "给板命名，使其标识符以后能与图像和测量匹配。如果表格列太窄，双击列标题边界即可按内容调整宽度。一起检查 Condition、Replicates 和 Role。示例的六、六、十二个孔只展示界面，并不代表有依据的样本量。",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
-          ],
-          "speech_text": "给板命名，使其标识符以后能与图像和测量匹配。如果表格列太窄，双击列标题边界即可按内容调整宽度。一起检查 Condition、Replicates 和 Role。示例的六、六、十二个孔只展示界面，并不代表有依据的样本量。"
+          ]
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "在请求二十四个孔时选择六孔板，会出现容量错误。布局不会悄悄丢弃多余的重复。阅读提示，然后修改板规格或实验计划；不能把空白孔位图当作有效分配。",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
             1910,
             3150,
             205
-          ],
-          "speech_text": "在请求二十四个孔时选择六孔板，会出现容量错误。布局不会悄悄丢弃多余的重复。阅读提示，然后修改板规格或实验计划；不能把空白孔位图当作有效分配。"
+          ]
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "切回九十六孔板会恢复全部二十四个分配。孔位图随当前表格更新。Add condition 和 Remove selected 管理条件行；下方的方形孔是独立的选择区域，不是这些表格行。",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
             365,
             3370,
             285
-          ],
-          "speech_text": "切回九十六孔板会恢复全部二十四个分配。孔位图随当前表格更新。Add condition 和 Remove selected 管理条件行；下方的方形孔是独立的选择区域，不是这些表格行。"
+          ]
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "选择重复数单元格，按 F 二编辑。把阴性对照减少到一个孔会触发警告，恢复到六个孔后警告消失。同一个孔里的许多细胞不能替代独立的实验重复。",
-          "hold_after": 0.7,
-          "speech_text": "选择重复数单元格，按 F 二编辑。把阴性对照减少到一个孔会触发警告，恢复到六个孔后警告消失。同一个孔里的许多细胞不能替代独立的实验重复。"
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Block 布局把相同条件放在一起，并提示位置混杂风险。这些提示用于帮助检查设计，不是自动得出的生物学结论。光学照明校正不能修正蒸发或温度效应；实验布局与图像明暗不均是不同问题。",
-          "hold_after": 0.7,
-          "speech_text": "Block 布局把相同条件放在一起，并提示位置混杂风险。这些提示用于帮助检查设计，不是自动得出的生物学结论。光学照明校正不能修正蒸发或温度效应；实验布局与图像明暗不均是不同问题。"
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "选择 random 布局、留空边缘孔，并将种子设为四十二。排除外圈后，九十六孔板剩下六十个可用孔；我们的计划分配二十四个。避开边缘会减少容量，但不保证消除所有空间效应。",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "选择 random 布局、留空边缘孔，并将种子设为四十二。排除外圈后，九十六孔板剩下六十个可用孔；我们的计划分配二十四个。避开边缘会减少容量，但不保证消除所有空间效应。"
+          ]
         },
         {
           "visual": "08_seed43",
-          "narration": "将种子改为四十三，会改变实际分配，同时保持各条件请求的孔数。随机化减少系统性位置偏差，但每个随机布局仍需检查。不要为了得到期望结果而挑选种子。",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "将种子改为四十三，会改变实际分配，同时保持各条件请求的孔数。随机化减少系统性位置偏差，但每个随机布局仍需检查。不要为了得到期望结果而挑选种子。"
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "改回四十二，会精确恢复相同的孔与条件对应关系。记录种子时，也要保存板规格、边缘策略和条件表。如果其他输入发生变化，单靠种子不能定义设计。",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "改回四十二，会精确恢复相同的孔与条件对应关系。记录种子时，也要保存板规格、边缘策略和条件表。如果其他输入发生变化，单靠种子不能定义设计。"
+          ]
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "从 B 零二拖到 C 零四，选中六个孔。选择边框改变，但条件不变：这个手势只选择孔，不分配处理。修改分配时，请检查条件表和显示的孔位图。",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "从 B 零二拖到 C 零四，选中六个孔。选择边框改变，但条件不变：这个手势只选择孔，不分配处理。修改分配时，请检查条件表和显示的孔位图。"
+          ]
         },
         {
           "visual": "11_export_folder",
-          "narration": "使用 Export plate map，选择专用文件夹。实际导出会写入 plate_map 点 CSV、plate_map 点 JSON 和 plate_map_settings 点 JSON。将三个文件保存在一起；选择保存位置不等于已经完成计划中的实验。",
-          "hold_after": 0.7,
-          "speech_text": "使用 Export plate map，选择专用文件夹。实际导出会写入 plate_map 点 CSV、plate_map 点 JSON 和 plate_map_settings 点 JSON。将三个文件保存在一起；选择保存位置不等于已经完成计划中的实验。"
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "CSV 对每个已分配孔保存一行：这里是二十四行，每个条件和角色都与显示一致。与测量表连接时，要联合使用 plate I D、row I D 和 column I D。JSON 记录种子、设计和发现，包括警告，而不是隐藏它们。",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "CSV 对每个已分配孔保存一行：这里是二十四行，每个条件和角色都与显示一致。与测量表连接时，要联合使用 plate I D、row I D 和 column I D。JSON 记录种子、设计和发现，包括警告，而不是隐藏它们。"
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "这种随机布局无法用按行或列的处理设置表示。设置文件明确将 expressible 标为 false，它不是完整的分析配置。请使用精确导出的孔位表并显式连接，不要把条件混合的孔近似成整行标签。",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "这种随机布局无法用按行或列的处理设置表示。设置文件明确将 expressible 标为 false，它不是完整的分析配置。请使用精确导出的孔位表并显式连接，不要把条件混合的孔近似成整行标签。"
+          ]
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Python 接口位于 spacr.qt.widgets.plate_layout：Condition 和 PlateDesign 描述计划，assign_wells、check_design 和 write_design 负责分配、检查和保存。布局检查不能证明统计功效或生物学有效性。采集前审核设计，并保留精确孔位图用于后续分析。",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "68_power_design",
             "33_plate_viewer"
-          ],
-          "speech_text": "Python 接口位于 斯佩克尔.Q T.widgets.plate_layout：Condition 和 PlateDesign 描述计划，assign_wells、check_design 和 write_design 负责分配、检查和保存。布局检查不能证明统计功效或生物学有效性。采集前审核设计，并保留精确孔位图用于后续分析。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design：理解模拟器及其局限",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
-      "section": "实验设计",
+      "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "理解真实控件、模拟检出曲线和警告，不把小规模演示或自相矛盾的摘要当成经过验证的设计建议。",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "区分模拟假设与采集的实验数据。",
-        "正确理解可用拟合、检出比例和不确定性。",
-        "识别针对同一设计的错误建议并保留记录。"
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "这是对真实模拟记录的批判性解读，不是经过校准的统计功效或样本量建议。Power_recorded_simulation_review.zip保留原始JSON与说明，不是可导入GUI的运行结果，也不是原生导出演示。spaCR 1.5.0.4录制时的界面、设计适配器、模拟器和拟合代码仍与当前源代码逐字节一致。两个边际扫描共九个点、每点两次重复，产生18次拟合；四次不收敛拟合仍在分母中。两次模拟截断了概率。同一名义设计使用不同随机抽样，分别得到1/2和2/2检出。明确拒绝增加到现有孔数的建议，该错误并未修复。一些末端标签被截断，但已核查表格包含全部九个坐标。不宣称新模拟、实测数据、生物学校准、GPU任务、AI请求或发布。API：spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve和spacr.qt.screens.power.run_power_sweep；spacr.power_simulate与spacr.power_model负责模拟和拟合。",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Power和Design用模拟数据探索假设。它不加载采集的实验，也不证明其假设符合您的实验。本课解读真实运行记录，包括警告和误导性建议。不要把这个小规模演示当作经过验证的样本量建议。",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Power和Design用模拟数据探索假设。它不加载采集的实验，也不证明其假设符合您的实验。本课解读真实运行记录，包括警告和误导性建议。不要把这个小规模演示当作经过验证的样本量建议。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_guide_library",
-          "narration": "先看文库和评分单位。切换向导与基因会改变模型的评分对象：示例有四十个基因，每个四条向导，因此向导评分有一百六十个单位。基因评分会汇总向导信息。这些是教学假设，不是新的生物学测量。",
-          "hold_after": 0.7,
-          "speech_text": "先看文库和评分单位。切换向导与基因会改变模型的评分对象：示例有四十个基因，每个四条向导，因此向导评分有一百六十个单位。基因评分会汇总向导信息。这些是教学假设，不是新的生物学测量。"
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "板和效应控件描述假定设计。阳性判定率是模拟的分类概率，不是生物数量或测得的感染率。请结合背景、效应和阳性比例查看，并记住显示假设不等于验证模型。",
-          "hold_after": 0.7,
-          "speech_text": "板和效应控件描述假定设计。阳性判定率是模拟的分类概率，不是生物数量或测得的感染率。请结合背景、效应和阳性比例查看，并记住显示假设不等于验证模型。"
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "效应小于一会触发原生的不支持方向警告，并禁用Run。录制随后恢复支持的数值，控件也恢复可用。这是软件保护，不表示相反方向的效应在生物学上不可能。不要绕过警告来获得合意的曲线。",
-          "hold_after": 0.7,
-          "speech_text": "效应小于一会触发原生的不支持方向警告，并禁用Run。录制随后恢复支持的数值，控件也恢复可用。这是软件保护，不表示相反方向的效应在生物学上不可能。不要绕过警告来获得合意的曲线。"
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "本次有限演示每个点只有两次重复。检出规则要求可用拟合达到选定的接收者操作特征曲线下面积阈值。这不是假设检验的P值界限。种子和后端都有记录，但只选择Torch并不能证明使用了GPU。",
-          "hold_after": 0.7,
-          "speech_text": "本次有限演示每个点只有两次重复。检出规则要求可用拟合达到选定的接收者操作特征曲线下面积阈值。这不是假设检验的P值界限。种子和后端都有记录，但只选择Torch并不能证明使用了GPU。"
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Run启动真正的线程化模拟器。细胞数与孔数两个轴分别变化，而不是计算所有组合。录制在九个点上完成十八次拟合。请把设置和原始重复记录保存在一起，以便将曲线比例追溯到产生它的拟合。",
-          "hold_after": 0.7,
-          "speech_text": "Run启动真正的线程化模拟器。细胞数与孔数两个轴分别变化，而不是计算所有组合。录制在九个点上完成十八次拟合。请把设置和原始重复记录保存在一起，以便将曲线比例追溯到产生它的拟合。"
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "检出数应除以所有请求的重复次数。四次拟合没有收敛，仍作为未检出保留在分母中，不会悄悄丢弃。这里百分之百只代表两次中的两次。如此小的样本不能确定精确的检出概率。",
-          "hold_after": 0.7,
-          "speech_text": "检出数应除以所有请求的重复次数。四次拟合没有收敛，仍作为未检出保留在分母中，不会悄悄丢弃。这里百分之百只代表两次中的两次。如此小的样本不能确定精确的检出概率。"
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
@@ -9225,9 +9151,8 @@
             2380,
             460
           ],
-          "narration": "表格区分检出比例和可用拟合的平均表现。不可用的均值不等于零。平均精确率还需要阳性比例基线作为参照。图末端标签被截断时读表，并检查不收敛次数，不要仅凭蓝线判断设计。",
-          "hold_after": 0.7,
-          "speech_text": "表格区分检出比例和可用拟合的平均表现。不可用的均值不等于零。平均精确率还需要阳性比例基线作为参照。图末端标签被截断时读表，并检查不收敛次数，不要仅凭蓝线判断设计。"
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
@@ -9237,26 +9162,28 @@
             2380,
             110
           ],
-          "narration": "顶部摘要有错误。两个基线估计都已经使用九十六孔，但不同随机抽样在一个扫描中得到两次中的一次检出，在另一个得到两次中的两次。改用同样的九十六孔不是设计改进。应拒绝这条建议；教程并未修复它。",
-          "hold_after": 0.7,
-          "speech_text": "顶部摘要有错误。两个基线估计都已经使用九十六孔，但不同随机抽样在一个扫描中得到两次中的一次检出，在另一个得到两次中的两次。改用同样的九十六孔不是设计改进。应拒绝这条建议；教程并未修复它。"
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "展开其余注意事项。两次模拟筛选截断了大于一的概率，因此实际模拟占用量与请求值不同。模型还有其他假设和限制；把它们列出来并不等于验证。得出结论之前，请检查这些警告和失败的拟合。",
-          "hold_after": 0.7,
-          "speech_text": "展开其余注意事项。两次模拟筛选截断了大于一的概率，因此实际模拟占用量与请求值不同。模型还有其他假设和限制；把它们列出来并不等于验证。得出结论之前，请检查这些警告和失败的拟合。"
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "链接中的压缩包保留实际记录的规格、重复输出、曲线、表格和错误摘要，供检查使用。这是外部证据下载，不是GUI原生导出或导入结果。Python设计适配器和模拟API提供相同流程，但实际规划仍需单独验证假设与不确定性。",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "链接中的压缩包保留实际记录的规格、重复输出、曲线、表格和错误摘要，供检查使用。这是外部证据下载，不是GUI原生导出或导入结果。Python设计适配器和模拟API提供相同流程，但实际规划仍需单独验证假设与不确定性。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9264,61 +9191,57 @@
       "slug": "dose_response",
       "series": 5,
       "app_key": "dose_response",
-      "section": "实验设计",
-      "title": "剂量–反应：拟合曲线、不确定性与有依据的拒绝",
-      "description": "使用可复现的合成数据表操作当前 Dose Response 界面，比较剖面似然与 Wald 区间，并区分已拟合、无法界定和被拒绝的结果。",
+      "section": "Data",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "载入明确的浓度和响应，按命名系列分别拟合曲线。",
-        "理解半最大响应浓度、区间方法、溶剂对照及被拒绝的曲线。",
-        "先比较拟合再排序，复制实际报告，并区分界面控件与 API 导出。"
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "下载随附的合成 CSV。它包含120行构造数据：四个系列，每个系列有九个正浓度、一个零剂量溶剂对照，每个浓度三次观测。−0.5、0、+0.5的对称偏移不是生物学重复，也不是统计校准研究。预设半最大响应浓度为1.5、2以及范围之外的500；第四个系列发生趋势反转。本课不演示 Dose Response 专用数据下载器、归一化、加权、重复选择器、界面导出按钮或 AI 控制台。Unit 只修改标签，不改变数据。此版本对已排序的表重新拟合可能混淆显示行的身份，因此录像在排序前完成所有重新拟合。保留拒绝结果并阅读完整报告。API：spacr.qt.widgets.dose_response.DoseResponseSpec、fit_frame、DoseResponseSet.table。数据和图形检查独立于 spaCR 的拟合函数；剖面区间端点按实现声明的 log10 搜索括区精度检查，不构成覆盖率保证。",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "在 Home 的 Data 区域打开 Dose Response。这个独立视图为浓度序列拟合四参数逻辑曲线。它需要实际输入的浓度和响应，不会根据孔名称、图像坐标或处理标签推断剂量。",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
-          ],
-          "speech_text": "在 主页 的 Data 区域打开 Dose Response。这个独立视图为浓度序列拟合四参数逻辑曲线。它需要实际输入的浓度和响应，不会根据孔名称、图像坐标或处理标签推断剂量。"
+          ]
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "下载本课前提条件中链接的合成 CSV，然后选择 Load table。这些是专门构造的软件示例，不是化合物的实测数据。文件和每个系列的名称都标明了合成性质，避免把这些整齐的曲线误认为实验结果。",
-          "hold_after": 0.7,
-          "speech_text": "下载本课前提条件中链接的合成 CSV，然后选择 Load table。这些是专门构造的软件示例，不是化合物的实测数据。文件和每个系列的名称都标明了合成性质，避免把这些整齐的曲线误认为实验结果。"
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "文件包含四个系列，共一百二十行。每个系列有九个正浓度、一个零剂量溶剂对照，以及每个浓度三次观测。小幅对称的人工偏移保留了各剂量的模型均值；这个便于演示的例子并不验证真实实验中的统计性能。",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             40,
             2200,
             170
-          ],
-          "speech_text": "文件包含四个系列，共一百二十行。每个系列有九个正浓度、一个零剂量溶剂对照，以及每个浓度三次观测。小幅对称的人工偏移保留了各剂量的模型均值；这个便于演示的例子并不验证真实实验中的统计性能。"
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "浓度列选择 concentration，响应列选择 response，在 One curve per 中选择 series。应提供原始浓度，而非其对数。分组很重要：把四个不同系列合并为一条曲线，会回答错误的问题。",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "浓度列选择 concentration，响应列选择 response，在 One curve per 中选择 series。应提供原始浓度，而非其对数。分组很重要：把四个不同系列合并为一条曲线，会回答错误的问题。"
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Unit 只是标签。这里输入 u M，把演示浓度标记为微摩尔每升；修改文字绝不会重新缩放数值。需要的归一化或单位换算应提前完成，因为此界面没有归一化或加权控件。",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9328,156 +9251,143 @@
           ],
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "Unit 只是标签。这里输入 u M，把演示浓度标记为微摩尔每升；修改文字绝不会重新缩放数值。需要的归一化或单位换算应提前完成，因为此界面没有归一化或加权控件。"
+          ]
         },
         {
           "visual": "06_profile_results",
-          "narration": "保持 Profile likelihood 选中，并关闭 Fit non-monotone data，然后选择 Fit。曲线与结果表同时更新。四个系列都会保留，包括无法界定的结果和拒绝结果；没有估计值并不等于没有这个系列。",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "保持 Profile likelihood 选中，并关闭 Fit non-monotone data，然后选择 Fit。曲线与结果表同时更新。四个系列都会保留，包括无法界定的结果和拒绝结果；没有估计值并不等于没有这个系列。"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "选择合成抑制系列。恢复出的半最大响应浓度为一点五，Hill 斜率为负，因为浓度升高时响应下降。半最大响应指拟合的两个平台之间的中点，这里平台为五和九十五；它并不自动表示百分之五十的存活率。",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "选择合成抑制系列。恢复出的半最大响应浓度为一点五，Hill 斜率为负，因为浓度升高时响应下降。半最大响应指拟合的两个平台之间的中点，这里平台为五和九十五；它并不自动表示百分之五十的存活率。"
+          ]
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "选择合成激活系列。恢复出的半最大响应浓度为二，Hill 斜率为正。选中的曲线会突出显示，其他拟合曲线仍然可见。应结合所选行和对应报告阅读，不要把另一条曲线的估计值归给当前系列。",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "选择合成激活系列。恢复出的半最大响应浓度为二，Hill 斜率为正。选中的曲线会突出显示，其他拟合曲线仍然可见。应结合所选行和对应报告阅读，不要把另一条曲线的估计值归给当前系列。"
+          ]
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "超范围示例预设的半最大响应浓度为五百，但测试浓度只到一百。界面报告无法界定的结果，将点估计和区间单元格留空，并在范围边缘显示界限。拟合得到的外推值不是有数据支持的点估计。",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "超范围示例预设的半最大响应浓度为五百，但测试浓度只到一百。界面报告无法界定的结果，将点估计和区间单元格留空，并在范围边缘显示界限。拟合得到的外推值不是有数据支持的点估计。"
+          ]
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "趋势反转的系列被拒绝，因为单调逻辑曲线的形状不适合它。请阅读表格下方的完整解释。响应转向本身并不能证明细胞毒性或其他生物学原因；应调查实验，而不是盲目删除剂量或强行拟合。",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "趋势反转的系列被拒绝，因为单调逻辑曲线的形状不适合它。请阅读表格下方的完整解释。响应转向本身并不能证明细胞毒性或其他生物学原因；应调查实验，而不是盲目删除剂量或强行拟合。"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "抑制报告统计了二十七次参与拟合的观测和三次零剂量对照。零浓度被排除在对数拟合之外，并单独汇总，不会悄悄变成很小的正剂量。合成溶剂对照的均值为九十五，与构造的低剂量平台一致。",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "抑制报告统计了二十七次参与拟合的观测和三次零剂量对照。零浓度被排除在对数拟合之外，并单独汇总，不会悄悄变成很小的正剂量。合成溶剂对照的均值为九十五，与构造的低剂量平台一致。"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "除了 R 平方，还应阅读残差误差和失拟评估。这个刻意保持对称的例子具有非常整齐的诊断结果。每个浓度的重复观测无需单独的重复选择器即可使用；这些人工重复并不能证明真实实验测量之间相互独立。",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "除了 R 平方，还应阅读残差误差和失拟评估。这个刻意保持对称的例子具有非常整齐的诊断结果。每个浓度的重复观测无需单独的重复选择器即可使用；这些人工重复并不能证明真实实验测量之间相互独立。"
+          ]
         },
         {
           "visual": "13_choose_wald",
-          "narration": "若要比较区间方法，选择 Wald，然后再次点击 Fit。仅改变选择器不会重新计算已有结果。区间是在半最大响应浓度的对数尺度上计算后再变换回来，并不是直接加在浓度上的对称误差条。",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "若要比较区间方法，选择 Wald，然后再次点击 Fit。仅改变选择器不会重新计算已有结果。区间是在半最大响应浓度的对数尺度上计算后再变换回来，并不是直接加在浓度上的对称误差条。"
+          ]
         },
         {
           "visual": "14_wald_results",
-          "narration": "充分覆盖半最大响应位置的示例保留原来的点估计，区间端点则略有变化。超范围示例仍不提供点估计。这些整齐例子的有限区间，并不证明另一个实验能够识别其半最大响应浓度，也不保证在其噪声和抽样设计下达到名义覆盖率。",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "充分覆盖半最大响应位置的示例保留原来的点估计，区间端点则略有变化。超范围示例仍不提供点估计。这些整齐例子的有限区间，并不证明另一个实验能够识别其半最大响应浓度，也不保证在其噪声和抽样设计下达到名义覆盖率。"
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "重新选择 Profile likelihood 并再次点击 Fit，确认结果现在对应这一方法。曲线、表格和所选报告是已完成拟合的关联视图，不是每次改变控件都会自动重新拟合的实时预览。",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "重新选择 Profile likelihood 并再次点击 Fit，确认结果现在对应这一方法。曲线、表格和所选报告是已完成拟合的关联视图，不是每次改变控件都会自动重新拟合的实时预览。"
+          ]
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "请先完成拟合比较，再对表格排序。此版本对已排序的表重新拟合时，可能混淆显示的行，因此不要依赖这种操作顺序。这里在所有拟合完成后才排序，然后选择抑制系列，确认显示的是对应报告。",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "请先完成拟合比较，再对表格排序。此版本对已排序的表重新拟合时，可能混淆显示的行，因此不要依赖这种操作顺序。这里在所有拟合完成后才排序，然后选择抑制系列，确认显示的是对应报告。"
+          ]
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "使用常规复制快捷键选择并复制报告文字。请将警告、拒绝原因、输入浓度和所选区间方法与结果一并保留。只复制一个点估计而省略这些背景，会丢失判断结果是否可解释的必要信息。",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             500
-          ],
-          "speech_text": "使用常规复制快捷键选择并复制报告文字。请将警告、拒绝原因、输入浓度和所选区间方法与结果一并保留。只复制一个点估计而省略这些背景，会丢失判断结果是否可解释的必要信息。"
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "此界面没有导出按钮。若要通过程序输出，剂量–反应 API 提供 fit_frame 和结果表；API 课程说明了如何在 Python 中操作。导出时应保留无法界定和被拒绝的行，而不是只保存产生了方便数字的化合物。",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9487,10 +9397,14 @@
             190,
             1810,
             210
-          ],
-          "speech_text": "此界面没有导出按钮。若要通过程序输出，剂量–反应 API 提供 fit_frame 和结果表；API 课程说明了如何在 Python 中操作。导出时应保留无法界定和被拒绝的行，而不是只保存产生了方便数字的化合物。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

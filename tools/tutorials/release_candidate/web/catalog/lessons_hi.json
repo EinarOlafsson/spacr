@@ -6242,96 +6242,90 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: स्पष्ट बाहरी सहायक विंडो में उम्मीदवारों की जाँच",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Regression",
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Regression के अपरिवर्तित परिणामों से वास्तविक Hit List फ़िल्टर और निर्यात समझें, छिपे पैनल के लिए स्पष्ट वैकल्पिक रास्ते के साथ।",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "खराब मूल शॉर्टकट और बाहरी सहायक में अंतर समझना।",
-        "क्रमबद्ध उम्मीदवारों को महत्वपूर्ण खोज बताए बिना पढ़ना।",
-        "वास्तविक पंक्तियों को फ़िल्टर करना, लौटाना और निर्यात करना।"
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Hit_List_real_results_companion.zip निकालें। spaCR वातावरण सक्रिय करके python hit_list_companion.py चलाएँ और Browse से results चुनें। सहायक अपरिवर्तित HitListScreen खोलता है; वह नेविगेशन नहीं सुधारता और Investigate नहीं जोड़ता। संग्रह में मूल परिणाम हैं, पूरा प्रोजेक्ट नहीं: 325 जीन, 434 गाइड पंक्तियाँ और q <= .05 वाला कोई जीन नहीं। मानकीकृत सीमांत प्रभाव एक साथ फिट किए गए बहुचर गुणांक नहीं हैं। अनुपस्थित अंतराल उपलब्ध नहीं हैं। n_obs=0 वास्तविक वेल समर्थन नहीं है: results_gene.csv का wells_with_gene 2 से 48 है। मेटाडेटा जोड़ना, दंडयुक्त रैंकिंग और Investigate इस प्रदर्शन में शामिल नहीं हैं। प्रशिक्षण, नया रिग्रेशन, GPU या AI प्रदाता को अनुरोध आवश्यक नहीं। API: spacr.hits.build_hit_list और HitList.filter/write_csv/to_markdown/to_html.",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit List, Regression के अंतर्गत है। इस संस्करण में Hits दबाने से छिपे पैनल के भीतर पेज चुना जाता है, इसलिए सूची नहीं दिखती। यह ट्यूटोरियल सीमा को स्पष्ट दिखाता है। अगली विंडो एक बाहरी सहायक है, मूल शॉर्टकट सुधरने का प्रमाण नहीं।",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hit List, Regression के अंतर्गत है। इस संस्करण में Hits दबाने से छिपे पैनल के भीतर पेज चुना जाता है, इसलिए सूची नहीं दिखती। यह ट्यूटोरियल सीमा को स्पष्ट दिखाता है। अगली विंडो एक बाहरी सहायक है, मूल शॉर्टकट सुधरने का प्रमाण नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "दिए गए उदाहरण को निकालें, अपना spaCR वातावरण सक्रिय करें और साथ दिया Hit List सहायक स्क्रिप्ट चलाएँ। स्पष्ट लेबल वाली विंडो spaCR का मौजूदा विजेट खोलती है, गणनाएँ नहीं बदलती। Browse दबाकर results चुनें। रिग्रेशन दोबारा नहीं चलता और Investigate यहाँ जुड़ा नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "दिए गए उदाहरण को निकालें, अपना स्पेकर वातावरण सक्रिय करें और साथ दिया Hit List सहायक स्क्रिप्ट चलाएँ। स्पष्ट लेबल वाली विंडो स्पेकर का मौजूदा विजेट खोलती है, गणनाएँ नहीं बदलती। Browse दबाकर results चुनें। रिग्रेशन दोबारा नहीं चलता और Investigate यहाँ जुड़ा नहीं है।"
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "मूल उदाहरण तीन सौ पच्चीस जीन लोड करता है। मान कटें तो कॉलम की सीमाओं पर डबल क्लिक करें। प्रभाव की दिशा, कच्चा पी, संशोधित क्यू और गाइड सहमति अलग-अलग पढ़ें। अनुपस्थित विश्वास अंतराल उपलब्ध नहीं हैं। ये मानकीकृत सीमांत प्रभाव हैं; निर्यात में अवलोकनों की संख्या शून्य वास्तविक सहायक वेल संख्या नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "मूल उदाहरण तीन सौ पच्चीस जीन लोड करता है। मान कटें तो कॉलम की सीमाओं पर डबल क्लिक करें। प्रभाव की दिशा, कच्चा पी, संशोधित क्यू और गाइड सहमति अलग-अलग पढ़ें। अनुपस्थित विश्वास अंतराल उपलब्ध नहीं हैं। ये मानकीकृत सीमांत प्रभाव हैं; निर्यात में अवलोकनों की संख्या शून्य वास्तविक सहायक वेल संख्या नहीं है।"
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Max q को शून्य दशमलव शून्य पाँच करें। कोई जीन नहीं बचता क्योंकि न्यूनतम जीन क्यू लगभग शून्य दशमलव दो सात एक है। खाली फ़िल्टर की गई तालिका आयात विफलता नहीं है। सभी उम्मीदवार वापस लाने के लिए Max q एक करें; इससे वे खोज नहीं बन जाते।",
-          "hold_after": 0.7,
-          "speech_text": "Max q को शून्य दशमलव शून्य पाँच करें। कोई जीन नहीं बचता क्योंकि न्यूनतम जीन क्यू लगभग शून्य दशमलव दो सात एक है। खाली फ़िल्टर की गई तालिका आयात विफलता नहीं है। सभी उम्मीदवार वापस लाने के लिए Max q एक करें; इससे वे खोज नहीं बन जाते।"
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Minimum guides दो करने पर कम से कम दो परीक्षित गाइड पंक्तियों वाले एक सौ सत्रह जीन बचते हैं। यह उपलब्ध साक्ष्य गिनता है, मूल रूप से डिज़ाइन किए गए सभी गाइड नहीं। फ़िल्टर दिखाई देने वाला उपसमूह बदलता है, मूल बहु-परीक्षण सुधार की पुनर्गणना नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "Minimum guides दो करने पर कम से कम दो परीक्षित गाइड पंक्तियों वाले एक सौ सत्रह जीन बचते हैं। यह उपलब्ध साक्ष्य गिनता है, मूल रूप से डिज़ाइन किए गए सभी गाइड नहीं। फ़िल्टर दिखाई देने वाला उपसमूह बदलता है, मूल बहु-परीक्षण सुधार की पुनर्गणना नहीं करता।"
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Minimum agreement एक करने पर सत्तावन जीन बचते हैं जिनके सभी परीक्षित गाइड जीन प्रभाव का चिह्न साझा करते हैं। सहमति सांख्यिकीय महत्त्व या कारण सिद्ध नहीं करती। इन उम्मीदवारों के गाइड सहमत होने पर भी सारांश में महत्वपूर्ण, समर्थित जीनों की संख्या शून्य ही है।",
-          "hold_after": 0.7,
-          "speech_text": "Minimum agreement एक करने पर सत्तावन जीन बचते हैं जिनके सभी परीक्षित गाइड जीन प्रभाव का चिह्न साझा करते हैं। सहमति सांख्यिकीय महत्त्व या कारण सिद्ध नहीं करती। इन उम्मीदवारों के गाइड सहमत होने पर भी सारांश में महत्वपूर्ण, समर्थित जीनों की संख्या शून्य ही है।"
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controls एक नियंत्रण पंक्ति हटाकर छप्पन उम्मीदवार छोड़ता है। निर्यात से पहले उसे वापस लाएँ। नियंत्रण छिपाना मॉडल फिर से फिट नहीं करता और सुधार का परिवार नहीं बदलता; विश्लेषण पढ़ते समय उनकी पहचान सुरक्षित रखें।",
-          "hold_after": 0.7,
-          "speech_text": "Hide controls एक नियंत्रण पंक्ति हटाकर छप्पन उम्मीदवार छोड़ता है। निर्यात से पहले उसे वापस लाएँ। नियंत्रण छिपाना मॉडल फिर से फिट नहीं करता और सुधार का परिवार नहीं बदलता; विश्लेषण पढ़ते समय उनकी पहचान सुरक्षित रखें।"
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "बाकी फ़िल्टर हटाने पर Direction up सकारात्मक प्रभाव दिखाता है। न्यूनतम निरपेक्ष प्रभाव शून्य दशमलव एक जोड़ने पर सोलह पंक्तियाँ बचती हैं। ये उदाहरणात्मक प्रदर्शन विकल्प हैं, सुझाई गई सीमाएँ नहीं। खोज या दूसरे उपसमूह की तुलना से पहले दिशा और प्रभाव रीसेट करें।",
-          "hold_after": 0.7,
-          "speech_text": "बाकी फ़िल्टर हटाने पर Direction up सकारात्मक प्रभाव दिखाता है। न्यूनतम निरपेक्ष प्रभाव शून्य दशमलव एक जोड़ने पर सोलह पंक्तियाँ बचती हैं। ये उदाहरणात्मक प्रदर्शन विकल्प हैं, सुझाई गई सीमाएँ नहीं। खोज या दूसरे उपसमूह की तुलना से पहले दिशा और प्रभाव रीसेट करें।"
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "एक वास्तविक पंक्ति देखने के लिए दर्ज पहचानकर्ता खोजें। बिना मेल वाली खोज तालिका खाली करती है; ज्ञात पहचानकर्ता वापस लाने से पंक्ति लौटती है और खोज साफ़ करने से पूरी आबादी लौटती है। फ़िल्टर उलटे जा सकते हैं। एनोटेशन आयात और Investigate की अलग जाँच चाहिए।",
-          "hold_after": 0.7,
-          "speech_text": "एक वास्तविक पंक्ति देखने के लिए दर्ज पहचानकर्ता खोजें। बिना मेल वाली खोज तालिका खाली करती है; ज्ञात पहचानकर्ता वापस लाने से पंक्ति लौटती है और खोज साफ़ करने से पूरी आबादी लौटती है। फ़िल्टर उलटे जा सकते हैं। एनोटेशन आयात और Investigate की अलग जाँच चाहिए।"
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "निर्यात के लिए दो गाइड, पूरी सहमति, नियंत्रण शामिल और खाली खोज फिर चुनें। इस उदाहरण में तीनों निर्यात में वही सत्तावन उम्मीदवार हैं। Markdown और HTML संख्याएँ राउंड करते हैं; CSV संख्यात्मक विवरण रखता है। फ़िल्टर अलग से सहेजें क्योंकि फ़ाइलें हर सेटिंग नहीं लिखतीं।",
-          "hold_after": 0.7,
-          "speech_text": "निर्यात के लिए दो गाइड, पूरी सहमति, नियंत्रण शामिल और खाली खोज फिर चुनें। इस उदाहरण में तीनों निर्यात में वही सत्तावन उम्मीदवार हैं। Markdown और HTML संख्याएँ राउंड करते हैं; CSV संख्यात्मक विवरण रखता है। फ़िल्टर अलग से सहेजें क्योंकि फ़ाइलें हर सेटिंग नहीं लिखतीं।"
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "सभी तीन सौ पच्चीस जीन वापस लाने के लिए फ़िल्टर साफ़ करें। निर्यात उपसमूह मूल अपरिवर्तित परिणामों से अलग रखें और गैर-महत्वपूर्ण उम्मीदवारों को प्रमाणित हिट न कहें। Python में वही रीडर और फ़िल्टर हैं; बड़ी सूची निर्यात करते समय हर प्रारूप की पंक्ति सीमा जाँचें।",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "सभी तीन सौ पच्चीस जीन वापस लाने के लिए फ़िल्टर साफ़ करें। निर्यात उपसमूह मूल अपरिवर्तित परिणामों से अलग रखें और गैर-महत्वपूर्ण उम्मीदवारों को प्रमाणित हिट न कहें। Python में वही रीडर और फ़िल्टर हैं; बड़ी सूची निर्यात करते समय हर प्रारूप की पंक्ति सीमा जाँचें।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7260,16 +7254,15 @@
       "series": 5,
       "app_key": "lineage",
       "host_app_key": "db_browser",
-      "section": "अन्वेषण",
-      "title": "Lineage: समावेशन की पहचान और सत्यापित मूल कोशिका क्रॉप",
-      "description": "संग्रहीत मूल–संतान संबंध, प्रदर्शन सीमा और केवल मूल कोशिका का सही क्रॉप देखें; गायब संतानों के गलत विकल्प को स्वीकार न करें।",
+      "section": "Explore",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "Database Browser में Lineage खोलकर वास्तविक वृक्ष बनाएँ।",
-        "पूरी गिनती, दिखाई गई संरचनाओं और प्रकार सहित पहचान में अंतर करें।",
-        "गलत संतान-क्रॉप विकल्प पहचानकर केवल सत्यापित मूल कोशिका देखें।",
-        "मूल ज़ूम और Python निर्यात को इंटरफ़ेस के नियंत्रणों से अलग समझें।"
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "Annotate का डाउनलोड किया उदाहरण लें जिसमें माप और कोशिका क्रॉप मेल खाते हों। Graph Builder आर्काइव में वही डेटाबेस है, चित्र नहीं; Lineage आर्काइव में सत्यापित API CSV और समीक्षा है, दूसरा डेटाबेस नहीं। गायब संतान चित्रों की पहचान या लेबलिंग के लिए मौजूदा गलत विकल्प का उपयोग न करें।",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7277,98 +7270,89 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Help में Database Browser खोजें, फिर उसके भीतर Lineage खोलें। यहाँ lineage का मतलब संग्रहीत समावेशन है: कौन से ऑब्जेक्ट किन कोशिकाओं के अंदर हैं। यह कोशिका-विभाजन का इतिहास, आनुवंशिक वंशावली या नया सेगमेंटेशन नहीं है। आसपास के डेटाबेस नियंत्रण मुख्य होस्ट मॉड्यूल के हैं।",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "Help में Database Browser खोजें, फिर उसके भीतर Lineage खोलें। यहाँ lineage का मतलब संग्रहीत समावेशन है: कौन से ऑब्जेक्ट किन कोशिकाओं के अंदर हैं। यह कोशिका-विभाजन का इतिहास, आनुवंशिक वंशावली या नया सेगमेंटेशन नहीं है। आसपास के डेटाबेस नियंत्रण मुख्य होस्ट मॉड्यूल के हैं।"
+          ]
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "वास्तविक Annotate उदाहरण का measurements डॉट db खोलकर वृक्ष बनाएँ। हम बिना बदलाव वाली निजी प्रति इस्तेमाल करते हैं। नाम तंग हों तो Object कॉलम और विभाजक चौड़े करें। अलग फ़ील्ड और ऑब्जेक्ट प्रकारों में संख्या दोहर सकती है; अकेली संख्या पहचान नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "वास्तविक Annotate उदाहरण का measurements डॉट db खोलकर वृक्ष बनाएँ। हम बिना बदलाव वाली निजी प्रति इस्तेमाल करते हैं। नाम तंग हों तो Object कॉलम और विभाजक चौड़े करें। अलग फ़ील्ड और ऑब्जेक्ट प्रकारों में संख्या दोहर सकती है; अकेली संख्या पहचान नहीं है।"
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "पूरे स्रोत में दो हज़ार तीन सौ इकतालीस कोशिकाएँ, दो हज़ार छह सौ बयासी नाभिक और pathogen तालिका में दो हज़ार एक सौ अठहत्तर ऑब्जेक्ट हैं। वृक्ष केवल दो हज़ार मूल-ऑब्जेक्ट समूह दिखाता है। तीन सौ इकतालीस समूह प्रदर्शन से बाहर हैं, डेटाबेस से मिटाए नहीं गए हैं।",
-          "hold_after": 0.7,
-          "speech_text": "पूरे स्रोत में दो हज़ार तीन सौ इकतालीस कोशिकाएँ, दो हज़ार छह सौ बयासी नाभिक और pathogen तालिका में दो हज़ार एक सौ अठहत्तर ऑब्जेक्ट हैं। वृक्ष केवल दो हज़ार मूल-ऑब्जेक्ट समूह दिखाता है। तीन सौ इकतालीस समूह प्रदर्शन से बाहर हैं, डेटाबेस से मिटाए नहीं गए हैं।"
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "सारांश में कोई कोशिका खाली नहीं है, क्योंकि नाभिक भी संतान माना जाता है। इसका अर्थ नहीं कि हर कोशिका में pathogen तालिका का ऑब्जेक्ट है: एक हज़ार एक सौ अड़सठ में नहीं है। कोई असंबद्ध संतान न होना केवल बताता है कि रिकॉर्ड किए मूल ऑब्जेक्ट मौजूद हैं, न कि सेगमेंटेशन जैविक रूप से सही है।",
-          "hold_after": 0.7,
-          "speech_text": "सारांश में कोई कोशिका खाली नहीं है, क्योंकि नाभिक भी संतान माना जाता है। इसका अर्थ नहीं कि हर कोशिका में pathogen तालिका का ऑब्जेक्ट है: एक हज़ार एक सौ अड़सठ में नहीं है। कोई असंबद्ध संतान न होना केवल बताता है कि रिकॉर्ड किए मूल ऑब्जेक्ट मौजूद हैं, न कि सेगमेंटेशन जैविक रूप से सही है।"
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "संतानों को देखने के लिए मूल ऑब्जेक्ट खोलें। इस फ़ील्ड में संग्रहीत संबंधों के अनुसार कोशिका तीन के भीतर नाभिक पाँच और pathogen एक हैं। ये प्रकार सहित पहचान हैं, तीन अदला-बदली योग्य संख्याएँ नहीं। एक संतान चुनना पूरे समूह को चुनने से अलग है।",
-          "hold_after": 0.7,
-          "speech_text": "संतानों को देखने के लिए मूल ऑब्जेक्ट खोलें। इस फ़ील्ड में संग्रहीत संबंधों के अनुसार कोशिका तीन के भीतर नाभिक पाँच और pathogen एक हैं। ये प्रकार सहित पहचान हैं, तीन अदला-बदली योग्य संख्याएँ नहीं। एक संतान चुनना पूरे समूह को चुनने से अलग है।"
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contents मूल ऑब्जेक्ट और संतानों की कुंजियाँ प्रकाशित करता है। मूल और उसकी एक संतान को साथ चुनने पर संतान की दूसरी प्रति नहीं चाहिए। कुंजियाँ फ़ील्ड और प्रकार सुरक्षित रखती हैं, लेकिन उनका कॉलम यहाँ छिपा है। पहचान प्रकाशित होने से संबंधित क्रॉप का अस्तित्व सिद्ध नहीं होता।",
-          "hold_after": 0.7,
-          "speech_text": "Select with contents मूल ऑब्जेक्ट और संतानों की कुंजियाँ प्रकाशित करता है। मूल और उसकी एक संतान को साथ चुनने पर संतान की दूसरी प्रति नहीं चाहिए। कुंजियाँ फ़ील्ड और प्रकार सुरक्षित रखती हैं, लेकिन उनका कॉलम यहाँ छिपा है। पहचान प्रकाशित होने से संबंधित क्रॉप का अस्तित्व सिद्ध नहीं होता।"
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "बड़े समूहों की जाँच करें, स्वतः जैविक अर्थ न निकालें। इस उदाहरण में एक समूह में कुल तैंतीस ऑब्जेक्ट हैं। संबंध सेगमेंटेशन या अधिग्रहण की त्रुटियाँ दिखा सकते हैं। वृक्ष संग्रहीत संबंध बताता है; असामान्य गिनती को खोज के रूप में सत्यापित नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "बड़े समूहों की जाँच करें, स्वतः जैविक अर्थ न निकालें। इस उदाहरण में एक समूह में कुल तैंतीस ऑब्जेक्ट हैं। संबंध सेगमेंटेशन या अधिग्रहण की त्रुटियाँ दिखा सकते हैं। वृक्ष संग्रहीत संबंध बताता है; असामान्य गिनती को खोज के रूप में सत्यापित नहीं करता।"
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "हेडर पर क्लिक दिखाई गई संरचनाओं को क्रमबद्ध करता है, उनके संबंध नहीं बदलता। दो हज़ार मूल ऑब्जेक्ट की सीमा बनी रहती है। हमने हर दिखाई गई पहचान, हर मूल-संतान संबंध और पूरी संरचना जाँची। बदला क्रम या अधूरी दृश्य सूची, संपादित माप तालिका नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "हेडर पर क्लिक दिखाई गई संरचनाओं को क्रमबद्ध करता है, उनके संबंध नहीं बदलता। दो हज़ार मूल ऑब्जेक्ट की सीमा बनी रहती है। हमने हर दिखाई गई पहचान, हर मूल-संतान संबंध और पूरी संरचना जाँची। बदला क्रम या अधूरी दृश्य सूची, संपादित माप तालिका नहीं है।"
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open crops के लिए Annotate चाहिए, जो चित्र दिखाता है। संदेश पहले Annotate खोलने को कहता है। व्यूअर का न होना चित्र गायब होने से अलग है। क्रॉप माँगने से पहले संबंधित प्रोजेक्ट लोड करें, समान संख्याओं वाला कोई दूसरा रन नहीं।",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Open crops के लिए Annotate चाहिए, जो चित्र दिखाता है। संदेश पहले Annotate खोलने को कहता है। व्यूअर का न होना चित्र गायब होने से अलग है। क्रॉप माँगने से पहले संबंधित प्रोजेक्ट लोड करें, समान संख्याओं वाला कोई दूसरा रन नहीं।"
+          ]
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "डाउनलोड किया प्रोजेक्ट वास्तविक कोशिका क्रॉप देता है। केवल डेटाबेस वाला लिंक किया आर्काइव ये चित्र नहीं दे सकता। हम पूरा मेल खाता उदाहरण इस्तेमाल करते और हर मूल क्रॉप सुरक्षित रखते हैं। स्रोत खोलने से क्लासिफ़ायर प्रशिक्षित या नए लेबल स्थापित नहीं होते।",
-          "hold_after": 0.7,
-          "speech_text": "डाउनलोड किया प्रोजेक्ट वास्तविक कोशिका क्रॉप देता है। केवल डेटाबेस वाला लिंक किया आर्काइव ये चित्र नहीं दे सकता। हम पूरा मेल खाता उदाहरण इस्तेमाल करते और हर मूल क्रॉप सुरक्षित रखते हैं। स्रोत खोलने से क्लासिफ़ायर प्रशिक्षित या नए लेबल स्थापित नहीं होते।"
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "इस संस्करण में गंभीर सीमा है। तीन-ऑब्जेक्ट समूह खोलने पर कोशिका तीन के बाद असंबंधित कोशिका पाँच और एक दिखती हैं, माँगे गए नाभिक और pathogen के बजाय। स्रोत में केवल कोशिका क्रॉप हैं। इसे अस्वीकार करें: इन चित्रों को गायब संतानों की तरह लेबल न करें। ट्यूटोरियल यह खराबी ठीक नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "इस संस्करण में गंभीर सीमा है। तीन-ऑब्जेक्ट समूह खोलने पर कोशिका तीन के बाद असंबंधित कोशिका पाँच और एक दिखती हैं, माँगे गए नाभिक और pathogen के बजाय। स्रोत में केवल कोशिका क्रॉप हैं। इसे अस्वीकार करें: इन चित्रों को गायब संतानों की तरह लेबल न करें। ट्यूटोरियल यह खराबी ठीक नहीं करता।"
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "सत्यापित विकल्प सीमित है: Lineage लौटकर केवल मूल कोशिका पर डबल-क्लिक करें। Open crops से अलग, यह केवल मूल ऑब्जेक्ट भेजता है, पूरा समूह नहीं। Annotate वही माँगा क्रॉप दिखाता है। हमने पहचान और मूल चित्र बाइट जाँचे हैं; इससे संतान क्रॉप का समर्थन सिद्ध नहीं होता।",
-          "hold_after": 0.7,
-          "speech_text": "सत्यापित विकल्प सीमित है: Lineage लौटकर केवल मूल कोशिका पर डबल-क्लिक करें। Open crops से अलग, यह केवल मूल ऑब्जेक्ट भेजता है, पूरा समूह नहीं। Annotate वही माँगा क्रॉप दिखाता है। हमने पहचान और मूल चित्र बाइट जाँचे हैं; इससे संतान क्रॉप का समर्थन सिद्ध नहीं होता।"
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift दबाकर मूल कोशिका की थंबनेल पर क्लिक करें। मौजूदा पूर्वावलोकन बड़ा होता है, कोई वर्ग नहीं दिया जाता। Escape से ग्रिड लौटता है। इससे निरीक्षण आसान होता है, अतिरिक्त चित्र रिज़ॉल्यूशन नहीं बनता। सही इशारा करें: साधारण बायाँ क्लिक एनोटेशन करता है, यहाँ दिखाया ज़ूम नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Shift दबाकर मूल कोशिका की थंबनेल पर क्लिक करें। मौजूदा पूर्वावलोकन बड़ा होता है, कोई वर्ग नहीं दिया जाता। Escape से ग्रिड लौटता है। इससे निरीक्षण आसान होता है, अतिरिक्त चित्र रिज़ॉल्यूशन नहीं बनता। सही इशारा करें: साधारण बायाँ क्लिक एनोटेशन करता है, यहाँ दिखाया ज़ूम नहीं।"
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build tree दृश्य को ताज़ा करता है। Python में read_object_tables, build_forest और lineage_frame वही संरचना देते हैं। लिंक किए CSV में सभी सात हज़ार दो सौ एक नोड हैं, दृश्य से बाहर के समूह भी। यह API ने लिखा है, Lineage के निर्यात बटन ने नहीं, और यह जैविक सत्यापन नहीं है।",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Build tree दृश्य को ताज़ा करता है। Python में read_object_tables, build_forest और lineage_frame वही संरचना देते हैं। लिंक किए CSV में सभी सात हज़ार दो सौ एक नोड हैं, दृश्य से बाहर के समूह भी। यह API ने लिखा है, Lineage के निर्यात बटन ने नहीं, और यह जैविक सत्यापन नहीं है।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8419,173 +8403,151 @@
       "slug": "gate_editor",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "अन्वेषण",
-      "title": "Gate Editor: वास्तविक समुच्चय, बहाल किए जा सकने वाले दृश्य और सटीक निर्यात",
-      "description": "डाउनलोड किए गए कोशिका मापों पर गेट बनाएँ, सुरक्षित की गई सदस्यता जाँचें, वास्तविक त्रिआयामी और प्रक्षेपित दृश्यों की तुलना करें और जैविक लेबल गढ़े बिना सीमित दायरे में क्लस्टरिंग की जाँच करें।",
+      "section": "Tools",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "वास्तविक माप लोड करें और गेट, दृश्य फ़िल्टर तथा दृश्यता का अंतर समझें।",
-        "मापन विशेषताओं की सीमाएँ सुरक्षित करें और बहाल करें, फिर वस्तुओं की सटीक पहचान के साथ सदस्यता निर्यात करें।",
-        "त्रिआयामी सीमाओं और मुख्य घटकों को देखें, लेकिन प्रक्षेपण को दोबारा उपयोग किए जा सकने वाले फिट किए गए रूपांतरण के समान न समझें।",
-        "क्लस्टर खोज के वास्तविक परिणामों की तुलना करें और स्थानीय मापन कंसोल का उपयोग करें।"
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "पहले Annotate का उदाहरण डाउनलोड करें, फिर उसके मापन डेटाबेस की अपने काम के लिए एक अलग प्रति बनाएँ। Gate Editor में उदाहरण डाउनलोड करने का अलग बटन नहीं है। इस रिकॉर्डिंग में वास्तविक कोशिकाओं की सभी 2,341 पंक्तियाँ उपयोग की जाती हैं और निर्यात करते समय केवल उस अलग प्रति में बदलाव होता है। ट्यूटोरियल के गेट नाम जाँच के लेबल हैं, प्रमाणित जैविक पहचान नहीं।",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "Home की Tools श्रेणी में Gate Editor खोलें। विभाजकों को खींचकर प्लॉट, गेट तालिका और किनारे के नियंत्रणों के लिए पर्याप्त जगह बनाएँ। इस पाठ में Annotate से डाउनलोड किए गए माप उपयोग होते हैं; Gate Editor का अपना उदाहरण डाउनलोड बटन नहीं है।",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Home की Tools श्रेणी में गेट एडिटर खोलें। विभाजकों को खींचकर प्लॉट, गेट तालिका और किनारे के नियंत्रणों के लिए पर्याप्त जगह बनाएँ। इस पाठ में Annotate से डाउनलोड किए गए माप उपयोग होते हैं; गेट एडिटर का अपना उदाहरण डाउनलोड बटन नहीं है।"
+          ]
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Load table से measurements.db की अपने काम के लिए बनाई गई अलग प्रति खोलें। cell तालिका चुनें: इस उदाहरण में दो हज़ार तीन सौ इकतालीस वास्तविक वस्तुएँ हैं। Export gates डेटाबेस में लिखता है, इसलिए मूल उदाहरण को बिना बदले रखें और प्रति पर काम करें।",
-          "hold_after": 0.7,
-          "speech_text": "Load table से मेज़रमेंट्स डॉट डी बी की अपने काम के लिए बनाई गई अलग प्रति खोलें। cell तालिका चुनें: इस उदाहरण में दो हज़ार तीन सौ इकतालीस वास्तविक वस्तुएँ हैं। Export gates डेटाबेस में लिखता है, इसलिए मूल उदाहरण को बिना बदले रखें और प्रति पर काम करें।"
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "X के लिए cell_area और Y के लिए cell_channel_1_mean_intensity चुनें और Rectangle टूल लें। हर बिंदु एक मापी गई वस्तु को दर्शाता है। आकृति बनाने से पहले मापन विशेषताओं के नाम और इकाइयाँ जाँचें; केवल क्षेत्रफल और तीव्रता की किसी सीमा में होना किसी कोशिका को संक्रमित या किसी अन्य जैविक वर्ग का सिद्ध नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "X के लिए cell_area और Y के लिए cell_channel_1_mean_intensity चुनें और Rectangle टूल लें। हर बिंदु एक मापी गई वस्तु को दर्शाता है। आकृति बनाने से पहले मापन विशेषताओं के नाम और इकाइयाँ जाँचें; केवल क्षेत्रफल और तीव्रता की किसी सीमा में होना किसी कोशिका को संक्रमित या किसी अन्य जैविक वर्ग का सिद्ध नहीं करता।"
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "स्कैटर प्लॉट पर खींचें, छोड़ें और गेट का वर्णनात्मक नाम दर्ज करें। ट्यूटोरियल का यह समुच्चय जानबूझकर केवल जाँच का उदाहरण है। आकृति इन दो मापों में संख्यात्मक सीमाएँ दर्ज करती है; यह छवियों से कोशिकाएँ पहचानने के लिए प्रशिक्षित मॉडल नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "स्कैटर प्लॉट पर खींचें, छोड़ें और गेट का वर्णनात्मक नाम दर्ज करें। ट्यूटोरियल का यह समुच्चय जानबूझकर केवल जाँच का उदाहरण है। आकृति इन दो मापों में संख्यात्मक सीमाएँ दर्ज करती है; यह छवियों से कोशिकाएँ पहचानने के लिए प्रशिक्षित मॉडल नहीं है।"
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "खींचे गए इस क्षेत्र में छह सौ पचपन वस्तुएँ हैं, यानी तालिका का लगभग अट्ठाईस प्रतिशत। गेट के नाम के पास संख्या और प्रतिशत पढ़ें। माउस की स्थिति बदलने से सीमाएँ और संख्याएँ बदलती हैं, इसलिए हूबहू दोहराने के लिए सुरक्षित की गई गेट रणनीति का उपयोग करें।",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "खींचे गए इस क्षेत्र में छह सौ पचपन वस्तुएँ हैं, यानी तालिका का लगभग अट्ठाईस प्रतिशत। गेट के नाम के पास संख्या और प्रतिशत पढ़ें। माउस की स्थिति बदलने से सीमाएँ और संख्याएँ बदलती हैं, इसलिए हूबहू दोहराने के लिए सुरक्षित की गई गेट रणनीति का उपयोग करें।"
+          ]
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "गेट का चेक हटाने से उसकी अध्यारोपित रूपरेखा छिप जाती है, लेकिन परिभाषा मिटती नहीं और सदस्यता बदलती नहीं है। दृश्य बहाल करने के लिए फिर से चेक लगाएँ। यह Delete gate से अलग है और Filter टैब से भी अलग है, जो गेटों के नीचे दिखाई देने वाली वस्तुओं को बदलता है।",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "गेट का चेक हटाने से उसकी अध्यारोपित रूपरेखा छिप जाती है, लेकिन परिभाषा मिटती नहीं और सदस्यता बदलती नहीं है। दृश्य बहाल करने के लिए फिर से चेक लगाएँ। यह Delete gate से अलग है और Filter टैब से भी अलग है, जो गेटों के नीचे दिखाई देने वाली वस्तुओं को बदलता है।"
+          ]
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Save gates से नाम वाली मापन सीमाओं को JSON रणनीति में सुरक्षित करें। यहाँ हम पहले सुरक्षित करते हैं, फिर गेट को सचमुच मिटाते हैं और उसके बाद सुरक्षित फ़ाइल लोड करते हैं। रणनीति दोबारा उपयोग करने के लिए मापों के नाम, इकाइयाँ और पूर्व-प्रसंस्करण मेल खाने चाहिए; तालिका में उतने ही स्तंभ होना पर्याप्त नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "Save gates से नाम वाली मापन सीमाओं को JSON रणनीति में सुरक्षित करें। यहाँ हम पहले सुरक्षित करते हैं, फिर गेट को सचमुच मिटाते हैं और उसके बाद सुरक्षित फ़ाइल लोड करते हैं। रणनीति दोबारा उपयोग करने के लिए मापों के नाम, इकाइयाँ और पूर्व-प्रसंस्करण मेल खाने चाहिए; तालिका में उतने ही स्तंभ होना पर्याप्त नहीं है।"
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates उन्हीं सीमाओं और सभी छह सौ पचपन सदस्यों को बहाल करता है। हमने केवल फ़ाइल सुरक्षित करके नहीं, बल्कि गेट को सचमुच मिटाकर और दोबारा लोड करके सदस्यता जाँची है। दूसरे डेटासेट पर संख्याओं पर भरोसा करने से पहले बहाल सीमाएँ और वस्तुओं की पहचान जाँचें।",
-          "hold_after": 0.7,
-          "speech_text": "Load gates उन्हीं सीमाओं और सभी छह सौ पचपन सदस्यों को बहाल करता है। हमने केवल फ़ाइल सुरक्षित करके नहीं, बल्कि गेट को सचमुच मिटाकर और दोबारा लोड करके सदस्यता जाँची है। दूसरे डेटासेट पर संख्याओं पर भरोसा करने से पहले बहाल सीमाएँ और वस्तुओं की पहचान जाँचें।"
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
+          "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph वास्तविक ग्राफ़ को फ़ाइल में लिखता है; इस रिकॉर्डिंग की प्राथमिकताओं से एक PNG और एक PDF बनते हैं। ग्राफ़ गेट रणनीति या निर्यात की गई सदस्यता से अलग है। दिखाई गई आबादी कैसे परिभाषित की गई थी, इसे दोहराने के लिए संबंधित डेटा और रणनीति साथ रखें।",
-          "hold_after": 0.7,
-          "speech_text": "Save graph वास्तविक ग्राफ़ को फ़ाइल में लिखता है; इस रिकॉर्डिंग की प्राथमिकताओं से एक PNG और एक PDF बनते हैं। ग्राफ़ गेट रणनीति या निर्यात की गई सदस्यता से अलग है। दिखाई गई आबादी कैसे परिभाषित की गई थी, इसे दोहराने के लिए संबंधित डेटा और रणनीति साथ रखें।"
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates अलग प्रति वाले डेटाबेस की filters तालिका में सदस्यता फ़्लैग लिखता है। हमारा पहला गेट ठीक छह सौ पचपन कोशिकाओं की पहचान चिह्नित करता है, जिनका मिलान प्लेट, पंक्ति, स्तंभ, फ़ील्ड, वस्तु लेबल और वस्तु प्रकार से होता है। मूल डाउनलोड और आधारभूत कोशिका माप अपरिवर्तित रहते हैं।",
-          "hold_after": 0.7,
-          "speech_text": "Export gates अलग प्रति वाले डेटाबेस की filters तालिका में सदस्यता फ़्लैग लिखता है। हमारा पहला गेट ठीक छह सौ पचपन कोशिकाओं की पहचान चिह्नित करता है, जिनका मिलान प्लेट, पंक्ति, स्तंभ, फ़ील्ड, वस्तु लेबल और वस्तु प्रकार से होता है। मूल डाउनलोड और आधारभूत कोशिका माप अपरिवर्तित रहते हैं।"
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "पहला गेट चयनित रहते हुए दूसरी आकृति बनाएँ। इसकी दो सौ उनसठ वस्तुओं में कुछ पहले गेट के बाहर हैं: पुराने स्थिति संदेश के बावजूद, नई आकृति अपने आप पहले गेट के भीतर नेस्ट नहीं होती। इस दो-गेट रणनीति को अलग सुरक्षित करें और कोई मौजूदा पदानुक्रम लोड करते समय स्पष्ट रूप से जाँचें कि कौन-सा गेट किस गेट के अंतर्गत है।",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             520
-          ],
-          "speech_text": "पहला गेट चयनित रहते हुए दूसरी आकृति बनाएँ। इसकी दो सौ उनसठ वस्तुओं में कुछ पहले गेट के बाहर हैं: पुराने स्थिति संदेश के बावजूद, नई आकृति अपने आप पहले गेट के भीतर नेस्ट नहीं होती। इस दो-गेट रणनीति को अलग सुरक्षित करें और कोई मौजूदा पदानुक्रम लोड करते समय स्पष्ट रूप से जाँचें कि कौन-सा गेट किस गेट के अंतर्गत है।"
+          ]
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "तीन वास्तविक माप देखने के लिए 3D चुनें और Z के लिए cell_perimeter लें। घूर्णन-अक्ष के बटन घुमाने की दिशा तय करने में मदद करते हैं। घुमाने से दृश्य बदलता है, क्षेत्रफल और तीव्रता पर बने दो मौजूदा गेटों की सुरक्षित सीमाएँ नहीं; उन आकृतियों को फिर से देखने के लिए 2D पर लौटें।",
-          "hold_after": 0.7,
-          "speech_text": "तीन वास्तविक माप देखने के लिए थ्री डी चुनें और Z के लिए cell_perimeter लें। घूर्णन-अक्ष के बटन घुमाने की दिशा तय करने में मदद करते हैं। घुमाने से दृश्य बदलता है, क्षेत्रफल और तीव्रता पर बने दो मौजूदा गेटों की सुरक्षित सीमाएँ नहीं; उन आकृतियों को फिर से देखने के लिए टू डी पर लौटें।"
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view तीनों प्रदर्शित मापों की सीमाओं वाला एक नामित बॉक्स बनाता है। हमारे पूरे आयतन वाले उदाहरण में हर लोड की गई वस्तु शामिल है: यह नियंत्रण का प्रदर्शन है, किसी विशेष जैविक आबादी का अनुपात बढ़ाने वाला चयन नहीं। तीन-गेट रणनीति अलग सुरक्षित करें ताकि पहले वाली दो-गेट फ़ाइल उपलब्ध रहे।",
-          "hold_after": 0.7,
-          "speech_text": "From view तीनों प्रदर्शित मापों की सीमाओं वाला एक नामित बॉक्स बनाता है। हमारे पूरे आयतन वाले उदाहरण में हर लोड की गई वस्तु शामिल है: यह नियंत्रण का प्रदर्शन है, किसी विशेष जैविक आबादी का अनुपात बढ़ाने वाला चयन नहीं। तीन-गेट रणनीति अलग सुरक्षित करें ताकि पहले वाली दो-गेट फ़ाइल उपलब्ध रहे।"
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "xD टॉगल उपयुक्त मापों से मुख्य घटकों की गणना करता है। यह 2D या 3D दृश्य चुनने से अलग है। यहाँ स्रोत लेबल पहले तीन घटकों के लिए सत्रह, तेरह और छह प्रतिशत व्याख्यायित विचरण बताता है; ये विचरण के अंश हैं, वर्गीकरण की सटीकता नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "एक्स डी टॉगल उपयुक्त मापों से मुख्य घटकों की गणना करता है। यह टू डी या थ्री डी दृश्य चुनने से अलग है। यहाँ स्रोत लेबल पहले तीन घटकों के लिए सत्रह, तेरह और छह प्रतिशत व्याख्यायित विचरण बताता है; ये विचरण के अंश हैं, वर्गीकरण की सटीकता नहीं।"
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "xD बंद करने पर घटकों के स्तंभ बने रहते हैं; मूल मापन विशेषताओं वाले गेटों पर लौटते समय मूल अक्ष फिर से चुनें। सुरक्षित की गई गेट रणनीति डेटा पर फिट किए गए प्रक्षेपण रूपांतरण को सुरक्षित नहीं करती। केवल घटकों के नाम एक जैसे होने से स्वतंत्र रूप से फिट किए गए प्रक्षेपण संगत नहीं हो जाते, इसलिए उनकी गेट सीमाएँ बिना जाँचे दोबारा उपयोग न करें।",
-          "hold_after": 0.7,
-          "speech_text": "एक्स डी बंद करने पर घटकों के स्तंभ बने रहते हैं; मूल मापन विशेषताओं वाले गेटों पर लौटते समय मूल अक्ष फिर से चुनें। सुरक्षित की गई गेट रणनीति डेटा पर फिट किए गए प्रक्षेपण रूपांतरण को सुरक्षित नहीं करती। केवल घटकों के नाम एक जैसे होने से स्वतंत्र रूप से फिट किए गए प्रक्षेपण संगत नहीं हो जाते, इसलिए उनकी गेट सीमाएँ बिना जाँचे दोबारा उपयोग न करें।"
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "Search के लिए किनारे का पैनल चौड़ा करें और अस्थायी गेटों को सुरक्षित करने के बाद हटाएँ। वही दो मूल मापन विशेषताएँ लें, स्केलिंग चालू रखें, पड़ोसियों की न्यूनतम संख्या बीस और Walk के चरण पाँच रखें। इस संस्करण में Run walk पुष्टिकरण खोलता है; जाँचें कि उसके मान दिखाई दे रहे नियंत्रणों से मेल खाते हैं।",
-          "hold_after": 0.7,
-          "speech_text": "Search के लिए किनारे का पैनल चौड़ा करें और अस्थायी गेटों को सुरक्षित करने के बाद हटाएँ। वही दो मूल मापन विशेषताएँ लें, स्केलिंग चालू रखें, पड़ोसियों की न्यूनतम संख्या बीस और Walk के चरण पाँच रखें। इस संस्करण में Run walk पुष्टिकरण खोलता है; जाँचें कि उसके मान दिखाई दे रहे नियंत्रणों से मेल खाते हैं।"
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "वास्तविक Walk लगभग शून्य दशमलव एक छह सात की त्रिज्या चुनता है और दो समुच्चय बताता है, जिनके बाहर तैंतीस प्रतिशत वस्तुएँ हैं। बनी हुई रूपरेखाएँ जाँचें। घनत्व-आधारित क्लस्टरिंग और उससे सुरक्षित किए गए बहुभुज गेट खोजपरक विवरण हैं, न कि सत्यापित कोशिका प्रकार या इस बात का प्रमाण कि बाहर रखी गई वस्तुएँ अमान्य हैं।",
-          "hold_after": 0.7,
-          "speech_text": "वास्तविक Walk लगभग शून्य दशमलव एक छह सात की त्रिज्या चुनता है और दो समुच्चय बताता है, जिनके बाहर तैंतीस प्रतिशत वस्तुएँ हैं। बनी हुई रूपरेखाएँ जाँचें। घनत्व-आधारित क्लस्टरिंग और उससे सुरक्षित किए गए बहुभुज गेट खोजपरक विवरण हैं, न कि सत्यापित कोशिका प्रकार या इस बात का प्रमाण कि बाहर रखी गई वस्तुएँ अमान्य हैं।"
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Walk रणनीति सुरक्षित करें, उसके अस्थायी गेट हटाएँ, Walk बंद करें और शून्य दशमलव पाँच की त्रिज्या पर चलाएँ। इस अलग विकल्प से एक बड़ा बहुभुज गेट बनता है, जिसमें दो हज़ार दो सौ उनतालीस वस्तुएँ हैं। अधिक कोशिकाएँ शामिल होना अपने आप इसे बेहतर उत्तर नहीं बनाता।",
-          "hold_after": 0.7,
-          "speech_text": "Walk रणनीति सुरक्षित करें, उसके अस्थायी गेट हटाएँ, Walk बंद करें और शून्य दशमलव पाँच की त्रिज्या पर चलाएँ। इस अलग विकल्प से एक बड़ा बहुभुज गेट बनता है, जिसमें दो हज़ार दो सौ उनतालीस वस्तुएँ हैं। अधिक कोशिकाएँ शामिल होना अपने आप इसे बेहतर उत्तर नहीं बनाता।"
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "मूल मापन विशेषताओं वाली सुरक्षित दो-गेट रणनीति फिर से लोड करें, फिर Filter में cell_area जोड़ें। निचली सीमा इक्कीस हज़ार नौ सौ पच्चीस करने पर एक हज़ार एक सौ इकहत्तर वस्तुएँ दिखाई देती हैं। यह तत्काल पूर्वावलोकन सुरक्षित गेट सीमाओं को दोबारा लिखे बिना दृश्य को सीमित करता है।",
-          "hold_after": 0.7,
-          "speech_text": "मूल मापन विशेषताओं वाली सुरक्षित दो-गेट रणनीति फिर से लोड करें, फिर Filter में cell_area जोड़ें। निचली सीमा इक्कीस हज़ार नौ सौ पच्चीस करने पर एक हज़ार एक सौ इकहत्तर वस्तुएँ दिखाई देती हैं। यह तत्काल पूर्वावलोकन सुरक्षित गेट सीमाओं को दोबारा लिखे बिना दृश्य को सीमित करता है।"
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "फ़िल्टर साफ़ करें और सभी दो हज़ार तीन सौ इकतालीस वस्तुएँ फिर से दिखाई देती हैं। संख्याओं का अर्थ निकालने या निर्यात करने से पहले सक्रिय दृश्य फ़िल्टर और गेट की परिभाषा, दोनों जाँचें। अध्यारोपित रूपरेखा छिपाना, दृश्य फ़िल्टर करना और गेट मिटाना तीन अलग क्रियाएँ हैं।",
-          "hold_after": 0.7,
-          "speech_text": "फ़िल्टर साफ़ करें और सभी दो हज़ार तीन सौ इकतालीस वस्तुएँ फिर से दिखाई देती हैं। संख्याओं का अर्थ निकालने या निर्यात करने से पहले सक्रिय दृश्य फ़िल्टर और गेट की परिभाषा, दोनों जाँचें। अध्यारोपित रूपरेखा छिपाना, दृश्य फ़िल्टर करना और गेट मिटाना तीन अलग क्रियाएँ हैं।"
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
+          "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "कंसोल दिखाने के लिए सबसे दायाँ विभाजक बाईं ओर खींचें। len(df) दर्ज करें, यानी len के बाद कोष्ठकों में df: वास्तविक तालिका दो हज़ार तीन सौ इकतालीस लौटाती है। एक्सप्रेशन कंसोल स्थानीय रूप से काम करता है; यह कृत्रिम बुद्धिमत्ता मॉडल से उत्पन्न उत्तर नहीं है।",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
             320,
             740,
             1795
-          ],
-          "speech_text": "कंसोल दिखाने के लिए सबसे दायाँ विभाजक बाईं ओर खींचें। len(df) दर्ज करें, यानी len के बाद कोष्ठकों में df: वास्तविक तालिका दो हज़ार तीन सौ इकतालीस लौटाती है। एक्सप्रेशन कंसोल स्थानीय रूप से काम करता है; यह कृत्रिम बुद्धिमत्ता मॉडल से उत्पन्न उत्तर नहीं है।"
+          ]
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "चैट बॉक्स एक्सप्रेशन से अलग है। हम मसौदा बिना भेजे छोड़ देते हैं और किसी असिस्टेंट या जैविक व्याख्या का प्रदर्शन नहीं करते। Python में spacr.qt.widgets.gate_spec का GateSet परिभाषाएँ रखता है; spacr.filters के gate_mask_over_table और export_gate पूरी तालिका में वस्तुओं की सदस्यता के फ़्लैग का मूल्यांकन और संग्रह करते हैं। आगे एनोटेशन करने से पहले पहचानों की पुष्टि करें।",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8596,10 +8558,14 @@
           "related_lessons": [
             "06_api",
             "09_annotate"
-          ],
-          "speech_text": "चैट बॉक्स एक्सप्रेशन से अलग है। हम मसौदा बिना भेजे छोड़ देते हैं और किसी असिस्टेंट या जैविक व्याख्या का प्रदर्शन नहीं करते। Python में स्पेकर.क्यू टी.widgets.gate_spec का GateSet परिभाषाएँ रखता है; स्पेकर.filters के gate_mask_over_table और export_gate पूरी तालिका में वस्तुओं की सदस्यता के फ़्लैग का मूल्यांकन और संग्रह करते हैं। आगे एनोटेशन करने से पहले पहचानों की पुष्टि करें।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8607,165 +8573,155 @@
       "slug": "feature_explorer",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "अन्वेषण",
-      "title": "Feature Explorer: वास्तविक मापों की रैंकिंग और स्पष्ट तुलना",
-      "description": "Classify का उपमॉड्यूल खोलें, प्लेट की पंक्तियों के वास्तविक मापों की तुलना करें, वितरण देखें, लाइव फ़िल्टर लगाएँ, गणना वाला कॉलम जोड़ें और मनचाही रैंकिंग निर्यात करें। कोई क्लासिफ़ायर प्रशिक्षित नहीं होता।",
+      "section": "Explore",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "Classify के भीतर Feature Explorer खोलकर मौजूदा कोशिका माप लोड करना।",
-        "AUC और पृथक्करण में अंतर समझना तथा वर्गों की संख्या और वितरण जाँचना।",
-        "लाइव फ़िल्टर करते समय तुलना कॉलम के अपने आप बदलने को पहचानना।",
-        "Top सोच-समझकर चुनना, पुनःस्केल किया कॉलम जाँचना और वास्तविक रैंकिंग निर्यात करना।"
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "डाउनलोड किया हुआ Annotate उदाहरण इस्तेमाल करें, गढ़े हुए माप नहीं। रिकॉर्डिंग में 2,341 कोशिकाओं और 276 कॉलम वाले डेटाबेस की बाइट-दर-बाइट समान निजी कॉपी खुलती है। rowID के r12 और r5 समूह प्लेट की स्थानिक पंक्तियाँ हैं, स्थापित उपचार समूह नहीं। कोशिकाएँ फ़ील्ड और वेल साझा करती हैं, इसलिए स्वतंत्र प्रयोग नहीं हैं। मूल डेटा अपरिवर्तित रहता है। निर्धारित दो-वर्गीय तुलनाओं में AUC, KS, क्रम और प्रत्येक वर्ग के सीमित मानों की संख्या स्वतंत्र रूप से जाँची गई है। अपने आप चुनी गई आठ-वर्गीय तुलना चेतावनी का उदाहरण है, स्वतंत्र रूप से सत्यापित निष्कर्ष नहीं। Shuffle test बंद रहता है। यहाँ प्रशिक्षण, नया इमेज विश्लेषण, अलग डाउनलोड, GPU कार्य या AI अनुरोध नहीं होता; हिस्टोग्राम इसी मॉड्यूल के ग्राफ़ हैं।",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Classify खोलें, फिर उसके Feature Explorer बटन पर जाएँ। यह नेस्टेड टूल मौजूदा मापों की रैंकिंग करता है; इसे खोलने से क्लासिफ़ायर प्रशिक्षित नहीं होता। हम वास्तविक, डाउनलोड करने योग्य Annotate उदाहरण की निजी डेटाबेस कॉपी इस्तेमाल करते हैं। उदाहरण पाने के लिए Annotate पाठ देखें और अपना मूल प्रयोगात्मक डेटा अपरिवर्तित रखें।",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Classify खोलें, फिर उसके Feature Explorer बटन पर जाएँ। यह नेस्टेड टूल मौजूदा मापों की रैंकिंग करता है; इसे खोलने से क्लासिफ़ायर प्रशिक्षित नहीं होता। हम वास्तविक, डाउनलोड करने योग्य Annotate उदाहरण की निजी डेटाबेस कॉपी इस्तेमाल करते हैं। उदाहरण पाने के लिए Annotate पाठ देखें और अपना मूल प्रयोगात्मक डेटा अपरिवर्तित रखें।"
+          ]
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Load table चुनें, मापों का डेटाबेस और उसकी cell टेबल चुनें, फिर Split by को rowID पर रखें। यहाँ दो हज़ार तीन सौ इकतालीस कोशिकाएँ और दो सौ छिहत्तर कॉलम हैं। दोनों समूह दर्ज की गई प्लेट पंक्तियाँ हैं, स्थापित उपचार नहीं; ये कोशिकाएँ स्वतंत्र प्रयोग नहीं हैं।",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
             280,
             3460,
             370
-          ],
-          "speech_text": "Load table चुनें, मापों का डेटाबेस और उसकी cell टेबल चुनें, फिर Split by को rowID पर रखें। यहाँ दो हज़ार तीन सौ इकतालीस कोशिकाएँ और दो सौ छिहत्तर कॉलम हैं। दोनों समूह दर्ज की गई प्लेट पंक्तियाँ हैं, स्थापित उपचार नहीं; ये कोशिकाएँ स्वतंत्र प्रयोग नहीं हैं।"
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "AUC से रैंक करें और दोनों संख्यात्मक कॉलम पढ़ें। Separation, AUC के दोगुने में से एक घटाने के बाद उसका निरपेक्ष मान है। इसलिए लगभग शून्य दशमलव तीन चार पृथक्करण का अर्थ शून्य दशमलव तीन चार AUC नहीं है। Higher in दिशा बताता है; min n छोटे वर्ग के सीमित माप गिनता है, प्रयोगात्मक पुनरावृत्तियाँ नहीं।",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
             380,
             950,
             275
-          ],
-          "speech_text": "AUC से रैंक करें और दोनों संख्यात्मक कॉलम पढ़ें। Separation, AUC के दोगुने में से एक घटाने के बाद उसका निरपेक्ष मान है। इसलिए लगभग शून्य दशमलव तीन चार पृथक्करण का अर्थ शून्य दशमलव तीन चार AUC नहीं है। Higher in दिशा बताता है; min n छोटे वर्ग के सीमित माप गिनता है, प्रयोगात्मक पुनरावृत्तियाँ नहीं।"
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Top को चार पर रखकर चार ओवरले किए हुए हिस्टोग्राम देखें। हर फ़ीचर में वर्गों के बिन की सीमाएँ समान हैं और बार की ऊँचाई गिनती है। सबसे ऊँची रैंक वाला फ़ीचर अपने आप उपयोगी बायोमार्कर नहीं बनता। चेतावनी पढ़ें: वितरण अलग होने पर भी AUC फैलाव के अंतर को छोड़ सकता है।",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
             460,
             1810,
             1590
-          ],
-          "speech_text": "Top को चार पर रखकर चार ओवरले किए हुए हिस्टोग्राम देखें। हर फ़ीचर में वर्गों के बिन की सीमाएँ समान हैं और बार की ऊँचाई गिनती है। सबसे ऊँची रैंक वाला फ़ीचर अपने आप उपयोगी बायोमार्कर नहीं बनता। चेतावनी पढ़ें: वितरण अलग होने पर भी AUC फैलाव के अंतर को छोड़ सकता है।"
+          ]
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Top चार होने पर Export ranking फ़ीचर की चार पंक्तियाँ लिखता है। इस संस्करण में निर्यात Top का अनुसरण करता है, भले ही विवरण पूरी रैंकिंग का संकेत दे। यह मूल कोशिकाएँ निर्यात नहीं करता और प्रशिक्षित मॉडल नहीं सहेजता। हमने हर निर्यात किए मान की वर्तमान वास्तविक रैंकिंग से तुलना की है।",
-          "hold_after": 0.7,
-          "speech_text": "Top चार होने पर Export ranking फ़ीचर की चार पंक्तियाँ लिखता है। इस संस्करण में निर्यात Top का अनुसरण करता है, भले ही विवरण पूरी रैंकिंग का संकेत दे। यह मूल कोशिकाएँ निर्यात नहीं करता और प्रशिक्षित मॉडल नहीं सहेजता। हमने हर निर्यात किए मान की वर्तमान वास्तविक रैंकिंग से तुलना की है।"
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "इस उदाहरण के सभी स्कोर किए फ़ीचर निर्यात करने से पहले Top को पाँच सौ पर रखें। दो सौ इकसठ फ़ीचर स्कोर किए जा सकते हैं; दो संख्यात्मक उम्मीदवार नहीं। निर्यात में पूरी दो सौ इकसठ पंक्तियाँ हैं, जबकि स्क्रीन अधिकतम आठ वितरण बनाती है। फ़ीचर संख्या, टेबल की पंक्तियाँ और ग्राफ़ पैनल अलग-अलग मात्राएँ हैं।",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             1650
-          ],
-          "speech_text": "इस उदाहरण के सभी स्कोर किए फ़ीचर निर्यात करने से पहले Top को पाँच सौ पर रखें। दो सौ इकसठ फ़ीचर स्कोर किए जा सकते हैं; दो संख्यात्मक उम्मीदवार नहीं। निर्यात में पूरी दो सौ इकसठ पंक्तियाँ हैं, जबकि स्क्रीन अधिकतम आठ वितरण बनाती है। फ़ीचर संख्या, टेबल की पंक्तियाँ और ग्राफ़ पैनल अलग-अलग मात्राएँ हैं।"
+          ]
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Rank by को KS पर बदलकर संचयी वितरणों के बीच सबसे बड़ा अंतर देखें, फिर AUC पर लौटें। KS उन वितरण अंतरों को दिखा सकता है जिन्हें AUC छोड़ दे, लेकिन स्वयं दिशा नहीं बताता। अन्य आँकड़ों की भी सीमाएँ हैं; रैंक को सांख्यिकीय सार्थकता की जाँच मानने के बजाय स्क्रीन की चेतावनी पढ़ें।",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             400
-          ],
-          "speech_text": "Rank by को KS पर बदलकर संचयी वितरणों के बीच सबसे बड़ा अंतर देखें, फिर AUC पर लौटें। KS उन वितरण अंतरों को दिखा सकता है जिन्हें AUC छोड़ दे, लेकिन स्वयं दिशा नहीं बताता। अन्य आँकड़ों की भी सीमाएँ हैं; रैंक को सांख्यिकीय सार्थकता की जाँच मानने के बजाय स्क्रीन की चेतावनी पढ़ें।"
+          ]
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Filter में cell_area जोड़ें और न्यूनतम इक्कीस हज़ार नौ सौ पच्चीस रखें। दिखाई देने वाला समूह एक हज़ार एक सौ इकहत्तर कोशिकाओं का हो जाता है और दो सौ पचपन फ़ीचर स्कोर योग्य रहते हैं। माध्यिका पर आधारित यह प्रदर्शन सीमा जैविक गुणवत्ता की कटऑफ़ नहीं है। इमेज दोबारा मापे बिना रैंकिंग और वितरण बदलते हैं।",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             420
-          ],
-          "speech_text": "Filter में cell_area जोड़ें और न्यूनतम इक्कीस हज़ार नौ सौ पच्चीस रखें। दिखाई देने वाला समूह एक हज़ार एक सौ इकहत्तर कोशिकाओं का हो जाता है और दो सौ पचपन फ़ीचर स्कोर योग्य रहते हैं। माध्यिका पर आधारित यह प्रदर्शन सीमा जैविक गुणवत्ता की कटऑफ़ नहीं है। इमेज दोबारा मापे बिना रैंकिंग और वितरण बदलते हैं।"
+          ]
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all प्रदर्शन के फ़िल्टर हटाता है, डेटा नहीं। सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ और मूल रैंकिंग वापस आते हैं। फ़िल्टर बदलते समय समूह और Split by फिर जाँचें। फ़िल्टर के बाद बदलने वाला अंतर किसी अलग चुने हुए समूह को बताता है, नए प्रयोग को नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "Clear all प्रदर्शन के फ़िल्टर हटाता है, डेटा नहीं। सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ और मूल रैंकिंग वापस आते हैं। फ़िल्टर बदलते समय समूह और Split by फिर जाँचें। फ़िल्टर के बाद बदलने वाला अंतर किसी अलग चुने हुए समूह को बताता है, नए प्रयोग को नहीं।"
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "इस संस्करण में एक महत्वपूर्ण जाल है। rowID को r12 तक फ़िल्टर करने से दूसरी पंक्ति हटती है, लेकिन स्क्रीन बिना बताए Split by को cell_channel_0_maxima_count कर देती है। अब आठ समूहों की तुलना है और सबसे छोटे में केवल एक ऑब्जेक्ट है। ये प्रभावशाली स्कोर मूल पंक्तियों की तुलना या जैविक खोज का प्रमाण नहीं हैं।",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             400
-          ],
-          "speech_text": "इस संस्करण में एक महत्वपूर्ण जाल है। rowID को r12 तक फ़िल्टर करने से दूसरी पंक्ति हटती है, लेकिन स्क्रीन बिना बताए Split by को cell_channel_0_maxima_count कर देती है। अब आठ समूहों की तुलना है और सबसे छोटे में केवल एक ऑब्जेक्ट है। ये प्रभावशाली स्कोर मूल पंक्तियों की तुलना या जैविक खोज का प्रमाण नहीं हैं।"
+          ]
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "फ़िल्टर साफ़ करें और rowID को स्पष्ट रूप से दोबारा चुनें। केवल साफ़ करना मूल तुलना को हमेशा वापस नहीं लाता। निर्यात से पहले वर्ग कॉलम और समूह दोनों जाँचें। Shuffle test पचास लेबल शफ़ल देता है, लेकिन हम इसे बंद रखते हैं: इन सहसंबद्ध कोशिकाओं को स्वतंत्र रूप से शफ़ल करने से वेल या उपचार स्तर का प्रमाण स्थापित नहीं होता।",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             275
-          ],
-          "speech_text": "फ़िल्टर साफ़ करें और rowID को स्पष्ट रूप से दोबारा चुनें। केवल साफ़ करना मूल तुलना को हमेशा वापस नहीं लाता। निर्यात से पहले वर्ग कॉलम और समूह दोनों जाँचें। Shuffle test पचास लेबल शफ़ल देता है, लेकिन हम इसे बंद रखते हैं: इन सहसंबद्ध कोशिकाओं को स्वतंत्र रूप से शफ़ल करने से वेल या उपचार स्तर का प्रमाण स्थापित नहीं होता।"
+          ]
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Columns खोलें और नए कॉलम का नाम area_k रखें। cell_area को वन ई थ्री, यानी एक हज़ार, से भाग देने का सूत्र डालें और प्रतिस्थापन बंद रखकर Add column चुनें। इससे क्षेत्रफल का स्केल बदलता है; भौतिक इकाइयों का अंशांकन या नया माप नहीं जुड़ता। Preview पहली दो हज़ार पंक्तियाँ जाँचता है; कॉलम जोड़ने पर सूत्र पूरी टेबल पर लागू होता है।",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             1030
-          ],
-          "speech_text": "Columns खोलें और नए कॉलम का नाम area_k रखें। cell_area को वन ई थ्री, यानी एक हज़ार, से भाग देने का सूत्र डालें और प्रतिस्थापन बंद रखकर Add column चुनें। इससे क्षेत्रफल का स्केल बदलता है; भौतिक इकाइयों का अंशांकन या नया माप नहीं जुड़ता। Preview पहली दो हज़ार पंक्तियाँ जाँचता है; कॉलम जोड़ने पर सूत्र पूरी टेबल पर लागू होता है।"
+          ]
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "पुनःस्केल किया कॉलम रैंकिंग और निर्यात में जुड़ता है, जिससे दो सौ बासठ फ़ीचर स्कोर होते हैं। उसके AUC और KS, cell_area जैसे हैं क्योंकि सकारात्मक स्केलिंग क्रम बनाए रखती है। हमने हर गणना किया मान जाँचा है। सूत्र हटाकर मूल दो सौ इकसठ फ़ीचर पर लौटें; मापों का डेटाबेस अपरिवर्तित रहता है।",
-          "hold_after": 0.7,
-          "speech_text": "पुनःस्केल किया कॉलम रैंकिंग और निर्यात में जुड़ता है, जिससे दो सौ बासठ फ़ीचर स्कोर होते हैं। उसके AUC और KS, cell_area जैसे हैं क्योंकि सकारात्मक स्केलिंग क्रम बनाए रखती है। हमने हर गणना किया मान जाँचा है। सूत्र हटाकर मूल दो सौ इकसठ फ़ीचर पर लौटें; मापों का डेटाबेस अपरिवर्तित रहता है।"
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "इन रैंकिंग का उपयोग वर्णनात्मक खोज के लिए करें, चुने फ़ीचर या प्रशिक्षित क्लासिफ़ायर के स्वतंत्र सत्यापन के लिए नहीं। Python में spacr.qt.widgets.feature_rank, rank_features और ExplorerSpec देता है। मूल टेबल या अन्य तुलनाएँ देखने के लिए Database Browser और Graph Builder पर जाएँ। कोई नई इमेज-विश्लेषण पाइपलाइन या AI अनुरोध नहीं चला।",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "58_graph_builder"
-          ],
-          "speech_text": "इन रैंकिंग का उपयोग वर्णनात्मक खोज के लिए करें, चुने फ़ीचर या प्रशिक्षित क्लासिफ़ायर के स्वतंत्र सत्यापन के लिए नहीं। Python में स्पेकर.क्यू टी.widgets.feature_rank, rank_features और ExplorerSpec देता है। मूल टेबल या अन्य तुलनाएँ देखने के लिए Database Browser और Graph Builder पर जाएँ। कोई नई इमेज-विश्लेषण पाइपलाइन या AI अनुरोध नहीं चला।"
+          ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8773,210 +8729,193 @@
       "slug": "outliers",
       "series": 5,
       "app_key": "outliers",
-      "section": "अन्वेषण",
-      "title": "Outliers: अवलोकन हटाए बिना वास्तविक फ़्लैग जाँचें",
-      "description": "QC के भीतर Outliers खोलें, वास्तविक कोशिका मापों पर मज़बूत नियमों की तुलना करें, बिना मूल्यांकन वाले वेल को समस्या-मुक्त वेल से अलग समझें, वास्तविक लॉग रूपांतरण की अस्वीकृति देखें और सभी पंक्तियाँ फ़्लैग सहित निर्यात करें।",
+      "section": "Explore",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "QC उपमॉड्यूल ढूँढ़कर Scan से पहले मापे गए फ़ीचर सोच-समझकर चुनना।",
-        "MAD, IQR और स्पष्ट लॉग रूपांतरणों की तुलना करना, बिना फ़्लैग को पुष्ट त्रुटि मान लिए।",
-        "ऑब्जेक्ट संख्या, दिखाई गई पंक्तियों और बिना मूल्यांकन वाली वेल तुलना में अंतर करना।",
-        "मूल मापों को फ़्लैग सहित निर्यात करना और अमान्य रूपांतरण के बाद सुरक्षित रूप से लौटना।"
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "डाउनलोड योग्य Annotate उदाहरण की बाइट-दर-बाइट समान निजी डेटाबेस कॉपी इस्तेमाल करें। उसकी 2,341 कोशिकाएँ चार दर्ज वेल में हैं; वे स्वतंत्र प्रयोग या ज्ञात खराब ऑब्जेक्ट नहीं हैं। मूल माप कभी संपादित या हटाए नहीं जाते। पाठ एक सीमित, गैर-विकृत फ़ीचर के MAD/IQR गणित, हर ऑब्जेक्ट की फ़्लैग स्थिति, वेल माध्यिकाओं और गिनतियों तथा पाँच से कम वेल की तुलना न करने को स्वतंत्र रूप से जाँचता है। सभी फ़ीचर के स्वतः स्कैन, शून्य स्केल के वैकल्पिक उपाय, बहुचर MCD निष्कर्ष या जैविक गुणवत्ता का सत्यापन नहीं करता। यह मौजूदा माप तालिका का स्कैन है, नया इमेज विभाजन, GPU विश्लेषण या क्लासिफ़ायर प्रशिक्षण नहीं। इस स्क्रीन में इमेज प्रीव्यू, Plot स्विच, अलग उदाहरण डाउनलोडर या AI कंसोल नहीं है; Objects, Wells और Report वास्तविक आउटपुट हैं।",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "Home से QC खोलें, फिर उसका Outliers बटन चुनें। QC का डैशबोर्ड सहेजी गई जाँचें पढ़ता है, जबकि यह नेस्टेड टूल माप तालिका से फ़्लैग गणना करता है। हम वास्तविक डाउनलोड योग्य Annotate उदाहरण की निजी डेटाबेस कॉपी इस्तेमाल करते हैं। उदाहरण के लिए वह पाठ देखें और अपना मूल प्रयोगात्मक डेटा अपरिवर्तित रखें।",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "54_qc_dashboard"
-          ],
-          "speech_text": "Home से QC खोलें, फिर उसका Outliers बटन चुनें। QC का डैशबोर्ड सहेजी गई जाँचें पढ़ता है, जबकि यह नेस्टेड टूल माप तालिका से फ़्लैग गणना करता है। हम वास्तविक डाउनलोड योग्य Annotate उदाहरण की निजी डेटाबेस कॉपी इस्तेमाल करते हैं। उदाहरण के लिए वह पाठ देखें और अपना मूल प्रयोगात्मक डेटा अपरिवर्तित रखें।"
+          ]
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Load table और डेटाबेस की cell टेबल चुनें। लोड करते समय सभी चुने हुए सतत फ़ीचर अपने आप स्कैन होते हैं: यहाँ दो हज़ार तीन सौ इकतालीस कोशिकाओं पर दो सौ पचपन फ़ीचर हैं। यह व्यापक डिफ़ॉल्ट दो हज़ार तीन सौ अड़तीस ऑब्जेक्ट चिह्नित करता है। इससे यह सिद्ध नहीं होता कि लगभग सारी कोशिकाएँ खराब हैं। चौड़ी परिणाम तालिका लोड होने में समय लग सकता है।",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Load table और डेटाबेस की cell टेबल चुनें। लोड करते समय सभी चुने हुए सतत फ़ीचर अपने आप स्कैन होते हैं: यहाँ दो हज़ार तीन सौ इकतालीस कोशिकाओं पर दो सौ पचपन फ़ीचर हैं। यह व्यापक डिफ़ॉल्ट दो हज़ार तीन सौ अड़तीस ऑब्जेक्ट चिह्नित करता है। इससे यह सिद्ध नहीं होता कि लगभग सारी कोशिकाएँ खराब हैं। चौड़ी परिणाम तालिका लोड होने में समय लग सकता है।"
+          ]
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "फ़ीचर खोज खाली रखकर None चुनें, ताकि सबका चयन हट जाए। cell_area खोजें, केवल वही सटीक फ़ीचर चुनें और Scan दबाएँ। खोज फ़ीचर नाम सीमित करती है, कोशिकाओं की पंक्तियाँ नहीं। चयन बदलने से स्कैन अपने आप दोबारा नहीं होता; नया नियम चलाने तक पुराना परिणाम दिखाई दे सकता है।",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
             455,
             390,
             1595
-          ],
-          "speech_text": "फ़ीचर खोज खाली रखकर None चुनें, ताकि सबका चयन हट जाए। cell_area खोजें, केवल वही सटीक फ़ीचर चुनें और Scan दबाएँ। खोज फ़ीचर नाम सीमित करती है, कोशिकाओं की पंक्तियाँ नहीं। चयन बदलने से स्कैन अपने आप दोबारा नहीं होता; नया नियम चलाने तक पुराना परिणाम दिखाई दे सकता है।"
+          ]
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "MAD के लिए रूपांतरण none और k तीन दशमलव पाँच रखें। नियम माध्यिका से निरपेक्ष दूरी को, माध्यिका निरपेक्ष विचलन के लगभग एक दशमलव चार आठ दो छह गुने से भाग देता है। छब्बीस कोशिकाएँ चिह्नित होती हैं। ये निरीक्षण की उम्मीदवार हैं, पुष्ट विभाजन त्रुटियाँ नहीं; कोई पंक्ति हटाई नहीं गई है।",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "MAD के लिए रूपांतरण none और k तीन दशमलव पाँच रखें। नियम माध्यिका से निरपेक्ष दूरी को, माध्यिका निरपेक्ष विचलन के लगभग एक दशमलव चार आठ दो छह गुने से भाग देता है। छब्बीस कोशिकाएँ चिह्नित होती हैं। ये निरीक्षण की उम्मीदवार हैं, पुष्ट विभाजन त्रुटियाँ नहीं; कोई पंक्ति हटाई नहीं गई है।"
+          ]
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Wells खोलें। चारों वेल में पाँच सौ से अधिक ऑब्जेक्ट हैं, लेकिन किसी का मूल्यांकन नहीं हुआ: वेल तुलना के लिए कम से कम पाँच पात्र वेल चाहिए। केवल Wells शून्य न देखें, well_scored और विशिष्ट कारण पढ़ें। Flagged share ऑब्जेक्ट फ़्लैग का सार है; यह वेल-स्तरीय स्कोर या वेल के समस्या-मुक्त होने का प्रमाण नहीं है।",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "Wells खोलें। चारों वेल में पाँच सौ से अधिक ऑब्जेक्ट हैं, लेकिन किसी का मूल्यांकन नहीं हुआ: वेल तुलना के लिए कम से कम पाँच पात्र वेल चाहिए। केवल Wells शून्य न देखें, well_scored और विशिष्ट कारण पढ़ें। Flagged share ऑब्जेक्ट फ़्लैग का सार है; यह वेल-स्तरीय स्कोर या वेल के समस्या-मुक्त होने का प्रमाण नहीं है।"
+          ]
         },
         {
           "visual": "08_area_report",
-          "narration": "Report नियम, मापा गया केंद्र, स्केल और सावधानियाँ देता है। इस संस्करण की एक सावधानी गलत कहती है कि चार वेल में बीस से कम ऑब्जेक्ट थे। वास्तविक गिनतियाँ पाँच सौ एक से सात सौ हैं; कारण वेल की कम संख्या है। वेल तालिका का विशिष्ट कारण इस्तेमाल करें और गलत गिनती वाली व्याख्या न दोहराएँ।",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "Report नियम, मापा गया केंद्र, स्केल और सावधानियाँ देता है। इस संस्करण की एक सावधानी गलत कहती है कि चार वेल में बीस से कम ऑब्जेक्ट थे। वास्तविक गिनतियाँ पाँच सौ एक से सात सौ हैं; कारण वेल की कम संख्या है। वेल तालिका का विशिष्ट कारण इस्तेमाल करें और गलत गिनती वाली व्याख्या न दोहराएँ।"
+          ]
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "अधिक दूरी की शर्त कम ऑब्जेक्ट चिह्नित करती है। k को दो तक घटाने पर एक सौ बयालीस फ़्लैग मिले; शून्य दशमलव पाँच पर एक हज़ार चार सौ उनासी मिलते हैं। आखिरी सेटिंग प्रदर्शन के लिए जानबूझकर व्यापक है, सुझाया गुणवत्ता कटऑफ़ नहीं। ऑब्जेक्ट तालिका केवल पाँच सौ पंक्तियाँ दिखाती है, इसलिए उसकी पंक्ति संख्या कुल फ़्लैग संख्या नहीं है।",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "अधिक दूरी की शर्त कम ऑब्जेक्ट चिह्नित करती है। k को दो तक घटाने पर एक सौ बयालीस फ़्लैग मिले; शून्य दशमलव पाँच पर एक हज़ार चार सौ उनासी मिलते हैं। आखिरी सेटिंग प्रदर्शन के लिए जानबूझकर व्यापक है, सुझाया गुणवत्ता कटऑफ़ नहीं। ऑब्जेक्ट तालिका केवल पाँच सौ पंक्तियाँ दिखाती है, इसलिए उसकी पंक्ति संख्या कुल फ़्लैग संख्या नहीं है।"
+          ]
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Export और नया फ़ाइल नाम चुनें। objects CSV दो हज़ार तीन सौ इकतालीस की सभी पंक्तियाँ रखकर फ़्लैग जोड़ता है; flagged में एक हज़ार चार सौ उनासी चिह्नित पंक्तियाँ होती हैं। Wells में चार सारांश हैं और report टेक्स्ट फ़ाइल है। हर निर्यात किए माप और फ़्लैग की जाँच हुई है। निर्यात डेटा हटाना नहीं है और पाँच सौ दिख रही पंक्तियों तक सीमित नहीं है।",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Export और नया फ़ाइल नाम चुनें। objects CSV दो हज़ार तीन सौ इकतालीस की सभी पंक्तियाँ रखकर फ़्लैग जोड़ता है; flagged में एक हज़ार चार सौ उनासी चिह्नित पंक्तियाँ होती हैं। Wells में चार सारांश हैं और report टेक्स्ट फ़ाइल है। हर निर्यात किए माप और फ़्लैग की जाँच हुई है। निर्यात डेटा हटाना नहीं है और पाँच सौ दिख रही पंक्तियों तक सीमित नहीं है।"
+          ]
         },
         {
           "visual": "13_area_iqr",
-          "narration": "मूल नियम वापस लाएँ, फिर IQR चुनें। अब सीमा का अर्थ अंतरचतुर्थक परास का c गुना है, मज़बूत मानक विचलन नहीं। c एक दशमलव पाँच होने पर कच्चे कोशिका क्षेत्रफल में पचपन फ़्लैग मिलते हैं। हमने दोनों सीमाएँ और हर चिह्नित स्थिति स्वतंत्र रूप से जाँची हैं। असममित वितरण की पूँछ वैध मापों के बावजूद चिह्नित हो सकती है।",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "मूल नियम वापस लाएँ, फिर IQR चुनें। अब सीमा का अर्थ अंतरचतुर्थक परास का c गुना है, मज़बूत मानक विचलन नहीं। c एक दशमलव पाँच होने पर कच्चे कोशिका क्षेत्रफल में पचपन फ़्लैग मिलते हैं। हमने दोनों सीमाएँ और हर चिह्नित स्थिति स्वतंत्र रूप से जाँची हैं। असममित वितरण की पूँछ वैध मापों के बावजूद चिह्नित हो सकती है।"
+          ]
         },
         {
           "visual": "14_iqr_report",
-          "narration": "एक और शब्दांकन त्रुटि है। यह IQR रिपोर्ट बाईस हज़ार छह सौ तिरसठ को माध्यिका कहती है, लेकिन वह पहले और तीसरे चतुर्थक का मध्यबिंदु है। असली माध्यिका इक्कीस हज़ार नौ सौ पच्चीस है। जाँची हुई सीमाएँ सही हैं, पर दिखाए गए केंद्र को माध्यिका के रूप में उद्धृत न करें।",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "एक और शब्दांकन त्रुटि है। यह IQR रिपोर्ट बाईस हज़ार छह सौ तिरसठ को माध्यिका कहती है, लेकिन वह पहले और तीसरे चतुर्थक का मध्यबिंदु है। असली माध्यिका इक्कीस हज़ार नौ सौ पच्चीस है। जाँची हुई सीमाएँ सही हैं, पर दिखाए गए केंद्र को माध्यिका के रूप में उद्धृत न करें।"
+          ]
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "log10 स्पष्ट रूप से चुनें और फिर स्कैन करें। इन सकारात्मक क्षेत्रफलों पर IQR उनासी फ़्लैग देता है; MAD तीन दशमलव पाँच पर लौटने से छत्तीस मिलते हैं। लॉग रूपांतरण दूरी और प्रश्न बदलता है; यह कम फ़्लैग या जैविक शुद्धता की गारंटी नहीं देता। रिपोर्ट के केंद्र और स्केल अब log10 इकाइयों में हैं।",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "log10 स्पष्ट रूप से चुनें और फिर स्कैन करें। इन सकारात्मक क्षेत्रफलों पर IQR उनासी फ़्लैग देता है; MAD तीन दशमलव पाँच पर लौटने से छत्तीस मिलते हैं। लॉग रूपांतरण दूरी और प्रश्न बदलता है; यह कम फ़्लैग या जैविक शुद्धता की गारंटी नहीं देता। रिपोर्ट के केंद्र और स्केल अब log10 इकाइयों में हैं।"
+          ]
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "वास्तविक अस्वीकृति के लिए बिना रूपांतरण पर लौटें और केवल cell_channel_0_min_intensity चुनें। Scan सफल होता है और अड़सठ ऑब्जेक्ट चिह्नित करता है। एक मापा हुआ मान सचमुच शून्य है। यह सकारात्मक उदाहरण महत्वपूर्ण है: उस मान को बाहर रखने वाला रूपांतरण माँगने से पहले तालिका और फ़ीचर काम करते हैं।",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1700,
             315
-          ],
-          "speech_text": "वास्तविक अस्वीकृति के लिए बिना रूपांतरण पर लौटें और केवल cell_channel_0_min_intensity चुनें। Scan सफल होता है और अड़सठ ऑब्जेक्ट चिह्नित करता है। एक मापा हुआ मान सचमुच शून्य है। यह सकारात्मक उदाहरण महत्वपूर्ण है: उस मान को बाहर रखने वाला रूपांतरण माँगने से पहले तालिका और फ़ीचर काम करते हैं।"
+          ]
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "अब log10 चुनकर Scan दबाएँ। वास्तविक त्रुटि उस एक शून्य या नकारात्मक मान और उसके फ़ीचर का नाम देती है। कोई काल्पनिक छद्म-गिनती नहीं जोड़ी जाती और कोई ऑब्जेक्ट नहीं हटता; Export निष्क्रिय है। विफलता के बाद पुरानी पंक्तियाँ और गिनती दिखाई दे सकती हैं, लेकिन वे नए सफल परिणाम नहीं हैं। त्रुटि पढ़ें और वैध नियम वापस लाएँ।",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
             375,
             3540,
             230
-          ],
-          "speech_text": "अब log10 चुनकर Scan दबाएँ। वास्तविक त्रुटि उस एक शून्य या नकारात्मक मान और उसके फ़ीचर का नाम देती है। कोई काल्पनिक छद्म-गिनती नहीं जोड़ी जाती और कोई ऑब्जेक्ट नहीं हटता; Export निष्क्रिय है। विफलता के बाद पुरानी पंक्तियाँ और गिनती दिखाई दे सकती हैं, लेकिन वे नए सफल परिणाम नहीं हैं। त्रुटि पढ़ें और वैध नियम वापस लाएँ।"
+          ]
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "कच्चे cell_area और MAD तीन दशमलव पाँच पर लौटकर स्कैन करें, ताकि मूल छब्बीस फ़्लैग मिलें। Min objects per well को सात सौ करने से पात्रता बदलती है: केवल एक वेल उस गिनती तक पहुँचता है; बाकी तीन में स्पष्ट कम-गिनती कारण बने रहते हैं। न्यूनतम घटाने से गायब पाँचवाँ वेल नहीं बनता। बिना मूल्यांकन का अर्थ कभी भी समस्या-मुक्त घोषित होना नहीं है।",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "कच्चे cell_area और MAD तीन दशमलव पाँच पर लौटकर स्कैन करें, ताकि मूल छब्बीस फ़्लैग मिलें। Min objects per well को सात सौ करने से पात्रता बदलती है: केवल एक वेल उस गिनती तक पहुँचता है; बाकी तीन में स्पष्ट कम-गिनती कारण बने रहते हैं। न्यूनतम घटाने से गायब पाँचवाँ वेल नहीं बनता। बिना मूल्यांकन का अर्थ कभी भी समस्या-मुक्त घोषित होना नहीं है।"
+          ]
         },
         {
           "visual": "22_objects_only",
-          "narration": "न्यूनतम बीस पर लौटाएँ, Score wells too बंद करें और स्कैन करें। ऑब्जेक्ट फ़्लैग छब्बीस रहते हैं और वेल तुलना माँगी नहीं जाती। इसे फिर चालू कर स्कैन करने से चार बिना मूल्यांकन वाले वेल सारांश लौटते हैं। यह सेटिंग विश्लेषण का स्तर बदलती है; डेटाबेस से कोशिकाएँ या वेल छाँटती या हटाती नहीं है।",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "न्यूनतम बीस पर लौटाएँ, Score wells too बंद करें और स्कैन करें। ऑब्जेक्ट फ़्लैग छब्बीस रहते हैं और वेल तुलना माँगी नहीं जाती। इसे फिर चालू कर स्कैन करने से चार बिना मूल्यांकन वाले वेल सारांश लौटते हैं। यह सेटिंग विश्लेषण का स्तर बदलती है; डेटाबेस से कोशिकाएँ या वेल छाँटती या हटाती नहीं है।"
+          ]
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "वापस लाए नियम को दूसरे फ़ाइल नाम से निर्यात करें। अंतिम फ़ाइलों में दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट पंक्तियाँ, छब्बीस चिह्नित पंक्तियाँ, चार वेल सारांश और रिपोर्ट हैं। मूल और निजी दोनों माप डेटाबेस अपरिवर्तित हैं। नियम और रिपोर्ट फ़्लैग के साथ रखें, ताकि अलग सीमा को वही विश्लेषण न समझ लिया जाए।",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "वापस लाए नियम को दूसरे फ़ाइल नाम से निर्यात करें। अंतिम फ़ाइलों में दो हज़ार तीन सौ इकतालीस ऑब्जेक्ट पंक्तियाँ, छब्बीस चिह्नित पंक्तियाँ, चार वेल सारांश और रिपोर्ट हैं। मूल और निजी दोनों माप डेटाबेस अपरिवर्तित हैं। नियम और रिपोर्ट फ़्लैग के साथ रखें, ताकि अलग सीमा को वही विश्लेषण न समझ लिया जाए।"
+          ]
         },
         {
           "visual": "method_choices_mad",
-          "narration": "मेनू में मज़बूत बहुचर Mahalanobis भी है, जिसे इस पाठ में नहीं चलाया गया। इसका अल्फ़ा वितरण संबंधी धारणाओं पर निर्भर है और त्रुटि दर की गारंटी नहीं है। Python में वास्तविक गणना spacr.qt.widgets.outlier_model के detect_outliers और OutlierSpec से होती है। वितरण या इमेज देखने के लिए Feature Explorer या Annotate पर जाएँ; यहाँ इमेज प्रीव्यू या AI अनुरोध नहीं हुआ।",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8988,11 +8927,15 @@
             1785,
             395,
             155
-          ],
-          "speech_text": "मेनू में मज़बूत बहुचर Mahalanobis भी है, जिसे इस पाठ में नहीं चलाया गया। इसका अल्फ़ा वितरण संबंधी धारणाओं पर निर्भर है और त्रुटि दर की गारंटी नहीं है। Python में वास्तविक गणना स्पेकर.क्यू टी.widgets.outlier_model के detect_outliers और OutlierSpec से होती है। वितरण या इमेज देखने के लिए Feature Explorer या Annotate पर जाएँ; यहाँ इमेज प्रीव्यू या AI अनुरोध नहीं हुआ।"
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -9000,222 +8943,205 @@
       "slug": "experiment_design",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "डिज़ाइन",
-      "title": "Experiment Design: दोहराई जा सकने वाली प्लेट योजना और सटीक निर्यात",
-      "description": "वास्तविक नियंत्रणों से प्रस्तावित प्लेट व्यवस्था बदलें, क्षमता और प्रतिकृति की चेतावनियाँ देखें, यादृच्छिक आवंटन दोहराएँ और सटीक वेल मानचित्र निर्यात करें।",
+      "section": "Data",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "डेटा एकत्र करने से पहले प्रयोग की स्थितियाँ और नियंत्रणों की भूमिकाएँ तय करें।",
-        "चेतावनी और सुधार की अवस्थाएँ दिखाएँ, लेकिन व्यवस्था की जाँच को जैविक सत्यापन न मानें।",
-        "वही यादृच्छिक व्यवस्था दोहराएँ और चयनित वेल को आवंटित स्थितियों से अलग समझें।",
-        "जब पंक्ति या स्तंभ की सेटिंग योजना व्यक्त न कर सके, तब सटीक वेल तालिका निर्यात करके सुरक्षित रखें।"
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "इस योजना मॉड्यूल के लिए पहले से ली गई छवियाँ या डाउनलोड किया गया डेटासेट आवश्यक नहीं है। रिकॉर्डिंग में ऐप का वास्तविक प्रारूप है: छह नकारात्मक नियंत्रण वेल, छह सकारात्मक नियंत्रण वेल और बारह उपचार वेल; इसका नाम tutorial_plan है। ये संख्याएँ इंटरफ़ेस समझाने के लिए हैं, न कि सांख्यिकीय शक्ति की गणना या किसी किए गए प्रयोग का परिणाम।",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "डेटा एकत्र करने से पहले Home की Data श्रेणी में Experiment Design खोलें। यह मॉड्यूल प्रस्तावित प्लेट व्यवस्था बनाता है, मापे गए जैविक परिणाम नहीं। हमारे negative, positive और treatment नाम प्रारंभिक लेबल हैं; अपने प्रयोग के लिए अर्थपूर्ण नाम और नियंत्रण चुनें।",
-          "hold_after": 0.7,
-          "speech_text": "डेटा एकत्र करने से पहले Home की Data श्रेणी में Experiment Design खोलें। यह मॉड्यूल प्रस्तावित प्लेट व्यवस्था बनाता है, मापे गए जैविक परिणाम नहीं। हमारे negative, positive और treatment नाम प्रारंभिक लेबल हैं; अपने प्रयोग के लिए अर्थपूर्ण नाम और नियंत्रण चुनें।"
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "प्लेट को ऐसा नाम दें जिसका पहचानकर्ता बाद में छवियों और मापों से मेल खाए। यदि तालिका का स्तंभ सँकरा हो, तो सामग्री के अनुसार चौड़ाई करने के लिए उसके शीर्षक की सीमा पर डबल-क्लिक करें। Condition, Replicates और Role को साथ देखें। उदाहरण के छह, छह और बारह वेल इंटरफ़ेस दिखाते हैं, उचित नमूना आकार सिद्ध नहीं करते।",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
-          ],
-          "speech_text": "प्लेट को ऐसा नाम दें जिसका पहचानकर्ता बाद में छवियों और मापों से मेल खाए। यदि तालिका का स्तंभ सँकरा हो, तो सामग्री के अनुसार चौड़ाई करने के लिए उसके शीर्षक की सीमा पर डबल-क्लिक करें। Condition, Replicates और Role को साथ देखें। उदाहरण के छह, छह और बारह वेल इंटरफ़ेस दिखाते हैं, उचित नमूना आकार सिद्ध नहीं करते।"
+          ]
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "चौबीस वेल माँगते हुए छह-वेल प्रारूप चुनने पर क्षमता की त्रुटि आती है। मानचित्र अतिरिक्त प्रतिकृतियाँ चुपचाप हटा नहीं देता। संदेश पढ़ें और प्रारूप या प्रयोग की योजना बदलें; खाली मानचित्र को वैध आवंटन न मानें।",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
             1910,
             3150,
             205
-          ],
-          "speech_text": "चौबीस वेल माँगते हुए छह-वेल प्रारूप चुनने पर क्षमता की त्रुटि आती है। मानचित्र अतिरिक्त प्रतिकृतियाँ चुपचाप हटा नहीं देता। संदेश पढ़ें और प्रारूप या प्रयोग की योजना बदलें; खाली मानचित्र को वैध आवंटन न मानें।"
+          ]
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "छियानवे वेल पर लौटने से सभी चौबीस आवंटन वापस आते हैं। प्लेट मानचित्र वर्तमान तालिका के अनुसार बदलता है। Add condition और Remove selected स्थितियों की पंक्तियाँ सँभालते हैं; नीचे के चौकोर वेल एक अलग चयन क्षेत्र हैं, वे तालिका की पंक्तियाँ नहीं हैं।",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
             365,
             3370,
             285
-          ],
-          "speech_text": "छियानवे वेल पर लौटने से सभी चौबीस आवंटन वापस आते हैं। प्लेट मानचित्र वर्तमान तालिका के अनुसार बदलता है। Add condition और Remove selected स्थितियों की पंक्तियाँ सँभालते हैं; नीचे के चौकोर वेल एक अलग चयन क्षेत्र हैं, वे तालिका की पंक्तियाँ नहीं हैं।"
+          ]
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "प्रतिकृति संख्या वाले खाने को चुनकर संपादन के लिए F दो दबाएँ। नकारात्मक नियंत्रण को एक वेल तक घटाने से चेतावनी आती है; छह करने पर वह हट जाती है। एक ही वेल की बहुत सारी कोशिकाएँ स्वतंत्र प्रायोगिक प्रतिकृतियों का विकल्प नहीं हैं।",
-          "hold_after": 0.7,
-          "speech_text": "प्रतिकृति संख्या वाले खाने को चुनकर संपादन के लिए F दो दबाएँ। नकारात्मक नियंत्रण को एक वेल तक घटाने से चेतावनी आती है; छह करने पर वह हट जाती है। एक ही वेल की बहुत सारी कोशिकाएँ स्वतंत्र प्रायोगिक प्रतिकृतियों का विकल्प नहीं हैं।"
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Block व्यवस्था एक स्थिति के वेल साथ रखती है और स्थिति तथा स्थान के प्रभाव के आपस में मिल जाने की चेतावनियाँ देती है। इन्हें योजना जाँचने के संकेत समझें, अपने आप निकले जैविक निष्कर्ष नहीं। प्रकाश की असमानता का ऑप्टिकल सुधार वाष्पीकरण या तापमान के प्रभाव ठीक नहीं करता; प्रयोग की व्यवस्था और छवि की छायांकन असमानता अलग समस्याएँ हैं।",
-          "hold_after": 0.7,
-          "speech_text": "Block व्यवस्था एक स्थिति के वेल साथ रखती है और स्थिति तथा स्थान के प्रभाव के आपस में मिल जाने की चेतावनियाँ देती है। इन्हें योजना जाँचने के संकेत समझें, अपने आप निकले जैविक निष्कर्ष नहीं। प्रकाश की असमानता का ऑप्टिकल सुधार वाष्पीकरण या तापमान के प्रभाव ठीक नहीं करता; प्रयोग की व्यवस्था और छवि की छायांकन असमानता अलग समस्याएँ हैं।"
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "Random व्यवस्था, leave edge empty और बीज बयालीस चुनें। इस छियानवे-वेल प्लेट की बाहरी सीमा खाली रखने पर साठ उपयोग योग्य वेल बचते हैं; हमारी योजना चौबीस आवंटित करती है। बाहरी सीमा से बचने पर क्षमता घटती है और सभी स्थान-संबंधी प्रभावों से मुक्ति की गारंटी नहीं मिलती।",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "Random व्यवस्था, leave edge empty और बीज बयालीस चुनें। इस छियानवे-वेल प्लेट की बाहरी सीमा खाली रखने पर साठ उपयोग योग्य वेल बचते हैं; हमारी योजना चौबीस आवंटित करती है। बाहरी सीमा से बचने पर क्षमता घटती है और सभी स्थान-संबंधी प्रभावों से मुक्ति की गारंटी नहीं मिलती।"
+          ]
         },
         {
           "visual": "08_seed43",
-          "narration": "बीज तैंतालीस करने से वास्तविक आवंटन बदलते हैं, लेकिन प्रत्येक स्थिति के लिए माँगी गई संख्या बनी रहती है। यादृच्छिकीकरण व्यवस्थित स्थान-संबंधी पक्षपात घटाता है, फिर भी हर यादृच्छिक व्यवस्था की समीक्षा ज़रूरी है। मनचाहा परिणाम पाने के लिए बीज न चुनें।",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "बीज तैंतालीस करने से वास्तविक आवंटन बदलते हैं, लेकिन प्रत्येक स्थिति के लिए माँगी गई संख्या बनी रहती है। यादृच्छिकीकरण व्यवस्थित स्थान-संबंधी पक्षपात घटाता है, फिर भी हर यादृच्छिक व्यवस्था की समीक्षा ज़रूरी है। मनचाहा परिणाम पाने के लिए बीज न चुनें।"
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "बयालीस पर लौटने से वेल और स्थितियों का ठीक वही मिलान वापस आता है। बीज के साथ प्लेट प्रारूप, किनारे की नीति और स्थितियों की तालिका भी दर्ज करें। दूसरे इनपुट बदल जाएँ तो अकेला बीज योजना तय नहीं करता।",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "बयालीस पर लौटने से वेल और स्थितियों का ठीक वही मिलान वापस आता है। बीज के साथ प्लेट प्रारूप, किनारे की नीति और स्थितियों की तालिका भी दर्ज करें। दूसरे इनपुट बदल जाएँ तो अकेला बीज योजना तय नहीं करता।"
+          ]
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "छह वेल चुनने के लिए B शून्य दो से C शून्य चार तक खींचें। चयन की रूपरेखा बदलती है, उनकी स्थितियाँ नहीं: यह क्रिया वेल चुनती है, उपचार आवंटित नहीं करती। आवंटन बदलते समय स्थितियों की तालिका और दिखाया गया मानचित्र देखें।",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "छह वेल चुनने के लिए B शून्य दो से C शून्य चार तक खींचें। चयन की रूपरेखा बदलती है, उनकी स्थितियाँ नहीं: यह क्रिया वेल चुनती है, उपचार आवंटित नहीं करती। आवंटन बदलते समय स्थितियों की तालिका और दिखाया गया मानचित्र देखें।"
+          ]
         },
         {
           "visual": "11_export_folder",
-          "narration": "Export plate map का उपयोग करें और अलग फ़ोल्डर चुनें। वास्तविक निर्यात plate_map डॉट CSV, plate_map डॉट JSON और plate_map_settings डॉट JSON लिखता है। तीनों फ़ाइलें साथ रखें; गंतव्य चुनना नियोजित प्रयोग का डेटा एकत्र करना नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "Export plate map का उपयोग करें और अलग फ़ोल्डर चुनें। वास्तविक निर्यात plate_map डॉट CSV, plate_map डॉट JSON और plate_map_settings डॉट JSON लिखता है। तीनों फ़ाइलें साथ रखें; गंतव्य चुनना नियोजित प्रयोग का डेटा एकत्र करना नहीं है।"
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "CSV में हर आवंटित वेल की एक पंक्ति है: यहाँ चौबीस, जो हर दिखाई गई स्थिति और भूमिका से मेल खाती हैं। मापों से जोड़ने के लिए plate I D, row I D और column I D तीनों साथ उपयोग होते हैं। JSON बीज, योजना और जाँच के निष्कर्ष दर्ज करता है, चेतावनियाँ भी छिपाने के बजाय सुरक्षित रखता है।",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "CSV में हर आवंटित वेल की एक पंक्ति है: यहाँ चौबीस, जो हर दिखाई गई स्थिति और भूमिका से मेल खाती हैं। मापों से जोड़ने के लिए plate I D, row I D और column I D तीनों साथ उपयोग होते हैं। JSON बीज, योजना और जाँच के निष्कर्ष दर्ज करता है, चेतावनियाँ भी छिपाने के बजाय सुरक्षित रखता है।"
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "इस यादृच्छिक व्यवस्था को पंक्ति या स्तंभ वाली उपचार सेटिंग से व्यक्त नहीं किया जा सकता। सेटिंग फ़ाइल स्पष्ट रूप से expressible को false बताती है; यह विश्लेषण का पूरा विन्यास नहीं है। मिली-जुली स्थितियों वाले वेल को पूरी पंक्ति का लेबल देकर अनुमानित करने के बजाय निर्यात की सटीक वेल तालिका और स्पष्ट जोड़ का उपयोग करें।",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "इस यादृच्छिक व्यवस्था को पंक्ति या स्तंभ वाली उपचार सेटिंग से व्यक्त नहीं किया जा सकता। सेटिंग फ़ाइल स्पष्ट रूप से expressible को false बताती है; यह विश्लेषण का पूरा विन्यास नहीं है। मिली-जुली स्थितियों वाले वेल को पूरी पंक्ति का लेबल देकर अनुमानित करने के बजाय निर्यात की सटीक वेल तालिका और स्पष्ट जोड़ का उपयोग करें।"
+          ]
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Python इंटरफ़ेस spacr.qt.widgets.plate_layout में है: Condition और PlateDesign योजना बताते हैं; assign_wells, check_design और write_design उसे आवंटित, जाँच और सुरक्षित करते हैं। व्यवस्था की जाँच सांख्यिकीय शक्ति या जैविक वैधता सिद्ध नहीं करती। डेटा एकत्र करने से पहले योजना की समीक्षा करें और आगे के विश्लेषण के लिए उसका सटीक मानचित्र रखें।",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "68_power_design",
             "33_plate_viewer"
-          ],
-          "speech_text": "Python इंटरफ़ेस स्पेकर.क्यू टी.widgets.plate_layout में है: Condition और PlateDesign योजना बताते हैं; assign_wells, check_design और write_design उसे आवंटित, जाँच और सुरक्षित करते हैं। व्यवस्था की जाँच सांख्यिकीय शक्ति या जैविक वैधता सिद्ध नहीं करती। डेटा एकत्र करने से पहले योजना की समीक्षा करें और आगे के विश्लेषण के लिए उसका सटीक मानचित्र रखें।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design: सिम्युलेटर और उसकी सीमाएँ पढ़ें",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
-      "section": "डिज़ाइन",
+      "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "वास्तविक नियंत्रण, सिम्युलेटेड वक्र और चेतावनियाँ समझें; छोटे प्रदर्शन या विरोधाभासी सारांश को प्रमाणित डिज़ाइन सलाह न मानें।",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "सिम्युलेशन की मान्यताओं और मापे गए प्रयोगात्मक डेटा में अंतर करना।",
-        "उपयोगी फिट, पहचान अनुपात और अनिश्चितता सही पढ़ना।",
-        "उसी डिज़ाइन की गलत सिफारिश पहचानना और रिकॉर्ड सुरक्षित रखना।"
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "रिकॉर्ड किए गए वास्तविक सिम्युलेटर की आलोचनात्मक समीक्षा; अंशांकित सांख्यिकीय पावर या नमूना आकार की सलाह नहीं। Power_recorded_simulation_review.zip में मूल JSON और समीक्षा हैं; यह GUI में आयात योग्य रन या मूल निर्यात का प्रदर्शन नहीं है। spaCR 1.5.0.4 की स्क्रीन, अडैप्टर, सिम्युलेटर और फिट कोड अब भी वर्तमान स्रोत जैसे हैं। दो सीमांत स्कैन ने नौ बिंदुओं पर 18 फिट दिए, प्रति बिंदु दो पुनरावृत्तियाँ; अभिसरण न पाने वाले चार फिट हर में रहते हैं। दो सिम्युलेशन में संभावनाएँ सीमित की गईं। समान नाममात्र डिज़ाइन पर अलग यादृच्छिक ड्रॉ से 1/2 और 2/2 पहचान मिली। पहले से मौजूद वेल संख्या तक बढ़ाने की सलाह अस्वीकार है और अभी सुधरी नहीं है। कुछ किनारे के लेबल कटे हैं; जाँची गई तालिका में नौ निर्देशांक हैं। नया सिम्युलेशन, मापा डेटा, जैविक अंशांकन, GPU कार्य, AI अनुरोध या प्रकाशन का दावा नहीं। API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve और spacr.qt.screens.power.run_power_sweep; spacr.power_simulate और spacr.power_model सिम्युलेशन और फिट करते हैं।",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Power और Design सिम्युलेटेड डेटा से मान्यताओं की पड़ताल करता है। यह मापा गया प्रयोग नहीं लोड करता और न साबित करता है कि मान्यताएँ आपके प्रयोग से मेल खाती हैं। यह पाठ वास्तविक रिकॉर्ड किया रन पढ़ता है, चेतावनियों और भ्रामक सिफारिश सहित। छोटे प्रदर्शन को प्रमाणित नमूना आकार की सलाह न मानें।",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Power और Design सिम्युलेटेड डेटा से मान्यताओं की पड़ताल करता है। यह मापा गया प्रयोग नहीं लोड करता और न साबित करता है कि मान्यताएँ आपके प्रयोग से मेल खाती हैं। यह पाठ वास्तविक रिकॉर्ड किया रन पढ़ता है, चेतावनियों और भ्रामक सिफारिश सहित। छोटे प्रदर्शन को प्रमाणित नमूना आकार की सलाह न मानें।"
+          "hold_after": 0.7
         },
         {
           "visual": "03_guide_library",
-          "narration": "लाइब्रेरी और मूल्यांकन की इकाई से शुरू करें। गाइड और जीन के बीच बदलने से मॉडल की इकाई बदलती है: चालीस जीन और प्रति जीन चार गाइड, गाइड मूल्यांकन में एक सौ साठ इकाइयाँ देते हैं। जीन मूल्यांकन गाइड जानकारी जोड़ता है। ये शिक्षण मान्यताएँ हैं, नए जैविक माप नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "लाइब्रेरी और मूल्यांकन की इकाई से शुरू करें। गाइड और जीन के बीच बदलने से मॉडल की इकाई बदलती है: चालीस जीन और प्रति जीन चार गाइड, गाइड मूल्यांकन में एक सौ साठ इकाइयाँ देते हैं। जीन मूल्यांकन गाइड जानकारी जोड़ता है। ये शिक्षण मान्यताएँ हैं, नए जैविक माप नहीं।"
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "प्लेट और प्रभाव के नियंत्रण माने गए डिज़ाइन का वर्णन करते हैं। सकारात्मक वर्गीकरण दर एक सिम्युलेटेड संभावना है, जीवों की संख्या या मापी हुई संक्रमण दर नहीं। पृष्ठभूमि, प्रभाव और प्रचलन साथ देखें; दिखाई गई मान्यताएँ मॉडल को प्रमाणित नहीं करतीं।",
-          "hold_after": 0.7,
-          "speech_text": "प्लेट और प्रभाव के नियंत्रण माने गए डिज़ाइन का वर्णन करते हैं। सकारात्मक वर्गीकरण दर एक सिम्युलेटेड संभावना है, जीवों की संख्या या मापी हुई संक्रमण दर नहीं। पृष्ठभूमि, प्रभाव और प्रचलन साथ देखें; दिखाई गई मान्यताएँ मॉडल को प्रमाणित नहीं करतीं।"
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "एक से कम प्रभाव पर असमर्थित दिशा की मूल चेतावनी आती है और Run निष्क्रिय होता है। रिकॉर्डिंग फिर समर्थित मान लौटाती है और नियंत्रण वापस सक्रिय होते हैं। यह सॉफ्टवेयर सुरक्षा है, जैविक असंभवता का दावा नहीं। सुविधाजनक वक्र के लिए चेतावनी को दरकिनार न करें।",
-          "hold_after": 0.7,
-          "speech_text": "एक से कम प्रभाव पर असमर्थित दिशा की मूल चेतावनी आती है और Run निष्क्रिय होता है। रिकॉर्डिंग फिर समर्थित मान लौटाती है और नियंत्रण वापस सक्रिय होते हैं। यह सॉफ्टवेयर सुरक्षा है, जैविक असंभवता का दावा नहीं। सुविधाजनक वक्र के लिए चेतावनी को दरकिनार न करें।"
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "इस सीमित प्रदर्शन में हर बिंदु पर केवल दो पुनरावृत्तियाँ हैं। पहचान के लिए उपयोगी फिट को चुना हुआ रिसीवर ऑपरेटिंग कैरेक्टरिस्टिक वक्र के नीचे के क्षेत्रफल का स्तर पाना चाहिए। यह परिकल्पना परीक्षण की पी-वैल्यू सीमा नहीं है। सीड और बैकएंड दर्ज हैं; केवल Torch चुनना GPU पर चलने का प्रमाण नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "इस सीमित प्रदर्शन में हर बिंदु पर केवल दो पुनरावृत्तियाँ हैं। पहचान के लिए उपयोगी फिट को चुना हुआ रिसीवर ऑपरेटिंग कैरेक्टरिस्टिक वक्र के नीचे के क्षेत्रफल का स्तर पाना चाहिए। यह परिकल्पना परीक्षण की पी-वैल्यू सीमा नहीं है। सीड और बैकएंड दर्ज हैं; केवल Torch चुनना GPU पर चलने का प्रमाण नहीं।"
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Run वास्तविक सिम्युलेटर को कार्य थ्रेड पर शुरू करता है। कोशिका संख्या और वेल संख्या के अक्ष अलग-अलग बदलते हैं, सभी संयोजन नहीं परखे जाते। रिकॉर्डिंग में नौ बिंदुओं पर अठारह फिट पूरे हुए। सेटिंग और कच्चे पुनरावृत्ति रिकॉर्ड साथ रखें ताकि हर दिखा अनुपात उसके फिट तक खोजा जा सके।",
-          "hold_after": 0.7,
-          "speech_text": "Run वास्तविक सिम्युलेटर को कार्य थ्रेड पर शुरू करता है। कोशिका संख्या और वेल संख्या के अक्ष अलग-अलग बदलते हैं, सभी संयोजन नहीं परखे जाते। रिकॉर्डिंग में नौ बिंदुओं पर अठारह फिट पूरे हुए। सेटिंग और कच्चे पुनरावृत्ति रिकॉर्ड साथ रखें ताकि हर दिखा अनुपात उसके फिट तक खोजा जा सके।"
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "पहचान की संख्या को माँगी गई सभी पुनरावृत्तियों पर पढ़ें। चार फिट अभिसरित नहीं हुए और गैर-पहचान के रूप में हर में रहते हैं; वे चुपचाप हटाए नहीं जाते। यहाँ सौ प्रतिशत का अर्थ सिर्फ दो में दो है। इतना छोटा नमूना सटीक पहचान संभावना स्थापित नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "पहचान की संख्या को माँगी गई सभी पुनरावृत्तियों पर पढ़ें। चार फिट अभिसरित नहीं हुए और गैर-पहचान के रूप में हर में रहते हैं; वे चुपचाप हटाए नहीं जाते। यहाँ सौ प्रतिशत का अर्थ सिर्फ दो में दो है। इतना छोटा नमूना सटीक पहचान संभावना स्थापित नहीं करता।"
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
@@ -9225,9 +9151,8 @@
             2380,
             460
           ],
-          "narration": "तालिका पहचान अनुपात और उपयोगी फिट के औसत प्रदर्शन को अलग करती है। अनुपलब्ध औसत शून्य नहीं है। एवरेज प्रिसिजन के लिए प्रचलन का संदर्भ भी चाहिए। किनारे का लेबल कटे तो तालिका पढ़ें और केवल नीली रेखा देखकर निर्णय लेने के बजाय गैर-अभिसरण की गिनती जाँचें।",
-          "hold_after": 0.7,
-          "speech_text": "तालिका पहचान अनुपात और उपयोगी फिट के औसत प्रदर्शन को अलग करती है। अनुपलब्ध औसत शून्य नहीं है। एवरेज प्रिसिजन के लिए प्रचलन का संदर्भ भी चाहिए। किनारे का लेबल कटे तो तालिका पढ़ें और केवल नीली रेखा देखकर निर्णय लेने के बजाय गैर-अभिसरण की गिनती जाँचें।"
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
@@ -9237,26 +9162,28 @@
             2380,
             110
           ],
-          "narration": "शीर्ष सारांश में त्रुटि है। दोनों आधार अनुमान पहले से छियानवे वेल इस्तेमाल करते हैं, लेकिन अलग यादृच्छिक ड्रॉ से एक स्कैन में दो में एक और दूसरे में दो में दो पहचान मिलती है। उन्हीं छियानवे वेल तक जाना डिज़ाइन में सुधार नहीं है। सिफारिश अस्वीकार करें; यह ट्यूटोरियल उसे ठीक नहीं करता।",
-          "hold_after": 0.7,
-          "speech_text": "शीर्ष सारांश में त्रुटि है। दोनों आधार अनुमान पहले से छियानवे वेल इस्तेमाल करते हैं, लेकिन अलग यादृच्छिक ड्रॉ से एक स्कैन में दो में एक और दूसरे में दो में दो पहचान मिलती है। उन्हीं छियानवे वेल तक जाना डिज़ाइन में सुधार नहीं है। सिफारिश अस्वीकार करें; यह ट्यूटोरियल उसे ठीक नहीं करता।"
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "बाकी सावधानियाँ खोलें। दो सिम्युलेटेड स्क्रीन में एक से ऊपर संभावनाएँ सीमित की गईं, इसलिए वास्तविक सिम्युलेटेड अधिभोग माँगे मान से अलग है। मॉडल की और मान्यताएँ तथा सीमाएँ हैं; उन्हें लिख देना सत्यापन नहीं है। निष्कर्ष से पहले चेतावनियाँ और असफल फिट देखें।",
-          "hold_after": 0.7,
-          "speech_text": "बाकी सावधानियाँ खोलें। दो सिम्युलेटेड स्क्रीन में एक से ऊपर संभावनाएँ सीमित की गईं, इसलिए वास्तविक सिम्युलेटेड अधिभोग माँगे मान से अलग है। मॉडल की और मान्यताएँ तथा सीमाएँ हैं; उन्हें लिख देना सत्यापन नहीं है। निष्कर्ष से पहले चेतावनियाँ और असफल फिट देखें।"
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "दिया संग्रह वास्तविक दर्ज विनिर्देश, पुनरावृत्तियाँ, वक्र, तालिका और गलत सारांश सुरक्षित रखता है। यह बाहरी साक्ष्य डाउनलोड है, मूल GUI निर्यात या आयात किया परिणाम नहीं। Python के डिज़ाइन अडैप्टर और सिम्युलेशन API वही कार्यप्रवाह देते हैं, पर वास्तविक योजना में मान्यताओं और अनिश्चितता का अलग सत्यापन चाहिए।",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "दिया संग्रह वास्तविक दर्ज विनिर्देश, पुनरावृत्तियाँ, वक्र, तालिका और गलत सारांश सुरक्षित रखता है। यह बाहरी साक्ष्य डाउनलोड है, मूल GUI निर्यात या आयात किया परिणाम नहीं। Python के डिज़ाइन अडैप्टर और सिम्युलेशन API वही कार्यप्रवाह देते हैं, पर वास्तविक योजना में मान्यताओं और अनिश्चितता का अलग सत्यापन चाहिए।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9264,61 +9191,57 @@
       "slug": "dose_response",
       "series": 5,
       "app_key": "dose_response",
-      "section": "डिज़ाइन",
-      "title": "खुराक–प्रतिक्रिया: फिट की गई वक्रें, अनिश्चितता और उचित अस्वीकृति",
-      "description": "वर्तमान Dose Response स्क्रीन पर पुनरुत्पादनीय कृत्रिम तालिका इस्तेमाल करें, प्रोफ़ाइल और Wald अंतरालों की तुलना करें तथा फिट, अनिर्धारित सीमा और अस्वीकृत परिणामों में अंतर समझें।",
+      "section": "Data",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "स्पष्ट सांद्रता और प्रतिक्रिया लोड करके हर नामित श्रृंखला के लिए अलग वक्र फिट करना।",
-        "अर्ध-अधिकतम प्रतिक्रिया की सांद्रता, अंतराल विधियों, वाहन नियंत्रणों और अस्वीकृत वक्रों को समझना।",
-        "क्रमबद्ध करने से पहले तुलना पूरी करना, वास्तविक रिपोर्ट कॉपी करना और GUI नियंत्रणों को API निर्यात से अलग पहचानना।"
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "साथ दिया गया SYNTHETIC CSV डाउनलोड करें। इसमें 120 निर्मित पंक्तियाँ हैं: चार श्रृंखलाएँ, प्रत्येक में नौ धनात्मक सांद्रताएँ, शून्य खुराक का वाहन नियंत्रण और हर सांद्रता पर तीन प्रेक्षण। −0.5, शून्य और +0.5 के संतुलित विचलन जैविक प्रतिकृतियाँ या सांख्यिकीय अंशांकन अध्ययन नहीं हैं। निर्धारित अर्ध-अधिकतम सांद्रताएँ 1.5, 2 और सीमा से बाहर 500 हैं; चौथी श्रृंखला दिशा बदलती है। Dose Response का अपना डेटा डाउनलोडर, सामान्यीकरण, भार निर्धारण, प्रतिकृति चयन, GUI निर्यात बटन या AI कंसोल नहीं दिखाया गया है। Unit केवल लेबल बदलता है, डेटा नहीं। इस बिल्ड में क्रमबद्ध तालिका को फिर फिट करने पर दिखाई गई पंक्तियों की पहचान गड़बड़ा सकती है; इसलिए रिकॉर्डिंग सभी रीफिट पहले पूरी करती है। अस्वीकृत परिणाम सुरक्षित रखें और पूरी रिपोर्ट पढ़ें। API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame और DoseResponseSet.table। डेटा और ग्राफ़ की जाँच spaCR के फिटिंग फ़ंक्शन से स्वतंत्र है; प्रोफ़ाइल सिरों की जाँच घोषित log10 खोज-अंतराल परिशुद्धता से होती है, कवरेज की गारंटी के रूप में नहीं।",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Home के Data भाग में Dose Response खोलें। यह स्वतंत्र दृश्य सांद्रताओं की श्रृंखला पर चार-पैरामीटर वाली लॉजिस्टिक वक्र फिट करता है। इसे इनपुट सांद्रताएँ और प्रतिक्रियाएँ चाहिए; यह वेल के नाम, छवि निर्देशांक या उपचार लेबल से खुराक का अनुमान नहीं लगाता।",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
-          ],
-          "speech_text": "Home के Data भाग में Dose Response खोलें। यह स्वतंत्र दृश्य सांद्रताओं की श्रृंखला पर चार-पैरामीटर वाली लॉजिस्टिक वक्र फिट करता है। इसे इनपुट सांद्रताएँ और प्रतिक्रियाएँ चाहिए; यह वेल के नाम, छवि निर्देशांक या उपचार लेबल से खुराक का अनुमान नहीं लगाता।"
+          ]
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "इस पाठ की पूर्वापेक्षाओं में दिए लिंक से कृत्रिम CSV डाउनलोड करें, फिर Load table चुनें। ये जानबूझकर बनाए गए सॉफ़्टवेयर उदाहरण हैं, यौगिकों के वास्तविक मापन नहीं। फ़ाइल और हर श्रृंखला के नाम में कृत्रिम होने का संकेत है, ताकि साफ़ वक्रों को प्रयोगात्मक परिणाम न समझा जाए।",
-          "hold_after": 0.7,
-          "speech_text": "इस पाठ की पूर्वापेक्षाओं में दिए लिंक से कृत्रिम CSV डाउनलोड करें, फिर Load table चुनें। ये जानबूझकर बनाए गए सॉफ़्टवेयर उदाहरण हैं, यौगिकों के वास्तविक मापन नहीं। फ़ाइल और हर श्रृंखला के नाम में कृत्रिम होने का संकेत है, ताकि साफ़ वक्रों को प्रयोगात्मक परिणाम न समझा जाए।"
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "फ़ाइल में चार श्रृंखलाओं की कुल एक सौ बीस पंक्तियाँ हैं। हर श्रृंखला में नौ धनात्मक सांद्रताएँ, शून्य खुराक का वाहन नियंत्रण और हर सांद्रता पर तीन प्रेक्षण हैं। छोटे, संतुलित कृत्रिम विचलन प्रत्येक खुराक का मॉडल औसत बनाए रखते हैं; यह सुविधाजनक उदाहरण वास्तविक प्रयोगों का सांख्यिकीय प्रदर्शन सत्यापित नहीं करता।",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             40,
             2200,
             170
-          ],
-          "speech_text": "फ़ाइल में चार श्रृंखलाओं की कुल एक सौ बीस पंक्तियाँ हैं। हर श्रृंखला में नौ धनात्मक सांद्रताएँ, शून्य खुराक का वाहन नियंत्रण और हर सांद्रता पर तीन प्रेक्षण हैं। छोटे, संतुलित कृत्रिम विचलन प्रत्येक खुराक का मॉडल औसत बनाए रखते हैं; यह सुविधाजनक उदाहरण वास्तविक प्रयोगों का सांख्यिकीय प्रदर्शन सत्यापित नहीं करता।"
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "सांद्रता के लिए concentration, प्रतिक्रिया के लिए response और One curve per में series चुनें। मूल सांद्रताएँ दें, उनके लघुगणक नहीं। समूह बनाना ज़रूरी है: चार अलग श्रृंखलाओं को एक ही वक्र में फिट करना गलत प्रश्न का उत्तर देगा।",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "सांद्रता के लिए concentration, प्रतिक्रिया के लिए response और One curve per में series चुनें। मूल सांद्रताएँ दें, उनके लघुगणक नहीं। समूह बनाना ज़रूरी है: चार अलग श्रृंखलाओं को एक ही वक्र में फिट करना गलत प्रश्न का उत्तर देगा।"
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Unit केवल एक लेबल है। यहाँ u M लिखकर उदाहरण की सांद्रताओं को माइक्रोमोलर दर्शाते हैं; यह पाठ बदलने से संख्याएँ कभी नहीं बदलतीं। आवश्यक सामान्यीकरण या इकाई परिवर्तन पहले करें, क्योंकि इस स्क्रीन में सामान्यीकरण या भार निर्धारण के नियंत्रण नहीं हैं।",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9328,156 +9251,143 @@
           ],
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "Unit केवल एक लेबल है। यहाँ u M लिखकर उदाहरण की सांद्रताओं को माइक्रोमोलर दर्शाते हैं; यह पाठ बदलने से संख्याएँ कभी नहीं बदलतीं। आवश्यक सामान्यीकरण या इकाई परिवर्तन पहले करें, क्योंकि इस स्क्रीन में सामान्यीकरण या भार निर्धारण के नियंत्रण नहीं हैं।"
+          ]
         },
         {
           "visual": "06_profile_results",
-          "narration": "Profile likelihood चुना रहने दें और Fit non-monotone data बंद रखें, फिर Fit चुनें। वक्र और परिणाम तालिका साथ अपडेट होते हैं। चारों श्रृंखलाएँ बनी रहती हैं, जिनमें सीमा निर्धारित न होने वाला परिणाम और अस्वीकृति भी शामिल हैं; अनुमान का न होना, श्रृंखला का न होना नहीं है।",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "Profile likelihood चुना रहने दें और Fit non-monotone data बंद रखें, फिर Fit चुनें। वक्र और परिणाम तालिका साथ अपडेट होते हैं। चारों श्रृंखलाएँ बनी रहती हैं, जिनमें सीमा निर्धारित न होने वाला परिणाम और अस्वीकृति भी शामिल हैं; अनुमान का न होना, श्रृंखला का न होना नहीं है।"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "कृत्रिम अवरोधन श्रृंखला चुनें। प्राप्त अर्ध-अधिकतम प्रतिक्रिया की सांद्रता एक दशमलव पाँच है और Hill ढलान ऋणात्मक है, क्योंकि सांद्रता बढ़ने पर प्रतिक्रिया घटती है। अर्ध-अधिकतम का अर्थ फिट किए गए दोनों पठारों के बीच का मध्य है, जो यहाँ पाँच और पचानवे हैं; इसका मतलब अपने आप पचास प्रतिशत जीवितता नहीं होता।",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "कृत्रिम अवरोधन श्रृंखला चुनें। प्राप्त अर्ध-अधिकतम प्रतिक्रिया की सांद्रता एक दशमलव पाँच है और Hill ढलान ऋणात्मक है, क्योंकि सांद्रता बढ़ने पर प्रतिक्रिया घटती है। अर्ध-अधिकतम का अर्थ फिट किए गए दोनों पठारों के बीच का मध्य है, जो यहाँ पाँच और पचानवे हैं; इसका मतलब अपने आप पचास प्रतिशत जीवितता नहीं होता।"
+          ]
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "कृत्रिम सक्रियण श्रृंखला चुनें। इसकी प्राप्त अर्ध-अधिकतम सांद्रता दो है और Hill ढलान धनात्मक है। चयनित वक्र प्रमुख दिखता है, जबकि अन्य फिट किए गए वक्र भी दिखाई देते हैं। चयनित पंक्ति और उसकी रिपोर्ट साथ पढ़ें; किसी दूसरे वक्र का अनुमान इस श्रृंखला को न सौंपें।",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "कृत्रिम सक्रियण श्रृंखला चुनें। इसकी प्राप्त अर्ध-अधिकतम सांद्रता दो है और Hill ढलान धनात्मक है। चयनित वक्र प्रमुख दिखता है, जबकि अन्य फिट किए गए वक्र भी दिखाई देते हैं। चयनित पंक्ति और उसकी रिपोर्ट साथ पढ़ें; किसी दूसरे वक्र का अनुमान इस श्रृंखला को न सौंपें।"
+          ]
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "सीमा से बाहर वाला उदाहरण पाँच सौ की अर्ध-अधिकतम सांद्रता से बनाया गया था, लेकिन उसकी सांद्रताएँ केवल एक सौ तक हैं। स्क्रीन सीमा अनिर्धारित बताती है, बिंदु अनुमान और अंतराल की कोशिकाएँ खाली छोड़ती है तथा किनारे पर सीमा दिखाती है। फिट किया गया बहिर्वेशन डेटा-समर्थित बिंदु अनुमान नहीं है।",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "सीमा से बाहर वाला उदाहरण पाँच सौ की अर्ध-अधिकतम सांद्रता से बनाया गया था, लेकिन उसकी सांद्रताएँ केवल एक सौ तक हैं। स्क्रीन सीमा अनिर्धारित बताती है, बिंदु अनुमान और अंतराल की कोशिकाएँ खाली छोड़ती है तथा किनारे पर सीमा दिखाती है। फिट किया गया बहिर्वेशन डेटा-समर्थित बिंदु अनुमान नहीं है।"
+          ]
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "दिशा बदलने वाली श्रृंखला अस्वीकृत होती है, क्योंकि एकदिश लॉजिस्टिक वक्र का आकार उसके लिए गलत है। तालिका के नीचे पूरा कारण पढ़ें। प्रतिक्रिया का मुड़ना अपने आप कोशिका-विषाक्तता या किसी अन्य जैविक कारण को सिद्ध नहीं करता; आँख मूँदकर खुराक हटाने या फिट थोपने के बजाय प्रयोग की जाँच करें।",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "दिशा बदलने वाली श्रृंखला अस्वीकृत होती है, क्योंकि एकदिश लॉजिस्टिक वक्र का आकार उसके लिए गलत है। तालिका के नीचे पूरा कारण पढ़ें। प्रतिक्रिया का मुड़ना अपने आप कोशिका-विषाक्तता या किसी अन्य जैविक कारण को सिद्ध नहीं करता; आँख मूँदकर खुराक हटाने या फिट थोपने के बजाय प्रयोग की जाँच करें।"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "अवरोधन रिपोर्ट में सत्ताईस फिट किए गए प्रेक्षण और तीन शून्य-खुराक नियंत्रण हैं। शून्य सांद्रताएँ लॉगरिदमिक फिट से बाहर रहती हैं और अलग संक्षेपित होती हैं; उन्हें चुपचाप बहुत छोटी धनात्मक खुराक में नहीं बदला जाता। कृत्रिम वाहन का औसत पचानवे है, जो निर्मित कम-खुराक पठार से मेल खाता है।",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "अवरोधन रिपोर्ट में सत्ताईस फिट किए गए प्रेक्षण और तीन शून्य-खुराक नियंत्रण हैं। शून्य सांद्रताएँ लॉगरिदमिक फिट से बाहर रहती हैं और अलग संक्षेपित होती हैं; उन्हें चुपचाप बहुत छोटी धनात्मक खुराक में नहीं बदला जाता। कृत्रिम वाहन का औसत पचानवे है, जो निर्मित कम-खुराक पठार से मेल खाता है।"
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "केवल R वर्ग नहीं, अवशिष्ट त्रुटि और फिट की अपर्याप्तता का आकलन भी पढ़ें। इस जानबूझकर संतुलित उदाहरण के निदान असाधारण रूप से साफ़ हैं। हर सांद्रता के दोहराए गए प्रेक्षण बिना अलग प्रतिकृति चयन के इस्तेमाल होते हैं; ये कृत्रिम दोहराव वास्तविक प्रयोग के मापों की स्वतंत्रता सिद्ध नहीं करते।",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "केवल R वर्ग नहीं, अवशिष्ट त्रुटि और फिट की अपर्याप्तता का आकलन भी पढ़ें। इस जानबूझकर संतुलित उदाहरण के निदान असाधारण रूप से साफ़ हैं। हर सांद्रता के दोहराए गए प्रेक्षण बिना अलग प्रतिकृति चयन के इस्तेमाल होते हैं; ये कृत्रिम दोहराव वास्तविक प्रयोग के मापों की स्वतंत्रता सिद्ध नहीं करते।"
+          ]
         },
         {
           "visual": "13_choose_wald",
-          "narration": "अंतराल विधियों की तुलना के लिए Wald चुनें और फिर Fit दबाएँ। केवल चयन बदलने से पुराना परिणाम दोबारा नहीं गणना होता। अंतराल अर्ध-अधिकतम सांद्रता के लघुगणक पर निकाला जाता है और फिर मूल पैमाने पर लौटाया जाता है; यह सीधे सांद्रता में जोड़ी गई सममित त्रुटि-पट्टी नहीं है।",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "अंतराल विधियों की तुलना के लिए Wald चुनें और फिर Fit दबाएँ। केवल चयन बदलने से पुराना परिणाम दोबारा नहीं गणना होता। अंतराल अर्ध-अधिकतम सांद्रता के लघुगणक पर निकाला जाता है और फिर मूल पैमाने पर लौटाया जाता है; यह सीधे सांद्रता में जोड़ी गई सममित त्रुटि-पट्टी नहीं है।"
+          ]
         },
         {
           "visual": "14_wald_results",
-          "narration": "जो उदाहरण अर्ध-अधिकतम प्रतिक्रिया को अच्छी तरह घेरते हैं, उनके बिंदु अनुमान वही रहते हैं, जबकि अंतराल के सिरे थोड़ा बदलते हैं। सीमा से बाहर वाला उदाहरण अभी भी बिंदु अनुमान नहीं देता। इन साफ़ उदाहरणों के सीमित अंतराल यह सिद्ध नहीं करते कि दूसरे प्रयोग में अर्ध-अधिकतम सांद्रता पहचानी जा सकती है या उसके शोर और नमूना-योजना में नाममात्र कवरेज मिलता है।",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "जो उदाहरण अर्ध-अधिकतम प्रतिक्रिया को अच्छी तरह घेरते हैं, उनके बिंदु अनुमान वही रहते हैं, जबकि अंतराल के सिरे थोड़ा बदलते हैं। सीमा से बाहर वाला उदाहरण अभी भी बिंदु अनुमान नहीं देता। इन साफ़ उदाहरणों के सीमित अंतराल यह सिद्ध नहीं करते कि दूसरे प्रयोग में अर्ध-अधिकतम सांद्रता पहचानी जा सकती है या उसके शोर और नमूना-योजना में नाममात्र कवरेज मिलता है।"
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Profile likelihood वापस चुनें और फिर Fit करें। जाँचें कि परिणाम अब इसी विधि के हैं। वक्र, तालिका और चयनित रिपोर्ट पूरे हुए फिट के जुड़े दृश्य हैं; ये ऐसा लाइव प्रीव्यू नहीं हैं जो हर नियंत्रण बदलने पर अपने आप फिर फिट करे।",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "Profile likelihood वापस चुनें और फिर Fit करें। जाँचें कि परिणाम अब इसी विधि के हैं। वक्र, तालिका और चयनित रिपोर्ट पूरे हुए फिट के जुड़े दृश्य हैं; ये ऐसा लाइव प्रीव्यू नहीं हैं जो हर नियंत्रण बदलने पर अपने आप फिर फिट करे।"
+          ]
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "तालिका क्रमबद्ध करने से पहले फिट की तुलना पूरी करें। इस बिल्ड में क्रमबद्ध तालिका को दोबारा फिट करने पर प्रदर्शित पंक्तियाँ गड़बड़ा सकती हैं, इसलिए उस क्रम पर भरोसा न करें। यहाँ हम सभी फिट के बाद ही क्रमबद्ध करते हैं, फिर अवरोधन चुनकर उसकी सही रिपोर्ट दिखने की पुष्टि करते हैं।",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "तालिका क्रमबद्ध करने से पहले फिट की तुलना पूरी करें। इस बिल्ड में क्रमबद्ध तालिका को दोबारा फिट करने पर प्रदर्शित पंक्तियाँ गड़बड़ा सकती हैं, इसलिए उस क्रम पर भरोसा न करें। यहाँ हम सभी फिट के बाद ही क्रमबद्ध करते हैं, फिर अवरोधन चुनकर उसकी सही रिपोर्ट दिखने की पुष्टि करते हैं।"
+          ]
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "सामान्य कॉपी शॉर्टकट से रिपोर्ट का पाठ चुनें और कॉपी करें। चेतावनियाँ, अस्वीकृति के कारण, इनपुट सांद्रताएँ और चुनी हुई अंतराल विधि परिणाम के साथ रखें। इस संदर्भ के बिना केवल एक बिंदु अनुमान कॉपी करना वह जानकारी हटा देता है जिससे तय होता है कि परिणाम समझने योग्य है या नहीं।",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             500
-          ],
-          "speech_text": "सामान्य कॉपी शॉर्टकट से रिपोर्ट का पाठ चुनें और कॉपी करें। चेतावनियाँ, अस्वीकृति के कारण, इनपुट सांद्रताएँ और चुनी हुई अंतराल विधि परिणाम के साथ रखें। इस संदर्भ के बिना केवल एक बिंदु अनुमान कॉपी करना वह जानकारी हटा देता है जिससे तय होता है कि परिणाम समझने योग्य है या नहीं।"
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "इस स्क्रीन पर निर्यात बटन नहीं है। प्रोग्राम द्वारा आउटपुट के लिए खुराक–प्रतिक्रिया API में fit_frame और परिणाम तालिका उपलब्ध हैं; API पाठ Python में काम करना समझाता है। निर्यात करते समय अनिर्धारित सीमा और अस्वीकृति वाली पंक्तियाँ भी रखें, केवल सुविधाजनक संख्याएँ देने वाले यौगिक नहीं।",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9487,10 +9397,14 @@
             190,
             1810,
             210
-          ],
-          "speech_text": "इस स्क्रीन पर निर्यात बटन नहीं है। प्रोग्राम द्वारा आउटपुट के लिए खुराक–प्रतिक्रिया API में fit_frame और परिणाम तालिका उपलब्ध हैं; API पाठ Python में काम करना समझाता है। निर्यात करते समय अनिर्धारित सीमा और अस्वीकृति वाली पंक्तियाँ भी रखें, केवल सुविधाजनक संख्याएँ देने वाले यौगिक नहीं।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

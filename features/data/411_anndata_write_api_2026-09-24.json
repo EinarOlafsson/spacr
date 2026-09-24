@@ -1,0 +1,35 @@
+{
+  "source_commit": "ca2209221af49ad3d71da8b2a3f905f0d8f3851a",
+  "english_api_entries": 11527,
+  "added": [],
+  "removed": [],
+  "changed": [
+    "spacr.anndata_export.export_anndata"
+  ],
+  "private_helpers": [
+    "spacr.anndata_export._hdf5_metadata",
+    "spacr.anndata_export._write_h5ad_atomic"
+  ],
+  "private_helper_scope": "Internal helpers do not add public API catalog entries or change public signatures.",
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11527\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "guide_receipt": "tools/tutorials/evidence/2026-09-24-anndata-fixed-guide.json",
+  "recording_status": "Existing helper-route video predates the repaired normal exporter; current written guide explains the distinction. Fresh normal-export capture remains owed.",
+  "strict_sphinx": {
+    "passed": true,
+    "log": "/mnt/firecuda2/codex/workflow-authoring-20260922/anndata-current-guide-sphinx-followup.log",
+    "sha256": "45822bfdf2488e6add93f9ce47d1b6842459e465c9b2557a947464fb078a0069",
+    "rendered_guide": "anndata_export.html",
+    "guide_api_link_resolved": true
+  }
+}

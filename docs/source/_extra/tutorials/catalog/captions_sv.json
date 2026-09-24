@@ -6125,7 +6125,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: granska kandidater i ett tydligt externt hjälpfönster",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -6133,17 +6133,17 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Utforska verkliga Hit List-filter och exporter med oförändrade Regression-resultat och en uttryckligt beskriven omväg runt den dolda panelen.",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "Skilja den trasiga inbyggda genvägen från det externa hjälpprogrammet.",
-        "Tolka rangordnade kandidater utan att hävda signifikanta upptäckter.",
-        "Filtrera, återställa och exportera de faktiska raderna."
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Packa upp Hit_List_real_results_companion.zip, aktivera spaCR-miljön, kör python hit_list_companion.py och välj results med Browse. Programmet använder oförändrad HitListScreen; det reparerar inte navigeringen eller ansluter Investigate. Arkivet innehåller ursprungliga resultat, inte ett helt projekt: 325 gener, 434 guiderader och inga gener med q <= .05. Standardiserade marginaleffekter är inte samtidigt skattade multivariabla koefficienter. Saknade intervall är otillgängliga. n_obs=0 anger inte verkligt brunnsstöd: wells_with_gene i results_gene.csv ligger mellan 2 och 48. Metadata-kopplingar, penaliserad rangordning och Investigate ingår inte. Ingen träning, ny regression, GPU eller förfrågan till en AI-leverantör behövs. API: spacr.hits.build_hit_list och HitList.filter/write_csv/to_markdown/to_html.",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit List hör till Regression. I den här versionen väljer ett klick på Hits en sida i en dold panel, så listan visas inte. Handledningen visar begränsningen öppet. Nästa fönster är ett externt hjälpprogram, inte bevis för att den inbyggda genvägen har reparerats.",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
@@ -6151,59 +6151,64 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Packa upp det länkade exemplet, aktivera spaCR-miljön och kör det medföljande Hit List-hjälpskriptet. Det märkta fönstret öppnar spaCRs befintliga widget utan ändrade beräkningar. Klicka på Browse och välj results. Regressionen körs inte om, och Investigate-integrationen är inte ansluten här.",
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
           "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "Originalexemplet laddar 325 gener. Dubbelklicka på kolumngränserna om värden klipps. Läs effektriktning, rått P, korrigerat q och guideöverensstämmelse separat. Saknade konfidensintervall är otillgängliga. Effekterna är standardiserade marginaleffekter; noll i det exporterade observationsantalet är inte det verkliga antalet stödjande brunnar.",
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
           "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Sätt Max q till 0,05. Inga gener återstår eftersom det minsta gen-q-värdet är cirka 0,271. En tom filtrerad tabell betyder inte importfel. Återställ Max q till ett för att få tillbaka kandidaterna, utan att kalla dem upptäckter.",
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
           "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Minimum guides på två behåller 117 gener med minst två testade guiderader. Det räknar tillgänglig evidens, inte alla guider som ursprungligen utformades. Filtret ändrar den visade delmängden utan att räkna om korrektionen för multipla tester.",
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
           "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Minimum agreement på ett behåller därefter 57 gener vars testade guider alla delar geneffektens tecken. Överensstämmelse bevisar varken signifikans eller orsakssamband. Sammanfattningen visar fortfarande noll signifikanta gener med samstämmigt stöd, trots att dessa kandidatrader har överensstämmande guider.",
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controls tar bort en kontrollrad och lämnar 56 kandidater. Återställ den före exporten. Dolda kontroller innebär inte att modellen anpassas om eller att korrektionsfamiljen ändras; behåll deras identiteter när analysen tolkas.",
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
           "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Med övriga filter nollställda visar Direction up positiva effekter. En minsta absolut effekt på 0,1 lämnar 16 rader. Detta är illustrativa visningsval, inte rekommenderade trösklar. Återställ riktning och effekt före sökning eller jämförelse med en annan delmängd.",
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Sök efter en registrerad identifierare för att granska en faktisk rad. En sökning utan träffar tömmer tabellen; den kända identifieraren återställer raden och en tom sökning hela populationen. Filtreringen är reversibel. Annotationsimport och Investigate behöver egna kontroller.",
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
           "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "För export återställs två guider, full överensstämmelse, kontroller inkluderade och tom sökning. Alla tre exporter innehåller samma 57 kandidater här. Markdown och HTML avrundar tal; CSV bevarar numeriska detaljer. Spara filtren separat eftersom filerna inte registrerar alla inställningar.",
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
           "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Nollställ filtren för att återfå alla 325 gener. Håll exporterade delmängder åtskilda från oförändrade original och kalla inte icke-signifikanta kandidater validerade träffar. Python erbjuder samma läsare och filter; kontrollera formatspecifika radgränser för större listor.",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7133,15 +7138,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: inneslutna objekt och verifierade bilder av föräldracellen",
-      "description": "Granska lagrade relationer, visningsgränser och rätt föräldrabild utan att godkänna felaktiga ersättningsbilder för saknade barn.",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "Öppna Lineage i Database Browser och bygg det verkliga trädet.",
-        "Skilj totalsiffror, synliga familjer och typade identiteter.",
-        "Känn igen felaktig ersättning och granska bara den verifierade föräldern.",
-        "Använd inbyggd zoom och skilj Python-export från GUI-kontroller."
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "Använd Annotates nedladdade exempel med matchande mätningar och cellbilder. Graph Builder-arkivet innehåller samma databas utan bilder; Lineage-arkivet innehåller verifierad API-CSV och granskning, ingen ersättningsdatabas. Använd inte den felaktiga reservlösningen för att identifiera eller märka saknade barn.",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7149,7 +7153,7 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Hitta Database Browser under Help och öppna det inbyggda Lineage. Här betyder lineage lagrad inneslutning: vilka objekt hör hemma i vilka celler? Det är inte celldelningshistoria, genetiskt ursprung eller ny segmentering. Databaskontrollerna runt vyn hör till värdmodulen.",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -7157,42 +7161,42 @@
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Öppna measurements.db från det verkliga Annotate-exemplet och bygg trädet. Vi använder en oförändrad privat kopia. Bredda Object och avdelaren om texten är trång. Nummer återkommer mellan bildfält och objekttyper; ett ensamt nummer är ingen identitet.",
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
           "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "Hela källan innehåller 2 341 celler, 2 682 kärnor och 2 178 objekt i tabellen pathogen. Bara 2 000 föräldrafamiljer visas. 341 saknas i vyn men har inte raderats ur databasen.",
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
           "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Sammanfattningen säger att ingen cell är tom eftersom även en kärna räknas som barn. Det betyder inte att alla har ett pathogen-objekt: 1 168 saknar ett sådant. Inga oanknutna barn betyder att varje lagrad förälder finns, inte att segmenteringen är biologiskt korrekt.",
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expandera en förälder för att se barnen. I detta fält innehåller cell tre kärna fem och pathogen ett enligt sparade länkar. Det är typade identiteter, inte utbytbara nummer. Att välja ett barn är inte samma sak som att välja hela familjen.",
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contents publicerar föräldern och barnen. Att välja en förälder och dess barn tillsammans kräver inte en extra kopia av barnet. Nycklar behåller bildfält och typ, men nyckelkolumnen är dold. En publicerad identitet bevisar inte att motsvarande bildutsnitt finns.",
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
           "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Stora familjer behöver granskas, inte få en automatisk biologisk tolkning. Exemplet har en familj med totalt 33 objekt. Relationerna kan spegla segmenterings- eller insamlingsfel. Trädet rapporterar sparade länkar och validerar inte ovanliga antal som upptäckter.",
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Ett klick på rubriken sorterar synliga familjer utan att ändra relationerna. Gränsen på 2 000 föräldrar gäller fortfarande. Vi kontrollerade varje synlig identitet, föräldralänk och hela hierarkin. En sorterad eller avkortad vy är ingen redigerad mättabell.",
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open crops behöver Annotate som bildvisare. Det faktiska meddelandet ber dig öppna Annotate först. En saknad visare är inte en saknad bild. Läs in rätt projekt före bildbegäran, inte en annan körning med tillfälligt liknande nummer.",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -7200,33 +7204,38 @@
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Det nedladdade projektet ger verkliga cellutsnitt. Arkivet med bara databasen innehåller inte dessa bilder. Vi använder hela det matchande exemplet och bevarar alla original. Att öppna källan tränar ingen klassificerare och fastställer inga nya etiketter.",
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
           "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Den här versionen har en allvarlig begränsning. Treobjektsfamiljen visar cell tre och sedan de orelaterade cellerna fem och ett i stället för begärd kärna och pathogen. Källan har bara cellbilder. Avvisa ersättningen och märk inte bilderna som de saknade barnen. Tutorialen reparerar inte felet.",
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
           "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Det verifierade alternativet är snävare: återvänd till Lineage och dubbelklicka enbart föräldracellen. Till skillnad från Open crops skickas bara föräldern, inte familjen. Annotate visar exakt det begärda utsnittet. Identitet och originalbytes kontrollerades; stöd för barnbilder följer inte av detta.",
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
           "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Håll Skift och klicka på förälderns miniatyr för att förstora befintlig förhandsvisning utan klasstilldelning. Escape återställer rutnätet. Det hjälper granskningen men skapar ingen extra upplösning. Ett vanligt vänsterklick annoterar och är inte den zoomgest som visas här.",
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build tree uppdaterar vyn. I Python ger read_object_tables, build_forest och lineage_frame samma struktur. Länkad CSV har alla 7 201 noder, även familjer utanför vyn. Den skrevs via API:t, inte en Lineage-exportknapp, och är ingen biologisk validering.",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8278,19 +8287,18 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Tools",
-      "title": "Gate Editor: verkliga populationer, vyer som kan återställas och exakta exporter",
-      "description": "Rita gates i nedladdade cellmätningar, kontrollera sparad tillhörighet, jämför vyer av tre faktiska mätvariabler med projektioner och undersök en avgränsad klustersökning utan att hitta på biologiska kategorier.",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "Läs in verkliga mätningar och skilj mellan gates, vyfilter och synlighet.",
-        "Spara och återställ gränser för mätvariabler och exportera sedan tillhörighet med exakta objektidentiteter.",
-        "Utforska tredimensionella gränser och huvudkomponenter utan att förväxla en projektion med en anpassad transformation som kan återanvändas.",
-        "Jämför faktiska resultat från klustersökningar och använd den lokala mätkonsolen."
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "Ladda först ned Annotate-exemplet och gör sedan en privat kopia av dess mätdatabas. Gate Editor har ingen separat knapp för att ladda ned ett exempel. Den här inspelningen använder alla 2 341 verkliga cellrader och ändrar bara den privata kopian vid export; gatenamnen i handledningen är beteckningar för granskning, inte biologiskt fastställda facit.",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "Öppna Gate Editor i kategorin Tools på Home. Dra i avdelarna så att diagrammet, gatetabellen och sidopanelens reglage får tillräckligt med plats. Den här lektionen använder de nedladdade Annotate-mätningarna; Gate Editor har ingen egen knapp för att ladda ned ett exempel.",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8298,22 +8306,22 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Använd Load table för att öppna en privat kopia av measurements.db. Välj tabellen cell: Det här exemplet innehåller 2 341 verkliga objekt. Export gates skriver till en databas, så behåll originalexemplet oförändrat och arbeta med kopian.",
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
           "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "Välj cell_area för X och cell_channel_1_mean_intensity för Y samt verktyget Rectangle. Varje punkt representerar ett uppmätt objekt. Granska mätvariablernas namn och enheter innan du ritar; ett område avgränsat av area och intensitet påvisar inte i sig en infekterad cell eller någon annan biologisk klass.",
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
           "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "Dra över spridningsdiagrammet, släpp och ange ett beskrivande gatenamn. Populationen i handledningen är avsiktligt ett granskningsexempel. Formen lagrar numeriska gränser i de här två mätvariablerna; den är ingen modell som tränats att känna igen celler utifrån deras bilder.",
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "Det här ritade området innehåller 655 objekt, ungefär 28 procent av tabellen. Läs av antal och procentandelar bredvid gatenamnet. Olika muspositioner ger olika gränser och antal, så använd den sparade strategin när du behöver upprepa resultatet exakt.",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8324,7 +8332,7 @@
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "Om du avmarkerar gaten döljs dess överlägg utan att definitionen raderas eller tillhörigheten ändras. Markera den igen för att återställa vyn. Detta skiljer sig från Delete gate och från fliken Filter, som ändrar vilka objekt som visas under dessa gates.",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8335,27 +8343,27 @@
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Använd Save gates för att spara de namngivna gränserna för mätvariabler i en JSON-strategi. Här sparar vi, raderar faktiskt gaten och läser sedan in den sparade filen. För att återanvända en strategi måste mätnamn, enheter och förbehandling stämma överens; det räcker inte med en tabell som har samma antal kolumner.",
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
           "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates återställer samma gränser och alla 655 tillhörande objekt. Vi kontrollerade tillhörigheten efter att faktiskt ha raderat och läst in gaten igen, inte bara genom att spara en fil. För en annan datamängd ska du kontrollera de återställda gränserna och objektidentiteterna innan du förlitar dig på antalen.",
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
           "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph sparar den faktiska figuren; inställningarna i den här inspelningen ger en PNG- och en PDF-fil. En figur skiljer sig från en gatestrategi eller exporterad tillhörighet. Behåll tillhörande data och strategi när du behöver återskapa hur en visad population definierades.",
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates skriver tillhörighetsmarkeringar till tabellen filters i den privata databasen. Vår första gate markerar exakt 655 cellidentiteter, matchade efter platta, rad, kolumn, bildfält, objektetikett och objekttyp. Den ursprungliga nedladdningen och de underliggande cellmätningarna förblir oförändrade.",
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
           "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "Rita en andra form medan den första är vald. Bland dess 259 objekt finns några utanför den första gaten: Nya gates nästlas inte automatiskt, trots vad äldre statustext kan antyda. Spara den här strategin med två gates separat och kontrollera uttryckligen eventuella relationer till överordnade gates när du läser in en befintlig hierarki.",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8366,52 +8374,52 @@
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "Välj 3D och cell_perimeter för Z för att undersöka tre faktiska mätvariabler. Knapparna för rotationsaxlar styr rotationen. Rotation ändrar vyn, inte de sparade gränserna för de två befintliga områdena i area och intensitet; återgå till 2D för att granska dessa former igen.",
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
           "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view skapar en namngiven låda med gränser i alla tre visade mätvariabler. Vårt exempel som omfattar hela volymen innehåller varje inläst objekt: Det visar hur reglaget fungerar, inte en anrikad biologisk population. Spara strategin med tre gates separat så att den tidigare filen med två gates finns kvar.",
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
           "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "Reglaget xD beräknar huvudkomponenter från lämpliga mätvariabler. Det är oberoende av valet mellan vyerna 2D och 3D. Här anger källetiketten 17, 13 och 6 procent förklarad varians för de tre första komponenterna; detta är variansandelar, inte klassificeringsnoggrannhet.",
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
           "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "När xD stängs av finns komponentkolumnerna kvar; välj de råa mätvariablerna som axlar igen när du återgår till gates på dessa variabler. En sparad gatestrategi sparar inte den anpassade projektionen. Komponentnamn räcker inte för att göra oberoende anpassade projektioner kompatibla, så återanvänd inte deras gategränser utan kontroll.",
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
           "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "Bredda sidopanelen för Search och ta bort tillfälliga gates efter att du har sparat dem. Använd samma två råa mätvariabler, aktivera skalning och ställ in minsta antal grannar på 20 samt antalet Walk-steg på fem. Run walk öppnar en bekräftelse i den här versionen; kontrollera att dess värden stämmer med de synliga inställningarna.",
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
           "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "Den faktiska Walk-körningen väljer en radie på cirka 0,167 och rapporterar två populationer, med 33 procent av objekten utanför dem. Granska konturerna som skapas. Täthetsbaserad klustring och dess sparade polygongates är utforskande beskrivningar, inte validerade celltyper eller bevis för att uteslutna objekt är ogiltiga.",
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
           "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Spara Walk-strategin, ta bort dess tillfälliga gates, stäng av Walk och kör med radien 0,5. Detta separata val skapar en större polygongate som innehåller 2 239 objekt. Resultatet är inte bättre enbart för att det omfattar fler celler.",
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "Läs in den sparade strategin med två gates på råa mätvariabler igen och lägg sedan till cell_area i Filter. Om den nedre gränsen sätts till 21 925 återstår 1 171 visade objekt. Den här förhandsvisningen i realtid begränsar vyn utan att skriva om de sparade gategränserna.",
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
           "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "Rensa filtret så visas alla 2 341 objekt igen. Kontrollera både det aktiva vyfiltret och gatedefinitionen innan du tolkar antal eller exporterar. Att dölja ett överlägg, filtrera en vy och radera en gate är tre olika åtgärder.",
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
           "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "Dra avdelaren längst till höger åt vänster för att visa konsolen. Ange len(df): Den verkliga tabellen returnerar 2 341. Uttryckskonsolen körs lokalt; resultatet är inte ett svar genererat av en AI-modell.",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8422,7 +8430,7 @@
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "Chattrutan är skild från uttrycken. Vi lämnar ett utkast osänt utan att demonstrera en assistent eller en biologisk tolkning. I Python lagrar GateSet från spacr.qt.widgets.gate_spec definitioner; gate_mask_over_table och export_gate i spacr.filters beräknar och sparar objektmarkeringar för hela tabellen. Kontrollera identiteterna före efterföljande annotering.",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8435,7 +8443,12 @@
             "09_annotate"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8444,19 +8457,18 @@
       "series": 5,
       "app_key": "feature_explorer",
       "section": "Explore",
-      "title": "Feature Explorer: rangordna verkliga mätningar och håll jämförelsen tydlig",
-      "description": "Öppna undermodulen i Classify, jämför verkliga mätvärden mellan plattrader, granska fördelningar, filtrera direkt, lägg till en beräknad kolumn och exportera önskad rangordning utan att träna en klassificerare.",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "Hitta Feature Explorer i Classify och läsa in befintliga cellmätningar.",
-        "Skilja AUC från separation och kontrollera klassantal och fördelningsskillnader.",
-        "Filtrera direkt utan att missa automatiska byten av jämförelsekolumn.",
-        "Använda Top medvetet, kontrollera en omskalad kolumn och exportera den faktiska rangordningen."
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "Använd det nedladdade Annotate-exemplet, inte påhittade mätningar. Inspelningen öppnar en byteidentisk privat kopia av databasen med 2 341 celler och 276 kolumner. rowID-grupperna är plattans rumsliga rader r12 och r5, inte fastställda behandlingar; cellerna delar bildfält och brunnar och är inte oberoende experiment. Originaldata förblir oförändrade. AUC, KS, ordning och klassantal för ändliga värden har kontrollerats oberoende för de avsedda tvåklassjämförelserna. Den automatiskt valda åttaklassjämförelsen är ett varningsexempel, inte oberoende validerad inferens. Shuffle test är avstängt. Ingen träning, ny bildanalys, särskild nedladdning, GPU-åtgärd eller AI-förfrågan sker här; histogrammen är modulens egna diagram.",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Öppna Classify och sedan knappen Feature Explorer. Det här inbäddade verktyget rangordnar befintliga mätningar; att öppna det tränar ingen klassificerare. Vi använder det verkliga nedladdningsbara Annotate-exemplet på en privat databaskopia. Följ Annotate-lektionen för att hämta det och behåll din experimentella källa oförändrad.",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8464,7 +8476,7 @@
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Välj Load table, mätdatabasen och dess cell-tabell, och sätt Split by till rowID. Det finns 2 341 celler och 276 kolumner. Våra två grupper är registrerade plattrader, inte fastställda behandlingar; dessa celler är inte oberoende experiment.",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8475,7 +8487,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Rangordna efter AUC och läs båda sifferkolumnerna. Separation är absolutbeloppet av två gånger AUC minus ett: ungefär 0,34 separation är inte 0,34 AUC. Higher in anger riktningen; min n räknar ändliga mätvärden i den mindre klassen, inte experimentella upprepningar.",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8486,7 +8498,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Sätt Top till fyra för att granska fyra överlagrade histogram. Inom varje variabel använder klasserna samma intervallgränser och stapelhöjderna anger antal. Den högst rankade variabeln är inte automatiskt en användbar biomarkör. Läs varningen: AUC kan missa spridningsskillnader även när fördelningarna skiljer sig.",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
@@ -8497,12 +8509,12 @@
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Export ranking med Top fyra skriver fyra variabelrader. I den här versionen följer exporten Top, trots att texten antyder hela rangordningen. Den exporterar inte de underliggande cellerna och sparar ingen tränad modell. Vi jämförde varje exporterat värde med den faktiska aktuella rangordningen.",
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
           "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "Sätt Top till 500 innan du exporterar alla poängsatta variabler i det här exemplet. 261 kan poängsättas; två numeriska kandidater kan inte det. Exporten innehåller alla 261 rader, medan skärmen ritar högst åtta fördelningar. Variabelantal, tabellrader och diagrampaneler är olika storheter.",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8513,7 +8525,7 @@
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Byt Rank by till KS för att jämföra det största avståndet mellan kumulativa fördelningar och återgå sedan till AUC. KS kan visa fördelningsskillnader som AUC missar, men anger inte riktning i sig. Andra statistiska mått har egna begränsningar; läs varningen i stället för att behandla en rangordning som ett signifikanstest.",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8524,7 +8536,7 @@
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Lägg till cell_area under Filter och sätt minimum till 21 925. Den synliga populationen blir 1 171 celler och 255 variabler kan fortfarande poängsättas. Denna medianbaserade demonstrationsgräns är inte en biologisk kvalitetsgräns. Rangordningar och fördelningar uppdateras utan att bilderna mäts om.",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -8535,12 +8547,12 @@
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all tar bort visningsfilter, inte data. Alla 2 341 celler och den ursprungliga rangordningen återkommer. Kontrollera populationen och Split by när du ändrar filter. En skillnad som ändras efter filtrering beskriver en annan vald population, inte ett nytt experiment.",
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
           "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "Den här versionen har en viktig fallgrop. Att filtrera rowID till r12 tar bort den andra raden, men skärmen byter utan varning Split by till cell_channel_0_maxima_count. Nu jämförs åtta grupper med bara ett objekt i den minsta. De imponerande poängen är varken den ursprungliga radjämförelsen eller bevis för en biologisk upptäckt.",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8551,7 +8563,7 @@
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "Rensa filtret och välj uttryckligen rowID igen. Enbart rensning återställer inte nödvändigtvis den ursprungliga jämförelsen. Kontrollera både klasskolumn och population före export. Shuffle test erbjuder 50 omblandningar av etiketter men lämnas avstängt: fri omblandning av dessa korrelerade celler skulle inte ge evidens på brunns- eller behandlingsnivå.",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8562,7 +8574,7 @@
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Öppna Columns och kalla en ny kolumn area_k. Skriv cell_area delat med 1e3, alltså 1 000, och välj Add column med ersättning avstängd. Det skalar om arean; det kalibrerar inte fysiska enheter och lägger inte till en ny mätning. Preview kontrollerar de första 2 000 raderna; tillägget använder formeln på hela tabellen.",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -8573,12 +8585,12 @@
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "Den omskalade kolumnen kommer med i rangordning och export, vilket ger 262 poängsatta variabler. Dess AUC och KS är samma som för cell_area eftersom positiv omskalning bevarar ordningen. Vi kontrollerade varje beräknat värde. Ta bort formeln för att återgå till ursprungliga 261 variabler; mätdatabasen är oförändrad.",
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
           "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "Använd dessa rangordningar för beskrivande utforskning, inte oberoende validering av en vald variabel eller tränad klassificerare. I Python tillhandahåller spacr.qt.widgets.feature_rank rank_features och ExplorerSpec. Fortsätt med Database Browser och Graph Builder för råtabeller eller andra jämförelser. Ingen ny bildanalyspipeline eller AI-förfrågan kördes.",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8587,7 +8599,12 @@
           ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8596,19 +8613,18 @@
       "series": 5,
       "app_key": "outliers",
       "section": "Explore",
-      "title": "Outliers: granska verkliga flaggor utan att radera observationer",
-      "description": "Öppna Outliers i QC, jämför robusta regler på verkliga cellmätningar, skilj ej bedömda från problemfria brunnar, undersök en verkligt avvisad logtransformering och exportera alla rader med flaggor.",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "Hitta QC:s undermodul och välj mätta variabler medvetet före Scan.",
-        "Jämför MAD, IQR och uttryckliga logtransformeringar utan att behandla flaggor som bekräftade fel.",
-        "Skilj objektantal, visade rader och ej bedömda brunnsjämförelser åt.",
-        "Exportera originalmätningar med flaggor och återställ en giltig regel efter en ogiltig transformering."
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "Använd det nedladdningsbara Annotate-exemplet på en byteidentisk privat databaskopia. Dess 2 341 celler ligger i fyra registrerade brunnar; de är inte oberoende experiment eller objekt med kända fel. Originalmätningar ändras eller raderas aldrig. Lektionen kontrollerar oberoende MAD/IQR för en ändlig, icke-degenererad variabel, varje flaggad position, brunnsmedianer och antal samt avvisningen av jämförelser med färre än fem brunnar. Den validerar inte den automatiska skanningen av alla variabler, alternativ vid nollskala, multivariat MCD-inferens eller biologisk kvalitet. En befintlig mättabell skannas, utan ny segmentering, GPU-analys eller klassificerarträning. Skärmen har ingen bildförhandsvisning, Plot-knapp, egen exempelnedladdning eller AI-konsol; Objects, Wells och Report är de faktiska utdata.",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "Öppna QC från Home och välj dess Outliers-knapp. QC:s översikt läser sparade kontroller, medan det här inbäddade verktyget beräknar flaggor från en mättabell. Vi använder det verkliga nedladdningsbara Annotate-exemplet på en privat databaskopia. Följ den lektionen för att hämta det och låt försökskällan vara oförändrad.",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8617,7 +8633,7 @@
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Välj Load table och databasens cell-tabell. Inläsningen skannar automatiskt alla valda kontinuerliga variabler: här 255 över 2 341 celler. Den breda standardinställningen flaggar 2 338 objekt. Det bevisar inte att nästan alla celler är dåliga. Att läsa in den breda resultattabellen kan ta tid.",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8628,7 +8644,7 @@
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "Med tom variabelsökning väljer du None för att avmarkera allt. Sök cell_area, kryssa endast i exakt den variabeln och tryck Scan. Sökningen begränsar variabelnamn, inte cellrader. Ändrat urval skannar inte automatiskt igen; det gamla resultatet kan ligga kvar tills den nya regeln körs.",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8639,7 +8655,7 @@
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "För MAD behåller du transformeringen none och k på 3,5. Regeln delar det absoluta avståndet från medianen med ungefär 1,4826 gånger medianabsolutavvikelsen. Den flaggar 26 celler. De är kandidater för granskning, inte bekräftade segmenteringsfel, och ingen rad har tagits bort.",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8650,7 +8666,7 @@
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Öppna Wells. Alla fyra brunnar innehåller över 500 objekt, men ingen bedöms: jämförelsen behöver minst fem kvalificerade brunnar. Läs well_scored och den specifika orsaken, inte bara Wells noll. Flagged share sammanfattar objektflaggor; det är ingen brunnspoäng eller bevis för en problemfri brunn.",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8661,7 +8677,7 @@
         },
         {
           "visual": "08_area_report",
-          "narration": "Report visar regeln, uppmätt centrum, skala och förbehåll. Ett förbehåll i denna version säger felaktigt att de fyra brunnarna hade färre än 20 objekt. Deras verkliga antal är 501–700; orsaken är för få brunnar. Använd den specifika orsaken i brunnstabellen och upprepa inte den felaktiga antalsförklaringen.",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8672,7 +8688,7 @@
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "Ett större avståndskrav flaggar färre objekt. k på 2 gav 142 flaggor; vid 0,5 blir det 1 479. Det sista är avsiktligt brett för demonstrationen, inte en rekommenderad kvalitetsgräns. Objekttabellen visar bara 500 rader, så radantalet är inte antalet flaggade objekt.",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8683,7 +8699,7 @@
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Välj Export och ett nytt filnamn. objects-CSV behåller alla 2 341 rader och lägger till flaggor; flagged innehåller de 1 479 flaggade raderna. Wells har fyra sammanfattningar och report är en textfil. Varje exporterad mätning och flagga kontrollerades. Export är inte radering och begränsas inte till de 500 synliga raderna.",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8694,7 +8710,7 @@
         },
         {
           "visual": "13_area_iqr",
-          "narration": "Återställ originalregeln och välj IQR. Tröskeln betyder nu c gånger kvartilavståndet, inte robusta standardavvikelser. Med c på 1,5 ger rå cellyta 55 flaggor. Båda kvartilgränserna och varje flaggad position kontrollerades oberoende. Svansen i en skev fördelning kan flaggas även när mätningarna är giltiga.",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8705,7 +8721,7 @@
         },
         {
           "visual": "14_iqr_report",
-          "narration": "Det finns ännu ett textfel. Den här IQR-rapporten kallar 22 663 medianen, men talet är mittpunkten mellan första och tredje kvartilen. Den faktiska medianen är 21 925. De kontrollerade gränserna är korrekta; citera inte det visade centrumet som medianen.",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8716,7 +8732,7 @@
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "Välj log10 uttryckligen och skanna igen. På dessa positiva ytor ger IQR 79 flaggor, medan MAD på 3,5 ger 36. Logtransformeringen ändrar avstånd och frågeställning; den garanterar varken färre flaggor eller biologisk riktighet. Rapportens centra och skalor är nu i log10-enheter.",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8727,7 +8743,7 @@
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "För ett verkligt avvisningsexempel återgår du till ingen transformering och väljer bara cell_channel_0_min_intensity. Scan lyckas och flaggar 68 objekt. Ett mätvärde är faktiskt noll. Det positiva motexemplet är viktigt: tabell och variabel fungerar innan vi begär en transformering vars definitionsmängd utesluter värdet.",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8738,7 +8754,7 @@
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "Välj nu log10 och tryck Scan. Det verkliga felet namnger det enda noll- eller negativa värdet och dess variabel. Ingen pseudoräkning hittas på och inget objekt tas bort; Export inaktiveras. Gamla tabellrader och antal kan vara kvar efter felet, men är inget nytt lyckat resultat. Läs felet och återställ en giltig regel.",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8749,7 +8765,7 @@
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "Återgå till rå cell_area och MAD 3,5 och skanna för att få tillbaka 26 flaggor. Min objects per well på 700 ändrar kvalificeringen: bara en brunn når antalet, medan tre behåller specifika skäl om för få objekt. Att sänka minimum skapar inte den saknade femte brunnen. Ej bedömd betyder aldrig friskförklarad.",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8760,7 +8776,7 @@
         },
         {
           "visual": "22_objects_only",
-          "narration": "Återställ minimum till 20, stäng av Score wells too och skanna. Objektflaggorna är fortfarande 26 och ingen brunnsjämförelse begärs. Slå på igen och skanna för att återställa de fyra ej bedömda brunnssammanfattningarna. Inställningen ändrar analysnivå; den filtrerar eller raderar inte celler eller brunnar ur databasen.",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8771,7 +8787,7 @@
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "Exportera den återställda regeln med ett annat filnamn. Slutfilerna har 2 341 objektrader, 26 flaggade rader, fyra brunnssammanfattningar och rapporten. Originaldatabasen och den privata mätdatabasen är oförändrade. Behåll regeln och rapporten med flaggorna, så att en annan tröskel inte förväxlas med samma analys.",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8782,7 +8798,7 @@
         },
         {
           "visual": "method_choices_mad",
-          "narration": "Menyn erbjuder också robust multivariat Mahalanobis, som vi inte körde här. Dess alfa beror på fördelningsantaganden och är ingen garanterad felfrekvens. Python-beräkningen är detect_outliers med OutlierSpec i spacr.qt.widgets.outlier_model. Fortsätt med Feature Explorer eller Annotate för fördelningar eller bilder; här fanns ingen bildförhandsvisning eller AI-förfrågan.",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8797,7 +8813,12 @@
           ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -8806,24 +8827,23 @@
       "series": 5,
       "app_key": "experiment_design",
       "section": "Data",
-      "title": "Experiment Design: en reproducerbar plattplan och exakt export",
-      "description": "Redigera en planerad plattlayout med de faktiska reglagen, granska varningar om kapacitet och replikat, återskapa slumpmässiga tilldelningar och exportera den exakta brunnskartan.",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "Planera betingelser och kontrollroller före bildinsamling.",
-        "Visa varningar och återställning utan att likställa layoutkontroll med biologisk validering.",
-        "Återskapa samma slumpmässiga layout och skilj valda brunnar från tilldelade betingelser.",
-        "Exportera och behåll den exakta brunnstabellen när rad- eller kolumninställningar inte kan beskriva försöksplanen."
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "Planeringsmodulen kräver varken insamlade bilder eller en hämtad datamängd. Inspelningen använder appens faktiska utkast med sex negativa kontrollbrunnar, sex positiva kontrollbrunnar och tolv behandlingsbrunnar, med namnet tutorial_plan. Antalen visar gränssnittet; de är inte en styrkeberäkning eller ett uppmätt försöksresultat.",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öppna Experiment Design i kategorin Data på Home före bildinsamling. Modulen skapar ett förslag till plattlayout, inte uppmätta biologiska resultat. Våra namn negative, positive och treatment är preliminära etiketter; välj meningsfulla namn och kontroller för ditt försök.",
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
           "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "Namnge plattan så att dess identifierare senare stämmer med bilder och mätningar. Om en tabellkolumn är smal dubbelklickar du på rubrikens gräns för att anpassa bredden till innehållet. Granska Condition, Replicates och Role tillsammans. Exemplets sex, sex och tolv brunnar visar gränssnittet, inte en motiverad stickprovsstorlek.",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
@@ -8831,7 +8851,7 @@
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "Ett format med sex brunnar ger ett kapacitetsfel när planen kräver tjugofyra. Kartan tar inte bort överflödiga replikat utan besked. Läs meddelandet och ändra format eller försöksplan; en tom karta är inte en giltig tilldelning.",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8842,7 +8862,7 @@
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "Tillbaka på nittiosex brunnar återställs alla tjugofyra tilldelningarna. Plattkartan följer den aktuella tabellen. Add condition och Remove selected hanterar betingelserader; de fyrkantiga brunnarna nedanför är en separat markeringsyta, inte dessa tabellrader.",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8853,17 +8873,17 @@
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "Välj en replikatcell och tryck F2 för att redigera. En enda negativ kontrollbrunn ger en varning; sex tar bort den igen. Många celler i samma brunn ersätter inte oberoende experimentella replikat.",
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Block-layout placerar betingelser tillsammans och varnar för sammanblandning av positions- och betingelseeffekter. Se det som en uppmaning att granska planen, inte som automatiska biologiska slutsatser. Optisk belysningskorrigering rättar varken avdunstnings- eller temperatureffekter; försöksplacering och skuggvariation i bilder är olika problem.",
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
           "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "Välj random-layout, leave edge empty och seed fyrtiotvå. Utan ytterkanten har denna nittiosexbrunnsplatta sextio användbara brunnar; planen tilldelar tjugofyra. Tomma kantbrunnar kostar kapacitet och garanterar inte att alla rumsliga effekter försvinner.",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8874,7 +8894,7 @@
         },
         {
           "visual": "08_seed43",
-          "narration": "Seed fyrtiotre ändrar de faktiska tilldelningarna men behåller önskat antal för varje betingelse. Randomisering minskar systematisk placeringsbias, men varje slumpmässig layout behöver ändå granskas. Välj inte ett seed för att gynna ett önskat resultat.",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8885,7 +8905,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Fyrtiotvå återställer exakt samma koppling mellan brunnar och betingelser. Dokumentera seed tillsammans med plattformat, kantregel och betingelsetabell. Seed ensamt definierar inte planen om de andra indata ändras.",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8896,7 +8916,7 @@
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "Dra från B02 till C04 för att välja sex brunnar. Markeringsramen ändras men inte betingelserna: Gesten väljer brunnar och tilldelar ingen behandling. Kontrollera betingelsetabellen och den visade kartan när en tilldelning ändras.",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8907,12 +8927,12 @@
         },
         {
           "visual": "11_export_folder",
-          "narration": "Använd Export plate map och välj en särskild mapp. Den faktiska exporten skriver plate_map.csv, plate_map.json och plate_map_settings.json. Behåll alla tre tillsammans; att välja ett mål är inte detsamma som att utföra det planerade försöket.",
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "CSV-filen har en rad per tilldelad brunn: här tjugofyra, med exakt de visade betingelserna och rollerna. Den kopplas till mätningar med plateID, rowID och columnID tillsammans. JSON-filen sparar seed, plan och kontrollfynd och bevarar även varningarna.",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8923,7 +8943,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Den här slumpmässiga layouten kan inte uttryckas med rad- eller kolumnbaserade behandlingsinställningar. Inställningsfilen anger uttryckligen expressible som false; den är inte en fullständig analyskonfiguration. Använd den exakta exporterade brunnstabellen och en uttrycklig koppling i stället för att approximera blandade brunnar med etiketter för hela rader.",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8934,7 +8954,7 @@
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Python-gränssnittet finns i spacr.qt.widgets.plate_layout: Condition och PlateDesign beskriver planen; assign_wells, check_design och write_design fördelar, granskar och sparar den. Layoutkontroll visar varken statistisk styrka eller biologisk giltighet. Granska planen före bildinsamling och behåll den exakta kartan för fortsatt analys.",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8942,30 +8962,35 @@
             "33_plate_viewer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design: läs simulatorn och dess begränsningar",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
       "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "Förstå de faktiska kontrollerna, simulerade kurvorna och varningarna utan att ta en liten demonstration eller motsägelsefull text för validerad planeringsrådgivning.",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "Skilja simuleringsantaganden från insamlade försöksdata.",
-        "Läsa användbara modellanpassningar, detektionsandelar och osäkerhet rätt.",
-        "Känna igen det felaktiga rådet om samma design och bevara underlaget."
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "Kritisk granskning av den inspelade simulatorn, inte kalibrerad statistisk styrka eller råd om stickprovsstorlek. Power_recorded_simulation_review.zip bevarar original-JSON och granskning; det är inte en importerbar körning eller GUI-export. Skärm, adapter, simulator och anpassningskod inspelade med spaCR 1.5.0.4 är fortfarande byte-identiska med aktuell kod. Två marginala svep gav 18 anpassningar och nio punkter, två upprepningar vardera; fyra icke-konvergerade anpassningar finns kvar i nämnaren. Två simuleringar begränsade sannolikheter. Samma nominella design med olika slumpdragningar ger 1/2 och 2/2 detektioner. Rådet att öka till det redan befintliga brunnsantalet avvisas och är inte åtgärdat. Vissa ändetiketter klipps; den kontrollerade tabellen har alla nio koordinater. Ingen ny simulering, insamlade data, biologisk kalibrering, GPU-uppgift, AI-förfrågan eller publicering hävdas. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve och spacr.qt.screens.power.run_power_sweep; spacr.power_simulate och spacr.power_model simulerar och anpassar.",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Power och Design undersöker antaganden med simulerade data. Det laddar inte ett insamlat experiment och visar inte att antagandena passar ditt. Lektionen läser en verklig inspelad körning med varningar och ett missvisande råd. Använd inte denna lilla demonstration som validerad rådgivning om stickprovsstorlek.",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
@@ -8973,32 +8998,32 @@
         },
         {
           "visual": "03_guide_library",
-          "narration": "Börja med biblioteket och enheten som bedöms. Växling mellan guide och gen ändrar bedömningsenheten: 40 gener med fyra guider vardera ger 160 enheter vid guidebedömning. Genbedömning slår ihop guideinformationen. Det är undervisningsantaganden, inte nya biologiska mätningar.",
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
           "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "Platt- och effektkontroller beskriver den antagna designen. Andelen positiva klassificeringar är en simulerad sannolikhet, inte ett organismantal eller en uppmätt infektionsfrekvens. Granska bakgrund, effekt och prevalens tillsammans; de visade antagandena validerar inte modellen.",
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "En effekt under ett utlöser den inbyggda varningen om en riktning som inte stöds och inaktiverar Run. Inspelningen återställer sedan ett tillåtet värde och tillgängliga kontroller. Det är ett programvaruskydd, inte biologisk omöjlighet. Kringgå inte varningen för att få en bekväm kurva.",
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
           "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "Demonstrationen använder bara två upprepningar per punkt. Detektion kräver en användbar anpassning som når vald tröskel för arean under ROC-kurvan. Det är inte en P-värdesgräns för hypotesprövning. Seed och backend registreras; Torch i sig bevisar inte GPU-körning.",
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
           "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Run startar den verkliga simulatorn i en arbetstråd. Cellantal och brunnsantal varieras separat, inte i alla kombinationer. Inspelningen slutförde 18 anpassningar över nio punkter. Spara inställningar och råa upprepningsdata tillsammans så att varje ritad andel kan spåras till anpassningarna bakom den.",
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "Detektioner räknas över alla begärda upprepningar. Fyra anpassningar konvergerade inte och ligger kvar i nämnaren som icke-detektioner; de försvinner inte i det tysta. Hundra procent betyder här bara två av två. Ett så litet stickprov ger inte en exakt detektionssannolikhet.",
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
           "hold_after": 0.7
         },
         {
@@ -9009,7 +9034,7 @@
             2380,
             460
           ],
-          "narration": "Tabellen skiljer detektionsandelar från genomsnittlig prestanda bland användbara anpassningar. Ett otillgängligt medelvärde är inte noll. Average precision behöver även prevalensreferensen. Läs tabellen vid klippta ändetiketter och kontrollera utebliven konvergens i stället för att bara bedöma den blå linjen.",
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
           "hold_after": 0.7
         },
         {
@@ -9020,23 +9045,28 @@
             2380,
             110
           ],
-          "narration": "Sammanfattningen innehåller ett fel. Båda basestimat använder redan 96 brunnar, men olika slumpdragningar ger en av två detektioner i ett svep och två av två i det andra. Att gå till samma 96 brunnar förbättrar inte designen. Avvisa rådet; handledningen reparerar det inte.",
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
           "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "Visa de återstående förbehållen. Två simulerade screeningar begränsade sannolikheter över ett, så realiserad beläggning avviker från begärt värde. Modellen har fler antaganden och begränsningar; att lista dem är inte validering. Läs varningar och misslyckade anpassningar före slutsatser.",
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
           "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "Arkivet bevarar faktisk specifikation, upprepningar, kurvor, tabell och felaktig text. Det är ett externt underlag, inte en inbyggd GUI-export eller ett importerat resultat. Pythons designadapter och simulerings-API:er ger samma arbetsflöde, men verklig planering kräver separat validering av antaganden och osäkerhet.",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9045,21 +9075,21 @@
       "series": 5,
       "app_key": "dose_response",
       "section": "Data",
-      "title": "Dos–respons: anpassade kurvor, osäkerhet och motiverade avslag",
-      "description": "Använd den aktuella vyn Dose Response med en reproducerbar syntetisk tabell, jämför profil- och Wald-intervall och skilj mellan anpassade, obestämda och avvisade resultat.",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "Läsa in uttryckliga koncentrationer och responser och anpassa en kurva per namngiven serie.",
-        "Tolka halvmaximal koncentration, intervallmetoder, vehikelkontroller och avvisade kurvor.",
-        "Jämföra före sortering, kopiera den verkliga rapporten och skilja gränssnittets reglage från API-export."
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "Hämta den bifogade SYNTETISKA CSV-filen. Den innehåller 120 konstruerade rader: fyra serier, nio positiva koncentrationer och en vehikelkontroll vid dos noll, med tre observationer per koncentration. Balanserade avvikelser på −0,5, noll och +0,5 är varken biologiska replikat eller en kalibreringsstudie. De inlagda halvmaximala koncentrationerna är 1,5, 2 och 500 utanför intervallet; den fjärde serien vänder riktning. Ingen egen datanedladdare för Dose Response, normalisering, viktning, replikatväljare, exportknapp eller AI-konsol demonstreras. Unit ändrar en etikett, inte data. I denna version kan en ny anpassning efter sortering blanda ihop de visade radernas identiteter; inspelningen avslutar därför alla anpassningar före sortering. Behåll avvisade resultat och läs hela rapporten. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame och DoseResponseSet.table. Data- och grafkontrollerna är oberoende av spaCR:s anpassningsfunktioner; profilgränserna kontrolleras mot den angivna precisionen för sökintervallet i log10, inte som en täckningsgaranti.",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Öppna Dose Response i avsnittet Data på Home. Denna fristående vy anpassar en logistisk kurva med fyra parametrar till en koncentrationsserie. Den behöver de inmatade koncentrationerna och responserna; doser härleds inte från brunnsnamn, bildkoordinater eller behandlingsetiketter.",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
@@ -9067,12 +9097,12 @@
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "Hämta den syntetiska CSV-filen via länken i lektionens förkunskapsruta och välj Load table. Detta är avsiktligt konstruerade programexempel, inte uppmätta substanser. Filen och varje serienamn anger att data är syntetiska, så att de rena kurvorna inte misstas för experimentella resultat.",
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
           "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "Filen innehåller hundratjugo rader fördelade på fyra serier. Varje serie har nio positiva koncentrationer, en vehikelkontroll vid dos noll och tre observationer per koncentration. Små, balanserade konstgjorda avvikelser bevarar modellmedelvärdet vid varje dos; detta praktiska exempel validerar inte statistisk prestanda i verkliga experiment.",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9083,7 +9113,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Välj concentration som koncentrationskolumn, response som responskolumn och series under One curve per. Ange ursprungliga koncentrationer, inte deras logaritmer. Grupperingen är viktig: en enda kurva anpassad till alla fyra olika serier skulle besvara fel fråga.",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9094,7 +9124,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Unit är bara en etikett. Här skriver vi u M för att beteckna exempelkoncentrationerna som mikromolära; ändrad text skalar aldrig om siffrorna. Gör nödvändig normalisering eller enhetsomvandling i förväg, eftersom den här vyn saknar reglage för normalisering och viktning.",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9108,7 +9138,7 @@
         },
         {
           "visual": "06_profile_results",
-          "narration": "Behåll Profile likelihood valt och Fit non-monotone data avstängt och välj sedan Fit. Kurvpanelen och resultattabellen uppdateras tillsammans. Alla fyra serier finns kvar, även ett obestämt resultat och ett avslag; ett saknat skattningsvärde är inte en saknad serie.",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9119,7 +9149,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Välj den syntetiska hämningsserien. Den återfunna halvmaximala koncentrationen är ett komma fem, med negativ Hill-lutning eftersom responsen minskar när koncentrationen ökar. Halvmaximum ligger mellan de anpassade platåerna, här fem och nittiofem; det betyder inte automatiskt femtio procents viabilitet.",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9130,7 +9160,7 @@
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "Välj den syntetiska aktiveringsserien. Dess halvmaximala koncentration är två och Hill-lutningen är positiv. Den valda kurvan framhävs medan de andra anpassade kurvorna finns kvar. Läs den valda raden och rapporten tillsammans i stället för att ge denna serie en annan kurvas skattning.",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9141,7 +9171,7 @@
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "Exemplet utanför området skapades med en halvmaximal koncentration på femhundra, men koncentrationerna slutar vid hundra. Vyn anger ett obestämt resultat, lämnar skattnings- och intervallceller tomma och visar en gräns vid kanten. En anpassad extrapolation är inte en underbyggd punktskattning.",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9152,7 +9182,7 @@
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "Serien som vänder riktning avvisas eftersom en monoton logistisk kurva har fel form. Läs hela förklaringen under tabellen. En vändande respons fastställer inte i sig cytotoxicitet eller någon annan biologisk orsak; undersök experimentet i stället för att blint ta bort doser eller tvinga fram en anpassning.",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9163,7 +9193,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Hämningsrapporten räknar tjugosju anpassade observationer och tre nolldoskontroller. Nollkoncentrationer utesluts från den logaritmiska anpassningen och sammanfattas separat; de omvandlas inte i tysthet till små positiva doser. Den syntetiska vehikelns medelvärde är nittiofem, samma som den konstruerade lågdosplatån.",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9174,7 +9204,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Läs även residualfelet och bedömningen av bristande anpassning, inte bara R-kvadrat. Detta avsiktligt balanserade exempel ger ovanligt rena diagnoser. Upprepade observationer per koncentration används utan en separat replikatväljare; dessa konstgjorda upprepningar visar inte att mätningarna i ett verkligt experiment är oberoende.",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9185,7 +9215,7 @@
         },
         {
           "visual": "13_choose_wald",
-          "narration": "För att jämföra intervallmetoder väljer du Wald och trycker på Fit igen. Att bara ändra väljaren räknar inte om ett befintligt resultat. Intervallet beräknas för logaritmen av den halvmaximala koncentrationen och transformeras tillbaka; det är inte en symmetrisk felstapel som läggs direkt till koncentrationen.",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9196,7 +9226,7 @@
         },
         {
           "visual": "14_wald_results",
-          "narration": "De exempel som väl täcker halvmaximal respons behåller sina punktskattningar medan intervallgränserna ändras något. Exemplet utanför området anger fortfarande inget punktvärde. Ändliga intervall i dessa rena exempel bevisar varken identifierbarhet i ett annat experiment eller nominell täckning med dess brus och urvalsdesign.",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9207,7 +9237,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Återställ Profile likelihood och välj Fit igen. Kontrollera att resultaten nu hör till den metoden. Kurvan, tabellen och den valda rapporten är sammankopplade vyer av en avslutad anpassning, inte en liveförhandsvisning som automatiskt anpassar på nytt när ett reglage ändras.",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9218,7 +9248,7 @@
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "Avsluta anpassningsjämförelserna innan du sorterar tabellen. Denna version kan blanda ihop visade rader vid ny anpassning av en sorterad tabell; lita inte på den följden av steg. Här sorterar vi först efter alla anpassningar, väljer hämning och kontrollerar att rätt rapport visas.",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9229,7 +9259,7 @@
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "Markera och kopiera rapporttexten med det vanliga kortkommandot. Behåll varningar, avslagsförklaringar, ingångskoncentrationer och vald intervallmetod tillsammans med resultatet. Att bara kopiera en punktskattning utan sammanhang tar bort informationen som avgör om den går att tolka.",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9240,7 +9270,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Den här vyn har ingen exportknapp. För programstyrd utmatning erbjuder dos–respons-API:t fit_frame och en resultattabell; API-lektionen förklarar arbetet i Python. Bevara obestämda och avvisade rader vid export, inte bara substanser som gav bekväma siffror.",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9252,7 +9282,12 @@
             210
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

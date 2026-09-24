@@ -48,7 +48,7 @@ Workspace `W=/mnt/firecuda2/codex/workflow-authoring-20260922`,
 stage `U=$W/user-walkthrough-stage`. Original captures are under
 `/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09`.
 
-Latest accepted candidate I: `$U/release-candidate-append-hpih30qn`.
+Previously accepted candidate I: `$U/release-candidate-append-hpih30qn`.
 Four refreshed lessons59AnnData,60PCA,61Tabulate,63SmallMultiples.
 2506/2506 hosted files SHA256match immutable revision
 077895c4c53658d9af5a0b08cc38d814775c25f4;2,950,025,020bytes;1211compatible
@@ -79,11 +79,13 @@ Six fresh-capture gaps remain:02Conda,03PyPI,04installers,17Timelapse,19Train,
 76OPS. OPS has introductory/alignment media; full native OPS and Train remain
 queued with Claude. Restoration tutorial/animation work remains owed.
 
-AnnData's normal writer still raises the string-conversion TypeError on the
-actual copied example. The supplied helper successfully preserves2341x261
-values,28missing values,27metadata columns and database bytes. The current
-lesson explicitly uses that helper. GUI writer repair remains owed.
-Evidence:2026-09-24-anndata-current-workaround.json.
+AnnData's normal writer is repaired by b2dac1bc3/9863c8b7f. The new written
+guide `docs/source/anndata_export.rst` uses the normal GUI/headless entry point;
+its example exports/reopens2341x261 with28missing values and unchanged database
+bytes. Evidence:2026-09-24-anndata-fixed-guide.json. The older video still uses
+the supplied helper and needs a fresh normal-export capture; its historical
+failure receipt is retained. The guide explicitly distinguishes that older
+recording from the current exporter and explains preservation on failed writes.
 
 ## Translations and checks
 
@@ -94,10 +96,11 @@ review-cohort subtraction accounts for the exact single-source addition.
 
 Locale debt is registered in411_release_translation_register_2026-09-24.json.
 Most full API/runtime catalogs and matching tutorial narration still require
-review. Frozen API drafting is isolated at3ee2a1809; eight languages completed
-private drafts, Icelandic reached3365/3365 but must finish reconstruction.
-Inspect api-full-draft-20260923-is-continuation.log and the actual output.
-Known semantic errors remain: never promote these drafts wholesale.
+review. Frozen API drafting at3ee2a1809 has finished for all9languages, with11387
+documents each. Source hashes and private file hashes are recorded in
+411_private_api_drafts_2026-09-24.json. Icelandic retains138unresolved blocks.
+Known semantic errors remain; all drafts need review/rebinding to current
+source. They are not approved translations: never promote them wholesale.
 
 Documentation-owned CI failures were reconciled:85routes/1080scenes, actual
 organism lessons, current objectives, restored help rows, PSF GIF review and
@@ -110,3 +113,20 @@ preserve the historical shallow-clone filter comparison. See
 The Pages publisher uses verified immutable media to retain both channels
 within its size limit. It hashes the transformed player to invalidate browser
 caches. Seventeen publisher tests pass. Do not weaken size or hash guards.
+
+Latest accepted candidate J: release-candidate-append-l1r815zg. Eight refreshed
+walkthroughs48,56,64,65,66,67,68,69; all1722hosted files SHA256match
+5fef816b732a14df2654c5eda9610baa071a080c (2,123,675,799bytes).819compatible
+narration tracks; all84hosted playback and14localized unavailable views pass.
+Hold lifted. Do not re-upload. The first readback hit HTTP503; recovery read
+back the same immutable revision with four workers, then tagged it. Logs:
+exploration-candidate-recovered-upload.log and exploration-candidate-pages.log.
+Matching prepared media now covers63of69rewritten existing lessons, plus four
+new organism guides. Last directly verified live remains I/605aeb67a until
+this newer batch deploys.12scripts and seven fresh-capture follow-ups remain,
+including AnnData's repaired normal exporter.872translation reviews are stale.
+
+Strict English Sphinx with11527APIentries and the current AnnData guide passes
+(anndata-current-guide-sphinx-followup.log). The guide's rendered API link and
+index link resolve. Eight final candidate/inventory/README checks pass. Guide
+receipt411_anndata_write_api_2026-09-24.json records the successful build.

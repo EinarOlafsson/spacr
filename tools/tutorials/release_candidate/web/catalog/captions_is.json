@@ -6125,7 +6125,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: skoðið mögulega niðurstöðukosti í skýrt merktum hjálparglugga",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -6133,17 +6133,17 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Notið óbreyttar Regression-niðurstöður til að prófa raunverulegar síur og útflutning Hit List með skýrt lýstri hjáleið fram hjá falda spjaldinu.",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "Greina bilaða innbyggða flýtileið frá ytra hjálparforritinu.",
-        "Túlka raðaða lista án þess að fullyrða um marktækar uppgötvanir.",
-        "Sía, endurheimta og flytja út raunverulegar raðir."
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Afþjappið Hit_List_real_results_companion.zip, virkið spaCR-umhverfið, keyrið python hit_list_companion.py og veljið results með Browse. Forritið notar óbreytt HitListScreen; það lagar ekki leiðsögnina og tengir ekki Investigate. Safnið geymir upprunalegar niðurstöður, ekki heilt verkefni: 325 gen, 434 raðir leiðsagnar-RNA og ekkert gen með q <= .05. Stöðluð jaðarhrif eru ekki stuðlar margbreytulíkans metnir samtímis. Öryggisbil sem vantar eru ekki tiltæk. n_obs=0 segir ekki til um raunverulegan fjölda hola: wells_with_gene í results_gene.csv er frá 2 til 48. Samtenging lýsigagna, röðun með refsilið og Investigate eru utan sýnikennslunnar. Hvorki þjálfun, ný aðhvarfsgreining, GPU né fyrirspurn til gervigreindarþjónustu er nauðsynleg. API: spacr.hits.build_hit_list og HitList.filter/write_csv/to_markdown/to_html.",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit List tilheyrir Regression. Í þessari útgáfu velur smellur á Hits síðu inni í földu spjaldi, svo listinn birtist ekki. Kennslan sýnir þessa takmörkun skýrt. Næsti gluggi er ytra hjálparforrit, ekki sönnun þess að innbyggða flýtileiðin hafi verið löguð.",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
@@ -6151,59 +6151,64 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Afþjappið tengda dæminu, virkið spaCR-umhverfið og keyrið meðfylgjandi Hit List-hjálparskriftu. Merkti glugginn opnar fyrirliggjandi viðmótshluta spaCR án þess að breyta útreikningum. Smellið á Browse og veljið results. Aðhvarfsgreiningin er ekki endurtekin og Investigate er ekki tengt hér.",
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
           "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "Upprunalega dæmið hleður 325 genum. Tvísmellið á dálkamörk ef gildi skerðast. Lesið stefnu áhrifa, óleiðrétt P, leiðrétt q og samræmi leiðsagnar-RNA hvert fyrir sig. Öryggisbil sem vantar eru ekki tiltæk. Þetta eru stöðluð jaðarhrif; núll í útfluttum athuganafjölda er ekki raunverulegur fjöldi hola sem styður niðurstöðuna.",
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
           "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Stillið Max q á 0,05. Ekkert gen verður eftir því lægsta q-gildi gens er um 0,271. Tóm síuð tafla merkir ekki innflutningsvillu. Stillið Max q aftur á einn til að endurheimta allan listann, án þess að lýsa genunum sem uppgötvunum.",
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
           "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Minimum guides stillt á tvo heldur eftir 117 genum með að minnsta kosti tveimur prófuðum leiðsagnar-RNA-röðum. Það telur tiltæk gögn, ekki allar leiðsagnir sem upphaflega voru hannaðar. Sían breytir sýndu hlutmengi án þess að endurreikna leiðréttingu fyrir mörgum prófum.",
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
           "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Minimum agreement stillt á einn heldur síðan eftir 57 genum þar sem allar prófaðar leiðsagnir hafa sama formerki og áhrif gensins. Samræmi sannar hvorki marktækni né orsakasamband. Samantektin sýnir enn núll marktæk gen með samhljóða stuðningi, þótt þessar raðir hafi samhljóða leiðsagnir.",
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controls fjarlægir eina viðmiðunarröð og skilur eftir 56 gen á listanum. Endurheimtið hana fyrir útflutning. Að fela viðmið endurmetur ekki líkanið og breytir ekki leiðréttingarfjölskyldunni; haldið utan um auðkenni þeirra við túlkun.",
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
           "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Þegar aðrar síur hafa verið hreinsaðar sýnir Direction up jákvæð áhrif. Lágmark algildra áhrifa 0,1 skilur eftir 16 raðir. Þetta eru dæmi um birtingarval, ekki ráðlögð þröskuldsgildi. Endurstillið stefnu og áhrif áður en leitað er eða annað hlutmengi borið saman.",
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Leitið að skráðu auðkenni til að skoða raunverulega röð. Leit án samsvörunar tæmir töfluna; þekkta auðkennið endurheimtir röðina og tóm leit allan listann. Síunin er afturkræf. Innflutningur skýringa og Investigate-ferlið þurfa eigin prófanir.",
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
           "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "Fyrir útflutning veljið aftur tvær leiðsagnir, fullt samræmi, viðmið með og tóma leit. Allar þrjár útflutningsleiðir geyma sömu 57 gen í þessu dæmi. Markdown og HTML námunda tölur; CSV varðveitir töluleg smáatriði. Geymið síuval sérstaklega því skrárnar skrá ekki allar stillingar.",
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
           "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Hreinsið síurnar til að endurheimta öll 325 genin. Haldið útfluttum hlutmengjum aðskildum frá óbreyttum frumgögnum og kallið ekki ómarktæk gen staðfestar niðurstöður. Python býður sama lesara og síur; athugið raðafjöldamörk hvers sniðs við útflutning stærri lista.",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7133,15 +7138,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: innihaldstengsl og staðfestir myndbútar foreldrafrumna",
-      "description": "Skoða vistuð tengsl, takmörk birtingar og rétta mynd af foreldrafrumu án þess að samþykkja rangar staðgengilsmyndir fyrir undirhluti.",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "Opna Lineage innan Database Browser og byggja raunverulega tréð.",
-        "Greina heildarfjölda, sýndar fjölskyldur og auðkenni með hlutategund.",
-        "Þekkja ranga staðgengla og skoða aðeins staðfesta foreldrafrumu.",
-        "Nota innbyggðan aðdrátt og greina Python-útflutning frá skjástýringum."
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "Notaðu niðurhalaða Annotate-dæmið með samsvarandi mælingum og frumumyndum. Graph Builder-safnið hefur sama gagnagrunn án mynda; Lineage-safnið inniheldur staðfesta API-CSV-skrá og yfirferð, ekki annan gagnagrunn. Ekki nota ranga staðgengilshegðun til að auðkenna eða merkja hluti sem vantar myndir af.",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7149,7 +7153,7 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Finndu Database Browser undir Help og opnaðu undireininguna Lineage. Hér merkir lineage vistuð tengsl um hvað er inni í hverju. Þetta er ekki saga frumuskiptinga, erfðafræðilegur uppruni eða ný myndskipting. Gagnagrunnsstýringar utan um sýnina tilheyra hýsileiningunni.",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -7157,42 +7161,42 @@
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Veldu measurements.db úr raunverulega Annotate-dæminu og byggðu tréð. Við notum óbreytt einkaafrit. Breikkaðu Object og skilrúmið ef textinn er þröngur. Númer endurtaka sig milli myndsviða og hlutategunda; tala ein og sér er ekki auðkenni.",
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
           "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "Heildargögnin hafa 2.341 frumu, 2.682 kjarna og 2.178 hluti í töflunni pathogen. Aðeins 2.000 foreldrafjölskyldur birtast í trénu. 341 er sleppt úr birtingu, ekki eytt úr gagnagrunninum.",
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
           "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Samantektin segir enga frumu tóma, því kjarni telst líka undirhlutur. Það merkir ekki að allar frumur hafi pathogen-hlut: 1.168 hafa hann ekki. Engir ótengdir undirhlutir merkir að skráðir foreldrar séu til, ekki að myndskiptingin sé líffræðilega rétt.",
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Opnaðu foreldri til að sjá undirhlutina. Á þessu myndsviði inniheldur fruma þrjú kjarna fimm og pathogen einn samkvæmt vistuðum tengslum. Þetta eru auðkenni með tegund, ekki skiptanlegar tölur. Að velja einn undirhlut er annað en að velja alla fjölskylduna.",
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contents miðlar lyklum foreldris og undirhluta. Að velja foreldri ásamt undirhlut þess krefst ekki tvítekinna eintaka af undirhlutnum. Lyklarnir varðveita myndsvið og tegund, en lykildálkurinn er falinn. Miðlað auðkenni sannar ekki að samsvarandi myndbútur sé til.",
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
           "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Stórar fjölskyldur þurfa skoðun, ekki sjálfvirka líffræðilega túlkun. Dæmið hefur eina fjölskyldu með 33 hlutum alls. Tengsl geta endurspeglað myndskiptingar- eða upptökuvillur. Tréð sýnir vistuð tengsl en staðfestir ekki óvenjulegan fjölda sem uppgötvun.",
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Smellur á dálkhaus raðar sýndum fjölskyldum án þess að breyta tengslum. Takmörkin, 2.000 foreldrar, gilda áfram. Við athuguðum öll sýnd auðkenni, foreldratengsl og allt stigveldið. Röðuð eða stytt sýn er ekki breytt mælitafla.",
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open crops þarfnast Annotate sem myndskoðara. Raunveruleg skilaboð biðja um að opna Annotate fyrst. Myndskoðari sem vantar er annað en mynd sem vantar. Hladdu samsvarandi verkefni áður en þú biður um myndbúta, ekki annarri keyrslu með svipuðum númerum fyrir tilviljun.",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -7200,33 +7204,38 @@
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Niðurhalaða verkefnið gefur raunverulega frumumyndbúta. Safnið með aðeins gagnagrunninum inniheldur ekki þessar myndir. Við notum allt samsvarandi dæmið og varðveitum alla frumritsmyndbúta. Að opna upprunann þjálfar ekki flokkara og skilgreinir ekki nýjar merkingar.",
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
           "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Þessi útgáfa hefur alvarlega takmörkun. Þriggja hluta fjölskyldan sýnir frumu þrjú og síðan ótengdar frumur fimm og eitt í stað umbeðins kjarna og pathogen-hlutar. Uppruninn hefur aðeins frumumyndir. Hafnaðu staðgenglunum og ekki merkja þá sem undirhlutina sem vantar. Kennsluefnið lagar ekki villuna.",
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
           "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Staðfesti valkosturinn er þrengri: farðu aftur í Lineage og tvísmelltu aðeins á foreldrafrumuna. Ólíkt Open crops sendir það aðeins foreldrið, ekki fjölskylduna. Annotate sýnir nákvæmlega umbeðinn myndbút. Auðkenni og upprunaleg bæti voru staðfest; það felur ekki í sér stuðning við myndir undirhluta.",
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
           "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Haltu Shift og smelltu á smámynd foreldris til að stækka fyrirliggjandi forskoðun án flokkamerkingar. Escape endurheimtir grindina. Það hjálpar skoðun en býr ekki til meiri upplausn. Venjulegur vinstri smellur er merkingaraðgerð, ekki aðdrátturinn sem hér er sýndur.",
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build tree endurnýjar sýnina. Í Python gefa read_object_tables, build_forest og lineage_frame sömu byggingu. Tengda CSV-skráin hefur alla 7.201 hnútana, líka fjölskyldur utan birtingar. Hún var skrifuð með API, ekki Lineage-útflutningshnappi, og er ekki líffræðileg staðfesting.",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8278,19 +8287,18 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Tools",
-      "title": "Gate Editor: raunverulegir hópar, sýn sem hægt er að endurheimta og nákvæmur útflutningur",
-      "description": "Teiknaðu afmarkanir á sóttar frumumælingar, staðfestu hvaða hlutir tilheyra vistuðum afmörkunum, berðu saman sýn á þrjár raunverulegar mælistærðir og varpanir og skoðaðu takmarkaða þyrpingaleit án þess að búa til líffræðileg flokksheiti.",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "Hlaða inn raunverulegum mælingum og greina á milli afmarkana, birtingarsía og sýnileika.",
-        "Vista og endurheimta mörk í mælistærðum og flytja síðan út aðildarupplýsingar með nákvæmum auðkennum hluta.",
-        "Kanna þrívíð mörk og höfuðþætti án þess að rugla vörpun saman við endurnýtanlega umbreytingu sem hefur verið löguð að gögnunum.",
-        "Bera saman raunverulegar niðurstöður þyrpingaleitar og nota staðbundnu skipunarlínuna fyrir mæligögn."
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "Sæktu fyrst Annotate-dæmið og búðu síðan til eigið afrit af mæligagnagrunni þess. Gate Editor hefur engan sérstakan hnapp til að sækja dæmigögn. Þessi upptaka notar öll raunverulegu frumugögnin, alls 2.341 gagnalínu, og breytir aðeins eigin afritinu við útflutning; nöfn afmarkana í leiðbeiningunum eru heiti til skoðunar, ekki staðfest líffræðileg flokkun.",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "Opnaðu Gate Editor í flokknum Tools á Home. Dragðu skilin til svo að grafið, afmörkunartaflan og stýringarnar til hliðar fái nægt pláss. Þessi kennslustund notar sóttar Annotate-mælingar; Gate Editor hefur ekki eigin hnapp til að sækja dæmigögn.",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8298,22 +8306,22 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Notaðu Load table til að opna eigið afrit af measurements.db. Veldu töfluna cell: Þetta dæmi inniheldur 2.341 raunverulegan hlut. Export gates skrifar í gagnagrunn, svo haltu upprunalega dæminu óbreyttu og vinndu með afritið.",
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
           "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "Veldu cell_area fyrir X og cell_channel_1_mean_intensity fyrir Y ásamt verkfærinu Rectangle. Hver punktur táknar mældan hlut. Skoðaðu heiti og einingar mælistærðanna áður en þú teiknar; svæði afmarkað út frá flatarmáli og ljósstyrk staðfestir eitt og sér hvorki sýkta frumu né annan líffræðilegan flokk.",
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
           "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "Dragðu yfir dreifiritið, slepptu og sláðu inn lýsandi heiti afmörkunar. Hópurinn í leiðbeiningunum er vísvitandi dæmi til skoðunar. Formið skráir töluleg mörk í þessum tveimur mælistærðum; það er ekki líkan sem hefur verið þjálfað til að þekkja frumur af myndum þeirra.",
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "Þetta teiknaða svæði inniheldur 655 hluti, um 28 prósent töflunnar. Lestu fjöldann og prósentuhlutföllin við hlið heitis afmörkunarinnar. Mismunandi staðsetningar músarinnar gefa ólík mörk og fjölda, svo notaðu vistuðu afmörkunaráætlunina þegar þú þarft nákvæma endurtekningu.",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8324,7 +8332,7 @@
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "Ef þú tekur hakið af afmörkuninni felurðu yfirlag hennar án þess að eyða skilgreiningunni eða breyta því hvaða hlutir tilheyra henni. Hakaðu aftur við til að endurheimta sýnina. Þetta er annað en Delete gate og annað en flipinn Filter, sem breytir því hvaða hlutir birtast undir afmörkununum.",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8335,27 +8343,27 @@
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Notaðu Save gates til að vista nafngreind mörk í mælistærðum sem JSON-afmörkunaráætlun. Hér vistum við, eyðum afmörkuninni í raun og hlöðum síðan vistuðu skránni inn. Endurnýting áætlunar krefst samsvörunar í heitum mælistærða, einingum og forvinnslu; tafla með jafnmörgum dálkum nægir ekki ein og sér.",
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
           "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates endurheimtir sömu mörk og alla 655 hlutina sem tilheyra afmörkuninni. Við staðfestum aðildina eftir að hafa raunverulega eytt afmörkuninni og hlaðið henni inn aftur, ekki eingöngu vistað skrá. Í öðru gagnasafni skaltu staðfesta endurheimt mörk og auðkenni hluta áður en þú treystir fjöldatölunum.",
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
           "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph vistar myndina sjálfa; stillingarnar í þessari upptöku gefa PNG-skrá og PDF-skrá. Mynd er annað en afmörkunaráætlun eða útfluttar aðildarupplýsingar. Varðveittu tilheyrandi gögn og áætlun þegar þú þarft að geta endurskapað hvernig sýndur hópur var skilgreindur.",
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates skrifar aðildarmerkingar í töfluna filters í eigin gagnagrunnsafritinu. Fyrsta afmörkunin okkar merkir nákvæmlega 655 frumuauðkenni, pöruð eftir plötu, röð, dálki, myndsviði, hlutamerki og gerð hlutar. Upprunalega niðurhalið og undirliggjandi frumumælingar haldast óbreytt.",
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
           "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "Teiknaðu annað form á meðan það fyrsta er valið. Meðal 259 hluta þess eru nokkrir utan fyrstu afmörkunarinnar: Nýjar afmarkanir verða ekki sjálfkrafa undirafmarkanir, þrátt fyrir eldra orðalag í stöðutexta. Vistaðu þessa áætlun með tveimur afmörkunum sérstaklega og athugaðu sérstaklega tengsl við yfirskipaðar afmarkanir þegar þú hleður inn fyrirliggjandi stigveldi.",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8366,52 +8374,52 @@
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "Veldu 3D og cell_perimeter fyrir Z til að skoða þrjár raunverulegar mælistærðir. Hnappar snúningsásanna stýra snúningnum. Snúningur breytir sýninni, ekki vistuðum mörkum afmarkananna tveggja sem þegar byggjast á flatarmáli og ljósstyrk; farðu aftur í 2D til að skoða þau form á ný.",
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
           "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view býr til nafngreindan kassa með mörkum í öllum þremur mælistærðunum sem eru sýndar. Dæmið okkar sem nær yfir allt rúmmálið inniheldur alla innhlaðna hluti: Það sýnir virkni stýringarinnar, ekki hóp auðgaðan af tilteknum líffræðilegum eiginleikum. Vistaðu áætlunina með þremur afmörkunum sérstaklega svo að fyrri skráin með tveimur afmörkunum sé áfram tiltæk.",
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
           "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "Rofinn xD reiknar höfuðþætti út frá viðeigandi mælistærðum. Hann er óháður valinu á 2D- eða 3D-sýn. Hér sýnir upprunamerkingin 17, 13 og 6 prósent skýrðrar dreifni fyrir fyrstu þrjá þættina; þetta eru hlutföll dreifni, ekki nákvæmni flokkunar.",
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
           "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "Þegar slökkt er á xD haldast þáttadálkarnir; veldu aftur upprunalegu mælistærðirnar á ásana þegar þú snýrð aftur að afmörkunum á þeim. Vistuð afmörkunaráætlun geymir ekki vörpunina sem var löguð að gögnunum. Þáttaheiti ein og sér gera varpanir sem voru lagaðar að gögnum hvor í sínu lagi ekki samhæfar, svo ekki endurnýta afmörkunarmörk þeirra án athugunar.",
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
           "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "Breikkaðu hliðarspjaldið fyrir Search og fjarlægðu tímabundnu afmarkanirnar eftir að hafa vistað þær. Notaðu sömu tvær upprunalegu mælistærðirnar, virkjaðu skölun og stilltu lágmarksfjölda nágranna á 20 og fjölda Walk-skrefa á fimm. Run walk opnar staðfestingu í þessari útgáfu; athugaðu að gildi hennar samsvari sýnilegu stillingunum.",
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
           "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "Raunveruleg Walk-keyrsla velur radíus nálægt 0,167 og skilar tveimur hópum, en 33 prósent hlutanna eru utan þeirra. Skoðaðu útlínurnar sem verða til. Þyrpingagreining byggð á þéttleika og vistaðar marghyrningsafmarkanir hennar eru lýsingar til könnunar, ekki staðfestar frumugerðir eða sönnun þess að útilokaðir hlutir séu ógildir.",
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
           "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Vistaðu Walk-áætlunina, fjarlægðu tímabundnu afmarkanirnar, slökktu á Walk og keyrðu með radíus 0,5. Þetta aðskilda val býr til eina stærri marghyrningsafmörkun með 2.239 hlutum. Það er ekki betri niðurstaða eingöngu vegna þess að hún nær yfir fleiri frumur.",
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "Hladdu aftur inn vistuðu áætluninni með tveimur afmörkunum á upprunalegum mælistærðum og bættu síðan cell_area við í Filter. Þegar neðri mörkin eru stillt á 21.925 birtist 1.171 hlutur áfram. Þessi forskoðun uppfærist jafnóðum og þrengir sýnina án þess að endurskrifa vistuð afmörkunarmörk.",
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
           "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "Hreinsaðu síuna og allir hlutirnir birtast aftur, alls 2.341. Athugaðu bæði virku birtingarsíuna og skilgreiningu afmörkunarinnar áður en þú túlkar fjöldatölur eða flytur út. Að fela yfirlag, sía sýn og eyða afmörkun eru þrjár ólíkar aðgerðir.",
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
           "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "Dragðu skilin lengst til hægri til vinstri til að sýna skipunarlínuna. Sláðu inn len(df): Raunverulega taflan skilar 2.341. Skipunarlínan fyrir segðir keyrir staðbundið; niðurstaðan er ekki svar sem gervigreindarlíkan hefur búið til.",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8422,7 +8430,7 @@
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "Spjallreiturinn er aðskilinn frá segðunum. Við skiljum eftir ósend drög án þess að sýna aðstoðarmann eða líffræðilega túlkun. Í Python geymir GateSet úr spacr.qt.widgets.gate_spec skilgreiningar; gate_mask_over_table og export_gate í spacr.filters reikna og vista hlutamerkingar fyrir alla töfluna. Staðfestu auðkennin áður en gögnin eru notuð við frekari merkingu.",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8435,7 +8443,12 @@
             "09_annotate"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8444,19 +8457,18 @@
       "series": 5,
       "app_key": "feature_explorer",
       "section": "Explore",
-      "title": "Feature Explorer: raða raunverulegum mælingum og halda samanburðinum skýrum",
-      "description": "Opnaðu undireininguna í Classify, berðu saman raunverulegar mælingar eftir röðum plötu, skoðaðu dreifingar, síaðu í rauntíma, bættu við reiknuðum dálki og flyttu út réttan röðunarlista án þess að þjálfa flokkara.",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "Finna Feature Explorer innan Classify og hlaða inn fyrirliggjandi frumumælingum.",
-        "Greina á milli AUC og aðskilnaðar og skoða fjölda í flokkum og mun á dreifingum.",
-        "Sía í rauntíma án þess að missa af sjálfvirkri breytingu á samanburðardálki.",
-        "Velja Top meðvitað, sannreyna endurskalaðan dálk og flytja út raunverulegan röðunarlista."
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "Notaðu niðurhalaða Annotate-dæmið, ekki tilbúnar mælingar. Upptakan opnar einkaeintak af gagnagrunni með 2.341 frumu og 276 dálkum, eins bæti fyrir bæti og frumritið. rowID-hóparnir r12 og r5 eru staðsetningarraðir á plötu, ekki staðfestir meðferðarhópar; frumurnar deila myndsviðum og brunnum og eru ekki óháðar tilraunir. Frumgögn haldast óbreytt. AUC, KS, röðun og fjöldi endanlegra mæligilda í flokkum eru sannreynd sjálfstætt fyrir fyrirhugaðan tveggja flokka samanburð. Sjálfvirki átta flokka samanburðurinn er varnaðardæmi, ekki sjálfstætt staðfest ályktun. Shuffle test er óvirkt. Hér fer hvorki fram þjálfun, ný myndgreining, sérstakt niðurhal, GPU-aðgerð né AI-beiðni; súluritin eru gröf einingarinnar sjálfrar.",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Opnaðu Classify og síðan Feature Explorer-hnappinn. Þetta innfellda verkfæri raðar fyrirliggjandi mælingum; það þjálfar ekki flokkara við opnun. Við notum raunverulega Annotate-dæmið sem hægt er að sækja, á einkaeintaki gagnagrunnsins. Fylgdu Annotate-kennslunni til að sækja það og haltu upprunalegum tilraunagögnum óbreyttum.",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8464,7 +8476,7 @@
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Veldu Load table, mæligagnagrunninn og cell-töfluna, og stilltu Split by á rowID. Hér eru 2.341 fruma og 276 dálkar. Hóparnir tveir eru skráðar raðir á plötu, ekki staðfestir meðferðarhópar; frumurnar eru ekki óháðar tilraunir.",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8475,7 +8487,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Raðaðu eftir AUC og lestu báða talnadálkana. Separation er algildi tvöfalds AUC mínus einn: um 0,34 aðskilnaður er því ekki 0,34 AUC. Higher in segir til um stefnu; min n telur endanleg mæligildi í minni flokknum, ekki endurteknar tilraunir.",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8486,7 +8498,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Stilltu Top á fjóra til að skoða fjögur sköruð tíðnirit. Innan hverrar breytu nota flokkarnir sömu bilamörk og súluhæðin sýnir fjölda. Efsta breytan er ekki sjálfkrafa gagnlegur lífmarki. Lestu viðvörunina: AUC getur misst af mun á dreifni þótt dreifingarnar séu ólíkar.",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
@@ -8497,12 +8509,12 @@
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Export ranking með Top fjóra skrifar fjórar breyturaðir. Í þessari útgáfu fylgir útflutningurinn Top þótt orðalagið gefi til kynna allan listann. Hann flytur hvorki út frumugögnin sjálf né vistar þjálfað líkan. Við bárum hvert útflutt gildi saman við raunverulegan núverandi röðunarlista.",
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
           "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "Stilltu Top á 500 áður en allar metnar breytur þessa dæmis eru fluttar út. Hægt er að meta 261 breytu; tvo tölulega möguleika er ekki hægt að meta. Útflutningurinn hefur allar 261 raðirnar en skjárinn teiknar í mesta lagi átta dreifingar. Fjöldi breyta, töfluraðir og grafreitir eru ólíkar stærðir.",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8513,7 +8525,7 @@
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Skiptu Rank by yfir í KS til að bera saman mesta bil á milli uppsafnaðra dreifinga og farðu síðan aftur í AUC. KS getur sýnt dreifingarmun sem AUC missir af en gefur ekki eitt og sér stefnu. Önnur tölfræðigildi hafa sínar takmarkanir; lestu viðvörunina í stað þess að túlka röðun sem marktæknipróf.",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8524,7 +8536,7 @@
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Bættu cell_area við í Filter og stilltu lágmarkið á 21.925. Sýnilega þýðið verður 1.171 fruma og 255 breytur eru enn metanlegar. Þessi sýniþröskuldur byggir á miðgildi, ekki líffræðilegum gæðamörkum. Röðun og dreifingar uppfærast án þess að myndirnar séu mældar aftur.",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -8535,12 +8547,12 @@
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all fjarlægir birtingarsíur, ekki gögn. Allar 2.341 frumurnar og upprunalega röðunin koma aftur. Athugaðu þýðið og Split by eftir síubreytingar. Munur sem breytist við síun lýsir öðru völdu þýði, ekki nýrri tilraun.",
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
           "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "Í þessari útgáfu er mikilvæg gildra. Síun rowID á r12 fjarlægir hina röðina en skjárinn breytir Split by hljóðlega í cell_channel_0_maxima_count. Nú eru átta hópar bornir saman og aðeins einn hlutur í þeim minnsta. Þessi glæsilegu gildi eru hvorki upprunalegi raðasamanburðurinn né sönnun fyrir líffræðilegri uppgötvun.",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8551,7 +8563,7 @@
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "Hreinsaðu síuna og veldu rowID sérstaklega aftur. Hreinsunin ein endurheimtir ekki endilega upprunalega samanburðinn. Athugaðu bæði flokkunardálk og þýði fyrir útflutning. Shuffle test býður 50 uppstokkanir flokkamerkja en við höfum það óvirkt: frjáls uppstokkun þessara háðu frumna myndi ekki staðfesta áhrif á brunn- eða meðferðarstigi.",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8562,7 +8574,7 @@
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Opnaðu Columns og nefndu nýjan dálk area_k. Sláðu inn cell_area deilt með 1e3, það er 1.000, og veldu Add column án þess að yfirskrifa. Þetta endurskalar flatarmál; það kvarðar ekki eðlisfræðilegar einingar og bætir ekki við nýrri mælingu. Preview kannar fyrstu 2.000 raðirnar; viðbótin notar formúluna á alla töfluna.",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -8573,12 +8585,12 @@
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "Endurskalaði dálkurinn bætist við röðun og útflutning svo metnar breytur verða 262. AUC og KS hans eru jöfn gildum cell_area því jákvæð endurskölun varðveitir röð. Við könnuðum hvert reiknað gildi. Fjarlægðu formúluna til að fara aftur í upprunalegu 261 breyturnar; mæligagnagrunnurinn er óbreyttur.",
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
           "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "Notaðu þessa röðun til lýsandi könnunar, ekki sem óháða sannprófun á valinni breytu eða þjálfuðum flokkara. Í Python veitir spacr.qt.widgets.feature_rank föllin og gerðirnar rank_features og ExplorerSpec. Haltu áfram í Database Browser og Graph Builder fyrir hrátöflur eða annan samanburð. Engin ný myndgreiningarvinnsla eða AI-beiðni var keyrð.",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8587,7 +8599,12 @@
           ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8596,19 +8613,18 @@
       "series": 5,
       "app_key": "outliers",
       "section": "Explore",
-      "title": "Outliers: skoða raunverulegar merkingar án þess að eyða athugunum",
-      "description": "Opnaðu Outliers í QC, berðu saman traustar reglur á raunverulegum frumumælingum, greindu ómetna brunna frá gallalausum brunnum, skoðaðu raunverulega höfnun lograbreytingar og flyttu út allar raðir með merkingum.",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "Finna undireiningu QC og velja mældar breytur meðvitað fyrir Scan.",
-        "Bera saman MAD, IQR og skýrar lograbreytingar án þess að túlka merkingar sem staðfestar villur.",
-        "Greina á milli hlutafjölda, sýndra raða og ómetins brunnasamanburðar.",
-        "Flytja út upprunalegar mælingar með merkingum og endurheimta gilda reglu eftir ógilda umbreytingu."
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "Notaðu niðurhalanlega Annotate-dæmið á einkaeintaki gagnagrunnsins, eins bæti fyrir bæti. 2.341 fruma kemur úr fjórum skráðum brunnum; þetta eru hvorki óháðar tilraunir né hlutir með þekkta galla. Upprunalegum mælingum er aldrei breytt eða eytt. Kennslan sannreynir sjálfstætt MAD/IQR fyrir eina endanlega, óúrkynjaða breytu, hverja merkta stöðu, brunnamiðgildi og fjölda ásamt skýrri höfnun samanburðar á færri en fimm brunnum. Hún sannreynir ekki sjálfvirka yfirferð allra breyta, varaleiðir við núllskala, fjölbreytu-MCD-ályktanir eða líffræðileg gæði. Unnið er með fyrirliggjandi mælitöflu, ekki nýja myndskiptingu, GPU-greiningu eða flokkaraþjálfun. Hér er engin myndforskoðun, Plot-rofi, sérstakt dæmaniðurhal eða AI-stjórnborð; Objects, Wells og Report eru raunveruleg úttök.",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "Opnaðu QC frá Home og veldu Outliers-hnappinn. Yfirlit QC les vistaðar athuganir en þetta innfellda verkfæri reiknar merkingar úr mælitöflu. Við notum raunverulega niðurhalanlega Annotate-dæmið á einkaeintaki gagnagrunnsins. Fylgdu þeirri kennslu til að sækja það og haltu tilraunauppsprettunni óbreyttri.",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8617,7 +8633,7 @@
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Veldu Load table og cell-töflu gagnagrunnsins. Hleðslan fer sjálfkrafa yfir allar valdar samfelldar breytur: hér 255 fyrir 2.341 frumu. Þessi víða sjálfgefna regla merkir 2.338 hluti. Það sannar ekki að næstum allar frumur séu gallaðar. Hleðsla breiðrar niðurstöðutöflu getur tekið tíma.",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8628,7 +8644,7 @@
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "Með auða breytuleit velurðu None til að afvelja allt. Leitaðu að cell_area, hakaðu aðeins við nákvæmlega þá breytu og ýttu á Scan. Leitin þrengir breytunöfn, ekki frumuraðir. Breytt val keyrir ekki yfirferð sjálfkrafa aftur; gamla niðurstaðan getur staðið þar til nýja reglan er keyrð.",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8639,7 +8655,7 @@
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "Fyrir MAD læturðu umbreytinguna vera none og k vera 3,5. Reglan deilir algildi fjarlægðar frá miðgildi með um 1,4826 sinnum miðgildi algildra frávika. Hún merkir 26 frumur. Þetta eru skoðunarkandídatar, ekki staðfestar myndskiptingarvillur, og engri röð hefur verið eytt.",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8650,7 +8666,7 @@
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Opnaðu Wells. Allir fjórir brunnarnir hafa yfir 500 hluti en enginn er metinn: samanburðurinn þarf að minnsta kosti fimm gjaldgenga brunna. Lestu well_scored og nákvæma ástæðu, ekki bara Wells núll. Flagged share lýsir hlutamerkingum; það er hvorki brunnaskor né sönnun þess að brunnurinn sé gallalaus.",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8661,7 +8677,7 @@
         },
         {
           "visual": "08_area_report",
-          "narration": "Report sýnir reglu, mælda miðju, skala og fyrirvara. Einn fyrirvari þessarar útgáfu segir ranglega að fjórir brunnar hafi haft færri en 20 hluti. Raunfjöldinn er 501–700; ástæðan er of fáir brunnar. Notaðu nákvæma ástæðu í brunnatöflunni og endurtaktu ekki röngu skýringuna um fjöldann.",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8672,7 +8688,7 @@
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "Krafa um meiri fjarlægð merkir færri hluti. k lækkað í 2 gaf 142 merkingar; við 0,5 verða þær 1.479. Síðasta stillingin er víð viljandi til sýningar, ekki ráðlögð gæðamörk. Hlutataflan sýnir aðeins 500 raðir, svo sá fjöldi er ekki fjöldi merktra hluta.",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8683,7 +8699,7 @@
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Veldu Export og nýtt skráarheiti. objects-CSV heldur öllum 2.341 röðinni og bætir við merkingum; flagged inniheldur 1.479 merktar raðir. Wells hefur fjögur yfirlit og report er textaskrá. Hver útflutt mæling og merking var könnuð. Útflutningur eyðir engu og takmarkast ekki við 500 sýndar raðir.",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8694,7 +8710,7 @@
         },
         {
           "visual": "13_area_iqr",
-          "narration": "Endurheimtu upprunalegu regluna og veldu IQR. Þröskuldurinn merkir nú c sinnum fjórðungabil, ekki traust staðalfrávik. Með c jafnt 1,5 gefur óbreytt frumuflatarmál 55 merkingar. Bæði mörkin og hver merkt staða voru sannreynd sjálfstætt. Hali skekktrar dreifingar getur verið merktur þótt mælingar séu gildar.",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8705,7 +8721,7 @@
         },
         {
           "visual": "14_iqr_report",
-          "narration": "Hér er önnur orðalagsvilla. Þessi IQR-skýrsla nefnir 22.663 miðgildi en það er miðpunktur fyrsta og þriðja fjórðungsmarks. Raunverulegt miðgildi er 21.925. Sannreynd mörk eru rétt; ekki vísa í sýndu miðjuna sem miðgildi.",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8716,7 +8732,7 @@
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "Veldu log10 sérstaklega og keyrðu aftur. Fyrir þessi jákvæðu flatarmál gefur IQR 79 merkingar en MAD með 3,5 gefur 36. Lograbreyting breytir fjarlægðum og spurningunni; hún tryggir hvorki færri merkingar né líffræðilega rétt niðurstöðu. Miðjur og skalar skýrslunnar eru nú í log10-einingum.",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8727,7 +8743,7 @@
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "Fyrir raunverulegt höfnunardæmi velurðu enga umbreytingu og aðeins cell_channel_0_min_intensity. Scan tekst og merkir 68 hluti. Eitt mæligildi er raunverulega núll. Þetta jákvæða mótdæmi skiptir máli: tafla og breyta virka áður en beðið er um umbreytingu sem skilgreinir ekki það gildi.",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8738,7 +8754,7 @@
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "Veldu nú log10 og ýttu á Scan. Raunvillan nefnir eina núll- eða neikvæða gildið og breytuna. Engri tilbúinni aukatalningu er bætt við og engum hlut eytt; Export er óvirkt. Gamlar töfluraðir og fjöldi geta enn sést eftir villuna en eru ekki ný, heppnuð niðurstaða. Lestu villuna og endurheimtu gilda reglu.",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8749,7 +8765,7 @@
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "Farðu aftur í óbreytt cell_area og MAD 3,5 og keyrðu til að endurheimta 26 merkingar. Min objects per well stillt á 700 breytir gjaldgengi: aðeins einn brunnur nær þeim fjölda, hinir þrír halda skýrum ástæðum um lágan fjölda. Lægra lágmark býr ekki til fimmta brunninn sem vantar. Ómetið merkir aldrei staðfest gallalaust.",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8760,7 +8776,7 @@
         },
         {
           "visual": "22_objects_only",
-          "narration": "Settu lágmarkið aftur í 20, slökktu á Score wells too og keyrðu. Hlutamerkingar eru enn 26 og ekki er beðið um brunnasamanburð. Kveiktu aftur og keyrðu til að endurheimta fjögur ómetin brunnayfirlit. Þetta breytir greiningarstigi; það síar ekki eða eyðir frumum eða brunnum úr gagnagrunninum.",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8771,7 +8787,7 @@
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "Flyttu endurheimtu regluna út undir öðru heiti. Lokaskrárnar hafa 2.341 hlutaröð, 26 merktar raðir, fjögur brunnayfirlit og skýrsluna. Upprunalegi og einkagagnagrunnurinn eru óbreyttir. Geymdu reglu og skýrslu með merkingunum svo annar þröskuldur sé ekki tekinn fyrir sömu greiningu.",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8782,7 +8798,7 @@
         },
         {
           "visual": "method_choices_mad",
-          "narration": "Valmyndin býður líka trausta fjölbreytu-Mahalanobis-greiningu sem við keyrðum ekki hér. Alfa hennar byggir á dreifingarforsendum og tryggir ekki villutíðni. Python-reikningurinn notar detect_outliers með OutlierSpec í spacr.qt.widgets.outlier_model. Haltu áfram í Feature Explorer eða Annotate fyrir dreifingar eða myndir; hér var hvorki myndforskoðun né AI-beiðni.",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8797,7 +8813,12 @@
           ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -8806,24 +8827,23 @@
       "series": 5,
       "app_key": "experiment_design",
       "section": "Data",
-      "title": "Experiment Design: endurgeranleg plötuáætlun og nákvæmur útflutningur",
-      "description": "Breyttu fyrirhugaðri skipan plötu með raunverulegum stjórntækjum, skoðaðu viðvaranir um afkastagetu og endurtekningar, endurgerðu slembiskipan og flyttu út nákvæma holutöflu.",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "Skipuleggðu skilyrði og hlutverk viðmiða áður en myndataka hefst.",
-        "Sýndu viðvaranir og leiðréttingar án þess að jafna athugun á skipan við líffræðilega staðfestingu.",
-        "Endurgerðu sömu slembiskipan og greindu á milli valinna hola og úthlutaðra skilyrða.",
-        "Flyttu út og varðveittu nákvæma holutöflu þegar stillingar fyrir raðir eða dálka geta ekki lýst tilraunasniðinu."
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "Þessi skipulagseining þarf hvorki teknar myndir né niðurhalað gagnasafn. Upptakan notar raunveruleg drög forritsins með sex neikvæðum viðmiðunarholum, sex jákvæðum viðmiðunarholum og tólf meðferðarholum, nefnd tutorial_plan. Fjöldinn er til að sýna viðmótið, ekki niðurstaða aflgreiningar eða mældrar tilraunar.",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Opnaðu Experiment Design í flokknum Data á Home áður en myndataka hefst. Einingin býr til tillögu að skipan plötu, ekki mældar líffræðilegar niðurstöður. Heitin negative, positive og treatment eru bráðabirgðamerkingar; veldu lýsandi heiti og viðmið fyrir þína tilraun.",
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
           "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "Nefndu plötuna þannig að auðkenni hennar passi síðar við myndir og mælingar. Ef dálkur er mjór má tvísmella á mörk dálkahaussins til að laga breiddina að innihaldinu. Skoðaðu Condition, Replicates og Role saman. Sex, sex og tólf holur sýna viðmótið en eru ekki rökstudd úrtaksstærð.",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
@@ -8831,7 +8851,7 @@
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "Sex holu snið gefur villu um afkastagetu þegar óskað er eftir tuttugu og fjórum holum. Kortið sleppir ekki umframendurtekningum án viðvörunar. Lestu skilaboðin og breyttu sniðinu eða tilraunaáætluninni; tómt kort er ekki gild úthlutun.",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8842,7 +8862,7 @@
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "Þegar farið er aftur í níutíu og sex holur koma allar tuttugu og fjórar úthlutanirnar aftur. Plötukortið fylgir gildandi töflu. Add condition og Remove selected stjórna línum með tilraunaskilyrðum; ferhyrndu holurnar neðar eru sérstakt valsvæði, ekki þessar töflulínur.",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8853,17 +8873,17 @@
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "Veldu reit fyrir fjölda endurtekninga og ýttu á F2 til að breyta honum. Ein neikvæð viðmiðunarhola kallar fram viðvörun; sex holur fjarlægja hana aftur. Margar frumur í sömu holu koma ekki í stað sjálfstæðra tilraunaendurtekninga.",
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Block-skipan hópar skilyrði saman og varar við að áhrif staðsetningar og skilyrða geti ruglast saman. Þetta er hvatning til að skoða sniðið, ekki sjálfvirk líffræðileg niðurstaða. Ljósfræðileg leiðrétting lýsingar lagar hvorki uppgufunar- né hitaáhrif; skipan tilraunar og ójöfn lýsing mynda eru ólík vandamál.",
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
           "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "Veldu random-skipan, leave edge empty og slembifræ fjörutíu og tvö. Án ysta hringsins eru sextíu nothæfar holur á þessari níutíu og sex holu plötu; áætlunin úthlutar tuttugu og fjórum. Auður jaðar minnkar rýmið og tryggir ekki að öll staðbundin áhrif hverfi.",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8874,7 +8894,7 @@
         },
         {
           "visual": "08_seed43",
-          "narration": "Slembifræ fjörutíu og þrjú breytir raunverulegum úthlutunum en heldur umbeðnum fjölda fyrir hvert skilyrði. Slembun dregur úr kerfisbundinni staðsetningarskekkju en hverja slembiskipan þarf samt að skoða. Ekki velja fræ til að hygla fyrirfram óskaðri niðurstöðu.",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8885,7 +8905,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Fjörutíu og tvö endurheimtir nákvæmlega sömu tengingu hola og skilyrða. Skráðu fræið ásamt plötusniði, jaðarreglu og skilyrðatöflu. Fræið eitt skilgreinir ekki tilraunasniðið ef hin inntökin breytast.",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8896,7 +8916,7 @@
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "Dragðu frá B02 til C04 til að velja sex holur. Útlínur valsins breytast en ekki skilyrðin: Hreyfingin velur holur en úthlutar ekki meðferð. Skoðaðu skilyrðatöfluna og birt kort þegar úthlutun er breytt.",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8907,12 +8927,12 @@
         },
         {
           "visual": "11_export_folder",
-          "narration": "Notaðu Export plate map og veldu sérstaka möppu. Raunverulegi útflutningurinn skrifar plate_map.csv, plate_map.json og plate_map_settings.json. Geymdu skrárnar þrjár saman; að velja áfangamöppu jafngildir ekki því að framkvæma fyrirhugaða tilraun.",
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "CSV-skráin hefur eina línu fyrir hverja úthlutaða holu: hér tuttugu og fjórar, með nákvæmlega sömu skilyrðum og hlutverkum og birtast. Hún er tengd við mælingar með plateID, rowID og columnID saman. JSON-skráin geymir fræið, sniðið og niðurstöður athugana, þar á meðal viðvaranirnar.",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8923,7 +8943,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Ekki er hægt að lýsa þessari slembiskipan með meðferðarstillingum fyrir heilar raðir eða dálka. Stillingaskráin tilgreinir sérstaklega expressible sem false; hún er ekki fullbúin greiningarstilling. Notaðu nákvæmu útfluttu holutöfluna og skýra samtengingu í stað þess að nálga blandaðar holur með merkingum fyrir heilar raðir.",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8934,7 +8954,7 @@
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Python-viðmótið er í spacr.qt.widgets.plate_layout: Condition og PlateDesign lýsa áætluninni; assign_wells, check_design og write_design úthluta, skoða og vista. Athuganir á skipan staðfesta hvorki tölfræðilegt afl né líffræðilegt réttmæti. Farðu yfir sniðið fyrir myndatöku og varðveittu nákvæma kortið fyrir síðari greiningu.",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8942,30 +8962,35 @@
             "33_plate_viewer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design: lesið herminn og takmarkanir hans",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
       "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "Skiljið raunverulegar stillingar, hermdar kúrfur og viðvaranir án þess að líta á lítið kennsludæmi eða mótsagnakenndan texta sem staðfesta ráðgjöf um tilraunasnið.",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "Greina forsendur hermunar frá mældum tilraunagögnum.",
-        "Lesa nothæfar líkanaaðlaganir, greiningarhlutföll og óvissu rétt.",
-        "Þekkja ranga ráðleggingu um óbreytt snið og varðveita gögnin."
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "Gagnrýnin yfirferð á skráðum hermi, ekki kvörðuð tölfræðileg geta eða ráð um úrtaksstærð. Power_recorded_simulation_review.zip varðveitir upprunalegt JSON og yfirferð; það er hvorki keyrsla til innflutnings né útflutningur úr viðmótinu. Skjár, aðlögunarlag, hermir og líkanakóði frá spaCR 1.5.0.4 eru enn bæti fyrir bæti eins og núverandi kóði. Tvær jaðarskannanir gáfu 18 aðlaganir og níu punkta, tvær endurtekningar á punkt; fjórar aðlaganir sem náðu ekki samleitni eru áfram í nefnaranum. Tvær hermanir skáru líkur niður. Sama nafnlega snið með ólíkum slembiúrtökum gaf 1/2 og 2/2 greiningar. Ráðinu um að fjölga upp í þann holufjölda sem þegar er til staðar er hafnað og það er ekki lagað. Sum endamerki skerðast; staðfesta taflan hefur öll níu hnitin. Hvorki er fullyrt um nýja hermun, mæld gögn, líffræðilega kvörðun, GPU-verk, gervigreindarfyrirspurn né birtingu. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve og spacr.qt.screens.power.run_power_sweep; spacr.power_simulate og spacr.power_model sjá um hermun og aðlögun.",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Power og Design kannar forsendur með hermdum gögnum. Það hleður ekki mældri tilraun og staðfestir ekki að forsendurnar eigi við þína tilraun. Kennslan les raunverulega skráða keyrslu, með viðvörunum og villandi ráðleggingu. Ekki nota þetta litla dæmi sem staðfesta ráðgjöf um úrtaksstærð.",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
@@ -8973,32 +8998,32 @@
         },
         {
           "visual": "03_guide_library",
-          "narration": "Byrjið á safninu og einingunni sem er metin. Að skipta milli leiðsagnar og gens breytir matseiningunni: 40 gen með fjórum leiðsögnum hvert gefa 160 einingar við mat á leiðsögnum. Genamat sameinar upplýsingar leiðsagnanna. Þetta eru kennsluforsendur, ekki nýjar líffræðilegar mælingar.",
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
           "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "Plötu- og áhrifastillingar lýsa fyrirhuguðu sniði. Hlutfall jákvæðrar flokkunar er hermd flokkunarlíkindi, ekki fjöldi lífvera eða mæld sýkingartíðni. Skoðið bakgrunn, áhrif og algengi saman; birtar forsendur staðfesta ekki líkanið.",
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "Áhrif undir einum kveikja á innbyggðri viðvörun um óstudda stefnu og gera Run óvirkt. Upptakan endurheimtir síðan leyfilegt gildi og virkar stýringar. Þetta er hugbúnaðarvörn, ekki líffræðilegur ómöguleiki. Ekki fara fram hjá viðvöruninni til að fá þægilega kúrfu.",
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
           "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "Dæmið notar aðeins tvær endurtekningar á punkt. Greining krefst nothæfrar aðlögunar sem nær völdum þröskuldi flatarmáls undir ROC-kúrfu. Það er ekki P-gildisþröskuldur tilgátuprófs. Slembifræ og bakendi eru skráð; Torch eitt og sér sannar ekki GPU-keyrslu.",
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
           "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Run ræsir raunverulegan hermi á vinnsluþræði. Frumufjöldi og holufjöldi breytast hvor í sínu lagi, ekki í öllum samsetningum. Upptakan lauk 18 aðlögunum á níu punktum. Geymið stillingar og hrá endurtekningargögn saman svo rekja megi hvert teiknað hlutfall til aðlagananna á bak við það.",
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "Teljið greiningar yfir allar umbeðnar endurtekningar. Fjórar aðlaganir náðu ekki samleitni og haldast í nefnaranum sem engin greining; þeim er ekki sleppt í laumi. Hundrað prósent merkir hér aðeins tvær af tveimur. Svo lítið úrtak staðfestir ekki nákvæmar greiningarlíkur.",
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
           "hold_after": 0.7
         },
         {
@@ -9009,7 +9034,7 @@
             2380,
             460
           ],
-          "narration": "Taflan aðgreinir greiningarhlutföll frá meðalframmistöðu nothæfra aðlagana. Meðaltal sem ekki er tiltækt er ekki núll. Average precision þarf einnig viðmið algengis. Lesið töfluna ef endamerki skerðast og skoðið skort á samleitni í stað þess að meta eingöngu bláu línuna.",
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
           "hold_after": 0.7
         },
         {
@@ -9020,23 +9045,28 @@
             2380,
             110
           ],
-          "narration": "Samantektin inniheldur villu. Bæði grunnmöt nota þegar 96 holur, en ólík slembiúrtök gefa eina greiningu af tveimur í annarri skönnun og tvær af tveimur í hinni. Að fara í sömu 96 holurnar bætir ekki sniðið. Hafnið ráðleggingunni; kennslan lagar hana ekki.",
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
           "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "Opnið hina fyrirvarana. Tvær hermdar skimanir skáru líkur yfir einum niður, svo raunveruleg setning eininga í hermuninni víkur frá umbeðnu gildi. Líkanið hefur aðrar forsendur og takmarkanir; upptalning þeirra er ekki staðfesting. Lesið viðvaranir og misheppnaðar aðlaganir áður en ályktað er.",
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
           "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "Tengda safnið varðveitir skráða lýsingu, endurtekningar, kúrfur, töflu og rangan texta. Þetta eru ytri gögn til skoðunar, ekki innbyggður útflutningur eða innflutt niðurstaða. Python-aðlögunarlagið og hermunar-API bjóða sama ferli, en raunveruleg áætlanagerð krefst sérstakrar staðfestingar forsendna og óvissu.",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9045,21 +9075,21 @@
       "series": 5,
       "app_key": "dose_response",
       "section": "Data",
-      "title": "Dose Response: aðlagaðir ferlar, óvissa og rökstudd höfnun",
-      "description": "Notaðu núverandi Dose Response-skjá með endurgeranlegri tilbúinni töflu, berðu saman prófíl- og Wald-bil og greindu á milli aðlagaðra, óafmarkaðra og hafnaðra niðurstaðna.",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "Hlaða inn skýrum styrkgildum og svörunum og aðlaga einn feril fyrir hverja nafngreinda röð.",
-        "Túlka miðpunktsmat, bilaðferðir, burðarefnisviðmið og ferla sem er hafnað.",
-        "Bera saman niðurstöður áður en töflu er raðað, afrita raunverulegu skýrsluna og greina viðmótsstýringar frá API-útflutningi."
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "Sæktu meðfylgjandi SYNTHETIC CSV-skrá. Hún hefur 120 tilbúnar línur: fjórar nafngreindar raðir, níu jákvæð styrkgildi og burðarefnisviðmið við núllskammt, með þremur athugunum við hvern styrk. Jöfnuð frávik upp á mínus 0,5, núll og plús 0,5 eru hvorki líffræðilegar endurtekningar né kvörðunarrannsókn. Fyrirfram gefnir miðpunktar eru 1,5, 2 og 500 utan sviðsins; fjórða röðin snýr við. Hér er ekki sýnt skráð niðurhal Dose Response-gagnasafns, stöðlun, vægi, val á endurtekningum, útflutningshnappur í viðmóti eða AI-stjórnborð. Unit breytir merkingu en ekki gögnum. Í þessari útgáfu getur enduraðlögun eftir röðun ruglað auðkennum sýndra lína; upptakan lýkur öllum enduraðlögunum áður en raðað er. Varðveittu höfnun og lestu alla skýrsluna. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame og DoseResponseSet.table. Dæmisgögn og athuganir á myndritum eru óháð aðlögunarföllum spaCR; endapunktar prófílbila eru athugaðir með tilliti til yfirlýstrar nákvæmni rótabilsins á log10-kvarða, ekki sem trygging fyrir tölfræðilegri þekju.",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Opnaðu Dose Response í Data-hluta Home. Þessi sjálfstæði skoðari aðlagar logistískan feril með fjórum stikum að styrkröð. Hann þarf raunveruleg styrkgildi og svörun; hann ályktar ekki skammta út frá heitum brunna, myndhnitum eða meðferðarmerkingum.",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
@@ -9067,12 +9097,12 @@
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "Sæktu tilbúnu CSV-skrána sem er tengd í forsendum kennslunnar og veldu Load table. Þetta eru vísvitandi smíðuð hugbúnaðardæmi, ekki mælingar á efnum. Skráin og öll raðaheiti segja að gögnin séu tilbúin svo að snyrtilegir ferlar verði ekki teknir fyrir tilraunaniðurstöður.",
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
           "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "Skráin inniheldur 120 línur í fjórum röðum. Hver röð hefur níu jákvæð styrkgildi, burðarefnisviðmið við núllskammt og þrjár athuganir við hvern styrk. Litlu, jöfnuðu tilbúnu frávikin varðveita meðaltal líkansins við hvern skammt; þetta hentuga dæmi sannreynir ekki tölfræðilega eiginleika í raunverulegum tilraunum.",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9083,7 +9113,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Veldu concentration sem styrkdálk, response sem svörunardálk og series undir One curve per. Gefðu hrá styrkgildi, ekki lógaritma þeirra. Hópun skiptir máli: einn ferill fyrir allar fjórar ólíku raðirnar myndi svara rangri spurningu.",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9094,7 +9124,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Unit-reiturinn er aðeins merking. Hér sláum við inn u M til að merkja dæmisstyrkina sem míkrómólar; breyting á textanum endurskalar aldrei tölurnar. Framkvæmdu nauðsynlega stöðlun eða einingaumreikning fyrirfram því að skjárinn hefur ekki stýringar fyrir stöðlun eða vægi.",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9108,7 +9138,7 @@
         },
         {
           "visual": "06_profile_results",
-          "narration": "Hafðu Profile likelihood valið og Fit non-monotone data óvirkt, og veldu síðan Fit. Ferlasvæðið og niðurstöðutaflan uppfærast saman. Allar fjórar raðirnar eru með, þar á meðal óafmörkuð niðurstaða og höfnun; vantað mat er ekki það sama og vantar röð.",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9119,7 +9149,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Veldu synthetic inhibition. Endurheimti miðpunkturinn er 1,5 með neikvæðum Hill-halla því að svörunin lækkar þegar styrkur eykst. Hálfhámark er mitt á milli aðlagaðra jafnvægisgilda, hér fimm og 95; það þýðir ekki sjálfkrafa 50 prósenta lífvænleika.",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9130,7 +9160,7 @@
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "Veldu synthetic activation. Endurheimti miðpunkturinn er tveir og Hill-hallinn er jákvæður. Valdi ferillinn er dreginn fram en aðrir aðlagaðir ferlar sjást áfram. Lestu valda línu og skýrslu saman í stað þess að eigna þessari röð mat úr öðrum ferli.",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9141,7 +9171,7 @@
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "Dæmið utan sviðsins var smíðað með miðpunkt 500 en styrkgildin ná aðeins upp í 100. Skjárinn sýnir óafmarkaða niðurstöðu, skilur miðpunkts- og bilareiti eftir tóma og sýnir mörk við jaðarinn. Aðlöguð framreiknun er ekki stutt punktmat.",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9152,7 +9182,7 @@
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "Röðinni sem snýr við er hafnað því að einhalla logistískur ferill hefur ranga lögun. Lestu alla skýringuna undir töflunni. Svörun sem snýr við sannar ekki ein og sér frumueitrun eða aðra líffræðilega orsök; rannsakaðu tilraunina í stað þess að fjarlægja skammta í blindni eða þvinga fram aðlögun.",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9163,7 +9193,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Hömlunarskýrslan telur 27 athuganir í aðlögun og þrjú núllskammtsviðmið. Núllstyrkir eru útilokaðir frá lógaritmískri aðlögun og teknir saman sérstaklega; þeim er ekki breytt í örlitla jákvæða skammta án tilkynningar. Meðaltal tilbúna burðarefnisviðmiðsins er 95, eins og fyrirfram gefna gildið við lágan skammt.",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9174,7 +9204,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Lestu líka leifavillu og mat á skorti á aðlögun, ekki aðeins R í öðru veldi. Þetta vísvitandi jafnaða dæmi hefur óvenju snyrtilegar greiningarniðurstöður. Endurteknar athuganir við hvern styrk eru notaðar án sérstakrar endurtekningavalsstýringar og þessar tilbúnu endurtekningar sýna ekki fram á óháðar mælingar í raunverulegri tilraun.",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9185,7 +9215,7 @@
         },
         {
           "visual": "13_choose_wald",
-          "narration": "Veldu Wald og ýttu aftur á Fit til að bera saman bilaðferðir. Að breyta valinu einu sér endurreiknar ekki fyrirliggjandi niðurstöðu. Bilið er reiknað fyrir lógaritma miðpunktsins og síðan umbreytt til baka; það er ekki samhverf skekkjustika lögð beint við styrkinn.",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9196,7 +9226,7 @@
         },
         {
           "visual": "14_wald_results",
-          "narration": "Dæmin þar sem miðpunkturinn er vel afmarkaður halda miðpunktsmati sínu þótt endapunktar bilanna breytist lítillega. Dæmið utan sviðsins fær enn ekkert miðpunktsmat. Endanleg bil í þessum snyrtilegu dæmum sanna hvorki að önnur tilraun ákvarði miðpunkt sinn né að nafngildi þekju gildi fyrir suð og sýnatökuhönnun hennar.",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9207,7 +9237,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Veldu aftur Profile likelihood og síðan Fit. Athugaðu að niðurstöðurnar samsvari nú þeirri aðferð. Ferill, tafla og valin skýrsla eru tengdar sýnir á lokið aðlögunarferli; þetta er ekki lifandi forskoðun sem aðlagar sjálfkrafa aftur við hverja stillingabreytingu.",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9218,7 +9248,7 @@
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "Ljúktu samanburði aðlagana áður en þú raðar töflunni. Þessi útgáfa getur ruglað sýndum línum þegar aðlagað er aftur eftir röðun, svo ekki treysta þeirri aðgerðaröð. Hér röðum við fyrst eftir aðlögun, veljum inhibition og staðfestum að rétt skýrsla birtist.",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9229,7 +9259,7 @@
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "Veldu og afritaðu skýrslutextann með venjulegri flýtileið. Varðveittu viðvaranir, skýringar á höfnun, inntaksstyrki og valda bilaðferð með niðurstöðunni. Einn miðpunktur án þess samhengis sleppir upplýsingunum sem ráða því hvort hægt sé að túlka hann.",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9240,7 +9270,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Það er enginn útflutningshnappur á þessum skjá. Dose-response-API býður fit_frame og niðurstöðutöflu fyrir forritað úttak; API-kennslan útskýrir notkun í Python. Varðveittu óafmarkaðar og hafnaðar línur við útflutning í stað þess að halda aðeins efnum sem gáfu þægilegar tölur.",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9252,7 +9282,12 @@
             210
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

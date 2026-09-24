@@ -6186,7 +6186,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: inspect candidates with an explicit companion window",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -6194,17 +6194,17 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Use unchanged Regression results to explore real Hit List filters and exports, while explicitly working around the hidden native panel.",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "Distinguish the broken native shortcut from the external companion.",
-        "Interpret ranked candidates without claiming significant discoveries.",
-        "Filter, restore and export the actual result rows."
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip. Activate your spaCR environment and run python hit_list_companion.py, then Browse to results. The companion wraps the unmodified HitListScreen; it does not repair Regression navigation or wire Investigate. The archive contains original Regression outputs, not a full project. There are 325 genes, 434 guide rows and zero genes passing q <= .05. Effects are standardized marginal effects, not simultaneous multivariable coefficients. Missing intervals are unavailable. Exported n_obs=0 does not report actual well support: use results_gene.csv wells_with_gene, which ranges from 2 to 48. Metadata joins, penalised ranking and Investigate are outside this demonstration. No model training, new regression, GPU or AI-provider request is needed. API: spacr.hits.build_hit_list and HitList.filter/write_csv/to_markdown/to_html.",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit List belongs under Regression. In this build, clicking Hits selects a page inside a hidden panel, so the list does not appear. This tutorial shows that limitation openly. The following window is an external companion, not evidence that the native shortcut has been repaired.",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
@@ -6212,59 +6212,64 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example, activate your spaCR environment, and run the bundled Hit List companion script. The labelled companion opens spaCR's existing Hit List widget without changing its calculations. Click Browse and select the extracted results folder. No regression is rerun, and Investigate integration is not connected here.",
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
           "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The original example loads three hundred twenty-five genes. Double-click column boundaries if values are clipped. Read effect direction, raw P, corrected q and guide agreement separately. Missing confidence intervals are unavailable. These are standardized marginal effects; the exported observation-count zero is not the true number of supporting wells.",
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
           "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. No genes remain because the smallest gene q-value is about zero point two seven one. An empty filtered table is not an import failure. Restore Max q to one to recover all candidates; this does not declare them discoveries.",
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
           "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Minimum guides two keeps one hundred seventeen genes with at least two tested guide rows. This counts available evidence, not every guide originally designed for a library. The filter changes the displayed subset without recomputing the original multiple-testing correction.",
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
           "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Minimum agreement one additionally keeps fifty-seven genes whose tested guides all share the gene effect's sign. Agreement is not proof of significance or causality. The summary still reports zero significant corroborated genes, even though these candidate rows have agreeing guides.",
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
           "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controls removes one control row, leaving fifty-six candidates in this subset. Restore it before the later export. Removing controls from view does not refit the model or change the correction family; retain their identities when interpreting your analysis.",
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
           "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "With the other filters cleared, Direction up shows positive effects. Adding a minimum absolute effect of zero point one leaves sixteen rows here. These are illustrative display choices, not recommended thresholds. Restore direction and effect controls before searching or comparing a different subset.",
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Search a recorded identifier to inspect one real row. An unmatched query gives an empty table; returning to the known identifier restores it, and clearing search restores the population. This demonstrates reversible filtering. Annotation imports and the separate Investigate workflow require their own checks.",
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
           "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, restore two guides, full agreement, controls included and an empty search. All three exports contain the same fifty-seven candidates in this example. Markdown and HTML round numbers; CSV preserves numerical detail. Save the filter choices separately, because the files do not record every setting.",
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
           "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to recover all three hundred twenty-five genes. Keep exported subsets separate from unchanged originals and do not label nonsignificant candidates as validated hits. Python offers the same Hit List reader and filters, but check the format-specific row limits when exporting larger lists.",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7194,15 +7199,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: containment identities and verified parent crops",
-      "description": "Inspect actual stored parent-child relationships, understand the display cap and distinguish a verified single-parent crop from the unsafe missing-child fallback.",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "Find Lineage inside Database Browser and build the real containment tree.",
-        "Distinguish complete counts, displayed families and typed object identities.",
-        "Recognize the incorrect family-crop fallback and inspect only a verified parent.",
-        "Use native crop zoom and distinguish the complete Python export from GUI controls."
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "Use the downloaded Annotate example with matching measurements and cell crops. The linked Graph Builder archive supplies the exact database but no images; the Lineage archive supplies the verified API CSV and review, not a replacement database. Do not use the current family-crop fallback to identify or label missing child images.",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7210,7 +7214,7 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Find Database Browser under Help, then open its nested Lineage tool. Here lineage means stored containment: which objects belong inside which cells. It is not a cell-division history, genetic ancestry or a new segmentation. The surrounding database controls belong to the host module.",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -7218,42 +7222,42 @@
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements dot db from the real Annotate example and build the tree. This lesson uses an unchanged private copy. Widen the Object column and the divider if labels are cramped. Numeric labels repeat across fields and object types, so a number alone is not an identity.",
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
           "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "The complete source contains two thousand three hundred forty-one cells, two thousand six hundred eighty-two nuclei and two thousand one hundred seventy-eight objects in the pathogen table. Only two thousand parent families appear in the tree; three hundred forty-one are omitted from display, not deleted from the database.",
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
           "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "The summary says no cells have nothing inside, because a nucleus also counts as a child. That does not mean every cell contains a pathogen-table object: one thousand one hundred sixty-eight do not. No unattached children means every recorded parent exists, not that the segmentation is biologically correct.",
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. In this field, cell three contains nucleus five and pathogen one according to the stored links. These are typed object identities, not three interchangeable numbers. Selecting a child alone is different from selecting the whole family.",
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contents publishes the parent and its children. Selecting the parent and a child together does not need a duplicate copy of that child. Published keys preserve field and object type, but the key column is hidden here. Publishing an identity does not prove that a matching crop exists.",
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
           "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Large families deserve inspection, not automatic biological interpretation. This example includes one family with thirty-three objects in total. Containment may reflect segmentation errors or other acquisition issues. The tree reports saved relationships; it does not validate unusual counts as a discovery.",
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Clicking a header sorts the displayed families without changing their containment. The two-thousand-parent display limit still applies. We checked every displayed identity and parent edge as well as the full hierarchy. Do not confuse a reordered or truncated view with an edited measurement table.",
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open crops needs the Annotate screen, which supplies the image viewer. The actual message tells us to open Annotate first. A missing viewer is different from a missing image. Before requesting crops, load the matching example project in Annotate, not another run with coincidentally similar labels.",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -7261,33 +7265,38 @@
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "The downloaded project provides real cell crops. The database-only archive linked here cannot supply those images by itself. We use the complete matching example and preserve every original crop. Opening the source does not train a classifier or establish new labels.",
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
           "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "There is a serious limitation in this build. Opening the three-object family displays cell three, then unrelated cell five and cell one crops instead of the requested nucleus and pathogen. The source has only cell crops. Reject this substitution: do not label those images as the missing children. This tutorial does not repair it.",
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
           "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "The verified alternative is narrower: return to Lineage and double-click the parent cell alone. Unlike Open crops, this sends only that parent, not its family. Annotate now shows exactly the requested cell crop. We checked its identity and original image bytes; no child-crop support is implied.",
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
           "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its existing preview without assigning a class. Escape returns to the grid. This helps visual inspection but creates no extra image resolution. Use the correct gesture: an ordinary left click is an annotation action, not the zoom demonstrated here.",
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build tree refreshes the containment view. For Python, read_object_tables, build_forest and lineage_frame expose the same structure. The linked CSV contains all seven thousand two hundred one nodes, including families omitted from display. It was written by the API, not a Lineage export button, and is not biological validation.",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8339,19 +8348,18 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Tools",
-      "title": "Gate Editor: real populations, reversible views and exact exports",
-      "description": "Draw gates on downloaded cell measurements, verify saved membership, compare real three-dimensional and projected views, and inspect bounded clustering without inventing biological labels.",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "Load real measurements and distinguish gates, view filters and visibility.",
-        "Save and restore feature boundaries, then export membership with exact object identities.",
-        "Explore three-dimensional bounds and principal components without confusing a projection with a reusable fitted transform.",
-        "Compare actual cluster-search outcomes and use the local measurement console."
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "Download the Annotate example first, then make a private copy of its measurements database. Gate Editor has no separate example-download button. This recording uses all 2,341 real cell rows and modifies only that private copy when exporting; tutorial gate names are inspection labels, not biological ground truth.",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "Open Gate Editor in Home's Tools category. Drag the dividers to give the plot, gate table and side controls enough room. This lesson uses the downloaded Annotate measurements; Gate Editor does not have its own example-download button.",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8359,22 +8367,22 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Use Load table to open a private copy of measurements dot D B. Choose the cell table: this example contains two thousand three hundred and forty-one real objects. Export gates writes to a database, so keep the original example unchanged and work on the copy.",
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
           "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "Choose cell area for X and cell channel one mean intensity for Y, with the Rectangle tool. Each point represents a measured object. Inspect the feature names and units before drawing; an area-intensity region alone does not establish an infected cell or another biological class.",
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
           "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "Drag across the scatter, release and enter a descriptive gate name. Our tutorial population is deliberately an inspection example. The shape records numerical boundaries in these two measurements; it is not a model trained to recognise cells from their images.",
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "This drawn region contains six hundred and fifty-five objects, about twenty-eight percent of the table. Read the count and percentages beside the gate name. Different mouse positions produce different boundaries and counts, so use the saved strategy when you need an exact repeat.",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8385,7 +8393,7 @@
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "Unticking the gate hides its overlay without deleting its definition or changing membership. Tick it again to restore the view. This is different from Delete gate, and different from the Filter tab, which changes the objects displayed beneath the gates.",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8396,27 +8404,27 @@
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Use Save gates to keep the named feature boundaries in a JSON strategy. Here we save, actually delete the gate, and then load the saved file. Reusing a strategy requires matching measurement names, units and preprocessing, not simply a table with the same number of columns.",
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
           "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates restores the same boundaries and all six hundred and fifty-five members. We checked membership after actually deleting and reloading the gate, rather than merely saving a file. On another dataset, verify the restored boundaries and object identities before relying on its counts.",
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
           "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph writes the actual figure; this recording's preferences produce a PNG and a PDF. A figure is different from a gate strategy or exported membership. Keep the corresponding data and strategy when you need to reproduce how a displayed population was defined.",
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
           "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates writes membership flags to the private database's filters table. Our first gate marks exactly six hundred and fifty-five cell identities, matched by plate, row, column, field, object label and object type. The original download and underlying cell measurements remain unchanged.",
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
           "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "Draw a second shape while the first is selected. Its two hundred and fifty-nine objects include some outside the first: new drawing is not automatically nested, despite older status wording. Save this two-gate strategy separately and inspect any parent relationships explicitly when loading an existing hierarchy.",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -8427,52 +8435,52 @@
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "Choose three D and cell perimeter for Z to inspect three actual measurements. The spin-axis buttons guide rotation. Rotating changes the view, not the saved boundaries of the two existing area-intensity gates; return to two D to inspect those shapes again.",
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
           "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view creates a named box with bounds on all three displayed measurements. Our full-volume example includes every loaded object: it demonstrates the control, not an enriched biological population. Save the three-gate strategy separately so the earlier two-gate file remains available.",
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
           "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "The x D toggle computes principal components from eligible measurements. It is separate from the two D or three D view choice. Here the source label reports seventeen, thirteen and six percent explained variance for the first three components; these are variance fractions, not classification accuracy.",
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
           "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "Turning x D off retains the component columns; choose the raw axes again when returning to raw-feature gates. A saved gate strategy does not save the fitted projection. Component names alone do not make independently fitted projections compatible, so do not reuse their gate boundaries blindly.",
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
           "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "For Search, widen the side panel and remove the temporary gates after saving them. Use the same two raw features, scaling enabled, twenty minimum neighbours and five Walk steps. Run walk opens a confirmation in this build; check that its values match the visible controls.",
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
           "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "The actual Walk selects a radius near zero point one six seven and reports two populations, with thirty-three percent of objects outside them. Inspect the resulting outlines. Density clustering and its saved polygon gates are exploratory descriptions, not validated cell types or proof that excluded objects are invalid.",
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
           "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Save the Walk strategy, remove its temporary gates, turn Walk off and run radius zero point five. This separate choice creates one larger polygon gate, containing two thousand two hundred and thirty-nine objects. It is not a better answer merely because it includes more cells.",
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "Reload the saved two-gate raw-feature strategy, then add cell area in Filter. Setting the lower cutoff to twenty-one thousand nine hundred and twenty-five leaves one thousand one hundred and seventy-one displayed objects. This live preview narrows the view without rewriting the saved gate boundaries.",
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
           "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "Clear the filter and all two thousand three hundred and forty-one objects return. Check both the active view filter and the gate definition before interpreting counts or exporting. Hiding an overlay, filtering a view and deleting a gate are three different operations.",
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
           "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "Drag the far-right divider left to reveal the console. Enter len, open parenthesis, D F, close parenthesis: the real table returns two thousand three hundred and forty-one. The expression console works locally; it is not an answer generated by an artificial-intelligence model.",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8483,7 +8491,7 @@
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "The chat box is separate from expressions. We leave an unsent draft, without demonstrating an assistant or biological interpretation. In Python, GateSet from spacr.qt.widgets.gate_spec stores definitions; gate_mask_over_table and export_gate in spacr.filters evaluate and save full-table object flags. Verify the identities before downstream annotation.",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8496,7 +8504,12 @@
             "09_annotate"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8505,19 +8518,18 @@
       "series": 5,
       "app_key": "feature_explorer",
       "section": "Explore",
-      "title": "Feature Explorer: rank real measurements and keep the comparison explicit",
-      "description": "Open the Classify submodule, compare real plate-row measurements, inspect distributions, filter live, add a computed column and export the intended ranking without training a classifier.",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "Find Feature Explorer inside Classify and load existing cell measurements.",
-        "Distinguish AUC from separation, and inspect class counts and distribution differences.",
-        "Filter live without overlooking an automatic change of comparison column.",
-        "Use Top deliberately, verify a scaled computed column and export the actual ranking."
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "Use the downloaded Annotate example, not invented measurements. The recording opens a byte-identical private copy of its 2,341-cell, 276-column measurement database. The two rowID groups are spatial plate rows r12 and r5, not asserted treatments; cells share fields and wells and are not independent experiments. Original data remain unchanged. AUC, KS, ranking order and finite class counts are independently checked for the intended two-class comparisons. The automatically selected eight-class comparison is a warning example, not independently validated inference. Shuffle test stays off. No classifier training, new image analysis, dedicated download, GPU operation or AI request occurs here; the displayed histograms are the module's own plots.",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Open Classify, then its Feature Explorer button. This nested tool ranks existing measurements; opening it does not train a classifier. We use the real downloadable Annotate example on a private database copy. Follow the Annotate lesson to obtain the example, and keep your experimental source unchanged.",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8525,7 +8537,7 @@
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Choose Load table, select the measurement database and its cell table, then set Split by to rowID. There are two thousand three hundred forty-one cells and two hundred seventy-six columns. Our two groups are recorded plate rows, not established treatments; these cells are not independent experiments.",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8536,7 +8548,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Rank by AUC and read both numeric columns. Separation is the absolute value of twice AUC minus one, so about zero point three four separation is not a zero point three four AUC. Higher in names the direction; min n counts finite measurements in the smaller class, not replicate experiments.",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8547,7 +8559,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Set Top to four to inspect four overlaid histograms. Classes share the same bin edges within each feature, and bar heights are counts. The largest ranking is not automatically a useful biomarker. Read the warning: AUC can miss differences in spread even when the distributions differ.",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
@@ -8558,12 +8570,12 @@
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Export ranking with Top four writes four feature rows. In this build the export follows Top, despite wording that suggests the whole ranking. It does not export the underlying cells or save a trained model. We compared every exported value with the actual current ranking.",
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
           "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "Set Top to five hundred before exporting all scored features in this example. Two hundred sixty-one features can be scored; two numeric candidates cannot. The export contains all two hundred sixty-one rows, while the display draws at most eight distributions. Feature counts, table rows and plotted panels are different quantities.",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8574,7 +8586,7 @@
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions, then return to AUC. KS can reveal distribution differences that AUC misses but does not provide direction itself. Other offered statistics have their own limitations; read the visible warning rather than treating a rank as a significance test.",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8585,7 +8597,7 @@
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The visible population changes to one thousand one hundred seventy-one cells, and two hundred fifty-five features remain scorable. This median-based demonstration threshold is not a biological quality cutoff. Rankings and distributions update without remeasuring images.",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -8596,12 +8608,12 @@
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all removes the display filters, not the data. All two thousand three hundred forty-one cells and the original ranking return. Recheck the population and Split by whenever you change filters. A difference that changes after filtering describes a different selected population, not a new experiment.",
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
           "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "There is an important trap in this build. Filtering rowID to r12 removes the other row, but the screen silently switches Split by to cell_channel_0_maxima_count. It now compares eight groups, with only one object in the smallest. Those impressive scores are not the original row comparison or evidence of a biological discovery.",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8612,7 +8624,7 @@
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "Clear the filter and explicitly choose rowID again. Clearing alone does not necessarily restore the original comparison. Verify both the class column and the population before exporting. Shuffle test offers fifty label shuffles, but we leave it off: freely shuffling these correlated cells would not establish well-level or treatment-level evidence.",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8623,7 +8635,7 @@
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Open Columns and name a new column area_k. Enter cell_area divided by one e three, meaning one thousand, and choose Add column with replacement off. This rescales area; it does not calibrate physical units or add a new measurement. Preview checks the first two thousand rows; adding applies the formula to the full table.",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -8634,12 +8646,12 @@
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "The scaled column joins the ranking and export, giving two hundred sixty-two scored features. Its AUC and KS equal those of cell_area because positive rescaling preserves order. We checked every computed value. Remove the formula to return to the original two hundred sixty-one features; the measurement database remains unchanged.",
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
           "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "Use these rankings for descriptive exploration, not independent validation of a selected feature or a trained classifier. In Python, spacr.qt.widgets.feature_rank provides rank_features and ExplorerSpec. For inspecting raw tables or drawing other comparisons, continue with Database Browser and Graph Builder. No new image-analysis pipeline or AI request was run.",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8648,7 +8660,12 @@
           ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8657,19 +8674,18 @@
       "series": 5,
       "app_key": "outliers",
       "section": "Explore",
-      "title": "Outliers: inspect real flags without deleting observations",
-      "description": "Open Outliers inside QC, compare robust rules on real cell measurements, distinguish unscored wells from clean wells, inspect an actual log-transform refusal and export every row with its flags.",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "Find the QC submodule and select measured features deliberately before Scan.",
-        "Compare MAD, IQR and explicit log transforms without treating flags as validated errors.",
-        "Distinguish object counts, displayed rows and unscored well comparisons.",
-        "Export original measurements with flags and recover safely from an invalid transform."
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "Use the downloadable Annotate example on a byte-identical private database copy. Its 2,341 cells occupy four recorded wells; they are not independent experiments or known defective objects. Original measurements are never edited or deleted. The lesson independently checks finite, nondegenerate single-feature MAD/IQR arithmetic, each object's flag position, well medians/counts and the explicit fewer-than-five-wells refusal. It does not validate the automatic all-feature scan, zero-scale fallback, multivariate MCD inference or biological quality. These are scans of an existing measurement table, not new image segmentation, GPU analysis or classifier training. This screen has no image preview, Plot toggle, dedicated test-data downloader or AI console; its Objects, Wells and Report tabs are the actual outputs.",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "Open QC from Home, then choose its Outliers button. QC's dashboard reads stored checks, while this nested tool computes flags from a measurement table. We use the real downloadable Annotate example on a private database copy. Follow that lesson to obtain the example and leave your experimental source unchanged.",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8678,7 +8694,7 @@
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Choose Load table and the database's cell table. Loading automatically scans all selected continuous features: two hundred fifty-five here, over two thousand three hundred forty-one cells. This broad default flags two thousand three hundred thirty-eight objects. That does not prove nearly every cell is bad. Loading the wide result table can take time.",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8689,7 +8705,7 @@
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "With the feature search empty, choose None to untick everything. Search for cell_area and tick only that exact feature, then press Scan. The search narrows feature names, not cell rows. Changing the selection does not automatically rescan: the old result can remain visible until you run the new rule.",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8700,7 +8716,7 @@
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "For MAD, leave the transform at none and k at three point five. The rule divides the absolute distance from the median by about one point four eight two six times the median absolute deviation. It flags twenty-six cells. These are candidates for inspection, not confirmed segmentation mistakes, and no row has been removed.",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8711,7 +8727,7 @@
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Open Wells. All four wells contain over five hundred objects, but none is scored: the across-well comparison needs at least five eligible wells. Read well_scored and the specific reason, not just Wells zero. Flagged share summarizes object flags; it is not a well-level score or evidence that the well is clean.",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8722,7 +8738,7 @@
         },
         {
           "visual": "08_area_report",
-          "narration": "The Report gives the rule, measured centre, scale and caveats. One caveat in this build wrongly says these four wells had fewer than twenty objects. Their actual counts are five hundred one to seven hundred; the reason is too few wells. Use the specific well-table reason, and do not repeat the incorrect count explanation.",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8733,7 +8749,7 @@
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "A stricter distance requirement flags fewer objects. Lowering k to two produced one hundred forty-two flags; at zero point five it produces one thousand four hundred seventy-nine. That last setting is deliberately broad for demonstration, not a recommended quality cutoff. The object table displays only five hundred rows, so its row count is not the flag count.",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8744,7 +8760,7 @@
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Choose Export and a new filename. The objects CSV keeps all two thousand three hundred forty-one rows and appends flags; flagged contains the one thousand four hundred seventy-nine flagged rows. Wells contains four summaries, and report is a text file. Every exported measurement and flag was checked. Export is not deletion, and it is not limited to the displayed five hundred rows.",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8755,7 +8771,7 @@
         },
         {
           "visual": "13_area_iqr",
-          "narration": "Restore the original rule, then choose IQR. The threshold now means c times the interquartile range, not robust standard deviations. With c at one point five, raw cell area gives fifty-five flags. We independently checked both quartile fences and every flagged position. A tail of a skewed distribution can be flagged even when its measurements are valid.",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8766,7 +8782,7 @@
         },
         {
           "visual": "14_iqr_report",
-          "narration": "There is another wording error to recognize. This IQR report labels twenty-two thousand six hundred sixty-three as the median, but that number is the midpoint of the first and third quartiles. The actual median is twenty-one thousand nine hundred twenty-five. The checked fences are correct; do not cite that displayed centre as the median.",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8777,7 +8793,7 @@
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "Choose log10 explicitly and scan again. On these positive areas, IQR gives seventy-nine flags, while switching back to MAD at three point five gives thirty-six. Log transformation changes distances and the question being asked; it does not guarantee fewer flags or biological correctness. The reported centres and scales are now in log10 units.",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8788,7 +8804,7 @@
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "For a real refusal example, return to no transform and select cell_channel_0_min_intensity alone. Scan succeeds and flags sixty-eight objects. One measured value is actually zero. This positive counterpart matters: the table and feature work before we ask for a transform whose domain excludes that value.",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8799,7 +8815,7 @@
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "Now select log10 and press Scan. The real error names the one zero or negative value and its feature. No pseudocount is invented and no object is dropped; export is disabled. Old object-table rows and its count can remain visible after failure, so they are not a successful new result. Read the error and restore a valid rule.",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8810,7 +8826,7 @@
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "Return to raw cell_area and MAD three point five, then scan to recover the original twenty-six flags. Raising Min objects per well to seven hundred changes eligibility: only one well reaches that count, while the other three retain explicit low-count reasons. Lowering this minimum cannot create the missing fifth well. Not scored is never the same as cleared.",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8821,7 +8837,7 @@
         },
         {
           "visual": "22_objects_only",
-          "narration": "Restore the minimum to twenty and switch Score wells too off, then scan. Object flags remain twenty-six and no well comparison is requested. Switch it back on and scan to restore the four unscored well summaries. This setting changes the analysis level; it is not a filter that deletes cells or wells from your database.",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -8832,7 +8848,7 @@
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "Export the restored rule under a different filename. The final files contain two thousand three hundred forty-one object rows, twenty-six flagged rows, four well summaries and the report. Both the original and private measurement database are unchanged. Keep the rule and report with the flags so a different threshold is not mistaken for the same analysis.",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8843,7 +8859,7 @@
         },
         {
           "visual": "method_choices_mad",
-          "narration": "The menu also offers robust multivariate Mahalanobis, which we have not run in this lesson. Its alpha depends on distribution assumptions and is not a guaranteed error rate. The Python consumer is detect_outliers with OutlierSpec in spacr.qt.widgets.outlier_model. To inspect distributions or images, continue with Feature Explorer or Annotate; no image preview or AI request happened here.",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8858,7 +8874,12 @@
           ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -8867,24 +8888,23 @@
       "series": 5,
       "app_key": "experiment_design",
       "section": "Data",
-      "title": "Experiment Design: a reproducible plate plan and exact export",
-      "description": "Edit a proposed plate layout through the actual controls, inspect capacity and replication warnings, reproduce random assignments and export the exact well map.",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "Plan conditions and control roles before acquisition.",
-        "Demonstrate warning and recovery states without treating layout checks as biological validation.",
-        "Reproduce the same random layout and distinguish selected wells from assigned conditions.",
-        "Export and retain the exact well table when row/column settings cannot express the design."
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "No acquired images or downloaded dataset are required for this planning module. The recording uses the application's real draft of six negative-control, six positive-control and twelve treatment wells, named tutorial_plan. These counts illustrate the interface; they are not a power calculation or acquired experimental result.",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Experiment Design in Home's Data category before acquisition. This module creates a proposed plate layout, not measured biological results. Our negative, positive and treatment names are draft labels; choose meaningful names and controls for your own experiment.",
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
           "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "Name the plate so its identifier will match the images and measurements later. If a table column is narrow, double-click its header boundary to fit the contents. Review Condition, Replicates and Role together. The example's six, six and twelve wells demonstrate the interface, not a justified sample size.",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
@@ -8892,7 +8912,7 @@
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "Choosing a six-well format while requesting twenty-four wells produces a capacity error. The map does not quietly drop excess replicates. Read the message, then change the format or experimental plan; do not treat an empty map as a valid allocation.",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8903,7 +8923,7 @@
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "Returning to ninety-six wells restores all twenty-four assignments. The plate map updates from the current table. Add condition and Remove selected manage condition rows; the square wells below are a separate selection surface, not those table rows.",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8914,17 +8934,17 @@
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "Select a replicate cell and press F two to edit it. Reducing the negative control to one well raises a warning; restoring six removes that warning. Many cells within one well do not substitute for independent experimental replication.",
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Block layout places conditions together and raises positional-confounding warnings. Read these as prompts to inspect the design, not automatic biological conclusions. Optical illumination correction does not correct evaporation or temperature effects; experimental layout and image shading are different problems.",
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
           "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "Choose random layout, leave edge empty, and seed forty-two. The outer ring leaves sixty usable wells on this ninety-six-well plate; our plan assigns twenty-four. Avoiding the outer ring costs capacity and does not guarantee freedom from all spatial effects.",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8935,7 +8955,7 @@
         },
         {
           "visual": "08_seed43",
-          "narration": "Changing the seed to forty-three changes the actual assignments while preserving the requested condition counts. Randomisation reduces systematic placement bias, but a single random layout still needs review. Do not pick a seed to favour a desired outcome.",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8946,7 +8966,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Returning to forty-two restores exactly the same well-to-condition mapping. Record the seed together with the plate format, edge policy and condition table. The seed alone does not define a design if those other inputs change.",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8957,7 +8977,7 @@
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "Drag across B zero two to C zero four to select six wells. The selection outline changes, but their conditions do not: this gesture selects wells and does not assign a treatment. Check the condition table and the displayed map when revising an allocation.",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8968,12 +8988,12 @@
         },
         {
           "visual": "11_export_folder",
-          "narration": "Use Export plate map and choose a dedicated folder. The real export writes plate_map dot CSV, plate_map dot JSON and plate_map_settings dot JSON. Keep the three files together; selecting a destination is not the same as acquiring the planned experiment.",
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "The CSV contains one row per assigned well: twenty-four here, matching every displayed condition and role. It joins to measurements using plate I D, row I D and column I D together. The JSON records the seed, design and findings, including warnings rather than hiding them.",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8984,7 +9004,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "This random layout cannot be represented by the row-or-column treatment settings. The settings file explicitly reports expressible as false; it is not a complete analysis configuration. Use the exact exported well table and an explicit join, rather than approximating mixed wells with whole-row labels.",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8995,7 +9015,7 @@
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "The Python interface lives in spacr.qt.widgets.plate_layout: Condition and PlateDesign describe the plan; assign_wells, check_design and write_design allocate, inspect and save it. Layout checks do not establish statistical power or biological validity. Review the design before acquisition and keep its exact map for downstream analysis.",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -9003,30 +9023,35 @@
             "33_plate_viewer"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design: read the simulator and its limitations",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
       "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "Understand the actual planning controls, simulated detection curves and warnings without mistaking a small demonstration or contradictory headline for validated design advice.",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "Distinguish simulation assumptions from acquired experimental data.",
-        "Read usable fits, detection fractions and uncertainty correctly.",
-        "Recognize the same-design recommendation error and preserve the recorded evidence."
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "This is a critical review of the actual recorded simulator, not calibrated statistical power or sample-size advice. Power_recorded_simulation_review.zip preserves the original JSON and an explanatory review; it is not a GUI-importable completed run or a native export demonstration. The recorded spaCR 1.5.0.4 screen, design adapter, simulator and fitting code still match current source bytes. Two marginal scans produced 18 fits and nine points, two replicates per point; four nonconverged fits remain in the denominator. Two simulations clipped probabilities. The same nominal baseline has different random draws: 1/2 versus 2/2 detections. The advice to increase to the existing well count is explicitly rejected and remains unfixed. Some plot endpoint labels are clipped; the verified table contains all nine coordinates. No new simulation, acquired data, biological calibration, GPU task, AI-provider request or publication is claimed. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve and spacr.qt.screens.power.run_power_sweep; spacr.power_simulate and spacr.power_model perform simulation and fitting.",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Power and Design explores assumptions with simulated data. It does not load an acquired experiment or establish that its assumptions match yours. This lesson reads a real recorded run, including its warnings and a misleading recommendation. Do not use this small demonstration as validated sample-size advice.",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
@@ -9034,32 +9059,32 @@
         },
         {
           "visual": "03_guide_library",
-          "narration": "Start with the library and scoring unit. Switching between guide and gene changes what the model scores: the displayed example has forty genes and four guides per gene, so guide scoring has one hundred sixty units. Gene scoring pools the guide information. These are teaching assumptions, not new biological measurements.",
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
           "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "The plate and effect controls describe the assumed design. A positive-call rate is a simulated classification probability, not a count of organisms or a measured infection rate. Inspect the background, effect and prevalence together, and remember that the displayed assumptions do not validate the model.",
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "An effect below one triggers the native unsupported-direction warning and disables Run. The recording then restores a supported value so the controls recover. This is a software guard, not a claim that effects in the other direction are biologically impossible. Do not bypass the warning to obtain a convenient curve.",
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
           "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "This bounded demonstration uses only two replicates per point. The detection rule is a usable fit reaching the chosen area under the receiver operating characteristic curve threshold. It is not a hypothesis-test P-value cutoff. The seed and backend are recorded; selecting Torch alone does not prove GPU execution.",
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
           "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Run starts the actual threaded simulator. It varies the cell-count and well-count axes separately, rather than evaluating every combination. The recording completed eighteen fits across nine points. Keep the settings and raw replicate records together so a plotted fraction can be traced to the fits that produced it.",
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "Read detections as counts over all requested replicates. Four fits did not converge and remain in the denominator as non-detections; they are not silently discarded. A plotted hundred percent here means only two out of two. Such a small sample cannot establish a precise detection probability.",
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
           "hold_after": 0.7
         },
         {
@@ -9070,7 +9095,7 @@
             2380,
             460
           ],
-          "narration": "The table separates detection fractions from mean performance among usable fits. An unavailable mean is not zero. Average precision also needs its prevalence baseline for context. Read the table when a plot-end label is clipped, and inspect nonconvergence counts instead of judging the design from the blue line alone.",
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
           "hold_after": 0.7
         },
         {
@@ -9081,23 +9106,28 @@
             2380,
             110
           ],
-          "narration": "The headline contains an error. Both baseline estimates already use ninety-six wells, but different random draws produce one of two detections in one scan and two of two in the other. Going to the same ninety-six wells is not an improvement in design. Reject that recommendation; this tutorial does not repair it.",
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
           "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "Expand the remaining caveats. Two simulated screens clipped probabilities above one, so their realised occupancy differs from the requested value. The model has other assumptions and limitations; listing them is not validation. Review these warnings and the failed fits before drawing conclusions from any simulation.",
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
           "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "The linked archive preserves the actual recorded specification, replicate outputs, curves, table and incorrect headline for inspection. It is an external evidence download, not a native GUI export or an imported result. The Python design adapter and simulation APIs expose the same workflow, but real planning requires separate validation of assumptions and uncertainty.",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9106,21 +9136,21 @@
       "series": 5,
       "app_key": "dose_response",
       "section": "Data",
-      "title": "Dose Response: fitted curves, uncertainty and honest refusals",
-      "description": "Use the current Dose Response screen with a reproducible synthetic table, compare profile and Wald intervals, and distinguish fitted, unbounded and refused results.",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "Load explicit concentrations and responses and fit one curve per named series.",
-        "Interpret midpoint estimates, interval methods, vehicle controls and refused curves.",
-        "Compare results before sorting, copy the actual report and distinguish GUI controls from API exports."
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "Download the accompanying SYNTHETIC CSV. It has 120 constructed rows: four named series, nine positive concentrations plus a zero-dose vehicle, and three observations per concentration. Balanced offsets of minus 0.5, zero and plus 0.5 are not biological replicates or a calibration study. Planted midpoints are 1.5, 2 and an out-of-range 500; the fourth series reverses. No registered Dose Response dataset downloader, normalization, weighting, replicate selector, GUI export button or AI console is demonstrated. The Unit field changes a label, not the data. In this build, refitting after sorting can corrupt the displayed row identities; this recording completes every refit before sorting. Preserve refusals and inspect the full report. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame and DoseResponseSet.table. The example data and plot checks are independent of spaCR's fitting functions; profile endpoints are checked to the implementation's declared log10 bracket precision, not as a coverage guarantee.",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Open Dose Response in Home's Data section. This standalone viewer fits a four-parameter logistic curve to a concentration series. It needs the actual concentrations and responses; it does not infer doses from well names, image coordinates or treatment labels.",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
@@ -9128,12 +9158,12 @@
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "Download the synthetic CSV linked in this lesson's prerequisites, then choose Load table. These are deliberately constructed software examples, not measured compounds. The file and every series name say synthetic, so the clean curves must not be mistaken for experimental results.",
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
           "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "The file contains one hundred twenty rows across four series. Each has nine positive concentrations, a zero-dose vehicle, and three observations at each concentration. The small, balanced artificial offsets preserve the model mean at every dose; this convenient example does not validate statistical performance on real experiments.",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9144,7 +9174,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Select concentration as the concentration column, response as the response column, and series under One curve per. Supply raw concentrations, not their logarithms. Grouping is important: fitting all four different series as one curve would answer the wrong question.",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9155,7 +9185,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "The Unit field is only a label. Here we type u M to label the illustrative concentrations as micromolar; changing this text never rescales the numbers. Prepare any required normalization or unit conversion upstream, because this screen has no normalization or weighting controls.",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9169,7 +9199,7 @@
         },
         {
           "visual": "06_profile_results",
-          "narration": "Leave Profile likelihood selected and Fit non-monotone data switched off, then choose Fit. The curve panel and results table update together. All four series stay accounted for, including an unbounded result and a refusal; a missing estimate is not the same as a missing series.",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9180,7 +9210,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Select synthetic inhibition. The recovered midpoint is one point five, with a negative Hill slope because the response falls as concentration increases. Half-maximum means halfway between the fitted plateaus, which are five and ninety-five here; it does not automatically mean fifty percent viability.",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9191,7 +9221,7 @@
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "Select synthetic activation. Its recovered midpoint is two and its Hill slope is positive. The selected curve is emphasized while the other fitted curves remain visible. Read the selected row and report together rather than assigning another curve's estimate to this series.",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9202,7 +9232,7 @@
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "The beyond-range example was constructed with a midpoint of five hundred, but its concentrations stop at one hundred. The screen reports an unbounded result, leaves the midpoint and interval cells blank, and shows a bound at the edge. A fitted extrapolation is not a supported point estimate.",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9213,7 +9243,7 @@
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "The reversing series is refused because a monotonic logistic curve is the wrong shape. Read the full explanation below the table. A turning response does not by itself establish cytotoxicity or another biological cause; investigate the experiment instead of blindly removing doses or forcing a fit.",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9224,7 +9254,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "The inhibition report counts twenty-seven fitted observations and three zero-dose controls. Zero concentrations are excluded from the logarithmic fit and summarized separately; they are not silently converted to tiny positive doses. The synthetic vehicle mean is ninety-five, matching the constructed low-dose plateau.",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9235,7 +9265,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Also read residual error and the lack-of-fit assessment, not just R squared. This deliberately balanced example has exceptionally tidy diagnostics. Repeated observations at each concentration are used without a separate replicate selector, and these artificial repeats do not establish the independence of measurements in a real experiment.",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9246,7 +9276,7 @@
         },
         {
           "visual": "13_choose_wald",
-          "narration": "To compare interval methods, choose Wald and press Fit again. Changing the selector alone does not recompute an existing result. The interval is calculated for the logarithm of the midpoint and transformed back; it is not a symmetric error bar added directly to concentration.",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9257,7 +9287,7 @@
         },
         {
           "visual": "14_wald_results",
-          "narration": "The well-bracketed examples keep their midpoint estimates while the interval endpoints change slightly. The beyond-range example still withholds its midpoint. Finite intervals on these tidy examples do not prove that another experiment identifies its midpoint or that nominal coverage holds for its noise and sampling design.",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9268,7 +9298,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Restore Profile likelihood and choose Fit again. Check that the results now correspond to that method. The curve, table and selected report are linked views of the completed fit; they are not a live preview that automatically refits whenever a control changes.",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9279,7 +9309,7 @@
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "Finish the fitting comparisons before sorting the table. This build can misalign displayed rows when a sorted table is refitted, so do not rely on that sequence. Here we sort only after fitting, then select inhibition and verify that its matching report is shown.",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9290,7 +9320,7 @@
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "Select and copy the report text using the normal copy shortcut. Keep the warnings, refusal explanations, input concentrations and chosen interval method with the result. Copying a single midpoint without that context discards the information that determines whether it can be interpreted.",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -9301,7 +9331,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "There is no export button in this screen. For programmatic output, the dose-response API provides fit_frame and a result table; the API lesson explains working from Python. Preserve unbounded and refused rows when exporting, rather than keeping only the compounds that produced convenient numbers.",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9313,7 +9343,12 @@
             210
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

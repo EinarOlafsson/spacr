@@ -6242,96 +6242,90 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List : examiner les candidats dans une fenêtre auxiliaire explicite",
+      "title": "Hit List: filter candidates and export a shortlist",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Résultats et contrôle qualité",
+      "section": "Regression",
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Explorez les filtres et exports réels de Hit List avec des résultats Regression inchangés, en contournant explicitement le panneau masqué.",
+      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
       "objectives": [
-        "Distinguer le raccourci natif défectueux du programme auxiliaire externe.",
-        "Interpréter les candidats classés sans annoncer de découvertes significatives.",
-        "Filtrer, restaurer et exporter les lignes réelles."
+        "Open the example Regression results with the supplied companion.",
+        "Filter candidates and read their effects and guide agreement.",
+        "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Décompressez Hit_List_real_results_companion.zip. Activez l’environnement spaCR, lancez python hit_list_companion.py, puis choisissez results avec Browse. Le programme utilise HitListScreen sans le modifier : il ne répare pas la navigation et ne connecte pas Investigate. L’archive contient les résultats originaux, pas un projet complet : 325 gènes, 434 lignes de guides, aucun gène avec q <= .05. Les effets marginaux standardisés ne sont pas des coefficients multivariables ajustés simultanément. Les intervalles manquants sont indisponibles. n_obs=0 ne représente pas le nombre réel de puits : wells_with_gene dans results_gene.csv va de 2 à 48. Jointures de métadonnées, classement pénalisé et Investigate sont exclus. Aucun entraînement, nouvelle régression, GPU ou appel à un fournisseur d’IA n’est nécessaire. API : spacr.hits.build_hit_list et HitList.filter/write_csv/to_markdown/to_html.",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "Hit List se trouve sous Regression. Dans cette version, cliquer sur Hits sélectionne une page dans un panneau masqué : la liste n’apparaît pas. Ce tutoriel montre cette limite. La fenêtre suivante est un programme auxiliaire externe, pas la preuve que le raccourci natif est réparé.",
+          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Hit List se trouve sous Regression. Dans cette version, cliquer sur Hits sélectionne une page dans un panneau masqué : la liste n’apparaît pas. Ce tutoriel montre cette limite. La fenêtre suivante est un programme auxiliaire externe, pas la preuve que le raccourci natif est réparé."
+          "hold_after": 0.7
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Décompressez l’exemple lié, activez votre environnement spaCR et lancez le script auxiliaire Hit List fourni. La fenêtre identifiée ouvre le composant existant de spaCR sans modifier ses calculs. Cliquez sur Browse et choisissez results. La régression n’est pas relancée et l’intégration Investigate n’est pas connectée.",
-          "hold_after": 0.7,
-          "speech_text": "Décompressez l’exemple lié, activez votre environnement spakeur et lancez le script auxiliaire Hit List fourni. La fenêtre identifiée ouvre le composant existant de spakeur sans modifier ses calculs. Cliquez sur Browse et choisissez results. La régression n’est pas relancée et l’intégration Investigate n’est pas connectée."
+          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "L’exemple original charge trois cent vingt-cinq gènes. Double-cliquez sur les limites des colonnes si les valeurs sont tronquées. Distinguez le sens de l’effet, P brut, q corrigé et l’accord des guides. Les intervalles absents sont indisponibles. Les effets sont marginaux standardisés ; le nombre d’observations exporté à zéro ne donne pas le nombre réel de puits.",
-          "hold_after": 0.7,
-          "speech_text": "L’exemple original charge trois cent vingt-cinq gènes. Double-cliquez sur les limites des colonnes si les valeurs sont tronquées. Distinguez le sens de l’effet, P brut, q corrigé et l’accord des guides. Les intervalles absents sont indisponibles. Les effets sont marginaux standardisés ; le nombre d’observations exporté à zéro ne donne pas le nombre réel de puits."
+          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Réglez Max q sur zéro virgule zéro cinq. Aucun gène ne reste : le plus petit q génique vaut environ zéro virgule deux sept un. Une table filtrée vide n’est pas un échec d’importation. Remettez Max q à un pour retrouver les candidats, sans les déclarer découverts.",
-          "hold_after": 0.7,
-          "speech_text": "Réglez Max q sur zéro virgule zéro cinq. Aucun gène ne reste : le plus petit q génique vaut environ zéro virgule deux sept un. Une table filtrée vide n’est pas un échec d’importation. Remettez Max q à un pour retrouver les candidats, sans les déclarer découverts."
+          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Minimum guides à deux conserve cent dix-sept gènes ayant au moins deux lignes de guides testés. Cela compte les données disponibles, pas tous les guides conçus initialement. Le filtre modifie le sous-ensemble affiché sans recalculer la correction des tests multiples.",
-          "hold_after": 0.7,
-          "speech_text": "Minimum guides à deux conserve cent dix-sept gènes ayant au moins deux lignes de guides testés. Cela compte les données disponibles, pas tous les guides conçus initialement. Le filtre modifie le sous-ensemble affiché sans recalculer la correction des tests multiples."
+          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Minimum agreement à un conserve ensuite cinquante-sept gènes dont tous les guides testés ont le même signe que l’effet génique. Cet accord ne prouve ni significativité ni causalité. Le résumé compte toujours zéro gène significatif corroboré, même si ces candidats ont des guides concordants.",
-          "hold_after": 0.7,
-          "speech_text": "Minimum agreement à un conserve ensuite cinquante-sept gènes dont tous les guides testés ont le même signe que l’effet génique. Cet accord ne prouve ni significativité ni causalité. Le résumé compte toujours zéro gène significatif corroboré, même si ces candidats ont des guides concordants."
+          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Hide controls retire une ligne de contrôle et laisse cinquante-six candidats. Rétablissez-la avant l’export. Masquer les contrôles ne réajuste pas le modèle et ne change pas la famille de correction ; gardez leurs identités pour interpréter l’analyse.",
-          "hold_after": 0.7,
-          "speech_text": "Hide controls retire une ligne de contrôle et laisse cinquante-six candidats. Rétablissez-la avant l’export. Masquer les contrôles ne réajuste pas le modèle et ne change pas la famille de correction ; gardez leurs identités pour interpréter l’analyse."
+          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Après avoir effacé les autres filtres, Direction up montre les effets positifs. Un effet absolu minimal de zéro virgule un laisse seize lignes. Ce sont des choix d’affichage illustratifs, pas des seuils recommandés. Réinitialisez direction et effet avant une recherche ou une autre comparaison.",
-          "hold_after": 0.7,
-          "speech_text": "Après avoir effacé les autres filtres, Direction up montre les effets positifs. Un effet absolu minimal de zéro virgule un laisse seize lignes. Ce sont des choix d’affichage illustratifs, pas des seuils recommandés. Réinitialisez direction et effet avant une recherche ou une autre comparaison."
+          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Recherchez un identifiant enregistré pour examiner une ligne réelle. Une requête sans correspondance vide la table ; reprendre l’identifiant connu la restaure, puis effacer la recherche rétablit la population. Le filtrage est réversible. Les annotations et le parcours Investigate nécessitent des contrôles distincts.",
-          "hold_after": 0.7,
-          "speech_text": "Recherchez un identifiant enregistré pour examiner une ligne réelle. Une requête sans correspondance vide la table ; reprendre l’identifiant connu la restaure, puis effacer la recherche rétablit la population. Le filtrage est réversible. Les annotations et le parcours Investigate nécessitent des contrôles distincts."
+          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "Pour exporter, remettez deux guides, un accord complet, les contrôles inclus et une recherche vide. Les trois exports contiennent les mêmes cinquante-sept candidats ici. Markdown et HTML arrondissent les nombres ; CSV conserve le détail numérique. Enregistrez les filtres séparément : les fichiers ne conservent pas tous les réglages.",
-          "hold_after": 0.7,
-          "speech_text": "Pour exporter, remettez deux guides, un accord complet, les contrôles inclus et une recherche vide. Les trois exports contiennent les mêmes cinquante-sept candidats ici. Markdown et HTML arrondissent les nombres ; CSV conserve le détail numérique. Enregistrez les filtres séparément : les fichiers ne conservent pas tous les réglages."
+          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Effacez les filtres pour retrouver les trois cent vingt-cinq gènes. Séparez les sous-ensembles exportés des originaux inchangés et ne présentez pas des candidats non significatifs comme des résultats validés. Python fournit le même lecteur et les mêmes filtres ; vérifiez les limites de lignes propres à chaque format pour les grandes listes.",
+          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Effacez les filtres pour retrouver les trois cent vingt-cinq gènes. Séparez les sous-ensembles exportés des originaux inchangés et ne présentez pas des candidats non significatifs comme des résultats validés. Python fournit le même lecteur et les mêmes filtres ; vérifiez les limites de lignes propres à chaque format pour les grandes listes."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "49_methods_results",
@@ -7260,16 +7254,15 @@
       "series": 5,
       "app_key": "lineage",
       "host_app_key": "db_browser",
-      "section": "Exploration",
-      "title": "Lineage : relations d’inclusion et images vérifiées des cellules parentes",
-      "description": "Examiner les relations enregistrées, la limite d’affichage et le recadrage du parent seul, sans approuver le remplacement erroné des enfants manquants.",
+      "section": "Explore",
+      "title": "Lineage: browse parent objects and their contents",
+      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
       "objectives": [
-        "Ouvrir Lineage dans Database Browser et construire l’arbre réel.",
-        "Distinguer comptes complets, familles affichées et identités typées.",
-        "Reconnaître le remplacement incorrect des images enfants et inspecter le parent vérifié.",
-        "Utiliser le zoom natif et distinguer l’export Python des contrôles de l’interface."
+        "Load measurements and expand parent-child relationships.",
+        "Select objects while checking field and object type.",
+        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
       ],
-      "prerequisite": "Utilisez l’exemple téléchargé d’Annotate avec mesures et images cellulaires correspondantes. L’archive Graph Builder fournit la base exacte sans images ; l’archive Lineage contient le CSV API vérifié et l’analyse, pas une base de remplacement. N’utilisez pas le remplacement actuel des images familiales pour identifier ou annoter des enfants manquants.",
+      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -7277,98 +7270,89 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "Trouvez Database Browser dans Help, puis ouvrez son outil intégré Lineage. Ici, lineage désigne la contenance enregistrée : quels objets appartiennent à quelles cellules. Ce n’est ni une histoire de divisions, ni une ascendance génétique, ni une nouvelle segmentation. Les contrôles de base autour de la vue appartiennent au module hôte.",
+          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "Trouvez Database Browser dans Help, puis ouvrez son outil intégré Lineage. Ici, lineage désigne la contenance enregistrée : quels objets appartiennent à quelles cellules. Ce n’est ni une histoire de divisions, ni une ascendance génétique, ni une nouvelle segmentation. Les contrôles de base autour de la vue appartiennent au module hôte."
+          ]
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Ouvrez measurements point db de l’exemple réel d’Annotate et construisez l’arbre. Nous utilisons une copie privée inchangée. Élargissez la colonne Object et le séparateur si nécessaire. Les numéros se répètent entre champs et types d’objets ; un numéro seul n’est donc pas une identité.",
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez measurements point db de l’exemple réel d’Annotate et construisez l’arbre. Nous utilisons une copie privée inchangée. Élargissez la colonne Object et le séparateur si nécessaire. Les numéros se répètent entre champs et types d’objets ; un numéro seul n’est donc pas une identité."
+          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "La source complète contient deux mille trois cent quarante et une cellules, deux mille six cent quatre-vingt-deux noyaux et deux mille cent soixante-dix-huit objets de la table pathogen. Seules deux mille familles parentales apparaissent dans l’arbre : trois cent quarante et une sont absentes de l’affichage, pas supprimées de la base.",
-          "hold_after": 0.7,
-          "speech_text": "La source complète contient deux mille trois cent quarante et une cellules, deux mille six cent quatre-vingt-deux noyaux et deux mille cent soixante-dix-huit objets de la table pathogen. Seules deux mille familles parentales apparaissent dans l’arbre : trois cent quarante et une sont absentes de l’affichage, pas supprimées de la base."
+          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Le résumé indique qu’aucune cellule n’est vide, car un noyau compte aussi comme enfant. Cela ne signifie pas que chaque cellule contient un objet de la table pathogen : mille cent soixante-huit n’en contiennent pas. Aucun enfant non rattaché signifie que chaque parent enregistré existe, pas que la segmentation est biologiquement correcte.",
-          "hold_after": 0.7,
-          "speech_text": "Le résumé indique qu’aucune cellule n’est vide, car un noyau compte aussi comme enfant. Cela ne signifie pas que chaque cellule contient un objet de la table pathogen : mille cent soixante-huit n’en contiennent pas. Aucun enfant non rattaché signifie que chaque parent enregistré existe, pas que la segmentation est biologiquement correcte."
+          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Développez un parent pour voir ses enfants. Dans ce champ, la cellule trois contient le noyau cinq et l’objet pathogen un selon les liens enregistrés. Ce sont des identités typées, pas trois numéros interchangeables. Sélectionner un enfant seul diffère de sélectionner toute la famille.",
-          "hold_after": 0.7,
-          "speech_text": "Développez un parent pour voir ses enfants. Dans ce champ, la cellule trois contient le noyau cinq et l’objet pathogen un selon les liens enregistrés. Ce sont des identités typées, pas trois numéros interchangeables. Sélectionner un enfant seul diffère de sélectionner toute la famille."
+          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Select with contents publie le parent et ses enfants. Sélectionner le parent et un enfant ensemble n’exige pas de dupliquer cet enfant. Les clés publiées conservent champ et type d’objet, mais leur colonne est cachée ici. Publier une identité ne prouve pas qu’une image correspondante existe.",
-          "hold_after": 0.7,
-          "speech_text": "Select with contents publie le parent et ses enfants. Sélectionner le parent et un enfant ensemble n’exige pas de dupliquer cet enfant. Les clés publiées conservent champ et type d’objet, mais leur colonne est cachée ici. Publier une identité ne prouve pas qu’une image correspondante existe."
+          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Une grande famille mérite une inspection, pas une interprétation biologique automatique. Cet exemple contient une famille de trente-trois objets au total. La contenance peut refléter des erreurs de segmentation ou d’acquisition. L’arbre rapporte des relations sauvegardées ; il ne transforme pas des nombres inhabituels en découverte.",
-          "hold_after": 0.7,
-          "speech_text": "Une grande famille mérite une inspection, pas une interprétation biologique automatique. Cet exemple contient une famille de trente-trois objets au total. La contenance peut refléter des erreurs de segmentation ou d’acquisition. L’arbre rapporte des relations sauvegardées ; il ne transforme pas des nombres inhabituels en découverte."
+          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Cliquer sur un en-tête trie les familles affichées sans changer leur contenance. La limite de deux mille parents reste appliquée. Nous avons vérifié chaque identité affichée, chaque lien parental et la hiérarchie complète. Une vue triée ou tronquée n’est pas une table de mesures modifiée.",
-          "hold_after": 0.7,
-          "speech_text": "Cliquer sur un en-tête trie les familles affichées sans changer leur contenance. La limite de deux mille parents reste appliquée. Nous avons vérifié chaque identité affichée, chaque lien parental et la hiérarchie complète. Une vue triée ou tronquée n’est pas une table de mesures modifiée."
+          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "Open crops nécessite Annotate, qui fournit le visualiseur d’images. Le message demande réellement d’ouvrir Annotate d’abord. Un visualiseur absent n’est pas une image manquante. Chargez le projet correspondant avant toute demande, pas une autre exécution dont les numéros se ressemblent.",
+          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Open crops nécessite Annotate, qui fournit le visualiseur d’images. Le message demande réellement d’ouvrir Annotate d’abord. Un visualiseur absent n’est pas une image manquante. Chargez le projet correspondant avant toute demande, pas une autre exécution dont les numéros se ressemblent."
+          ]
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Le projet téléchargé fournit de vraies images cellulaires recadrées. L’archive contenant seulement la base ne peut pas les fournir. Nous utilisons l’exemple complet correspondant et préservons chaque image originale. Ouvrir la source n’entraîne pas de classifieur et n’établit pas de nouvelles étiquettes.",
-          "hold_after": 0.7,
-          "speech_text": "Le projet téléchargé fournit de vraies images cellulaires recadrées. L’archive contenant seulement la base ne peut pas les fournir. Nous utilisons l’exemple complet correspondant et préservons chaque image originale. Ouvrir la source n’entraîne pas de classifieur et n’établit pas de nouvelles étiquettes."
+          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Cette version a une limite sérieuse. Ouvrir la famille de trois objets affiche la cellule trois, puis les cellules cinq et un, sans rapport, au lieu du noyau et de l’objet pathogen demandés. La source n’a que des images cellulaires. Rejetez cette substitution : ne les annotez pas comme enfants manquants. Le tutoriel ne répare pas ce défaut.",
-          "hold_after": 0.7,
-          "speech_text": "Cette version a une limite sérieuse. Ouvrir la famille de trois objets affiche la cellule trois, puis les cellules cinq et un, sans rapport, au lieu du noyau et de l’objet pathogen demandés. La source n’a que des images cellulaires. Rejetez cette substitution : ne les annotez pas comme enfants manquants. Le tutoriel ne répare pas ce défaut."
+          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "L’alternative vérifiée est plus étroite : revenez à Lineage et double-cliquez uniquement sur le parent cellulaire. Contrairement à Open crops, cette action envoie seulement le parent, pas sa famille. Annotate montre exactement son image. Nous avons vérifié identité et octets originaux, sans prétendre prendre en charge les images enfants.",
-          "hold_after": 0.7,
-          "speech_text": "L’alternative vérifiée est plus étroite : revenez à Lineage et double-cliquez uniquement sur le parent cellulaire. Contrairement à Open crops, cette action envoie seulement le parent, pas sa famille. Annotate montre exactement son image. Nous avons vérifié identité et octets originaux, sans prétendre prendre en charge les images enfants."
+          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Maintenez Maj et cliquez sur la miniature parentale pour agrandir son aperçu sans attribuer de classe. Échap rétablit la grille. Cela aide l’inspection, sans créer de résolution supplémentaire. Utilisez le bon geste : un simple clic gauche annote, ce n’est pas le zoom montré ici.",
-          "hold_after": 0.7,
-          "speech_text": "Maintenez Maj et cliquez sur la miniature parentale pour agrandir son aperçu sans attribuer de classe. Échap rétablit la grille. Cela aide l’inspection, sans créer de résolution supplémentaire. Utilisez le bon geste : un simple clic gauche annote, ce n’est pas le zoom montré ici."
+          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Build tree actualise la vue. En Python, read_object_tables, build_forest et lineage_frame exposent la même structure. Le CSV lié contient les sept mille deux cent un nœuds, familles masquées comprises. Il a été écrit par l’API, pas par un bouton d’export Lineage, et ne constitue pas une validation biologique.",
+          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Build tree actualise la vue. En Python, read_object_tables, build_forest et lineage_frame exposent la même structure. Le CSV lié contient les sept mille deux cent un nœuds, familles masquées comprises. Il a été écrit par l’API, pas par un bouton d’export Lineage, et ne constitue pas une validation biologique."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "57_layer_viewer",
@@ -8419,173 +8403,151 @@
       "slug": "gate_editor",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Exploration",
-      "title": "Gate Editor : populations réelles, vues réversibles et exports exacts",
-      "description": "Tracez des zones de sélection sur des mesures cellulaires téléchargées, vérifiez l’appartenance enregistrée, comparez des vues tridimensionnelles réelles et projetées, et examinez une recherche de groupes bornée sans inventer d’étiquettes biologiques.",
+      "section": "Tools",
+      "title": "Gate Editor: select populations and save their membership",
+      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
       "objectives": [
-        "Charger des mesures réelles et distinguer zones de sélection, filtres d’affichage et visibilité.",
-        "Enregistrer et restaurer les limites des variables, puis exporter l’appartenance avec les identités exactes des objets.",
-        "Explorer les limites tridimensionnelles et les composantes principales sans confondre une projection avec une transformation ajustée réutilisable.",
-        "Comparer les résultats réels de la recherche de groupes et utiliser la console locale de mesures."
+        "Load measurements and draw named gates.",
+        "Save and reload gate strategies, figures and membership.",
+        "Explore three-dimensional views, clustering and filters."
       ],
-      "prerequisite": "Téléchargez d’abord l’exemple d’Annotate, puis créez une copie privée de sa base de données de mesures. Gate Editor ne possède pas de bouton distinct pour télécharger un exemple. Cet enregistrement utilise les 2 341 lignes de cellules réelles et ne modifie que cette copie privée lors de l’export ; les noms des zones de sélection du tutoriel sont des étiquettes d’inspection, pas une vérité biologique de référence.",
+      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "Ouvrez Gate Editor dans la catégorie Tools de Home. Faites glisser les séparateurs pour laisser assez de place au graphique, à la table des zones de sélection et aux contrôles latéraux. Cette leçon utilise les mesures téléchargées d’Annotate ; Gate Editor ne possède pas son propre bouton de téléchargement d’exemple.",
+          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Ouvrez guéïte éditeur dans la catégorie Tools de Home. Faites glisser les séparateurs pour laisser assez de place au graphique, à la table des zones de sélection et aux contrôles latéraux. Cette leçon utilise les mesures téléchargées d’Annotate ; guéïte éditeur ne possède pas son propre bouton de téléchargement d’exemple."
+          ]
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Utilisez Load table pour ouvrir une copie privée de measurements.db. Choisissez la table cell : cet exemple contient deux mille trois cent quarante et un objets réels. Export gates écrit dans une base de données ; conservez donc l’exemple original intact et travaillez sur la copie.",
-          "hold_after": 0.7,
-          "speech_text": "Utilisez Load table pour ouvrir une copie privée de measurements point dé bé. Choisissez la table cell : cet exemple contient deux mille trois cent quarante et un objets réels. Export gates écrit dans une base de données ; conservez donc l’exemple original intact et travaillez sur la copie."
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "Choisissez cell_area pour X et cell_channel_1_mean_intensity pour Y, avec l’outil Rectangle. Chaque point représente un objet mesuré. Examinez les noms et les unités des variables avant de tracer ; une région définie par l’aire et l’intensité ne suffit pas à identifier une cellule infectée ou une autre classe biologique.",
-          "hold_after": 0.7,
-          "speech_text": "Choisissez cell_area pour X et cell_channel_1_mean_intensity pour Y, avec l’outil Rectangle. Chaque point représente un objet mesuré. Examinez les noms et les unités des variables avant de tracer ; une région définie par l’aire et l’intensité ne suffit pas à identifier une cellule infectée ou une autre classe biologique."
+          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "Faites glisser la souris sur le nuage de points, relâchez et saisissez un nom descriptif pour la zone de sélection. La population de ce tutoriel est délibérément un exemple d’inspection. La forme enregistre des limites numériques dans ces deux mesures ; ce n’est pas un modèle entraîné à reconnaître les cellules à partir de leurs images.",
-          "hold_after": 0.7,
-          "speech_text": "Faites glisser la souris sur le nuage de points, relâchez et saisissez un nom descriptif pour la zone de sélection. La population de ce tutoriel est délibérément un exemple d’inspection. La forme enregistre des limites numériques dans ces deux mesures ; ce n’est pas un modèle entraîné à reconnaître les cellules à partir de leurs images."
+          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "Cette région tracée contient six cent cinquante-cinq objets, soit environ vingt-huit pour cent de la table. Lisez le nombre et les pourcentages à côté du nom de la zone de sélection. Des positions de souris différentes produisent des limites et des effectifs différents ; utilisez donc la stratégie enregistrée pour obtenir une répétition exacte.",
+          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "Cette région tracée contient six cent cinquante-cinq objets, soit environ vingt-huit pour cent de la table. Lisez le nombre et les pourcentages à côté du nom de la zone de sélection. Des positions de souris différentes produisent des limites et des effectifs différents ; utilisez donc la stratégie enregistrée pour obtenir une répétition exacte."
+          ]
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "Décocher la zone de sélection masque son contour superposé sans supprimer sa définition ni changer l’appartenance des objets. Cochez-la à nouveau pour rétablir l’affichage. Cette opération diffère de Delete gate, ainsi que de l’onglet Filter, qui change les objets affichés sous les zones de sélection.",
+          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             430
-          ],
-          "speech_text": "Décocher la zone de sélection masque son contour superposé sans supprimer sa définition ni changer l’appartenance des objets. Cochez-la à nouveau pour rétablir l’affichage. Cette opération diffère de Delete gate, ainsi que de l’onglet Filter, qui change les objets affichés sous les zones de sélection."
+          ]
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Utilisez Save gates pour conserver les limites des variables et les noms des zones dans une stratégie JSON. Ici, nous enregistrons, supprimons réellement la zone de sélection, puis chargeons le fichier enregistré. Réutiliser une stratégie exige des noms de mesures, des unités et un prétraitement concordants, pas simplement une table avec le même nombre de colonnes.",
-          "hold_after": 0.7,
-          "speech_text": "Utilisez Save gates pour conserver les limites des variables et les noms des zones dans une stratégie JSON. Ici, nous enregistrons, supprimons réellement la zone de sélection, puis chargeons le fichier enregistré. Réutiliser une stratégie exige des noms de mesures, des unités et un prétraitement concordants, pas simplement une table avec le même nombre de colonnes."
+          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "Load gates rétablit les mêmes limites et les six cent cinquante-cinq objets appartenant à la zone. Nous avons vérifié l’appartenance après avoir réellement supprimé puis rechargé la zone de sélection, et pas seulement enregistré un fichier. Sur un autre jeu de données, vérifiez les limites restaurées et les identités des objets avant de vous fier aux effectifs.",
-          "hold_after": 0.7,
-          "speech_text": "Load gates rétablit les mêmes limites et les six cent cinquante-cinq objets appartenant à la zone. Nous avons vérifié l’appartenance après avoir réellement supprimé puis rechargé la zone de sélection, et pas seulement enregistré un fichier. Sur un autre jeu de données, vérifiez les limites restaurées et les identités des objets avant de vous fier aux effectifs."
+          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
+          "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Save graph enregistre la figure affichée ; les préférences de cet enregistrement produisent un PNG et un PDF. Une figure diffère d’une stratégie de sélection ou de l’appartenance exportée. Conservez les données et la stratégie correspondantes pour pouvoir reproduire la définition d’une population affichée.",
-          "hold_after": 0.7,
-          "speech_text": "Save graph enregistre la figure affichée ; les préférences de cet enregistrement produisent un PNG et un PDF. Une figure diffère d’une stratégie de sélection ou de l’appartenance exportée. Conservez les données et la stratégie correspondantes pour pouvoir reproduire la définition d’une population affichée."
+          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
+          "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Export gates écrit des indicateurs d’appartenance dans la table filters de la base de données privée. Notre première zone de sélection marque exactement six cent cinquante-cinq identités cellulaires, appariées par plaque, ligne, colonne, champ, étiquette d’objet et type d’objet. Le téléchargement original et les mesures cellulaires sous-jacentes restent inchangés.",
-          "hold_after": 0.7,
-          "speech_text": "Export gates écrit des indicateurs d’appartenance dans la table filters de la base de données privée. Notre première zone de sélection marque exactement six cent cinquante-cinq identités cellulaires, appariées par plaque, ligne, colonne, champ, étiquette d’objet et type d’objet. Le téléchargement original et les mesures cellulaires sous-jacentes restent inchangés."
+          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
+          "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "Tracez une deuxième forme alors que la première est sélectionnée. Parmi ses deux cent cinquante-neuf objets, certains sont en dehors de la première : un nouveau tracé n’est pas automatiquement imbriqué, malgré la formulation d’anciens messages d’état. Enregistrez séparément cette stratégie à deux zones de sélection et examinez explicitement les relations de parenté lors du chargement d’une hiérarchie existante.",
+          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
           "hold_after": 0.7,
           "focus": [
             2420,
             375,
             820,
             520
-          ],
-          "speech_text": "Tracez une deuxième forme alors que la première est sélectionnée. Parmi ses deux cent cinquante-neuf objets, certains sont en dehors de la première : un nouveau tracé n’est pas automatiquement imbriqué, malgré la formulation d’anciens messages d’état. Enregistrez séparément cette stratégie à deux zones de sélection et examinez explicitement les relations de parenté lors du chargement d’une hiérarchie existante."
+          ]
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "Choisissez 3D et cell_perimeter pour Z afin d’examiner trois mesures réelles. Les boutons d’axe de rotation guident le mouvement. La rotation change la vue, pas les limites enregistrées des deux zones existantes définies par l’aire et l’intensité ; revenez en 2D pour examiner à nouveau ces formes.",
-          "hold_after": 0.7,
-          "speech_text": "Choisissez trois dé et cell_perimeter pour Z afin d’examiner trois mesures réelles. Les boutons d’axe de rotation guident le mouvement. La rotation change la vue, pas les limites enregistrées des deux zones existantes définies par l’aire et l’intensité ; revenez en deux dé pour examiner à nouveau ces formes."
+          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
+          "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "From view crée une boîte nommée avec des limites sur les trois mesures affichées. Notre exemple couvrant tout le volume inclut chaque objet chargé : il illustre le contrôle, pas une population biologique enrichie. Enregistrez séparément la stratégie à trois zones de sélection pour garder disponible le fichier précédent à deux zones.",
-          "hold_after": 0.7,
-          "speech_text": "From view crée une boîte nommée avec des limites sur les trois mesures affichées. Notre exemple couvrant tout le volume inclut chaque objet chargé : il illustre le contrôle, pas une population biologique enrichie. Enregistrez séparément la stratégie à trois zones de sélection pour garder disponible le fichier précédent à deux zones."
+          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "Le bouton xD calcule les composantes principales à partir des mesures admissibles. Il est indépendant du choix d’une vue 2D ou 3D. Ici, l’étiquette de source indique dix-sept, treize et six pour cent de variance expliquée pour les trois premières composantes ; il s’agit de fractions de variance, pas d’une exactitude de classification.",
-          "hold_after": 0.7,
-          "speech_text": "Le bouton ixe dé calcule les composantes principales à partir des mesures admissibles. Il est indépendant du choix d’une vue deux dé ou trois dé. Ici, l’étiquette de source indique dix-sept, treize et six pour cent de variance expliquée pour les trois premières composantes ; il s’agit de fractions de variance, pas d’une exactitude de classification."
+          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
+          "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "Désactiver xD conserve les colonnes des composantes ; choisissez à nouveau les axes des variables brutes pour revenir aux zones de sélection définies sur celles-ci. Une stratégie de sélection enregistrée ne sauvegarde pas la projection ajustée. Les noms des composantes ne suffisent pas à rendre compatibles des projections ajustées indépendamment ; ne réutilisez donc pas leurs limites de sélection sans les vérifier.",
-          "hold_after": 0.7,
-          "speech_text": "Désactiver ixe dé conserve les colonnes des composantes ; choisissez à nouveau les axes des variables brutes pour revenir aux zones de sélection définies sur celles-ci. Une stratégie de sélection enregistrée ne sauvegarde pas la projection ajustée. Les noms des composantes ne suffisent pas à rendre compatibles des projections ajustées indépendamment ; ne réutilisez donc pas leurs limites de sélection sans les vérifier."
+          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "Pour Search, élargissez le panneau latéral et supprimez les zones de sélection temporaires après les avoir enregistrées. Utilisez les mêmes deux variables brutes, avec la mise à l’échelle activée, un minimum de vingt voisins et cinq étapes de Walk. Run walk ouvre une confirmation dans cette version ; vérifiez que ses valeurs correspondent aux contrôles visibles.",
-          "hold_after": 0.7,
-          "speech_text": "Pour Search, élargissez le panneau latéral et supprimez les zones de sélection temporaires après les avoir enregistrées. Utilisez les mêmes deux variables brutes, avec la mise à l’échelle activée, un minimum de vingt voisins et cinq étapes de Walk. Run walk ouvre une confirmation dans cette version ; vérifiez que ses valeurs correspondent aux contrôles visibles."
+          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
+          "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "L’exécution réelle de Walk choisit un rayon proche de zéro virgule un six sept et indique deux populations, avec trente-trois pour cent des objets en dehors de celles-ci. Examinez les contours obtenus. Le regroupement par densité et ses zones polygonales enregistrées sont des descriptions exploratoires, pas des types cellulaires validés ni une preuve que les objets exclus ne sont pas valides.",
-          "hold_after": 0.7,
-          "speech_text": "L’exécution réelle de Walk choisit un rayon proche de zéro virgule un six sept et indique deux populations, avec trente-trois pour cent des objets en dehors de celles-ci. Examinez les contours obtenus. Le regroupement par densité et ses zones polygonales enregistrées sont des descriptions exploratoires, pas des types cellulaires validés ni une preuve que les objets exclus ne sont pas valides."
+          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Enregistrez la stratégie de Walk, supprimez ses zones de sélection temporaires, désactivez Walk et lancez la recherche avec un rayon de zéro virgule cinq. Ce choix distinct crée une zone polygonale plus grande, contenant deux mille deux cent trente-neuf objets. Ce n’est pas une meilleure réponse au seul motif qu’elle inclut davantage de cellules.",
-          "hold_after": 0.7,
-          "speech_text": "Enregistrez la stratégie de Walk, supprimez ses zones de sélection temporaires, désactivez Walk et lancez la recherche avec un rayon de zéro virgule cinq. Ce choix distinct crée une zone polygonale plus grande, contenant deux mille deux cent trente-neuf objets. Ce n’est pas une meilleure réponse au seul motif qu’elle inclut davantage de cellules."
+          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "Rechargez la stratégie enregistrée à deux zones de sélection sur les variables brutes, puis ajoutez cell_area dans Filter. Fixer le seuil inférieur à vingt et un mille neuf cent vingt-cinq laisse mille cent soixante et onze objets affichés. Cet aperçu en direct réduit la vue sans réécrire les limites de sélection enregistrées.",
-          "hold_after": 0.7,
-          "speech_text": "Rechargez la stratégie enregistrée à deux zones de sélection sur les variables brutes, puis ajoutez cell_area dans Filter. Fixer le seuil inférieur à vingt et un mille neuf cent vingt-cinq laisse mille cent soixante et onze objets affichés. Cet aperçu en direct réduit la vue sans réécrire les limites de sélection enregistrées."
+          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "Effacez le filtre et les deux mille trois cent quarante et un objets réapparaissent. Vérifiez à la fois le filtre d’affichage actif et la définition de la zone de sélection avant d’interpréter les effectifs ou d’exporter. Masquer un contour superposé, filtrer une vue et supprimer une zone de sélection sont trois opérations différentes.",
-          "hold_after": 0.7,
-          "speech_text": "Effacez le filtre et les deux mille trois cent quarante et un objets réapparaissent. Vérifiez à la fois le filtre d’affichage actif et la définition de la zone de sélection avant d’interpréter les effectifs ou d’exporter. Masquer un contour superposé, filtrer une vue et supprimer une zone de sélection sont trois opérations différentes."
+          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
+          "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "Faites glisser le séparateur le plus à droite vers la gauche pour révéler la console. Saisissez len, parenthèse ouvrante, d f, parenthèse fermante : la table réelle renvoie deux mille trois cent quarante et un. La console d’expressions fonctionne localement ; ce n’est pas une réponse générée par un modèle d’intelligence artificielle.",
+          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
           "hold_after": 0.7,
           "focus": [
             3090,
             320,
             740,
             1795
-          ],
-          "speech_text": "Faites glisser le séparateur le plus à droite vers la gauche pour révéler la console. Saisissez len, parenthèse ouvrante, d f, parenthèse fermante : la table réelle renvoie deux mille trois cent quarante et un. La console d’expressions fonctionne localement ; ce n’est pas une réponse générée par un modèle d’intelligence artificielle."
+          ]
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "La zone de chat est distincte des expressions. Nous y laissons un brouillon non envoyé, sans démontrer d’assistant ni d’interprétation biologique. En Python, GateSet, dans spacr.qt.widgets.gate_spec, stocke les définitions ; gate_mask_over_table et export_gate, dans spacr.filters, évaluent et enregistrent les indicateurs des objets de la table entière. Vérifiez les identités avant toute annotation en aval.",
+          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -8596,10 +8558,14 @@
           "related_lessons": [
             "06_api",
             "09_annotate"
-          ],
-          "speech_text": "La zone de chat est distincte des expressions. Nous y laissons un brouillon non envoyé, sans démontrer d’assistant ni d’interprétation biologique. En Python, GateSet, dans spakeur.ku té.widgets.gate_spec, stocke les définitions ; gate_mask_over_table et export_gate, dans spakeur.filters, évaluent et enregistrent les indicateurs des objets de la table entière. Vérifiez les identités avant toute annotation en aval."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "65_feature_explorer",
@@ -8607,165 +8573,155 @@
       "slug": "feature_explorer",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Exploration",
-      "title": "Feature Explorer : classer des mesures réelles et garder la comparaison explicite",
-      "description": "Ouvrez le sous-module de Classify, comparez des mesures réelles par rangée de plaque, examinez les distributions, filtrez en direct, ajoutez une colonne calculée et exportez le classement voulu sans entraîner de classifieur.",
+      "section": "Explore",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
       "objectives": [
-        "Trouver Feature Explorer dans Classify et charger des mesures cellulaires existantes.",
-        "Distinguer AUC et séparation, puis examiner les effectifs et les différences de distribution.",
-        "Filtrer en direct sans manquer un changement automatique de colonne de comparaison.",
-        "Utiliser Top délibérément, vérifier une colonne remise à l’échelle et exporter le classement réel."
+        "Load measurements and choose the comparison groups.",
+        "Read rankings and distributions, then explore filters and computed columns.",
+        "Export the intended number of ranked features."
       ],
-      "prerequisite": "Utilisez l’exemple téléchargé d’Annotate, pas des mesures inventées. L’enregistrement ouvre une copie privée identique octet par octet de sa base de 2 341 cellules et 276 colonnes. Les groupes rowID sont les rangées spatiales r12 et r5, pas des traitements établis ; les cellules partagent champs et puits et ne sont pas des expériences indépendantes. Les données originales restent inchangées. AUC, KS, ordre du classement et effectifs finis sont vérifiés indépendamment pour les comparaisons prévues à deux classes. La comparaison automatique à huit classes est un avertissement, pas une inférence validée indépendamment. Shuffle test reste désactivé. Aucun entraînement, nouvelle analyse d’image, téléchargement dédié, calcul GPU ou requête d’IA n’a lieu ici ; les histogrammes sont les graphiques du module.",
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Ouvrez Classify, puis son bouton Feature Explorer. Cet outil imbriqué classe des mesures existantes ; l’ouvrir n’entraîne pas de classifieur. Nous utilisons l’exemple réel téléchargeable d’Annotate dans une copie privée de la base. Consultez la leçon Annotate pour l’obtenir et conservez votre source expérimentale inchangée.",
+          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Ouvrez Classify, puis son bouton Feature Explorer. Cet outil imbriqué classe des mesures existantes ; l’ouvrir n’entraîne pas de classifieur. Nous utilisons l’exemple réel téléchargeable d’Annotate dans une copie privée de la base. Consultez la leçon Annotate pour l’obtenir et conservez votre source expérimentale inchangée."
+          ]
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Choisissez Load table, la base de mesures et sa table cell, puis réglez Split by sur rowID. Il y a deux mille trois cent quarante et une cellules et deux cent soixante-seize colonnes. Nos deux groupes sont des rangées de plaque enregistrées, pas des traitements établis ; ces cellules ne sont pas des expériences indépendantes.",
+          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
           "hold_after": 0.7,
           "focus": [
             345,
             280,
             3460,
             370
-          ],
-          "speech_text": "Choisissez Load table, la base de mesures et sa table cell, puis réglez Split by sur rowID. Il y a deux mille trois cent quarante et une cellules et deux cent soixante-seize colonnes. Nos deux groupes sont des rangées de plaque enregistrées, pas des traitements établis ; ces cellules ne sont pas des expériences indépendantes."
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Classez par AUC et lisez les deux colonnes numériques. Separation est la valeur absolue de deux fois l’AUC moins un : une séparation d’environ zéro virgule trente-quatre n’est donc pas une AUC de zéro virgule trente-quatre. Higher in indique le sens ; min n compte les mesures finies de la plus petite classe, pas des répétitions expérimentales.",
+          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
           "hold_after": 0.7,
           "focus": [
             345,
             380,
             950,
             275
-          ],
-          "speech_text": "Classez par AUC et lisez les deux colonnes numériques. Separation est la valeur absolue de deux fois l’AUC moins un : une séparation d’environ zéro virgule trente-quatre n’est donc pas une AUC de zéro virgule trente-quatre. Higher in indique le sens ; min n compte les mesures finies de la plus petite classe, pas des répétitions expérimentales."
+          ]
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Réglez Top sur quatre pour examiner quatre histogrammes superposés. Pour chaque variable, les classes partagent les mêmes bornes de classes d’histogramme, et les hauteurs sont des effectifs. La première variable n’est pas automatiquement un biomarqueur utile. Lisez l’avertissement : l’AUC peut manquer une différence de dispersion malgré des distributions différentes.",
+          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
           "hold_after": 0.7,
           "focus": [
             1290,
             460,
             1810,
             1590
-          ],
-          "speech_text": "Réglez Top sur quatre pour examiner quatre histogrammes superposés. Pour chaque variable, les classes partagent les mêmes bornes de classes d’histogramme, et les hauteurs sont des effectifs. La première variable n’est pas automatiquement un biomarqueur utile. Lisez l’avertissement : l’AUC peut manquer une différence de dispersion malgré des distributions différentes."
+          ]
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Export ranking avec Top quatre écrit quatre lignes de variables. Dans cette version, l’export suit Top malgré un texte suggérant le classement complet. Il n’exporte pas les cellules sous-jacentes et ne sauvegarde pas de modèle entraîné. Nous avons comparé chaque valeur exportée au classement réel affiché.",
-          "hold_after": 0.7,
-          "speech_text": "Export ranking avec Top quatre écrit quatre lignes de variables. Dans cette version, l’export suit Top malgré un texte suggérant le classement complet. Il n’exporte pas les cellules sous-jacentes et ne sauvegarde pas de modèle entraîné. Nous avons comparé chaque valeur exportée au classement réel affiché."
+          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "Réglez Top sur cinq cents avant d’exporter toutes les variables évaluées dans cet exemple. Deux cent soixante et une sont évaluables ; deux candidates numériques ne le sont pas. L’export contient les deux cent soixante et une lignes, mais l’affichage dessine au maximum huit distributions. Variables, lignes du tableau et panneaux graphiques sont des quantités distinctes.",
+          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             1650
-          ],
-          "speech_text": "Réglez Top sur cinq cents avant d’exporter toutes les variables évaluées dans cet exemple. Deux cent soixante et une sont évaluables ; deux candidates numériques ne le sont pas. L’export contient les deux cent soixante et une lignes, mais l’affichage dessine au maximum huit distributions. Variables, lignes du tableau et panneaux graphiques sont des quantités distinctes."
+          ]
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Passez Rank by à KS pour comparer le plus grand écart entre distributions cumulées, puis revenez à AUC. KS peut révéler des différences que l’AUC manque, mais ne donne pas lui-même le sens. Les autres statistiques ont leurs limites ; lisez l’avertissement au lieu de prendre un classement pour un test de significativité.",
+          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             2760,
             400
-          ],
-          "speech_text": "Passez Rank by à KS pour comparer le plus grand écart entre distributions cumulées, puis revenez à AUC. KS peut révéler des différences que l’AUC manque, mais ne donne pas lui-même le sens. Les autres statistiques ont leurs limites ; lisez l’avertissement au lieu de prendre un classement pour un test de significativité."
+          ]
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "Dans Filter, ajoutez cell_area et fixez le minimum à vingt et un mille neuf cent vingt-cinq. La population visible passe à mille cent soixante et onze cellules, avec deux cent cinquante-cinq variables évaluables. Ce seuil médian est une démonstration, pas un seuil biologique de qualité. Classements et distributions s’actualisent sans remesurer les images.",
+          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             420
-          ],
-          "speech_text": "Dans Filter, ajoutez cell_area et fixez le minimum à vingt et un mille neuf cent vingt-cinq. La population visible passe à mille cent soixante et onze cellules, avec deux cent cinquante-cinq variables évaluables. Ce seuil médian est une démonstration, pas un seuil biologique de qualité. Classements et distributions s’actualisent sans remesurer les images."
+          ]
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Clear all retire les filtres d’affichage, pas les données. Les deux mille trois cent quarante et une cellules et le classement original reviennent. Revérifiez la population et Split by après chaque changement de filtre. Une différence qui change avec le filtre décrit une autre population sélectionnée, pas une nouvelle expérience.",
-          "hold_after": 0.7,
-          "speech_text": "Clear all retire les filtres d’affichage, pas les données. Les deux mille trois cent quarante et une cellules et le classement original reviennent. Revérifiez la population et Split by après chaque changement de filtre. Une différence qui change avec le filtre décrit une autre population sélectionnée, pas une nouvelle expérience."
+          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "Cette version comporte un piège important. Filtrer rowID sur r12 retire l’autre rangée, mais l’écran remplace silencieusement Split by par cell_channel_0_maxima_count. Il compare maintenant huit groupes, dont le plus petit n’a qu’un objet. Ces scores impressionnants ne sont ni la comparaison initiale des rangées ni la preuve d’une découverte biologique.",
+          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             400
-          ],
-          "speech_text": "Cette version comporte un piège important. Filtrer rowID sur r12 retire l’autre rangée, mais l’écran remplace silencieusement Split by par cell_channel_0_maxima_count. Il compare maintenant huit groupes, dont le plus petit n’a qu’un objet. Ces scores impressionnants ne sont ni la comparaison initiale des rangées ni la preuve d’une découverte biologique."
+          ]
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "Effacez le filtre et choisissez à nouveau explicitement rowID. L’effacement seul ne restaure pas nécessairement la comparaison initiale. Vérifiez la colonne de classe et la population avant d’exporter. Shuffle test propose cinquante permutations d’étiquettes, mais nous le laissons désactivé : permuter librement ces cellules corrélées n’établirait pas de preuve au niveau des puits ou des traitements.",
+          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             345,
             375,
             3460,
             275
-          ],
-          "speech_text": "Effacez le filtre et choisissez à nouveau explicitement rowID. L’effacement seul ne restaure pas nécessairement la comparaison initiale. Vérifiez la colonne de classe et la population avant d’exporter. Shuffle test propose cinquante permutations d’étiquettes, mais nous le laissons désactivé : permuter librement ces cellules corrélées n’établirait pas de preuve au niveau des puits ou des traitements."
+          ]
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Ouvrez Columns et nommez une nouvelle colonne area_k. Entrez cell_area divisé par un e trois, c’est-à-dire mille, puis choisissez Add column sans remplacement. Cela remet l’aire à l’échelle, sans calibration en unités physiques ni nouvelle mesure. Preview vérifie les deux mille premières lignes ; l’ajout applique la formule à toute la table.",
+          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
           "hold_after": 0.7,
           "focus": [
             3105,
             375,
             355,
             1030
-          ],
-          "speech_text": "Ouvrez Columns et nommez une nouvelle colonne area_k. Entrez cell_area divisé par un e trois, c’est-à-dire mille, puis choisissez Add column sans remplacement. Cela remet l’aire à l’échelle, sans calibration en unités physiques ni nouvelle mesure. Preview vérifie les deux mille premières lignes ; l’ajout applique la formule à toute la table."
+          ]
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "La colonne remise à l’échelle rejoint le classement et l’export, soit deux cent soixante-deux variables évaluées. Son AUC et son KS sont identiques à ceux de cell_area, car un facteur positif conserve l’ordre. Chaque valeur calculée a été vérifiée. Supprimez la formule pour retrouver les deux cent soixante et une variables originales ; la base reste inchangée.",
-          "hold_after": 0.7,
-          "speech_text": "La colonne remise à l’échelle rejoint le classement et l’export, soit deux cent soixante-deux variables évaluées. Son AUC et son KS sont identiques à ceux de cell_area, car un facteur positif conserve l’ordre. Chaque valeur calculée a été vérifiée. Supprimez la formule pour retrouver les deux cent soixante et une variables originales ; la base reste inchangée."
+          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "Utilisez ces classements pour l’exploration descriptive, pas pour valider indépendamment une variable sélectionnée ou un classifieur entraîné. En Python, spacr.qt.widgets.feature_rank fournit rank_features et ExplorerSpec. Pour les tables brutes ou d’autres comparaisons, poursuivez avec Database Browser et Graph Builder. Aucune nouvelle analyse d’image ni requête d’IA n’a été exécutée.",
+          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "58_graph_builder"
-          ],
-          "speech_text": "Utilisez ces classements pour l’exploration descriptive, pas pour valider indépendamment une variable sélectionnée ou un classifieur entraîné. En Python, spakeur.ku té.widgets.feature_rank fournit rank_features et ExplorerSpec. Pour les tables brutes ou d’autres comparaisons, poursuivez avec Database Browser et Graph Builder. Aucune nouvelle analyse d’image ni requête d’IA n’a été exécutée."
+          ]
         }
       ],
-      "host_app_key": "classify_merged"
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "66_outliers",
@@ -8773,210 +8729,193 @@
       "slug": "outliers",
       "series": 5,
       "app_key": "outliers",
-      "section": "Exploration",
-      "title": "Outliers : examiner des signalements réels sans supprimer les observations",
-      "description": "Ouvrez Outliers dans QC, comparez des règles robustes sur des mesures cellulaires réelles, distinguez puits non évalués et puits sans anomalie, examinez un véritable refus de transformation logarithmique et exportez chaque ligne avec ses indicateurs.",
+      "section": "Explore",
+      "title": "Outliers: flag measurements for inspection",
+      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
       "objectives": [
-        "Trouver le sous-module de QC et sélectionner délibérément les variables avant Scan.",
-        "Comparer MAD, IQR et transformations logarithmiques explicites sans assimiler les signalements à des erreurs confirmées.",
-        "Distinguer nombres d’objets, lignes affichées et comparaisons de puits non évaluées.",
-        "Exporter les mesures originales avec leurs indicateurs et rétablir une règle valide après un refus."
+        "Load measurements and select the features to scan.",
+        "Compare MAD, IQR and log-transformed rules.",
+        "Read scoring limitations and export rows, flags and a report."
       ],
-      "prerequisite": "Utilisez l’exemple téléchargeable d’Annotate sur une copie privée identique octet par octet. Ses 2 341 cellules occupent quatre puits enregistrés ; ce ne sont ni des expériences indépendantes ni des objets aux défauts connus. Les mesures originales ne sont jamais modifiées ou supprimées. La leçon vérifie indépendamment les calculs MAD/IQR d’une variable finie non dégénérée, les positions signalées, médianes et effectifs des puits, et le refus explicite de comparer moins de cinq puits. Elle ne valide ni le balayage automatique de toutes les variables, ni les solutions de repli pour une échelle nulle, ni l’inférence MCD multivariée ou la qualité biologique. Il s’agit d’une table existante, pas d’une nouvelle segmentation, d’un calcul GPU ou d’un entraînement. Aucun aperçu d’image, bouton Plot, téléchargement dédié ou console d’IA sur cet écran : Objects, Wells et Report sont les sorties réelles.",
+      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "Ouvrez QC depuis Home, puis son bouton Outliers. Le tableau de bord de QC lit des contrôles enregistrés, tandis que cet outil imbriqué calcule des indicateurs sur une table de mesures. Nous utilisons l’exemple réel téléchargeable d’Annotate sur une copie privée de la base. Consultez cette leçon pour l’obtenir et gardez la source expérimentale intacte.",
+          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "54_qc_dashboard"
-          ],
-          "speech_text": "Ouvrez QC depuis Home, puis son bouton Outliers. Le tableau de bord de QC lit des contrôles enregistrés, tandis que cet outil imbriqué calcule des indicateurs sur une table de mesures. Nous utilisons l’exemple réel téléchargeable d’Annotate sur une copie privée de la base. Consultez cette leçon pour l’obtenir et gardez la source expérimentale intacte."
+          ]
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Choisissez Load table et la table cell de la base. Le chargement analyse automatiquement toutes les variables continues sélectionnées : deux cent cinquante-cinq ici, sur deux mille trois cent quarante et une cellules. Ce réglage large signale deux mille trois cent trente-huit objets. Cela ne prouve pas que presque toutes les cellules sont mauvaises. Charger cette table large peut prendre du temps.",
+          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Choisissez Load table et la table cell de la base. Le chargement analyse automatiquement toutes les variables continues sélectionnées : deux cent cinquante-cinq ici, sur deux mille trois cent quarante et une cellules. Ce réglage large signale deux mille trois cent trente-huit objets. Cela ne prouve pas que presque toutes les cellules sont mauvaises. Charger cette table large peut prendre du temps."
+          ]
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "Avec la recherche de variables vide, choisissez None pour tout décocher. Recherchez cell_area, cochez uniquement cette variable exacte, puis cliquez sur Scan. La recherche limite les noms de variables, pas les lignes cellulaires. Changer la sélection ne relance pas automatiquement l’analyse : l’ancien résultat peut rester visible jusqu’à l’exécution de la nouvelle règle.",
+          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
           "hold_after": 0.7,
           "focus": [
             3295,
             455,
             390,
             1595
-          ],
-          "speech_text": "Avec la recherche de variables vide, choisissez None pour tout décocher. Recherchez cell_area, cochez uniquement cette variable exacte, puis cliquez sur Scan. La recherche limite les noms de variables, pas les lignes cellulaires. Changer la sélection ne relance pas automatiquement l’analyse : l’ancien résultat peut rester visible jusqu’à l’exécution de la nouvelle règle."
+          ]
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "Pour MAD, laissez la transformation sur none et k à trois virgule cinq. La règle divise la distance absolue à la médiane par environ un virgule quatre huit deux six fois l’écart absolu médian. Elle signale vingt-six cellules. Ce sont des candidates à examiner, pas des erreurs de segmentation confirmées ; aucune ligne n’a été supprimée.",
+          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "Pour MAD, laissez la transformation sur none et k à trois virgule cinq. La règle divise la distance absolue à la médiane par environ un virgule quatre huit deux six fois l’écart absolu médian. Elle signale vingt-six cellules. Ce sont des candidates à examiner, pas des erreurs de segmentation confirmées ; aucune ligne n’a été supprimée."
+          ]
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Ouvrez Wells. Les quatre puits ont plus de cinq cents objets, mais aucun n’est évalué : la comparaison exige au moins cinq puits admissibles. Lisez well_scored et la raison précise, pas seulement Wells zéro. Flagged share résume les signalements d’objets ; ce n’est ni un score du puits ni la preuve qu’il est sans anomalie.",
+          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "Ouvrez Wells. Les quatre puits ont plus de cinq cents objets, mais aucun n’est évalué : la comparaison exige au moins cinq puits admissibles. Lisez well_scored et la raison précise, pas seulement Wells zéro. Flagged share résume les signalements d’objets ; ce n’est ni un score du puits ni la preuve qu’il est sans anomalie."
+          ]
         },
         {
           "visual": "08_area_report",
-          "narration": "Report donne la règle, le centre mesuré, l’échelle et les réserves. Une réserve de cette version affirme à tort que ces quatre puits avaient moins de vingt objets. Leurs effectifs réels vont de cinq cent un à sept cents ; le problème est le nombre insuffisant de puits. Lisez la raison spécifique dans leur table, sans reprendre cette explication incorrecte.",
+          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "Report donne la règle, le centre mesuré, l’échelle et les réserves. Une réserve de cette version affirme à tort que ces quatre puits avaient moins de vingt objets. Leurs effectifs réels vont de cinq cent un à sept cents ; le problème est le nombre insuffisant de puits. Lisez la raison spécifique dans leur table, sans reprendre cette explication incorrecte."
+          ]
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "Exiger une distance plus grande signale moins d’objets. Abaisser k à deux a produit cent quarante-deux signalements ; à zéro virgule cinq, il en produit mille quatre cent soixante-dix-neuf. Ce dernier réglage est volontairement large pour la démonstration, pas un seuil de qualité recommandé. La table n’affiche que cinq cents lignes ; ce n’est pas le nombre d’objets signalés.",
+          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "Exiger une distance plus grande signale moins d’objets. Abaisser k à deux a produit cent quarante-deux signalements ; à zéro virgule cinq, il en produit mille quatre cent soixante-dix-neuf. Ce dernier réglage est volontairement large pour la démonstration, pas un seuil de qualité recommandé. La table n’affiche que cinq cents lignes ; ce n’est pas le nombre d’objets signalés."
+          ]
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Choisissez Export et un nouveau nom. Le CSV objects conserve les deux mille trois cent quarante et une lignes et ajoute les indicateurs ; flagged contient les mille quatre cent soixante-dix-neuf lignes signalées. Wells contient quatre résumés, et report est un fichier texte. Chaque mesure et indicateur exporté a été vérifié. Exporter ne supprime rien et ne se limite pas aux cinq cents lignes affichées.",
+          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Choisissez Export et un nouveau nom. Le CSV objects conserve les deux mille trois cent quarante et une lignes et ajoute les indicateurs ; flagged contient les mille quatre cent soixante-dix-neuf lignes signalées. Wells contient quatre résumés, et report est un fichier texte. Chaque mesure et indicateur exporté a été vérifié. Exporter ne supprime rien et ne se limite pas aux cinq cents lignes affichées."
+          ]
         },
         {
           "visual": "13_area_iqr",
-          "narration": "Restaurez la règle originale, puis choisissez IQR. Le seuil signifie maintenant c fois l’écart interquartile, pas des écarts-types robustes. Avec c à un virgule cinq, l’aire cellulaire brute donne cinquante-cinq signalements. Nous avons vérifié indépendamment les deux bornes et chaque position signalée. Une queue de distribution asymétrique peut être signalée malgré des mesures valides.",
+          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1510,
             315
-          ],
-          "speech_text": "Restaurez la règle originale, puis choisissez IQR. Le seuil signifie maintenant c fois l’écart interquartile, pas des écarts-types robustes. Avec c à un virgule cinq, l’aire cellulaire brute donne cinquante-cinq signalements. Nous avons vérifié indépendamment les deux bornes et chaque position signalée. Une queue de distribution asymétrique peut être signalée malgré des mesures valides."
+          ]
         },
         {
           "visual": "14_iqr_report",
-          "narration": "Il existe une autre erreur de libellé. Ce rapport IQR appelle médiane la valeur vingt-deux mille six cent soixante-trois, mais c’est le milieu entre le premier et le troisième quartile. La vraie médiane est vingt et un mille neuf cent vingt-cinq. Les bornes vérifiées sont correctes ; ne citez pas le centre affiché comme médiane.",
+          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             550
-          ],
-          "speech_text": "Il existe une autre erreur de libellé. Ce rapport IQR appelle médiane la valeur vingt-deux mille six cent soixante-trois, mais c’est le milieu entre le premier et le troisième quartile. La vraie médiane est vingt et un mille neuf cent vingt-cinq. Les bornes vérifiées sont correctes ; ne citez pas le centre affiché comme médiane."
+          ]
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "Choisissez explicitement log10 et analysez de nouveau. Sur ces aires positives, IQR donne soixante-dix-neuf signalements, puis MAD à trois virgule cinq en donne trente-six. Le logarithme change les distances et la question posée ; il ne garantit ni moins de signalements ni une validité biologique. Les centres et échelles du rapport sont désormais en unités log10.",
+          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "Choisissez explicitement log10 et analysez de nouveau. Sur ces aires positives, IQR donne soixante-dix-neuf signalements, puis MAD à trois virgule cinq en donne trente-six. Le logarithme change les distances et la question posée ; il ne garantit ni moins de signalements ni une validité biologique. Les centres et échelles du rapport sont désormais en unités log10."
+          ]
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "Pour un véritable refus, revenez sans transformation et sélectionnez uniquement cell_channel_0_min_intensity. Scan réussit et signale soixante-huit objets. Une mesure vaut réellement zéro. Ce cas positif compte : la table et la variable fonctionnent avant de demander une transformation dont le domaine exclut cette valeur.",
+          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             1700,
             315
-          ],
-          "speech_text": "Pour un véritable refus, revenez sans transformation et sélectionnez uniquement cell_channel_0_min_intensity. Scan réussit et signale soixante-huit objets. Une mesure vaut réellement zéro. Ce cas positif compte : la table et la variable fonctionnent avant de demander une transformation dont le domaine exclut cette valeur."
+          ]
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "Sélectionnez maintenant log10 et cliquez sur Scan. L’erreur réelle nomme l’unique valeur nulle ou négative et sa variable. Aucun pseudo-effectif n’est inventé, aucun objet n’est supprimé ; Export est désactivé. Les anciennes lignes et leur compteur peuvent rester affichés après l’échec : ce ne sont pas de nouveaux résultats valides. Lisez l’erreur et restaurez une règle valide.",
+          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
           "hold_after": 0.7,
           "focus": [
             295,
             375,
             3540,
             230
-          ],
-          "speech_text": "Sélectionnez maintenant log10 et cliquez sur Scan. L’erreur réelle nomme l’unique valeur nulle ou négative et sa variable. Aucun pseudo-effectif n’est inventé, aucun objet n’est supprimé ; Export est désactivé. Les anciennes lignes et leur compteur peuvent rester affichés après l’échec : ce ne sont pas de nouveaux résultats valides. Lisez l’erreur et restaurez une règle valide."
+          ]
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "Revenez à cell_area brut et MAD trois virgule cinq, puis analysez pour retrouver les vingt-six signalements. Monter Min objects per well à sept cents change l’admissibilité : un seul puits atteint ce nombre, les trois autres conservent une raison explicite de faible effectif. Baisser ce minimum ne crée pas le cinquième puits absent. Non évalué ne signifie jamais sans anomalie.",
+          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
           "hold_after": 0.7,
           "focus": [
             295,
             455,
             3005,
             300
-          ],
-          "speech_text": "Revenez à cell_area brut et MAD trois virgule cinq, puis analysez pour retrouver les vingt-six signalements. Monter Min objects per well à sept cents change l’admissibilité : un seul puits atteint ce nombre, les trois autres conservent une raison explicite de faible effectif. Baisser ce minimum ne crée pas le cinquième puits absent. Non évalué ne signifie jamais sans anomalie."
+          ]
         },
         {
           "visual": "22_objects_only",
-          "narration": "Restaurez le minimum à vingt, désactivez Score wells too et analysez. Les signalements d’objets restent vingt-six et aucune comparaison des puits n’est demandée. Réactivez puis analysez pour retrouver les quatre résumés de puits non évalués. Ce réglage change le niveau d’analyse ; il ne filtre ni ne supprime cellules ou puits dans la base.",
+          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
           "hold_after": 0.7,
           "focus": [
             3295,
             1745,
             390,
             330
-          ],
-          "speech_text": "Restaurez le minimum à vingt, désactivez Score wells too et analysez. Les signalements d’objets restent vingt-six et aucune comparaison des puits n’est demandée. Réactivez puis analysez pour retrouver les quatre résumés de puits non évalués. Ce réglage change le niveau d’analyse ; il ne filtre ni ne supprime cellules ou puits dans la base."
+          ]
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "Exportez la règle restaurée sous un autre nom. Les fichiers finaux contiennent deux mille trois cent quarante et une lignes d’objets, vingt-six lignes signalées, quatre résumés de puits et le rapport. Les bases originale et privée sont intactes. Gardez la règle et le rapport avec les indicateurs pour ne pas confondre un autre seuil avec la même analyse.",
+          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
           "hold_after": 0.7,
           "focus": [
             295,
             345,
             3515,
             170
-          ],
-          "speech_text": "Exportez la règle restaurée sous un autre nom. Les fichiers finaux contiennent deux mille trois cent quarante et une lignes d’objets, vingt-six lignes signalées, quatre résumés de puits et le rapport. Les bases originale et privée sont intactes. Gardez la règle et le rapport avec les indicateurs pour ne pas confondre un autre seuil avec la même analyse."
+          ]
         },
         {
           "visual": "method_choices_mad",
-          "narration": "Le menu propose aussi Mahalanobis multivarié robuste, que nous n’avons pas exécuté ici. Son alpha dépend d’hypothèses de distribution et ne garantit pas un taux d’erreur. Le calcul en Python est effectué par detect_outliers avec OutlierSpec dans spacr.qt.widgets.outlier_model. Pour les distributions ou les images, poursuivez avec Feature Explorer ou Annotate ; aucun aperçu d’image ni requête d’IA n’a eu lieu ici.",
+          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8988,11 +8927,15 @@
             1785,
             395,
             155
-          ],
-          "speech_text": "Le menu propose aussi Mahalanobis multivarié robuste, que nous n’avons pas exécuté ici. Son alpha dépend d’hypothèses de distribution et ne garantit pas un taux d’erreur. Le calcul en Python est effectué par detect_outliers avec OutlierSpec dans spakeur.ku té.widgets.outlier_model. Pour les distributions ou les images, poursuivez avec Feature Explorer ou Annotate ; aucun aperçu d’image ni requête d’IA n’a eu lieu ici."
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "67_experiment_design",
@@ -9000,222 +8943,205 @@
       "slug": "experiment_design",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Conception",
-      "title": "Experiment Design : plan de plaque reproductible et export exact",
-      "description": "Modifiez un projet de disposition avec les vrais contrôles, examinez les avertissements de capacité et de réplication, reproduisez les affectations aléatoires et exportez le plan exact des puits.",
+      "section": "Data",
+      "title": "Experiment Design: plan a plate and export its well map",
+      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
       "objectives": [
-        "Planifier conditions et rôles des témoins avant l’acquisition.",
-        "Démontrer avertissements et retours à un état acceptable sans confondre contrôle de disposition et validation biologique.",
-        "Reproduire une disposition aléatoire et distinguer les puits sélectionnés des conditions affectées.",
-        "Exporter et conserver la table exacte des puits lorsque les paramètres par ligne ou colonne ne peuvent pas exprimer le plan."
+        "Enter conditions, replicate counts and control roles.",
+        "Choose a plate format, edge policy and reproducible random layout.",
+        "Export the exact well assignments for later joins to measurements."
       ],
-      "prerequisite": "Ce module de planification ne demande ni images acquises ni jeu de données téléchargé. La capture utilise la vraie ébauche de l’application : six puits témoins négatifs, six positifs et douze puits de traitement, avec le nom tutorial_plan. Ces nombres illustrent l’interface ; ce ne sont ni un calcul de puissance ni des résultats expérimentaux acquis.",
+      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Ouvrez Experiment Design dans la catégorie Data de Home avant l’acquisition. Ce module crée une proposition de disposition de plaque, pas des résultats biologiques mesurés. Les noms négatif, positif et traitement sont provisoires ; choisissez des noms et des témoins pertinents pour votre expérience.",
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Experiment Design dans la catégorie Data de Home avant l’acquisition. Ce module crée une proposition de disposition de plaque, pas des résultats biologiques mesurés. Les noms négatif, positif et traitement sont provisoires ; choisissez des noms et des témoins pertinents pour votre expérience."
+          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "Nommez la plaque pour que son identifiant corresponde ensuite aux images et aux mesures. Si une colonne est étroite, double-cliquez sur la bordure de son en-tête pour l’ajuster au contenu. Examinez ensemble Condition, Replicates et Role. Les six, six et douze puits illustrent l’interface, pas une taille d’échantillon justifiée.",
+          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
-          ],
-          "speech_text": "Nommez la plaque pour que son identifiant corresponde ensuite aux images et aux mesures. Si une colonne est étroite, double-cliquez sur la bordure de son en-tête pour l’ajuster au contenu. Examinez ensemble Condition, Replicates et Role. Les six, six et douze puits illustrent l’interface, pas une taille d’échantillon justifiée."
+          ]
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "Choisir un format de six puits tout en en demandant vingt-quatre provoque une erreur de capacité. Le plan ne supprime pas silencieusement les répétitions en trop. Lisez le message, puis changez le format ou le protocole ; une carte vide n’est pas une affectation valide.",
+          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
           "hold_after": 0.7,
           "focus": [
             450,
             1910,
             3150,
             205
-          ],
-          "speech_text": "Choisir un format de six puits tout en en demandant vingt-quatre provoque une erreur de capacité. Le plan ne supprime pas silencieusement les répétitions en trop. Lisez le message, puis changez le format ou le protocole ; une carte vide n’est pas une affectation valide."
+          ]
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "Revenir à quatre-vingt-seize puits rétablit les vingt-quatre affectations. La carte se met à jour depuis la table courante. Add condition et Remove selected gèrent les lignes de conditions ; les carrés en dessous constituent une surface de sélection distincte, pas ces lignes de table.",
+          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
           "hold_after": 0.7,
           "focus": [
             450,
             365,
             3370,
             285
-          ],
-          "speech_text": "Revenir à quatre-vingt-seize puits rétablit les vingt-quatre affectations. La carte se met à jour depuis la table courante. Add condition et Remove selected gèrent les lignes de conditions ; les carrés en dessous constituent une surface de sélection distincte, pas ces lignes de table."
+          ]
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "Sélectionnez une cellule de répétitions et appuyez sur F deux pour la modifier. Réduire le témoin négatif à un puits déclenche un avertissement ; revenir à six le supprime. De nombreuses cellules dans un seul puits ne remplacent pas des répétitions expérimentales indépendantes.",
-          "hold_after": 0.7,
-          "speech_text": "Sélectionnez une cellule de répétitions et appuyez sur F deux pour la modifier. Réduire le témoin négatif à un puits déclenche un avertissement ; revenir à six le supprime. De nombreuses cellules dans un seul puits ne remplacent pas des répétitions expérimentales indépendantes."
+          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "La disposition Block rapproche les conditions et signale des risques de confusion avec la position. Ces messages invitent à examiner le plan, sans tirer automatiquement des conclusions biologiques. La correction d’éclairage optique ne corrige ni l’évaporation ni la température ; disposition expérimentale et ombrage d’image sont deux problèmes distincts.",
-          "hold_after": 0.7,
-          "speech_text": "La disposition Block rapproche les conditions et signale des risques de confusion avec la position. Ces messages invitent à examiner le plan, sans tirer automatiquement des conclusions biologiques. La correction d’éclairage optique ne corrige ni l’évaporation ni la température ; disposition expérimentale et ombrage d’image sont deux problèmes distincts."
+          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "Choisissez random, laissez les puits de bord vides et fixez la graine à quarante-deux. Exclure l’anneau externe laisse soixante puits utilisables sur quatre-vingt-seize ; notre plan en affecte vingt-quatre. Éviter le bord réduit la capacité et ne garantit pas l’absence de tout effet spatial.",
+          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "Choisissez random, laissez les puits de bord vides et fixez la graine à quarante-deux. Exclure l’anneau externe laisse soixante puits utilisables sur quatre-vingt-seize ; notre plan en affecte vingt-quatre. Éviter le bord réduit la capacité et ne garantit pas l’absence de tout effet spatial."
+          ]
         },
         {
           "visual": "08_seed43",
-          "narration": "Passer la graine à quarante-trois change les affectations réelles tout en conservant le nombre de puits par condition. La randomisation réduit le biais de placement systématique, mais chaque disposition doit encore être examinée. Ne choisissez pas une graine pour favoriser le résultat souhaité.",
+          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "Passer la graine à quarante-trois change les affectations réelles tout en conservant le nombre de puits par condition. La randomisation réduit le biais de placement systématique, mais chaque disposition doit encore être examinée. Ne choisissez pas une graine pour favoriser le résultat souhaité."
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Revenir à quarante-deux rétablit exactement les mêmes associations entre puits et conditions. Enregistrez la graine avec le format de plaque, la règle de bord et la table des conditions. La graine seule ne définit pas le plan si ces autres entrées changent.",
+          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "Revenir à quarante-deux rétablit exactement les mêmes associations entre puits et conditions. Enregistrez la graine avec le format de plaque, la règle de bord et la table des conditions. La graine seule ne définit pas le plan si ces autres entrées changent."
+          ]
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "Faites glisser de B zéro deux à C zéro quatre pour sélectionner six puits. Leur contour de sélection change, mais pas leurs conditions : ce geste sélectionne les puits et n’affecte pas de traitement. Vérifiez la table des conditions et la carte lors d’une modification d’affectation.",
+          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             635,
             620,
             445
-          ],
-          "speech_text": "Faites glisser de B zéro deux à C zéro quatre pour sélectionner six puits. Leur contour de sélection change, mais pas leurs conditions : ce geste sélectionne les puits et n’affecte pas de traitement. Vérifiez la table des conditions et la carte lors d’une modification d’affectation."
+          ]
         },
         {
           "visual": "11_export_folder",
-          "narration": "Utilisez Export plate map et choisissez un dossier dédié. L’export réel écrit plate_map point CSV, plate_map point JSON et plate_map_settings point JSON. Conservez les trois fichiers ensemble ; choisir une destination ne signifie pas réaliser l’expérience prévue.",
-          "hold_after": 0.7,
-          "speech_text": "Utilisez Export plate map et choisissez un dossier dédié. L’export réel écrit plate_map point CSV, plate_map point JSON et plate_map_settings point JSON. Conservez les trois fichiers ensemble ; choisir une destination ne signifie pas réaliser l’expérience prévue."
+          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Le CSV contient une ligne par puits affecté : vingt-quatre ici, avec chaque condition et rôle identiques à l’affichage. La jointure aux mesures utilise ensemble plate I D, row I D et column I D. Le JSON enregistre graine, plan et constats, en conservant les avertissements plutôt qu’en les masquant.",
+          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "Le CSV contient une ligne par puits affecté : vingt-quatre ici, avec chaque condition et rôle identiques à l’affichage. La jointure aux mesures utilise ensemble plate I D, row I D et column I D. Le JSON enregistre graine, plan et constats, en conservant les avertissements plutôt qu’en les masquant."
+          ]
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Cette disposition aléatoire ne peut pas être représentée par les paramètres de traitement par ligne ou colonne. Le fichier indique explicitement expressible à false ; ce n’est pas une configuration d’analyse complète. Utilisez la table exacte et une jointure explicite, sans approximer des puits mélangés par des étiquettes de lignes entières.",
+          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             3300,
             50
-          ],
-          "speech_text": "Cette disposition aléatoire ne peut pas être représentée par les paramètres de traitement par ligne ou colonne. Le fichier indique explicitement expressible à false ; ce n’est pas une configuration d’analyse complète. Utilisez la table exacte et une jointure explicite, sans approximer des puits mélangés par des étiquettes de lignes entières."
+          ]
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "L’interface Python se trouve dans spacr.qt.widgets.plate_layout : Condition et PlateDesign décrivent le plan ; assign_wells, check_design et write_design l’affectent, l’examinent et l’enregistrent. Ces contrôles n’établissent ni puissance statistique ni validité biologique. Vérifiez le plan avant l’acquisition et conservez sa carte exacte pour les analyses suivantes.",
+          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "68_power_design",
             "33_plate_viewer"
-          ],
-          "speech_text": "L’interface Python se trouve dans spakeur.ku té.widgets.plate_layout : Condition et PlateDesign décrivent le plan ; assign_wells, check_design et write_design l’affectent, l’examinent et l’enregistrent. Ces contrôles n’établissent ni puissance statistique ni validité biologique. Vérifiez le plan avant l’acquisition et conservez sa carte exacte pour les analyses suivantes."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power / Design : lire le simulateur et ses limites",
+      "title": "Power & Design: explore simulated detection curves",
       "series": 5,
       "app_key": "power",
-      "section": "Conception",
+      "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "Comprendre les réglages, courbes simulées et avertissements sans prendre une petite démonstration ou un résumé contradictoire pour un conseil de planification validé.",
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
       "objectives": [
-        "Distinguer hypothèses de simulation et données expérimentales acquises.",
-        "Lire correctement ajustements utilisables, fractions de détection et incertitude.",
-        "Reconnaître la recommandation erronée sur le même plan et préserver les preuves."
+        "Set the library, scoring unit and design assumptions.",
+        "Run cell-count and well-count scans with recorded settings.",
+        "Read detection fractions and caveats before interpreting a design."
       ],
-      "prerequisite": "Lecture critique du simulateur enregistré, pas puissance statistique calibrée ni conseil de taille d’échantillon. Power_recorded_simulation_review.zip conserve le JSON original et son analyse ; ce n’est ni une exécution importable ni un export de l’interface. L’écran, l’adaptateur, le simulateur et le code d’ajustement enregistrés avec spaCR 1.5.0.4 restent identiques au code actuel. Deux balayages marginaux ont produit 18 ajustements et neuf points, deux répétitions par point ; quatre ajustements non convergents restent au dénominateur. Deux simulations ont écrêté des probabilités. Le même plan nominal, avec des tirages différents, donne 1/2 et 2/2 détections. Le conseil d’augmenter jusqu’au nombre de puits déjà présent est rejeté et reste non corrigé. Certaines étiquettes d’extrémité sont coupées ; la table vérifiée contient neuf coordonnées. Aucune nouvelle simulation, donnée acquise, calibration biologique, tâche GPU, requête IA ou publication n’est revendiquée. API : spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve et spacr.qt.screens.power.run_power_sweep ; spacr.power_simulate et spacr.power_model simulent et ajustent.",
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Power et Design explore des hypothèses avec des données simulées. Il ne charge pas une expérience acquise et ne démontre pas que ses hypothèses correspondent aux vôtres. Nous lisons une véritable exécution enregistrée, avertissements et recommandation trompeuse compris. Cette petite démonstration n’est pas un conseil validé de taille d’échantillon.",
+          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
           "related_lessons": [
             "67_experiment_design"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Power et Design explore des hypothèses avec des données simulées. Il ne charge pas une expérience acquise et ne démontre pas que ses hypothèses correspondent aux vôtres. Nous lisons une véritable exécution enregistrée, avertissements et recommandation trompeuse compris. Cette petite démonstration n’est pas un conseil validé de taille d’échantillon."
+          "hold_after": 0.7
         },
         {
           "visual": "03_guide_library",
-          "narration": "Commencez par la bibliothèque et l’unité évaluée. Passer du guide au gène change ce que le modèle évalue : quarante gènes et quatre guides par gène donnent cent soixante unités en mode guide. Le mode gène regroupe les informations des guides. Ce sont des hypothèses pédagogiques, pas de nouvelles mesures biologiques.",
-          "hold_after": 0.7,
-          "speech_text": "Commencez par la bibliothèque et l’unité évaluée. Passer du guide au gène change ce que le modèle évalue : quarante gènes et quatre guides par gène donnent cent soixante unités en mode guide. Le mode gène regroupe les informations des guides. Ce sont des hypothèses pédagogiques, pas de nouvelles mesures biologiques."
+          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "Les réglages de plaque et d’effet décrivent le plan supposé. Le taux d’appels positifs est une probabilité de classification simulée, pas un nombre d’organismes ni un taux d’infection mesuré. Examinez ensemble fond, effet et prévalence ; les hypothèses affichées ne valident pas le modèle.",
-          "hold_after": 0.7,
-          "speech_text": "Les réglages de plaque et d’effet décrivent le plan supposé. Le taux d’appels positifs est une probabilité de classification simulée, pas un nombre d’organismes ni un taux d’infection mesuré. Examinez ensemble fond, effet et prévalence ; les hypothèses affichées ne valident pas le modèle."
+          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "Un effet inférieur à un déclenche l’avertissement natif de direction non prise en charge et désactive Run. L’enregistrement rétablit ensuite une valeur acceptée et les contrôles redeviennent disponibles. C’est une protection logicielle, pas une impossibilité biologique. Ne contournez pas cet avertissement pour obtenir une courbe commode.",
-          "hold_after": 0.7,
-          "speech_text": "Un effet inférieur à un déclenche l’avertissement natif de direction non prise en charge et désactive Run. L’enregistrement rétablit ensuite une valeur acceptée et les contrôles redeviennent disponibles. C’est une protection logicielle, pas une impossibilité biologique. Ne contournez pas cet avertissement pour obtenir une courbe commode."
+          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "Cette démonstration utilise seulement deux répétitions par point. Une détection exige un ajustement utilisable atteignant le seuil choisi d’aire sous la courbe ROC. Ce n’est pas un seuil P de test d’hypothèse. La graine et le moteur sont enregistrés ; sélectionner Torch ne prouve pas une exécution sur GPU.",
-          "hold_after": 0.7,
-          "speech_text": "Cette démonstration utilise seulement deux répétitions par point. Une détection exige un ajustement utilisable atteignant le seuil choisi d’aire sous la courbe ROC. Ce n’est pas un seuil P de test d’hypothèse. La graine et le moteur sont enregistrés ; sélectionner Torch ne prouve pas une exécution sur GPU."
+          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Run lance le véritable simulateur dans un fil de travail. Il varie séparément les axes du nombre de cellules et de puits, sans tester toutes leurs combinaisons. Dix-huit ajustements ont été réalisés sur neuf points. Gardez paramètres et répétitions brutes ensemble pour relier chaque fraction tracée aux ajustements qui l’ont produite.",
-          "hold_after": 0.7,
-          "speech_text": "Run lance le véritable simulateur dans un fil de travail. Il varie séparément les axes du nombre de cellules et de puits, sans tester toutes leurs combinaisons. Dix-huit ajustements ont été réalisés sur neuf points. Gardez paramètres et répétitions brutes ensemble pour relier chaque fraction tracée aux ajustements qui l’ont produite."
+          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "Les détections se comptent sur toutes les répétitions demandées. Quatre ajustements non convergents restent au dénominateur comme non-détections ; ils ne sont pas écartés silencieusement. Ici, cent pour cent signifie seulement deux sur deux. Un échantillon aussi petit ne donne pas une probabilité de détection précise.",
-          "hold_after": 0.7,
-          "speech_text": "Les détections se comptent sur toutes les répétitions demandées. Quatre ajustements non convergents restent au dénominateur comme non-détections ; ils ne sont pas écartés silencieusement. Ici, cent pour cent signifie seulement deux sur deux. Un échantillon aussi petit ne donne pas une probabilité de détection précise."
+          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
@@ -9225,9 +9151,8 @@
             2380,
             460
           ],
-          "narration": "La table distingue fractions de détection et performances moyennes des ajustements utilisables. Une moyenne indisponible n’est pas zéro. La précision moyenne exige aussi la référence de prévalence. Lisez la table lorsqu’une étiquette d’extrémité est coupée, et examinez les non-convergences au lieu de juger uniquement la ligne bleue.",
-          "hold_after": 0.7,
-          "speech_text": "La table distingue fractions de détection et performances moyennes des ajustements utilisables. Une moyenne indisponible n’est pas zéro. La précision moyenne exige aussi la référence de prévalence. Lisez la table lorsqu’une étiquette d’extrémité est coupée, et examinez les non-convergences au lieu de juger uniquement la ligne bleue."
+          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
@@ -9237,26 +9162,28 @@
             2380,
             110
           ],
-          "narration": "Le résumé contient une erreur. Les deux estimations de référence utilisent déjà quatre-vingt-seize puits, mais des tirages différents donnent une détection sur deux dans un balayage et deux sur deux dans l’autre. Passer aux mêmes quatre-vingt-seize puits n’améliore pas le plan. Rejetez ce conseil ; le tutoriel ne le corrige pas.",
-          "hold_after": 0.7,
-          "speech_text": "Le résumé contient une erreur. Les deux estimations de référence utilisent déjà quatre-vingt-seize puits, mais des tirages différents donnent une détection sur deux dans un balayage et deux sur deux dans l’autre. Passer aux mêmes quatre-vingt-seize puits n’améliore pas le plan. Rejetez ce conseil ; le tutoriel ne le corrige pas."
+          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "Développez les autres réserves. Deux criblages simulés ont écrêté des probabilités supérieures à un ; leur occupation réalisée diffère donc de celle demandée. Le modèle a d’autres hypothèses et limites : les énumérer ne le valide pas. Examinez avertissements et ajustements échoués avant toute conclusion.",
-          "hold_after": 0.7,
-          "speech_text": "Développez les autres réserves. Deux criblages simulés ont écrêté des probabilités supérieures à un ; leur occupation réalisée diffère donc de celle demandée. Le modèle a d’autres hypothèses et limites : les énumérer ne le valide pas. Examinez avertissements et ajustements échoués avant toute conclusion."
+          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "L’archive liée conserve la spécification enregistrée, les répétitions, courbes, table et résumé erroné. C’est un téléchargement externe de preuves, pas un export natif ni un résultat importé. L’adaptateur et les API Python exposent le même parcours, mais une vraie planification exige une validation distincte des hypothèses et de l’incertitude.",
+          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
           "related_lessons": [
             "06_api"
           ],
-          "hold_after": 0.7,
-          "speech_text": "L’archive liée conserve la spécification enregistrée, les répétitions, courbes, table et résumé erroné. C’est un téléchargement externe de preuves, pas un export natif ni un résultat importé. L’adaptateur et les API Python exposent le même parcours, mais une vraie planification exige une validation distincte des hypothèses et de l’incertitude."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "69_dose_response",
@@ -9264,61 +9191,57 @@
       "slug": "dose_response",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Conception",
-      "title": "Dose-réponse : courbes ajustées, incertitude et refus justifiés",
-      "description": "Utilisez l’écran actuel Dose Response avec une table synthétique reproductible, comparez les intervalles de profil et de Wald et distinguez les résultats ajustés, non bornés et refusés.",
+      "section": "Data",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
       "objectives": [
-        "Charger des concentrations et réponses explicites et ajuster une courbe par série.",
-        "Interpréter les concentrations à mi-réponse, les intervalles, les témoins de véhicule et les courbes refusées.",
-        "Comparer avant de trier, copier le rapport réel et distinguer les commandes graphiques des exports par l’API."
+        "Load the synthetic example and choose concentration, response and grouping columns.",
+        "Fit curves and compare profile-likelihood and Wald intervals.",
+        "Read unbounded or refused results and save the report."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "Téléchargez le CSV SYNTHÉTIQUE joint. Il contient 120 lignes construites : quatre séries, neuf concentrations positives et un véhicule à dose nulle, avec trois observations par concentration. Les écarts équilibrés de −0,5, zéro et +0,5 ne sont ni des réplicats biologiques ni une étude d’étalonnage statistique. Les concentrations à mi-réponse imposées sont 1,5, 2 et 500, cette dernière hors plage ; la quatrième série change de sens. Aucun téléchargement de données propre à Dose Response, aucune normalisation, pondération, sélection de réplicats, export graphique ou console IA n’est démontré. Unit change une étiquette, pas les données. Dans cette version, réajuster après un tri peut mélanger les identités des lignes affichées ; tous les réajustements sont donc terminés avant le tri. Conservez les refus et lisez le rapport complet. API : spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame et DoseResponseSet.table. Les vérifications des données et graphiques sont indépendantes de l’ajustement spaCR ; les bornes de profil sont vérifiées à la précision déclarée de l’encadrement en log10, sans garantie de couverture.",
+      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Ouvrez Dose Response dans la section Data de Home. Ce visualiseur autonome ajuste une courbe logistique à quatre paramètres à une série de concentrations. Il faut fournir les concentrations et les réponses ; les doses ne sont pas déduites des noms de puits, des coordonnées d’image ou des étiquettes de traitement.",
+          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
-          ],
-          "speech_text": "Ouvrez Dose Response dans la section Data de Home. Ce visualiseur autonome ajuste une courbe logistique à quatre paramètres à une série de concentrations. Il faut fournir les concentrations et les réponses ; les doses ne sont pas déduites des noms de puits, des coordonnées d’image ou des étiquettes de traitement."
+          ]
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "Téléchargez le CSV synthétique lié dans les prérequis de cette leçon, puis choisissez Load table. Ce sont des exemples logiciels construits délibérément, pas des composés mesurés. Le fichier et chaque nom de série indiquent leur caractère synthétique, pour ne pas confondre ces courbes nettes avec des résultats expérimentaux.",
-          "hold_after": 0.7,
-          "speech_text": "Téléchargez le CSV synthétique lié dans les prérequis de cette leçon, puis choisissez Load table. Ce sont des exemples logiciels construits délibérément, pas des composés mesurés. Le fichier et chaque nom de série indiquent leur caractère synthétique, pour ne pas confondre ces courbes nettes avec des résultats expérimentaux."
+          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "Le fichier contient cent vingt lignes réparties entre quatre séries. Chacune comporte neuf concentrations positives, un véhicule à dose nulle et trois observations par concentration. Les petits écarts artificiels équilibrés préservent la moyenne du modèle à chaque dose ; cet exemple pratique ne valide pas les performances statistiques sur des expériences réelles.",
+          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             40,
             2200,
             170
-          ],
-          "speech_text": "Le fichier contient cent vingt lignes réparties entre quatre séries. Chacune comporte neuf concentrations positives, un véhicule à dose nulle et trois observations par concentration. Les petits écarts artificiels équilibrés préservent la moyenne du modèle à chaque dose ; cet exemple pratique ne valide pas les performances statistiques sur des expériences réelles."
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Choisissez concentration pour la concentration, response pour la réponse et series dans One curve per. Fournissez les concentrations brutes, pas leurs logarithmes. Le regroupement est important : ajuster les quatre séries différentes comme une seule courbe répondrait à la mauvaise question.",
+          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "Choisissez concentration pour la concentration, response pour la réponse et series dans One curve per. Fournissez les concentrations brutes, pas leurs logarithmes. Le regroupement est important : ajuster les quatre séries différentes comme une seule courbe répondrait à la mauvaise question."
+          ]
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Unit n’est qu’une étiquette. Ici, nous saisissons u M pour exprimer les concentrations illustratives en micromolaire ; modifier ce texte ne change jamais l’échelle des nombres. Effectuez en amont toute normalisation ou conversion d’unités nécessaire, car cet écran ne propose ni normalisation ni pondération.",
+          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -9328,156 +9251,143 @@
           ],
           "related_lessons": [
             "61_tabulate"
-          ],
-          "speech_text": "Unit n’est qu’une étiquette. Ici, nous saisissons u M pour exprimer les concentrations illustratives en micromolaire ; modifier ce texte ne change jamais l’échelle des nombres. Effectuez en amont toute normalisation ou conversion d’unités nécessaire, car cet écran ne propose ni normalisation ni pondération."
+          ]
         },
         {
           "visual": "06_profile_results",
-          "narration": "Gardez Profile likelihood sélectionné et Fit non-monotone data désactivé, puis choisissez Fit. Le graphique et la table sont mis à jour ensemble. Les quatre séries restent présentes, y compris un résultat non borné et un refus ; une estimation manquante n’est pas une série manquante.",
+          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "Gardez Profile likelihood sélectionné et Fit non-monotone data désactivé, puis choisissez Fit. Le graphique et la table sont mis à jour ensemble. Les quatre séries restent présentes, y compris un résultat non borné et un refus ; une estimation manquante n’est pas une série manquante."
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Sélectionnez l’inhibition synthétique. La concentration à mi-réponse retrouvée est un virgule cinq, avec une pente de Hill négative puisque la réponse diminue quand la concentration augmente. La mi-réponse se situe entre les deux plateaux ajustés, ici cinq et quatre-vingt-quinze ; elle ne signifie pas automatiquement cinquante pour cent de viabilité.",
+          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "Sélectionnez l’inhibition synthétique. La concentration à mi-réponse retrouvée est un virgule cinq, avec une pente de Hill négative puisque la réponse diminue quand la concentration augmente. La mi-réponse se situe entre les deux plateaux ajustés, ici cinq et quatre-vingt-quinze ; elle ne signifie pas automatiquement cinquante pour cent de viabilité."
+          ]
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "Sélectionnez l’activation synthétique. Sa concentration à mi-réponse retrouvée est deux et sa pente de Hill est positive. La courbe sélectionnée est mise en évidence tandis que les autres courbes ajustées restent visibles. Lisez ensemble la ligne sélectionnée et son rapport, sans attribuer à cette série l’estimation d’une autre courbe.",
+          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
           "hold_after": 0.7,
           "focus": [
             285,
             210,
             1710,
             1900
-          ],
-          "speech_text": "Sélectionnez l’activation synthétique. Sa concentration à mi-réponse retrouvée est deux et sa pente de Hill est positive. La courbe sélectionnée est mise en évidence tandis que les autres courbes ajustées restent visibles. Lisez ensemble la ligne sélectionnée et son rapport, sans attribuer à cette série l’estimation d’une autre courbe."
+          ]
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "L’exemple hors plage a été construit avec une concentration à mi-réponse de cinq cents, mais ses concentrations s’arrêtent à cent. L’écran indique un résultat non borné, laisse vides les cellules de l’estimation et de l’intervalle et montre une borne au bord. Une extrapolation ajustée n’est pas une estimation ponctuelle étayée.",
+          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "L’exemple hors plage a été construit avec une concentration à mi-réponse de cinq cents, mais ses concentrations s’arrêtent à cent. L’écran indique un résultat non borné, laisse vides les cellules de l’estimation et de l’intervalle et montre une borne au bord. Une extrapolation ajustée n’est pas une estimation ponctuelle étayée."
+          ]
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "La série qui change de sens est refusée, car une logistique monotone n’a pas la bonne forme. Lisez l’explication complète sous la table. Un retournement de la réponse ne démontre à lui seul ni cytotoxicité ni autre cause biologique ; examinez l’expérience plutôt que de supprimer aveuglément des doses ou de forcer un ajustement.",
+          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "La série qui change de sens est refusée, car une logistique monotone n’a pas la bonne forme. Lisez l’explication complète sous la table. Un retournement de la réponse ne démontre à lui seul ni cytotoxicité ni autre cause biologique ; examinez l’expérience plutôt que de supprimer aveuglément des doses ou de forcer un ajustement."
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Le rapport d’inhibition compte vingt-sept observations ajustées et trois témoins à dose nulle. Les concentrations nulles sont exclues de l’ajustement logarithmique et résumées séparément ; elles ne sont pas discrètement remplacées par de petites doses positives. La moyenne du véhicule synthétique est quatre-vingt-quinze, comme le plateau construit aux faibles doses.",
+          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "Le rapport d’inhibition compte vingt-sept observations ajustées et trois témoins à dose nulle. Les concentrations nulles sont exclues de l’ajustement logarithmique et résumées séparément ; elles ne sont pas discrètement remplacées par de petites doses positives. La moyenne du véhicule synthétique est quatre-vingt-quinze, comme le plateau construit aux faibles doses."
+          ]
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Lisez aussi l’erreur résiduelle et l’évaluation du défaut d’ajustement, pas seulement R carré. Cet exemple volontairement équilibré produit des diagnostics exceptionnellement propres. Les observations répétées par concentration sont utilisées sans sélecteur de réplicats distinct ; ces répétitions artificielles ne démontrent pas l’indépendance des mesures d’une expérience réelle.",
+          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "Lisez aussi l’erreur résiduelle et l’évaluation du défaut d’ajustement, pas seulement R carré. Cet exemple volontairement équilibré produit des diagnostics exceptionnellement propres. Les observations répétées par concentration sont utilisées sans sélecteur de réplicats distinct ; ces répétitions artificielles ne démontrent pas l’indépendance des mesures d’une expérience réelle."
+          ]
         },
         {
           "visual": "13_choose_wald",
-          "narration": "Pour comparer les méthodes d’intervalle, choisissez Wald et appuyez de nouveau sur Fit. Changer seulement le sélecteur ne recalcule pas un résultat existant. L’intervalle est calculé pour le logarithme de la concentration à mi-réponse, puis retransformé ; ce n’est pas une erreur symétrique ajoutée directement à la concentration.",
+          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
           "hold_after": 0.7,
           "focus": [
             285,
             145,
             1470,
             75
-          ],
-          "speech_text": "Pour comparer les méthodes d’intervalle, choisissez Wald et appuyez de nouveau sur Fit. Changer seulement le sélecteur ne recalcule pas un résultat existant. L’intervalle est calculé pour le logarithme de la concentration à mi-réponse, puis retransformé ; ce n’est pas une erreur symétrique ajoutée directement à la concentration."
+          ]
         },
         {
           "visual": "14_wald_results",
-          "narration": "Les exemples qui encadrent bien la mi-réponse conservent leur estimation, tandis que les bornes de l’intervalle changent légèrement. L’exemple hors plage ne fournit toujours pas de valeur ponctuelle. Des intervalles finis sur ces exemples propres ne prouvent ni l’identification de la mi-réponse dans une autre expérience ni la couverture nominale pour son bruit et son échantillonnage.",
+          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "Les exemples qui encadrent bien la mi-réponse conservent leur estimation, tandis que les bornes de l’intervalle changent légèrement. L’exemple hors plage ne fournit toujours pas de valeur ponctuelle. Des intervalles finis sur ces exemples propres ne prouvent ni l’identification de la mi-réponse dans une autre expérience ni la couverture nominale pour son bruit et son échantillonnage."
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Rétablissez Profile likelihood et choisissez de nouveau Fit. Vérifiez que les résultats correspondent désormais à cette méthode. La courbe, la table et le rapport sélectionné sont des vues liées de l’ajustement terminé, pas un aperçu qui réajuste automatiquement à chaque modification d’une commande.",
+          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             450
-          ],
-          "speech_text": "Rétablissez Profile likelihood et choisissez de nouveau Fit. Vérifiez que les résultats correspondent désormais à cette méthode. La courbe, la table et le rapport sélectionné sont des vues liées de l’ajustement terminé, pas un aperçu qui réajuste automatiquement à chaque modification d’une commande."
+          ]
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "Terminez les comparaisons d’ajustement avant de trier la table. Cette version peut mélanger les lignes affichées lors du réajustement d’une table triée ; ne vous fiez pas à cette séquence. Ici, nous trions uniquement après l’ajustement, sélectionnons l’inhibition et vérifions que son rapport correspondant apparaît.",
+          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
           "hold_after": 0.7,
           "focus": [
             2000,
             190,
             1810,
             210
-          ],
-          "speech_text": "Terminez les comparaisons d’ajustement avant de trier la table. Cette version peut mélanger les lignes affichées lors du réajustement d’une table triée ; ne vous fiez pas à cette séquence. Ici, nous trions uniquement après l’ajustement, sélectionnons l’inhibition et vérifions que son rapport correspondant apparaît."
+          ]
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "Sélectionnez et copiez le texte du rapport avec le raccourci habituel. Conservez les avertissements, les explications des refus, les concentrations d’entrée et la méthode d’intervalle choisie. Copier une seule estimation sans ce contexte retire l’information nécessaire pour décider si elle est interprétable.",
+          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
           "hold_after": 0.7,
           "focus": [
             2000,
             1140,
             1810,
             500
-          ],
-          "speech_text": "Sélectionnez et copiez le texte du rapport avec le raccourci habituel. Conservez les avertissements, les explications des refus, les concentrations d’entrée et la méthode d’intervalle choisie. Copier une seule estimation sans ce contexte retire l’information nécessaire pour décider si elle est interprétable."
+          ]
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Cet écran n’a pas de bouton d’export. Pour une sortie programmée, l’API dose-réponse fournit fit_frame et une table de résultats ; la leçon API explique le travail en Python. Conservez à l’export les lignes non bornées et refusées, au lieu de ne garder que les composés donnant des nombres commodes.",
+          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9487,10 +9397,14 @@
             190,
             1810,
             210
-          ],
-          "speech_text": "Cet écran n’a pas de bouton d’export. Pour une sortie programmée, l’API dose-réponse fournit fit_frame et une table de résultats ; la leçon API explique le travail en Python. Conservez à l’export les lignes non bornées et refusées, au lieu de ne garder que les composés donnant des nombres commodes."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "70_explain_cv",

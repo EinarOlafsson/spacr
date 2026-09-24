@@ -1,0 +1,14 @@
+{
+  "scope": "Execute the current written guide through the normal GUI/headless entry point on a private copy of the original tutorial database; no new GUI capture.",
+  "passed": true,
+  "shape": [
+    2341,
+    261
+  ],
+  "missing_feature_values": 28,
+  "source_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "source_and_copy_unchanged": true,
+  "output": "/tmp/spacr-anndata-fixed-guide.THOrSM/example/results/cells_keep.h5ad",
+  "artifact_id": "0b68ca4aef880e87",
+  "prior_recording": "2026-09-24-anndata-current-workaround.json describes the earlier failure, before b2dac1bc3 and9863c8b7f."
+}

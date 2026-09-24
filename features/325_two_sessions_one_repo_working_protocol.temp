@@ -16830,3 +16830,30 @@ candidate-exploration-20260924-l1r815zg and tag tutorials-exploration-20260924-l
 Inspect exploration-candidate-upload.log before any retry; do not re-upload an
 accepted revision.65/66host metadata now matches existing Classify/QC routes;
 narration, visual actions and audio bytes are unchanged by that normalization.
+
+2026-09-24 — CODEX: EIGHT GUIDES ACCEPTED; NORMAL ANNDATA GUIDE VERIFIED
+Candidate J/l1r815zg is accepted. All1722hosted files SHA256match immutable
+5fef816b732a14df2654c5eda9610baa071a080c (2,123,675,799bytes). A transient503
+interrupted the first readback; the retry verified the same revision, without
+re-uploading. All84hosted playback cases and14localized unavailable views pass;
+hold lifted;819compatible tracks. Eight final publication/inventory/README
+guards pass.63of69rewritten existing lessons now have matching prepared media,
+plus four new organism guides. Do not re-upload this accepted candidate.
+
+Merged the AnnData repairs. The normal GUI/headless entry point exports and
+reopens the real example (2341x261,28missing), preserving database bytes.
+New written guide docs/source/anndata_export.rst is linked from the contents
+and Python quickstart. It explains the repaired normal export and identifies
+the existing helper video as an older recording. Fresh normal-export capture
+remains owed; the writer repair itself is done. English API11527 and Help are
+current; AnnData's new helpers are private, so no public callable is added.
+Strict English Sphinx and rendered guide/API links pass. Receipts:
+411_anndata_write_api_2026-09-24.json and2026-09-24-anndata-fixed-guide.json.
+
+All nine private API drafts at3ee2a1809 are now reconstructed (11387documents
+per language). Hashes:411_private_api_drafts_2026-09-24.json. They contain known
+semantic errors/unresolved English blocks and are NOT accepted translations.
+12script rewrites, seven fresh-capture follow-ups and full locale/narration
+review remain.872tutorial reviews are stale and registered. No main/version
+operation or full-CI success is claimed. Incoming493private-helper groundwork
+is next to integrate before the final push; it has no public API/UI delta.
