@@ -3077,7 +3077,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +7 Timeflows nested helpers; source-bound catalogs exist in all locales.
     # +9 held-out validation entries with nine source-bound locale catalogs.
     # +12 inference/cursor/help/schema entries; matches the source extractor.
-    assert len(docs) == 11_520
+    assert len(docs) == 11_522
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

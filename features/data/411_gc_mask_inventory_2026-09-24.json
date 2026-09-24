@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "baseline": "f2b901aea9277aae22d6552a03df7df65e547266",
+  "source_head": "1f081cc5b101914cb31cc59723518af9ac36b225",
+  "before": {
+    "callables": 9524,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4107,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9519,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9531,
+    "variant_buckets": {
+      "1": 9517,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18942,
+    "required": 9750,
+    "signature_sha256": "11d08732c28a1db3f8fad90a5a6a86efd06a3577e02b7dee68d09ee24f5fe3c8"
+  },
+  "after": {
+    "callables": 9524,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4107,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9519,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9531,
+    "variant_buckets": {
+      "1": 9517,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18942,
+    "required": 9750,
+    "signature_sha256": "11d08732c28a1db3f8fad90a5a6a86efd06a3577e02b7dee68d09ee24f5fe3c8"
+  },
+  "added": [],
+  "removed": [],
+  "changed_signatures": {},
+  "exact_subtraction_restores_baseline": true,
+  "omissions_before": 2290,
+  "omissions_after": 2290,
+  "added_omissions": [],
+  "removed_omissions": [],
+  "api": {
+    "before": 11520,
+    "after": 11522,
+    "added": [
+      "spacr._gc",
+      "spacr._gc.collect"
+    ],
+    "removed": [],
+    "changed": [
+      "spacr.mask_io.load_mask",
+      "spacr.mask_io.save_mask",
+      "spacr.qt.gc_policy",
+      "spacr.qt.gc_policy.collect_once"
+    ]
+  },
+  "boundary_note": "Public callable inventory excludes private modules and private helpers. The API renderer includes documented private modules; its two new entries are spacr._gc and spacr._gc.collect. Existing public mask I/O raises documentation and GUI GC behavior are refreshed."
+}

@@ -317,6 +317,19 @@
       "source_sha256": "2d65096b1845f1ae059002ab68b0149714afd325e570ea1a9d0e7646956e5dd2",
       "text": "Dim whatever is behind the card."
     },
+    "2db34b29d5117bdd6664b8e607d378a352749b719ccf0256aecd7b6c7eb1e206": {
+      "source_blocks_sha256": [
+        "b64b5cb794c8e8acc8defc2657a6c4f2357dcba767981cca9209bcbedf5cce4f",
+        "ec50cc5ffde77df3cea7a3bbf66958152c1f7271efab32af296eca09d5b1b29d",
+        "7a5900473e8fab23227313f32a0d1a9b891b85317faddf61a280c8c9ac4fa924",
+        "324d5c78247de93ee6b68992135ef3022fb556f807facefa000cebbceb1d5b84",
+        "cfd8f7515c9c599f66a6c2b37f44d7e4ead2edb71600a26c5a79794459dc5093",
+        "d6a2524641a2d0d9ee5e0e90de92f21d72073093ec4b0e88f521a50784ca3093",
+        "b39277cd8d5b7ebbc51ffa37e1d43fdc1cfd8c5275d73cc9baa62393d7247144"
+      ],
+      "source_sha256": "2db34b29d5117bdd6664b8e607d378a352749b719ccf0256aecd7b6c7eb1e206",
+      "text": "Collect cyclic garbage on the GUI thread only.\n\nWHY THIS EXISTS, MEASURED. Pressing Run in the live preview with ``cpsam``\nproduced, on 2026-09-01::\n\n    QObject::killTimer: Timers cannot be stopped from another thread\n    QObject::~QObject: Timers cannot be stopped from another thread\n    Segmentation fault (core dumped)\n\nThose two lines, in that order, are reproduced exactly by\n``tests/qt/test_gc_runs_on_the_gui_thread.py`` with no spaCR code involved at\nall: build a QObject that owns a *running* QTimer, drop it into a reference\nCYCLE so only the collector can free it, then call ``gc.collect()`` from a\nworker thread. The collector runs the destructor **on whichever thread it\nhappens to be running on**, and Qt cannot stop a timer from there.\n\nThat is the whole bug, and nothing about it is specific to the preview. CPython\nruns an automatic collection whenever an allocation pushes a generation past\nits threshold -- so the thread that pays for a collection is simply the thread\nthat allocated most recently. A Cellpose pass allocates enormously in a worker\nthread, which makes that worker overwhelmingly likely to be the one that\ninherits the sweep, and therefore the one that destroys some unrelated widget\nthe GUI thread abandoned earlier. The crash lands nowhere near the code that\ncaused it, is timing-dependent, and names no file: it is the shape of defect\nthat survives a long time.\n\nWHAT THIS DOES. Automatic collection is switched off and driven from a QTimer\ninstead. That timer lives on the GUI thread, so every destructor the collector\nruns is run there -- which is the thread that owns the widgets.\n\nWHAT IT IS NOT. ``gc.disable()`` stops only *automatic* collection; an explicit\n``gc.collect()`` from a worker thread still collects on that worker. This\nmodule therefore removes the common cause rather than making the failure\nimpossible, and :func:`spacr.qt.thread_guard` still reports it if it recurs.\n\nMemory is NOT left to grow: the tick below reproduces CPython's own\ngenerational policy against the same thresholds, so collection happens at the\nsame frequency it otherwise would, on a different thread."
+    },
     "2dd19deff1c0a04d048741ada97f67f57ef80bf987ad958d5c8d87a688502f5e": {
       "source_blocks_sha256": [
         "f600cc2fe7525f0e7e0ecab51af90da6ec1f6afe497c36ea78ec1167fa625cec",
@@ -1119,6 +1132,19 @@
       "source_sha256": "806d469e7dade51420601194f4d72710b8c7479346a260cd366a5418e0e69d03",
       "text": "Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.\n\nUsually invoked internally by\n:func:`spacr.core.preprocess_generate_masks`, but callable directly\nwhen you only want the preprocessing half. Converts z-stacks to MIPs,\nrenames files into the Yokogawa/spacr layout, merges per-channel\nfolders into stacked ``.npy`` arrays with optional background\nsubtraction and percentile normalization, and (in ``test_mode``)\nemits example plots.\n\n:param settings: Preprocessing settings dict, canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_img_data`.\n    Key entries:\n\n    - ``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).\n    - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives\n      filename regex.\n    - ``custom_regex`` — override the built-in regex.\n    - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,\n      ``organelle_channel``, ``channels`` — channel selection.\n    - z-stacks are max-projected per field and channel during\n      ``_rename_and_organize_image_files``, before anything reaches\n      ``stack/``, so no setting gates it.\n    - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` and\n      the ``*_background`` cutoffs.\n    - ``normalize``, ``lower_percentile``, ``save_dtype``.\n    - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``,\n      ``plot``, ``cmap``, ``figuresize``.\n\n:returns: Tuple ``(settings, src)`` — ``settings`` with defaults\n    applied and ``src`` pointing at the folder containing the\n    generated ``stack/`` / ``channel_stack/`` outputs (the\n    downstream mask stage reads from here).\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import preprocess_img_data\n        settings = {\n            'src': '/data/plate01',\n            'metadata_type': 'cellvoyager',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'channels': [0, 1, 2, 3], 'normalize': True,\n        }\n        settings, src = preprocess_img_data(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — full pipeline\n    wrapper that calls this then generates masks."
     },
+    "8260ccb2e7b00119ded353cf87c0e41c411ce69cb86a12f62334640bde803dd7": {
+      "source_blocks_sha256": [
+        "609c20008691c09fcd3ad8c186ba72db3faab1dd11b47f183c44749d018afcca",
+        "df0b009eaf659461df443a37d107cd84cd963031a39246f153a9bf954f59fc62",
+        "d25c1727215e06bb46199a9fbf48b54bee3d6524c8df5bd36daffecb2c8de93c",
+        "e5b246eda003ccb3819f8d6b59415bc9d3580226ce3a043df2e7e39f2263b18d",
+        "22798595b73f662d7aaca9b3597f82c874c6ae514bda0488ae7563934d878541",
+        "41fe1081ba970c3fc0aa8a84c0418c113278f65a322ba69d515483f2ce2dc6a6",
+        "483fbf1fcc93e12618822b68e65f0db22da10c49099299eace6b0cbfc2e1d7fc"
+      ],
+      "source_sha256": "8260ccb2e7b00119ded353cf87c0e41c411ce69cb86a12f62334640bde803dd7",
+      "text": "Write a Cellpose mask to disk.\n\n:param path: destination — extension is optional. ``foo``,\n    ``foo.tif``, ``foo.npy`` all work.\n:param mask: 2-D integer mask; will be cast to uint16.\n:param fmt: force a format (``\"tif\"``, ``\"tiff\"``, or ``\"npy\"``).\n    Defaults to :data:`DEFAULT_FORMAT` (env-overridable).\n:returns: the resolved on-disk path.\n:raises ValueError: when an object id will not fit in uint16, or when\n    ``fmt`` names a format this module cannot write.\n\nAn id above 65535 is refused rather than cast. The cast wraps, and the\nfirst value it wraps to is 0 — background — so object 65536 would come\nback from disk fused with everything that was never segmented at all,\nand nothing downstream could tell that from a mask with one fewer object."
+    },
     "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5": {
       "source_blocks_sha256": [
         "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
@@ -1260,6 +1286,17 @@
       "source_sha256": "8ca337ae36217466a0e32bc24e1b184941486f4fd46e19093a21b7900e75ef30",
       "text": "Pairs of labels that look like one object cut in two.\n\nTHE RULE, and it is deliberately conservative: two labels are a\ncandidate when they touch, and the boundary they share is at least\n``share`` of the smaller one's perimeter. A cell lying against another\ncell shares a little of its edge; a cell the segmenter cut down the\nmiddle shares most of it.\n\nThis finds candidates. It does not merge them -- :func:`merge_halves`\ndoes, and only when asked, because a wrong merge destroys two objects\nto make one.\n\n:param mask: the label image.\n:param share: the fraction of the smaller object's perimeter that must\n    be shared. 0.25 was chosen as the default and is measured in the\n    tests rather than argued for here.\n:returns: pairs ``(low id, high id)``, each pair once."
     },
+    "8d4adc0dfa9b5ca30864a8e37b48df3c20372a174db14a487bd4f1c43c8e70b5": {
+      "source_blocks_sha256": [
+        "7c754fff38d8454b242c460dd903bf95ffcb6d3a7d5d9c121a672185d775bd72",
+        "f45e0454281e4d6e07c30ed3d5c2537b24234404d78af4ee34606c8890587934",
+        "1be6fdcfe3dabb11d864910ceb80abbcb13edbc22a83bdf6942f5ef825564892",
+        "e0410782131a1febdd4b83dbd1dd822626ab35b7396b375a27812b582b4425e2",
+        "fc3514a64ca246bc01fb0ec852f71f1c3009ecbd36c7bd4d035059d49a88b1f4"
+      ],
+      "source_sha256": "8d4adc0dfa9b5ca30864a8e37b48df3c20372a174db14a487bd4f1c43c8e70b5",
+      "text": "Read a Cellpose mask regardless of on-disk format.\n\n:param path: mask file or extensionless stem to resolve and load.\n\nAccepts a full path (``foo.tif`` / ``foo.npy``) OR a stem\n(``foo``) — in the stem case, tif → tiff → npy is tried and the\nfirst extant file is loaded.\n\n:returns: uint16 2-D array. Shape unchanged.\n:raises FileNotFoundError: when no matching file exists."
+    },
     "8d52c74e218e60482a3b2f942c883886c1aa2c2e840b77d3162743dd3e282060": {
       "source_blocks_sha256": [
         "877a6c61b362da77372a9b3e7f9462c22fcf9b55e07a1baf17a8a1e7c3ef075b",
@@ -1378,6 +1415,15 @@
       ],
       "source_sha256": "997c5043a34ef165c72112a202bcd4ea1b6d9630b2a485c572b1c9d6fd56adc6",
       "text": "Fine-tune the Cellpose-SAM (``cpsam``) segmentation model from images and paired masks.\n\n:param settings: dict of training settings; see\n    ``get_train_cellpose_default_settings`` for keys including ``src``,\n    ``model_name``, ``target_size``, ``n_epochs``, ``batch_size``,\n    ``learning_rate``, ``weight_decay``, and ``augment``.\n:returns: None. Saves the trained model under ``<src>/models/cellpose_model``,\n    named ``<model_name>_cpsam_e<n_epochs>_X<w>_Y<h>.CP_model``."
+    },
+    "9caaae68102b316e455637521e00817a60de906362892a6f76389ba49138fc8c": {
+      "source_blocks_sha256": [
+        "f533161821752649557f7c79658b873cd423b06489ae8c72441d3e8acb75cd0e",
+        "b3e47d13fdad75e306770b7af3e103a13cdbeb030e99dca5dea9501964921951",
+        "da3c9f58b89f38fe2aa1111e920c967096d7d4290148f354965b1f6a34681a78"
+      ],
+      "source_sha256": "9caaae68102b316e455637521e00817a60de906362892a6f76389ba49138fc8c",
+      "text": "Run at most one generation's collection, CPython's own policy.\n\nThe interpreter collects generation *n* when that generation's count\npasses its threshold, youngest first, and collecting a generation also\nclears the younger ones. Reproducing that here -- rather than calling a\nfull ``gc.collect()`` on every tick -- is what keeps the cost the same as\nit was before this module existed. A full sweep every second would walk\nevery live numpy array in the process.\n\n:returns: the generation collected, or ``-1`` when nothing was due."
     },
     "9d393915f1383bdfe4049d9a552ced48151733ee190ff73c2a311275447d1664": {
       "source_blocks_sha256": [
