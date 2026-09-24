@@ -17169,3 +17169,11 @@ Also corrected the IoU paragraph in all9translated READMEs, preserving the
 union denominator, vacuole terminology and0.864/0.5example. Source-bound
 technical review is recorded; no native-speaker signoff claimed. Both README
 guards pass after these corrections. Five-video pipeline remains running.
+
+2026-09-24 — IMPLEMENTATION: HOST MARKER KEY VALIDATION484/288
+summarize_tables rejects bool/fractional channel keys and duplicate canonical
+aliases instead of coercing/overwriting marker thresholds. Integer keys and
+JSON digit strings remain equivalent; malformed ratios raise ValueError.
+Parameter prose updated (signature/settings unchanged).5baseline failures
+fixed;45analysis/preview checks92.39%coverage plusJSONparity pass. Please
+refresh this API entry/translation; tutorials can keep ordinary integer keys.

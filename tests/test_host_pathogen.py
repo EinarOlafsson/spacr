@@ -110,3 +110,93 @@ def test_vacuole_overlap_refuses_ties_and_retains_unknown_objects():
     assert pd.isna(row['pathogen_id']) and row['pathogen_overlap_fraction'] == .5
     parent[:, 2] = 1
     assert vacuole_links(child, parent).iloc[0]['pathogen_id'] == 1
+
+
+@pytest.mark.parametrize('key', [False, True, .9, 1.0, -1, 'not-a-channel'])
+def test_marker_threshold_keys_cannot_be_coerced_to_another_channel(key):
+    cells, vacuoles, ref, settings = inputs()
+    with pytest.raises(ValueError, match='channel'):
+        summarize_tables(cells, vacuoles, ref,
+                         settings=dict(settings, hp_marker_thresholds={key: 2}))
+
+
+def test_threshold_aliases_cannot_silently_overwrite_each_other():
+    cells, vacuoles, ref, settings = inputs()
+    with pytest.raises(ValueError, match='duplicate'):
+        summarize_tables(cells, vacuoles, ref,
+                         settings=dict(settings, hp_marker_thresholds={0: 2, '00': 3}))
+
+
+def test_json_channel_keys_preserve_marker_assignments():
+    import json
+
+    cells, vacuoles, ref, settings = inputs()
+    expected = summarize_tables(cells, vacuoles, ref, settings=settings)
+    restored = summarize_tables(cells, vacuoles, ref,
+                                settings=json.loads(json.dumps(settings)))
+    for name in expected:
+        pd.testing.assert_frame_equal(restored[name], expected[name])
+
+
+@pytest.mark.parametrize('policy', [
+    {'hp_marker_channels': []}, {'hp_marker_channels': [True]},
+    {'hp_marker_thresholds': []}, {'hp_marker_thresholds': {2: 1}},
+    {'hp_marker_thresholds': {0: -1}}, {'hp_marker_thresholds': {0: float('nan')}},
+    {'hp_marker_thresholds': {0: None}},
+])
+def test_invalid_marker_policy_cannot_produce_states_or_change_inputs(policy):
+    cells, vacuoles, ref, settings = inputs()
+    before = [frame.copy(deep=True) for frame in (cells, vacuoles, ref)]
+    with pytest.raises(ValueError):
+        summarize_tables(cells, vacuoles, ref, settings=dict(settings, **policy))
+    for frame, original in zip((cells, vacuoles, ref), before):
+        pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('label', [0, -1, 1.5, None])
+def test_invalid_host_identities_are_refused(label):
+    cells, vacuoles, ref, settings = inputs()
+    cells['object_label'] = cells['object_label'].astype(object)
+    cells.loc[0, 'object_label'] = label
+    with pytest.raises(ValueError, match='identities|positive integers'):
+        summarize_tables(cells, vacuoles, ref, settings=settings)
+
+
+@pytest.mark.parametrize('role,column,message', [
+    (0, 'fieldID', 'identity columns'), (1, 'cell_id', 'explicit cell_id'),
+    (1, 'pathogen_channel_1_mean_intensity', 'Vacuole table is missing'),
+    (2, 'cytoplasm_channel_1_mean_intensity', 'Reference table is missing'),
+])
+def test_incomplete_tables_do_not_silently_shrink_the_analysis(role, column, message):
+    cells, vacuoles, ref, settings = inputs()
+    frames = [cells, vacuoles, ref]
+    frames[role] = frames[role].drop(columns=column)
+    with pytest.raises(ValueError, match=message):
+        summarize_tables(*frames, settings=settings)
+
+
+def test_missing_timepoint_cannot_become_a_separate_acquisition():
+    cells, vacuoles, ref, settings = inputs()
+    for frame in (cells, vacuoles, ref):
+        frame['timeID'] = '1'
+    ref.loc[0, 'timeID'] = None
+    with pytest.raises(ValueError, match='missing time identities'):
+        summarize_tables(cells, vacuoles, ref, settings=settings)
+
+
+@pytest.mark.parametrize('count', [-1, 1.5])
+def test_replication_rejects_negative_and_fractional_counts(count):
+    cells, vacuoles, ref, settings = inputs()
+    vacuoles['count'] = [count, 0, 1, 2]
+    with pytest.raises(ValueError, match='nonnegative integers'):
+        summarize_tables(cells, vacuoles, ref, settings=dict(settings, hp_count_column='count'))
+
+
+def test_parasite_host_disagreement_does_not_inflate_replication():
+    cells, vacuoles, ref, settings = inputs()
+    parasites = table([dict(object_label=1, pathogen_id=1, cell_id=2)])
+    result = summarize_tables(cells, vacuoles, ref, parasites, settings=settings)
+    assert result['vacuoles']['parasite_count'].tolist() == [0, 0, 0, 0]
+    assert result['orphan_parasites']['orphan_reason'].tolist() == ['host_identity_mismatch']
+    assert result['wells']['host_cells'].tolist() == [3]
+    assert result['wells']['infection_fraction'].tolist() == [2 / 3]

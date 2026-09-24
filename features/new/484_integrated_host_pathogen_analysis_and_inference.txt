@@ -129,3 +129,13 @@ it is no longer offered by Load test data. The product action now fetches
 real THP-1/RNF213 images/masks and fresh Measure output. Full provenance,
 verification and public archive details are recorded in492.164hosts/97vacuoles;
 no individual-parasite counts, hence replication unknown.
+
+2026-09-24 — Marker threshold identity validation
+Fixed channel-key coercion that accepted True/False or truncated0.9tochannel0.
+Threshold keys now require nonnegative integer identities (or JSON string
+forms); duplicate aliases such as0and'00' are refused. Nonnumeric thresholds
+raise the documented ValueError.5new tests reproduced the prior bug.45analysis/
+preview checks pass with92.39%module coverage; a separate JSON roundtrip check
+proves integer/string key equivalence. Added invalid identity/time/count and
+host-mismatch checks so ambiguous inputs cannot silently alter denominators.
+No new settings or API signatures; summarize_tables parameter prose updated.

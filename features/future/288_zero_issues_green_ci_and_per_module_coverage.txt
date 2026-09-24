@@ -5392,3 +5392,12 @@ enlargement; the original fill and aspect-ratio assertions remain. These full
 files pass39tests under CI-like limited fonts. Organism-hover stability passes
 all3species locally under those fonts, so its CI-only layout failure remains
 open. Protected Full/Minimum jobs still run; no replacement suite started.
+
+2026-09-24 — Host–pathogen marker policy and evidence guards
+Real bug reproduced: bool/fractional marker keys were coerced onto other
+channels, and duplicate canonical aliases overwrote thresholds. Strict channel
+identity validation fixes all5baseline failures.45host-analysis/preview checks
+pass at92.39%module coverage; JSON roundtrip parity passes separately. Tests
+also reject missing/invalid identities, absent marker columns, missing times,
+invalid replication counts and host/parasite disagreement without inventing
+counts or shrinking denominators. Thresholds/exemptions/baseline unchanged.

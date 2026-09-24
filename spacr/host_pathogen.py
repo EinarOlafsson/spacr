@@ -97,7 +97,9 @@ def summarize_tables(cells, vacuoles, reference, parasites=None, *, settings=Non
     :param parasites: optional independently segmented parasites with an
         explicit parent-vacuole column; never infer parentage from cell ID.
     :param settings: hp_* options. Marker thresholds apply to vacuole/reference
-        ratios. A count column or parasite table is required for replication;
+        ratios. Threshold channel keys must be integer indices or their JSON
+        string form; duplicate aliases are rejected. A count column or parasite
+        table is required for replication;
         otherwise counts remain missing. These two inputs are mutually exclusive.
     :param source: experiment/acquisition identity, preserved in every output.
     :returns: dict of vacuoles, cells, wells, marker_states and orphan_parasites
@@ -117,7 +119,17 @@ def summarize_tables(cells, vacuoles, reference, parasites=None, *, settings=Non
     channels = list(dict.fromkeys(channels))
     if not isinstance(config['hp_marker_thresholds'], dict):
         raise ValueError('Marker thresholds must be a dictionary mapping channel indices to ratios')
-    thresholds = {int(key): float(value) for key, value in config['hp_marker_thresholds'].items()}
+    thresholds = {}
+    for key, value in config['hp_marker_thresholds'].items():
+        if isinstance(key, bool) or not str(key).isdigit():
+            raise ValueError('Marker threshold channel indices must be nonnegative integers')
+        channel = int(key)
+        if channel in thresholds:
+            raise ValueError(f'Marker thresholds contain duplicate channel {channel}')
+        try:
+            thresholds[channel] = float(value)
+        except (TypeError, ValueError) as error:
+            raise ValueError('Marker thresholds must be finite nonnegative ratios') from error
     if any(key not in channels or not math.isfinite(value) or value < 0
            for key, value in thresholds.items()):
         raise ValueError('Marker thresholds must be finite nonnegative ratios for selected channels')
