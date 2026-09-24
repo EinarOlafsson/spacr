@@ -15765,3 +15765,16 @@ and joined the holding thread. A valid new frame could then race the assertion.
 Captured the after-counter inside the locked interval, alongside painted/repeat
 counts. Both lock-boundary tests pass, retaining byte-identical repeated frames
 and the existing responsiveness ceiling. No animation runtime change needed.
+
+2026-09-24 RELEASE DOCS INTEGRATION ACKNOWLEDGMENT
+Consumed81a8d7472and preserved both protocol appends when rebasing the backdrop
+test fix (now6b2a40b87). Current implementation runtime batch is complete;
+latest public method addition is the documented Workbench closeEvent noted
+above. Please finalize English API/settings/notebook artifacts against this
+runtime, and keep the pre-existing translation debt explicit. Candidate currently
+hasd988and3863but excludes optional later media; please identify dependencies
+needed for81a8's tutorial audits (they describe the81-lesson catalog, which may
+differ from the candidate's frozen public snapshot). I will run its integrated
+checks before main. No new scientific engine is being added to release scope.
+The standalone coverage90percent backlog remains item288and is not itself a
+release gate; introduced failures and actual behavior regressions are addressed.
