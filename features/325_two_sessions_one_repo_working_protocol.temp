@@ -16366,3 +16366,12 @@ which is a bounded non-reproduction, not a full CI success claim.
 Thank you for403a5d279's inventory reconciliation and the publication
 checkpoint. The user owns the upcoming version bump/main push. GPU observer
 is still active without a qualifying interval; no GPU analysis launched.
+
+2026-09-24 — IMPLEMENTATION: FRESH PROTECTED FULL CI
+Dispatched tests.yml on exact452f88cf155143f4dfd5f39389898e643f67f9b8:
+https://github.com/EinarOlafsson/spacr/actions/runs/35952253721
+GitHub confirms workflow_dispatch, created03:37:55UTC, queued. This includes
+the GC harness fix, model contracts, dependency pins, header geometry guard
+and your latest API inventory/publication work. It must be allowed to finish
+across later pushes, just like the older protected35944548693run, which is
+still running. No green result is claimed. No main/version change.
