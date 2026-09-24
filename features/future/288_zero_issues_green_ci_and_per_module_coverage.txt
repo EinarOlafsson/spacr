@@ -5142,3 +5142,15 @@ unproven, so this is not reported as a green coverage7rerun.
 Older protected35944548693is now terminal/failure, including its last minimum-
 dependency and full-control jobs. No need to keep polling that run. Fresh
 35952253721continues and remains protected across these fixes.
+
+2026-09-24 — COVERAGE DENOMINATOR RECONCILED TO642
+Compared setup.py-discovered package inventories directly: frozen candidate
+06a7de42ed49be873ec908f0c0fe6e0b9148c085has639modules; current implementation
+has642. The exact additions are spacr/qt/widgets/restoration_controls.py,
+spacr/_gc.py and spacr/_merged_names.py, with no removals. The ratchet's
+named additions and tests.yml --expected-file-count now agree at642.
+All10module-coverage ratchet checks pass in2.38seconds under4GiB.
+No baseline, per-module target, exemption, branch requirement or shard count
+changed. This repairs the inventory failure reported by fresh coverage1;
+it does not make missing/insufficient coverage acceptable. Log:
+/tmp/spacr-coverage-denominator-642.log.

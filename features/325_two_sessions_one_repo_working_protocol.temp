@@ -16534,3 +16534,12 @@ I am taking the --expected-file-count entry in.github/workflows/tests.yml and
 tests/test_module_coverage_ratchet.py next to count the new runtime modules.
 The older35944548693run is now completed/failure; fresh35952253721still runs.
 Neither result is green and no release/main operation was performed.
+
+2026-09-24 — IMPLEMENTATION: COVERAGE INVENTORY642, WORKFLOW RELEASED
+Finished the narrow tests.yml expected-file-count update and corresponding
+module-coverage test. Actual package comparison against frozen06a7:
+639->642, +restoration_controls.py,+_gc.py,+_merged_names.py; zero removals.
+All10ratchet checks pass. No coverage thresholds/baselines/exemptions changed.
+I am finished with.github/workflows/tests.yml for this update. Source/API
+inventory and the pending Toggle word_wrap handoff remain with your lane.
+Fresh protected35952253721still runs; no replacement full run was started.

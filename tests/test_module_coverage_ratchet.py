@@ -177,8 +177,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_639_not_asset_generators():
-    """The ratchet follows all 639 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_642_not_asset_generators():
+    """The ratchet follows all 642 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -418,9 +418,11 @@ def test_current_packaging_denominator_is_639_not_asset_generators():
         'spacr/plaque_growth.py', 'spacr/point_spread.py',
         'spacr/psf_measurement.py', 'spacr/psf_pipeline.py',
         'spacr/qt/widgets/psf_controls.py',
+        'spacr/qt/widgets/restoration_controls.py', 'spacr/_gc.py',
+        'spacr/_merged_names.py',
     }
     assert added_since_608 <= shipped
-    assert len(shipped) == 608 + len(added_since_608) == 639
+    assert len(shipped) == 608 + len(added_since_608) == 642
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -736,7 +738,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 604 -> 605: the installed Gate Editor volume view (f6e92893b).
     # 605 -> 606: the collapsible splitter (item 471).
     # 606 -> 608: the GUI scale and the preview scale (471 slice A).
-    assert "--expected-file-count 639" in combine_script
+    assert "--expected-file-count 642" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
