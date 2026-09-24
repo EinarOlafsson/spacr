@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=52_pipeline_graph>`__.
+`Module tutorial <../../../../../tutorials/#lesson=52_pipeline_graph>`__.
 

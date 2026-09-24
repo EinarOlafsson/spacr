@@ -22,5 +22,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/model_compare/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=21_model_compare>`__.
+`Module tutorial <../../../tutorials/#lesson=21_model_compare>`__.
 

@@ -35,5 +35,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/foreign/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=36_import>`__.
+`Module tutorial <../../../tutorials/#lesson=36_import>`__.
 

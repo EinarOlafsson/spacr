@@ -54,5 +54,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/measure/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=08_measure>`__.
+`Module tutorial <../../../tutorials/#lesson=08_measure>`__.
 

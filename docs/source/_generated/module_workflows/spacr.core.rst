@@ -35,7 +35,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/core/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=07_mask>`__.
+`Module tutorial <../../../tutorials/#lesson=07_mask>`__.
 
 Image UMAP
 ~~~~~~~~~~
@@ -75,7 +75,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/core/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=15_image_umap>`__.
+`Module tutorial <../../../tutorials/#lesson=15_image_umap>`__.
 
 Timelapse
 ~~~~~~~~~
@@ -107,5 +107,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/core/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=17_timelapse>`__.
+`Module tutorial <../../../tutorials/#lesson=17_timelapse>`__.
 

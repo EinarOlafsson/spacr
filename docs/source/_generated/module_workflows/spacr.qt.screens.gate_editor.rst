@@ -36,5 +36,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/gate_editor/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=64_gate_editor>`__.
+`Module tutorial <../../../../../tutorials/#lesson=64_gate_editor>`__.
 

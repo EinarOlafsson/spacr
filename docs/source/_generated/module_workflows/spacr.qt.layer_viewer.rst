@@ -21,5 +21,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/layer_viewer/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=57_layer_viewer>`__.
+`Module tutorial <../../../../tutorials/#lesson=57_layer_viewer>`__.
 

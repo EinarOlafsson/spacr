@@ -44,7 +44,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/ml/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=13_regression>`__.
+`Module tutorial <../../../tutorials/#lesson=13_regression>`__.
 
 Tabular Machine Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,5 +74,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/ml/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=11_classify_ml>`__.
+`Module tutorial <../../../tutorials/#lesson=11_classify_ml>`__.
 

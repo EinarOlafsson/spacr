@@ -40,5 +40,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/annotate/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=09_annotate>`__.
+`Module tutorial <../../../../../tutorials/#lesson=09_annotate>`__.
 

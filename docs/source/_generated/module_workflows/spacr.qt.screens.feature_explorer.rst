@@ -29,5 +29,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=65_feature_explorer>`__.
+`Module tutorial <../../../../../tutorials/#lesson=65_feature_explorer>`__.
 

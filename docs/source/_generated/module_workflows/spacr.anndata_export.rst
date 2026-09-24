@@ -26,5 +26,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/anndata_export/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=59_anndata_export>`__.
+`Module tutorial <../../../tutorials/#lesson=59_anndata_export>`__.
 

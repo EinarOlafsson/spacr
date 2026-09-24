@@ -25,5 +25,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/run_compare/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=50_run_compare>`__.
+`Module tutorial <../../../../../tutorials/#lesson=50_run_compare>`__.
 

@@ -30,5 +30,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/surrogate/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=70_explain_cv>`__.
+`Module tutorial <../../../tutorials/#lesson=70_explain_cv>`__.
 

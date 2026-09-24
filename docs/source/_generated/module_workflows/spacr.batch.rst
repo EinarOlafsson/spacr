@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/batch/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=37_batch>`__.
+`Module tutorial <../../../tutorials/#lesson=37_batch>`__.
 

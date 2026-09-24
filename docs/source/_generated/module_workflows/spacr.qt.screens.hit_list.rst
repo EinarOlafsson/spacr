@@ -24,5 +24,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/hit_list/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=48_hit_list>`__.
+`Module tutorial <../../../../../tutorials/#lesson=48_hit_list>`__.
 

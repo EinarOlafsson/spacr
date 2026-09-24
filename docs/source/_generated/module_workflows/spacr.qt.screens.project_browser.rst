@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/project_browser/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=45_project_browser>`__.
+`Module tutorial <../../../../../tutorials/#lesson=45_project_browser>`__.
 

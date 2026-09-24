@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/remote_execution/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=38_distributed_jobs>`__.
+`Module tutorial <../../../tutorials/#lesson=38_distributed_jobs>`__.
 

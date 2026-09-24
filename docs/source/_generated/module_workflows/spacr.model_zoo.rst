@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/model_zoo/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=22_model_zoo>`__.
+`Module tutorial <../../../tutorials/#lesson=22_model_zoo>`__.
 

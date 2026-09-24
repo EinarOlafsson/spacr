@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/data_manager/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=44_data_manager>`__.
+`Module tutorial <../../../tutorials/#lesson=44_data_manager>`__.
 

@@ -2,10 +2,28 @@
 import copy
 import json
 from pathlib import Path
+import re
+from urllib.parse import urljoin
 
 import pytest
 
 from tools import build_module_workflows as workflow
+
+
+@pytest.mark.parametrize('channel', ['', 'nightly/'])
+def test_api_tutorial_links_stay_in_their_documentation_channel(channel):
+    data = workflow.load()
+    generated = workflow.outputs(data)
+    for module in data['modules'].values():
+        if not module.get('lesson'):
+            continue
+        api = module['api_module']
+        text = generated[Path(f'docs/source/_generated/module_workflows/{api}.rst')]
+        target = next(link for link in re.findall(r'Module tutorial <([^>]+)>', text)
+                      if link.endswith('#lesson=' + module['lesson']))
+        base = 'https://einarolafsson.github.io/spacr/' + channel
+        page = base + 'api/' + api.replace('.', '/') + '/index.html'
+        assert urljoin(page, target) == base + 'tutorials/#lesson=' + module['lesson']
 
 
 def test_all_live_routes_and_existing_io_contracts_are_mapped():

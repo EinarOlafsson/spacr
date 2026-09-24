@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/run_journal/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=40_run_history>`__.
+`Module tutorial <../../../tutorials/#lesson=40_run_history>`__.
 

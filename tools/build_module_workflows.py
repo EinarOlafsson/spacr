@@ -321,9 +321,10 @@ def outputs(data):
         by_api.setdefault(module["api_module"], []).append(key)
     for api, keys in by_api.items():
         text = _heading("Workflow inputs and outputs", "-")
+        tutorial_root = "../" * (len(api.split(".")) + 1) + "tutorials/"
         for key in keys:
             text += module_rst(data, key).split("\n\n", 1)[1].replace(
-                "<tutorials/", "<https://einarolafsson.github.io/spacr/tutorials/")
+                "<tutorials/", "<" + tutorial_root)
         result[Path(f"docs/source/_generated/module_workflows/{api}.rst")] = text
     for key, lesson in data["tutorials"].items():
         payload = dict(lesson, schema_version=1, source=str(MAP_PATH),

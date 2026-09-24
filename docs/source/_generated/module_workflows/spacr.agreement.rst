@@ -30,5 +30,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/agreement/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=23_agreement>`__.
+`Module tutorial <../../../tutorials/#lesson=23_agreement>`__.
 

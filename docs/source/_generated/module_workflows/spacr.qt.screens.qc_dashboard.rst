@@ -28,5 +28,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/qc_dashboard/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=54_qc_dashboard>`__.
+`Module tutorial <../../../../../tutorials/#lesson=54_qc_dashboard>`__.
 

@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/feature_dict/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=62_feature_dictionary>`__.
+`Module tutorial <../../../tutorials/#lesson=62_feature_dictionary>`__.
 

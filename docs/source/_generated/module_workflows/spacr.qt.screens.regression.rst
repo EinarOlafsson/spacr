@@ -25,5 +25,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/regression/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=75_regression_diagnostics>`__.
+`Module tutorial <../../../../../tutorials/#lesson=75_regression_diagnostics>`__.
 

@@ -47,5 +47,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/classify/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=41_classify>`__.
+`Module tutorial <../../../tutorials/#lesson=41_classify>`__.
 

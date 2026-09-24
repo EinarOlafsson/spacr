@@ -26,5 +26,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/host_pathogen/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=85_host_pathogen>`__.
+`Module tutorial <../../../tutorials/#lesson=85_host_pathogen>`__.
 

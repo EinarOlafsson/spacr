@@ -33,5 +33,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/embeddings/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=77_embeddings>`__.
+`Module tutorial <../../../../../tutorials/#lesson=77_embeddings>`__.
 

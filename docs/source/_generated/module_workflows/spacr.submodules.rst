@@ -26,7 +26,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=24_plaque>`__.
+`Module tutorial <../../../tutorials/#lesson=24_plaque>`__.
 
 Recruitment
 ~~~~~~~~~~~
@@ -53,7 +53,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=25_recruitment>`__.
+`Module tutorial <../../../tutorials/#lesson=25_recruitment>`__.
 
 Invasion Assay
 ~~~~~~~~~~~~~~
@@ -80,7 +80,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=26_invasion>`__.
+`Module tutorial <../../../tutorials/#lesson=26_invasion>`__.
 
 Replication Assay
 ~~~~~~~~~~~~~~~~~
@@ -107,7 +107,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=27_replication>`__.
+`Module tutorial <../../../tutorials/#lesson=27_replication>`__.
 
 Cellpose Workbench
 ~~~~~~~~~~~~~~~~~~
@@ -137,7 +137,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=19_train_cellpose>`__.
+`Module tutorial <../../../tutorials/#lesson=19_train_cellpose>`__.
 
 Endodyogeny size proxy
 ~~~~~~~~~~~~~~~~~~~~~~

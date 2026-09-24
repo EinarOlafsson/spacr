@@ -20,7 +20,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=82_toxoplasma>`__.
+`Module tutorial <../../../../../tutorials/#lesson=82_toxoplasma>`__.
 
 Plasmodium spp.
 ~~~~~~~~~~~~~~~
@@ -41,7 +41,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=83_plasmodium>`__.
+`Module tutorial <../../../../../tutorials/#lesson=83_plasmodium>`__.
 
 Candida spp.
 ~~~~~~~~~~~~
@@ -62,5 +62,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=84_candida>`__.
+`Module tutorial <../../../../../tutorials/#lesson=84_candida>`__.
 

@@ -27,7 +27,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/deep_spacr/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=16_activation>`__.
+`Module tutorial <../../../tutorials/#lesson=16_activation>`__.
 
 Computer Vision
 ~~~~~~~~~~~~~~~
@@ -60,5 +60,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/deep_spacr/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=10_classify_cv>`__.
+`Module tutorial <../../../tutorials/#lesson=10_classify_cv>`__.
 

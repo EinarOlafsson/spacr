@@ -30,5 +30,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/ops_engine/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=76_ops>`__.
+`Module tutorial <../../../tutorials/#lesson=76_ops>`__.
 

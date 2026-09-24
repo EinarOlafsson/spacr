@@ -29,5 +29,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/dose_response/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=69_dose_response>`__.
+`Module tutorial <../../../../../tutorials/#lesson=69_dose_response>`__.
 

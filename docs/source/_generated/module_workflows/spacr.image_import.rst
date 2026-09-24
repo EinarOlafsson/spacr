@@ -26,5 +26,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/image_import/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=74_import_images>`__.
+`Module tutorial <../../../tutorials/#lesson=74_import_images>`__.
 

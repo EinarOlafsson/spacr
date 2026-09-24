@@ -28,5 +28,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/power/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=68_power_design>`__.
+`Module tutorial <../../../../../tutorials/#lesson=68_power_design>`__.
 

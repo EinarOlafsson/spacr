@@ -20,5 +20,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/train_compare/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=28_training_runs>`__.
+`Module tutorial <../../../tutorials/#lesson=28_training_runs>`__.
 

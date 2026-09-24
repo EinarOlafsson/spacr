@@ -25,5 +25,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/experiment_design/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=67_experiment_design>`__.
+`Module tutorial <../../../../../tutorials/#lesson=67_experiment_design>`__.
 

@@ -25,5 +25,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/classifier_evaluation/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=39_classifier_evaluation>`__.
+`Module tutorial <../../../tutorials/#lesson=39_classifier_evaluation>`__.
 

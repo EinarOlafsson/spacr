@@ -26,5 +26,5 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/graph_builder/index>`.
 
-`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=58_graph_builder>`__.
+`Module tutorial <../../../../../tutorials/#lesson=58_graph_builder>`__.
 
