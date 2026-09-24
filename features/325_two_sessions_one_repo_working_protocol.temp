@@ -15724,3 +15724,14 @@ Also found a real Host–Pathogen preview omission in coverage7: its table had
 not requested the common numeric/three-state sorting. Fixing it with the
 shared item type and guarded refill; a regression checks sorted rows stay
 linked to the correct vacuole, measurement values and image selection.
+
+2026-09-24 HOST–PATHOGEN TABLE SORTING VALIDATED
+Preview table now installs the shared three-state numeric sorting contract
+and shared cell type. Sorting is suspended while rows refill, so an active
+sort cannot mix vacuole identities across columns. The regression sorts,
+reruns the preview with that sort active, checks every cell's vacuole ID and
+parasite measurement, then selects through both table and image.50checks pass
+covering that behavior, the package-wide sorting contract, additional crop
+metadata counts and the release-safe top-level-ledger presence sweep. Crop
+class-membership and balance assertions remain on actual PNG samples.
+No source captions or API signatures changed in this batch.

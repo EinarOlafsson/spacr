@@ -10,13 +10,14 @@ import numpy as np
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QHBoxLayout, QLabel, QPushButton,
-    QSpinBox, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QSpinBox, QSplitter, QTableWidget, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
 from ..job_runner import JobRunner
 from .live_preview import _ZoomView, numpy_to_qpixmap
 from .preview_contract import LivePreviewContract, PREVIEW_RUN_TEXT, PREVIEW_CANCEL_TEXT
+from .sortable_table import install_sorting, table_item
 
 
 class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
@@ -92,6 +93,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         self._view.clicked.connect(self._image_clicked)
         self._splitter.addWidget(self._view)
         self._table = QTableWidget(self)
+        install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -238,16 +240,18 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
             columns.extend([(f'channel_{channel}_recruitment_ratio', tr('Channel {n} ratio', n=channel)),
                             (f'channel_{channel}_state', tr('Channel {n} state', n=channel))])
         self._table.blockSignals(True)
+        self._table.setSortingEnabled(False)
         self._table.clear()
         self._table.setColumnCount(len(columns))
         self._table.setHorizontalHeaderLabels([caption for _, caption in columns])
         self._table.setRowCount(min(500, len(vacuoles)))
         for row, (_, values) in enumerate(vacuoles.iloc[:500].iterrows()):
             for column, (key, _) in enumerate(columns):
-                item = QTableWidgetItem(_text(values[key]))
+                item = table_item(_text(values[key]))
                 item.setData(Qt.UserRole, int(values['vacuole_id']))
                 self._table.setItem(row, column, item)
         self._table.resizeColumnsToContents()
+        self._table.setSortingEnabled(True)
         self._table.blockSignals(False)
         cells = self._result['results']['cells']
         infected = int(cells['infected'].sum())
