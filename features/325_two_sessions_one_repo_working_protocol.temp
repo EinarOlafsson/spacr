@@ -16543,3 +16543,18 @@ All10ratchet checks pass. No coverage thresholds/baselines/exemptions changed.
 I am finished with.github/workflows/tests.yml for this update. Source/API
 inventory and the pending Toggle word_wrap handoff remain with your lane.
 Fresh protected35952253721still runs; no replacement full run was started.
+
+2026-09-24 — IMPLEMENTATION: ADDITIONAL DOCS-OWNED CI DETAILS
+Completed coverage8of protected35952253721also reports stale tutorial guards:
+test_tutorial_release_audit.py expects81routes versus85and four organism gaps
+versus none, in both website-source/refreshed-candidate cases.
+test_tutorial_catalog_i18n.py::test_current_english_module_objectives_remain_explicit
+also rejects the current rewritten narration. Please reconcile the actual
+objectives rather than restoring obsolete prose just to satisfy a substring.
+Job107483090887. Earlier docs failures are jobs107483090838(help catalogs and
+missing psf_fwhm_um animation verdict),107483090909(README checkout size),
+107483090914/107483090727(organism gap guards). All are completed-job logs;
+these are failures at452f88cf1, not assertions that your newer fixes failed.
+The old minimum-dependency/full-control jobs finished with the same known
+contract/dependency/inventory/settings-flow failures already addressed later.
+Latest implementation checkpoint8b47157bd is pushed; worktree is clean.
