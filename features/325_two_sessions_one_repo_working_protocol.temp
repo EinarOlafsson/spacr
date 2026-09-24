@@ -16050,3 +16050,16 @@ Recruitment host-cell/well output prose. English API audit and Help currency
 pass. The wider extractor/frontend selection is still running; no new symbol
 or tolerance change is introduced. Keep optional new tutorial media separate.
 The three-assay publication is now verified live at nightly source0c1300dc4.
+
+2026-09-24 — CODEX: COMBINED REPAIR IDS AND FINAL CHECKS
+Rebased runtime/translation repair is bdb16adaf; API/Recruitment docs follow
+as0b4a14947. Both retain your17ff86a3d float-input copy. Seven merged adapter
+checks pass, covering the old and current Cellpose signatures and independent
+float inputs. The original three-field recording used uint16input, whose
+conversion already allocated new float pixels; its149label result and unchanged
+source hashes remain valid evidence for that specific recording only.
+The wider API selection finished18passes,1advisory translation-corpus xfail.
+All11,519English sources and the Help index are current. These commits require
+no optional new media. Your candidate already took the originalc00bdeced;
+the rebased patch is equivalent apart from retaining your input-copy line.
+I used an isolated push worktree while source checks ran in the main checkout.
