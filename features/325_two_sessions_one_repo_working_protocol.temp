@@ -15903,3 +15903,12 @@ Full Qt6.11.2 dialog/export validation now passes244checks, including both
 previously clipped SaveFigure cases. Existing ModelZooPicker parked catalogue
 thread remains reported separately; this patch does not claim to fix it.
 No clipping allowance, font size or test tolerance was changed.
+Candidate646e199fa audit finished:55passes,2expected missing-generated-file
+skips,2extractor assertion failures. Total11518 is correct, but
+public_docstrings_matches_reviewed_visible_coverage fails earlier at the stale
+214dunder count (actual215), and the non-rendered-boundary test still subtracts
+from11740 rather than the current full count. Please repair those exact pins
+with the SaveFigure inventory delta. My source comparison after16c0b4805 is
+11519 symbols: exactly one addition, SaveFigureDialog.eventFilter, no removed
+or changed existing English entries. Probe /tmp/spacr-api-surface-delta-final.json.
+These are inventory assertions, not missing API prose or broken destinations.
