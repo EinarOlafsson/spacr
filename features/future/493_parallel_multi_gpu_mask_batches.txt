@@ -174,3 +174,12 @@ fields. Baseline reproduced early processing;24role/damage/worker cases now
 refuse before any worker call and preserve every input byte.141related tests
 pass. This protects ordinary adjustment too; parallel pipeline integration
 and finalized-mask provenance remain open.
+
+2026-09-24 — Adjustment uses actual cell IDs throughout
+Overlap queries previously used compact connected-component IDs while writes
+compared those numbers with original cell IDs. Nonconsecutive labels could
+therefore miss merges or affect a different object. The shared adjustment
+routine now compares/writes current IDs and compacts only its returned mask.
+Six baseline failures cover parasite, nucleus and shared-perimeter merges
+with IDs7/300in both orders; all now match the dense-label result and preserve
+the full foreground.147related tests pass. No thresholds/settings changed.

@@ -17202,3 +17202,10 @@ dimensions across every field before worker startup or any write, including
 available organelle masks.24new refusal cases;141related checks pass. Signature
 unchanged; updated raises prose should be included in your next API rebuild.
 This extends the existing filename preflight without loading full arrays.
+
+2026-09-24 — IMPLEMENTATION: SPARSE CELL ADJUSTMENT IDS493/288
+Fixed utils._merge_cells_based_on_parasite_overlap mixing compact component
+IDs with actual cell IDs. All three merge reasons now handle labels7/300in
+either order correctly;6reproduced failures fixed,147related checks pass.
+Private docstring expanded; no signature/settings/UI text change. Please
+include this with the latest adjust_cell_masks raises prose in API refresh.

@@ -177,6 +177,34 @@ def test_parasite_overlap_merge_with_organelle_mask_supplied():
     assert out[10, 8] == out[10, 30] == 1
 
 
+@pytest.mark.parametrize('reason', ['parasite', 'nucleus', 'perimeter'])
+@pytest.mark.parametrize('identities', [(7, 300), (300, 7)])
+def test_cell_adjustment_depends_on_geometry_not_numeric_label_ids(reason, identities):
+    from spacr.utils import _merge_cells_based_on_parasite_overlap
+
+    cells = _side_by_side_cells()
+    nuclei = np.zeros_like(cells)
+    parasites = np.zeros_like(cells)
+    if reason == 'parasite':
+        parasites[18:23, 17:23] = 1
+        nuclei[10:14, 8:12] = 1
+        nuclei[10:14, 26:30] = 2
+    elif reason == 'nucleus':
+        nuclei[15:25, 15:25] = 1
+    else:
+        nuclei[10:14, 8:12] = 1
+    sparse = np.zeros_like(cells)
+    for old, new in enumerate(identities, 1):
+        sparse[cells == old] = new
+    expected = _merge_cells_based_on_parasite_overlap(
+        parasites, cells.copy(), nuclei, None, perimeter_threshold=10)
+    actual = _merge_cells_based_on_parasite_overlap(
+        parasites, sparse, nuclei, None, perimeter_threshold=10)
+    assert set(np.unique(expected)) == {0, 1}
+    np.testing.assert_array_equal(actual, expected)
+    assert np.count_nonzero(actual) == np.count_nonzero(cells)
+
+
 # ---------------------------------------------------------------------------
 # process_mask_file_adjust_cell
 # ---------------------------------------------------------------------------

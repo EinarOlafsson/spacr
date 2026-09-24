@@ -5430,3 +5430,9 @@ focused local runs above90%; the full aggregate and ratchet are still open.
 all four mask roles, inline or pooled execution. Header preflight refuses
 these before work starts;141adjustment/utils checks pass. No threshold or
 coverage-baseline change.
+
+2026-09-24 — Sparse cell IDs no longer break adjustment
+Six reproduced failures fixed: the same geometry with labels7/300instead of
+1/2now has identical parasite/nucleus/perimeter merge output.147related utils
+checks pass; comparison and mutation no longer mix component IDs and stored
+cell IDs. Existing thresholds and connected-component return behavior remain.

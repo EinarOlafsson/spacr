@@ -8821,8 +8821,13 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
     return out.astype(np.uint16)
 
 def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold=5, perimeter_threshold=30):
-    """Merge cells that share a parasite/nucleus or a large fraction of perimeter."""
-    labeled_cells = label(cell_mask)
+    """Merge cells that share a parasite/nucleus or a large fraction of perimeter.
+
+    Overlap and perimeter decisions use the mask's current object IDs, including
+    nonconsecutive labels. Cell IDs are compacted only for the returned mask;
+    intermediate component IDs must never be used to index the original mask.
+    """
+    labeled_cells = cell_mask
     labeled_parasites = label(parasite_mask)
     labeled_nuclei = label(nuclei_mask)
     num_parasites = np.max(labeled_parasites)
@@ -8859,7 +8864,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
                 for other_label in overlapping_cell_labels[1:]:
                     cell_mask[cell_mask == other_label] = first_label
 
-    labeled_cells = label(cell_mask)
+    labeled_cells = cell_mask.copy()
     cell_regions = regionprops(labeled_cells)
     for region in cell_regions:
         cell_label = region.label
