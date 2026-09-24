@@ -17060,3 +17060,13 @@ setting, signature or translation changed.18selector/localization checks pass
 with limited fonts. Lazy-opening test now isolates the idle timer;14checks
 including actual idle builds pass. No API/tutorial update needed for settings;
 visual captures may now show the Reload button on the next row when narrow.
+
+2026-09-24 — IMPLEMENTATION: FASTER VOLCANO FAMILY PARSING288
+hits.family_labels now avoids redundant regex/token work for explicit terms;
+existing API/prose/settings and all correction-family semantics unchanged.
+1182old/new cases match;100tests plus79branch-covered checks pass. Profiled
+redraws improve0.404sto0.249s/12calls; original2xMatplotlib guard unchanged.
+Docs owner: Qt0 repeats the already-reported stale organism lesson-gap guard.
+Coverage0 adds two implementation-owned stale assertions (converter source
+spelling and old relabel advice), which I am handling. Qt2 shows a native
+crash in widget cleanup before macOS-menu role test; investigation remains.

@@ -5317,3 +5317,15 @@ while pumping GUI events under coverage. That opening-only test now defers
 the idle timer; the separate real idle-build suite remains enabled.14checks
 pass in88.62s. Baseline26layout/lazy/redraw checks also passed locally; the
 CI regression redraw performance failure remains under investigation.
+
+2026-09-24 — Volcano redraw profiling and family parsing
+Coverage7's41msredraw versus80msMatplotlib failed the unchanged2xspeed guard.
+Profiling found repeated pandas regex passes in hits.family_labels, including
+suffix inference for terms whose explicit gene/grna family already settles
+it. One pass now preserves nuisance-first/gene-before-guide precedence and
+only parses ambiguous brackets. Exact old/new equivalence on1182mixed terms;
+1215explicit-guide labels improve2.754msto0.532ms locally. Twelve instrumented
+redraws improve0.404sto0.249s.100hit/volcano/panel checks pass;79checks including
+the original speed assertion also pass under branch coverage. Added malformed,
+legacy, uppercase, conflicting-family and generator-input regression cases.
+No statistical family, API signature or benchmark threshold changed.

@@ -181,20 +181,21 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
     series = pd.Series(list(features), dtype=object).astype(str)
     if series.empty:
         return np.zeros(0, dtype=object)
-    tested = tested_family(series)
-    token = series.str.extract(_BRACKET.pattern, expand=False)
-    token = token.str.replace(r"^T\.", "", regex=True)
-    explicit_gene = series.str.contains(
-        r":gene\[", case=False, regex=True, na=False
-    ).to_numpy()
-    explicit_guide = series.str.contains(
-        r":grna\[", case=False, regex=True, na=False
-    ).to_numpy()
-    suffix_guide = token.fillna("").map(_is_guide_token).to_numpy(dtype=bool)
-    guide = np.where(explicit_gene, False,
-                     np.where(explicit_guide, True, suffix_guide))
-    return np.where(tested, np.where(guide, "grna", "gene"),
-                    "").astype(object)
+    labels = np.full(len(series), "gene", dtype=object)
+    for index, term in enumerate(series):
+        if NUISANCE_TERMS.search(term):
+            labels[index] = ""
+            continue
+        lower = term.lower()
+        if ":gene[" in lower:
+            continue
+        if ":grna[" in lower:
+            labels[index] = "grna"
+            continue
+        match = _BRACKET.search(term)
+        if match and _is_guide_token(match.group(1).removeprefix("T.")):
+            labels[index] = "grna"
+    return labels
 
 
 def coefficient_levels(frame: Optional[pd.DataFrame]) -> pd.Series:
