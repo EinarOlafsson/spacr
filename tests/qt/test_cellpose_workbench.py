@@ -119,7 +119,8 @@ def test_the_screen_is_named_for_the_loop_not_for_the_training_half():
 def test_the_line_under_the_title_says_what_src_means_on_this_tab(workbench):
     """One box meaning two folders is what the second tab exists to prevent."""
     training = workbench._header.instruction_label.text()
-    assert "train/images" in training and "train/masks" in training
+    assert "image folder" in training and "mask folder" in training
+    assert "images/masks" in training and "<src>/models" in training
     workbench._tabs.setCurrentIndex(1)
     applying = workbench._header.instruction_label.text()
     assert applying != training
@@ -182,16 +183,17 @@ def test_extending_the_propagation_map_extends_what_is_carried(monkeypatch):
     assert "background" in carried_setting_keys()
 
 
-def test_a_diameter_chosen_for_training_is_the_one_the_masks_are_made_at(
+def test_inference_diameter_survives_training_at_native_geometry(
         workbench):
-    """The loop is one run's settings, so the shared knobs follow the eye."""
-    _set(workbench.train_screen, "diameter", 55)
+    """Cellpose 4 trains at native geometry; inference size stays independent."""
+    workbench._tabs.setCurrentIndex(1)
+    _set(workbench.apply_screen, "diameter", 55)
+    workbench._tabs.setCurrentIndex(0)
+    trained = workbench.train_screen._settings_model.collect()
+    assert "diameter" not in trained
+    assert "rescale" not in trained
     workbench._tabs.setCurrentIndex(1)
     assert _read(workbench.apply_screen, "diameter") == 55
-
-    _set(workbench.apply_screen, "diameter", 80)
-    workbench._tabs.setCurrentIndex(0)
-    assert _read(workbench.train_screen, "diameter") == 80
 
 
 def test_a_knob_the_other_half_does_not_have_is_not_smuggled_into_it(

@@ -66,6 +66,8 @@ def test_every_exclusion_still_names_something_that_exists(line):
     notices.
     """
     pattern = line.lstrip("!").lstrip("/").rstrip("/")
+    if pattern in {"features", "proposals"} and not (REPO / pattern).exists():
+        pytest.skip("Development ledgers are intentionally absent from release trees")
     if "*" in pattern:                      # `*.pdf` and friends
         assert list(REPO.glob(pattern)), \
             f"exclusion {line!r} matches nothing in the tree any more"

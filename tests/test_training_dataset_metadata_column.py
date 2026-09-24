@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -141,8 +142,7 @@ def test_metadata_mode_selects_on_metadata_type_by(plate):
     assert sorted(os.listdir(test)) == ['c1', 'c2']
     per_class = len(FIELDS) * len(OBJECTS)
     for cls in ('c1', 'c2'):
-        kept = (len(os.listdir(os.path.join(train, cls)))
-                + len(os.listdir(os.path.join(test, cls))))
+        kept = sum(len(list((Path(root) / cls).glob('*.png'))) for root in (train, test))
         assert kept == per_class
 
 
@@ -168,10 +168,8 @@ def test_inner_lists_group_several_wells_into_one_class(plate):
         _settings(plate, class_metadata=[['c1', 'c2'], ['c3']]))
 
     assert sorted(os.listdir(train)) == ['c1_c2', 'c3']
-    both = (len(os.listdir(os.path.join(train, 'c1_c2')))
-            + len(os.listdir(os.path.join(test, 'c1_c2'))))
-    one = (len(os.listdir(os.path.join(train, 'c3')))
-           + len(os.listdir(os.path.join(test, 'c3'))))
+    both = sum(len(list((Path(root) / 'c1_c2').glob('*.png'))) for root in (train, test))
+    one = sum(len(list((Path(root) / 'c3').glob('*.png'))) for root in (train, test))
     # balance_to_smallest trims the two-well class down to the one-well class
     assert both == one == len(FIELDS) * len(OBJECTS)
 

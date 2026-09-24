@@ -3099,6 +3099,17 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "through.",
     },
     "analyze_plaques": {
+        "SCALE & TIME":
+            "Record the image scale in pixels per micrometer and the plaque "
+            "formation time in hours. Measured well diameters are saved in "
+            "pixels; a known physical well diameter can calibrate the image "
+            "scale. These values give physical meaning to plaque sizes.",
+        "EXPERIMENTAL GROWTH ESTIMATES":
+            "Optionally compare plaque sizes with an experimental reference "
+            "growth curve. An independently known scale is needed to estimate "
+            "time, or a known time to estimate scale: plaque size alone cannot "
+            "determine both. Estimates are approximate and require validation "
+            "for the parasite strain, host cells and imaging conditions.",
         "MODEL":
             "The expected plaque diameter, and whether previously written "
             "masks are reused instead of segmenting again. Plaques are far "

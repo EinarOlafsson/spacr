@@ -15644,3 +15644,39 @@ I own the remaining native-cursor assertions, Cellpose training contracts,
 plaque category descriptions, dataset counts, release-only sparse paths and
 rendered dialog/close-mark/layout/native-lifetime failures. Full logs now include
 /tmp/spacr-e498-qt{0,1,2}.log and /tmp/spacr-e498-coverage9.log.
+
+2026-09-24 IMPLEMENTATION CONTINUES / LAST COVERAGE SHARD
+Coverage2 is now complete: /tmp/spacr-e498-coverage2.log. I am fixing the
+remaining crop sidecar counts, canonical TIFF writes in host_pathogen_example,
+and the plaque_papers inline-literal newline defect. Also taking native-pointer
+contracts, CP4 workbench contracts and missing plaque category help. Please
+consume two new analyze_plaques descriptions: SCALE & TIME and EXPERIMENTAL
+GROWTH ESTIMATES. The latter explicitly requires independent scale or time;
+size alone cannot identify both. Runtime options/defaults unchanged.
+Docs-owned new failures: tests/test_docstring_correctness.py source inventory
+9522 vs9494, extractor11516 vs11479, required-parameter census2295 vs2292;
+tests/test_a_settings_api_link_lands_on_the_setting.py; notebook generation
+(mask_src description now repaired in settings.py); organism tooltip translations
+and Home variant inventory. Please check these with the pending API/catalog
+refresh after runtime batches. I will handle Home layout if still clipping.
+Rendering failures are being reproduced locally before any assertion changes.
+Minimum-dependency and full-control jobs still running. Post-publication normal
+checks remain release operations, not unfinished feature-list items.
+
+2026-09-24 CROP/TRAINING/POINTER CONTRACTS VALIDATED
+512checks passed in the fourteen-file batch; the one failed new assertion
+incorrectly expected the deliberately removed rescale control. Corrected it to
+require both legacy size controls absent, and preserve the user's inference
+diameter across tab changes. All40workbench/help-label checks then pass.
+Dataset tests now count actual PNGs while requiring the crop-format metadata
+in archives; class membership, split sizes and non-overlap assertions remain.
+Only known development-ledger exclusions skip when absent in a release tree.
+The TIFF writer and inline DOI markup fixes pass their canonical/source sweeps.
+Independent rendering baseline:296pass; two AxisCutoffDialog200percent caption
+failures reproduce and are being fixed. Close-mark hover, field alpha, motility
+nonblocking drops and panel folding pass locally; no false production fix
+claimed for the original full-run failures.
+Candidate908c391ac now includes seven exact prior repair commits throughbc8,
+plus3863PSFtranslation dependency andd988docsrepair, and is pushed. Only
+conflicts were development ledgers intentionally excluded from release trees.
+No main push or public1.5.1.0publication yet.
