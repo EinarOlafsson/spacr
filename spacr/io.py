@@ -2644,7 +2644,7 @@ def _npy_is_whole(path):
     return True, REASON_DONE
 
 
-def _inspect_normalized_archive(path):
+def _inspect_normalized_archive(path, *, field_axis=0):
     """Decide whether a normalised ``.npz`` archive is whole, without inflating its pixels.
 
     ``numpy.savez_compressed`` writes the zip directory last, so an archive
@@ -2657,6 +2657,8 @@ def _inspect_normalized_archive(path):
     coverage. Pixel arrays are not materialized or fully CRC-scanned.
 
     :param path: the ``.npz`` archive.
+    :param field_axis: axis of ``data`` named by the filenames vector; normally
+        zero, or the declared time axis for a time-stack archive.
     :returns: ``(ok, reason, fields, planes)``. ``reason`` is ``'done'`` when
         ``ok``. ``fields`` is the tuple of field stems the archive lists, or
         ``None`` when it is damaged or lists them as an object array, which is
@@ -2702,7 +2704,8 @@ def _inspect_normalized_archive(path):
                     if 'allow_pickle' not in str(exc):
                         raise
                     return True, 'done', None, planes
-            if not shape or names.ndim != 1 or names.size != shape[0]:
+            if (not shape or not 0 <= field_axis < len(shape)
+                    or names.ndim != 1 or names.size != shape[field_axis]):
                 return False, 'filenames count does not match data.npy fields', None, None
     except zipfile.BadZipFile as exc:
         return False, f'not a complete zip archive ({exc})', None, None
@@ -2712,6 +2715,65 @@ def _inspect_normalized_archive(path):
     fields = tuple(os.path.splitext(os.path.basename(str(name)))[0]
                    for name in np.asarray(names).reshape(-1))
     return True, 'done', fields, planes
+
+
+def _mask_batch_manifest(src, *, field_axis=0):
+    """Inventory immutable batch identities before assigning mask workers.
+
+    Inspect headers and filename vectors without inflating image arrays, then
+    hash each archive in bounded chunks. Reject ambiguous output ownership,
+    unsafe filenames, unreadable archives and inputs changed during inspection.
+    No inputs or outputs are modified and no model is loaded.
+
+    :param src: directory of prepared NPZ batches.
+    :param field_axis: data axis identified by the filenames vector.
+    :returns: JSON-compatible records in archive-name order, carrying absolute
+        paths, SHA256 digests, byte sizes, field filenames and channel counts.
+    :raises ValueError: if a batch cannot safely belong to one worker.
+    :raises FileNotFoundError: if there are no prepared batches.
+    """
+    import hashlib
+
+    root = Path(src).resolve()
+    paths = sorted(root / name for name in _listdir_visible(root)
+                   if name.endswith('.npz'))
+    if not paths:
+        raise FileNotFoundError(f'No prepared NPZ mask batches in {root}')
+    owners = {}
+    records = []
+    for path in paths:
+        before = path.stat()
+        ok, reason, fields, planes = _inspect_normalized_archive(
+            path, field_axis=field_axis)
+        if not ok or fields is None:
+            raise ValueError(f'Cannot dispatch {path.name}: {reason if not ok else "unreadable field identities"}')
+        with np.load(path, allow_pickle=False) as archive:
+            names = archive['filenames']
+            if names.dtype.kind != 'U':
+                raise ValueError(f'{path.name}: field filenames must be Unicode strings')
+            names = names.tolist()
+        if not names:
+            raise ValueError(f'{path.name}: batch contains no fields')
+        for name in names:
+            if (not name or name.startswith('.') or '/' in name or '\\' in name
+                    or ':' in name or not name.endswith('.npy')
+                    or '\x00' in name):
+                raise ValueError(f'{path.name}: unsafe field filename {name!r}')
+            identity = os.path.normcase(name)
+            if identity in owners:
+                raise ValueError(f'Field {name!r} belongs to both {owners[identity]} and {path.name}')
+            owners[identity] = path.name
+        digest = hashlib.sha256()
+        with path.open('rb') as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                digest.update(chunk)
+        after = path.stat()
+        if any(getattr(before, attr) != getattr(after, attr)
+               for attr in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
+            raise ValueError(f'Batch changed while building its manifest: {path}')
+        records.append({'path': str(path), 'sha256': digest.hexdigest(),
+                        'bytes': after.st_size, 'fields': names, 'planes': planes})
+    return records
 
 
 def _set_aside_damaged_stacks(stack_path):

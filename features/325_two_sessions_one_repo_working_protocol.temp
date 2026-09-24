@@ -16782,3 +16782,15 @@ Full-control107483090509 finished/failure on452f88cf1. Its eight unique
 failures are the already-repaired denominator, animation, README and tutorial
 checks. Current five-file run:46passed,2registered translation xfails.
 Coverage5107483091050 is still running. No new full CI dispatched.
+
+2026-09-24 — IMPLEMENTATION: MULTI-GPU493 INPUT MANIFEST GROUNDWORK
+Added private spacr.io._mask_batch_manifest(src, *, field_axis=0). It hashes
+prepared NPZs in bounded chunks and checks exclusive exact field ownership,
+unsafe output names, unreadable identities and input changes; image pixels
+are not inflated and source files are untouched. _inspect_normalized_archive
+now accepts keyword field_axis=0, preserving existing callers.66 archive/
+preprocessing/manifest tests pass. No GPU inference, settings/UI additions or
+parallel feature completion claimed.493now records this groundwork and keeps
+device selection, worker scheduling/cancellation/progress and full Mask/
+Cluster Distribution integration explicitly pending. API owner: these two
+private helper descriptions/signatures are the only documentation delta.

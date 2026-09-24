@@ -1,6 +1,7 @@
 493 — PARALLEL MULTI-GPU MASK BATCHES
 ====================================
-Status: PLANNED future feature, requested2026-09-23. Not implemented.
+Status: IN PROGRESS, requested2026-09-23. Batch-manifest groundwork implemented;
+device controls, worker scheduling and real multi-GPU validation remain open.
 Scope: Cluster Distribution and Mask Generation. Filed for later work;
 this request does not add a prerequisite to the1.5.1.0release plan.
 
@@ -33,3 +34,17 @@ one worker; preserve field identities and the existing mask/output layout.
 Implementation owns the scheduler, device binding and runtime controls.
 The separate documentation lane owns resulting API descriptions, settings
 help, tutorials and translations once the runtime contract is implemented.
+
+2026-09-24 — Prepared-input manifest and exclusive field ownership
+spacr.io._mask_batch_manifest now inventories prepared archives without
+materializing image pixels. Records contain absolute paths, archive SHA256,
+byte sizes, exact output filenames and channel counts. Duplicate fields
+within/across batches, paths escaping the mask folder, hidden outputs,
+unreadable/legacy pickled identities and mid-inspection file changes are
+refused before scheduling. Source archives are unchanged. The existing
+header inspector accepts an explicit field axis for time-stack manifests.
+66 manifest, archive-integrity and preprocessing checks pass. No GPU work
+was run and no parallel UI option is exposed yet. Remaining implementation:
+allocated-device discovery/selection, persistent per-device model workers,
+cooperative stop/resume and progress, serialization of shared QC/reporting,
+Mask/Cluster Distribution wiring and the real multi-GPU acceptance protocol.
