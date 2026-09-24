@@ -17,3 +17,29 @@ weights/settings recorded. Verify real image inference, contrast/shape/channel
 preservation and subsequent mask input. Resource limits and GPU idle rule apply.
 Coordinate settings API, tooltips, animations, translations and tutorials with
 the other session. Installation must respect backend environment separation.
+
+2026-09-24 — VERIFIED FIRST BACKEND AND GEOMETRY CONTRACT
+Primary sources checked: https://cellpose.readthedocs.io/en/latest/restore.html
+and https://cellpose.readthedocs.io/en/v3.1.1.1/_modules/cellpose/denoise.html .
+Cellpose-SAM does not supply this restoration API; use the already isolated
+Cellpose3 backend. DenoiseModel restores without segmenting, so its output can
+feed the existing Make Masks Compare/Apply chain. First useful choices are
+noise removal, deblurring and one-click restoration, each using cyto3 (cells)
+or nuclei weights. The model needs the approximate object diameter in pixels.
+Restored values are model/normalization output, not calibrated fluorescence.
+
+Do not silently wire the upsample models into same-sized mask editing: their
+output dimensions change when diameter is below the training diameter. Offer
+those only with an explicit coordinate/pixel-size contract. For the first
+same-grid integration, require finite float output and exact input dimensions,
+process selected channels independently, and retain source arrays unchanged.
+Cache models in the backend worker; use its existing serialized requests and
+cancellation/process teardown. Record package, model/weight identity, diameter,
+normalization, channel and device alongside the applied chain. Test real CPU
+inference before claiming the backend useful; no GPU needed for that proof.
+
+CARE (https://csbdeep.bioimagecomputing.com/doc/) and Noise2Void
+(https://github.com/juglab/n2v) remain candidates for appropriately trained,
+acquisition-specific models. They are not interchangeable ready-made organelle
+restoration weights. No implementation or biological validation is claimed by
+this research note. This work stays outside the1.5.1.0candidate.
