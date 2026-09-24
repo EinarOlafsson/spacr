@@ -77,3 +77,17 @@ stand-ins verify persisted masks, no unassigned outputs, one model load,
 no completion event after a failed save, and cooperative cancellation after
 one completed archive with all inputs retained. Parallel process dispatch,
 resume ledger, controls and actual multi-GPU execution remain open.
+
+2026-09-24 — Persistent process workers and cooperative stop
+Private spacr._mask_workers now balances disjoint archive lists by stored
+bytes and spawns one persistent model process per nonempty device assignment.
+Each child binds its environment before loading the generator, checks that
+exactly one GPU is visible, and forwards logs and completed-archive events.
+The parent reports independent per-device progress snapshots, rejects duplicate
+completion, detects exceptions/native crashes/missing final events, and stops
+peers cooperatively. Completed outputs and all prepared inputs are retained.
+72 worker/assignment/manifest/device/inventory checks pass; the new module has
+94.12% combined statement/branch coverage. Real spawned CPU workers verify
+concurrency and process isolation; this is not a real multi-GPU inference
+acceptance. Persistent resume provenance, shared finalization, controls and
+Mask/Cluster Distribution integration remain open.

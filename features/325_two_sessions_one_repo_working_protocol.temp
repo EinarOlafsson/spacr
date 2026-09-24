@@ -16896,3 +16896,14 @@ saved masks and cancellation between batches. API owner: update this public
 signature/docstring and new private helper inventory. No settings/UI added.
 This is the worker integration interface, not a parallel-execution claim;
 the scheduler/resume/control and hardware acceptance portions remain open.
+
+2026-09-24 — IMPLEMENTATION: MASK PROCESS WORKERS493
+Private spacr._mask_workers adds exclusive byte-balanced batch partitioning,
+spawned persistent workers, child-only GPU binding, queued logs/progress,
+cooperative stop and crash/failure detection. 72 checks pass,94.12% module
+coverage; source inventory643. No public settings/UI changed. CPU process
+stand-ins verify concurrency; actual multi-GPU inference is still untested.
+Resume provenance/shared finalization/control integration are next. Docs:
+private module inventory only for this batch; the preceding public SAM
+batch_paths/on_batch_done/run_qc signature update still applies. Version and
+main promotion remain with the maintainer.

@@ -177,8 +177,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_642_not_asset_generators():
-    """The ratchet follows all 642 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_643_not_asset_generators():
+    """The ratchet follows all 643 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -419,10 +419,10 @@ def test_current_packaging_denominator_is_642_not_asset_generators():
         'spacr/psf_measurement.py', 'spacr/psf_pipeline.py',
         'spacr/qt/widgets/psf_controls.py',
         'spacr/qt/widgets/restoration_controls.py', 'spacr/_gc.py',
-        'spacr/_merged_names.py',
+        'spacr/_merged_names.py', 'spacr/_mask_workers.py',
     }
     assert added_since_608 <= shipped
-    assert len(shipped) == 608 + len(added_since_608) == 642
+    assert len(shipped) == 608 + len(added_since_608) == 643
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

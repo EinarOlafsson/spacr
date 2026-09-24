@@ -5257,3 +5257,10 @@ unique failures: old module denominator, animation verdict, README size and
 five tutorial inventory/objective/gap checks. Current five-file recheck:
 46passed, two existing registered translation incompatibilities report-only.
 Coverage5107483091050 remains live; the protected run is not restarted.
+
+2026-09-24 — Multi-process mask worker coverage
+The source inventory is now643 with private spacr._mask_workers. Its spawned
+CPU protocol and device-binding checks pass alongside manifest, assignment
+and allocation checks:72passed in23.20s; module coverage94.12% including
+branches. No coverage threshold/exemption changed. Protected Coverage5 on
+35952253721 remains in progress; no replacement full run was started.
