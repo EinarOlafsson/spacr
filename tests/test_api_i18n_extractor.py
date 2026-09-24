@@ -35,7 +35,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "adb64fcaf42611b6ef69aad5c07735f04f8957bdf078448a4bc3022c1cffe335"
+    "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -223,7 +223,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # __call__ IS its interface, so it belongs on the page. Set-differenced
     # against 6ae5e1b36: +1 / -0.
     # ViewGate.__post_init__ is the one new documented special method.
-    assert len(dunders) == 214
+    # PSF validates its immutable kernel in one further documented member.
+    assert len(dunders) == 215
+    psf_validator = "spacr.point_spread.PSF.__post_init__"
+    assert psf_validator in dunders
     # The exact Make Masks animation registry is one new documented value.
     # Removing it reproduces the previous visible-member digest exactly.
     # Starplast's package identity is the only further assignment. Removing
@@ -231,13 +234,17 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert len(assignments) == 23
     assert "spacr._starplast.PYPI_PACKAGE" in assignments
     assert _sha256_lines(
-        [*(f"new_dunder\0{key}" for key in dunders),
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
+         *(f"new_constant_attribute\0{key}" for key in assignments)]
+    ) == "adb64fcaf42611b6ef69aad5c07735f04f8957bdf078448a4bc3022c1cffe335"
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
            if key != "spacr._starplast.PYPI_PACKAGE")]
     ) == "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
     assert "spacr.qt.widgets.make_masks_help.ANIMATIONS" in assignments
     assert _sha256_lines(
-        [*(f"new_dunder\0{key}" for key in dunders),
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
            if key not in {"spacr.qt.widgets.make_masks_help.ANIMATIONS",
                           "spacr._starplast.PYPI_PACKAGE"})]
@@ -1217,7 +1224,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Current PSF, preview and navigation additions are accounted by exact
     # source-key subtraction in 411_api_test_surface_2026-09-23.json.
     # English publication remains independent of incomplete locale catalogs.
-    expected = 11_518
+    # SaveFigureDialog.eventFilter is the only final release addition.
+    expected = 11_519
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1259,7 +1267,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_518
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_519
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1605,7 +1613,9 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # The nine ruler entries are rendered; the excluded set is unchanged.
     # Re-measured both sides on 2026-09-23: 11,740 before filtering and
     # 11,516 after. The exact 224 excluded IDs are retained in the report.
-    assert 11_740 - len(docs) == 224
+    # Re-measured after the two runtime repairs and SaveFigure.eventFilter;
+    # the exact excluded IDs still match the previous 224-member boundary.
+    assert 11_743 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

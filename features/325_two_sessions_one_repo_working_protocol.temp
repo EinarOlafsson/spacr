@@ -15946,3 +15946,13 @@ Three new native organism guide captures have completed. Plaque/Recruitment
 practical rewrites retain verified original frames and are rendering privately.
 The private AxisCutoff eventFilter does not enter the rendered English API;
 regeneration remains11,518entries. No denominator change is needed for it.
+
+The bounded final inventory repair is validated: both failing extractor tests
+now pass, the English audit verifies11519entries, and Help was regenerated
+with only the SaveFigure.eventFilter row added. Full/unfiltered census is
+11519/11743; all224excluded IDs match the previous exact set. The historical
+special-member fingerprints remain tested after excluding only PSF.__post_init__.
+Receipt features/data/411_final_release_inventory_2026-09-24.json.
+CI35940009116coverage6 failed only on the old Chinese nuclei_limit record,
+already fixed by76bb6ef8d. Its settings-table rerun passes40checks,11deliberate
+legacy-setting skips. No further failure is being hidden by this repair.

@@ -9377,6 +9377,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.sample_project.start_example', 'Load the example data of the module ``screen`` shows.'),
     ('spacr.qt.widgets.save_figure_dialog', 'Preview and save a figure styled for the file rather than for the screen.'),
     ('spacr.qt.widgets.save_figure_dialog.SaveFigureDialog', 'Preview and save an independently styled figure copy.'),
+    ('spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.eventFilter', 'Reserve the actual wrapped height of the page explanation labels.'),
     ('spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.preview', 'Return the current detached preview.'),
     ('spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.refresh', 'Rebuild and return the preview from the original figure.'),
     ('spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.save', 'Write the figure using the current export settings.'),
