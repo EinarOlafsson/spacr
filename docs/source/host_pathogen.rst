@@ -16,8 +16,12 @@ Try the real microscopy test data
 #. Set **Image channel** to 2 for Toxoplasma, 1 for RNF213 or 3 for CellMask.
    Leave the mask-plane selectors on **Auto**; the dataset includes the plane
    manifest. These display choices do not change the analysis channels.
-#. Select **Run** to analyze both fields. Compare the results with the supplied
+#. Turn **Live** off and expand **Actions** if the run controls are collapsed.
+   Select **Run** to analyze both fields. Compare the results with the supplied
    ``example_cells.csv``, ``example_vacuoles.csv`` and ``example_wells.csv``.
+
+Follow the `Host–Pathogen video walkthrough
+<tutorials/#lesson=85_host_pathogen>`_ for the complete example.
 
 The `Host–Pathogen dataset
 <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_

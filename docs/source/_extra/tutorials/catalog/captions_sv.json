@@ -2528,104 +2528,70 @@
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "Model Zoo: hitta modeller och granska deras ursprung",
+      "title": "Model Zoo: choose a model and try it on your images",
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Öppna det inbäddade modellbiblioteket och skanna en befintlig lokal cache. Skilj registrerade träningsuppgifter från okänt ursprung; Cellposes aktuella inkompatibilitet hindrar en styrkt prestandamätning.",
+      "description": "Open Model Zoo, find or download a checkpoint, inspect its details, and choose a small image set for a trial.",
       "objectives": [
-        "Hitta Model Zoo i Make Masks och skanna en lokal modellmapp.",
-        "Läs källa, typ, kontrollsumma och träningsuppgifter utan att förväxla okända metadata med validering.",
-        "Skilj modellhantering från nedladdning, träning och prestandamätning."
+        "Open Model Zoo and scan a local model folder.",
+        "Choose a model family and version, then inspect its details.",
+        "Run a small image trial and inspect the resulting masks and quality summaries."
       ],
-      "prerequisite": "spaCR 1.5.0.7 nightly. Inspelningen skannar en befintlig Cellpose-cache och väljer den ursprungliga cpsam-filen utan nedladdning, träning eller inferens. Använd din egen mapp, inte presentatörens personliga sökväg. Valda metadata saknar publicerad kontrollsumma, träningsdata och författare; inget härleds ur namnet. En separat hash visar bara att den lokala filen var oförändrad under inspelningen, inte dess ursprung. Model Zoos prestandamätning och Model Compare skickar invert, som Cellpose 4.2.1.1 inte stöder. Appfelet varken repareras eller kringgås här. Plaque-lektionen visar en verklig nedladdning och förhandsvisning. Ingen noggrannhetsjämförelse eller oberoende validering påstås.",
+      "prerequisite": "Extract the linked example and use its images folder for the three-field trial. Choose an installed Cellpose segmentation model, or download a suitable checkpoint through Model Zoo. For your own trial, prepare a few representative TIFF, PNG, NPY or NPZ images.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Model Zoo är modellbiblioteket inuti Make Masks. Öppna värdmodulen och sedan dess Model Zoo-kontroll. Lektionen visar det verkliga biblioteket och skanning av lokala modeller, inte ny träning eller en noggrannhetsmätning.",
+          "narration": "From Home, open Make Masks, then choose Model Zoo. Use this page to find a segmentation model and try it on a small image set.",
+          "hold_after": 0.7,
           "focus_modules": [
             "make_masks"
-          ],
+          ]
+        },
+        {
+          "visual": "03_current_catalogue_and_local_models",
+          "narration": "Click Choose folder and select your model directory to scan it. If you type the path instead, click Scan. Turn on the source headings you want to browse, such as Cellpose or local models.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_actual_cpsam_provenance",
+          "narration": "Select a model family and use its Version control to choose the checkpoint. Read the details for its image type, training information and local path. For a remote checkpoint, choose a Save to folder and click Download before trying it.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_three_verified_real_fields",
+          "narration": "Extract the linked example and choose its images folder under Test on fields. Set the field count to three. For your own images, start with a small set that includes typical fields and difficult cases.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_actual_test_started",
+          "narration": "Select the local segmentation model and click Test on fields. Wait for the trial to finish. Larger images and models can take longer, especially on a CPU.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_actual_preview_02",
+          "narration": "Select a result row to inspect its mask preview. Check boundaries, touching objects and missed objects against the image. Use the object count and quality flags to help find fields that need closer inspection.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_actual_benchmark_summary",
+          "narration": "Review the field summaries, then keep the chosen checkpoint path for your analysis module. To compare two different model families on the same images, select both rows and choose Compare the two selected. Use the version control to try another version of one family.",
+          "hold_after": 0.7,
           "related_lessons": [
+            "21_model_compare",
             "14_make_masks"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_model_library",
-          "narration": "Tabellen samlar publicerade poster och lokalt upptäckta filer. Läs modelltyp och källa tillsammans. Att en modell finns i listan betyder inte att den är nedladdad, testad på dina bilder eller validerad för ditt experiment.",
-          "focus": [
-            350,
-            210,
-            3450,
-            560
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_cache_path",
-          "narration": "Ange en befintlig modellmapp och tryck Scan, eller välj den med knappen bredvid. Här skannar vi den verkliga Cellpose-cachen. Använd din egen sökväg. Skanningen hittar filer och metadata; den tränar inga modeller och segmenterar inga bilder.",
-          "focus": [
-            350,
-            340,
-            3450,
-            410
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_scanned_models",
-          "narration": "Denna skanning visar åtta poster: publicerade fjärrmodeller och lokala viktfiler. Antalet beskriver den här datorn, inte en obligatorisk konfiguration. Välj den exakta filen; liknande namn garanterar inte samma vikter.",
-          "focus": [
-            350,
-            400,
-            3450,
-            380
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "05_selected_provenance",
-          "narration": "Den valda lokala filen har varken publicerad kontrollsumma eller registrerat träningsursprung i denna vy. Okänt betyder okänt. Namnet bevisar inte vilket träningsdataset som använts. Vår hash bekräftar att inspelningen lämnade filen oförändrad, inte vem som skapade den eller hur väl den fungerar.",
-          "focus": [
-            350,
-            1050,
-            3450,
-            210
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "06_download_controls_not_started",
-          "narration": "Nedladdningsområdet styr var en tillgänglig fjärrmodell sparas. Där finns även ett val för modeller utan publicerad kontrollsumma. En saknad kontrollsumma är inte verifiering. Denna lokala fil laddas inte ned igen. Plaque-lektionen visar en verklig nedladdning och förhandsvisning.",
-          "focus": [
-            350,
-            1220,
-            3450,
-            170
-          ],
-          "related_lessons": [
-            "24_plaque"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "07_benchmark_controls_not_run",
-          "narration": "Den nedre delen används för att testa bildfält och jämföra valda modeller. Det är andra uppgifter än att skanna biblioteket. Den aktuella Cellpose-argumentkonflikten hindrar oss från att påstå en lyckad prestandamätning här. Inga masker eller testvärden är påhittade. Håll representativa valideringsbilder åtskilda från träningsexempel när det reparerade flödet utvärderas.",
-          "focus": [
-            350,
-            1380,
-            3450,
-            650
-          ],
-          "related_lessons": [
-            "19_train_cellpose",
-            "21_model_compare"
-          ],
-          "hold_after": 0.7
+          ]
         }
-      ]
+      ],
+      "example_files": [
+        "Apply_Cellpose_stock_example.zip"
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "23_agreement",
@@ -2715,24 +2681,24 @@
       "id": "24_plaque",
       "number": 24,
       "slug": "plaque-assay",
-      "title": "Plaqueanalys",
+      "title": "Plaque Assay: count plaques and measure their areas",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "Återanvänd syntetiska masker, välj förhandsvisningens modell uttryckligen och kontrollera reversibla filter samt sparade tabeller.",
+      "description": "Open the synthetic example, choose saved masks or model segmentation, inspect a preview, and read the per-image and per-plaque results.",
       "objectives": [
-        "Skilja sparade masker från nya modellprediktioner.",
-        "Prova ett reversibelt filter utan ny segmentering.",
-        "Läsa antal och pixelareor utan påhittad kalibrering eller biologiska effekter."
+        "Open Plaque Assay from Toxoplasma and select the image folder.",
+        "Choose a model, inspect a preview and set area filters.",
+        "Run the analysis and inspect counts, areas and calibration in the output database."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
       ],
-      "prerequisite": "Hämta det SYNTETISKA exemplet och packa upp det i en ny mapp. Fyra TIFF-bilder och fyra masker behåller originalens byte; gamla resultat, inställningar och modeller ingår inte. Sätt Source till SYNTHETIC_plaque och stäng av Masks. De konstruerade objekten är 4, 3, 2 och 1, totalt tio, utan insamlade bilder eller fysisk kalibrering. Förhandsvisningens modell hämtas separat och kontrolleras mot publicerad kontrollsumma, inte som ett noggrannhetstest. Gränsen 26211 behåller två prediktioner; noll återställer fyra. Förhandsvisningen ärver inte automatiskt plaque_model. Ange en befintlig modell även när Masks är av. API: spacr.submodules.analyze_plaques. Ingen batch med nya masker eller biologisk validering påstås.",
+      "prerequisite": "Download and extract SYNTHETIC_plaque_example.zip. It contains four grayscale TIFF images and their saved label masks. Use a working copy when trying new segmentation. Have a local plaque checkpoint available or download one through Model Zoo. The synthetic example has no physical calibration.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öppna Plaque Analysis under Assays på Home. Lektionen använder fyra syntetiska bilder med konstruerade masker, inte insamlade infektionsbilder. Vi räknar sparade masker, provar en separat modellförhandsvisning och granskar den verkliga databasen utan att framställa undervisningsformer som biologiska resultat.",
+          "narration": "From Home, open Toxoplasma, then choose Plaque Assay. Start with a folder of plaque images. This walkthrough uses the linked synthetic example so you can practise selecting masks, adjusting the preview and opening the results.",
           "focus": [
             346,
             50,
@@ -2743,7 +2709,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Hämta det syntetiska exemplet nedan och packa upp det i en ny mapp. Sätt Source till mappen med de fyra TIFF-bilderna och undermappen masks. Bevara originalen; använd en annan kopia innan du provar segmentering som kan ersätta maskerna.",
+          "narration": "Download and extract the example. Set Source to SYNTHETIC_plaque, the folder containing the TIFF images and the masks subfolder. Keep a working copy if you plan to generate replacement masks.",
           "focus": [
             346,
             170,
@@ -2754,7 +2720,7 @@
         },
         {
           "visual": "04_setting_masks",
-          "narration": "Låt Masks vara av för att återanvända de medföljande maskerna. Antalen är fyra, tre, två och en. Om Masks slås på begärs segmentering: diameter, normalisering och modell påverkar då en annan beräkning. Att återanvända masker testar inte modellen.",
+          "narration": "Leave Masks off to analyse the supplied label masks. Switch Masks on when you want the selected model to segment the images first. For new segmentation, choose a plaque model and review its diameter and detection thresholds on a representative image.",
           "focus": [
             346,
             170,
@@ -2765,7 +2731,7 @@
         },
         {
           "visual": "08_setting_well_diameter_mm",
-          "narration": "Well detection är av eftersom varje undervisningsbild redan motsvarar ett synfält. Fysisk area kräver verklig brunnsgeometri och en känd storlek; ingetdera finns här. Lämna kalibreringen tom. Ett brunnsnamn, en gissad diameter eller en lyckad körning ger inte en millimeterskala.",
+          "narration": "Leave well detection off for this example. For images containing a whole plate, use well detection to separate the wells. If you know the image scale, enter pixels per micrometer; a known physical well diameter can also provide calibration. Record formation time in hours when it is known. Leave unknown calibration values unset.",
           "focus": [
             346,
             170,
@@ -2776,7 +2742,7 @@
         },
         {
           "visual": "05_setting_plaque_model",
-          "narration": "Plaque model behöver en tillgänglig modell även när masker återanvänds. Inspelningen börjar med en medföljande modell som redan finns. På en ny installation hämtar du plaquemodellen via Model zoo och anger dess lokala sökväg här. Förhandsvisningen har en separat modellväljare som vi kontrollerar sedan.",
+          "narration": "Set Plaque model to a local checkpoint. If you need one, open Model Zoo and download a plaque model, then enter its local path. The analysis resolves this model setting even when it reuses saved masks.",
           "focus": [
             346,
             170,
@@ -2787,7 +2753,7 @@
         },
         {
           "visual": "11_preview_settings_unmatched",
-          "narration": "Öppna Live preview och sedan Live settings. Kontrollera Model: den här versionen visar först den allmänna modellen, även om Plaque model pekar på en annan fil. Anta inte att förhandsvisningen och analysformuläret är synkroniserade. Välj uttryckligen samma modell på båda ställena innan nya masker skapas.",
+          "narration": "Open Live preview and Live settings. Check the selected model and image before running the preview. Match the model in the preview to the one you plan to use for the full analysis.",
           "focus": [
             1020,
             456,
@@ -2798,7 +2764,7 @@
         },
         {
           "visual": "12c_actual_download_verified",
-          "narration": "Välj Model zoo och plaquemodellen. Filen är cirka 1,2 gigabyte; välj därför en lämplig Save to-mapp och hämta den en gång. Inspelningens byte har kontrollerats mot den publicerade kontrollsumman. On this machine betyder att filen finns, inte att experimentet är validerat.",
+          "narration": "In Model Zoo, select the plaque model, choose a Save to folder and click Download. Wait until the model is available locally, then select that checkpoint for the preview. Keep its saved path for later runs.",
           "focus": [
             1025,
             568,
@@ -2809,7 +2775,7 @@
         },
         {
           "visual": "16_readable_preview",
-          "narration": "Välj den första syntetiska bilden och Run preview. Modellen hittar fyra objekt. View växlar mellan konturer och färgade masker; ingen visning mäter modellens noggrannhet. Detta är en ny segmentering, separat från de medföljande masker som användes i den avslutade analysen.",
+          "narration": "Choose an example image and click Run preview. Switch View between outlines and coloured masks to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
           "focus": [
             1510,
             1248,
@@ -2820,7 +2786,7 @@
         },
         {
           "visual": "18_actual_filter_changed",
-          "narration": "Höj Min area till 26211 pixlar i Live settings. De två minsta predikterade objekten tas bort. Filtret återanvänder masker i minnet utan att köra modellen igen. Ändra en inställning i taget så att du ser vilka objekt den tar bort.",
+          "narration": "Raise Min area to hide small predicted regions. Watch which objects disappear, and adjust the threshold to the smallest plaque you intend to measure. Change one setting at a time so its effect is clear.",
           "focus": [
             1980,
             286,
@@ -2831,7 +2797,7 @@
         },
         {
           "visual": "19_actual_filter_restored",
-          "narration": "Sätt Min area till noll igen: alla fyra objekt återkommer med exakt de ursprungliga pixlarna. Noll stänger av denna nedre areagräns. Förhandsvisningen skriver inte om inmatningsmasker eller resultatdatabasen; en snygg förhandsvisning är inte en slutförd batchanalys.",
+          "narration": "Lower Min area to bring smaller regions back; zero removes this lower area cutoff. Check the final preview and the batch settings before Run. A preview shows the selected image; Run produces the analysis outputs.",
           "focus": [
             3040,
             1570,
@@ -2842,7 +2808,7 @@
         },
         {
           "visual": "09_actual_completion",
-          "narration": "Maskåteranvändningen skriver en databas i mappen masks. Denna väg ger tabeller, inte en inbäddad graf, så ett tomt Figures-område bevisar inte ett fel här. Läs konsolen. AI förblir av; ett assistentsvar ersätter inte kontroll av de sparade resultaten.",
+          "narration": "Press Run and follow the console until the analysis finishes. With Masks off, the example reads the supplied labels and writes masks/plaques_analysis.db. The database contains the counts and areas for the images in Source.",
           "focus": [
             1510,
             170,
@@ -2853,7 +2819,7 @@
         },
         {
           "visual": "20_actual_database_help_route",
-          "narration": "Öppna Database browser från Help och välj plaqueanalysens databas i masks. Låt Edit mode vara av. Databasvisaren visar faktiskt sparade tabeller, inte en bild av påhittade resultat, och denna granskning ändrar inte databasens byte.",
+          "narration": "Open Help, then Database browser. Select plaques_analysis.db in the masks folder. Leave Edit mode off while inspecting the output, and choose a table from the table list.",
           "related_lessons": [
             "34_database"
           ],
@@ -2861,7 +2827,7 @@
         },
         {
           "visual": "21_actual_summary_table",
-          "narration": "Välj summary och identifiera varje rad efter filnamnet, inte dess position. Object count kommer från de medföljande maskerna: fyra, tre, två och en. Average size är den genomsnittliga märkta pixelarean. Control och treatment är godtyckliga undervisningsnamn, inte belägg för en behandlingseffekt.",
+          "narration": "Open summary for an overview by image. Match rows using their filenames. The supplied synthetic masks contain four, three, two and one objects. Average size reports their mean area in pixels.",
           "focus": [
             345,
             278,
@@ -2872,7 +2838,7 @@
         },
         {
           "visual": "22_actual_stats_table",
-          "narration": "Välj stats för antal plaques, medelarea och spridning per bild. Standardavvikelsen beskriver de enskilda plaqueareorna i bilden, inte ett osäkerhetsintervall för ett biologiskt experiment. Tolka räkningarna först när skala och segmentering har validerats på verkliga data.",
+          "narration": "Open stats to compare each image’s plaque count, mean area and area spread. The standard deviation describes the range of plaque sizes within that image. Use independent experimental replicates when comparing biological conditions.",
           "focus": [
             345,
             278,
@@ -2883,7 +2849,7 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "Välj details för att granska varje area. Kolumner för fysisk area är tomma eftersom kalibrering saknas. Spara bilder, masker, inställningar och resultat tillsammans, och använd oberoende experimentella replikat för biologiska jämförelser. Lektionen kontrollerar programvara på syntetiska former, inte infektion eller läkemedelseffekt.",
+          "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings. Experimental growth estimates additionally require a known scale to estimate time, or a known time to estimate scale; validate the reference curve for your assay.",
           "focus": [
             345,
             278,
@@ -2892,7 +2858,13 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "25_recruitment",
@@ -2901,19 +2873,18 @@
       "series": 3,
       "app_key": "recruitment",
       "section": "Assays",
-      "title": "Recruitment: kontrollera kompartmentkvoter med verkliga mätningar",
-      "description": "Kör en avgränsad analys av verkliga mättabeller, granska de aktuella filtren och figurerna och skilj mellan värdcellskvoter, brunnssammanfattningar och biologiska slutsatser.",
+      "title": "Recruitment: measure marker enrichment around parasites",
+      "description": "Choose a measured project, map the marker channel and conditions, set object filters, then inspect recruitment ratios by host cell and well.",
       "objectives": [
-        "Välj ett redan uppmätt projekt med länkade tabeller för celler, cellkärnor, patogener och cytoplasma.",
-        "Se till att målkanalen, kompletterande kvoter, plattmetadata och filter stämmer överens.",
-        "Tolka arkiverade överlagringar, värdcellsresultat, brunnsmedelvärden och felstaplar för standardavvikelse på rätt nivå.",
-        "Kontrollera de faktiskt exporterade identiteterna och beräkningarna i stället för att enbart förlita dig på ett meddelande om slutförande."
+        "Select a project containing linked cell, nucleus, pathogen and cytoplasm measurements.",
+        "Set the marker channel, plate conditions and object filters.",
+        "Run Recruitment and read the host-cell and well CSV results."
       ],
-      "prerequisite": "Använd ett redan uppmätt projekt och en ny arbetskopia. Inspelningen använder fyra verkliga bildfält från det arkiverade HeLa-siRNA-experimentet för handledningen: 453 cell-, 588 cellkärne-, 998 patogen- och 453 cytoplasmarader. ER-kanal 1 och kontrollbeteckningarna kommer från registrerade metadata, inte från oberoende biologisk validering. De ursprungliga tabellerna och bildarrayerna förblir oförändrade. Recruitment har varken en separat funktion för att ladda ned ett exempel eller en Live preview-kontroll; ta först fram och validera mätningarna.",
+      "prerequisite": "Start with a project from Measure containing measurements/measurements.db and linked cell, nucleus, pathogen and cytoplasm tables. Include merged images to display image overlays. The example uses an ER marker on channel 1; use the channel mapping and condition labels recorded for your own project.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öppna Recruitment i kategorin Assays på Home. Det här arbetsflödet beräknar intensitetskvoter mellan kompartment utifrån befintliga mätningar; det kör inte segmenteringen på nytt. Börja med ett uppmätt projekt vars cell-, cellkärne-, patogen- och cytoplasmaposter är länkade via giltiga objektidentiteter.",
+          "narration": "From Home, open Toxoplasma, then choose Recruitment. Use this analysis to compare marker intensity in parasite-associated regions with the surrounding host-cell cytoplasm. Begin with a project whose objects and intensity channels have already been measured.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -2921,7 +2892,7 @@
         },
         {
           "visual": "19_setting_src",
-          "narration": "Ställ in Source på en ny arbetskopia som innehåller measurements/measurements.db och de sammanfogade bilderna. Här kopierar vi fyra verkliga bildfält och bevarar alla valda rader och identiteter. Källan innehåller 453 celler, inte hela den ursprungliga plattan.",
+          "narration": "Set Source to the project folder containing measurements/measurements.db. Keep the cell, nucleus, pathogen and cytoplasm tables together. Include the merged image folder if you want image overlays.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2932,7 +2903,7 @@
         },
         {
           "visual": "19_setting_channel_of_interest",
-          "narration": "Välj 1 för Channel of interest, alltså det andra planet vid nollbaserad indexering. De arkiverade inställningarna anger detta som ER-signalen. Kontrollera dina egna bildinsamlingsmetadata; en rimlig kvot kan inte fastställa att du har valt rätt biologisk markör.",
+          "narration": "Set Channel of interest to the marker you want to measure. Channels use zero-based numbering: one means the second image plane. This example uses channel one for the ER marker. Choose the channel that matches your acquisition.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2943,7 +2914,7 @@
         },
         {
           "visual": "19_setting_channel_dims",
-          "narration": "Ställ in Channel dims på enbart 1 i det här exemplet. De aktuella kolumnerna med kompletterande kvoter skrivs över för varje angiven kanal, så en lista med flera kanaler kan göra att de beskriver en annan signal än huvudkolumnen för Recruitment. En enda matchande kanal undviker den tvetydigheten.",
+          "narration": "Set Channel dims to the channels needed for the auxiliary recruitment summaries. For a first run, use the same single channel as Channel of interest so the main ratio and additional intensity summaries are easy to compare.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2954,7 +2925,7 @@
         },
         {
           "visual": "19_setting_cell_chann_dim",
-          "narration": "Den registrerade tilldelningen av bildkanaler är cell 1, cellkärna 0 och patogen 3. Det här är inte de gamla kontrollerna för maskplan, som inte längre finns här. Bevara kanaltilldelningen tillsammans med mätningarna i stället för att kopiera värdena till ett annat experiment.",
+          "narration": "Check the cell, nucleus and pathogen channel mapping against the measured project. The example uses cell one, nucleus zero and pathogen three. Keep the mapping with your settings so overlays and filters refer to the intended signals.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2965,7 +2936,7 @@
         },
         {
           "visual": "19_setting_pathogen_plate_metadata",
-          "narration": "De tre gruppbeteckningarna kopplar kolumn 1 till positiv kontroll, kolumn 2 till negativ kontroll och kolumnerna 3 till 14 till screening. Den här delmängden innehåller bara fyra brunnar i de första tre kolumnerna. Beteckningarna är registrerade experimentannotationer, inte kontrollidentiteter som härletts från bilderna.",
+          "narration": "Enter the cell, pathogen and treatment labels, then map each label to its plate rows or columns. Only annotated wells enter the analysis. Match these assignments to your plate layout, including the positive and negative controls.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2976,7 +2947,7 @@
         },
         {
           "visual": "19_setting_pathogen_size_range",
-          "narration": "Exemplet använder cellareor mellan 3500 och 100000 pixlar, cellkärneareor mellan 700 och 4000 och patogenareor mellan 100 och 1000. Gränsvärdena ingår inte. Patogenarean summeras inom varje värdcell före det sista filtret; det är inte ett separat storlekstest för varje parasit.",
+          "narration": "Use the size ranges to exclude objects outside the areas you intend to analyse. Areas are in pixels, and the bounds are strict. Pathogen area is aggregated within each host cell for this analysis, so choose its range for the cell-level total.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2987,7 +2958,7 @@
         },
         {
           "visual": "19_setting_nuclei_limit",
-          "narration": "Tillåt högst en cellkärna och tio patogener per värdcell. Gränserna för antalet underordnade objekt används före de senare areafiltren. Här tar gränsen på en cellkärna bort 103 celler från tabellsammanfogningen. Dessa celler har faktiskt cellkärneposter i den ursprungliga tabellen, trots att den generella konsolvarningen antyder en lucka i databasen.",
+          "narration": "Set Nuclei limit and Pathogen limit to control which host cells are retained. A nuclei limit of one keeps single-nucleus cells. Raise a limit to include cells with more associated objects, then inspect how many cells remain.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -2998,7 +2969,7 @@
         },
         {
           "visual": "19_setting_nucleus_intensity_range",
-          "narration": "Filtrering efter cellintensitet är avstängd. Använd −1 och 65536 för cellkärne- och patogenintensitet: Gränssnittet behåller dessa uttryckliga gränser, och varje använt medelvärde i källan har oberoende kontrollerats ligga inom intervallet för 16 bitar utan tecken. Därför tar gränserna inte bort några rader i det här exemplet.",
+          "narration": "Start with broad intensity ranges so you can inspect the initial results. Narrow a range when you have a defined intensity-based selection rule. Target intensity minimum applies an additional cutoff to the marker’s cell intensity.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3009,7 +2980,7 @@
         },
         {
           "visual": "19_setting_pathogen_intensity_range",
-          "narration": "Justera inte dessa gränser enbart utifrån deras namn. Med den här kanaltilldelningen läser det aktuella cellkärneintensitetsfiltret kanal 3 och patogenfiltret kanal 1. De breda intervall som visas undviker ytterligare uteslutningar; de är ingen rekommendation för att välja positiva celler i en annan datamängd.",
+          "narration": "Check the channel used by each intensity filter before narrowing its bounds. With the example’s mapping, the nucleus intensity filter uses channel three and the pathogen intensity filter uses channel one. Keep the broad example ranges while learning the workflow.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3020,7 +2991,7 @@
         },
         {
           "visual": "19_setting_cells_per_well",
-          "narration": "Cells per well är 10 här, men tröskeln använder den valda källans cellantal före analysfiltren, inte det slutliga antalet kvarvarande celler. Minimikravet för målintensiteten kräver också att cellens 95:e percentil i kanal 1 överstiger 1. Det här är filter för råmätningar, inte normalisering eller trösklar för statistisk signifikans.",
+          "narration": "Set Cells per well to the minimum source-cell count required for a well to remain in the analysis. This setting filters wells, while the object filters select cells. Inspect the final retained counts as well as the threshold.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3031,7 +3002,7 @@
         },
         {
           "visual": "19_setting_plot_nr",
-          "narration": "Låt Plot vara på. I den aktuella implementationen inkluderar Plot nr 0 den första arkiverade bilden i uppräkningen, inte nödvändigtvis det tidigast insamlade bildfältet; Recruitment-diagrammen skapas separat. Det finns ingen interaktiv förhandsvisning av segmentering på den här skärmen. Använd de egna arbetsflödena för direkt förhandsvisning i Mask eller Measure innan du förlitar dig på mätningarna.",
+          "narration": "Enable Plot to display available image overlays and use Plot number to limit how many are shown. Keep Plot control enabled if you want the control-intensity figures. Use the plots to check channel choices and filtering before interpreting the ratios.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3046,34 +3017,12 @@
         },
         {
           "visual": "21_batch_running",
-          "narration": "Tryck på Run och följ den faktiska konsolutmatningen. Den här avgränsade beräkningen använder de lokala mättabellerna och kräver varken en AI-leverantör eller ett modellträningsjobb. Vänta tills analysen och figurgenereringen är klara innan du granskar de exporterade resultaten.",
+          "narration": "Press Run. Follow the console as the module joins the measurements, applies conditions and filters, calculates ratios and writes the results. Wait until the analysis finishes before opening the output tables.",
           "hold_after": 0.7
         },
         {
-          "visual": "25_recruitment_figure_00",
-          "narration": "Granska den verkliga arkiverade bilden och dess sparade masköverlagring. Areorna för dess märkta objekt skiljer sig från mättabellen. Registrerad filtrering och sammanslagning kan förklara skillnaden, men vi har inte rekonstruerat de exakta historiska maskerna. Överlagringen ger sammanhang, inte bevis för att en viss visad gräns gav en viss Recruitment-kvot.",
-          "hold_after": 0.7,
-          "focus": [
-            1300,
-            230,
-            2520,
-            1060
-          ]
-        },
-        {
-          "visual": "25_recruitment_figure_01",
-          "narration": "Diagrammen över kompartmentintensitet sammanfattar kvarvarande värdceller. Trots att etiketterna säger by PV har den aktuella inläsningsfunktionen redan grupperat patogenmätningarna inom varje cell. Den beräknar medelvärdet av patogenernas medelintensiteter utan areaviktning; tolka inte raderna som oberoende parasitofora vakuoler eller mätningar över sammanslagna pixlar.",
-          "hold_after": 0.7,
-          "focus": [
-            1300,
-            230,
-            2520,
-            1060
-          ]
-        },
-        {
           "visual": "25_recruitment_figure_02",
-          "narration": "Huvudvärdet för Recruitment dividerar värdcellens aggregerade medelintensitet för patogener med dess medelintensitet för cytoplasma i kanal 1. Ytterligare paneler använder percentilmätningar eller mätningar i periferin eller utanför. Dessa kvotaxlar börjar vid 1 och kan därför inte visa alla värden under 1; granska de numeriska exporterna när du bedömer utarmning eller låga kvoter.",
+          "narration": "Inspect the recruitment plot. The main value divides the host cell’s aggregated pathogen mean intensity by its cytoplasm mean intensity on the selected marker channel. Values above one indicate enrichment relative to that reference. Read the numeric exports for ratios below the plotted range or invalid denominators.",
           "hold_after": 0.7,
           "focus": [
             1450,
@@ -3084,7 +3033,7 @@
         },
         {
           "visual": "25_recruitment_figure_04",
-          "narration": "Varje brunn beräknar medelvärdet av sina kvarvarande cellers kvoter i stället för att dividera brunnsmedelintensiteter med varandra. Diagrammet beräknar sedan medelvärdet av dessa brunnsvärden per försöksbetingelse. Felstaplarna visar standardavvikelsen mellan brunnar, inte konfidensintervall. Två positiva kontrollbrunnar kan ge en skattning av spridningen, men enstaka brunnar för negativ kontroll och screening kan inte. Den här lilla, obalanserade demonstrationen påvisar ingen behandlingseffekt.",
+          "narration": "Inspect the well summary and compare the control conditions. Each well averages its retained cell ratios; condition plots summarize those well values. Error bars show between-well standard deviation. The cell table represents host cells with aggregated pathogen measurements.",
           "hold_after": 0.7,
           "focus": [
             1450,
@@ -3095,48 +3044,22 @@
         },
         {
           "visual": "26_recruitment_console_counts",
-          "narration": "Den faktiska körningen behåller 223 värdcellsrader och fyra brunnsrader. Vi kontrollerar oberoende de exakta identiteterna, aggregeringarna av underordnade objekt, 16 kvotkolumner och brunnsmedelvärdena mot de privata källtabellerna. Ett Finished-meddelande ensamt skulle inte bevisa att dessa sammanfogningar eller beräkningar är korrekta.",
+          "narration": "Open results/cells.csv for retained host-cell measurements and results/wells.csv for well summaries. Keep both files with the saved settings. Check cell counts, condition labels and finite ratios before comparing experiments, and use independent wells as the experimental replicates.",
           "hold_after": 0.7,
           "focus": [
             1300,
             620,
             2510,
             960
-          ]
-        },
-        {
-          "visual": "26_recruitment_console_counts",
-          "narration": "Spara results/cells.csv och wells.csv tillsammans med de sparade inställningarna och dokumentationen av källans ursprung. Patogenarea och patogenantal i brunnstabellen är medelvärden per kvarvarande cell, inte totaler. Lutningskolumnerna innehåller konstanter, inte skattningar från en modellanpassning. Granska nämnare nära noll och icke-finita värden innan du drar slutsatser.",
-          "hold_after": 0.7,
-          "focus": [
-            1300,
-            620,
-            2510,
-            960
-          ]
-        },
-        {
-          "visual": "30_ai_unsent_question",
-          "narration": "AI-reglaget kan skicka en fråga till en konfigurerad assistent. Den här inspelningen skriver bara ett utkast till en fråga och varken skickar den eller genererar ett svar. Granska leverantörskonfigurationen och integritetsskyddet innan du delar konsol- eller bildkontext; ett assistentsvar validerar inte experimentet.",
-          "hold_after": 0.7,
-          "focus": [
-            1300,
-            1320,
-            2520,
-            560
-          ]
-        },
-        {
-          "visual": "26_recruitment_console_counts",
-          "narration": "I Python kör spacr.submodules.analyze_recruitment samma analys från en dictionary med inställningar och returnerar cell- och brunnstabellerna. Håll den demonstrerade beräkningen åtskild från biologisk validering: Kontrollera bildinsamlingskanaler, segmenteringens ursprung, experimentella enheter och lämpliga kontroller innan du använder den i din egen screening.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "08_measure",
-            "54_qc_dashboard"
           ]
         }
-      ]
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "26_invasion",
@@ -3692,19 +3615,18 @@
       "series": 4,
       "app_key": "report",
       "section": "Help",
-      "title": "Report: granska och dela sparade resultat utan att köra analysen igen",
-      "description": "Skapa en rapport från det verkliga External Masks-exemplet, skilj slutförd bearbetning från saknade kvalitetsunderlag och granska den fristående HTML-filen före delning.",
+      "title": "Report: create a document from project results",
+      "description": "Choose a completed project, select the output format and figure limit, then generate and read its report.",
       "objectives": [
-        "Hitta Report under Help och granska en separat kopia av ett befintligt projekt.",
-        "Skilj registrerade bearbetningsstatusar, otillgängliga kvalitetskontroller och saknad dokumentation av körningens ursprung.",
-        "Skapa HTML med de faktiska kontrollerna för format, figurgräns och utdata.",
-        "Granska sparade tabeller, listade vektorfigurer och inställningar utan att hävda en ny analys eller automatisk döljning av privata uppgifter."
+        "Choose a completed project and inspect its available report sections.",
+        "Set the format, figure limit and output filename.",
+        "Generate the report and inspect its results, settings and provenance."
       ],
-      "prerequisite": "Använd det verkliga projektet med två bildfält från External Masks, 103 celler och tillhandahållna celletiketter. Inspelningen använder en fullständig privat kopia, kontrollerad byte för byte, för att skydda det verifierade projektet. En tidigare direkt skanning av källan skapade en tom SQLite-WAL-fil och en hjälpfil för delat minne utan att ändra befintliga data. En skrivskyddad analys garanterar inte att SQLite avstår från att skapa administrativa filer. Varken analysflödet eller kvalitetskontrollen körs igen. Ingen körningslogg motsvarar den privata kopian. De 103 cytoplasmaraderna duplicerar cellregioner, inte ett oberoende kompartment. Denna Report-demonstration har ingen separat testdatanedladdning, direktförhandsvisning av segmentering eller interaktion med AI.",
+      "prerequisite": "Start with a completed spaCR project containing its saved settings, measurements and figures. You can reuse the project from the External Masks tutorial. Report collects files already present in the project.",
       "scenes": [
         {
           "visual": "00a_help_report_menu",
-          "narration": "Öppna Help och sedan Report. Verktyget samlar befintliga projektfiler och resultat i ett dokument; det kör inte segmentering, mätningar eller kvalitetsanalyser igen. Det nås via Help, inte som en fristående Home-ruta.",
+          "narration": "Open Help, then Report. Use this tool to collect a completed project’s results, figures and settings into a document.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -3713,7 +3635,7 @@
         },
         {
           "visual": "02_existing_project_picker",
-          "narration": "Klicka på Choose run folder… och välj den privata kopian av det slutförda External Masks-projektet. Den innehåller två insamlade bildfält och deras uppmätta resultat. Kopian bevarar alla originalfiler, och det verifierade källprojektet förblir oförändrat under hela inspelningen.",
+          "narration": "Click Choose run folder and select your project. For this example, use the two-field project from External Masks, keeping its measurements, settings and figures together.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -3721,7 +3643,7 @@
         },
         {
           "visual": "03_actual_completion_not_qc_pass",
-          "narration": "Läs det gröna Complete-meddelandet noggrant efter skanningen. Det säger att varje registrerat bearbetningssteg har behandlat alla sina objekt. Det bekräftar slutförd bearbetning, inte att segmenteringen är korrekt eller att kvalitetskontrollen har godkänts.",
+          "narration": "Read the processing status after the scan. Complete means the recorded processing steps finished. Review the available quality-control results separately when assessing the analysis.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3732,7 +3654,7 @@
         },
         {
           "visual": "04_read_only_missing_sections",
-          "narration": "Avsnittslistan visar tillgänglighet; den är ingen checklista för att välja vad som ska ingå. Här finns fem av åtta avsnitt. Körningens ursprung, Segmentation QC och Plate QC är otillgängliga, och förklaringarna står kvar i rapporten i stället för att försvinna.",
+          "narration": "Check the section list to see which project artifacts are available. A missing section remains labelled in the report. Add the relevant analysis outputs to the project if you need that section.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3743,12 +3665,12 @@
         },
         {
           "visual": "05_actual_output_format_choices",
-          "narration": "De faktiska alternativen under Format är HTML, PDF och Both. Vi behåller HTML i den här demonstrationen. PDF beskrivs som en återgivning med matplotlib; det utlovar inte samma sidlayout som i webbläsaren. Bara HTML genereras och granskas i inspelningen.",
+          "narration": "Choose HTML, PDF or Both under Format. HTML opens in a browser; PDF provides a document version. This example uses HTML.",
           "hold_after": 0.7
         },
         {
           "visual": "06_actual_figure_cap",
-          "narration": "Sätt Embed at most till tre figurer. Det begränsar inbäddade rasterfigurer. Projektet innehåller i stället sex vektor-PDF:er, som Report listar utan att bädda in. En högre gräns skulle inte omvandla dessa PDF:er till bildförhandsvisningar.",
+          "narration": "Set Embed at most to limit the number of raster figures included in the document. Vector PDFs are listed as source files rather than embedded previews. Use a smaller limit for a compact report.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3759,12 +3681,12 @@
         },
         {
           "visual": "07_separate_output_picker",
-          "narration": "Klicka på Choose output… och välj ett nytt HTML-filnamn utanför källprojektet. Gränssnittet har inga kontroller för titel, författare eller uteslutning av privata uppgifter. Granska sökvägar och metadata före delning; Report döljer dem inte automatiskt.",
+          "narration": "Click Choose output and enter the destination filename. Check that the selected format and extension agree. Before sharing the report, review any project paths and metadata it includes.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_report_written",
-          "narration": "Klicka på Generate report och vänta på bekräftelsen att filen har skrivits. Denna körning skapar bara den valda HTML-filen i utdatamappen. Open kan lämna den till datorns visningsprogram; här granskar vi exakt den filen direkt i Chrome utan att klicka på Open.",
+          "narration": "Press Generate report and wait for the written-file confirmation. Open the saved HTML file in a browser to inspect the result.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3775,25 +3697,12 @@
         },
         {
           "visual": "browser_01_report_top_completion_and_contents",
-          "narration": "Det verkliga dokumentet öppnas som en lokal HTML-fil utan anrop efter externa resurser. Innehållslänkarna identifierar de åtta avsnitten. Banderollen behåller slutförandemeddelandet och anger noll av sex inbäddade figurer; den döljer inte saknade underlag.",
+          "narration": "Use the contents links to jump between sections. Start with the processing summary, then review figures, result tables and saved settings.",
           "hold_after": 0.7
-        },
-        {
-          "visual": "browser_02_run_status",
-          "narration": "Run status återger den faktiska measure_crop-registreringen: två objekt försöktes, två lyckades och noll misslyckades. Vi har inte skapat en påhittad slutförandepost. Antalen beskriver bearbetade bildfält, inte cellantal eller ett vetenskapligt valideringsvärde.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "browser_03_provenance",
-          "narration": "Ingen loggförd körning hänvisar till den kopierade mappen. Rapporten förklarar att versionsuppgifterna som visas i stället beskriver datorn som genererar rapporten, inte ett rekonstruerat ursprung för analysen. Saknade segmenterings- och plattkvalitetskontroller är också synliga: otillgänglig betyder inte godkänd.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "54_qc_dashboard"
-          ]
         },
         {
           "visual": "browser_06_figures",
-          "narration": "Key figures listar alla sex käll-PDF:er och förklarar varför de inte bäddas in. Sökvägarna identifierar figurer före och efter filtrering samt bildutsnitt för båda fälten. Se External Masks för de verkliga figurerna; rapporten rasteriserar dem inte.",
+          "narration": "Open Key figures to find the project’s figures. Follow the listed file locations for vector PDFs, or inspect embedded raster previews when available.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -3801,7 +3710,7 @@
         },
         {
           "visual": "browser_07_statistics",
-          "narration": "Statistics and result tables visar 103 cellrader, lika många cytoplasmarader och PNG-länkar. I detta exempel med enbart cellmasker duplicerar cytoplasman cellregionerna. Lägg inte ihop tabellerna som oberoende celler. Databassummorna innehåller inställningar och andra administrativa rader.",
+          "narration": "Review Statistics and result tables for the available object tables and their row counts. This cell-only example has matching cell and cytoplasm regions, so treat them as measurements of the same cells.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -3810,19 +3719,15 @@
         },
         {
           "visual": "browser_09_settings_first_native_disclosure",
-          "narration": "Fäll ut det faktiska avsnittet med sparade inställningar för att granska förhandsvisningen. Värdena kommer från projektets inställningsfil, inte från en återställd körningslogg. Radantalet bevisar inte att varje inställning är unik, och inspelningen läser inte upp varje rad.",
+          "narration": "Expand Saved settings to inspect the configuration retained with the project. Keep the report together with the project files when sharing an analysis that refers to external figures.",
           "hold_after": 0.7
-        },
-        {
-          "visual": "browser_10_appendix",
-          "narration": "I Python samlar spacr.report.collect_report ett Report-objekt. build_report samlar data och skriver önskat format och returnerar en lista med utdatasökvägar. Använd gränssnittet eller API:et för att dela sparade underlag med deras begränsningar. Inget av dem ersätter saknad kvalitetskontroll, fastställer biologisk giltighet eller tar bort känsliga metadata åt dig.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "34_database"
-          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "30_plate_queue",
@@ -3831,19 +3736,18 @@
       "series": 4,
       "app_key": "queue",
       "section": "Data and batch runs",
-      "title": "Plate Queue: kör, stoppa mellan jobb och fortsätt",
-      "description": "Kör två separata upprepningar av det verifierade Recruitment-exemplet, kontrollera sparade resultat och skilj ett kontrollerat stopp från oprövad återställning efter krasch.",
+      "title": "Plate Queue: run several prepared projects",
+      "description": "Add the current project or drop prepared folders into a queue, run jobs in order, and continue after a controlled stop.",
       "objectives": [
-        "Importera en validerad konfiguration och hitta Plate queue under Help.",
-        "Lägg till aktuella inställningar och en förberedd projektmapp som separata jobb.",
-        "Se sekventiell behandling, stoppa mellan jobb och fortsätt utan att upprepa lyckade jobb.",
-        "Kontrollera siffror och ta bort slutförda köposter utan att radera projekten."
+        "Add prepared projects with their saved module settings.",
+        "Run the queue and stop between jobs.",
+        "Find each project’s results and clear completed queue entries."
       ],
-      "prerequisite": "Gör först Recruitment-handledningen. Dess verifierade mätdata från fyra bildfält kopieras till två mappar: samma insamlade data, inte oberoende plattor eller biologiska replikat. Varje mapp innehåller measurements/measurements.db och settings/recruitment_settings.csv. Första CSV-filen importeras via den riktiga filväljaren; den andra mappen dras till kön. Ingen simulerad jobbkörning, modell eller AI-förfrågan används. Plate Queue har ingen egen Load test data eller liveförhandsvisning. Import CSV demonstreras inte: den skapar nu Mask-jobb, inte jobb för valfria moduler. Långa etiketter kan kapas; kontrollera fullständiga sökvägar och inställningar innan du lägger till jobb. Kraschåterställning och nya försök med misslyckade jobb är inte verifierade.",
+      "prerequisite": "Prepare a project and its saved module settings. For practice, use two copies of the Recruitment example in separate folders; they contain the same data and are not biological replicates.",
       "scenes": [
         {
           "visual": "00a_import_recruitment_settings",
-          "narration": "Börja med det validerade Recruitment-exemplet. Vi kopierade mätdatabasen från fyra bildfält till två separata projektmappar med varsin inställningsfil. Det är två upprepningar av samma verkliga data, inte oberoende plattor. Välj Import settings i Recruitment och öppna första mappens CSV.",
+          "narration": "Prepare the first project in its analysis module. In Recruitment, choose Import settings and open the project’s settings CSV. The example uses two separate copies of the same measured data to practise running several jobs.",
           "hold_after": 0.7,
           "related_lessons": [
             "25_recruitment"
@@ -3851,17 +3755,17 @@
         },
         {
           "visual": "00b_current_recruitment_settings",
-          "narration": "Konsolen bekräftar att inställningarna laddats. Kontrollera källa och kanalindelning före tillägg; varje begärt värde jämfördes efter import. Recruitment-handledningen visar figurer, konsol och förhandsvisning. Kön bedömer inte om dina biologiska val är lämpliga.",
+          "narration": "Check Source, the channel mapping and the condition labels. Save the settings you want the queue to use, then leave this project open.",
           "hold_after": 0.7
         },
         {
           "visual": "01_help_queue",
-          "narration": "Öppna Help och sedan Plate queue. Det gemensamma verktyget öppnas från menyn, inte en ny Home-ruta. Nuvarande köhanterare kör ett jobb i taget; skärmen saknar val av antal arbetare och återupptagningspolicy.",
+          "narration": "Open Help, then Plate queue. The queue runs one item at a time in the listed order.",
           "hold_after": 0.7
         },
         {
           "visual": "03_added_replay_1",
-          "narration": "Välj Add current plate. Första raden sparar en kopia av Recruitment-konfigurationen vi just laddade. Kontrollera modul och källa före körning. Tabellen visar identifierare, modul, etikett, status och förfluten tid; den är ingen fullständig inställningsredigerare.",
+          "narration": "Choose Add current plate. A new row stores the current module and settings. Check its module, source and label before starting the queue.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3872,7 +3776,7 @@
         },
         {
           "visual": "03_added_replay_2",
-          "narration": "Dra den andra förberedda projektmappen till kön. Dess sparade Recruitment-inställningar identifierar modulen och den släppta mappen blir källan. Båda raderna visar queued. Separata mappar skiljer resultaten åt; att lägga till samma mapp två gånger ger inte den isoleringen.",
+          "narration": "Drag another prepared project folder onto the queue. Its saved settings identify the module, and the dropped folder becomes its source. Use separate project folders when each job needs separate output files.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3883,7 +3787,7 @@
         },
         {
           "visual": "04_first_job_running",
-          "narration": "Välj Run queue. Första jobbet blir running medan det andra förblir queued. Det är verklig Recruitment-bearbetning, inte simulerad förloppsvisning. Listan följer jobb men visar inte varje mellanliggande bild eller bearbetningssteg.",
+          "narration": "Choose Run queue. The first row changes to running while later items remain queued. Watch the status and elapsed time to follow progress.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3894,7 +3798,7 @@
         },
         {
           "visual": "05_stop_requested",
-          "narration": "Tryck Stop under första jobbet. Köhanteraren slutför aktuellt jobb och stoppar före nästa. Det är inget omedelbart avbrott: vänta tills det aktiva jobbet avslutats i stället för att anta att dess resultat redan slutat ändras.",
+          "narration": "Press Stop when you want the queue to finish its current item and pause before the next one. Wait until the active job finishes.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3905,7 +3809,7 @@
         },
         {
           "visual": "06_stopped_between_jobs",
-          "narration": "Första raden visar nu success och den andra fortfarande queued. Välj Run queue igen för att bara behandla det återstående jobbet. Vi verifierade att första jobbets tidsstämplar inte ändrades. Detta kontrollerade stopp bevisar inte återställning efter en datorkrasch.",
+          "narration": "The completed row now says success and the next row remains queued. Choose Run queue again to continue with the remaining item.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -3916,33 +3820,30 @@
         },
         {
           "visual": "07_both_jobs_finished",
-          "narration": "Båda jobben visar success. Varje projekt innehåller CSV-resultat för celler och brunnar: tvåhundratjugotre kvarvarande celler i fyra brunnar. Objektidentiteter och rekryteringskvoter kontrollerades oberoende mot mätningarna; en grön status ensam bevisar inte korrekta siffror.",
+          "narration": "When both jobs finish, open each project’s output folder. For Recruitment, inspect the cells and wells CSV results. Use Recruitment directly when you want its figure workflow; this queue does not display or save those plots.",
           "hold_after": 0.7,
           "focus": [
             450,
             160,
             2120,
             420
-          ]
-        },
-        {
-          "visual": "07_both_jobs_finished",
-          "narration": "Plot var aktiverat i sparade inställningar, men denna köhanterare visar eller sparar inte Recruitment-figurerna. Figurhanteringen visas i modulens handledning. Kön har heller ingen AI-samtalspanel; ingen AI-förfrågan eller modellkörning behövdes här.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "25_recruitment"
           ]
         },
         {
           "visual": "08_finished_records_cleared",
-          "narration": "Clear finished tar bort slutförda köposter, inte projektmappar eller resultat. Vi bevarade registreringen före rensning och kontrollerade att båda projekten fanns kvar. För skript hanterar PlateQueue i Qt-modulen för plattkön beständiga jobbposter; det är inte själva Recruitment-analysfunktionen.",
+          "narration": "Choose Clear finished to remove completed entries from the list. Their project folders and saved results remain available.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "25_recruitment"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "31_external_masks",
@@ -3952,19 +3853,18 @@
       "app_key": "external_masks",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "External Masks: mät befintliga celletiketter utan ny segmentering",
-      "description": "Återanvänd verkliga mikroskopibilder och befintliga celletiketter, granska deras tilldelningar, förhandsgranska utan att skriva projektdata och verifiera ett nytt spaCR-projekt med beräknade mätningar. Skilj samtidigt visningsutsnitt och duplicerad cytoplasma från oberoende biologiska belägg.",
+      "title": "External Masks: measure images with supplied object labels",
+      "description": "Assign image and mask files, preview their pairing, then create a measured spaCR project with object tables and crops.",
       "objectives": [
-        "Hitta External Masks i Import och granska de faktiska tilldelningarna av bilder och Cell-masker.",
-        "Bevara dokumentationen av källornas ursprung och skilj mellan planindex i originalet, TIFF-filen och den sammanslagna arrayen.",
-        "Använd en förhandsgranskning utan skrivning innan du beräknar mätningar och cellutsnitt i ett separat projekt.",
-        "Tolka alla sex figurer och verifiera råvärden per cell utan att hävda dokumenterad segmenteringsnoggrannhet eller ett oberoende cytoplasmakompartment."
+        "Assign intensity images and label masks to the correct roles.",
+        "Choose channels, output location and measurement options.",
+        "Preview the pairing, run Measure and inspect the output project."
       ],
-      "prerequisite": "Återanvänd de två paren med bild- och cellmask-TIFF-filer som redan har förberetts för Import Project från Measures hämtade mikroskopiexempel. fov01_C1.tif och fov02_C1.tif bevarar det ursprungliga intensitetsplanet 1; fov01_cell_mask.tif och fov02_cell_mask.tif bevarar celletikettplanet 4. Deras ursprungliga arrayer är plate1_E01_1_1 och plate1_L02_9_1 med 44 respektive 59 etiketter. Bilderna på 1994 × 1994 pixlar är verkliga insamlade data, men deras neutrala filnamn och nytilldelade A01-bildfält bevarar inte de ursprungliga brunnarna. Befintliga etiketter är inte certifierad ground truth. Den här lektionen importerar ingen mät-CSV och gör inget påstående om fysisk pixelkalibrering. External Masks har ingen separat funktion för att hämta exempeldata; återanvänd de bevarade indatafilerna. Den synliga AI-kontrollen används inte.",
+      "prerequisite": "Prepare matching intensity images and integer-labelled masks with the same spatial dimensions. Each object needs its own positive integer label; zero is background. The example reuses two image and cell-mask pairs from the Import Project tutorial.",
       "scenes": [
         {
           "visual": "01b_current_external_masks_fold",
-          "narration": "Öppna Import i kategorin Data på Home och sedan det underordnade verktyget External Masks. Det här arbetsflödet mäter utifrån de tillhandahållna segmenteringsetiketterna; det segmenterar inte bilderna igen. Det överordnade Import Project-formuläret tar över en befintlig mättabell, medan External Masks anropar Measure för att beräkna nya egenskaper.",
+          "narration": "From Home, open Import Project, then choose External Masks. Use this tool when you already have segmentation labels and want spaCR to measure the corresponding images.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
@@ -3973,7 +3873,7 @@
         },
         {
           "visual": "02_choose_real_images",
-          "narration": "Återanvänd de två verkliga bild- och cellmaskparen som har förberetts för Import Project från det hämtade mikroskopiexemplet. Varje bildfält är 1994 pixlar på varje sida. De neutrala filnamnen fov01 och fov02 är demonstrationsnamn, inte de ursprungliga brunnarna där bilderna togs.",
+          "narration": "Prepare matching intensity images and labelled masks. This example uses two image and cell-mask pairs. Keep each pair aligned and use filenames or metadata that let the importer match the correct field.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
@@ -3981,7 +3881,7 @@
         },
         {
           "visual": "04_review_detected_roles",
-          "narration": "Använd Add folder… för bildmappen och sedan för mappen med cellmasker. Tabellen innehåller två grupper och fyra TIFF-filer. Granska Use as: Image för intensitetsfiler och Mask för etiketter, med Mask type inställt på Cell. Confidence beskriver den upptäckta tilldelningen, inte segmenteringsnoggrannheten.",
+          "narration": "Click Add folder for the image folder and again for the masks. Review Use as: choose Image for intensity files and Mask for labels. Set Mask type to the compartment represented by each mask, such as Cell.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -3992,7 +3892,7 @@
         },
         {
           "visual": "04b_image_ignored_not_submitted",
-          "narration": "Ändra bildgruppens Use as till Ignore. Det tar bort gruppen från inställningarna som skickas till en körning; det raderar inte filerna. Starta inte en körning medan den nödvändiga intensitetsgruppen ignoreras.",
+          "narration": "Set Use as to Ignore for any group you want to leave out. Its files stay on disk. Keep the image group and the masks required for your analysis included.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4003,7 +3903,7 @@
         },
         {
           "visual": "04c_image_role_restored",
-          "narration": "Återställ Image innan du fortsätter. De ursprungliga tilldelningarna av bilder och Cell-masker är nu återställda och båda källgrupperna ingår. Granska dessa redigerbara roller innan du konfigurerar målmappen eller startar förhandsgranskningen.",
+          "narration": "Restore Image for the example’s intensity group. Check the Image and Cell-mask assignments before choosing the destination.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4014,7 +3914,7 @@
         },
         {
           "visual": "05_setting_recursive",
-          "narration": "Sätt Dst till en ny projektmapp som är skild från källorna. Använd Layout flat, Z handling first och Plate naming index, med Recursive och Overwrite avstängda. Varje sådan indatafil har ett tvådimensionellt intensitetsplan. De tilldelade koordinaterna blir plate1, A01 och bildfälten 1 och 2, inte återskapade ursprungliga brunnar.",
+          "narration": "Set Dst to a new project folder. Choose Layout, Z handling and Plate naming to match your files. This example uses flat layout, the first Z plane and index-based plate naming. Use acquisition metadata when original well identities must be retained.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4025,7 +3925,7 @@
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Använd Channels 0 och låt Normalize vara avstängt. TIFF-filens enda intensitetsplan har arrayindex 0, men dess pixlar hämtades från index 1 i den ursprungliga arrayen med sju plan. De tillhandahållna celletiketterna kom från ursprungligt index 4 och kommer att ligga i den sammanslagna arrayens plan 1. Blanda inte ihop dessa indexeringssammanhang.",
+          "narration": "Choose the intensity Channels to measure. This example’s TIFFs each contain one intensity plane, so select channel zero and leave Normalize off. Channel numbers refer to the files you are importing.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4036,7 +3936,7 @@
         },
         {
           "visual": "05_setting_cytoplasm",
-          "narration": "Measure cytoplasm är aktiverat i den här inspelningen, men endast Cell-masker tillhandahålls. Det finns inga kärnmasker eller andra inre masker att dra ifrån. Den härledda cytoplasman är därför en kopia av cellregionen, inte ett oberoende identifierat cytoplasmakompartment. Tänk på den begränsningen när du läser de senare figurerna och tabellerna.",
+          "narration": "Choose whether to measure cytoplasm. With cell masks alone, the derived region covers the whole cell. Supply the interior compartment masks when you need them excluded from that region.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4047,7 +3947,7 @@
         },
         {
           "visual": "05_setting_png_size",
-          "narration": "Aktivera Save PNG under Object Crops, välj cell i Crop mode och sätt PNG size till 224 × 224. PNG dims och samtliga tre poster i PNG channel mapping använder 0. Cell min size är 0 och Keep uninfected cells är på; dessa val bevarar de tillhandahållna etiketterna i det här exemplet.",
+          "narration": "Under Object Crops, enable Save PNG and choose cell in Crop mode. Set PNG size to two hundred and twenty-four by two hundred and twenty-four. Select channel zero for this single-channel example’s PNG mapping.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4058,7 +3958,7 @@
         },
         {
           "visual": "05_setting_test_mode",
-          "narration": "Använd N jobs 1 med Resume, Dry run och Test mode avstängda. Aktivera Plot och Save measurements. Beräkningar av korrelation, rumsliga och radiella egenskaper, homogenitet och objektavstånd är inaktiverade för detta avgränsade exempel. Granska valen för din egen analys; inställningarna är inte ett validerat biologiskt protokoll.",
+          "narration": "Choose the measurement features you need, then enable Save measurements. Use N jobs to set concurrency. Start with a small input set while learning the settings and inspecting the resulting crops.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4069,7 +3969,7 @@
         },
         {
           "visual": "07_preview_plan_no_project_written",
-          "narration": "Aktivera Preview only och tryck på det här verktygets Run-knapp. Den faktiska planen rapporterar två intensitetstilldelningar, två klara bildfält, en intensitetskanal och cellmasker. Den registrerade fullständiga konsolutmatningen bekräftar också två maskpar i den sammanslagna arrayens plan 1. Vid den här tidpunkten finns inte målmappen: förhandsgranskningen har inte skrivit några projektdata.",
+          "narration": "Enable Preview only and press Run. Check the proposed image-to-mask pairings, field count and channel layout in the plan. Correct any assignment before writing the project.",
           "hold_after": 0.7,
           "focus": [
             2140,
@@ -4080,7 +3980,7 @@
         },
         {
           "visual": "08_preview_only_disabled",
-          "narration": "Inaktivera Preview only och tryck på Run igen utan att ändra de granskade tilldelningarna. External Masks skriver de konverterade bilderna, stackarna, cellmaskerna och de sammanslagna arrayerna med två plan och kör sedan den vanliga Measure-pipelinen. Ingen mät-CSV importeras och de ursprungliga källfilerna förblir oförändrade.",
+          "narration": "Turn off Preview only and press Run again. The tool prepares the project’s images and masks, then runs Measure to calculate object features and create the requested crops.",
           "hold_after": 0.7,
           "focus": [
             470,
@@ -4090,30 +3990,8 @@
           ]
         },
         {
-          "visual": "10_external_figure_00_preview_menu",
-          "narration": "Körningen skapar sex figurer. För de fem första använder du figurens faktiska högerklicksmeny, Save figure with a preview…, för att se en större förhandsgranskning i programmets egen dialog. Detta är en exportdialog, inte den inbäddade visaren. Vi trycker på Cancel varje gång; ingen figurexport sparas.",
-          "hold_after": 0.7,
-          "focus": [
-            2620,
-            1020,
-            440,
-            515
-          ]
-        },
-        {
           "visual": "10_external_figure_00_export_preview",
-          "narration": "Det första bildfältet som visas är exemplet med 59 celler, tilldelat bildfält 2. Figuren visar intensitetsbilden bredvid de tillhandahållna celletiketterna. Färgerna identifierar etikettregioner; de mäter inte konfidens eller bevisar att varje gräns är biologiskt korrekt.",
-          "hold_after": 0.7,
-          "focus": [
-            50,
-            550,
-            3730,
-            1450
-          ]
-        },
-        {
-          "visual": "10_external_figure_01_export_preview",
-          "narration": "Nästa figur visar C. 0, C. 1 med 59 objekt och C. 2 med 59 objekt. Här motsvarar de intensitet, cell och härledd cytoplasma. Olika etikettfärger gör inte de två sista till oberoende kompartment: deras geometri är identisk eftersom inga inre masker tillhandahölls.",
+          "narration": "Inspect the intensity image beside the supplied labels. Check object boundaries, missing objects and image-to-mask alignment before interpreting the measurements.",
           "hold_after": 0.7,
           "focus": [
             50,
@@ -4124,105 +4002,32 @@
         },
         {
           "visual": "10_external_figure_02_export_preview",
-          "narration": "Den tredje figuren är cellmontaget med 59 objekt från samma bildfält, inte en ny uppsättning celler. Använd det för att granska de extraherade vyerna. Visningsfärger och skalning av utsnitt är inte råa mätvärden; källans intensitetsarrayer och databasen bevarar de kvantitativa beläggen.",
+          "narration": "Browse the object montage to inspect the extracted crops. Use the figure viewer to move between fields and check that the selected channels and crop size show the objects clearly.",
           "hold_after": 0.7,
           "focus": [
             50,
             550,
             3730,
             1450
-          ]
-        },
-        {
-          "visual": "10_external_figure_03_export_preview",
-          "narration": "Den fjärde figuren visar intensitetsbilden och de tillhandahållna etiketterna från det andra avbildade fältet. Det är exemplet med 44 celler, tilldelat bildfält 1. Figurernas ordning är inte samma sak som bildfältsnumreringen. Tillsammans innehåller de två bildfälten 103 separata celletiketter.",
-          "hold_after": 0.7,
-          "focus": [
-            50,
-            550,
-            3730,
-            1450
-          ]
-        },
-        {
-          "visual": "10_external_figure_04_export_preview",
-          "narration": "Den femte figuren upprepar vyn med intensitet, cell och härledd cytoplasma för bildfältet med 44 celler. Återigen beskriver de två maskpanelerna samma cellregioner, inte två oberoende mätningar av olika kompartment. Stäng den sista exportförhandsgranskningen med Cancel; den faktiska kön med sex figurer finns kvar.",
-          "hold_after": 0.7,
-          "focus": [
-            50,
-            550,
-            3730,
-            1450
-          ]
-        },
-        {
-          "visual": "10_external_figure_05",
-          "narration": "Den sjätte figuren är montaget med 44 objekt i den vanliga inbäddade Figures-visaren. Över båda bildfälten har projektet 103 läsbara cell-PNG-filer med exakta databaselänkar för varje objekt. Dessa visningsutsnitt påstås inte bevara råa intensitetspixlar. Mappen data kan granskas senare i Annotate.",
-          "hold_after": 0.7,
-          "focus": [
-            1305,
-            775,
-            2500,
-            660
-          ],
-          "related_lessons": [
-            "09_annotate"
-          ]
-        },
-        {
-          "visual": "11_console_preferences_font_scale_125",
-          "narration": "Öppna Preferences för att granska den slutförda konsolutmatningen och minska Font scale från 200 till 125 procent. Tryck sedan på Save och återvänd via flikarna Import Project och External Masks. Detta är en vanlig visningsjustering i programmet; den kör inte om mätningen eller redigerar de registrerade resultaten.",
-          "hold_after": 0.7,
-          "focus": [
-            1015,
-            275,
-            1810,
-            345
-          ]
-        },
-        {
-          "visual": "11_console_preferences_font_scale_100",
-          "narration": "Den första minskningen lämnar fortfarande för lite konsolutrymme. Sätt därför Font scale till 100 procent, tryck på Save och återvänd via flikarna igen. Vi verifierar att mätinställningarna, hela konsolhistoriken och alla sex figurbilder i sin ordning är oförändrade. Ingen AI-förfrågan skickas.",
-          "hold_after": 0.7,
-          "focus": [
-            1015,
-            275,
-            1810,
-            345
           ]
         },
         {
           "visual": "11_external_measurement_summary",
-          "narration": "Läs sammanfattningen av den slutförda åtgärden, inte bara dess tidigare förhandsgranskning. Den rapporterar två förberedda bildfält och tabellerna i measurements.db: cell, cytoplasm, intensity_rescale, png_list, run_status, settings och settings_history. Utsnitt för annotering finns under data. Den senare konsolgranskningen sker efter skrivningen; den är inte ännu en förhandsgranskning utan skrivning.",
+          "narration": "Open measurements/measurements.db for the object tables and data for annotation crops. Keep conversion_map.csv and the source manifest with the project so imported fields remain traceable. Continue in Annotate to label the crops, or use the measurement tables in a downstream analysis.",
           "hold_after": 0.7,
           "focus": [
             990,
             1330,
             2440,
             90
-          ]
-        },
-        {
-          "visual": "11_external_measurement_summary",
-          "narration": "Oberoende kontroller jämför varje intensitets- och etikettpixel i utdata med de bevarade indatafilerna, och alla 103 cellidentiteter, pixelareor och råa medelintensiteter med dessa etiketter. Felet i medelintensitet är 0 i den här körningen. De 103 cytoplasmaraderna är exakta kopior av cellvärdena. Detta verifierar datahanteringen, inte ground truth för segmenteringen eller biologisk giltighet.",
-          "hold_after": 0.7,
-          "focus": [
-            990,
-            1330,
-            2440,
-            90
-          ]
-        },
-        {
-          "visual": "11_external_measurement_summary",
-          "narration": "I Python returnerar spacr.external_masks.plan_external_masks en ExternalMaskPlan utan att skriva. run_external_masks tar emot planen och returnerar en ExternalMaskResult efter mätningen. prepare_external_masks returnerar planen när preview_only är true, annars resultatet. Bevara källmanifestet, conversion_map.csv och projektet tillsammans så att tilldelade koordinater inte misstas för ursprungliga bildtagningsmetadata.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api",
-            "35_converter"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "32_align_stitch",
@@ -10388,7 +10193,8 @@
             "64_gate_editor",
             "65_feature_explorer",
             "69_dose_response",
-            "77_embeddings"
+            "77_embeddings",
+            "85_host_pathogen"
           ]
         },
         {
@@ -10778,7 +10584,8 @@
           "narration": "Öppna Toxoplasma från Home och välj sedan Host–Pathogen Analysis. Mät hela vakuoler och värdcellernas referenskompartment, och behåll oinfekterade värdceller i infektionsandelens nämnare. Välj markörkanaler och kvottrösklar kalibrerade mot kontroller. Räkna vid behov individuellt segmenterade parasiter med uttryckliga vakuolkopplingar eller en kolumn med uppmätta antal. Granska tabeller för vakuoler, värdceller och brunnar, gemensamma markörtillstånd, replikationsfördelningar och parasitkopplingar utan matchning; okända mätvärden förblir okända. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Host–Pathogen Analysis: Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol.",
           "hold_after": 0.7,
           "related_lessons": [
-            "08_measure"
+            "08_measure",
+            "85_host_pathogen"
           ]
         },
         {
@@ -11031,19 +10838,25 @@
           "visual": "module_toxoplasma",
           "narration": "Öppna Toxoplasma från Home. Öppna organismguiden från Home, inspektera kompartmentdiagrammet och välj sedan Plaque Assay, Recruitment, Invasion Assay eller Replication Assay. De fyra rutorna märkta Coming soon beskriver förslag och kan inte köras. Guiden analyserar inte själv ett projekt och skapar ingen mättabell. Indata: Medföljande organismreferens. Medföljande organismreferens: Installerade organismbeskrivningar och celldiagram från SwissBioPics; inga projektdata behövs. Utdata: Organismguide och analysval. Organismguide och analysval: Markering av kompartment och navigering till tillgängliga analyser endast i GUI; inga mätningar eller filer skapas.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "82_toxoplasma"
+          ]
         },
         {
           "visual": "module_plasmodium",
           "narration": "Öppna Plasmodium spp. från Home. Öppna organismguiden från Home för att läsa om planerade arbetsflöden för malariaavbildning och inspektera det gemensamma apicomplexdiagrammet. Alla åtta analysrutor är märkta Coming soon; ingen startar en analys eller skapar ett resultat. Indata: Medföljande organismreferens. Utdata: Organismguide och analysval.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "83_plasmodium"
+          ]
         },
         {
           "visual": "module_candida",
           "narration": "Öppna Candida spp. från Home. Öppna organismguiden från Home för att läsa om planerade arbetsflöden för svampavbildning och inspektera det generiska diagrammet över knoppande jäst. Alla åtta analysrutor är märkta Coming soon; ingen startar en analys eller skapar ett resultat. Indata: Medföljande organismreferens. Utdata: Organismguide och analysval.",
           "hold_after": 0.7,
-          "related_lessons": []
+          "related_lessons": [
+            "84_candida"
+          ]
         },
         {
           "visual": "module_endodyogeny",
@@ -11139,7 +10952,8 @@
             "41_classify",
             "54_qc_dashboard",
             "64_gate_editor",
-            "77_embeddings"
+            "77_embeddings",
+            "85_host_pathogen"
           ]
         },
         {
@@ -11221,7 +11035,8 @@
           "narration": "Öppna Toxoplasma från Home och välj sedan Host–Pathogen Analysis. Mät hela vakuoler och värdcellernas referenskompartment, och behåll oinfekterade värdceller i infektionsandelens nämnare. Välj markörkanaler och kvottrösklar kalibrerade mot kontroller. Räkna vid behov individuellt segmenterade parasiter med uttryckliga vakuolkopplingar eller en kolumn med uppmätta antal. Granska tabeller för vakuoler, värdceller och brunnar, gemensamma markörtillstånd, replikationsfördelningar och parasitkopplingar utan matchning; okända mätvärden förblir okända. Indata: Uppmätta objekt. Utdata: Analysresultat. Measure till Host–Pathogen Analysis: Behåll oinfekterade celler i Measure. Ange masker för hela vakuoler, värdens referensintensiteter och vid behov explicita kopplingar från parasiter till vakuoler; värdens identitet ensam definierar inte en vakuol.",
           "hold_after": 0.7,
           "related_lessons": [
-            "08_measure"
+            "08_measure",
+            "85_host_pathogen"
           ]
         },
         {
@@ -11466,6 +11281,244 @@
           "zm_yunxi",
           "zm_yunxia",
           "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "82_toxoplasma",
+      "number": 82,
+      "slug": "toxoplasma",
+      "title": "Toxoplasma: explore the page and choose an assay",
+      "series": 3,
+      "app_key": "toxoplasma",
+      "section": "Organisms and assays",
+      "description": "Open the organism page, explore the cell diagram and choose an available assay.",
+      "objectives": [
+        "Open the page from Home and find its main controls.",
+        "Identify the available inputs, actions and outputs.",
+        "Choose the next available analysis or reference."
+      ],
+      "prerequisite": "Open spaCR Home. The organism guide requires no input files. Each assay has its own inputs and linked walkthrough.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "From Home, choose Toxoplasma. This page brings the organism guide, cell diagram and available assays together. You can explore it before loading any images or measurements.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_organism",
+          "narration": "Read the introduction in the information pane. Scroll each pane independently, or drag the divider to give the guide or assay tiles more room.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_diagram",
+          "narration": "Hover over a cell component to read its description. Select several components to keep them highlighted, and use Clear components to reset the diagram.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_assays",
+          "narration": "Choose Plaque Assay for plaque counts and areas, Invasion Assay for entry measurements, Recruitment for marker ratios, Replication Assay for parasite counts, or Host–Pathogen for linked vacuole and host summaries. Open the matching lesson for its inputs, settings and results.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_host_pathogen",
+          "narration": "Click Host–Pathogen to open its analysis screen. Use Load test data to start with the supplied microscopy example, then follow the Host–Pathogen tutorial through the settings, preview and Run.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_starplast",
+          "narration": "Return to Toxoplasma and choose Starplast to explore the knowledge map in its separate application. On first use, follow the offered installation steps. The reference links also open organism resources in your browser.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_home_return",
+          "narration": "The guide itself writes no analysis files. Return to Home when you need image segmentation or measurement first; use the assay pages once the required images or tables are ready.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "83_plasmodium",
+      "number": 83,
+      "slug": "plasmodium",
+      "title": "Plasmodium: explore the organism guide",
+      "series": 3,
+      "app_key": "plasmodium",
+      "section": "Organisms and assays",
+      "description": "Browse the Plasmodium guide, explore the cell diagram and find available general image-analysis workflows.",
+      "objectives": [
+        "Open the page from Home and find its main controls.",
+        "Identify the available inputs, actions and outputs.",
+        "Choose the next available analysis or reference."
+      ],
+      "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Plasmodium-specific assay tiles currently show Coming soon.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "From Home, choose Plasmodium. Open this guide to browse organism information, cell compartments and the planned assay topics.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_organism",
+          "narration": "Scroll the information pane to read the blood-stage, liver-stage and motility sections. Drag the divider to adjust the space beside the module tiles.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_diagram",
+          "narration": "Hover over the apicomplexan diagram for compartment descriptions. Select components to highlight them together, then use Clear components to reset the view.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_modules",
+          "narration": "The assay tiles currently show Coming soon and are disabled. Browse their descriptions to see the intended readouts. For an available image workflow, return to Home and open Mask or Measure with your own images and suitable channel settings.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_references",
+          "narration": "Use the PlasmoDB and UniProt links to open organism resources in your browser. The guide requires no dataset, has no Run action and creates no output files.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "84_candida",
+      "number": 84,
+      "slug": "candida",
+      "title": "Candida: explore the organism guide",
+      "series": 3,
+      "app_key": "candida",
+      "section": "Organisms and assays",
+      "description": "Browse the Candida guide, explore the yeast diagram and find available general image-analysis workflows.",
+      "objectives": [
+        "Open the page from Home and find its main controls.",
+        "Identify the available inputs, actions and outputs.",
+        "Choose the next available analysis or reference."
+      ],
+      "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Candida-specific assay tiles currently show Coming soon.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "From Home, choose Candida. Browse the guide for morphology, filamentation, biofilm and host-cell interaction topics.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_organism",
+          "narration": "Scroll the information pane and review the module descriptions beside it. Drag the divider to make either pane wider when reading.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_diagram",
+          "narration": "Hover over a component in the budding-yeast diagram to read its description. Select several components to keep them highlighted, and use Clear components to reset the selection.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_modules",
+          "narration": "The Candida-specific assay tiles currently show Coming soon and are disabled. To analyse images with the available general tools, return to Home, select Mask and Measure, and choose channels and masks suited to your species and experiment.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_references",
+          "narration": "Open the Candida Genome Database or UniProt links for gene and protein information. This guide uses no input files and writes no analysis outputs. Follow a runnable module’s tutorial when you are ready to process images.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "85_host_pathogen",
+      "number": 85,
+      "slug": "host_pathogen",
+      "title": "Host–Pathogen: link vacuole markers and parasite counts",
+      "series": 3,
+      "app_key": "host_pathogen",
+      "section": "Organisms and assays",
+      "description": "Load the microscopy example, choose marker and count inputs, inspect the preview, and export linked vacuole, host-cell and well summaries.",
+      "objectives": [
+        "Load the example project and identify the host and vacuole measurements.",
+        "Choose marker channels and inspect vacuole-level recruitment in Live preview.",
+        "Run the analysis and read the output tables with the correct denominators."
+      ],
+      "prerequisite": "Use Load test data for the supplied THP-1 microscopy example, or select a measured project with host cells, vacuoles and host-reference intensities. Retain uninfected host cells during Measure when you need an infection denominator. Individual parasite counts require a linked parasite table or a measured count column.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "From Home, open Toxoplasma, then choose Host–Pathogen. This module joins vacuole marker measurements and parasite counts to their host cells and well summaries.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_test_data",
+          "narration": "Choose Load test data to download the microscopy example and fill in its settings. It contains two fields with images, host and vacuole masks, and measurement tables. Use it to practise the controls before selecting your own measured project.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_source",
+          "narration": "Check Source. It should point to the project containing measurements/measurements.db. The module can also read a database directly or combine several project sources while keeping their identities separate.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_compartments",
+          "narration": "Choose the vacuole table and its intensity-column prefix, then the host-reference table and prefix. The example uses pathogen for vacuoles and cytoplasm for the host reference. The object links must associate each vacuole with the correct host cell.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_markers",
+          "narration": "Set Marker channels to the zero-based intensity channels you want to compare. The example selects channel one for the RNF213 marker. Each selected channel needs intensity measurements in both the vacuole and reference compartments.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_thresholds",
+          "narration": "Leave Marker thresholds empty to inspect recruitment ratios first. To classify a marker as positive or negative, enter its channel number and a ratio threshold chosen from your assay controls. A ratio at or above the threshold is positive. Missing or invalid reference measurements remain unknown.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_counts",
+          "narration": "For parasite counts, choose either a parasite table with explicit parent-vacuole links or a measured count column on each vacuole. The microscopy example has neither, so keep both choices empty. Its parasite counts and replication readouts remain unknown.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_preview",
+          "narration": "Turn on Live, choose a field and click Run preview. Inspect the vacuole table beside the image. Select a row or click a vacuole to inspect the corresponding marker measurements and any available parasite count.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_run",
+          "narration": "Turn off Live and expand Actions if it is folded. Keep Save enabled, then press Run. Wait for the output path in the console. Results are written to results/host_pathogen in the first selected project.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_vacuoles",
+          "narration": "Open vacuoles.csv for one row per vacuole, including its host link, marker ratios, marker state and available parasite count. Open cells.csv for host-cell infection and vacuole counts, then wells.csv for their well summaries.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_summaries",
+          "narration": "Use marker_states.csv to inspect joint marker states and replication_distribution.csv for parasite counts per counted vacuole. orphan_parasites.csv lists parasites without a usable parent link. Keep settings.json with these tables so the channel and threshold choices remain available.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_denominators",
+          "narration": "Check the denominators before comparing conditions. Infection fractions use retained measured host cells, including uninfected hosts only when Measure retained them. Count distributions use vacuoles with known parasite counts; unknown values remain distinct from zero.",
+          "hold_after": 0.7
+        }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
         ]
       }
     }
