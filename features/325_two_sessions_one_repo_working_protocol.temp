@@ -16152,3 +16152,58 @@ segfault during settings-CSV drag/drop. It resembles the Qt shard2crash but
 is not resolved by isolating static extraction. I am replaying its preceding
 33files under gdb/Qt6.11/6GiB on frozen06a7to seek a native backtrace. No
 claim of a crash fix or green full CI. No new agents or GPU work started.
+
+2026-09-24 — CODEX: EXACT PUSHED IDS; ORGANISM TUTORIAL PUBLICATION IN CHECKS
+The final pushed equivalents are582b6e203(runtime/captions),aa96efab1(API and
+Recruitment prose),4d7c3b1f0(channel). The earlier bdb/0b4IDs were intermediate
+rebases. All retain17ff86a3dinput-copy behavior.
+
+Private next media candidate now has85routes,84ready and one OPS placeholder.
+It adds Toxoplasma82,Plasmodium83,Candida84,Host–Pathogen85; refreshes ModelZoo22,
+Plaque24,Recruitment25,Report29,PlateQueue30,ExternalMasks31. Actual native
+Host–Pathogen example:164cells,97vacuoles,2wells; no individual parasite counts
+supplied, so counts remain unknown and replication rows empty. ModelZoo actual
+CPU test completes on three unchanged uint16fields with149labels. No GPU used.
+The same spacr/resources/module_workflows.json now links all four new lessons;
+API/workflow includes regenerate from it. Pipeline79/80chapter-link updates
+preserve unchanged wording, translated text and recordings.40candidate helper
+checks pass, including refusal of prose/timing changes in link-only updates.
+Whole-candidate browser checks are running; no media upload or publication yet.
+
+OPS and native Train remain in your previously queued GPU lane. Please append
+results or the next eligible window when available; I continue CPU-only docs,
+narration and translation work. This optional media batch stays outside your
+frozen release candidate and does not gate the1.5.1.0promotion.
+Correction to the preceding note: the sole ComingSoon entry is71_investigate_hit,
+not OPS. OPS76 already has its playable introductory/alignment subset; the
+complete current OPS workflow recording remains queued.85routes/84ready is
+unchanged. The publication receipt's coming_soon list is authoritative.
+
+2026-09-24 — CODEX: TOKEN-BUDGET PRIORITY FROM MAINTAINER
+Maintainer says27%tokens remain and asks for maximum useful completion before
+he bumps1.5.1.0and pushes main. I am prioritizing publication of already-built
+work and exact remaining-work records, with no subagents or new large probes.
+The10-lesson candidate passed all84playable cases and14placeholder language
+views;5250media files are uploaded and undergoing complete immutable readback.
+53of81existing scripts now have practical walkthrough rewrites, plus4newguides.
+309data-tool checks,66analysis-view checks,42workflow/review checks and40candidate
+helper checks pass. Subsequent prepared media is rendering; English publication
+continues independently of the registered translation backlog.
+API-to-tutorial links also needed a channel correction: generated API includes
+used an absolute main-site URL. They now compute relative URLs from each API
+module depth, preserving nightly/main automatically. All33workflow checks pass,
+including every mapped tutorial target in both publication channels. No runtime
+symbol, caption or translation source changed.
+
+2026-09-24 — CODEX: ORGANISM MEDIA ACCEPTED; LATEST API REFRESH
+Candidate _h__k19qpassed all84hosted playback cases plus14unavailable-language
+views. All5250media files were downloaded and SHA256matched(5,297,478,965bytes)
+from931a7e95feac3730cde47f02d6a76f805aa59038. Pages/checkpoint now bind to that
+immutable revision; tests and the nightly push follow. Strict English Sphinx
+build passed on the preceding source snapshot. The later channel-relative
+API-link fix has33passing checks and is queued for an incremental build.
+
+I fetched your new489UI and currentCI repairs into an isolated push checkout.
+English API inventory is now11,520symbols and Help regenerated; English audit
+is running. I am not treating a tutorial or489translations as finished. No
+change to main/version metadata. The maintainer owns the subsequent release.
