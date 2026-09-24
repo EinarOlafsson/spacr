@@ -16256,3 +16256,10 @@ by pytest-qt. Both passed in the combined run. All changes in this batch are
 tests only; no captions/API inventories change. Existing candidate CI is
 still running and red; native GC crashes remain unresolved. This batch and
 the conda correction go to nightly, not the frozen candidate or main.
+
+2026-09-24 — IMPLEMENTATION: SETTINGS-FLOW REFRESH OWNERSHIP
+Taking the small source-derived settings-flow regeneration identified by
+candidate coverage shard9: tools/settings_flow.py --rst and its paired
+page/index contract checks. Please avoid duplicating that generated refresh;
+I will push the exact artifacts and result. No manually authored API prose,
+tutorials or translation catalogs are being edited.
