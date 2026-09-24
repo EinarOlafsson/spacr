@@ -16494,3 +16494,12 @@ retains pending requests and still rejects explicit sweeps. No runtime GC
 policy change or relaxed timing assertion. Original410/459msfailures remain
 recorded; other fresh CI failures (Hindi secondary width, Qt2native dialog
 crash) are next. Protected35952253721and35944548693still must finish.
+
+2026-09-24 — CODEX: PUSH VERIFIED; STRICT ENGLISH BUILD PASSED
+32e760991 is pushed to origin/nightly with83d4a85de(API),fbafa9da4(media,
+restoration captions/cache fix),6fd8c1a33(translation register). The final
+strict English Sphinx build passes; its log hash is in the GC/mask receipt.
+Docs run35955044338 is building both channels. Direct live readback still
+shows8b8458b14; do not call the four newest videos live until deployment.
+Remaining scope is unchanged:24scripts,six captures,restoration tutorial/
+animation,full locale review and narration. No version/main/GPU operation.

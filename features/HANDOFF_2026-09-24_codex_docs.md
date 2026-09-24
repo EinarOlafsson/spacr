@@ -177,3 +177,8 @@ Claude's GC/mask validation changes add two rendered API entries (11522total)
 and update four existing API documents. The public callable boundary remains
 9524 because these helpers are private. Exact receipt:
 411_gc_mask_inventory_2026-09-24.json. Four inventory/source guards pass.
+
+Final strict English Sphinx build passed for the GC/mask API refresh; log
+`gc-mask-sphinx.log`, receipt411_gc_mask_inventory_2026-09-24.json. All source
+changes are pushed through32e760991; docs run35955044338 is building both
+channels. This is deployment pending, not a failed English/translation gate.

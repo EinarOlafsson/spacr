@@ -79,5 +79,13 @@
       "spacr.qt.gc_policy.collect_once"
     ]
   },
-  "boundary_note": "Public callable inventory excludes private modules and private helpers. The API renderer includes documented private modules; its two new entries are spacr._gc and spacr._gc.collect. Existing public mask I/O raises documentation and GUI GC behavior are refreshed."
+  "boundary_note": "Public callable inventory excludes private modules and private helpers. The API renderer includes documented private modules; its two new entries are spacr._gc and spacr._gc.collect. Existing public mask I/O raises documentation and GUI GC behavior are refreshed.",
+  "validation": {
+    "strict_english_sphinx": true,
+    "sphinx_source_commit": "4a6672265",
+    "sphinx_log": "/mnt/firecuda2/codex/workflow-authoring-20260922/gc-mask-sphinx.log",
+    "sphinx_log_sha256": "82c155dac1c052388911ce42a42d15404ff677b66462c7c82cfa8187bb396ee4",
+    "focused_source_guards_passed": 4,
+    "english_manifest_sha256": "fdc4291f72cf493402fefd2e2f67826d53e8fd35db77c56cde5d015b37271848"
+  }
 }
