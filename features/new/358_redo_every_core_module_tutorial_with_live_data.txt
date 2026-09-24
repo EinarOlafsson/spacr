@@ -2587,3 +2587,24 @@ scripts remain to review. Retained captures are explicitly distinguished from
 new runtime recordings.716old translation reviews now mismatch their revised
 sources and stay registered pending replacement. See the per-lesson audit in
 tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json.
+
+2026-09-24 — NATIVE ANNDATA / EMBEDDINGS AND FIVE MORE MODULE GUIDES
+75of81 existing lesson scripts now follow the requested user-walkthrough style;
+69 have matching accepted media, plus the four new organism guides. Six scripts
+and six capture follow-ups remain, with the per-lesson list in the walkthrough
+audit.950 old translation reviews are source-incompatible and registered;
+English publication is not blocked by them.
+
+Seven replacements (59,70,72,73,74,75,77) are accepted at immutable media
+f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65:1134/1134 hosted hashes matched,
+84local and84hosted playback cases pass, both unavailable-route mutants fail
+as expected, and eight final publication guards pass.525 compatible tracks
+remain. Five lessons preserve53 byte-verified existing captures; AnnData and
+Embeddings use new native GUI runs. All six AnnData exports passed independent
+matrix checks; both real CPU embedding policies completed without crop
+injection. No claims of new GPU execution or full locale review.
+
+The previous eight-video batch is directly verified LIVE at1e5c408b6, with
+11528generated English API entries and browser chapter seeks passing. This
+new seven-video batch is accepted/prepared pending its nightly deployment;
+see358_live_exploration_guides_2026-09-24.json for the last direct live proof.

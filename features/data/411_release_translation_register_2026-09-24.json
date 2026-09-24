@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "67237fa895826efa4e6e9d2046abfb3345c691fa",
+  "source_commit": "5cb6c93fce65ecb5693a49e28b0f0b5ae86e4df8",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
@@ -15,16 +15,17 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/current-mask-translation-compatibility.json",
-  "full_report_sha256": "051783f04b168550556e8d5b64a682bfd23add3a49cc31e6b95a86a90086e766",
+  "full_audit": false,
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/final-native-translation-compatibility.json",
+  "full_report_sha256": "df3ee42c5f404da35f7876a03234888d8644f22f3a68d87349e372c75f5b030e",
   "locales": {
     "api": {
       "sv": {
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -32,8 +33,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 726,
-          "stale": 371,
-          "translation_blocks": 112,
+          "stale": 375,
+          "translation_blocks": 114,
           "obsolete": 3
         }
       },
@@ -41,8 +42,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 792,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -50,8 +51,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -59,8 +60,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -68,8 +69,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -77,8 +78,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -86,8 +87,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       },
@@ -95,8 +96,8 @@
         "source_compatible": false,
         "issue_counts": {
           "missing": 917,
-          "stale": 407,
-          "translation_blocks": 122,
+          "stale": 411,
+          "translation_blocks": 124,
           "obsolete": 3
         }
       }

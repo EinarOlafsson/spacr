@@ -496,3 +496,15 @@ decode, timing, activity and decoded true-peak checks. Current27-scene English
 lesson matches the private stage exactly. Evidence is in the two current
 Make Masks voice receipts under tools/tutorials/evidence/. Media remain private;
 this does not assert listening approval or complete-set publication. No GPU use.
+
+2026-09-24 — TWO FRESH NATIVE WORKFLOWS, FIVE RETAINED CAPTURE REFRESHES
+AnnData now records normal Measure -> AnnData Export on the repaired writer,
+including six independently checked outputs. Embeddings now records its
+actual folder loader and Embed button, with real CPU pretrained encoding and
+no programmatic crop injection. Both use the current dark/blobs GUI and
+neutral capture paths. The older AnnData helper/failure narration and the
+obsolete Embeddings "no loader" introduction are replaced. Five additional
+module lessons retain explicitly identified, hash-checked existing captures.
+Accepted media revision:f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65. Native and
+retained-capture status stays explicit in the per-lesson evidence; remaining
+installation/Timelapse/Cellpose/OPS capture work and locale review stay open.
