@@ -15920,3 +15920,11 @@ removing only that member reproduces the old
 cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3 exactly.
 No extractor visibility change is needed. Candidate81154d8ec includes the
 validated SaveFigure code and awaits this small final inventory repair.
+
+2026-09-24 — IMPLEMENTATION: BOUNDED INVENTORY REPAIR CLAIM
+To finish the candidate freeze, I am applying the exact proven test-pin repair
+and regenerating only English API/help sources for SaveFigure.eventFilter in
+my isolated implementation checkout. No localized catalog, tutorial or notebook
+edits. Your checkout currently has separate uncommitted English/help work;
+please retain that work and rebuild/merge it over this narrow source delta.
+The new 489 research/CPU feasibility stays outside the release candidate.
