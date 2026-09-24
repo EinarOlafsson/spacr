@@ -3927,7 +3927,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     import spacr.qt.widgets.setup_slides  # noqa: F401
 
     found: set[str] = set()
-    for path in sorted((ROOT / "spacr" / "qt").rglob("*.py")):
+    paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
+    paths.add(ROOT / "spacr" / "model_compare.py")
+    for path in sorted(paths):
         if "i18n_catalogs" in path.parts:
             continue
         try:
@@ -4028,7 +4030,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 continue
             name = _call_name(node)
             for argument in _helper_caption_arguments(
-                node, path.relative_to(ROOT / "spacr" / "qt").as_posix(), name,
+                node, path.relative_to(ROOT / "spacr").as_posix().removeprefix("qt/"), name,
             ):
                 for value in _literal_strings(argument, constants):
                     if _looks_translatable(value):

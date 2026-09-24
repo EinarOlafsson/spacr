@@ -7011,6 +7011,8 @@ UI = {
     "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.": 'Starplast 是用于探索弓形虫（Toxoplasma）知识图谱的 alpha 阶段应用。功能和结果可能变化。它会在单独的窗口中打开。\n\n安装程序从 PyPI 安装最新的兼容稳定版 Starplast。该软件包包含基因数据；依赖项会增加下载量和磁盘占用。具体要求因版本和平台而异。请预留至少 12 GB 可用磁盘空间。下载可能需要几分钟。\n\nStarplast 使用位于 {path} 的独立环境；spaCR 的软件包不会改变。源代码采用 MIT 许可证。本地 Git 工作副本是可选的开发来源；本地安装使用已提交的文件，不会修改工作副本。',
     'Scale & Time': '比例与时间',
     'Experimental Growth Estimates': '实验性生长估计',
+    'Enable normalization to invert images with this Cellpose version.': '请启用归一化，以使用此版本的 Cellpose 反转图像。',
+    'Combine vacuole marker recruitment, parasite counts and host infection denominators.': '结合液泡标记物募集、寄生虫计数和宿主感染率的分母。',
 }
 
 MODULE_SUMMARIES = {
@@ -14145,4 +14147,6 @@ SOURCE_HASHES = {
     ('CATEGORY_HELP', 'Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.'): '86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16',
     ('UI', 'Scale & Time'): '3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e',
     ('UI', 'Experimental Growth Estimates'): '52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54',
+    ('UI', 'Enable normalization to invert images with this Cellpose version.'): '1ecdf92a913436762551ab950c1b8ff682816e84e519eae4421983a3be811d12',
+    ('UI', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.'): '5120ec4571177f07d8e93ab43163195162dc238e2b9cda0da55ef0c5a7bdcc12',
 }
