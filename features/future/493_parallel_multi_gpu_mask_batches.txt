@@ -121,3 +121,20 @@ Two order regressions fail before the fix;114SAM/core/assignment checks and
 93legacy/core checks pass. Failure/cancellation checks confirm no analysis on
 failed merges and no input cleanup after a failed or cancelled finalization.
 Pipeline/control integration and actual multi-GPU acceptance remain open.
+
+2026-09-24 — Resolved model bytes participate in resume identity
+Private _prepare_mask_model now returns canonical detached worker settings,
+a material-settings/model signature and the resolved checkpoint identity.
+Custom weights and pathogen overrides stay explicit; stock weights resolve
+once via the installed Cellpose cache API, including the zero-argument
+cache_CPSAM_model_path of the supported4.0.7minimum. Empty/missing or changing
+weights are refused. Replacing weights at the same filename changes the
+signature; GPU selection and cosmetic settings do not. No model is built.
+The helper currently covers the Cellpose backend; other backends still need
+resolved-artifact contracts before parallel dispatch. No new UI option is
+exposed by this batch.41worker/model/resume checks pass; module coverage96.13%.
+Official minimum-version source checked:
+https://github.com/MouseLand/cellpose/blob/v4.0.7/cellpose/models.py
+Remaining integration includes invoking this helper at pipeline dispatch,
+figure delivery, finalized/adjusted-mask provenance, shared QC, controls and
+real multi-GPU acceptance. Source-module inventory remains643.

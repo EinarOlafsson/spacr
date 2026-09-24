@@ -13,6 +13,62 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 
+def _prepare_mask_model(settings, object_type):
+    """Resolve Cellpose weights once and sign their bytes with material settings.
+
+    Return a detached canonical settings dict, its settings/model SHA256 and
+    inspectable model identity. Stock weights use Cellpose's own cache resolver;
+    custom checkpoints stay explicit paths. No network is constructed, no GPU
+    allocation occurs, and the caller's settings remain unchanged. Other
+    backends require their own resolved-artifact contract before dispatch.
+    """
+    from ._segmentation_backends import _backend_name
+    from .artifacts import material_settings
+    from .checkpoint import fingerprint
+    from .model_zoo import sha256_file
+    from .settings import _get_object_settings, set_default_settings_preprocess_generate_masks
+    from .utils import _resolve_cellpose_pretrained, cp_models
+
+    if object_type not in ('cell', 'nucleus', 'pathogen'):
+        raise ValueError('Unsupported parallel mask object type')
+    if _backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose':
+        raise ValueError('Parallel model preparation currently requires the Cellpose backend')
+    prepared = set_default_settings_preprocess_generate_masks(copy.deepcopy(settings))
+    model = _get_object_settings(object_type, prepared)['model_name']
+    if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
+        model = prepared['pathogen_model']
+    resolved = _resolve_cellpose_pretrained(model, object_type=object_type)
+    path = Path(resolved).expanduser()
+    if not path.is_file():
+        cache = getattr(cp_models, 'cache_model_path', None)
+        legacy_cache = getattr(cp_models, 'cache_CPSAM_model_path', None)
+        if callable(cache):
+            path = Path(cache(resolved))
+        elif resolved == 'cpsam' and callable(legacy_cache):
+            path = Path(legacy_cache())
+        else:
+            raise ValueError(f'Installed Cellpose cannot resolve weights for {resolved!r}')
+    path = path.resolve()
+    before = path.stat()
+    if not path.is_file() or before.st_size == 0:
+        raise ValueError(f'Model checkpoint is not a nonempty file: {path}')
+    digest = sha256_file(path)
+    after = path.stat()
+    if any(getattr(before, key) != getattr(after, key)
+           for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
+        raise ValueError(f'Model changed while preparing workers: {path}')
+    prepared[f'{object_type}_model_name'] = str(path)
+    if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
+        prepared['pathogen_model'] = str(path)
+    material = material_settings(prepared)
+    for key in ('mask_parallel', 'mask_gpu_indices'):
+        material.pop(key, None)
+    identity = {'path': str(path), 'sha256': digest, 'bytes': after.st_size}
+    signature = fingerprint({'settings': material, 'model': identity,
+                             'object_type': object_type})
+    return prepared, signature, identity
+
+
 def _mask_output_digest(path):
     """Validate a saved array and fingerprint its complete bytes in bounded memory."""
     from .resume import validate_merged_field

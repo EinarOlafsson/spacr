@@ -16952,3 +16952,19 @@ calls now only segment/track; use core for optional automatic assay. The old
 comment at qt/screens/mask.py near105 also incorrectly attributes the assay
 to spacr.object. No new settings or UI added. Protected35966906164 remains
 queued/live and untouched; no version/main change.
+
+2026-09-24 — IMPLEMENTATION: MODEL-CONTENT SIGNATURES493
+Private spacr._mask_workers._prepare_mask_model resolves actual Cellpose
+weights before dispatch and returns detached canonical settings, SHA256
+settings/model identity and checkpoint metadata. Pathogen overrides/custom
+paths are honored; changed weights at the same path change resume identity.
+It supports current named caches and the zero-argument CPSAM cache in the
+supported4.0.7minimum; unsupported backend contracts fail explicitly. No
+model construction, GPU inference or new UI/settings.41checks pass; worker
+module coverage96.13%. Private API inventory only; pipeline invocation,
+figures/shared finalization and controls remain open.
+Protected CI35966906164 on435239bf3 is now running. Lint, integration and
+network jobs have passed; broader suites remain live. It predates788345b79
+motility finalization and this model helper; their local checks are separate.
+GPU observer b expired unqualified; c now observes until~09:04UTC,128MiB cap.
+No GPU inference launched, no version/main promotion.
