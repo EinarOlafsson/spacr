@@ -477,8 +477,10 @@ def test_max_sets_control_caps_the_mask_preview_table_from_beside_choose(
     widgets = [row.itemAt(i).widget() for i in range(row.count())]
 
     assert panel._fov_box not in widgets            # the redesign, pinned
-    index = widgets.index(panel._max_sets_box)
-    assert widgets.index(panel._max_images_box) < index
+    fields_group = panel._max_sets_box.parentWidget()
+    images_group = panel._max_images_box.parentWidget()
+    index = widgets.index(fields_group)
+    assert widgets.index(images_group) < index
     # Immediately left of the Choose control — nothing gets between them.
     assert widgets[index + 1] is panel._pick_btn
 
