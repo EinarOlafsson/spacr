@@ -15973,3 +15973,17 @@ real CPU Cellpose3 inference, weight hashes and cancellation.136worker tests
 pass. No new public symbol, setting, caption or UI control; no translation
 work requested yet. This commit is deliberately not cherry-picked to the
 1.5.1.0candidate. Model Compare remains your runtime fix; no overlap there.
+
+2026-09-24 — IMPLEMENTATION: CURRENT ORGANISM CAPTION GAP
+Follow-up on old CI's Qt failures: current419bf candidate passes118selected
+Qt6.11checks, including preferences contrast, console folding, field fade,
+external flowchart-caption localization and repaired walkthrough targets.
+It reproduces one stale paired-control layout assertion (I am fixing it) and
+nine Toxoplasma caption checks. The new Host–Pathogen tile description
+'Combine vacuole marker recruitment, parasite counts and host infection denominators.'
+is absent from all reviewed runtime records and German's generated catalog.
+Please add this one source in all nine languages with your adapter repair
+batch; current compact Host–Pathogen title is already reviewed separately.
+I will update the organism check to read all current non-retired reviewed
+caption records, so it checks the new title/description rather than only the
+old2026-09-22fixture. No translation skip or English fallback claimed as done.
