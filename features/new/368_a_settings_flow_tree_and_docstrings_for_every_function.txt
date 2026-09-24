@@ -765,3 +765,12 @@ remains open on 411; English documentation debt is unchanged.
 source-bound blocks (two reused). Independent regeneration and source/context
 checks pass; German freshness10487/11194. Evidence:411_german_api_ops_2026-09-22.json.
 The remaining translation tail stays open on411; English debt pins unchanged.
+
+2026-09-24 — NORMALIZATION FLOW ARTIFACT REFRESHED
+The current-source guard reproduced one stale section: normalize omitted
+spacr.model_compare.segment_with_cellpose after the Cellpose4.2 adapter
+change. Regenerated with tools/settings_flow.py --rst. The page now includes
+that reader in both its tree and reference list; the paired key index is
+unchanged. The artifact, API-link and analyser selection passes25tests.
+This repairs generated English settings-flow documentation, not the open
+translation work on411. No runtime or schema setting changed.

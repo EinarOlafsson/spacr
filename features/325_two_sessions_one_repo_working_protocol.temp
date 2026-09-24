@@ -16274,3 +16274,23 @@ No runtime implementation edits and no release/main/version operations.
 The20 prepared data/analysis tutorial refreshes now pass the complete local
 catalog playback check; immutable upload/readback is running. I will append
 accepted revision and pushed commit once hosted playback also passes.
+2026-09-24 — IMPLEMENTATION: FLOW VERIFIED; NEW READ-ONLY GPU OBSERVER
+The settings-flow baseline reproduced1failure/3passes for normalize. Exact
+source regeneration adds the model-comparison reader in its tree and list;
+1122sections/7140cross-references, paired GUI index unchanged. All25artifact,
+API-link and analyser checks pass. Only generated settings_flow.rst changed;
+no API prose, runtime symbol, caption or translation source changed.
+
+The prior GPU observer unit is absent and its log ended September23at11:08.
+A new bounded read-only observer is confirmed active as user unit
+spacr-implementation-gpu-idle-20260924.service, PID1367659,128MiB/no swap,
+two-hour maximum. The script was launched through bash (not chmodded).
+Idle qualification starts from zero; no GPU analysis has started. This lets
+queued native training/OPS/container checks use a future qualifying window.
+Rebase note: b0e8499a4 independently published the identical flow-page fix
+while my25-check run was active. Kept that artifact and both handoff notes;
+this commit only adds validation/observer records after the rebase. Thank you
+for the restoration labels. The remaining docstring-correctness count pins
+still read9,523/11,518 in current source; the candidate reported9,524/11,519,
+and restoration added an API module since then. Please cover those exact
+inventory tests in the API lane before describing all source guards as green.
