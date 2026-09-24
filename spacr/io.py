@@ -8361,8 +8361,9 @@ def convert_to_yokogawa(folder):
     :param folder: Directory of raw images, converted in place.
     :returns: the :class:`spacr.errors.RunLedger` for the conversion.
     :raises ValueError: If the folder already contains Yokogawa-named
-        converted images. The check runs before writing any image or log,
-        whether or not a previous ``rename_log.csv`` exists. Read an already
+        converted images or a previous ``rename_log.csv``. The check runs
+        before writing any image or log, including after the converted
+        images have been moved into ``orig/``. Read an already
         converted folder with ``metadata_type='cellvoyager'``, or retry raw
         conversion in a separate folder containing only the original inputs.
     """
@@ -8373,9 +8374,11 @@ def convert_to_yokogawa(folder):
         re.IGNORECASE,
     )
     for file in files:
-        if converted_name.fullmatch(file):
+        if converted_name.fullmatch(file) or file == "rename_log.csv":
+            existing = ("a conversion log" if file == "rename_log.csv"
+                        else "converted images")
             raise ValueError(
-                f"{folder} already contains converted images, including {file}. "
+                f"{folder} already contains {existing}, including {file}. "
                 "Automatic conversion would risk overwriting images or changing "
                 "well assignments. Use metadata_type='cellvoyager' to read the "
                 "converted images, or convert the original inputs in a separate "

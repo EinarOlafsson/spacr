@@ -16619,3 +16619,11 @@ Test-only change; no API/tutorial/translation update required.
 The old GPU observer finished its bounded2hours normally; restarted once as
 spacr-implementation-gpu-idle-20260924-b.service (128MiB,swap0,2hours).
 Same gpu-idle.log; no20minute idle interval qualified and no GPU work launched.
+
+2026-09-24 — IMPLEMENTATION: CONVERSION PROVENANCE FOLLOW-UP
+The #429 preflight also protects rename_log.csv when images have moved into
+orig/ and no converted TIFF remains at the top level. Reproduced two cases:
+a plain rerun erased the mapping, and adding a new input replaced it. Both
+now refuse before writes. All 51 conversion checks pass. API owner: the
+convert_to_yokogawa :raises: description includes an existing conversion log;
+no signature/settings changes. Seven small batches are now pushed to nightly.

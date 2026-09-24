@@ -368,3 +368,12 @@ Three regressions fail before (visible temporary array and two leftover
 failure paths); 61 import/rollback/partial-sweep/Qt import checks pass.
 No public signature change. This completes the three runtime hazards
 recorded at the end of the September19 review. Docs handoff is in #325.
+
+2026-09-24 — Preserve provenance after the images move into orig/
+Extended the automatic-conversion preflight to retain a previous rename log
+even when converted TIFFs have already moved out of the top-level folder.
+Without this, a rerun erased the mapping and its run-status record, or
+replaced it with mappings for newly added inputs. Two real conversion/archive
+regressions reproduced that loss. The log now triggers refusal before writes,
+with the same separate-raw-folder/cellvoyager guidance. All 51 conversion
+checks pass (32.09s); all existing data/log bytes remain intact on refusal.

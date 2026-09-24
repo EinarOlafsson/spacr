@@ -40,3 +40,25 @@ def test_second_conversion_preserves_first_mapping_and_pixels(tmp_path):
         convert_to_yokogawa(str(tmp_path))
 
     assert {path.name: path.read_bytes() for path in tmp_path.iterdir()} == before
+
+
+@pytest.mark.parametrize("new_input", [False, True])
+def test_archived_images_do_not_allow_the_conversion_log_to_be_replaced(tmp_path, new_input):
+    from spacr.io import convert_to_yokogawa
+
+    tifffile.imwrite(tmp_path / "raw.tif", np.full((8, 8), 12, np.uint16))
+    convert_to_yokogawa(str(tmp_path))
+    original = tmp_path / "orig"
+    original.mkdir()
+    for path in tmp_path.glob("*.tif"):
+        path.rename(original / path.name)
+    if new_input:
+        tifffile.imwrite(tmp_path / "new.tif", np.full((8, 8), 27, np.uint16))
+    before = {str(path.relative_to(tmp_path)): path.read_bytes()
+              for path in tmp_path.rglob("*") if path.is_file()}
+
+    with pytest.raises(ValueError, match="conversion log"):
+        convert_to_yokogawa(str(tmp_path))
+
+    assert {str(path.relative_to(tmp_path)): path.read_bytes()
+            for path in tmp_path.rglob("*") if path.is_file()} == before
