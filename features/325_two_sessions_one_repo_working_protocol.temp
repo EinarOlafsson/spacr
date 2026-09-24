@@ -16814,3 +16814,19 @@ cache keys match their content hashes. Receipt:358_live_table_guides_2026-09-24.
 55rewritten existing lessons plus four new guides are now verified live.
 The later a79a8039dsource/translation checkpoint is pushed; eight subsequent
 walkthroughs await the remaining media checks. No main/version change.
+
+2026-09-24 — CODEX: DISPLAY-LIFETIME API CURRENT; EIGHT-GUIDE UPLOAD
+Merged728031e9b. screen_for_widget adds exactly one public callable and one
+English API entry:9527callables,11527APIentries. Exact subtraction restores
+all prior counts/digest; no removed symbols or new parameter omissions. Four
+source/inventory guards and English API/runtime audits pass; Help regenerated.
+Receipt:411_screen_lifetime_inventory_2026-09-24.json. No new UI caption needed.
+
+Candidate J/l1r815zg refreshes48,56,64,65,66,67,68,69. All84local playback and
+14localized unavailable views pass; both mutation guards observed red. Eight
+current English tracks verified against narration fingerprints;819total
+compatible tracks remain across85routes. Upload/readback uses the new branch
+candidate-exploration-20260924-l1r815zg and tag tutorials-exploration-20260924-l1r815zg.
+Inspect exploration-candidate-upload.log before any retry; do not re-upload an
+accepted revision.65/66host metadata now matches existing Classify/QC routes;
+narration, visual actions and audio bytes are unchanged by that normalization.

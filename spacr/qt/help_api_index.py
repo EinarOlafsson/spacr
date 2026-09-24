@@ -4097,6 +4097,7 @@ API_ENTRIES = (
     ('spacr.qt.hidpi.follow_device_ratio', "Re-render ``widget``'s picture when it moves to a different screen."),
     ('spacr.qt.hidpi.logical_size', 'The size ``picture`` OCCUPIES, whatever it was rendered at.'),
     ('spacr.qt.hidpi.scaled_for', '``source`` at ``width`` x ``height`` LOGICAL pixels on ``target``.'),
+    ('spacr.qt.hidpi.screen_for_widget', 'Find a display without making its Python wrapper a child of a window.'),
     ('spacr.qt.i18n', 'Runtime localization for the spaCR Qt application.'),
     ('spacr.qt.i18n.Language', 'One selectable UI language.'),
     ('spacr.qt.i18n.Language.display_name', 'Return an unambiguous native/English selector label.'),

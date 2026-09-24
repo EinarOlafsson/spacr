@@ -44171,6 +44171,16 @@
       "source_sha256": "0b8cf4fa3e6bd058dbe2d11ada2abad9c14323025f3e73a38a87bf97790c8e5f",
       "text": "``source`` at ``width`` x ``height`` LOGICAL pixels on ``target``.\n\nThe one call every picture in the application should make. ``source``\nis a ``QPixmap`` or a ``QImage``; ``target`` is the widget the picture\nwill be shown on (anything :func:`device_ratio` understands); the size\nis a side length, a ``(w, h)`` pair, a ``QSize``, or two arguments.\n\nThe result is rendered at ``size * ratio`` real pixels and carries that\nratio, so it lays out at ``size`` and draws at full panel resolution.\n\nA null or missing source comes back untouched -- a caller that already\nchecks ``isNull()`` keeps its own answer, and one that does not is no\nworse off than it was with a bare ``.scaled()``."
     },
+    "spacr.qt.hidpi.screen_for_widget": {
+      "source_blocks_sha256": [
+        "dcf53904bb88de7dd3543d9739ec71539d20b11a3cea835baecea78c7b8fc8ac",
+        "fb5d24e3610e7aa21ed8517662eb243c36ceda1f104d40699e069d86108d135b",
+        "9b99ed0ccedec10443d858aff9e4969dbdbffe0c6b1772bbaa585da17873806c",
+        "3f7d77a0a557a47f4cf17d6568aa0210ec6ea1fcaf7ec84c7080380266817c27"
+      ],
+      "source_sha256": "26898b425275ee8f6318126430460d72b623fdc75d3a0e81d406f0c37dfe1039",
+      "text": "Find a display without making its Python wrapper a child of a window.\n\nPySide can associate ``QWidget.screen()``'s shared QScreen wrapper with\nthat widget. Closing it then invalidates the wrapper; cyclic collection\ncan even destroy the display object still used by QApplication. Static\nQGuiApplication lookups leave display lifetime with Qt.\n\n:param widget: QWidget or QWindow whose center selects the display, or\n    None for the primary display. An unshown child uses its parent.\n    Non-Qt stand-ins may supply their own ``screen()`` accessor.\n:returns: QScreen at that position, the primary display as fallback,\n    or None when there is no GUI application/display."
+    },
     "spacr.qt.i18n": {
       "source_blocks_sha256": [
         "62abad3fb3946b87eb8fde0db25f74a2351bd56dd1d3d843e08b4efcaecb3ef4",

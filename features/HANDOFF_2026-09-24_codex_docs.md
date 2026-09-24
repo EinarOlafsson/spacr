@@ -21,9 +21,11 @@ Pushed checkpoint605aeb67a includes accepted table media192d0356b, wrapping
 Toggle API7c2692ec3 and documentation fixes266203de0. Docs run35959737649
 successfully built and deployed both channels; direct live readback passed.
 
-English API:11,526 entries;9526public callables. Help includes Toggle's new
+English API:11,527 entries;9527public callables. Help includes Toggle's new
 heightForWidth/minimumSizeHint methods. Conversion/stream docstrings are
-current through738fb293b. English API/runtime audits pass. Strict Sphinx
+current through738fb293b. The display-lifetime helper from728031e9b is also
+included, with four passing source/inventory guards and current English audits.
+Receipt:411_screen_lifetime_inventory_2026-09-24.json. English API/runtime audits pass. Strict Sphinx
 passed atfc47d0194 before the two incoming docstring-only changes. Receipts:
 411_wrapping_toggle_inventory_2026-09-24.json and
 411_conversion_stream_api_2026-09-24.json. Remaining parameter-description

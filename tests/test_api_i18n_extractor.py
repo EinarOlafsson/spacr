@@ -1227,7 +1227,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # SaveFigureDialog.eventFilter is the only final release addition.
     # +1 restoration_controls module; its private widget remains excluded.
     # Exact subtraction: 411_restoration_api_refresh_2026-09-24.json.
-    expected = 11_526
+    expected = 11_527
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1269,7 +1269,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_526
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_527
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

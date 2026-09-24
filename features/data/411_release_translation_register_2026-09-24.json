@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "source_commit": "605aeb67a80eecb5453d94c70712e73b913054c8",
+  "source_commit": "43a10c0e6abcc1666262910da26a716199f58bbb",
   "policy": "translation incompatibilities are report-only",
   "scope": "source contracts and runtime placeholders",
   "english": {
     "api": {
       "status": "compatible",
       "exit_code": 0,
-      "diagnostics": "verified API catalogs: languages=0 symbols=11526\n"
+      "diagnostics": "verified API catalogs: languages=0 symbols=11527\n"
     },
     "runtime": {
       "status": "compatible",
@@ -15,14 +15,14 @@
       "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
     }
   },
-  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/score-final-translation-compatibility.json",
-  "full_report_sha256": "4a087214398c5b6e092f8c9d29c7204de53fd2ff792e2f183955d50ebf67e30d",
+  "full_report": "/mnt/firecuda2/codex/workflow-authoring-20260922/screen-lifetime-translation-compatibility.json",
+  "full_report_sha256": "cb8bcea3b9f470f7fafad3c910bcc27aacba6b7c2de8228b2da794809a5fb7d6",
   "locales": {
     "api": {
       "sv": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -31,7 +31,7 @@
       "de": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 724,
+          "missing": 725,
           "stale": 367,
           "translation_blocks": 111,
           "obsolete": 3
@@ -40,7 +40,7 @@
       "es": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 790,
+          "missing": 791,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -49,7 +49,7 @@
       "zh_CN": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -58,7 +58,7 @@
       "pt": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -67,7 +67,7 @@
       "hi": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -76,7 +76,7 @@
       "ko": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -85,7 +85,7 @@
       "is": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3
@@ -94,7 +94,7 @@
       "fr": {
         "source_compatible": false,
         "issue_counts": {
-          "missing": 915,
+          "missing": 916,
           "stale": 403,
           "translation_blocks": 121,
           "obsolete": 3

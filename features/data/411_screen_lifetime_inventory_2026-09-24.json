@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "baseline": "a79a8039d9b5b19d1f074befbee3fc416a54fc2f",
+  "source_head": "43a10c0e6abcc1666262910da26a716199f58bbb",
+  "before": {
+    "callables": 9526,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4109,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9521,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9533,
+    "variant_buckets": {
+      "1": 9519,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18944,
+    "required": 9751,
+    "signature_sha256": "0c5da0b14efdfb8b78e20e0f1c2622b908e76f93a5c8b4cda2aa40dad717f176"
+  },
+  "after": {
+    "callables": 9527,
+    "categories": {
+      "function": 4248,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4109,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9522,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9534,
+    "variant_buckets": {
+      "1": 9520,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18945,
+    "required": 9751,
+    "signature_sha256": "63b9cafe201fe1c9be793312c4b9412c3476dc71eff13f84f8bf2294392b3eeb"
+  },
+  "added": [
+    "spacr.qt.hidpi.screen_for_widget"
+  ],
+  "removed": [],
+  "changed_signatures": {},
+  "exact_subtraction_restores_baseline": true,
+  "omissions_before": 2290,
+  "omissions_after": 2290,
+  "added_omissions": [],
+  "removed_omissions": [],
+  "english_api_entries": 11527,
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11527\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "validation": {
+    "passed": 4,
+    "log": "/mnt/firecuda2/codex/workflow-authoring-20260922/screen-lifetime-api-tests.log",
+    "sha256": "5d3d283780a3be10830b59d1eeb16020e9700c8691ae930ad589c61e1bccc7f0"
+  },
+  "publication_status": "English source and Help refreshed; next documentation workflow builds and publishes this delta. Last directly verified live API has11526entries."
+}
