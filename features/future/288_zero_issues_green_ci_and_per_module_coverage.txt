@@ -5409,3 +5409,10 @@ failure states; picker cancellation preserves the prior path and late results
 do not update closed controls. Existing asynchronous execution checks still
 prove background scheduling and cancellation; these unit cases exercise the
 request's validation/publication boundary. No model/algorithm behavior changed.
+
+2026-09-24 — Restoration control coverage
+12checks pass; restoration_controls reaches99.31%including branches. Added
+captured request/CPU identity, loading-error, post-close publication and
+accepted-versus-cancelled installation retry checks. Existing asynchronous
+Compare/Apply/cancellation checks still run. Loader stubs verify only control
+protocol, not model quality. No thresholds/exemptions/baseline were weakened.

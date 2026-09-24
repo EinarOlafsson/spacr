@@ -139,3 +139,12 @@ runtime implementation. Documentation/translation/tutorial work is handed to
 the other session. No claim of improved biological accuracy: users must inspect
 restoration for their own structure and acquisition. CARE/N2V require suitable
 trained acquisition-specific models and are suggestions, not shipped engines.
+
+2026-09-24 — Restoration load/retry control contracts
+Captured-request unit checks verify deferred loading with the selected model,
+diameter and CPU identity, explicit loader errors, and ignored publication
+after closure. Accepting the existing Model Zoo installation triggers a retry;
+cancelling does not. These use a loader stub to test control protocol; they do
+not replace the previously recorded real isolated Cellpose3model acceptance.
+All12MakeMasksrestoration checks pass; controls coverage99.31%with no runtime
+change. Documentation/tutorial follow-up remains with the docs session.

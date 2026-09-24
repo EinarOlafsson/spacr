@@ -17184,3 +17184,9 @@ calibration refusals, picker cancellation and closed-control publication are
 covered in addition to the existing background Compare/Apply checks. Test-only
 change; no public API/settings/tutorial change required. Integrating your four
 new nightly commits before pushing this and the strict host-marker key fix.
+
+2026-09-24 — IMPLEMENTATION: RESTORATION CONTROL VALIDATION489/288
+12restoration checks pass,99.31%controls coverage. Captured model/diameter/CPU
+identity, visible loader errors, closed controls and installation acceptance
+are tested alongside existing asynchronous Compare/Apply behavior. Test-only;
+no new settings/API/text. Existing real-model acceptance remains separate.
