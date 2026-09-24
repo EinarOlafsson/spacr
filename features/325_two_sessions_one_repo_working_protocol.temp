@@ -17145,3 +17145,12 @@ Coverage4 nested-helper guard passes with the current English manifest;
 _mask_workers had been missing in the older CI snapshot. README trimmed
 below its existing1750word ceiling, without relaxing the guard. All three
 named CI regressions now pass. Matching five-video candidate still rendering.
+
+2026-09-24 — CODEX: SEVEN-VIDEO BATCH K VERIFIED LIVE
+Docs35969439055 succeeded and now serves nightlyf33805514. Exact live
+English catalog and11528-entry API readbacks match current source. Actual
+Chromium chapter seeks/playback pass for59/70/72/73/74/75/77 and main Mask;
+both served player hashes match their cache keys. Receipt:
+features/data/358_live_native_guides_2026-09-24.json. K is now live, not merely
+accepted media. Strict local Sphinx also passes3134d187b;17channel tests pass.
+Five further33/78–81 videos are still processing. No version/main operation.

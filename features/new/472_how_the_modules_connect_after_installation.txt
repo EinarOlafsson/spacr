@@ -546,3 +546,11 @@ Public API/catalog readback and real browser playback are recorded in
 features/data/411_live_current_documentation_2026-09-24.json. Complete
 translated pathway narration and the remaining user-walkthrough review are
 still open; current English publication does not wait for that full matrix.
+
+2026-09-24 — PRACTICAL OVERVIEW INTRODUCTIONS AND NEXT STEPS
+78–81 now start with the user's data and finish with the next module/action.
+All78module contracts and9pathways remain unchanged in the shared map.
+The generator and translation-fallback cohort pass65focused checks.118
+retained frames match the previous valid capture content and image hashes;
+matching English narration/media are processing. No new capture claimed.
+Runtime UI sources are unchanged; stale narration reviews stay registered.

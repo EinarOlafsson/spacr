@@ -1987,3 +1987,13 @@ immutable video hosting, keeping translation incompatibilities report-only.
 All four latest callable/boundary/English-manifest/parameter-debt checks pass;
 9524callables and2290previous required-parameter omissions remain explicit.
 Translation review remains open; private machine drafts are not accepted.
+
+2026-09-24 — CURRENT STRICT RELEASE BUILD AND GUI LINKS
+Strict Sphinx passes on3134d187b with11528English API entries. English API
+and runtime source audits pass;9incompatible API locales remain report-only.
+All17channel-publication checks pass. The old nested-helper CI failure is
+resolved by the current English manifest, with its test unchanged.
+Regenerated the bundled GUI tutorial index (75modules), including the four
+organism guides and current lesson titles; publication now maintains it.
+Receipt:data/411_overview_release_readiness_2026-09-24.json. This is local
+build evidence, not a claim that the latest nightly deployment is already live.

@@ -1,0 +1,30 @@
+{
+  "source_commit": "3134d187ba57ded7d5034965281cae8f42417d8f",
+  "strict_sphinx_passed": true,
+  "strict_sphinx_log_sha256": "1a00cfd7c83affe17e2682978cdbf422053337291f5574bdf21aea044a684ee6",
+  "build": "/tmp/spacr-overview-docs.e6Byib/html",
+  "english_api_entries": 11528,
+  "english_api_sha256": "27e6eef57402523762f508f744bf06c014fa96c1725394362b06840c845d9273",
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11528\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "translation_policy": "translation incompatibilities are report-only",
+  "full_audit": false,
+  "compatibility_register": "/mnt/firecuda2/codex/workflow-authoring-20260922/overview-translation-compatibility.json",
+  "docs_channel_tests_passed": 17,
+  "ci_regressions_verified": [
+    "organism GUI tutorial links",
+    "nested-helper empty rollout",
+    "README prose ceiling"
+  ],
+  "live_deployment": "Separate verification required; this is a local strict build, not a live-site claim."
+}
