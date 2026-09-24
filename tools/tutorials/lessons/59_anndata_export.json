@@ -9,145 +9,78 @@
   "section": "Measure",
   "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
   "objectives": [
-    "Prepare a copied measurement database and the supplied export helper.",
+    "Open AnnData Export and select a measured project.",
     "Choose joined or single-table measurements and a missing-value policy.",
-    "Open the saved h5ad file and retain its source images and settings."
+    "Export an h5ad file with feature names and object metadata."
   ],
-  "example_files": [
-    "AnnData_API_workaround.zip"
-  ],
-  "prerequisite": "Download the measurements example from the Annotate tutorial and the linked AnnData_API_workaround.zip. Activate a Python environment containing spaCR and AnnData. This example uses the supplied helper because entirely missing metadata can prevent the current GUI writer from completing an export. Work with a copy of measurements.db and choose new output filenames.",
+  "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
   "scenes": [
     {
-      "visual": "gui_02_current_anndata_form",
-      "narration": "From Home, open Measure, then AnnData Export. An AnnData file combines an object-by-feature matrix with object metadata and feature names. This example uses the supplied Python helper to export a database containing entirely missing metadata.",
+      "visual": "01_measure_host",
+      "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+      "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
         "09_annotate"
-      ],
+      ]
+    },
+    {
+      "visual": "03_private_downloaded_project",
+      "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
       "hold_after": 0.7
     },
     {
-      "visual": "gui_03_private_downloaded_project",
-      "narration": "Download the measurement example from the Annotate tutorial. Copy measurements.db into a new working folder and retain the source images. The GUI accepts a project folder; the helper takes the database file directly.",
+      "visual": "05_joined_keep_settings",
+      "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
       "hold_after": 0.7
     },
     {
-      "visual": "api_01_unmodified_failure",
-      "narration": "If the writer reports an error for entirely missing metadata, discard its incomplete output. Unknown calibration values can trigger this error. Use the supplied helper for the following exports while leaving unknown values missing.",
-      "focus": [
-        190,
-        1660,
-        3450,
-        340
-      ],
+      "visual": "04_setting_anndata_row_limit",
+      "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
       "hold_after": 0.7
     },
     {
-      "visual": "api_02_explicit_workaround",
-      "narration": "Download and extract AnnData_API_workaround.zip beside your copied database. Activate the Python environment containing spaCR and AnnData. The included README provides commands you can copy; the helper handles the missing-metadata storage issue.",
-      "focus": [
-        190,
-        80,
-        3450,
-        1400
-      ],
+      "visual": "05_joined_keep_finished",
+      "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_cell_keep_finished",
+      "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_cell_mean_finished",
+      "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_cell_drop_features_finished",
+      "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_cell_drop_objects_finished",
+      "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_nucleus_keep_finished",
+      "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_anndata_register_artifact",
+      "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_nucleus_keep_finished",
+      "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+      "hold_after": 0.7,
       "related_lessons": [
         "06_api"
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_03_joined_keep",
-      "narration": "Run the helper with source measurements.db, a new output filename and nan-policy keep. The joined example writes two thousand three hundred forty-one cell rows with one thousand one hundred thirty-six features. Related nucleus and pathogen measurements are aggregated onto cells.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_04_cell_keep",
-      "narration": "Add single-table cell when you want only the cell table’s own measurements. With keep, this example has two hundred sixty-one features and twenty-eight missing values. Choose a separate output filename for each export.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_05_cell_mean",
-      "narration": "Choose nan-policy mean to replace missing feature values with observed column means. This fills twenty-eight values in the cell example and records their original positions in the missing-value layer. Use imputation only when it suits your downstream analysis.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_06_cell_drop_features",
-      "narration": "Choose drop_features to remove columns containing missing values. Here four features are removed and every cell remains. Inspect the retained feature names before comparing this export with another dataset.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_07_cell_drop_objects",
-      "narration": "Choose drop_objects to remove rows containing missing feature values. Here seven cells are excluded. Check which objects were removed and consider whether missingness could affect your analysis.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_08_nucleus_keep",
-      "narration": "Choose single-table nucleus for one row per nucleus. The example exports two thousand six hundred eighty-two nuclei and three hundred forty-one features. Retain the object identities and parent links when joining these results to other tables.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_09_saved_shape",
-      "narration": "After the command finishes successfully, open the saved h5ad file and inspect its shape, feature names and object metadata. Annotations are stored as metadata. Keep the source images and their paths because the export does not embed image pixels.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "api_03_joined_keep",
-      "narration": "The helper refuses an existing output, so use a new filename for each policy. Keep your commands and settings beside the files. For Python integration, build_anndata constructs the matrix and metadata; the supplied helper adds the missing-metadata storage step.",
-      "focus": [
-        190,
-        80,
-        3450,
-        650
-      ],
-      "related_lessons": [
-        "06_api",
-        "08_measure"
-      ],
-      "hold_after": 0.7
+      ]
     }
   ]
 }

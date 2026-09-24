@@ -1,0 +1,73 @@
+{
+  "source_commit": "ba599995917c4c63a56b3cd8188b1418f03d4ac7",
+  "capture": "/tmp/spacr-anndata-tutorial-lre0uxru/captures/anndata_current_native",
+  "native_gui_export": true,
+  "helper_required": false,
+  "input_source_unchanged": true,
+  "private_measurements_unchanged": true,
+  "remaining_workers": false,
+  "exports": [
+    {
+      "name": "05_joined_keep",
+      "shape": [
+        2341,
+        1136
+      ],
+      "n_missing": 400320,
+      "independent_matrix_validation": true,
+      "sha256": "ff093ed94a247f2acccc5e57cc53241b8065f9bb2316739234c0c0784d5d7435"
+    },
+    {
+      "name": "06_cell_keep",
+      "shape": [
+        2341,
+        261
+      ],
+      "n_missing": 28,
+      "independent_matrix_validation": true,
+      "sha256": "119bacc609eb009c77e02412986d4683419b91579a04ba17fa675f599a801a08"
+    },
+    {
+      "name": "07_cell_mean",
+      "shape": [
+        2341,
+        261
+      ],
+      "n_missing": 0,
+      "independent_matrix_validation": true,
+      "sha256": "e5ac216941d930ce1cc575bfe252e5cbd20754309d0155d461ed837043114a5c"
+    },
+    {
+      "name": "08_cell_drop_features",
+      "shape": [
+        2341,
+        257
+      ],
+      "n_missing": 0,
+      "independent_matrix_validation": true,
+      "sha256": "703df703dbb1c588ed3783f21f08b2a0e524a0af747cb11093a35c1a42d93e2e"
+    },
+    {
+      "name": "09_cell_drop_objects",
+      "shape": [
+        2334,
+        261
+      ],
+      "n_missing": 0,
+      "independent_matrix_validation": true,
+      "sha256": "d2c2d07a2bdd9a02104e2841743ca9bc66633956126e6f3f05eddd9bd6c1d12c"
+    },
+    {
+      "name": "10_nucleus_keep",
+      "shape": [
+        2682,
+        341
+      ],
+      "n_missing": 1912,
+      "independent_matrix_validation": true,
+      "sha256": "23f77ebeaf55613f510fbbdb5a2c7c64bfb2f6b8ee641e2502302c915f64d74f"
+    }
+  ],
+  "visual_review": "Home route, settings and completed export inspected; current dark/blobs GUI, neutral paths.",
+  "media_status": "Narration and publication pending"
+}

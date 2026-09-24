@@ -70,13 +70,11 @@ The following uses the same entry point as the application's **Run** button:
 For explicit function arguments, see
 :func:`spacr.anndata_export.export_anndata`.
 
-Recording compatibility
------------------------
+Follow the video
+----------------
 
-The `AnnData video <tutorials/#lesson=59_anndata_export>`__ demonstrates an
-optional Python helper supplied with the older recording. Current nightly's
-built-in exporter handles entirely missing metadata directly and preserves
-an existing destination if writing its replacement fails. Follow the steps
-above for the current built-in export; its former missing-metadata error
-and workaround in the recording describe the older version. Keep an existing
-completed output after a failed write.
+The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through
+these controls using the downloadable measurement example. It shows joined,
+cell-only and nucleus-only exports and compares the missing-value policies.
+The normal exporter handles entirely missing metadata directly. If writing a
+replacement fails, an existing completed output is preserved.

@@ -16976,3 +16976,22 @@ field identifier to borrow the first image. The already-pushed runtime fix
 missing identity, exact real-field identity for valid names and None when
 only sidecars remain.43checks pass; no runtime/API change. Protected CI's
 other jobs remain live. Worker plot delivery remains the next493integration.
+
+2026-09-24 — CODEX: SEVEN PRACTICAL WALKTHROUGHS IN FINAL MEDIA CHECKS
+Rewrote70ExplainCV,72Volcano,73ParameterSweep,74ImportImages and75Diagnostics
+as input/settings/run/output walkthroughs, preserving53 byte-verified native
+captures. Matching English media is rendering. Also recorded the repaired
+normal AnnData GUI: all six exports pass independent matrix checks; original
+and private databases unchanged, no workers left.59 now uses native exports,
+not the older helper/failure recording. Existing written guide is updated.
+
+77Embeddings now records the actual crop-folder loader and Embed button using
+the cached real ResNet18 on CPU:16x1536 per-channel and16x512 projection.
+No set_crops injection, app modification or GPU job. The first environment
+lacked timm; the successful capture used the existing isolated embeddings
+venv and current checkout. Updated optional helper README, retained helper
+code, and registered the old translation reviews as incompatible with the
+new source. GUI still has no export button; instructions state this clearly.
+Candidate will replace59/70/72/73/74/75/77 on baseline J; no new upload yet.
+No version/main operation. Capture files, logs and media under the existing
+workflow-authoring workspace; unrelated authoring/project remains untouched.
