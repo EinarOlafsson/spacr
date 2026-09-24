@@ -16566,3 +16566,13 @@ code and duplicate suppression are unchanged. Baseline reproduced all three;
 18 relevant checks pass with forced root setup and 18 in normal setup.
 No API, translation or tutorial changes needed for this test-only batch.
 Next small runtime candidate is #429's already-converted image rerun hazard.
+
+2026-09-24 — IMPLEMENTATION: #429 CONVERSION RERUN GUARD
+convert_to_yokogawa now raises ValueError before writes when canonical
+converted plate TIFFs are already present, regardless of rename_log.csv.
+49 conversion checks pass; seven new baseline failures prove the guard.
+API owner: :raises: documents using metadata_type='cellvoyager' for converted
+images or a separate raw-only folder to retry. Update io/core error guidance
+in the API/translations when convenient. No signature or settings additions.
+Next bounded #429 follow-ups: wrong-field stream prefix and visible importer
+temporary arrays; I own stream_dataset.py/external_masks.py for these fixes.

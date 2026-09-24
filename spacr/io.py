@@ -8360,7 +8360,27 @@ def convert_to_yokogawa(folder):
 
     :param folder: Directory of raw images, converted in place.
     :returns: the :class:`spacr.errors.RunLedger` for the conversion.
+    :raises ValueError: If the folder already contains Yokogawa-named
+        converted images. The check runs before writing any image or log,
+        whether or not a previous ``rename_log.csv`` exists. Read an already
+        converted folder with ``metadata_type='cellvoyager'``, or retry raw
+        conversion in a separate folder containing only the original inputs.
     """
+
+    files = sorted(_listdir_visible(folder))
+    converted_name = re.compile(
+        r"plate\d+_[A-Z]+\d+_T\d+F\d+L\d+(?:A\d+)?(?:Z\d+)?C\d+\.tiff?",
+        re.IGNORECASE,
+    )
+    for file in files:
+        if converted_name.fullmatch(file):
+            raise ValueError(
+                f"{folder} already contains converted images, including {file}. "
+                "Automatic conversion would risk overwriting images or changing "
+                "well assignments. Use metadata_type='cellvoyager' to read the "
+                "converted images, or convert the original inputs in a separate "
+                "folder. No images or rename log were changed."
+            )
 
     def _get_next_well(used_wells):
         """Return the next free well, filling one plate before the next.
@@ -8382,7 +8402,7 @@ def convert_to_yokogawa(folder):
     used_wells = set()
     ledger = RunLedger('convert_to_yokogawa')
 
-    for file in sorted(_listdir_visible(folder)):
+    for file in files:
         path = os.path.join(folder, file)
         ext = file.lower().split('.')[-1]
 

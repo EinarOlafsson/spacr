@@ -336,3 +336,18 @@ files converts those again as new wells. That is the same hazard as (1)
 and predates this item; it wants a decision (skip files that already
 match the Yokogawa name, or refuse when rename_log.csv is missing but
 plate*_ files are present) rather than a quick patch.
+
+2026-09-24 — Automatic conversion refuses an already converted folder
+Resolved the trailing rerun hazard with a preflight refusal: a canonical
+plate/well TIFF already present stops convert_to_yokogawa before any image,
+rename log or run-status artifact is written. This applies with or without
+a prior log, including CZI A/Z names and multi-letter rows. Existing code
+already skipped plate-prefixed plain TIFFs, but still reassigned raw inputs,
+could overwrite an existing well and replaced the provenance log on reruns.
+Read converted images with metadata_type='cellvoyager'; retry raw conversion
+in a separate folder containing the original inputs. The regex-failure
+message now explains this refusal instead of claiming outputs are reread.
+Seven real-file regressions failed before; 49 conversion checks now pass,
+including byte-for-byte preservation of inputs/output/logs on refusal.
+The previously listed streamed-dataset prefix and importer temporary-file
+hazards remain separate follow-ups; this does not close those gaps.

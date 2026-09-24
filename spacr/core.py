@@ -335,9 +335,10 @@ def preprocess_generate_masks(settings):
                                     f"number the wells itself (rename_log.csv then records which "
                                     f"file became which well) is only safe once the plate*_*.tif "
                                     f"files this attempt already wrote are moved out of "
-                                    f"{source_folder}: that conversion reads every image in the "
-                                    f"folder, so it would convert them a second time, as further "
-                                    f"wells.")
+                                    f"{source_folder}. Automatic conversion now refuses folders "
+                                    f"with converted images to prevent overwrites or changed "
+                                    f"well assignments. A separate folder containing only the "
+                                    f"original inputs is the safest place to retry.")
                                 print(f'Error: {refusal}')
                                 ledger.record_failure(source_folder,
                                                       stage='convert_metadata', exc=e)

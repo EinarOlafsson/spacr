@@ -196,10 +196,8 @@ def test_the_refusal_does_not_send_the_user_back_over_its_own_leftovers(
 
     The converter writes each region as it goes, so the refusal leaves the
     plate holding the ``plate*_*.tif`` files written before it stopped, with
-    no ``rename_log.csv``. ``convert_to_yokogawa`` reads every image in the
-    folder, so a user who follows "clear custom_regex" over that folder
-    converts those leftovers a second time, as wells of their own -- the
-    renumbering this refusal exists to prevent, reached by taking its advice.
+    no ``rename_log.csv``. The plain converter now refuses that folder;
+    the guidance must still explain how to retry from the original inputs.
     """
     from spacr.core import preprocess_generate_masks
 
@@ -213,4 +211,4 @@ def test_the_refusal_does_not_send_the_user_back_over_its_own_leftovers(
         "premise: the refusal leaves the plate part-converted")
     assert not (plate / "rename_log.csv").exists()
     assert "moved out of" in out, out
-    assert "convert them a second time" in out, out
+    assert "refuses folders with converted images" in out, out

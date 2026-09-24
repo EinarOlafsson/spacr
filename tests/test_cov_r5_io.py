@@ -247,7 +247,7 @@ def test_two_source_names_for_one_well_address_do_not_collide(tmp_path,
 # ---------------------------------------------------------------------------
 
 def test_an_already_converted_plate_file_is_not_converted_again(tmp_path):
-    """A ``plate``-prefixed TIFF, and a non-image file, are both passed over.
+    """An existing converted plate stops conversion before images are written.
 
     The conversion runs *in place*, so its own output sits in the folder the
     next run scans. Re-converting it would rename a plate file onto a fresh
@@ -261,15 +261,10 @@ def test_an_already_converted_plate_file_is_not_converted_again(tmp_path):
     tifffile.imwrite(str(already), np.full((2, 2), 7, np.uint16))
     (folder / "notes.txt").write_text("not an image")
 
-    IO.convert_to_yokogawa(str(folder))
-
-    log = pd.read_csv(folder / "rename_log.csv")
-    assert list(log["Original File"]) == ["a_raw.tif"]
-    # The raw file really was converted (so the skip above is a skip, not a
-    # run that converted nothing) ...
-    converted = folder / log["Renamed TIFF"][0]
-    assert int(tifffile.imread(str(converted)).max()) == 3
-    # ... and the already-converted file kept its name and its pixels.
+    before = {path.name: path.read_bytes() for path in folder.iterdir()}
+    with pytest.raises(ValueError, match="already contains converted images"):
+        IO.convert_to_yokogawa(str(folder))
+    assert {path.name: path.read_bytes() for path in folder.iterdir()} == before
     assert int(tifffile.imread(str(already)).max()) == 7
 
 
