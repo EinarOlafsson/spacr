@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI-assisted source-context review of the current PyPI Starplast installer explanation and model-explanation failure messages. Retains the separate environment, 12 GB, changing alpha status and committed-file behavior. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Choose a measurements database and predictions CSV.",
+      "source": "Choose a measurements database and predictions CSV.",
+      "source_sha256": "cea021a08bd38b1792bc06bb9d13ef5c9557c99150e7ff7219e115b1b2d75ff9",
+      "translation": "Choisissez une base de données de mesures et un CSV de prédictions."
+    },
+    {
+      "table": "ui",
+      "key": "Choose database, prediction/fraction tables, regression folder, gene, guides and score column.",
+      "source": "Choose database, prediction/fraction tables, regression folder, gene, guides and score column.",
+      "source_sha256": "d294db9223d28724905e4e810f4357e9d9bc2a84fc14e0154bd259752aecbae8",
+      "translation": "Choisissez la base de données, les tables de prédictions et de fractions, le dossier de régression, le gène, les guides et la colonne de score."
+    },
+    {
+      "table": "ui",
+      "key": "Could not explain model: {message}",
+      "source": "Could not explain model: {message}",
+      "source_sha256": "12bf1387b86d36d78aebfb96542c163f552d4031136259d1f33ff366dcb6803a",
+      "translation": "Impossible d’expliquer le modèle : {message}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not investigate hit: {message}",
+      "source": "Could not investigate hit: {message}",
+      "source_sha256": "62944db2a2f66add5ce5ad64eb588aa55e97721d4bb30283a8ff719fea2e087f",
+      "translation": "Impossible d’examiner le résultat candidat : {message}"
+    },
+    {
+      "table": "ui",
+      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.",
+      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.",
+      "source_sha256": "0c5426f8d0cc9d6afaf215b807abacf6877b5494ce02126241b20381942d00f8",
+      "translation": "Starplast est une application en phase alpha permettant d’explorer la carte des connaissances sur Toxoplasma. Les fonctionnalités et les résultats peuvent changer. Elle s’ouvre dans une fenêtre distincte.\n\nLa dernière version stable compatible de Starplast est installée depuis PyPI. Le paquet contient ses données génétiques ; les dépendances augmentent le volume téléchargé et l’espace disque utilisé. Les besoins varient selon la version et la plateforme. Prévoyez au moins 12 GB d’espace disque libre. Les téléchargements peuvent prendre plusieurs minutes.\n\nStarplast dispose de son propre environnement dans {path} ; les paquets de spaCR ne sont pas modifiés. Le code source est sous licence MIT. Une copie de travail Git locale constitue une source de développement facultative ; les installations locales utilisent les fichiers validés et laissent la copie de travail intacte."
+    }
+  ]
+}

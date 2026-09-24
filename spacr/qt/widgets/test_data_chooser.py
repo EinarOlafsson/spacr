@@ -10,8 +10,10 @@ and the screen does the work, which keeps it testable without a network.
 """
 from __future__ import annotations
 
+import math
+
 from PySide6.QtCore import QEvent, QRect, Qt
-from PySide6.QtGui import QFontMetrics
+from PySide6.QtGui import QFontMetrics, QTextDocument
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -172,6 +174,9 @@ class TestDataChooser(QDialog):
         pane does not grow when a short description replaces a long one, which
         is what would move the buttons out from under the pointer.
 
+        Shape each paragraph as well as measuring its font metrics. Script
+        fallback fonts can make wrapped Hindi text taller than boundingRect.
+
         The width is the pane's own once it has one, and the dialog's hint
         before that -- at construction no layout has run, so `width()` is a
         placeholder and measuring against it would size for a pane one pixel
@@ -186,6 +191,12 @@ class TestDataChooser(QDialog):
                 int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft),
                 text)
             tallest = max(tallest, box.height())
+            document = QTextDocument()
+            document.setDefaultFont(self._description.font())
+            document.setDocumentMargin(0)
+            document.setPlainText(text)
+            document.setTextWidth(width)
+            tallest = max(tallest, math.ceil(document.size().height()))
         tallest += metrics.lineSpacing()
         self._description.setMinimumHeight(tallest)
         self._description.setMaximumHeight(tallest)
@@ -207,7 +218,7 @@ class TestDataChooser(QDialog):
         that is whatever the two short buttons need, which is narrower still.
         """
         if self._laid_out and self._description.width() > 1:
-            return self._description.width()
+            return self._description.contentsRect().width()
         layout = self.layout()
         margins = layout.contentsMargins() if layout is not None else None
         inset = (margins.left() + margins.right()) if margins is not None else 0

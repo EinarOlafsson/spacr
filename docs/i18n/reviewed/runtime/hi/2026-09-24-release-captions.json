@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review of the current PyPI Starplast installer explanation and model-explanation failure messages. Retains the separate environment, 12 GB, changing alpha status and committed-file behavior. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Choose a measurements database and predictions CSV.",
+      "source": "Choose a measurements database and predictions CSV.",
+      "source_sha256": "cea021a08bd38b1792bc06bb9d13ef5c9557c99150e7ff7219e115b1b2d75ff9",
+      "translation": "मापन डेटाबेस और पूर्वानुमान CSV चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose database, prediction/fraction tables, regression folder, gene, guides and score column.",
+      "source": "Choose database, prediction/fraction tables, regression folder, gene, guides and score column.",
+      "source_sha256": "d294db9223d28724905e4e810f4357e9d9bc2a84fc14e0154bd259752aecbae8",
+      "translation": "डेटाबेस, पूर्वानुमान और अंश तालिकाएँ, रिग्रेशन फ़ोल्डर, जीन, गाइड और स्कोर कॉलम चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Could not explain model: {message}",
+      "source": "Could not explain model: {message}",
+      "source_sha256": "12bf1387b86d36d78aebfb96542c163f552d4031136259d1f33ff366dcb6803a",
+      "translation": "मॉडल की व्याख्या नहीं हो सकी: {message}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not investigate hit: {message}",
+      "source": "Could not investigate hit: {message}",
+      "source_sha256": "62944db2a2f66add5ce5ad64eb588aa55e97721d4bb30283a8ff719fea2e087f",
+      "translation": "हिट की जाँच नहीं हो सकी: {message}"
+    },
+    {
+      "table": "ui",
+      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.",
+      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.",
+      "source_sha256": "0c5426f8d0cc9d6afaf215b807abacf6877b5494ce02126241b20381942d00f8",
+      "translation": "Starplast, Toxoplasma ज्ञान मानचित्र को देखने के लिए एक अल्फा एप्लिकेशन है। सुविधाएँ और परिणाम बदल सकते हैं। यह अलग विंडो में खुलता है।\n\nPyPI से Starplast का नवीनतम संगत स्थिर संस्करण इंस्टॉल किया जाता है। पैकेज में उसका जीन डेटा शामिल है; निर्भरताएँ डाउनलोड और डिस्क उपयोग बढ़ाती हैं। आवश्यकताएँ संस्करण और प्लेटफ़ॉर्म के अनुसार बदलती हैं। कम से कम 12 GB खाली डिस्क स्थान रखें। डाउनलोड में कई मिनट लग सकते हैं।\n\nStarplast को {path} पर अपना अलग परिवेश मिलता है; spaCR के पैकेज नहीं बदलते। स्रोत कोड MIT लाइसेंस के अंतर्गत है। स्थानीय Git चेकआउट विकास के लिए एक वैकल्पिक स्रोत है; स्थानीय इंस्टॉलेशन कमिट की गई फ़ाइलों का उपयोग करता है और चेकआउट को नहीं बदलता।"
+    }
+  ]
+}

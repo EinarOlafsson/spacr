@@ -10,6 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_appended_candidate import (append_catalogs, append_javascript_catalog,
                                      copy_preserved_web,
+                                     complete_translation_compatibility,
                                      require_baseline_receipt, require_no_new_route_gaps,
                                      update_catalogs)
 from audit_staged_catalogs import CATALOGS
@@ -62,6 +63,22 @@ def test_missing_translations_do_not_block_but_remain_registered(sources):
         assert result[name]['lessons'][:-1] == before[name]['lessons']
         assert result[name]['lessons'][-1]['scenes'] == new['scenes']
         assert result[name]['lessons'][-1]['narration_voices'] == voices[new['id']]
+
+
+def test_later_batch_keeps_earlier_fallbacks_registered(sources):
+    published, first, voices = sources
+    intermediate, first_report = append_catalogs(published, [first], voices, {})
+    second = {**first, 'id': '03_second', 'number': 3}
+    catalogs, second_report = append_catalogs(
+        intermediate, [second], {second['id']: {'en': ['af_heart']}}, {})
+    complete = complete_translation_compatibility(catalogs, second_report, first_report)
+    assert len(complete) == 26
+    assert all(row in complete for row in first_report + second_report)
+    assert not any(row['lesson'] == '01_existing' for row in complete)
+    recovered = complete_translation_compatibility(catalogs, second_report)
+    assert {(row['lesson'], row['language']) for row in recovered} == {
+        (row['lesson'], row['language']) for row in complete}
+    assert all(row['status'] == 'english_fallback' and row['reason'] for row in recovered)
 
 
 def test_mixed_release_preserves_unselected_lesson_and_updates_both_catalog_formats(sources):

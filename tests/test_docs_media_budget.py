@@ -261,7 +261,7 @@ def test_narration_is_the_stable_mobile_clock():
     # candidate would report a site that has not been updated as updated.
     # ee43d8530 added native-script sentence boundaries to the shipped player
     # and bumped this source key. The frozen release candidate remains older.
-    assert 'app_v2.js?v=20260923-unicode-captions' in index
+    assert 'app_v2.js?v=20260923-workflow78-learning-order' in index
     assert 'app_v2.js?v=20260911-narration-captions' not in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index

@@ -1067,6 +1067,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Plackanalys", "Plaque-Assay", "Ensayo de placas", "空斑分析",
         "Ensaio de placas", "प्लाक परीक्षण", "플라크 분석", "Skellugreining",
         "Test de plaques"),
+    "Host–Pathogen Analysis": _row(
+        "Värd–patogenanalys", "Wirt–Pathogen-Analyse", "Análisis huésped–patógeno",
+        "宿主–病原体分析", "Análise hospedeiro–patógeno", "मेज़बान–रोगजनक विश्लेषण",
+        "숙주–병원체 분석", "Greining hýsils og sýkils", "Analyse hôte–pathogène"),
     "Recruitment": _row(
         "Rekryteringsanalys", "Rekrutierungsanalyse",
         "Ensayo de reclutamiento", "募集分析", "Ensaio de recrutamento",
