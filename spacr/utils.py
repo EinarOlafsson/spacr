@@ -8950,7 +8950,10 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         values below two run inline without starting a child process.
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files
-        or mismatched filenames. These checks finish before any mask is changed.
+        or mismatched filenames, or a mask is truncated, nonnumeric, empty,
+        not two-dimensional or has different dimensions from its partners.
+        Available organelle masks are checked too. Header-only validation of
+        every field finishes before any mask is changed or workers are started.
     """
     from .io import _listdir_visible
 
@@ -8974,6 +8977,30 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
         organelle_folder = None
+
+    from .cancellation import checkpoint
+    from .resume import read_npy_header
+
+    for name in parasite_files:
+        checkpoint()
+        paths = [os.path.join(folder, name)
+                 for folder in (parasite_folder, cell_folder, nuclei_folder)]
+        if organelle_folder is not None:
+            candidate = os.path.join(organelle_folder, name)
+            if os.path.exists(candidate):
+                paths.append(candidate)
+        expected_shape = None
+        for path in paths:
+            header = read_npy_header(path)
+            shape = header['shape']
+            if (len(shape) != 2 or min(shape) <= 0
+                    or header['expected_bytes'] is None
+                    or header['actual_bytes'] < header['expected_bytes']):
+                raise ValueError(f'Invalid or incomplete two-dimensional mask: {path}')
+            if expected_shape is not None and shape != expected_shape:
+                raise ValueError(f'Mask dimensions do not match for {name}: '
+                                 f'{path} has {shape}, expected {expected_shape}')
+            expected_shape = shape
 
     if n_jobs is None:
         n_jobs = max(1, cpu_count() - 2)

@@ -345,6 +345,33 @@ def test_adjust_cell_masks_non_npy_files_are_ignored(tmp_path):
     assert set(np.unique(out)) == {0, 1}
 
 
+@pytest.mark.parametrize('role', ['parasite', 'cell', 'nuclei', 'organelle'])
+@pytest.mark.parametrize('damage', ['shape', 'truncated', 'object'])
+@pytest.mark.parametrize('workers', [1, 2])
+def test_adjustment_checks_later_array_before_changing_any_field(
+        tmp_path, monkeypatch, role, damage, workers):
+    import spacr.utils as U
+
+    folders = _write_triple(tmp_path, with_organelle=True, n_files=2)
+    target = tmp_path / role / 'f1.npy'
+    if damage == 'shape':
+        np.save(target, np.zeros((12, 15), np.uint16))
+    elif damage == 'object':
+        np.save(target, np.array([[{'not': 'a label'}]], dtype=object))
+    else:
+        np.save(target, np.zeros((50, 50), np.uint16))
+        target.write_bytes(target.read_bytes()[:-10])
+    before = {path: path.read_bytes() for path in tmp_path.rglob('*.npy')}
+    monkeypatch.setattr(U, 'process_mask_file_adjust_cell',
+                        lambda *args, **kwargs: pytest.fail('adjustment already started'))
+    monkeypatch.setattr(U, 'Pool',
+                        lambda *args, **kwargs: pytest.fail('workers already started'))
+    with pytest.raises(ValueError, match='f1.npy'):
+        U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
+                            organelle_folder=folders['organelle'], n_jobs=workers)
+    assert before == {path: path.read_bytes() for path in tmp_path.rglob('*.npy')}
+
+
 def test_adjust_cell_masks_zero_workers_runs_inline(tmp_path, monkeypatch):
     """n_jobs=0 is a request for stable inline work, not an automatic pool."""
     import spacr.utils as U

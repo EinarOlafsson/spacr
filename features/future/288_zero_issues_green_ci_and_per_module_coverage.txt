@@ -5424,3 +5424,9 @@ leave the first image at the screen-safe initial size. All eight plaque GUI
 files:123passed,90.09%module coverage. Test-only; no baseline/exemption change.
 All eight nonexempt modules below90%in the old complete CI report now have
 focused local runs above90%; the full aggregate and ratchet are still open.
+
+2026-09-24 — Damaged adjustment inputs fail before any field is changed
+24new cases cover mismatched shapes, truncation and pickled-object arrays in
+all four mask roles, inline or pooled execution. Header preflight refuses
+these before work starts;141adjustment/utils checks pass. No threshold or
+coverage-baseline change.

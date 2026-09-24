@@ -163,3 +163,14 @@ start and names the mismatched fields. Six role/worker-count cases verify no
 worker call and byte-identical inputs on refusal; complete adjustment/mask
 cohort56passes. This also protects ordinary single-GPU finalization. Multi-GPU
 controls/pipeline wiring and adjusted-mask resume provenance remain open.
+
+2026-09-24 — Adjustment preflights all array headers before mutation
+A later field with mismatched dimensions or damaged bytes could previously
+fail after earlier cell masks had already been overwritten. adjust_cell_masks
+now reads every selected mask header before starting work, checking complete
+numeric2Darrays and matching field dimensions, including available organelle
+masks. Header reads avoid loading full arrays and honor cancellation between
+fields. Baseline reproduced early processing;24role/damage/worker cases now
+refuse before any worker call and preserve every input byte.141related tests
+pass. This protects ordinary adjustment too; parallel pipeline integration
+and finalized-mask provenance remain open.

@@ -17195,3 +17195,10 @@ no new settings/API/text. Existing real-model acceptance remains separate.
 123plaque GUI checks pass,90.09%preview module coverage. Added actual Qt
 pre-load navigation/plain-scroll/hover checks; no API/settings/text change.
 Full/Minimum jobs in protected35966906164 remain live; not restarting them.
+
+2026-09-24 — IMPLEMENTATION: ADJUSTMENT HEADER PREFLIGHT493/288
+utils.adjust_cell_masks now checks complete numeric2Dmask headers and matching
+dimensions across every field before worker startup or any write, including
+available organelle masks.24new refusal cases;141related checks pass. Signature
+unchanged; updated raises prose should be included in your next API rebuild.
+This extends the existing filename preflight without loading full arrays.
