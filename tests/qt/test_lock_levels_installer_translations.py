@@ -18,7 +18,8 @@ def locale(request, monkeypatch):
     monkeypatch.setattr(i18n, "current_language", lambda: language)
     targets = {}
     for filename in ("2026-09-22-lock-levels-starplast-controls.json",
-                     "2026-09-22-shared-ruler.json"):
+                     "2026-09-22-shared-ruler.json",
+                     "2026-09-24-release-captions.json"):
         payload = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                               filename).read_text())
         targets.update({row["source"]: row["translation"] for row in payload["records"]})
@@ -36,7 +37,12 @@ def test_installer_controls_and_callback_prefixes_are_localized(qtbot, tmp_path,
     assert dialog.browse.text() == targets["Choose checkout…"]
     assert dialog.status.text() == targets["Ready to install when you choose Install and open."]
     assert str(tmp_path / "starplast") in dialog.explanation.text()
-    assert all(value in dialog.explanation.text() for value in ("4 GB", "7 GB", "12 GB"))
+    explanation = next(source for source in targets
+                       if source.startswith('Starplast is an alpha application'))
+    assert dialog.explanation.text() == targets[explanation].format(path=str(tmp_path / 'starplast'))
+    assert '12 GB' in dialog.explanation.text()
+    assert '4 GB' not in dialog.explanation.text() and '7 GB' not in dialog.explanation.text()
+    assert 'PyPI' in dialog.explanation.text()
     for source in ("Create Starplast environment", "Install pip", "Install Starplast and dependencies"):
         dialog._progress(2, 7, source + ": command output /tmp/example --flag")
         assert dialog.status.text() == targets[source] + ": command output /tmp/example --flag"

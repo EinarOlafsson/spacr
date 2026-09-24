@@ -213,7 +213,7 @@ def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
     tree = ast.parse((QT / "screens/make_masks.py").read_text())
     calls = [node for node in ast.walk(tree)
              if isinstance(node, ast.Call) and _call_name(node) == "row"]
-    assert len(calls) == 27
+    assert len(calls) == 28
     reached = set()
     keys = set()
     for call in calls:
@@ -226,6 +226,7 @@ def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
                 arg = arg.args[0]
             reached.add(ast.literal_eval(arg))
     assert not keys & reached
+    assert 'secondary_growth' in keys and 'Growth' in reached
     assert "Offset" in reached and "Blur first" in reached
     assert any(text.startswith("Subtracted from the Gaussian-weighted local mean") for text in reached)
     assert reached - {""} <= set(builder.extract_static_ui_sources())

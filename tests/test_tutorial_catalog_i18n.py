@@ -33,7 +33,7 @@ def _catalog(prefix: str, locale: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_all_authored_catalogs_match_the_75_lesson_inventory_and_routes():
+def test_all_authored_catalogs_match_the_81_lesson_inventory_and_routes():
     """Every locale must carry the complete lesson and folded-host topology."""
     english = _catalog("lessons", "en")["lessons"]
     ids = [lesson["id"] for lesson in english]
@@ -48,7 +48,10 @@ def test_all_authored_catalogs_match_the_75_lesson_inventory_and_routes():
     # the fourteen catalogs against the previous release shows two arrivals and
     # no departures: 76_ops and 77_embeddings, both scene-less placeholders
     # carrying the unavailable-route copy rather than a recorded walkthrough.
-    assert len(ids) == len(set(ids)) == 77
+    assert len(ids) == len(set(ids)) == 81
+    assert set(ids[-4:]) == {
+        '78_spacr_screens', '79_module_inputs_outputs',
+        '80_image_analysis_pathways', '81_sequencing_pathways'}
     # Folded-host routes grew from 25 to 39 in the same change, because the
     # catalogs are now stamped from the navigation tree instead of carrying a
     # hand-maintained subset of it. Diffing the route maps names fourteen
@@ -103,14 +106,25 @@ def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
     spec.loader.exec_module(rule)
     assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
     display_token = re.compile(r"(?<!\w)PyPI(?!\w)")
+    english = {lesson['id']: lesson for lesson in _catalog('lessons', 'en')['lessons']}
+    compatibility = json.loads((CATALOG_DIR.parent / 'translation-compatibility.json').read_text())
+    registered = {(row['lesson'], row['language']) for row in compatibility['entries']
+                  if row['status'] == 'english_fallback' and row['reason']}
 
     for locale in FULL_LOCALES:
         lessons = _catalog("lessons", locale)["lessons"]
-        named = [
-            scene for lesson in lessons for scene in lesson["scenes"]
-            if display_token.search(scene.get("narration", ""))
-        ]
-        assert named, locale
+        named, fallback = [], []
+        for lesson in lessons:
+            scenes = [scene for scene in lesson['scenes']
+                      if display_token.search(scene.get('narration', ''))]
+            voices = lesson.get('narration_voices')
+            if scenes and locale != 'en' and voices is not None and locale not in voices:
+                assert lesson == english[lesson['id']]
+                assert voices.get('en') and (lesson['id'], locale) in registered
+                fallback.extend(scenes)
+            else:
+                named.extend(scenes)
+        assert named or fallback, locale
         if locale == "en" and all("speech_text" not in scene for scene in named):
             continue
         form = rule.PYPI_SPEECH[locale]
@@ -210,6 +224,8 @@ def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
         complete = json.dumps(catalog, ensure_ascii=False)
         assert not [phrase for phrase in global_bans if phrase in complete], locale
 
+def test_current_english_module_objectives_remain_explicit():
+    """English content checks remain required even with translation fallback."""
     english = json.dumps(_catalog("lessons", "en"), ensure_ascii=False)
     # The repaired phrases this pinned ("appropriate validation controls" in
     # 16_activation's objectives, "Import third-party images" in
@@ -217,6 +233,7 @@ def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
     # re-recorded on 2026-09-09 (tools/tutorials/lessons/16_activation.json,
     # 31_external_masks.json). The published candidate carries the refreshed
     # wording, so the pins follow it; the retired mistranslation stays banned.
-    assert "Distinguish input preprocessing, display contrast and attribution methods." in english
+    assert "Match the crop archive, model and preprocessing settings." in english
+    assert "Run channel saliency with an image overlay." in english
     assert "Reuse real microscopy images and existing cell labels" in english
     assert "Turn third-party images" not in english

@@ -121,6 +121,29 @@ def update_catalogs(published, lessons, voices, reviews, refresh_ids):
     return result, compatibility
 
 
+def complete_translation_compatibility(catalogs, updated, previous=()):
+    """Keep earlier English fallbacks visible when publishing another batch."""
+    english = {row['id']: row for row in catalogs['lessons_en.json']['lessons']}
+    old = {(row['lesson'], row['language']): row for row in previous}
+    records = {}
+    for filename in CATALOGS:
+        language = filename.split('_', 1)[1].removesuffix('.json')
+        if language == 'en':
+            continue
+        for lesson in catalogs[filename]['lessons']:
+            identity = lesson['id']
+            if (lesson.get('status') != 'coming_soon' and lesson.get('scenes')
+                    and lesson == english[identity]):
+                key = identity, language
+                prior = old.get(key, {})
+                records[key] = dict(lesson=identity, language=language,
+                    status='english_fallback', reason=prior.get('reason') or
+                    'English fallback retained from the published catalog; translation requires review')
+    for row in updated:
+        records[row['lesson'], row['language']] = deepcopy(row)
+    return [records[key] for key in sorted(records)]
+
+
 def append_javascript_catalog(published, english, count, *, replacements=()):
     """Retain historical JavaScript objects independently of JSON catalogs."""
     previous = published['lessons']
@@ -230,6 +253,9 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
         voices[identity], checks[identity] = verify_tracks(stage, lesson, provisional)
         print(identity, len(checks[identity]), 'current audio tracks verified', flush=True)
     catalogs, compatibility = update_catalogs(catalogs, lessons, voices, reviews, refresh_ids)
+    compatibility = complete_translation_compatibility(
+        catalogs, compatibility,
+        read(baseline / 'web/translation-compatibility.json').get('entries', []))
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
     records = copy_preserved_web(published, baseline, root, previous,
                                  replacements=refresh_ids)

@@ -19,9 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
-EXPECTED_CACHE_KEY = "20260915-8738b_pd"
+EXPECTED_CACHE_KEY = "editor-api-20260923-y9yqqjva"
 EXPECTED_VOICE_KEY = "20260811-50-voices"
-EXPECTED_APP_KEY = "20260911-narration-captions"
+EXPECTED_APP_KEY = "20260923-workflow78-learning-order"
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}
 
 
@@ -86,8 +86,8 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
         local_hashes = {name: _sha256((LOCAL / name).read_bytes()) for name in names}
         result["local_sha256"] = local_hashes
         result["hashes_match_local"] = result["sha256"] == local_hashes
-    assert result["lessons"] == 77, result
-    assert result["scenes"] == 975, result
+    assert result["lessons"] == 81, result
+    assert result["scenes"] == 1075, result
     assert result["languages"] == 8, result
     assert result["voices"] == 50, result
     assert result["cache_key"] == EXPECTED_CACHE_KEY, result
