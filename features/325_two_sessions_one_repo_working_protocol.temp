@@ -16759,3 +16759,13 @@ measurement:27passed. Header now says implementation complete; translation
 review remains with411. This is ledger correction, not newly built features.
 GitHub open-issue list is still empty. Protected full-control/coverage5 run
 35952253721 remains active. AnnData fixb2dac1bc3 is pushed to nightly.
+
+2026-09-24 — IMPLEMENTATION: ANNDATA FAILED-WRITE PROTECTION
+Follow-up to b2dac1bc3: normal export and parent-reference stamping now
+preserve an existing h5ad if a write fails after opening its target. Same-
+directory temporary write, fsync, atomic replace; scratch is cleaned and
+failed exports are not registered. Two negative controls destroyed the old
+bytes before the fix;264export tests now pass, one extra-absence test skips.
+API handoff: export_anndata docstring describes preservation; new private
+_write_h5ad_atomic(adata, path, **kwargs) is shared by both writing paths.
+No settings/UI strings. Reconciled364ledger also passed505consistency checks.

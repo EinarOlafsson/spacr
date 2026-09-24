@@ -177,6 +177,7 @@ from __future__ import annotations
 import os
 import sqlite3
 import sys
+import tempfile
 import warnings
 from dataclasses import dataclass, replace as _dataclass_replace
 from datetime import datetime, timezone
@@ -1475,6 +1476,23 @@ def _run_id_from_db(db_path: str) -> str:
 
 
 
+def _write_h5ad_atomic(adata: Any, path: Union[str, os.PathLike],
+                       **kwargs: Any) -> None:
+    """Publish a complete HDF5 file while preserving any previous export.
+
+    Write in a temporary directory beside the destination, flush the completed
+    file, and replace the destination only on success. Failed writes leave no
+    partial export or scratch files; the original exception reaches the caller.
+    """
+    path = os.path.abspath(os.fspath(path))
+    with tempfile.TemporaryDirectory(prefix=".anndata-", dir=os.path.dirname(path)) as folder:
+        pending = os.path.join(folder, "pending.h5ad")
+        adata.write_h5ad(pending, **kwargs)
+        with open(pending, "rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(pending, path)
+
+
 def export_anndata(db_path: Union[str, os.PathLike],
                    out_path: Union[str, os.PathLike],
                    *,
@@ -1487,6 +1505,8 @@ def export_anndata(db_path: Union[str, os.PathLike],
 
     Everything :func:`build_anndata` accepts is accepted here and passed
     through; this adds the write and the artifact registration.
+    A failed write preserves any existing destination; only a completed file
+    replaces it and is registered as an artifact.
 
     :param db_path: a ``measurements.db``.
     :param out_path: the ``.h5ad`` to write. Parent directories are created.
@@ -1510,7 +1530,7 @@ def export_anndata(db_path: Union[str, os.PathLike],
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
-    adata.write_h5ad(out_path, compression=compression)
+    _write_h5ad_atomic(adata, out_path, compression=compression)
 
     artifact_id = ""
     if register:
@@ -1648,7 +1668,7 @@ def _stamp_parent_file(child_path: str, parent_path: str,
         adata.uns["spacr"] = provenance
         _hdf5_metadata(adata.obs)
         _hdf5_metadata(adata.var)
-        adata.write_h5ad(child_path)
+        _write_h5ad_atomic(adata, child_path)
     except Exception as exc:
         warnings.warn(
             f"could not record the parent file in {child_path}: {exc}",

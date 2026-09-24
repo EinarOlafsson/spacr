@@ -5230,3 +5230,13 @@ files pass262checks each on pandas2.3.3 and3.0.5; one extra-missing check
 skips because the extra is installed. Existing five lint findings unchanged.
 Receipt: features/data/288_anndata_missing_metadata_2026-09-24.json.
 No native GUI recording or full-CI completion is claimed.
+
+2026-09-24 — Failed AnnData writes preserve completed exports
+The metadata investigation also demonstrated that failed HDF5 rewrites can
+truncate an existing export, including the parent-reference stamping pass.
+Both paths now write to a unique hidden temporary directory beside the
+output, fsync the completed file, and atomically replace the destination.
+Failed writes leave the old bytes readable, clean temporary files, and do
+not register an unsuccessful export. Both injected partial-write cases fail
+before this fix and pass afterwards. All six export test files pass264checks
+with one expected missing-extra skip. No global settings/signatures changed.
