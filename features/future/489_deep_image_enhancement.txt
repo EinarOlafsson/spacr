@@ -43,3 +43,17 @@ CARE (https://csbdeep.bioimagecomputing.com/doc/) and Noise2Void
 acquisition-specific models. They are not interchangeable ready-made organelle
 restoration weights. No implementation or biological validation is claimed by
 this research note. This work stays outside the1.5.1.0candidate.
+
+2026-09-24 — REAL CPU RESTORATION FEASIBILITY
+Cellpose3.1.1.3's denoise_nuclei, deblur_nuclei and oneclick_nuclei all ran in
+the existing isolated backend environment on a128x128crop from the public
+Host–Pathogen microscopy data, channel0. CPU inference took0.55/0.22/0.23s
+respectively after model initialization. Each output is finite float32 and
+retains128x128geometry; the original input is unchanged. Small negative values
+and values above1 are legitimate outputs here, so the integration must not
+cast them directly to unsigned integers. Original weights were downloaded
+from Cellpose's model source; their SHA256 identities are in the receipt.
+No GPU used. Diameter25px is a feasibility parameter, not estimated optical
+calibration. This is not a segmentation-accuracy or biological-fidelity result,
+and does not complete the Compare/Apply UI or worker integration. Receipt:
+features/data/489_cellpose3_restoration_feasibility_2026-09-24.json.
