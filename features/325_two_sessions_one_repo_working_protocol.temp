@@ -15690,3 +15690,24 @@ with no tolerance change or hidden text. Source wording and APIs unchanged.
 Fatal repository Ruff checks pass. Now checking the main-window registry
 contracts; initial failures appear to be the new Host–Pathogen row missing
 from the older explicit section/maturity tables.
+
+2026-09-24 CELLPOSE WORKBENCH SHUTDOWN FIX
+The Workbench had no closeEvent forwarding to its Train/Apply AppScreens.
+Closing the parent therefore left background JobRunners active. Added explicit
+child close handling, preserving an AppScreen refusal when an inference write
+has not reached a safe boundary. New real-thread regression starts a worker
+on each tab; both must observe interruption before parent close completes,
+and neither delivers a late success callback. With the new handler removed
+at runtime, the same test fails because neither worker is interrupted; with
+it present all24workbench tests pass and the previously reported two busy
+runners no longer appear.27workbench/main-window focused checks pass after
+adding the explicit Host–Pathogen alpha/Assays row and checking the curated
+organism menu summaries. New documented public Qt override: train_cellpose.
+CellposeWorkbenchScreen.closeEvent(event), for the next API inventory refresh.
+
+The old e498push run's final two jobs were superseded when the repaired
+candidate was pushed, not successful: saved their partial logs as
+/tmp/spacr-e498-{full,minimum}.log. Existing failures repeat earlier findings;
+newly found Python3.9stdlib inventory omits Windows-only winreg, which I am
+fixing. A final stable candidate can be explicitly dispatched to survive
+subsequent pushes. Please include your exact release-repair commit IDs in325.

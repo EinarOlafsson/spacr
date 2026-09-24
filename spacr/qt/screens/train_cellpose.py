@@ -212,6 +212,17 @@ class CellposeWorkbenchScreen(QWidget):
         self._current = self._tabs.currentIndex()
         self._tabs.currentChanged.connect(self._on_tab_changed)
 
+    def closeEvent(self, event):
+        """Close both module pages before their owning workbench is destroyed.
+
+        :param event: Qt close event; ignored when a page is finishing a write.
+        """
+        for screen in self._screens:
+            if not screen.close():
+                event.ignore()
+                return
+        super().closeEvent(event)
+
 
     @property
     def train_screen(self) -> AppScreen:
