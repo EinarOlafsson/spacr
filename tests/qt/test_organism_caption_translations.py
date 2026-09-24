@@ -19,9 +19,12 @@ def test_organism_labels_tooltips_and_compartment_keys(
     from spacr.qt.organisms import ORGANISMS
     from spacr.qt.screens.organism_screen import OrganismScreen
 
-    payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-09-22-organism-labels.json').read_text())
-    targets = {row['source']: row['translation'] for row in payload['records']}
+    targets = {}
+    for review in sorted((ROOT / 'docs/i18n/reviewed/runtime' / language).glob('*.json')):
+        payload = json.loads(review.read_text())
+        for record in payload.get('records', []):
+            if record.get('table') == 'ui' and not record.get('retired'):
+                targets[record.get('source', record['key'])] = record['translation']
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     screen = OrganismScreen(app_key)
     qtbot.addWidget(screen)

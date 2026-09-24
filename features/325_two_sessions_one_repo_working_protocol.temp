@@ -15987,3 +15987,8 @@ batch; current compact Host–Pathogen title is already reviewed separately.
 I will update the organism check to read all current non-retired reviewed
 caption records, so it checks the new title/description rather than only the
 old2026-09-22fixture. No translation skip or English fallback claimed as done.
+The paired-control test is corrected and all31preview-sampling checks pass.
+The organism checker now reads current active UI review records across batches;
+it still fails on the actual unreviewed Host–Pathogen description, as intended,
+and checks the newly reviewed compact title as well. This is a test update,
+not a claim that the nine missing description translations are complete.
