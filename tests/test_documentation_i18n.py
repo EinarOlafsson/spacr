@@ -1969,6 +1969,20 @@ def test_independent_link_translation_preserves_reviewed_link_labels():
     assert localized.endswith(f"`GitHub Probleme <{target}>`_")
 
 
+def test_old_readme_measurement_reviews_are_retained_without_becoming_current():
+    from build_documentation_i18n import (
+        RETIRED_README_EVIDENCE_BLOCKS, REVIEWED_README_EVIDENCE_BLOCKS,
+    )
+
+    old = next(source for source in RETIRED_README_EVIDENCE_BLOCKS
+               if "1186 MB checkout" in source)
+    assert len(RETIRED_README_EVIDENCE_BLOCKS[old]) == 9
+    assert old not in REVIEWED_README_EVIDENCE_BLOCKS
+    current = next(source for source in REVIEWED_README_EVIDENCE_BLOCKS
+                   if "The nightly tracked tree" in source)
+    assert len(REVIEWED_README_EVIDENCE_BLOCKS[current]) == 9
+
+
 def test_github_summary_has_reviewed_domain_translations():
     from build_documentation_i18n import (
         REVIEWED_README_BLOCKS,

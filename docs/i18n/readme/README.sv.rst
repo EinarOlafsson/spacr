@@ -557,7 +557,7 @@ Varje figur ovan mäts på bilder modellen aldrig såg i träning.
 
 **F1** är de två kombinerade, och citeras eftersom var och en av dem är trivialt gamed - rapportera en omisskännlig plakett för nära perfekt precision, eller varje mörk blob för nära-perfect recall. Som du hellre skulle förlora beror på analysen, och räkning är vanligtvis bättre betjänas av over-calling: plaque-modellen accepterades med precision 0.858 med reclosure 0.811 under en tidigare runda på 0,939 och 0,631.
 
-**IoU**, intersection over union, is how much a predicted object and the real one overlap, divided by the area they cover together. It is the ruler the rest are read against, so a score means nothing without its threshold: "F1 0.864 at IoU 0.5" counts a vacuole as found when the two outlines agree over half their combined area.
+**IoU** (intersection over union) dividerar överlappningsarean mellan det förutsagda objektet och referensobjektet med arean av deras union. Läs poäng tillsammans med tröskelvärdet: ”F1 0.864 vid IoU 0.5” räknar en vakuol som hittad när överlappningen når minst halva unionens area.
 
 **mAP50** och **mAP50-95** tillhör detektorn. Den första frågar om brunnarna hittades; den andra upprepar det över tio tröskelvärden från 0,5 till 0,95, så den frågar också hur tätt varje låda dras. Klyftan mellan dem är placering, inte detektion.
 

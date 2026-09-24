@@ -108,6 +108,12 @@ def main(argv=None) -> int:
               "full_audit": args.full_audit,
               "english": {}, "api": {}, "runtime": {}}
     docs = importlib.import_module("build_documentation_i18n")
+    report["retired_readme_reviews"] = [
+        {"source": source, "languages": sorted(translations),
+         "reason": "English paragraph no longer appears in the current README"}
+        for source, translations in sorted(
+            getattr(docs, "RETIRED_README_EVIDENCE_BLOCKS", {}).items())
+    ]
     runtime = importlib.import_module("build_i18n_catalogs")
     for name, builder, extractor in (("api", docs, docs.public_docstrings),
                                       ("runtime", runtime, runtime.canonical_sources)):

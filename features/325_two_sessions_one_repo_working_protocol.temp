@@ -17154,3 +17154,18 @@ both served player hashes match their cache keys. Receipt:
 features/data/358_live_native_guides_2026-09-24.json. K is now live, not merely
 accepted media. Strict local Sphinx also passes3134d187b;17channel tests pass.
 Five further33/78–81 videos are still processing. No version/main operation.
+
+2026-09-24 — CODEX: MERGED MASK PROSE AND README REVIEW REGISTRATION
+Integrated5db533f7d. Regenerated11528-entry English API; the only changed
+public entry is utils.adjust_cell_masks (filename preflight). Runtime source
+catalog unchanged, Help index current, English audits pass. Coverage8's old
+11527inventory failure is already fixed. Its README failure came from retired
+English paragraphs remaining in the active review bank.20retired source
+paragraphs now remain preserved and explicitly registered without blocking
+current reviews or English publication. Publisher retains older-main support.
+20documentation/source/publication guards pass, with the two CLI cases rerun
+successfully after that backwards-compatibility correction.
+Also corrected the IoU paragraph in all9translated READMEs, preserving the
+union denominator, vacuole terminology and0.864/0.5example. Source-bound
+technical review is recorded; no native-speaker signoff claimed. Both README
+guards pass after these corrections. Five-video pipeline remains running.

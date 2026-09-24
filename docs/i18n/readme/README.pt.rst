@@ -557,7 +557,7 @@ Cada figura acima é medida em imagens que o modelo nunca viu no treinamento.
 
 **F1** é os dois combinados, e é citado porque cada um é trivialmente disputado -- reporte uma placa inconfundível para precisão quase perfeita, ou cada bolha escura para recall quase perfeito. O que você preferiria perder depende do ensaio, e a contagem é geralmente melhor servida por over-calling: o modelo de placa foi aceito com precisão 0,858 com recall 0,811 ao longo de uma rodada anterior em 0,939 e 0,631.
 
-**IoU**, interseção sobre união, é o quanto um objeto previsto e o real se sobrepõem, dividido pela área que cobrem juntos. É a régua contra a qual o resto é lido, então uma pontuação não significa nada sem seu limite: "F1 0,864 em IoU 0,5" conta um vácuo como encontrado quando os dois contornos concordam com mais da metade de sua área combinada.
+**IoU** (interseção sobre união) divide a área de sobreposição entre o objeto previsto e o de referência pela área da união dos dois. Leia os resultados junto com o limiar: «F1 0.864 com IoU 0.5» conta um vacúolo como detectado quando a sobreposição atinge pelo menos metade da área da união.
 
 **mAP50** e **mAP50-95** pertencem ao detector. O primeiro pergunta se os poços foram encontrados; o segundo repete através de dez limiares de 0,5 a 0,95, por isso também pergunta com que força cada caixa é desenhada. A lacuna entre eles é a colocação, não a detecção.
 

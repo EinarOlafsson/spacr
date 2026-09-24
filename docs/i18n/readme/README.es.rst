@@ -557,7 +557,7 @@ Cada figura de arriba se mide en imágenes que el modelo nunca vio en el entrena
 
 **F1** son los dos combinados, y se cita porque cada uno es trivialmente gamed -- reporta una placa inconfundible para la precisión casi perfecta, o cada mancha oscura para la memoria casi perfecta. Lo que preferirías perder depende del ensayo, y el conteo es generalmente mejor servido por sobrellamada: el modelo de placa fue aceptado con precisión 0,858 con memoria 0,811 sobre una ronda anterior en 0,939 y 0,631.
 
-**IoU**, intersección sobre unión, es cuánto un objeto predicho y el real se superponen, dividido por el área que cubren juntos. Es la regla contra la que se leen los demás, así que una puntuación no significa nada sin su umbral: "F1 0.864 a IoU 0.5" cuenta una vacuole como se encuentra cuando los dos contornos están de acuerdo sobre la mitad de su área combinada.
+**IoU** (intersección sobre unión) divide el área de solapamiento entre el objeto predicho y el de referencia por el área de su unión. Lea las puntuaciones junto con su umbral: «F1 0.864 con IoU 0.5» cuenta una vacuola como detectada cuando el solapamiento alcanza al menos la mitad del área de la unión.
 
 **mAP50** and **mAP50-95** belong to the detector. The first asks whether the wells were found; the second repeats it across ten thresholds from 0.5 to 0.95, so it also asks how tightly each box is drawn. The gap between them is placement, not detection.
 

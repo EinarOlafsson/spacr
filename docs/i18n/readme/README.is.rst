@@ -557,7 +557,7 @@ Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu
 
 **F1** er tvö sameiginlegt, og er kvótað vegna þess að hver einn er trivially gamed - tala um einn ómeðlilegt plakk fyrir næstum fullkomna nákvæmni, eða hvert myrkur blob fyrir næstu fullkomnu endurskoðun. Það sem þú myndi helst missa af því að mæla, og fjölda er yfirleitt betra með yfirskoðun: plakkamálið var samþykkt á nákvóm 0.858 með endurskoða 0.811 yfir fyrri runda á 0.939 og 0.631.
 
-**IoU**, kross yfir samfélag, er hversu mikið áætlað objekt og raunverulegur einn overlap, skipt af sviði sem þeir dekka saman. Það er stjórnandi aðrir eru lesin gegn, þannig að skólan þýðir ekkert án þangað: "F1 0.864 á IoU 0.5" talar vacuole eins og fannst þegar tvö útlínin sammála meira en helmingum samfélagi þeirra.
+**IoU** (intersection over union) er flatarmál skörunar milli spáðs hlutar og viðmiðunarhlutar, deilt með flatarmáli sammengis þeirra. Lesið gildi ásamt viðmiðunarmörkum: „F1 0.864 við IoU 0.5“ telur frymisbólu fundna þegar skörunin nær að minnsta kosti helmingi flatarmáls sammengisins.
 
 **mAP50** og **map50-95** eru með uppgötvuna. fyrri spyr hvort bólkurnar voru fundið; annar endurtekur það yfir tíu þremur frá 0.5 til 0.95, þannig að það spyr einnig hversu þreyttur hver boksi er þreytur.
 

@@ -109424,10 +109424,10 @@
         "dff55e4243c14516fe9c847db3eb36e681080993c99e65223219aa327babd7a8",
         "59ceb0811f3faf7cb794370e1be41ecba7ca420530e8d63a137256781e06903f",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
-        "3cc9f75cf30925350369f89397fe685f93d96ffe0e870248ebdb6b26426c1463"
+        "9be4b41d9f3e165a91bec4e199eed1ac0a49c0156cc03ac207a6526a19e5b8a0"
       ],
-      "source_sha256": "478c86bbb59ea48af9798615d6228166fb5debc513da0439186cef0542a35475",
-      "text": "Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.\n\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place).\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and\n    values below two run inline without starting a child process.\n:returns: None.\n:raises ValueError: if the three folders contain different numbers of files."
+      "source_sha256": "93bd11d3069200a1cb44657cbdfa6265995d1481b722d369281bdd1bd8b907fc",
+      "text": "Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.\n\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place).\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and\n    values below two run inline without starting a child process.\n:returns: None.\n:raises ValueError: if the three folders contain different numbers of files\n    or mismatched filenames. These checks finish before any mask is changed."
     },
     "spacr.utils.all_elements_match": {
       "source_blocks_sha256": [

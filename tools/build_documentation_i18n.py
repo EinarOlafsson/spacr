@@ -3562,6 +3562,17 @@ def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
 
 
 REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
+_CURRENT_README_PROSE = re.sub(r"\s+", " ", (ROOT / "README.rst").read_text(encoding="utf-8"))
+RETIRED_README_EVIDENCE_BLOCKS = {
+    source: translations
+    for source, translations in REVIEWED_README_EVIDENCE_BLOCKS.items()
+    if source not in _CURRENT_README_PROSE
+}
+REVIEWED_README_EVIDENCE_BLOCKS = {
+    source: translations
+    for source, translations in REVIEWED_README_EVIDENCE_BLOCKS.items()
+    if source not in RETIRED_README_EVIDENCE_BLOCKS
+}
 for _source, _translations in REVIEWED_README_EVIDENCE_BLOCKS.items():
     REVIEWED_README_BLOCKS.setdefault(_source, {}).update(_translations)
 

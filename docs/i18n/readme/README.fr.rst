@@ -557,7 +557,7 @@ Chaque figure ci-dessus est mesurée sur des images que le modèle n'a jamais vu
 
 **F1** est les deux combinés et est cité parce que chacun d'eux est triviallement gamed - rapporter une plaque unique pour une précision presque parfaite, ou chaque blob sombre pour un rappel presque parfait. Ce que vous préféreriez perdre dépend de l'essai, et le comptage est généralement mieux servi par des surappels: le modèle de plaque a été accepté à la précision 0.858 avec le rappel 0.811 sur une ronde antérieure à 0.939 et 0.631.
 
-**IoU**, intersection au-dessus de l'union, est combien un objet prédit et le vrai chevauchement, divisé par la zone qu'ils couvrent ensemble. C'est la règle que le reste sont lus contre, donc un score ne signifie rien sans son seuil: "F1 0.864 à IoU 0.5" compte une vacuole comme trouvé lorsque les deux contours sont d'accord sur la moitié de leur zone combinée.
+**IoU** (intersection sur union) divise la surface de chevauchement entre les objets prédits et de référence par la surface de leur union. Lisez les scores avec leur seuil : « F1 0.864 à IoU 0.5 » compte une vacuole comme détectée lorsque le chevauchement atteint au moins la moitié de cette surface.
 
 **mAP50** et **mPA50-95** appartiennent au détecteur. Le premier demande si les puits ont été trouvés; le second le répète à travers dix seuils de 0,5 à 0,95, de sorte qu'il demande aussi à quel point chaque boîte est serrée. L'écart entre eux est le placement, et non la détection.
 

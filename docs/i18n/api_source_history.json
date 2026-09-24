@@ -722,6 +722,22 @@
       "source_sha256": "446004f9f3a11ef2edd70b6847348809e901cc145d454b87e058ff5d8de508f6",
       "text": "Fold if open, unfold if shut. Returns the new shut state."
     },
+    "478c86bbb59ea48af9798615d6228166fb5debc513da0439186cef0542a35475": {
+      "source_blocks_sha256": [
+        "e633d59b1d54bf8e60b79eae86d4452ede1d8e19e07456e1ad5edb9895c8ba3e",
+        "091e1a8f2d0d0976d61417317b3bc1963d9104bd2dcc67fc947ab5cc621a7426",
+        "5fb62a4def59d6a4e1f4a81101b5262befcc5a7945f32db70c8df1a2d99a8de6",
+        "460edf701c4ba7c313b062130489dc4b5a864d5391087ef33768c0dadfa825f2",
+        "4fa9f7bc2dc2cc28fc94c1f2bbe02b6cb0af09c286cdff588c496694c8115eb2",
+        "d74578ab692f965d7efea3bf728580ac8c18902e00741fe0e22efa017dec0b87",
+        "dff55e4243c14516fe9c847db3eb36e681080993c99e65223219aa327babd7a8",
+        "59ceb0811f3faf7cb794370e1be41ecba7ca420530e8d63a137256781e06903f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "3cc9f75cf30925350369f89397fe685f93d96ffe0e870248ebdb6b26426c1463"
+      ],
+      "source_sha256": "478c86bbb59ea48af9798615d6228166fb5debc513da0439186cef0542a35475",
+      "text": "Run :func:`process_mask_file_adjust_cell` in parallel across matching mask files.\n\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place).\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:param n_jobs: worker count; ``None`` defaults to ``cpu_count() - 2`` and\n    values below two run inline without starting a child process.\n:returns: None.\n:raises ValueError: if the three folders contain different numbers of files."
+    },
     "4abb3305f3bbe1fd3f27b75da4dc9d7040383a48c942a8862c4309e137bff10f": {
       "source_blocks_sha256": [
         "1683d5ae208a8907090808833d1511f8364ea3aac51cec84c373697bf8cc9939",
