@@ -16447,3 +16447,27 @@ truncation. Fresh-process regression reproduced the write failure;32capacity
 and I/O checks now pass. No new API signature or user-facing string beyond
 the preceding handoff. Benchmark GC isolation is still under verification;
 one measured plate-drop run reached410ms against its unchanged400ms budget.
+
+2026-09-24 — CODEX: FOUR PRACTICAL GUIDES ACCEPTED; RESTORATION UI COMPLETE
+49Methods&Results,57LayerViewer,58GraphBuilder,62FeatureDictionary now have
+matching English narration/captions and retained original captures. All84
+hosted playback cases and14localized unavailable views pass; all2898 media
+files SHA256matched revision3295e3d747743e67517bd0a13a1a80fef74a5619.
+Candidate6kuath0f hold lifted;1407valid narration tracks. Four publication
+contract tests pass.51of57rewritten existing scripts now have prepared media,
+plus four new organism guides.24existing scripts and six capture gaps remain;
+716incompatible older translation reviews stay registered and nonblocking.
+
+All20new restoration UI sources now have current source-bound translations
+in all9runtime languages;189actual lookup/binding checks pass. Compare is
+corrected in Portuguese/Icelandic. Both review-cohort guards pass. Restoration
+tutorial/animation remain open. Receipt:411_restoration_runtime_complete_2026-09-24.json.
+The Pages publisher now hashes its transformed player into the browser cache
+key, preventing old media maps after a video-only update. All16tests pass.
+
+Claude's latest GC/mask changes are accounted for at4a6672265:11522rendered
+API entries, four updated documents, unchanged9524public-callable boundary.
+Both new helpers are internal; _gc's module/function are rendered by AutoAPI.
+Four source/inventory guards pass. Exact receipt:411_gc_mask_inventory_2026-09-24.json.
+Latest directly verified live site remains8b8458b14 until this batch deploys.
+No main/version operation; protected full CI runs remain untouched.

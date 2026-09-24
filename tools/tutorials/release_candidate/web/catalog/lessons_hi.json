@@ -6337,104 +6337,95 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: मसौदा बनाएँ, जाँचें और निर्यात करें",
+      "title": "Methods & Results: draft and export a run report",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
-      "description": "Regression के भीतर रिपोर्टिंग टूल खोलें, वास्तविक पूर्ण रन लें, समीक्षा की तीन समस्याएँ पहचानें और स्पष्ट रूप से असमीक्षित Markdown सुरक्षित रखें।",
+      "section": "Regression",
+      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
       "objectives": [
-        "Regression में टूल और पूर्ण रन के सही स्रोत चुनना।",
-        "दर्ज तथ्य, अनुमानित डिफ़ॉल्ट और उम्मीदवारों की भाषा अलग करना।",
-        "अपरिवर्तित मसौदे को संरचित रिकॉर्ड सहित कॉपी और निर्यात करना।",
-        "सफल निर्यात और संख्या-जाँच को वैज्ञानिक स्वीकृति से अलग समझना।"
+        "Select the project, run journal and matching result folder.",
+        "Build a digest and review the Methods, Results and Caveats tabs.",
+        "Copy the report text or export Markdown with the run digest."
       ],
-      "prerequisite": "पहले डाउनलोड किए गए डेटा वाला Regression उदाहरण पूरा करें; मूल प्रोजेक्ट, रन जर्नल और guide_permutation परिणाम रखें। यह समीक्षा और निर्यात का पाठ है, स्वीकृत पांडुलिपि या ऐप का सुधार नहीं। जर्नल में guide_permutation_seed=0 है, वैश्विक random_seed नहीं; मसौदा अलग से seed=42 निकालता है। ये जनरेटर एक जैसे नहीं हैं और लागू वैश्विक सीड सत्यापित नहीं है। मूल विश्लेषण spaCR 1.5.0.4 दर्ज करता है, मसौदा निर्यातक 1.5.0.5 बताता है। सभी 325 BH मान स्वतंत्र रूप से जाँचे गए: कोई q<0.05 नहीं, न्यूनतम 0.2708333333333333। दस उम्मीदवारों के effect/p/q मेल खाते हैं; सभी गाइड गिनतियाँ या वैज्ञानिक मान्यताएँ प्रमाणित नहीं हैं। Copy sections और Export Markdown मूल पाठ और सही रिकॉर्ड रखते हैं; नई फ़ाइल UNREVIEWED_methods_results.md है। इनपुट अपरिवर्तित हैं; प्रदाता संपर्क, पुनः रिग्रेशन, स्वीकृति या प्रकाशन नहीं। API: spacr.methods_export.build_digest, render_methods, render_results। वैज्ञानिक सटीकता पर पुराना रोक-रिकॉर्ड सुरक्षित है।",
+      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "Home से Regression खोलें और फिर उसके भीतर Methods and Results टूल चुनें। यह पाठ सबमॉड्यूल अनुभाग में Regression के नीचे है। इसमें Regression पाठ का वास्तविक पूर्ण उदाहरण है, बनाए हुए परिणाम नहीं। उद्देश्य मसौदा बनाना, जाँचना और सुरक्षित रखना है, पांडुलिपि को अपने आप स्वीकृत करना नहीं।",
+          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Home से Regression खोलें और फिर उसके भीतर Methods and Results टूल चुनें। यह पाठ सबमॉड्यूल अनुभाग में Regression के नीचे है। इसमें Regression पाठ का वास्तविक पूर्ण उदाहरण है, बनाए हुए परिणाम नहीं। उद्देश्य मसौदा बनाना, जाँचना और सुरक्षित रखना है, पांडुलिपि को अपने आप स्वीकृत करना नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "प्रोजेक्ट फ़ोल्डर, उस विशेष रन का जर्नल और उसी रन का रिग्रेशन-परिणाम फ़ोल्डर चुनें। Classifier खाली रखें: यहाँ रिग्रेशन रन की रिपोर्ट बन रही है, क्लासिफ़ायर चेकपॉइंट की नहीं। मूल फ़ाइलें न बदलें। मिलते नाम काफ़ी नहीं हैं: पुष्टि करें कि जर्नल और परिणाम एक ही पूर्ण रन के हैं।",
+          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7,
-          "speech_text": "प्रोजेक्ट फ़ोल्डर, उस विशेष रन का जर्नल और उसी रन का रिग्रेशन-परिणाम फ़ोल्डर चुनें। Classifier खाली रखें: यहाँ रिग्रेशन रन की रिपोर्ट बन रही है, क्लासिफ़ायर चेकपॉइंट की नहीं। मूल फ़ाइलें न बदलें। मिलते नाम काफ़ी नहीं हैं: पुष्टि करें कि जर्नल और परिणाम एक ही पूर्ण रन के हैं।"
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Build digest पर क्लिक करें। Methods, Results, Caveats और Run digest किसी AI प्रदाता से संपर्क किए बिना बनते हैं। ये समीक्षा की शुरुआत हैं। इस रिकॉर्डिंग में पाठ निर्यातक का संस्करण बताता है, जबकि मूल रन में विश्लेषण का अलग संस्करण दर्ज है। वही संस्करण बताएँ जिसने वास्तव में विश्लेषण किया था।",
-          "hold_after": 0.7,
-          "speech_text": "Build digest पर क्लिक करें। Methods, Results, Caveats और Run digest किसी AI प्रदाता से संपर्क किए बिना बनते हैं। ये समीक्षा की शुरुआत हैं। इस रिकॉर्डिंग में पाठ निर्यातक का संस्करण बताता है, जबकि मूल रन में विश्लेषण का अलग संस्करण दर्ज है। वही संस्करण बताएँ जिसने वास्तव में विश्लेषण किया था।"
+          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "सफल निर्माण को सत्यापन न मानें; चेतावनियाँ पढ़ें। यहाँ सामान्य सीड वाला वाक्य बयालीस कहता है। मूल जर्नल पर्म्यूटेशन सीड स्पष्ट रूप से शून्य बताता है, लेकिन वैश्विक रन सीड घोषित नहीं करता। हर बयालीस को शून्य से न बदलें: पहले जनरेटर और उनके दर्ज स्रोत अलग समझें।",
+          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7,
-          "speech_text": "सफल निर्माण को सत्यापन न मानें; चेतावनियाँ पढ़ें। यहाँ सामान्य सीड वाला वाक्य बयालीस कहता है। मूल जर्नल पर्म्यूटेशन सीड स्पष्ट रूप से शून्य बताता है, लेकिन वैश्विक रन सीड घोषित नहीं करता। हर बयालीस को शून्य से न बदलें: पहले जनरेटर और उनके दर्ज स्रोत अलग समझें।"
+          "hold_after": 0.7
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Run digest टैब में संरचित रिकॉर्ड देखें। घोषित सेटिंग और सहेजे गए वातावरण की पाठ से तुलना करें। निर्यात के समय अनुमानित डिफ़ॉल्ट पुराने रन में वास्तव में क्या हुआ, इसका प्रमाण नहीं है। चेतावनियाँ और अनसुलझे प्रश्न रखें, जिनमें गायब गुणवत्ता-जाँच सूचना भी है; रिपोर्ट का अभाव जाँच पास होने का प्रमाण नहीं।",
+          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7,
-          "speech_text": "Run digest टैब में संरचित रिकॉर्ड देखें। घोषित सेटिंग और सहेजे गए वातावरण की पाठ से तुलना करें। निर्यात के समय अनुमानित डिफ़ॉल्ट पुराने रन में वास्तव में क्या हुआ, इसका प्रमाण नहीं है। चेतावनियाँ और अनसुलझे प्रश्न रखें, जिनमें गायब गुणवत्ता-जाँच सूचना भी है; रिपोर्ट का अभाव जाँच पास होने का प्रमाण नहीं।"
+          "hold_after": 0.7
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "सहेजी गई जीन तालिका में तीन सौ पच्चीस परीक्षण हैं और क्यू मान की शून्य दशमलव शून्य पाँच सीमा पर कोई सांख्यिकीय रूप से महत्वपूर्ण नहीं है। सबसे छोटा क्यू लगभग शून्य दशमलव दो सात है। इसलिए strongest hits शीर्षक यहाँ भ्रामक है: ये क्रमबद्ध उम्मीदवार हैं, खोजें नहीं। केवल आकर्षक ऊपरी पंक्तियाँ नहीं, सुधारित परीक्षणों का पूरा परिवार जाँचें।",
+          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "सहेजी गई जीन तालिका में तीन सौ पच्चीस परीक्षण हैं और क्यू मान की शून्य दशमलव शून्य पाँच सीमा पर कोई सांख्यिकीय रूप से महत्वपूर्ण नहीं है। सबसे छोटा क्यू लगभग शून्य दशमलव दो सात है। इसलिए strongest hits शीर्षक यहाँ भ्रामक है: ये क्रमबद्ध उम्मीदवार हैं, खोजें नहीं। केवल आकर्षक ऊपरी पंक्तियाँ नहीं, सुधारित परीक्षणों का पूरा परिवार जाँचें।"
+          "hold_after": 0.7
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Copy sections स्क्रीन के Methods और Results एक साथ कॉपी करता है। यह भाषा सुधारता नहीं, संख्याएँ प्रमाणित नहीं करता और संरचित परिशिष्ट शामिल नहीं करता। अलग से दर्ज संशोधन करने से पहले बिना संपादन की प्रति रखें। रिपोर्ट में इस्तेमाल से पहले स्रोत रिकॉर्ड से सीड, संस्करण और उम्मीदवारों की भाषा के मुद्दे सुलझाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "Copy sections स्क्रीन के Methods और Results एक साथ कॉपी करता है। यह भाषा सुधारता नहीं, संख्याएँ प्रमाणित नहीं करता और संरचित परिशिष्ट शामिल नहीं करता। अलग से दर्ज संशोधन करने से पहले बिना संपादन की प्रति रखें। रिपोर्ट में इस्तेमाल से पहले स्रोत रिकॉर्ड से सीड, संस्करण और उम्मीदवारों की भाषा के मुद्दे सुलझाएँ।"
+          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Export Markdown दोनों अनुभाग और रन रिकॉर्ड का परिशिष्ट सहेजता है। नया नाम चुनें; यहाँ इसे स्पष्ट रूप से असमीक्षित कहा गया है। वास्तविक Save कार्रवाई फ़ाइल बनाती है, और हमारी जाँच में उसका पाठ और संरचित रिकॉर्ड स्क्रीन से मेल खाते हैं। सफल निर्यात वैज्ञानिक स्वीकृति नहीं है।",
+          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7,
-          "speech_text": "Export Markdown दोनों अनुभाग और रन रिकॉर्ड का परिशिष्ट सहेजता है। नया नाम चुनें; यहाँ इसे स्पष्ट रूप से असमीक्षित कहा गया है। वास्तविक Save कार्रवाई फ़ाइल बनाती है, और हमारी जाँच में उसका पाठ और संरचित रिकॉर्ड स्क्रीन से मेल खाते हैं। सफल निर्यात वैज्ञानिक स्वीकृति नहीं है।"
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI वैकल्पिक है और इस रिकॉर्डिंग में इस्तेमाल नहीं होता। यह रिकॉर्ड कॉन्फ़िगर किए प्रदाता को भेजता है; पहले सामग्री और गोपनीयता जाँचें। संख्या-जाँच नहीं तय कर सकती कि वाक्य का अर्थ सही है। Python में इसी रिपोर्टिंग प्रक्रिया के लिए build_digest, render_methods और render_results हैं, लेकिन समीक्षा की आवश्यकता वही रहती है।",
+          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
           "focus": [
             355,
             560,
@@ -6445,10 +6436,14 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Draft with AI वैकल्पिक है और इस रिकॉर्डिंग में इस्तेमाल नहीं होता। यह रिकॉर्ड कॉन्फ़िगर किए प्रदाता को भेजता है; पहले सामग्री और गोपनीयता जाँचें। संख्या-जाँच नहीं तय कर सकती कि वाक्य का अर्थ सही है। Python में इसी रिपोर्टिंग प्रक्रिया के लिए build_digest, render_methods और render_results हैं, लेकिन समीक्षा की आवश्यकता वही रहती है।"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "50_run_compare",
@@ -7381,169 +7376,156 @@
       "slug": "layer_viewer",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "अन्वेषण",
-      "title": "Layer Viewer: असली छवि और मास्क, प्रदर्शन नियंत्रण और सुरक्षित मूल डेटा",
-      "description": "QC के अंदर Layer Viewer खोलें, मेल खाती तीव्रता छवि और सेल मास्क चढ़ाएँ, दृश्यता, अपारदर्शिता, मिश्रण और परत क्रम जाँचें तथा दृश्य बदलने को संपादन और अंशांकन से अलग समझें।",
+      "section": "Explore",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
       "objectives": [
-        "QC का उपमॉड्यूल खोलकर असली छवि-मास्क जोड़ी लोड करना।",
-        "चुनी हुई परत का प्रदर्शन बदलना, मूल माप नहीं।",
-        "Fit के खिंचाव की सीमा समझना और ज़ूम, पैन तथा लेबल पढ़ना जाँचना।",
-        "खाली सहायक परतों और अनुपस्थित पहचान को API की उपलब्ध सुविधाओं से अलग समझना।"
+        "Open an image and its matching mask.",
+        "Adjust visibility, opacity, blending and layer order.",
+        "Inspect labels with zoom and pan."
       ],
-      "prerequisite": "External Masks की सत्यापित fov01 TIFF जोड़ी लें: 1994×1994 uint16 तीव्रता छवि और उससे संरेखित 44 सेल लेबल। ये प्राप्त plate1_E01_1_1 ऐरे के प्लेन 1 और 4 से पूरी तरह मेल खाते हैं; कुल 3,976,036 पिक्सेल हैं, भौतिक अंशांकन नहीं। तटस्थ फ़ाइल नाम अधिग्रहण मेटाडेटा नहीं हैं। मूल फ़ाइलें और निजी प्रतियाँ अपरिवर्तित रहती हैं। जानबूझकर स्रोत बदलने पर विफल होते देखे गए परीक्षणों सहित 19 छोटे परीक्षण हैं। प्रत्येक 26 स्थिति में वास्तविक स्क्रीन के 5,041 पिक्सेल स्वतंत्र रूप से जाँचे गए; RGB बाइट अंतर शून्य था। पूरे स्रोत ऐरे, हिस्टोग्राम से निकले 2/98 प्रतिशतक, परत गुण और इशारों की ज्यामिति भी जाँची गई। यह हर स्क्रीन पिक्सेल, मनमानी परत, बहुचैनल/3D डेटा, नरम कवरेज, जैविक विभाजन शुद्धता या अंशांकन का पूर्ण सत्यापन नहीं है। Fit छवि खींच सकता है। विश्लेषण, AI अनुरोध, संपादन, सीधा निर्यात, दूसरी व्यू में ऑब्जेक्ट चयन या Points/Shapes चित्रण नहीं किया गया। यहाँ के नियंत्रण अन्य प्रीव्यू से अलग हैं।",
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Home से QC खोलें और उसके अंदर Layer Viewer बटन चुनें। परियोजना चयन मूल QC डैशबोर्ड का है; इस व्यूअर में छवि और मास्क के अपने बटन हैं। हम External Masks में सत्यापित असली जोड़ी की निजी प्रतियाँ लेते हैं। यहाँ परीक्षण डेटा डाउनलोड करने का अलग नियंत्रण नहीं है।",
+          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ],
-          "speech_text": "Home से QC खोलें और उसके अंदर Layer Viewer बटन चुनें। परियोजना चयन मूल QC डैशबोर्ड का है; इस व्यूअर में छवि और मास्क के अपने बटन हैं। हम External Masks में सत्यापित असली जोड़ी की निजी प्रतियाँ लेते हैं। यहाँ परीक्षण डेटा डाउनलोड करने का अलग नियंत्रण नहीं है।"
+          ]
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "प्लस Image चुनकर एक चैनल वाला TIFF खोलें। दृश्य की हर भुजा एक हज़ार नौ सौ चौरानवे पिक्सेल है और तीव्रता सोलह बिट की है। प्रदर्शन दूसरे से अट्ठानवेवें प्रतिशतक तक फैलता है: यहाँ एक सौ अठारह से तेईस हज़ार दो सौ तेईस। चमकीले स्क्रीन पिक्सेल का अर्थ स्रोत बदलना या माप को आठ बिट बनाना नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "प्लस Image चुनकर एक चैनल वाला TIFF खोलें। दृश्य की हर भुजा एक हज़ार नौ सौ चौरानवे पिक्सेल है और तीव्रता सोलह बिट की है। प्रदर्शन दूसरे से अट्ठानवेवें प्रतिशतक तक फैलता है: यहाँ एक सौ अठारह से तेईस हज़ार दो सौ तेईस। चमकीले स्क्रीन पिक्सेल का अर्थ स्रोत बदलना या माप को आठ बिट बनाना नहीं है।"
+          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "इस संस्करण में Fit कैनवस भरता है और चौड़े पैनल में चौकोर छवि खींच सकता है। विभाजक खींचकर छवि पैनल लगभग चौकोर करें, फिर Fit चुनें। विकृत दृश्य से भौतिक आकार न निकालें। यहाँ विश्व निर्देशांक की एक इकाई एक पिक्सेल है, अंशांकित माइक्रोमीटर नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "इस संस्करण में Fit कैनवस भरता है और चौड़े पैनल में चौकोर छवि खींच सकता है। विभाजक खींचकर छवि पैनल लगभग चौकोर करें, फिर Fit चुनें। विकृत दृश्य से भौतिक आकार न निकालें। यहाँ विश्व निर्देशांक की एक इकाई एक पिक्सेल है, अंशांकित माइक्रोमीटर नहीं।"
+          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "प्लस Mask से मेल खाता सेल-लेबल TIFF खोलें, दूसरी तीव्रता छवि नहीं। इसमें उसी दृश्य से संरेखित चवालीस गैर-शून्य लेबल हैं। शून्य पृष्ठभूमि है और पारदर्शी रहती है। रंग लेबल अलग करते हैं, उपचार, सेल प्रकार या सत्यापित विभाजन गुणवत्ता नहीं बताते।",
-          "hold_after": 0.7,
-          "speech_text": "प्लस Mask से मेल खाता सेल-लेबल TIFF खोलें, दूसरी तीव्रता छवि नहीं। इसमें उसी दृश्य से संरेखित चवालीस गैर-शून्य लेबल हैं। शून्य पृष्ठभूमि है और पारदर्शी रहती है। रंग लेबल अलग करते हैं, उपचार, सेल प्रकार या सत्यापित विभाजन गुणवत्ता नहीं बताते।"
+          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "नियंत्रण बदलने से पहले सूची में mask चुनें। चयनित पंक्ति तय करती है कि कौन-सी परत बदलेगी; नई परत जोड़ने पर उसका चयन ज़रूरी नहीं होता। चेकबॉक्स से मास्क छिपाकर और दिखाकर नीचे की छवि देखें। लेबल और मूल तीव्रता माप नहीं बदलते।",
+          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ],
-          "speech_text": "नियंत्रण बदलने से पहले सूची में mask चुनें। चयनित पंक्ति तय करती है कि कौन-सी परत बदलेगी; नई परत जोड़ने पर उसका चयन ज़रूरी नहीं होता। चेकबॉक्स से मास्क छिपाकर और दिखाकर नीचे की छवि देखें। लेबल और मूल तीव्रता माप नहीं बदलते।"
+          ]
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "चुने मास्क की Opacity शून्य करें। रंग गायब होते हैं, लेकिन परत सूची में और चवालीस लेबल मेमोरी में रहते हैं। यह प्रदर्शन विकल्प है, हटाना, फ़िल्टर करना या विभाजन सुधारना नहीं। ध्यान रखें कि स्लाइडर किस चयनित परत को बदल रहा है।",
+          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ],
-          "speech_text": "चुने मास्क की Opacity शून्य करें। रंग गायब होते हैं, लेकिन परत सूची में और चवालीस लेबल मेमोरी में रहते हैं। यह प्रदर्शन विकल्प है, हटाना, फ़िल्टर करना या विभाजन सुधारना नहीं। ध्यान रखें कि स्लाइडर किस चयनित परत को बदल रहा है।"
+          ]
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "मास्क की Opacity सौ प्रतिशत करें। गैर-शून्य लेबल वाली जगहों पर रंग नीचे की छवि ढक देते हैं; पृष्ठभूमि पारदर्शी रहती है। इससे लेबल का आकार देख सकते हैं, पर नीचे की तीव्रता बनावट छिपती है। लेबल वाले क्षेत्रों के नए माप नहीं बनते।",
-          "hold_after": 0.7,
-          "speech_text": "मास्क की Opacity सौ प्रतिशत करें। गैर-शून्य लेबल वाली जगहों पर रंग नीचे की छवि ढक देते हैं; पृष्ठभूमि पारदर्शी रहती है। इससे लेबल का आकार देख सकते हैं, पर नीचे की तीव्रता बनावट छिपती है। लेबल वाले क्षेत्रों के नए माप नहीं बनते।"
+          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Opacity पचास प्रतिशत और मिश्रण translucent पर लौटाएँ। छवि और लेबल का रंग दोनों ओवरले बनाते हैं। स्वतंत्र जाँच स्क्रीन नमूनों को स्रोत से मिलाती है; इससे विभाजन जैविक रूप से सही सिद्ध नहीं होता। सीमाएँ परखते समय कच्ची छवि देखें।",
-          "hold_after": 0.7,
-          "speech_text": "Opacity पचास प्रतिशत और मिश्रण translucent पर लौटाएँ। छवि और लेबल का रंग दोनों ओवरले बनाते हैं। स्वतंत्र जाँच स्क्रीन नमूनों को स्रोत से मिलाती है; इससे विभाजन जैविक रूप से सही सिद्ध नहीं होता। सीमाएँ परखते समय कच्ची छवि देखें।"
+          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "मिश्रण मेनू से additive चुनें। लेबल का रंग छवि में जुड़ता है और दिखने वाला मिश्रित परिणाम संतृप्त हो सकता है। स्रोत तीव्रता नहीं बदलती। ये प्रदर्शन क्रियाएँ हैं, विश्लेषण के लिए तीव्रता सामान्यीकरण नहीं। दूसरे मोड आज़माने से पहले सही परत चुनें।",
-          "hold_after": 0.7,
-          "speech_text": "मिश्रण मेनू से additive चुनें। लेबल का रंग छवि में जुड़ता है और दिखने वाला मिश्रित परिणाम संतृप्त हो सकता है। स्रोत तीव्रता नहीं बदलती। ये प्रदर्शन क्रियाएँ हैं, विश्लेषण के लिए तीव्रता सामान्यीकरण नहीं। दूसरे मोड आज़माने से पहले सही परत चुनें।"
+          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "multiply और minimum अलग तरह से गहरा करते हैं। multiply ओवरले रंग से छवि को मंद करता है; minimum हर रंग चैनल का गहरा मान मिलाता है। यहाँ minimum दिखता है। उसी दृश्य पर तुलना करें, लेकिन गहरे मिश्रित दृश्य को कम मापी गई प्रतिदीप्ति न समझें।",
-          "hold_after": 0.7,
-          "speech_text": "multiply और minimum अलग तरह से गहरा करते हैं। multiply ओवरले रंग से छवि को मंद करता है; minimum हर रंग चैनल का गहरा मान मिलाता है। यहाँ minimum दिखता है। उसी दृश्य पर तुलना करें, लेकिन गहरे मिश्रित दृश्य को कम मापी गई प्रतिदीप्ति न समझें।"
+          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Opacity पचास प्रतिशत रखते हुए opaque चुनें। इस द्विआधारी कवरेज मास्क में यह समान अपारदर्शिता वाले translucent जैसा दिखता है; opaque स्लाइडर को सौ नहीं करता। पूर्णांक लेबल नरम कवरेज के अलग व्यवहार को नहीं दिखाते। आगे बढ़ने से पहले translucent लौटाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "Opacity पचास प्रतिशत रखते हुए opaque चुनें। इस द्विआधारी कवरेज मास्क में यह समान अपारदर्शिता वाले translucent जैसा दिखता है; opaque स्लाइडर को सौ नहीं करता। पूर्णांक लेबल नरम कवरेज के अलग व्यवहार को नहीं दिखाते। आगे बढ़ने से पहले translucent लौटाएँ।"
+          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "image चुनकर रंग चयन में cyan चुनें। एक चैनल की छवि का रंग बदलता है, मास्क के ऑब्जेक्ट रंग बने रहते हैं। माप या चैनल की जैविक पहचान नहीं बदलती। यहाँ चैनल चयन या संपादन योग्य कंट्रास्ट सीमा नहीं है; दूसरे प्रीव्यू की सुविधा यहाँ न मानें। बाद में gray लौटाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "image चुनकर रंग चयन में cyan चुनें। एक चैनल की छवि का रंग बदलता है, मास्क के ऑब्जेक्ट रंग बने रहते हैं। माप या चैनल की जैविक पहचान नहीं बदलती। यहाँ चैनल चयन या संपादन योग्य कंट्रास्ट सीमा नहीं है; दूसरे प्रीव्यू की सुविधा यहाँ न मानें। बाद में gray लौटाएँ।"
+          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "mask चुनें और नीचे तीर से उसे छवि के नीचे रखें। सूची की ऊपरी परत सामने बनती है। अपारदर्शी छवि मास्क छिपाती है, भले उसकी दृश्यता चालू और डेटा सुरक्षित हों। ऑब्जेक्ट देखने या क्लिक करने से पहले मास्क फिर ऊपर लाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "mask चुनें और नीचे तीर से उसे छवि के नीचे रखें। सूची की ऊपरी परत सामने बनती है। अपारदर्शी छवि मास्क छिपाती है, भले उसकी दृश्यता चालू और डेटा सुरक्षित हों। ऑब्जेक्ट देखने या क्लिक करने से पहले मास्क फिर ऊपर लाएँ।"
+          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "दिखते लेबल क्षेत्र पर क्लिक करें। स्थिति में विश्व निर्देशांक और यहाँ लेबल नौ दिखता है। इस फ़ाइल चयन से लोड मास्क की फ़ील्ड कुंजी नहीं है, इसलिए क्लिक पूरे प्रयोग का ऑब्जेक्ट नहीं पहचानता और दूसरी जगह उसका क्रॉप नहीं खोलता। तटस्थ उदाहरण नाम से प्लेट या वेल न निकालें।",
+          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ],
-          "speech_text": "दिखते लेबल क्षेत्र पर क्लिक करें। स्थिति में विश्व निर्देशांक और यहाँ लेबल नौ दिखता है। इस फ़ाइल चयन से लोड मास्क की फ़ील्ड कुंजी नहीं है, इसलिए क्लिक पूरे प्रयोग का ऑब्जेक्ट नहीं पहचानता और दूसरी जगह उसका क्रॉप नहीं खोलता। तटस्थ उदाहरण नाम से प्लेट या वेल न निकालें।"
+          ]
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "ऑब्जेक्ट के ऊपर माउस व्हील घुमाकर ज़ूम करें। ऊपर के तीन चरण आवर्धन को एक दशमलव दो के घन से गुणा करते हैं और पॉइंटर के नीचे वही विश्व निर्देशांक रखते हैं। व्यूअर स्रोत परतों को नए पैमाने पर बनाता है। ज़ूम दृश्य बदलता है, मास्क, पिक्सेल मान या भौतिक अंशांकन नहीं।",
-          "hold_after": 0.7,
-          "speech_text": "ऑब्जेक्ट के ऊपर माउस व्हील घुमाकर ज़ूम करें। ऊपर के तीन चरण आवर्धन को एक दशमलव दो के घन से गुणा करते हैं और पॉइंटर के नीचे वही विश्व निर्देशांक रखते हैं। व्यूअर स्रोत परतों को नए पैमाने पर बनाता है। ज़ूम दृश्य बदलता है, मास्क, पिक्सेल मान या भौतिक अंशांकन नहीं।"
+          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Shift दबाकर बाएँ बटन से खींचें; बीच का बटन भी पैन करता है। यहाँ स्रोत निर्देशांक बदले बिना दिखता दृश्य चलता है। जाँचा गया इशारा वर्तमान ज़ूम रखता है। दूसरी जगह देखने के लिए पैन करना छवि डेटा खिसकाना या पंजीकरण करना नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "Shift दबाकर बाएँ बटन से खींचें; बीच का बटन भी पैन करता है। यहाँ स्रोत निर्देशांक बदले बिना दिखता दृश्य चलता है। जाँचा गया इशारा वर्तमान ज़ूम रखता है। दूसरी जगह देखने के लिए पैन करना छवि डेटा खिसकाना या पंजीकरण करना नहीं है।"
+          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Fit चुनकर वर्तमान पैनल में पूरा दृश्य लौटाएँ। इस रिकॉर्डिंग में ज़ूम से पहले वाला दृश्य वापस आता है। पैनल आकार की सीमा याद रखें: Fit अकेले समान क्षैतिज और ऊर्ध्वाधर पैमाने की गारंटी नहीं देता। स्रोत अंतराल और कैनवस ज्यामिति अलग हैं; स्क्रीनशॉट से अनुमान न लगाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "Fit चुनकर वर्तमान पैनल में पूरा दृश्य लौटाएँ। इस रिकॉर्डिंग में ज़ूम से पहले वाला दृश्य वापस आता है। पैनल आकार की सीमा याद रखें: Fit अकेले समान क्षैतिज और ऊर्ध्वाधर पैमाने की गारंटी नहीं देता। स्रोत अंतराल और कैनवस ज्यामिति अलग हैं; स्क्रीनशॉट से अनुमान न लगाएँ।"
+          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "प्लस Points और प्लस Shapes खाली सहायक परतें बनाते हैं; यहाँ खाली shapes है। इस स्क्रीन पर चित्रण उपकरण चालू नहीं होता और सामान्य क्लिक से परीक्षण में बिंदु या क्षेत्र नहीं जुड़े। काम के बाद खाली परत हटाएँ। असली मास्क संपादन के लिए Make Masks के वास्तविक संपादन नियंत्रण देखें।",
+          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ],
-          "speech_text": "प्लस Points और प्लस Shapes खाली सहायक परतें बनाते हैं; यहाँ खाली shapes है। इस स्क्रीन पर चित्रण उपकरण चालू नहीं होता और सामान्य क्लिक से परीक्षण में बिंदु या क्षेत्र नहीं जुड़े। काम के बाद खाली परत हटाएँ। असली मास्क संपादन के लिए Make Masks के वास्तविक संपादन नियंत्रण देखें।"
+          ]
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "mask चुनकर हटाने वाला नियंत्रण दबाएँ। केवल परत इस दृश्य से जाती है; छवि रहती है और स्रोत मास्क फ़ाइल नहीं बदलती। परत हटाना संपादन सहेजना या फ़ाइल मिटाना नहीं है। हमने दोनों निजी TIFF और मूल प्राप्त डेटा पूरे समय अपरिवर्तित पाए।",
-          "hold_after": 0.7,
-          "speech_text": "mask चुनकर हटाने वाला नियंत्रण दबाएँ। केवल परत इस दृश्य से जाती है; छवि रहती है और स्रोत मास्क फ़ाइल नहीं बदलती। परत हटाना संपादन सहेजना या फ़ाइल मिटाना नहीं है। हमने दोनों निजी TIFF और मूल प्राप्त डेटा पूरे समय अपरिवर्तित पाए।"
+          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "कोड में spaCR के Qt layer_viewer मॉड्यूल का stack_from_paths परतें लोड करता है; LayerStack.render_uint8 आपके निर्यात कोड के लिए मिश्रित छवि ऐरे देता है। Spacing और FieldKey को ज्ञात अंशांकन तथा पहचान चाहिए। इस स्क्रीन पर अलग निर्यात, विश्लेषण रन, GPU पाइपलाइन या spaCR AI कंसोल नहीं है। देखना, मापना और सहेजा गया मास्क संपादन अलग रखें।",
+          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ],
-          "speech_text": "कोड में स्पेकर के क्यू टी layer_viewer मॉड्यूल का stack_from_paths परतें लोड करता है; LayerStack.render_uint8 आपके निर्यात कोड के लिए मिश्रित छवि ऐरे देता है। Spacing और FieldKey को ज्ञात अंशांकन तथा पहचान चाहिए। इस स्क्रीन पर अलग निर्यात, विश्लेषण रन, GPU पाइपलाइन या स्पेकर AI कंसोल नहीं है। देखना, मापना और सहेजा गया मास्क संपादन अलग रखें।"
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "example_files": [
+        "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "58_graph_builder",
@@ -7551,104 +7533,96 @@
       "slug": "graph_builder",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "अन्वेषण",
-      "title": "Graph Builder: वास्तविक माप, लाइव फ़िल्टर और हस्तांतरण की सीमा",
-      "description": "वास्तविक मापों से ग्राफ़ बनाना, अधिग्रहण की जानकारी से समूह बनाना और Annotate में चयन भेजने की मौजूदा खराबी पहचानना।",
+      "section": "Explore",
+      "title": "Graph Builder: plot measurements and filter objects",
+      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
       "objectives": [
-        "वास्तविक डेटाबेस खोलकर cell तालिका चुनें।",
-        "हिस्टोग्राम, स्कैटर, रंग और पंक्ति के पैनल बनाएँ।",
-        "फ़िल्टर लगाने और हटाने पर आबादी जाँचें।",
-        "आंतरिक चयन प्रकाशन और सफल हस्तांतरण में अंतर समझें।"
+        "Load an example measurement table.",
+        "Build a histogram, scatter plot and grouped panels.",
+        "Filter objects and choose a follow-up view."
       ],
-      "prerequisite": "लिंक किया गया डेटाबेस डाउनलोड करके अनज़िप करें, या Annotate का डाउनलोड किया उदाहरण लें। आर्काइव में माप हैं, चित्रों के क्रॉप नहीं; नया मॉडल चलाने की ज़रूरत नहीं है।",
+      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Graph Builder किसी मौजूदा तालिका की पड़ताल करता है। इसे Home से खोलें। यह मुख्य मॉड्यूल है, जिसके भीतर Plate Viewer और Small Multiples हैं। हम उदाहरण के वास्तविक माप इस्तेमाल करेंगे, न मॉडल प्रशिक्षित करेंगे और न किसी एआई सेवा से परिणाम बनवाएँगे।",
-          "hold_after": 0.7,
-          "speech_text": "Graph Builder किसी मौजूदा तालिका की पड़ताल करता है। इसे Home से खोलें। यह मुख्य मॉड्यूल है, जिसके भीतर Plate Viewer और Small Multiples हैं। हम उदाहरण के वास्तविक माप इस्तेमाल करेंगे, न मॉडल प्रशिक्षित करेंगे और न किसी एआई सेवा से परिणाम बनवाएँगे।"
+          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Load table चुनें और लिंक किए आर्काइव या Annotate के डाउनलोड किए उदाहरण से measurements डॉट db खोलें। cell तालिका चुनें: दो हज़ार तीन सौ इकतालीस पंक्तियाँ। आर्काइव रिकॉर्ड किया डेटाबेस हूबहू सुरक्षित रखता है, पर दूसरी तालिकाओं में संदर्भित चित्र शामिल नहीं करता।",
+          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ],
-          "speech_text": "Load table चुनें और लिंक किए आर्काइव या Annotate के डाउनलोड किए उदाहरण से measurements डॉट db खोलें। cell तालिका चुनें: दो हज़ार तीन सौ इकतालीस पंक्तियाँ। आर्काइव रिकॉर्ड किया डेटाबेस हूबहू सुरक्षित रखता है, पर दूसरी तालिकाओं में संदर्भित चित्र शामिल नहीं करता।"
+          ]
         },
         {
           "visual": "05_area_histogram",
-          "narration": "cell_area खोजें और उस कॉलम को X पर खींचें। Automatic plotting तीस अंतरालों वाला हिस्टोग्राम बनाता है। हर बार क्षेत्रफल के एक अंतराल में कोशिकाओं की संख्या है; यह उपचारों की तुलना या सांख्यिकीय सार्थकता की जाँच नहीं है। मूल इकाइयाँ बनी रहती हैं, नया भौतिक अंशांकन नहीं होता।",
-          "hold_after": 0.7,
-          "speech_text": "cell_area खोजें और उस कॉलम को X पर खींचें। Automatic plotting तीस अंतरालों वाला हिस्टोग्राम बनाता है। हर बार क्षेत्रफल के एक अंतराल में कोशिकाओं की संख्या है; यह उपचारों की तुलना या सांख्यिकीय सार्थकता की जाँच नहीं है। मूल इकाइयाँ बनी रहती हैं, नया भौतिक अंशांकन नहीं होता।"
+          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "cell_channel_1_mean_intensity को Y पर खींचें। हर बिंदु एक कोशिका का क्षेत्रफल और चैनल एक की औसत तीव्रता दिखाता है। एक-दूसरे पर पड़े बिंदु छिप सकते हैं, हालाँकि यहाँ सभी पंक्तियाँ मौजूद हैं। पंक्ति-गिनती पढ़ें; बड़े डेटासेट में चित्रण का तरीका अलग हो सकता है।",
-          "hold_after": 0.7,
-          "speech_text": "cell_channel_1_mean_intensity को Y पर खींचें। हर बिंदु एक कोशिका का क्षेत्रफल और चैनल एक की औसत तीव्रता दिखाता है। एक-दूसरे पर पड़े बिंदु छिप सकते हैं, हालाँकि यहाँ सभी पंक्तियाँ मौजूद हैं। पंक्ति-गिनती पढ़ें; बड़े डेटासेट में चित्रण का तरीका अलग हो सकता है।"
+          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "columnID को Colour पर रखें और लेजेंड पढ़ें। रंग अधिग्रहण के कॉलम बताते हैं, अनुमानित वर्ग या ज्ञात उपचार नहीं। दिखाई देने वाला अलगाव वर्णनात्मक है, किसी प्रभाव का प्रमाण नहीं। हमने बिंदुओं के निर्देशांक और रंग मूल पंक्तियों से जाँचे हैं।",
-          "hold_after": 0.7,
-          "speech_text": "columnID को Colour पर रखें और लेजेंड पढ़ें। रंग अधिग्रहण के कॉलम बताते हैं, अनुमानित वर्ग या ज्ञात उपचार नहीं। दिखाई देने वाला अलगाव वर्णनात्मक है, किसी प्रभाव का प्रमाण नहीं। हमने बिंदुओं के निर्देशांक और रंग मूल पंक्तियों से जाँचे हैं।"
+          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "rowID को नीचे की ओर तीर वाले facet चैनल पर रखें। प्लेट की पंक्तियों के अलग पैनल बनते हैं, जिनमें एक हज़ार एक सौ चालीस और एक हज़ार दो सौ एक कोशिकाएँ हैं। साझा अक्ष तुलना में मदद करते हैं, लेकिन एक ही वेल की कोशिकाएँ स्वतंत्र प्रयोगात्मक प्रतिकृतियाँ नहीं हैं।",
-          "hold_after": 0.7,
-          "speech_text": "rowID को नीचे की ओर तीर वाले facet चैनल पर रखें। प्लेट की पंक्तियों के अलग पैनल बनते हैं, जिनमें एक हज़ार एक सौ चालीस और एक हज़ार दो सौ एक कोशिकाएँ हैं। साझा अक्ष तुलना में मदद करते हैं, लेकिन एक ही वेल की कोशिकाएँ स्वतंत्र प्रयोगात्मक प्रतिकृतियाँ नहीं हैं।"
+          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "दाएँ फ़िल्टर पैनल में cell_area जोड़ें और न्यूनतम मान इक्कीस हज़ार नौ सौ पच्चीस रखें। ग्राफ़ तुरंत एक हज़ार एक सौ इकहत्तर पंक्तियाँ दिखाता है। यह ऊपर की ओर गोल की गई माध्यिका फ़िल्टर का उदाहरण है, सुझाई गई जैविक सीमा नहीं। अक्षों की सीमाएँ भी बदलती हैं।",
-          "hold_after": 0.7,
-          "speech_text": "दाएँ फ़िल्टर पैनल में cell_area जोड़ें और न्यूनतम मान इक्कीस हज़ार नौ सौ पच्चीस रखें। ग्राफ़ तुरंत एक हज़ार एक सौ इकहत्तर पंक्तियाँ दिखाता है। यह ऊपर की ओर गोल की गई माध्यिका फ़िल्टर का उदाहरण है, सुझाई गई जैविक सीमा नहीं। अक्षों की सीमाएँ भी बदलती हैं।"
+          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ वापस लाने के लिए फ़िल्टर में Clear all चुनें। यह बाएँ के Clear all channels से अलग है, जो ग्राफ़ की कॉलम मैपिंग हटाता है। गिनती और अक्ष फिर जाँचें: आबादी बदलना नया माप लेना नहीं है।",
-          "hold_after": 0.7,
-          "speech_text": "सभी दो हज़ार तीन सौ इकतालीस कोशिकाएँ वापस लाने के लिए फ़िल्टर में Clear all चुनें। यह बाएँ के Clear all channels से अलग है, जो ग्राफ़ की कॉलम मैपिंग हटाता है। गिनती और अक्ष फिर जाँचें: आबादी बदलना नया माप लेना नहीं है।"
+          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "छोटे क्रॉस से पंक्ति facet हटाएँ, फिर स्कैटर पर आयत खींचें। इस संस्करण में खराबी है: रिकॉर्ड किया इशारा अंदरूनी रूप से छह सौ तिरपन ऑब्जेक्ट कुंजियाँ प्रकाशित करता है, लेकिन चयन शून्य दिखता है और Open selection in Annotate बंद रहता है। यह न मानें कि एनोटेशन खोले या बनाए गए हैं।",
-          "hold_after": 0.7,
-          "speech_text": "छोटे क्रॉस से पंक्ति facet हटाएँ, फिर स्कैटर पर आयत खींचें। इस संस्करण में खराबी है: रिकॉर्ड किया इशारा अंदरूनी रूप से छह सौ तिरपन ऑब्जेक्ट कुंजियाँ प्रकाशित करता है, लेकिन चयन शून्य दिखता है और Open selection in Annotate बंद रहता है। यह न मानें कि एनोटेशन खोले या बनाए गए हैं।"
+          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "एक साधारण क्लिक आंतरिक चयन भी साफ़ करता है। ट्यूटोरियल इस वापसी को जाँचता है, पर हस्तांतरण ठीक नहीं करता। फ़िल्टर करना और ऑब्जेक्ट चुनना अलग क्रियाएँ हैं; दूसरे दृश्य उनका साझा स्टेट इस्तेमाल कर सकते हैं। सक्रिय आबादी जाँचें, ग्राफ़ को हमेशा पूरा डेटाबेस न समझें।",
-          "hold_after": 0.7,
-          "speech_text": "एक साधारण क्लिक आंतरिक चयन भी साफ़ करता है। ट्यूटोरियल इस वापसी को जाँचता है, पर हस्तांतरण ठीक नहीं करता। फ़िल्टर करना और ऑब्जेक्ट चुनना अलग क्रियाएँ हैं; दूसरे दृश्य उनका साझा स्टेट इस्तेमाल कर सकते हैं। सक्रिय आबादी जाँचें, ग्राफ़ को हमेशा पूरा डेटाबेस न समझें।"
+          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "हेडर के शॉर्टकट से अंदर के Plate Viewer और Small Multiples खोलें; उनके अपने ट्यूटोरियल हैं। इस स्क्रीन पर ग्राफ़ या उसकी specification निर्यात करने का बटन नहीं है। लिंक किया डेटाबेस बाहरी ट्यूटोरियल डाउनलोड है, Graph Builder का निर्यात नहीं।",
+          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ],
-          "speech_text": "हेडर के शॉर्टकट से अंदर के Plate Viewer और Small Multiples खोलें; उनके अपने ट्यूटोरियल हैं। इस स्क्रीन पर ग्राफ़ या उसकी specification निर्यात करने का बटन नहीं है। लिंक किया डेटाबेस बाहरी ट्यूटोरियल डाउनलोड है, Graph Builder का निर्यात नहीं।"
+          ]
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Python में read_table डेटा लोड करता है, GraphSpec चैनल और facet बताता है, और selection API फ़िल्टरों को स्पष्ट ऑब्जेक्ट कुंजियों से अलग रखता है। व्याख्या के साथ स्रोत, सेटिंग और संस्करण बचाएँ। ये API जैविक निष्कर्ष सत्यापित नहीं करते और Annotate का हस्तांतरण ठीक नहीं करते।",
+          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Python में read_table डेटा लोड करता है, GraphSpec चैनल और facet बताता है, और selection API फ़िल्टरों को स्पष्ट ऑब्जेक्ट कुंजियों से अलग रखता है। व्याख्या के साथ स्रोत, सेटिंग और संस्करण बचाएँ। ये API जैविक निष्कर्ष सत्यापित नहीं करते और Annotate का हस्तांतरण ठीक नहीं करते।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "59_anndata_export",
@@ -8217,65 +8191,60 @@
       "slug": "feature_dictionary",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "अन्वेषण",
-      "title": "Feature Dictionary: अर्थ, इकाइयाँ और गणना करने वाले फ़ंक्शन समझें",
-      "description": "Help में उपलब्ध वास्तविक शब्दकोश से फ़ीचर की परिभाषाएँ खोजें, अवधारणा और ऑब्जेक्ट के आधार पर छाँटें, और सामान्य दस्तावेज़ को परियोजना में उपलब्ध मापों से अलग समझें।",
+      "section": "Help",
+      "title": "Feature Dictionary: find definitions and units",
+      "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
       "objectives": [
-        "Help से शब्दकोश खोलकर अवधारणा या माप के नाम से खोजें।",
-        "परियोजना के डेटा को बदले बिना वास्तविक अवधारणा और ऑब्जेक्ट फ़िल्टर इस्तेमाल करें।",
-        "क्षेत्रफल और आयतन के अंतर सहित इकाइयाँ, गणना फ़ंक्शन और सावधानियाँ पढ़ें।",
-        "परिभाषा का पाठ कॉपी करें और इस खोज पैनल को Python से किए जाने वाले परियोजना-विशिष्ट निर्यात से अलग समझें।"
+        "Find a definition by name or concept.",
+        "Narrow the results with concept and object filters.",
+        "Read units and notes, then copy the definition."
       ],
-      "prerequisite": "किसी परियोजना, डाउनलोड या मॉडल की ज़रूरत नहीं है; यह पाठ अंतर्निहित परिभाषाएँ दिखाता है। कोई माप, ग्राफ़, AI अनुरोध, GPU कार्य या फ़ाइल निर्यात नहीं किया जाता। उदाहरण के कॉलम नाम Database Browser में इस्तेमाल वास्तविक माप डेटाबेस में मौजूद हैं, लेकिन यहाँ शब्दकोश उस डेटाबेस को लोड नहीं करता। वर्तमान पैनल में कोशिकांगों की भूमिकाओं के सैकड़ों नाम हैं; सामान्य स्क्रॉल नियंत्रण से उनके नीचे दिए गए फ़ंक्शन और नोट दिखाई देते हैं। पाठ केवल रिकॉर्डिंग के अलग निजी डेस्कटॉप के क्लिपबोर्ड पर कॉपी किया जाता है।",
+      "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
       "scenes": [
         {
           "visual": "01_help_dictionary",
-          "narration": "Help खोलें, फिर Feature Dictionary चुनें। यह अंतर्निहित माप परिभाषाएँ देखने की विंडो है, Home का अलग कार्यप्रवाह या चलाने वाली विश्लेषण प्रक्रिया नहीं। डेटा या मॉडल डाउनलोड करने की ज़रूरत नहीं है।",
+          "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "Help खोलें, फिर Feature Dictionary चुनें। यह अंतर्निहित माप परिभाषाएँ देखने की विंडो है, Home का अलग कार्यप्रवाह या चलाने वाली विश्लेषण प्रक्रिया नहीं। डेटा या मॉडल डाउनलोड करने की ज़रूरत नहीं है।"
+          ]
         },
         {
           "visual": "03_search_by_idea",
-          "narration": "size जैसी कोई अवधारणा लिखें। टाइप करते समय परिणाम बदलते हैं और Area चुनने पर उसकी परिभाषा दिखती है। संख्या मेल खाने वाली परिभाषाओं की है, मापी गई कोशिकाओं या परियोजना में मौजूद होने की पुष्टि किए गए कॉलम की नहीं।",
+          "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             550
-          ],
-          "speech_text": "size जैसी कोई अवधारणा लिखें। टाइप करते समय परिणाम बदलते हैं और Area चुनने पर उसकी परिभाषा दिखती है। संख्या मेल खाने वाली परिभाषाओं की है, मापी गई कोशिकाओं या परियोजना में मौजूद होने की पुष्टि किए गए कॉलम की नहीं।"
+          ]
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "narration": "वास्तविक ड्रॉपडाउन अवधारणा और ऑब्जेक्ट के प्रकार से फ़िल्टर करते हैं। यहाँ intensity और cell चुनने पर तेरह परिभाषाएँ मिलती हैं। ये फ़िल्टर शब्दकोश का दायरा घटाते हैं, चित्र डेटा या विश्लेषण सेटिंग्स नहीं बदलते। अगली खोज से पहले Any concept और Any object वापस चुनें।",
+          "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             450
-          ],
-          "speech_text": "वास्तविक ड्रॉपडाउन अवधारणा और ऑब्जेक्ट के प्रकार से फ़िल्टर करते हैं। यहाँ intensity और cell चुनने पर तेरह परिभाषाएँ मिलती हैं। ये फ़िल्टर शब्दकोश का दायरा घटाते हैं, चित्र डेटा या विश्लेषण सेटिंग्स नहीं बदलते। अगली खोज से पहले Any concept और Any object वापस चुनें।"
+          ]
         },
         {
           "visual": "05_measurement_name",
-          "narration": "स्क्रीन पर दिखाए गए ठीक उसी कॉलम नाम से कोशिका के चैनल एक की औसत तीव्रता खोजें। चुनी हुई Mean intensity प्रविष्टि पिक्सेल के सांख्यिकीय माप और उसकी इकाइयाँ समझाती है। नाम से खोजने पर दस्तावेज़ मिलता है; उस कॉलम के मानों की जाँच या वर्तमान परियोजना में उसकी मौजूदगी की पुष्टि नहीं होती।",
+          "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
           "hold_after": 0.7,
           "focus": [
             1620,
             265,
             1780,
             355
-          ],
-          "speech_text": "स्क्रीन पर दिखाए गए ठीक उसी कॉलम नाम से कोशिका के चैनल एक की औसत तीव्रता खोजें। चुनी हुई Mean intensity प्रविष्टि पिक्सेल के सांख्यिकीय माप और उसकी इकाइयाँ समझाती है। नाम से खोजने पर दस्तावेज़ मिलता है; उस कॉलम के मानों की जाँच या वर्तमान परियोजना में उसकी मौजूदगी की पुष्टि नहीं होती।"
+          ]
         },
         {
           "visual": "06_computing_function",
-          "narration": "नीचे स्क्रॉल करके Channel, Module और Computed by देखें। संदर्भ माप के वास्तविक कार्यान्वयन की पहचान करता है, जिसमें विस्तारित क्षेत्रीय गुणों वाला फ़ंक्शन शामिल है। शब्दकोश परिभाषा खोजता है, माप की दोबारा गणना नहीं करता। Python के खोज API, feature_dict मॉड्यूल में हैं।",
+          "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8285,24 +8254,22 @@
           ],
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "नीचे स्क्रॉल करके Channel, Module और Computed by देखें। संदर्भ माप के वास्तविक कार्यान्वयन की पहचान करता है, जिसमें विस्तारित क्षेत्रीय गुणों वाला फ़ंक्शन शामिल है। शब्दकोश परिभाषा खोजता है, माप की दोबारा गणना नहीं करता। Python के खोज API, feature_dict मॉड्यूल में हैं।"
+          ]
         },
         {
           "visual": "07_conditional_area_units",
-          "narration": "अब cell_area खोजें। Unit में दी गई शर्तें पढ़ें: दो आयामों की प्रक्रिया पिक्सेल क्षेत्रफल बताती है, जबकि यही नाम तीन आयामों में आयतन दर्शाता है। पंक्ति का measurement_units फ़ील्ड तय करता है कि आयतन चित्र-पिक्सेल इकाइयों के घन में है या घन माइक्रोमीटर में। केवल कॉलम नाम से भौतिक इकाइयों का अनुमान न लगाएँ।",
+          "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
           "hold_after": 0.7,
           "focus": [
             1620,
             265,
             1780,
             380
-          ],
-          "speech_text": "अब cell_area खोजें। Unit में दी गई शर्तें पढ़ें: दो आयामों की प्रक्रिया पिक्सेल क्षेत्रफल बताती है, जबकि यही नाम तीन आयामों में आयतन दर्शाता है। पंक्ति का measurement_units फ़ील्ड तय करता है कि आयतन चित्र-पिक्सेल इकाइयों के घन में है या घन माइक्रोमीटर में। केवल कॉलम नाम से भौतिक इकाइयों का अनुमान न लगाएँ।"
+          ]
         },
         {
           "visual": "08_area_caveats",
-          "narration": "मुख्य परिभाषा के साथ Note भी पढ़ें। भौतिक इकाइयों में पहले से व्यक्त तीन-आयामी मान को दोबारा परिवर्तित नहीं करना चाहिए। परियोजना-विशिष्ट दस्तावेज़ के लिए Python के describe_database और export_dictionary फ़ंक्शन डेटाबेस जाँचते हैं और उसमें दर्ज माप इकाइयों को समझते हैं; वे इस पैनल के बटन नहीं हैं।",
+          "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8313,32 +8280,34 @@
           "related_lessons": [
             "06_api",
             "34_database"
-          ],
-          "speech_text": "मुख्य परिभाषा के साथ Note भी पढ़ें। भौतिक इकाइयों में पहले से व्यक्त तीन-आयामी मान को दोबारा परिवर्तित नहीं करना चाहिए। परियोजना-विशिष्ट दस्तावेज़ के लिए Python के describe_database और export_dictionary फ़ंक्शन डेटाबेस जाँचते हैं और उसमें दर्ज माप इकाइयों को समझते हैं; वे इस पैनल के बटन नहीं हैं।"
+          ]
         },
         {
           "visual": "09_unknown_search",
-          "narration": "कोई मेल न मिलने पर खोज में परिभाषा नहीं दिखती। इसका अर्थ है कि शब्दकोश को मिलती हुई प्रविष्टि नहीं मिली, यह नहीं कि आपके डेटा में कस्टम फ़ीचर हो ही नहीं सकता। किसी ज्ञात नाम या व्यापक अवधारणा पर लौटें; अनुपलब्ध दस्तावेज़ को वैज्ञानिक परिणाम न मानें।",
+          "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             450
-          ],
-          "speech_text": "कोई मेल न मिलने पर खोज में परिभाषा नहीं दिखती। इसका अर्थ है कि शब्दकोश को मिलती हुई प्रविष्टि नहीं मिली, यह नहीं कि आपके डेटा में कस्टम फ़ीचर हो ही नहीं सकता। किसी ज्ञात नाम या व्यापक अवधारणा पर लौटें; अनुपलब्ध दस्तावेज़ को वैज्ञानिक परिणाम न मानें।"
+          ]
         },
         {
           "visual": "11_actual_text_copy",
-          "narration": "Area पर लौटें, विवरण का पाठ चुनें और कॉपी करें। रिकॉर्डिंग वास्तव में कॉपी हुए चयन की पुष्टि करती है। GUI में Run या Export क्रिया नहीं है: पाठ कॉपी करना Python से परियोजना-विशिष्ट शब्दकोश फ़ाइल बनाने से अलग है। काम पूरा होने पर विंडो बंद करें; कोई विश्लेषण बदला नहीं गया है।",
+          "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database"
-          ],
-          "speech_text": "Area पर लौटें, विवरण का पाठ चुनें और कॉपी करें। रिकॉर्डिंग वास्तव में कॉपी हुए चयन की पुष्टि करती है। GUI में Run या Export क्रिया नहीं है: पाठ कॉपी करना Python से परियोजना-विशिष्ट शब्दकोश फ़ाइल बनाने से अलग है। काम पूरा होने पर विंडो बंद करें; कोई विश्लेषण बदला नहीं गया है।"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "63_small_multiples",

@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-assisted source-context review. Reviews the five restoration tooltips and the Compare action in their enhancement-panel context. Preserves processing order, separate environment, model limitations, coordinate alignment, calibration caveats and unchanged measurement intensities. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+      "source": "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+      "source_sha256": "ebbdf850b1826b6071eacc35e4f25501575ce5def1ccf2756fb1fb658c15759d",
+      "translation": "Ungefärlig diameter för de valda cellerna eller cellkärnorna i pixlar. Styr modellens omskalning; utdatans dimensioner förblir oförändrade. Detta uppskattar inte mikroskopets kalibrering."
+    },
+    {
+      "table": "ui",
+      "key": "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+      "source": "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+      "source_sha256": "fcd09a8798008e5d7ccc591230c3dad97693639b2da12b21a44771faa4031253",
+      "translation": "Välj vikter som tränats för celler eller cellkärnor. Modellerna är inte validerade för varje organell eller bildtagning. Återställda värden är normaliserade modellutdata, inte kalibrerad fluorescens. Granska jämförelsen innan du godtar nya masker. Uppsampling används inte, så bildens och maskens koordinater förblir samordnade."
+    },
+    {
+      "table": "ui",
+      "key": "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source": "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source_sha256": "bac44e9e5928fd308a143b2fc85aa7b932aa3df290834c7ceabbc2953912eac9",
+      "translation": "Ladda de valda återställningsvikterna för Cellpose 3 på CPU. Vid första användningen kan vikterna behöva hämtas. Paketversionen, kontrollpunktens hash och diametern registreras tillsammans med den tillämpade bildförbättringen."
+    },
+    {
+      "table": "ui",
+      "key": "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+      "source": "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+      "source_sha256": "980e13dc86dead0a8467e79a67df5334ca7a343ea1b6fb1a2cca66490d1087fe",
+      "translation": "Öppna installationsprogrammet i Model Zoo för den separata Cellpose 3-miljön. Den Cellpose-version som spaCR självt använder förblir oförändrad."
+    },
+    {
+      "table": "ui",
+      "key": "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.",
+      "source": "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.",
+      "source_sha256": "56680507b5109ea4bc78fa2b45b700db9977b17ff268775098ad2a0b960aabdd",
+      "translation": "Återställ den valda intensitetskanalen med Cellpose 3 i en egen miljö. Körs efter PSF-bearbetning och före klassisk brusreducering. Jämför förhandsvisar resultatet; Verkställ aktiverar det för efterföljande detektion. Ursprungliga pixlar och mätintensiteter förblir oförändrade."
+    },
+    {
+      "table": "ui",
+      "key": "Compare",
+      "source": "Compare",
+      "source_sha256": "e888155d8c7d2e3c3f9eb1bf57e8d81ba1a3c182b5e94b01e09de2cb2cca81f9",
+      "translation": "Jämför"
+    }
+  ]
+}

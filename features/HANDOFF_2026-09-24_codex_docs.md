@@ -80,7 +80,7 @@ checkpoint hold is lifted. It contains1603 source-compatible narration tracks.
 47 of the53 rewritten existing lessons now have matching prepared media;
 the six listed capture gaps remain. Four new organism guides are also ready.
 
-Four later rewrites are private:49Methods&Results,57LayerViewer,58GraphBuilder
+Four later rewrites are now accepted for publication:49Methods&Results,57LayerViewer,58GraphBuilder
 and62FeatureDictionary. Their original capture hashes and visual sequences
 are retained, with shorter practical narration. Rendering/check logs are
 `graph-reporting-media.log` and `layer-dictionary-media.log`. The new downloadable
@@ -131,8 +131,22 @@ been regenerated for the new Model Zoo normalization reader.
 
 Six more restoration choices/status strings now have source-bound translations
 in all nine languages, including the ready/error format placeholders. Eighteen
-formatted runtime lookups and both review-cohort checks pass. The remaining
-restoration work is the longer tooltips, tutorial and animation.
+formatted runtime lookups and both review-cohort checks pass. The subsequent
+readiness/help batches complete all20 newly added restoration UI sources in
+all nine languages. The shared Compare label is corrected in Portuguese and
+Icelandic, with a command form in German. All189 runtime lookups and source
+hash bindings pass; receipt:411_restoration_runtime_complete_2026-09-24.json.
+The restoration tutorial and animation remain owed.
+
+The four later videos completed their per-lesson checks. Their private
+candidate is `release-candidate-append-6kuath0f`, built against8vaimbg8.
+All84 local playback cases and14 placeholder-language views pass; both
+placeholder mutation guards observed red. Upload/readback is in
+`four-guide-candidate-upload.log`, branch
+`candidate-practical-guides-20260924-6kuath0f`, tag
+`tutorials-practical-guides-20260924-6kuath0f`. Inspect the receipt before any
+retry. The candidate has1407 valid narration tracks. Remaining translated
+tracks stay registered pending review and synthesis.
 
 All remaining API inventory guards are reconciled at403a5d279:9524callables,
 11520API entries and2290preexisting required-parameter omissions. The exact
@@ -142,3 +156,24 @@ be allowed to finish across pushes. No current full-CI success is claimed.
 
 No new agents were spawned. Preserve the unrelated untracked
 `tools/tutorials/authoring/project/` directory.
+
+## Latest accepted batch
+
+Candidate6kuath0f passed all84 hosted playback checks and14 localized unavailable
+views. All2898 files SHA256matched immutable revision
+3295e3d747743e67517bd0a13a1a80fef74a5619 (3,395,194,044bytes). Hold lifted;
+1407 source-compatible narration tracks. Do not re-upload. This brings prepared
+matching media to51of57 rewritten existing lessons, plus four new guides.
+Last directly verified live checkpoint remains8b8458b14 until HTTP readback.
+
+The publisher now derives the browser player cache key from its transformed
+contents, including the immutable media map.16 tests pass, including changing
+only a nightly video while main stays identical. Restoration readiness and
+long tooltips complete the20new UI sources in all9runtime languages;189actual
+lookups/source bindings and both review-cohort checks pass. The restoration
+tutorial and animation remain open.
+
+Claude's GC/mask validation changes add two rendered API entries (11522total)
+and update four existing API documents. The public callable boundary remains
+9524 because these helpers are private. Exact receipt:
+411_gc_mask_inventory_2026-09-24.json. Four inventory/source guards pass.

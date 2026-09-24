@@ -7005,6 +7005,13 @@ UI = {
     'Cells (cyto2)': 'Células (cyto2)',
     'Restoration ready: {model}. CPU processing; original intensities retained for measurements.': 'Restauración lista: {model}. Procesamiento en CPU; las intensidades originales se conservan para las mediciones.',
     'Restoration unavailable: {error}': 'Restauración no disponible: {error}',
+    'Nuclei': 'Núcleos',
+    'Restoration model is not ready. Load the model before applying it.': 'El modelo de restauración no está listo. Cargue el modelo antes de aplicarlo.',
+    'Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.': 'Diámetro aproximado de las células o núcleos seleccionados, en píxeles. Controla el reescalado del modelo; las dimensiones de salida permanecen iguales. Esto no estima la calibración del microscopio.',
+    'Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.': 'Elija pesos entrenados para células o núcleos. Estos modelos no están validados para todos los orgánulos o adquisiciones. Los valores restaurados son salidas normalizadas del modelo, no fluorescencia calibrada. Revise la comparación antes de aceptar nuevas máscaras. Se excluye el aumento de resolución para mantener alineadas las coordenadas de imágenes y máscaras.',
+    'Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.': 'Cargue en la CPU los pesos de restauración de Cellpose 3 seleccionados. La primera vez puede ser necesario descargar los pesos. La versión del paquete, el hash del punto de control y el diámetro se registran con la mejora aplicada.',
+    'Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.': 'Abra el instalador de Model Zoo para el entorno aislado de Cellpose 3. La versión de Cellpose que utiliza spaCR permanece igual.',
+    'Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.': 'Restaure el canal de intensidad seleccionado con Cellpose 3 en su propio entorno. Se ejecuta después del procesamiento PSF y antes de la reducción de ruido clásica. Comparar muestra una vista previa del resultado; Aplicar lo activa para la detección posterior. Los píxeles originales y las intensidades de medición permanecen iguales.',
 }
 
 MODULE_SUMMARIES = {
@@ -14134,4 +14141,11 @@ SOURCE_HASHES = {
     ('UI', 'Cells (cyto2)'): '3defbe29858e399884d76024b701c79299d38c16e4374fea91499ed3361e2a68',
     ('UI', 'Restoration ready: {model}. CPU processing; original intensities retained for measurements.'): '0641d1cc220b3a15e5df90d8697e4051a8c1794003b5bb3c92c2793b4f988b8f',
     ('UI', 'Restoration unavailable: {error}'): 'f14925c5a09b7a05114ad0b75893cae6f244002fdf65d01c8c8ec1ddcefcd515',
+    ('UI', 'Nuclei'): 'fc5796e8828b7a3a1714d1d2719e93f4a10e83cfa3b869c6639174a216870959',
+    ('UI', 'Restoration model is not ready. Load the model before applying it.'): '4cdba1360f6bc3360f16aed442f79cd3d59ed1a094fd1d68fc6e1610342c16b1',
+    ('UI', 'Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.'): 'ebbdf850b1826b6071eacc35e4f25501575ce5def1ccf2756fb1fb658c15759d',
+    ('UI', 'Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.'): 'fcd09a8798008e5d7ccc591230c3dad97693639b2da12b21a44771faa4031253',
+    ('UI', 'Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.'): 'bac44e9e5928fd308a143b2fc85aa7b932aa3df290834c7ceabbc2953912eac9',
+    ('UI', 'Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.'): '980e13dc86dead0a8467e79a67df5334ca7a343ea1b6fb1a2cca66490d1087fe',
+    ('UI', 'Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.'): '56680507b5109ea4bc78fa2b45b700db9977b17ff268775098ad2a0b960aabdd',
 }

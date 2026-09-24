@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review. Reviews the cell-nucleus model choice and the requirement to load the restoration model before applying enhancement. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Nuclei",
+      "source": "Nuclei",
+      "source_sha256": "fc5796e8828b7a3a1714d1d2719e93f4a10e83cfa3b869c6639174a216870959",
+      "translation": "केंद्रक"
+    },
+    {
+      "table": "ui",
+      "key": "Restoration model is not ready. Load the model before applying it.",
+      "source": "Restoration model is not ready. Load the model before applying it.",
+      "source_sha256": "4cdba1360f6bc3360f16aed442f79cd3d59ed1a094fd1d68fc6e1610342c16b1",
+      "translation": "पुनर्स्थापन मॉडल तैयार नहीं है। इसे लागू करने से पहले मॉडल लोड करें।"
+    }
+  ]
+}

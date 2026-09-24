@@ -6209,23 +6209,22 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: skapa, granska och exportera ett utkast",
+      "title": "Methods & Results: draft and export a run report",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Öppna det inbyggda verktyget, använd den verkliga Regression-körningen, identifiera tre granskningsproblem och bevara en Markdown-export uttryckligen märkt som ogranskad.",
+      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
       "objectives": [
-        "Hitta verktyget i Regression och välja källorna från en avslutad körning.",
-        "Skilja registrerade fakta, härledda standardvärden och kandidatbenämningar.",
-        "Kopiera och exportera oförändrat utkast med strukturerade data.",
-        "Skilja lyckad export och sifferkontroll från vetenskapligt godkännande."
+        "Select the project, run journal and matching result folder.",
+        "Build a digest and review the Methods, Results and Caveats tabs.",
+        "Copy the report text or export Markdown with the run digest."
       ],
-      "prerequisite": "Slutför först Regression-exemplet med nedladdade data; behåll originalprojekt, körjournal och guide_permutation-resultat. Lektionen granskar och exporterar, men godkänner inget manuskript och lagar inte appen. Journalen anger guide_permutation_seed=0, inget globalt seed; utkastet härleder separat seed=42. Generatorerna är inte utbytbara och använt globalt seed är inte verifierat. Analysversion spaCR 1.5.0.4, utkastets exportör 1.5.0.5. Alla 325 BH-värden oberoende kontrollerade: inget q<0.05, minimum 0.2708333333333333. Effekt/p/q för tio kandidater stämmer, men inte alla guideantal eller vetenskapliga antaganden är certifierade. Copy sections och Export Markdown bevarar text och exakt struktur i UNREVIEWED_methods_results.md. Indata oförändrade; ingen leverantörskontakt, ny regression, godkännande eller publicering. API: spacr.methods_export.build_digest, render_methods, render_results. Det tidigare förbehållet om vetenskaplig korrekthet bevaras.",
+      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "Öppna Regression från Home och sedan det inbyggda verktyget Methods and Results. Den här lektionen ligger under Regression i undermodulsektionen. Den använder det verkliga avslutade exemplet från Regression-lektionen, inte påhittade resultat. Målet är att skapa, undersöka och bevara ett utkast, inte att automatiskt godkänna ett manuskript.",
+          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
           "related_lessons": [
             "13_regression"
           ],
@@ -6233,7 +6232,7 @@
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Välj projektmappen, journalen för just den körningen och dess mapp med regressionsresultat. Lämna Classifier tomt: Här beskrivs en regressionskörning, inte en klassificerares checkpoint. Behåll originalen oförändrade. Liknande namn räcker inte: Kontrollera att journal och resultat beskriver samma avslutade körning.",
+          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
           "focus": [
             355,
             270,
@@ -6244,12 +6243,12 @@
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Klicka på Build digest. Methods, Results, Caveats och Run digest skapas utan kontakt med en AI-leverantör. Avsnitten är en utgångspunkt för granskning. Här anger texten exportörens version, medan originaljournalen registrerar en annan analysversion. Rapportera den version som faktiskt producerade analysen.",
+          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Läs förbehållen i stället för att se lyckat skapande som validering. Här säger den allmänna seed-meningen fyrtiotvå. Originaljournalen anger uttryckligen noll för permutationerna, men inget globalt seed. Ersätt inte alla fyrtiotvå med noll: Skilj först mellan generatorerna och deras registrerade ursprung.",
+          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
           "focus": [
             355,
             640,
@@ -6260,7 +6259,7 @@
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Fliken Run digest visar de strukturerade uppgifterna. Jämför deklarerade inställningar och sparad miljö med texten. Ett standardvärde härlett vid export bevisar inte historisk körning. Bevara varningar och öppna frågor, inklusive saknad kvalitetskontrollinformation; en saknad rapport bevisar inte godkänd kontroll.",
+          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
           "focus": [
             355,
             680,
@@ -6271,7 +6270,7 @@
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "Den sparade gentabellen har trehundratjugofem tester, inget signifikant vid q-gränsen noll komma noll fem. Minsta q är ungefär noll komma tjugosju. Rubriken strongest hits är därför missvisande: Det är rangordnade kandidater, inte upptäckter. Kontrollera hela den korrigerade testfamiljen, inte bara lockande topprader.",
+          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
           "focus": [
             355,
             680,
@@ -6282,12 +6281,12 @@
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Copy sections kopierar visade Methods och Results tillsammans. Det rättar inte formuleringar, certifierar inte siffror och inkluderar inte den strukturerade bilagan. Bevara en oredigerad kopia före separat dokumenterade ändringar. Red ut seed, version och kandidatbenämningar mot källorna innan texten används i en rapport.",
+          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
           "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Export Markdown sparar båda avsnitten och körningsdata som bilaga. Välj ett nytt filnamn, här uttryckligen märkt som ogranskat. Den riktiga Save-handlingen skapar filen, och vår kontroll bekräftar att text och strukturerade data motsvarar skärmen. Lyckad export är inget vetenskapligt godkännande.",
+          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
           "focus": [
             1550,
             780,
@@ -6298,7 +6297,7 @@
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI är valfritt och används inte här. Det skickar datasammanställningen till den konfigurerade leverantören; granska innehåll och integritet först. Sifferkontroll avgör inte om en mening betyder rätt sak. Python erbjuder build_digest, render_methods och render_results för samma arbetsflöde med samma granskningsbehov.",
+          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
           "focus": [
             355,
             560,
@@ -6311,7 +6310,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "50_run_compare",
@@ -7231,19 +7235,18 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: verkliga bilder och masker, visningskontroller och oförändrade källor",
-      "description": "Öppna Layer Viewer i QC, överlagra en intensitetsbild och dess cellmask, prova synlighet, opacitet, blandning och ordning och skilj navigering från redigering och kalibrering.",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
       "objectives": [
-        "Hitta QC-undermodulen och läs in ett verkligt, matchande bild–mask-par.",
-        "Justera det valda lagret utan att ändra ursprungliga mätvärden.",
-        "Förstå förvrängningen med Fit och kontrollera zoom, panorering och etikettavläsning.",
-        "Skilj tomma hjälplager och saknad identitet från funktioner i API:t."
+        "Open an image and its matching mask.",
+        "Adjust visibility, opacity, blending and layer order.",
+        "Inspect labels with zoom and pan."
       ],
-      "prerequisite": "Återanvänd de verifierade fov01-TIFF-filerna från External Masks: ett 1994×1994 uint16-intensitetsplan och 44 inpassade celletiketter. De motsvarar exakt plan 1 och 4 i den insamlade arrayen plate1_E01_1_1, med 3 976 036 pixlar utan fysisk kalibrering. Neutrala filnamn är inte metadata från bildinsamlingen. Original och privata kopior förblir identiska. 19 små tester och källkodsmutationer som faktiskt gav fel kompletterar oberoende kontroll av 5 041 skärmpixlar i vart och ett av 26 lägen, utan RGB-byteavvikelse. Hela källarrayer, histogrambaserade 2/98-percentiler, lageregenskaper och rörelsegeometri kontrolleras också. Detta validerar inte varje skärmpixel, godtyckliga lager, flerkanals-/3D-data, mjuk täckning, biologisk segmenteringskvalitet eller kalibrering. Fit kan sträcka bilden. Ingen pipeline, AI-förfrågan, redigering, direkt export, objektkoppling mellan vyer eller Points/Shapes-ritning utfördes. Kontrollerna skiljer sig från andra förhandsvisningar.",
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Öppna QC från Home och välj den inbäddade knappen Layer Viewer. Projektväljaren hör till QC-panelen; den här visaren har egna bild- och maskknappar. Vi använder privata kopior av det verkliga, verifierade paret från External Masks. Layer Viewer har ingen egen nedladdning av testdata.",
+          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -7252,22 +7255,22 @@
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Välj plus Image och öppna TIFF-filen med en kanal. Fältet är 1994 pixlar på varje led, med 16-bitars intensiteter. Visningen sträcker den 2:a till 98:e percentilen, här 118 till 23223. Ljusa skärmpixlar innebär inte överskrivna källvärden eller mätningar omvandlade till 8 bitar.",
+          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
           "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "I denna version fyller Fit bildytan och kan sträcka ett kvadratiskt fält i en bred ruta. Dra avdelaren tills bildrutan är ungefär kvadratisk och välj Fit igen. Dra inga slutsatser om fysisk form från den förvrängda vyn. Här motsvarar en världskoordinatenhet en pixel, inte ett kalibrerat mikrometeravstånd.",
+          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
           "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Välj plus Mask och läs in matchande TIFF med celletiketter, inte en annan intensitetsbild. Den innehåller 44 etiketter skilda från noll, inpassade till samma fält. Noll är genomskinlig bakgrund. Färgerna skiljer etiketter, inte behandlingar, celltyper eller verifierad segmenteringskvalitet.",
+          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
           "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Välj mask i lagerlistan innan du justerar kontrollerna. Den valda raden bestämmer vilket lager som ändras; ett nytt lager väljs inte nödvändigtvis automatiskt. Dölj och visa masken med kryssrutan för att se bilden under. Etiketter och intensitetsmätningar ändras inte.",
+          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -7278,7 +7281,7 @@
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Sätt den valda maskens Opacity till 0. Färgerna försvinner, men lagret är kvar i listan och alla 44 etiketter i minnet. Det är ett visningsval, inte radering, filtrering eller korrigering av segmenteringen. Kontrollera vilket lager reglaget styr.",
+          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -7289,42 +7292,42 @@
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Sätt maskens Opacity till 100 %. Etikettfärgerna täcker bilden där etiketten är skild från noll; bakgrunden förblir genomskinlig. Det underlättar formgranskning men döljer intensitetsstrukturen under. Det skapar inga nya mätningar av de märkta regionerna.",
+          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
           "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Återgå till 50 % med blandningen translucent. Bilden och etikettfärgen bidrar båda till överlagringen. De oberoende kontrollerna jämför skärmprover med källorna; de bevisar inte biologiskt korrekt segmentering. Använd råbilden när du bedömer gränser.",
+          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
           "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Öppna blandningsmenyn och välj additive. Etikettfärgen adderas till bilden och kan mätta den visade kompositen. Källintensiteterna ändras inte. Detta är visningsoperationer, inte intensitetsnormalisering för analys. Välj rätt lager innan du provar andra blandningar.",
+          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
           "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "multiply och minimum mörkar ned på olika sätt. multiply dämpar bilden med överlagringsfärgen; minimum blandar in det mörkare värdet i varje färgkanal. Här visas minimum. Jämför samma fält utan att tolka en mörkare komposit som lägre uppmätt fluorescens.",
+          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
           "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Välj opaque medan Opacity fortfarande är 50 %. Med denna binära täckningsmask liknar det translucent vid samma opacitet: opaque tvingar inte reglaget till 100. Heltalsetiketter visar inte skillnaden vid mjuk täckning. Återställ translucent innan du fortsätter.",
+          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
           "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Välj image och sedan cyan i färgkartsväljaren. Enkanalsbilden byter färg medan masken behåller objektfärgerna. Varken mätningar eller kanalens biologiska identitet ändras. Här finns ingen kanalväljare eller redigerbart kontrastintervall; utlova inte reglage från en annan förhandsvisning. Återställ sedan gray.",
+          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
           "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Välj mask och använd nedåtpilen för att flytta den under bilden. Översta listposten ritas främst. Den ogenomskinliga bilden döljer masken trots att dess synlighet fortfarande är på och data är kvar. Flytta upp den igen innan du granskar eller klickar på objekt.",
+          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Klicka i en synlig etikettregion. Status visar världspositionen och här etikett 9. En mask som lästs in genom denna filväljare saknar fältnyckel. Klicket identifierar därför inget objekt över hela experimentet och öppnar inte dess utsnitt någon annanstans. Härled inte platta och brunn ur det neutrala exempelnamnet.",
+          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7335,22 +7338,22 @@
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Rulla mushjulet över objektet för att zooma. Tre steg upp multiplicerar förstoringen med 1,2³ och behåller världskoordinaten under pekaren. Visaren ritar om källagren i den nya skalan. Zoom ändrar vyn, inte masken, pixelvärdena eller kalibreringen.",
+          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Håll Shift och dra med vänster musknapp för att panorera; även mittknappen fungerar. Det visade fältet flyttas utan ändrade källkoordinater. Den testade rörelsen bevarar zoom. Panorering för att se en annan region är inte förflyttning eller registrering av bilddata.",
+          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
           "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Välj Fit för att se hela fältet i den aktuella rutan. Här återställs vyn före zoom. Kom ihåg begränsningen med rutans form: Fit garanterar inte ensamt lika horisontell och vertikal skala. Källavstånd och bildytans geometri är olika begrepp; gissa dem inte från en skärmbild.",
+          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
           "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points och plus Shapes skapar tomma hjälplager; här visas det tomma shapes-lagret. De aktiverar inget ritverktyg på denna skärm, och vanliga klick lade inte till punkter eller regioner i kontrollerna. Ta bort det tomma lagret efteråt. Se Make Masks för riktiga maskredigeringsverktyg.",
+          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
@@ -7358,12 +7361,12 @@
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Välj mask och använd borttagningsknappen. Bara lagret lämnar vyn; bilden finns kvar och maskens källfil är oförändrad. Att ta bort ett lager sparar ingen redigering och raderar ingen fil. Båda privata TIFF-filerna och ursprungliga insamlade data förblev oförändrade.",
+          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
           "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "I kod läser stack_from_paths i spaCR:s Qt-modul layer_viewer in lagren; LayerStack.render_uint8 returnerar en sammansatt bildarray till din exportkod. Spacing och FieldKey kräver känd kalibrering och identitet. Här finns ingen särskild exportknapp, analyskörning, GPU-pipeline eller spaCR AI-konsol. Håll visning, mätningar och sparad maskredigering åtskilda.",
+          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7372,7 +7375,15 @@
           ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "example_files": [
+        "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "58_graph_builder",
@@ -7381,27 +7392,26 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: verkliga mätvärden, livefilter och en överföringsbegränsning",
-      "description": "Bygg diagram från mätkolumner, dela upp efter insamlingsmetadata och identifiera felet vid överföring till Annotate.",
+      "title": "Graph Builder: plot measurements and filter objects",
+      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
       "objectives": [
-        "Öppna den verkliga databasen och välj cell.",
-        "Bygg histogram, spridningsdiagram, färggrupper och radpaneler.",
-        "Kontrollera populationen vid filtrering och återställning.",
-        "Skilj intern publicering av urval från fungerande överföring."
+        "Load an example measurement table.",
+        "Build a histogram, scatter plot and grouped panels.",
+        "Filter objects and choose a follow-up view."
       ],
-      "prerequisite": "Ladda ned och packa upp den länkade mätdatabasen eller använd Annotates nedladdade exempel. Arkivet innehåller mätvärden, inte bildutsnitt; ingen ny modellkörning behövs.",
+      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Graph Builder utforskar en befintlig tabell. Öppna det från Home. Det är en huvudmodul med Plate Viewer och Small Multiples inuti. Vi använder verkliga exempelmätningar, utan att träna en modell eller be en AI-tjänst skapa resultat.",
+          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
           "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Välj Load table och öppna measurements.db från arkivet eller det nedladdade Annotate-exemplet. Välj cell: 2 341 rader. Arkivet bevarar exakt den inspelade databasen men innehåller inte bilderna som andra tabeller hänvisar till.",
+          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7410,47 +7420,47 @@
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Sök efter cell_area och dra kolumnen till X. Automatisk ritning ger ett histogram med 30 intervall. Varje stapel räknar celler i ett areaintervall; det är ingen behandlingsjämförelse eller signifikanstest. Lagrade enheter behålls utan ny fysisk kalibrering.",
+          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Dra cell_channel_1_mean_intensity till Y. Varje punkt visar en cells area och medelintensitet i kanal ett. Överlappande punkter kan dölja varandra, även om alla rader representeras här. Läs radantalet; större dataset kan ritas på annat sätt.",
+          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
           "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Lägg columnID på Colour och läs teckenförklaringen. Färgerna skiljer insamlingskolumner åt, inte förutsagda klasser eller kända behandlingar. Synlig separation är beskrivande, inte bevis för en effekt. Koordinater och färgtilldelningar har kontrollerats mot källraderna.",
+          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
           "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Lägg rowID på facettkanalen med nedåtpil för separata paneler per plattrad. De innehåller 1 140 och 1 201 celler. Gemensamma axlar hjälper jämförelsen, men celler i samma brunn är inte oberoende experimentella replikat.",
+          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
           "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "Lägg till cell_area i filterpanelen till höger och sätt minimum till 21 925. Diagrammet ändras direkt till 1 171 rader. Den uppåtrundade medianen demonstrerar filtret, inte en rekommenderad biologisk gräns. Lägg märke till att axelgränserna också ändras.",
+          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
           "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Välj Clear all i filtret för att återställa samtliga 2 341 celler. Det skiljer sig från Clear all channels till vänster, som tar bort diagrammets kolumnkopplingar. Kontrollera antal och axlar igen; en ändrad population är ingen ny mätning.",
+          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Ta bort radfacetten med dess lilla kryss och dra en rektangel i spridningsdiagrammet. Denna version har ett fel: den inspelade gesten publicerar 653 objektnycklar internt men visar noll markerade, och Open selection in Annotate förblir inaktiverad. Anta inte att annoteringar öppnats eller skapats.",
+          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
           "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Ett vanligt klick rensar också det interna urvalet. Tutorialen verifierar återställningen men reparerar inte överföringen. Filtrering och utpekning är olika operationer; andra vyer kan dela tillståndet. Kontrollera den aktiva populationen i stället för att automatiskt läsa diagrammet som hela databasen.",
+          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Genvägarna i sidhuvudet öppnar Plate Viewer och Small Multiples, som beskrivs i egna tutorials. Den här skärmen har ingen knapp för att exportera diagrammet eller dess specifikation. Databasarkivet är en extern tutorialnedladdning, inte en Graph Builder-export.",
+          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
@@ -7459,13 +7469,18 @@
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "I Python läser read_table in data, GraphSpec beskriver kanaler och facetter, och urvals-API:t skiljer filter från uttryckliga objektnycklar. Spara källa, inställningar och version med tolkningen. API:erna validerar inte biologiska slutsatser och reparerar inte överföringen till Annotate.",
+          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "59_anndata_export",
@@ -7989,19 +8004,18 @@
       "series": 5,
       "app_key": "feature_dict",
       "section": "Help",
-      "title": "Feature Dictionary: slå upp betydelser, enheter och beräkningsfunktioner",
-      "description": "Använd den faktiska ordlistan under Help för att hitta definitioner, avgränsa dem efter begrepp och objekt och skilja allmän dokumentation från mätningar som finns i ett projekt.",
+      "title": "Feature Dictionary: find definitions and units",
+      "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
       "objectives": [
-        "Hitta ordlistan under Help och sök efter en idé eller ett mätnamn.",
-        "Använd de faktiska begrepps- och objektfiltren utan att ändra projektdata.",
-        "Läs enheter, beräkningsfunktioner och förbehåll, inklusive skillnaden mellan area och volym.",
-        "Kopiera definitionstext och skilj uppslagspanelen från en projektspecifik Python-export."
+        "Find a definition by name or concept.",
+        "Narrow the results with concept and object filters.",
+        "Read units and notes, then copy the definition."
       ],
-      "prerequisite": "Inget projekt, ingen nedladdning och ingen modell behövs: Lektionen visar inbyggda definitioner. Inga mätningar, diagram, AI-förfrågningar, GPU-jobb eller filexporter utförs. Exempelkolumnerna finns i den verkliga mätdatabasen från Database Browser, men ordlistan läser inte in databasen här. Panelen listar för närvarande hundratals namn på organellroller; vanlig rullning visar funktionerna och anmärkningarna nedanför. Text kopieras bara till urklipp på inspelningens privata skrivbord.",
+      "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
       "scenes": [
         {
           "visual": "01_help_dictionary",
-          "narration": "Öppna Help och sedan Feature Dictionary. Fönstret slår upp inbyggda mätdefinitioner; det är varken ett eget arbetsflöde på Home eller en analys som ska köras. Inga data eller modeller behöver laddas ned.",
+          "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -8009,7 +8023,7 @@
         },
         {
           "visual": "03_search_by_idea",
-          "narration": "Skriv en idé som size. Resultaten uppdateras medan du skriver, och Area visar sin definition. Antalet gäller matchande definitioner, inte uppmätta celler eller kolumner som har bekräftats finnas i projektet.",
+          "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -8020,7 +8034,7 @@
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "narration": "De faktiska listrutorna filtrerar efter begrepp och objekttyp. Här ger intensity och cell tretton definitioner. Filtren begränsar ordlistan, inte bilddata eller analysinställningar. Välj Any concept och Any object igen före nästa sökning.",
+          "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -8031,7 +8045,7 @@
         },
         {
           "visual": "05_measurement_name",
-          "narration": "Sök efter medelintensiteten i cellens kanal ett med det exakta kolumnnamnet på skärmen. Posten Mean intensity förklarar pixelstatistiken och dess enheter. En namnsökning hämtar dokumentation; den granskar inte kolumnens värden och bevisar inte att kolumnen finns i det aktuella projektet.",
+          "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
           "hold_after": 0.7,
           "focus": [
             1620,
@@ -8042,7 +8056,7 @@
         },
         {
           "visual": "06_computing_function",
-          "narration": "Rulla ned till Channel, Module och Computed by. Hänvisningen identifierar mätningens implementation, inklusive funktionen för utökade regionegenskaper. Ordlistan slår upp definitionen; den beräknar inte mätningen på nytt. Python-API:erna för uppslag finns i modulen feature_dict.",
+          "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8056,7 +8070,7 @@
         },
         {
           "visual": "07_conditional_area_units",
-          "narration": "Slå nu upp cell_area. Läs villkoren under Unit: En tvådimensionell analys rapporterar pixelarea, medan samma namn representerar volym i tre dimensioner. Fältet measurement_units på raden avgör om volymen anges i kubiska bildpixelenheter eller kubikmikrometer. Dra inte slutsatser om fysiska enheter enbart från kolumnnamnet.",
+          "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
           "hold_after": 0.7,
           "focus": [
             1620,
@@ -8067,7 +8081,7 @@
         },
         {
           "visual": "08_area_caveats",
-          "narration": "Läs också Note, inte bara huvuddefinitionen. Ett tredimensionellt värde som redan uttrycks i fysiska enheter ska inte räknas om igen. För projektspecifik dokumentation undersöker Python-funktionerna describe_database och export_dictionary databasen och tolkar dess registrerade mätenheter; de är inte knappar i den här panelen.",
+          "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8082,7 +8096,7 @@
         },
         {
           "visual": "09_unknown_search",
-          "narration": "En sökning utan träff visar ingen definition. Det betyder att ordlistan inte hittade en matchning, inte att data inte kan innehålla en egen egenskap. Försök med ett känt namn eller en bredare idé; saknad dokumentation är inte ett vetenskapligt resultat.",
+          "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -8093,14 +8107,19 @@
         },
         {
           "visual": "11_actual_text_copy",
-          "narration": "Återgå till Area, markera detaljtexten och kopiera den. Inspelningen kontrollerar den faktiskt kopierade markeringen. Gränssnittet har ingen Run- eller Export-åtgärd: Att kopiera text är inte samma sak som att skapa en projektspecifik ordlistefil med Python. Stäng fönstret när du är klar; ingen analys har ändrats.",
+          "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "63_small_multiples",

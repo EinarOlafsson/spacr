@@ -126,6 +126,16 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     text = text.replace(lookups[1], "publishedMedia(activeLesson.poster)")
     text = text.replace('"use strict";', '"use strict";' + helper, 1)
     player.write_text(text)
+    index = tutorial / "index.html"
+    version = hashlib.sha256(player.read_bytes()).hexdigest()
+    html, matches = re.subn(
+        r'''(<script\b[^>]*\bsrc=["'])app_v2\.js(?:\?[^"']*)?(["'])''',
+        lambda match: match[1] + "app_v2.js?v=" + version + match[2],
+        index.read_text(),
+    )
+    if matches != 1:
+        raise ValueError(f"{branch}: expected one tutorial player script reference")
+    index.write_text(html)
     (tutorial / "published-media.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 

@@ -6696,6 +6696,13 @@ UI = {
     'Cells (cyto2)': '세포 (cyto2)',
     'Restoration ready: {model}. CPU processing; original intensities retained for measurements.': '복원 준비 완료: {model}. CPU에서 처리하며, 측정에는 원래 강도를 유지합니다.',
     'Restoration unavailable: {error}': '복원을 사용할 수 없음: {error}',
+    'Nuclei': '핵',
+    'Restoration model is not ready. Load the model before applying it.': '복원 모델이 준비되지 않았습니다. 적용하기 전에 모델을 불러오세요.',
+    'Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.': '선택한 세포 또는 핵의 대략적인 직경이며 단위는 픽셀입니다. 모델의 크기 조정을 제어하며 출력 크기는 바뀌지 않습니다. 현미경 보정값을 추정하는 설정은 아닙니다.',
+    'Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.': '세포 또는 핵에 대해 학습된 가중치를 선택하세요. 이 모델은 모든 소기관이나 촬영 조건에서 검증된 것은 아닙니다. 복원된 값은 정규화된 모델 출력이며, 보정된 형광값이 아닙니다. 새 마스크를 승인하기 전에 비교 결과를 확인하세요. 이미지와 마스크의 좌표 정렬을 유지하기 위해 업샘플링은 수행하지 않습니다.',
+    'Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.': '선택한 Cellpose 3 복원 가중치를 CPU에 불러옵니다. 처음 사용할 때 가중치를 다운로드할 수 있습니다. 적용한 이미지 개선과 함께 기록된 패키지 버전, 체크포인트 해시와 직경이 저장됩니다.',
+    'Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.': '독립된 Cellpose 3 환경을 위한 Model Zoo 설치 프로그램을 엽니다. spaCR 자체가 사용하는 Cellpose 버전은 바뀌지 않습니다.',
+    'Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.': '독립된 환경의 Cellpose 3으로 선택한 강도 채널을 복원합니다. PSF 처리 후, 기존 방식의 노이즈 제거 전에 실행됩니다. 비교하기는 결과를 미리 보여 주며, 적용은 이후 검출에 이 처리를 사용하도록 합니다. 원본 픽셀과 측정 강도는 바뀌지 않습니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -13516,4 +13523,11 @@ SOURCE_HASHES = {
     ('UI', 'Cells (cyto2)'): '3defbe29858e399884d76024b701c79299d38c16e4374fea91499ed3361e2a68',
     ('UI', 'Restoration ready: {model}. CPU processing; original intensities retained for measurements.'): '0641d1cc220b3a15e5df90d8697e4051a8c1794003b5bb3c92c2793b4f988b8f',
     ('UI', 'Restoration unavailable: {error}'): 'f14925c5a09b7a05114ad0b75893cae6f244002fdf65d01c8c8ec1ddcefcd515',
+    ('UI', 'Nuclei'): 'fc5796e8828b7a3a1714d1d2719e93f4a10e83cfa3b869c6639174a216870959',
+    ('UI', 'Restoration model is not ready. Load the model before applying it.'): '4cdba1360f6bc3360f16aed442f79cd3d59ed1a094fd1d68fc6e1610342c16b1',
+    ('UI', 'Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.'): 'ebbdf850b1826b6071eacc35e4f25501575ce5def1ccf2756fb1fb658c15759d',
+    ('UI', 'Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.'): 'fcd09a8798008e5d7ccc591230c3dad97693639b2da12b21a44771faa4031253',
+    ('UI', 'Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.'): 'bac44e9e5928fd308a143b2fc85aa7b932aa3df290834c7ceabbc2953912eac9',
+    ('UI', 'Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.'): '980e13dc86dead0a8467e79a67df5334ca7a343ea1b6fb1a2cca66490d1087fe',
+    ('UI', 'Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.'): '56680507b5109ea4bc78fa2b45b700db9977b17ff268775098ad2a0b960aabdd',
 }

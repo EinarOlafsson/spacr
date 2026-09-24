@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1691,
+      "current_total": 1699,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 773,
+      "later_distinct_additions": 781,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -252,20 +252,32 @@
           "sha256": "9f228857d3c861055686ad2e34c186eb7b5c7481547a6751d81c976cb5d52fdf"
         },
         {
+          "name": "2026-09-24-restoration-help.json",
+          "records": 6,
+          "sources": 6,
+          "sha256": "2936323dbe004abfb38ae3fbfb29cbebce2678bdb9fb73d3d9fba2f438a1eb7c"
+        },
+        {
           "name": "2026-09-24-restoration-labels.json",
           "records": 7,
           "sources": 7,
           "sha256": "412801bcc2b4fe7de563632c5747a46deb8c6d007ec8d5c19e642af468a6eb38"
+        },
+        {
+          "name": "2026-09-24-restoration-readiness.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "ec285fece52d231cf8cd378e6a5a888f54099cc121c1963fdf61f45420d6d91a"
         }
       ],
-      "added_sources_sha256": "2c7aa36a477daa9a88154c21b18158bf07e5f3323a4f0bbadaf92dcda6b055e3"
+      "added_sources_sha256": "4d83b275003e01b17cbe2e3f9c23424b061ce89865d78a1294394c0b22c156c7"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1687,
+      "current_total": 1695,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 773,
+      "later_distinct_additions": 781,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -509,13 +521,25 @@
           "sha256": "a75f1740f78bbda798ffd1bf70de12a2a3d55a5692262588c29cf343b04fecdd"
         },
         {
+          "name": "2026-09-24-restoration-help.json",
+          "records": 6,
+          "sources": 6,
+          "sha256": "fcf241d1b2526577341bb0ba3d21f01c336830c100073b8fb9393ef3a287c393"
+        },
+        {
           "name": "2026-09-24-restoration-labels.json",
           "records": 7,
           "sources": 7,
           "sha256": "34dbaba9af7682b44a53e3ad8f20541bd6eae64302a748d4328efbbf412e33f0"
+        },
+        {
+          "name": "2026-09-24-restoration-readiness.json",
+          "records": 2,
+          "sources": 2,
+          "sha256": "f5ff4a2924db0e7bf44cd38e282a01eb88125aa58410608bcaae6d154ed7942d"
         }
       ],
-      "added_sources_sha256": "2c7aa36a477daa9a88154c21b18158bf07e5f3323a4f0bbadaf92dcda6b055e3"
+      "added_sources_sha256": "4d83b275003e01b17cbe2e3f9c23424b061ce89865d78a1294394c0b22c156c7"
     }
   }
 }

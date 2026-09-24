@@ -6337,104 +6337,95 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results：下書きの作成・確認・書き出し",
+      "title": "Methods & Results: draft and export a run report",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "結果と品質管理",
-      "description": "Regression内のツールで実際の完了済み実行を読み込み、三つの確認事項を特定し、未確認と明示したMarkdownを保存します。",
+      "section": "Regression",
+      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
       "objectives": [
-        "Regression内のツールと完了済み実行の入力元を確認する。",
-        "記録された事実、推定された既定値、候補の表現を区別する。",
-        "下書きを変更せずコピーし、構造化記録とともに書き出す。",
-        "書き出し成功や数値検査と科学的承認を区別する。"
+        "Select the project, run journal and matching result folder.",
+        "Build a digest and review the Methods, Results and Caveats tabs.",
+        "Copy the report text or export Markdown with the run digest."
       ],
-      "prerequisite": "先にダウンロードデータを使うRegressionの例を完了し、元のプロジェクト、実行ログ、guide_permutation結果を保持してください。本講義は確認と書き出しの手順であり、論文の科学的承認やアプリの修正ではありません。ログはguide_permutation_seed=0を宣言しますが、全体の乱数シードは宣言していません。下書きは別途seed=42を解決します。両生成器は同一ではなく、適用された全体シードは未検証です。元の解析はspaCR 1.5.0.4、下書きの書き出し側は1.5.0.5です。325個すべてのBH値を独立検証し、q<0.05はゼロ、最小値は0.2708333333333333でした。10候補の効果量・p・qは一致しますが、すべてのガイド数や科学的仮定は保証していません。Copy sectionsとExport Markdownは本文と正確な記録を保持し、新規ファイルはUNREVIEWED_methods_results.mdです。入力は不変、外部提供者への連絡、再解析、承認、公開はありません。API：spacr.methods_export.build_digest、render_methods、render_results。以前の科学的正確性に関する保留記録も保持します。",
+      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "HomeからRegressionを開き、その中のMethods and Resultsを選びます。この講義はサブモジュール一覧のRegressionの下にあります。Regressionの講義で完了した実際の例を使い、結果を作り上げることはしません。目的は下書きの作成、確認、保存であり、論文の自動承認ではありません。",
+          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "ホームからRegressionを開き、その中のMethods and Resultsを選びます。この講義はサブモジュール一覧のRegressionの下にあります。Regressionの講義で完了した実際の例を使い、結果を作り上げることはしません。目的は下書きの作成、確認、保存であり、論文の自動承認ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "プロジェクトフォルダー、対象実行のログ、その実行の回帰結果フォルダーを選びます。この例は回帰実行を記述するため、分類器のチェックポイントを指定するClassifier欄は空にします。元のファイルを変更しないでください。名前が似ているだけでなく、ログと結果が同じ完了済み実行を指すことを確認します。",
+          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7,
-          "speech_text": "プロジェクトフォルダー、対象実行のログ、その実行の回帰結果フォルダーを選びます。この例は回帰実行を記述するため、分類器のチェックポイントを指定するClassifier欄は空にします。元のファイルを変更しないでください。名前が似ているだけでなく、ログと結果が同じ完了済み実行を指すことを確認します。"
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Build digestをクリックします。Methods、Results、Caveats、Run digestは、AI提供者へ連絡せずに生成されます。これらは確認の出発点です。この録画では、本文が書き出し側のバージョンを記載し、元のログは別の解析バージョンを記録しています。実際に解析を行ったバージョンを報告してください。",
-          "hold_after": 0.7,
-          "speech_text": "Build digestをクリックします。Methods、Results、Caveats、Run digestは、AI提供者へ連絡せずに生成されます。これらは確認の出発点です。この録画では、本文が書き出し側のバージョンを記載し、元のログは別の解析バージョンを記録しています。実際に解析を行ったバージョンを報告してください。"
+          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "作成成功を検証済みとみなさず、注意事項を読みます。ここでは一般的な乱数シードの文が四十二を示しています。元のログは置換検定のシードをゼロと明記していますが、全体のシードは宣言していません。四十二をすべてゼロに置換せず、まず生成器と記録上の由来を区別してください。",
+          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7,
-          "speech_text": "作成成功を検証済みとみなさず、注意事項を読みます。ここでは一般的な乱数シードの文が四十二を示しています。元のログは置換検定のシードをゼロと明記していますが、全体のシードは宣言していません。四十二をすべてゼロに置換せず、まず生成器と記録上の由来を区別してください。"
+          "hold_after": 0.7
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Run digestタブでは構造化された記録を調べられます。宣言された設定と保存された実行環境を本文と照合してください。書き出し時に推定された既定値は、過去の実行の証明にはなりません。品質管理情報の欠落を含め、警告と未解決事項を残します。報告書がないことは、品質管理に合格した証拠ではありません。",
+          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7,
-          "speech_text": "Run digestタブでは構造化された記録を調べられます。宣言された設定と保存された実行環境を本文と照合してください。書き出し時に推定された既定値は、過去の実行の証明にはなりません。品質管理情報の欠落を含め、警告と未解決事項を残します。報告書がないことは、品質管理に合格した証拠ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "保存された遺伝子表には三百二十五の検定があり、q値の閾値ゼロ点ゼロ五で有意なものはありません。最小のq値は約ゼロ点二七です。したがってstrongest hitsという見出しは誤解を招きます。これらは順位付けした候補であり、発見ではありません。上位の魅力的な行だけでなく、補正対象の検定群全体を確認します。",
+          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "保存された遺伝子表には三百二十五の検定があり、q値の閾値ゼロ点ゼロ五で有意なものはありません。最小のq値は約ゼロ点二七です。したがってstrongest hitsという見出しは誤解を招きます。これらは順位付けした候補であり、発見ではありません。上位の魅力的な行だけでなく、補正対象の検定群全体を確認します。"
+          "hold_after": 0.7
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Copy sectionsは表示中のMethodsとResultsを一緒にコピーします。表現の修正や数値の保証は行わず、構造化された付録も含みません。別途記録した修正を加える前に、未編集のコピーを保持します。報告書に使う前に、シード、バージョン、候補の表現を元の記録に照らして解決してください。",
-          "hold_after": 0.7,
-          "speech_text": "Copy sectionsは表示中のMethodsとResultsを一緒にコピーします。表現の修正や数値の保証は行わず、構造化された付録も含みません。別途記録した修正を加える前に、未編集のコピーを保持します。報告書に使う前に、シード、バージョン、候補の表現を元の記録に照らして解決してください。"
+          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Export Markdownは両セクションと実行記録の付録を保存します。新しい名前を選び、ここでは未確認であることを明示します。実際のSave操作がファイルを作成し、本文と構造化記録が画面に一致することを確認しました。書き出し成功は科学的承認ではありません。",
+          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7,
-          "speech_text": "Export Markdownは両セクションと実行記録の付録を保存します。新しい名前を選び、ここでは未確認であることを明示します。実際のSave操作がファイルを作成し、本文と構造化記録が画面に一致することを確認しました。書き出し成功は科学的承認ではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AIは任意で、この録画では使用しません。設定済み提供者に記録を送信するため、先に内容とプライバシーを確認してください。数値検査では文の意味が正しいか判断できません。Pythonには同じ報告処理のbuild_digest、render_methods、render_resultsがありますが、同様に確認が必要です。",
+          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
           "focus": [
             355,
             560,
@@ -6445,10 +6436,14 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Draft with AIは任意で、この録画では使用しません。設定済み提供者に記録を送信するため、先に内容とプライバシーを確認してください。数値検査では文の意味が正しいか判断できません。Pythonには同じ報告処理のbuild_digest、render_methods、render_resultsがありますが、同様に確認が必要です。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "50_run_compare",
@@ -7381,169 +7376,156 @@
       "slug": "layer_viewer",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "探索",
-      "title": "Layer Viewer：実画像とマスクの重ね合わせ、表示操作、元データを変えない観察",
-      "description": "QC 内の Layer Viewer で対応する輝度画像と細胞マスクを開き、表示、透明度、合成、順序を試します。移動や拡大を、編集や物理校正と区別します。",
+      "section": "Explore",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
       "objectives": [
-        "QC のサブモジュールで実画像と対応マスクを読み込む。",
-        "選択したレイヤーの表示を変え、元の測定値を保持する。",
-        "Fit による変形の制限を理解し、ズーム、移動、ラベル読み取りを確認する。",
-        "空の補助レイヤーや未設定の識別情報と、API が提供する機能を区別する。"
+        "Open an image and its matching mask.",
+        "Adjust visibility, opacity, blending and layer order.",
+        "Inspect labels with zoom and pan."
       ],
-      "prerequisite": "External Masks で検証した fov01 TIFF ペアを再利用します。1994×1994 の uint16 輝度画像と、位置の一致する44個の細胞ラベルです。取得済み plate1_E01_1_1 配列の平面1、4と全3,976,036画素が完全一致し、物理校正はありません。中立的なファイル名は取得メタデータではありません。元ファイルと作業用コピーは同一のままです。意図的変更で失敗することを確認した19件のテストに加え、26状態それぞれ5,041個の実画面画素を独立検証し、RGB差はゼロでした。全ソース配列、ヒストグラム由来の2/98パーセンタイル、レイヤー属性、操作の座標変換も確認しています。全画面画素、任意のレイヤー、多チャンネルや3D、滑らかな被覆、生物学的な正確さ、物理校正を網羅する検証ではありません。Fit は画像を引き伸ばす場合があります。解析、AI への送信、画像編集、直接出力、別画面へのオブジェクト選択連携、Points/Shapes の描画は行っていません。他のプレビューとは操作が異なります。",
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Home から QC を開き、その中の Layer Viewer ボタンを選びます。プロジェクト選択は親の QC ダッシュボード用です。このビューアーには画像とマスク専用のボタンがあります。External Masks で検証した実データのペアを作業用コピーで使います。専用のテストデータダウンロード機能はありません。",
+          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ],
-          "speech_text": "ホーム から QC を開き、その中の Layer Viewer ボタンを選びます。プロジェクト選択は親の QC ダッシュボード用です。このビューアーには画像とマスク専用のボタンがあります。External Masks で検証した実データのペアを作業用コピーで使います。専用のテストデータダウンロード機能はありません。"
+          ]
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "プラス Image を選び、単一チャンネルの TIFF を開きます。一辺千九百九十四画素、輝度は十六ビットです。表示には第二から第九十八パーセンタイル、ここでは百十八から二万三千二百二十三を使います。画面で明るく見えても、元の値が上書きされたり、測定値が八ビットに変わったりしたわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "プラス Image を選び、単一チャンネルの TIFF を開きます。一辺千九百九十四画素、輝度は十六ビットです。表示には第二から第九十八パーセンタイル、ここでは百十八から二万三千二百二十三を使います。画面で明るく見えても、元の値が上書きされたり、測定値が八ビットに変わったりしたわけではありません。"
+          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "このバージョンの Fit はキャンバスを満たすため、幅広いペインでは正方形の画像も引き伸ばされます。区切りをドラッグして画像ペインをほぼ正方形にし、再び Fit を選びます。変形した表示から物理的な形状を判断しないでください。ここでは座標の一単位が一画素で、マイクロメートルへの校正はありません。",
-          "hold_after": 0.7,
-          "speech_text": "このバージョンの Fit はキャンバスを満たすため、幅広いペインでは正方形の画像も引き伸ばされます。区切りをドラッグして画像ペインをほぼ正方形にし、再び Fit を選びます。変形した表示から物理的な形状を判断しないでください。ここでは座標の一単位が一画素で、マイクロメートルへの校正はありません。"
+          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "プラス Mask から対応する細胞ラベル TIFF を開きます。別の輝度画像ではありません。同じ視野に整列した四十四個の非ゼロラベルがあります。ゼロは背景で、重ね合わせでは透明です。色はラベルを区別するだけで、処置、細胞種、検証済みの分割品質を示しません。",
-          "hold_after": 0.7,
-          "speech_text": "プラス Mask から対応する細胞ラベル TIFF を開きます。別の輝度画像ではありません。同じ視野に整列した四十四個の非ゼロラベルがあります。ゼロは背景で、重ね合わせでは透明です。色はラベルを区別するだけで、処置、細胞種、検証済みの分割品質を示しません。"
+          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "操作前にレイヤー一覧の mask を選択します。選択行が変更対象です。レイヤーを追加しても自動選択されるとは限りません。チェックボックスでマスクを隠したり再表示したりして、下の画像を観察します。ラベルも元の輝度測定値も変わりません。",
+          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ],
-          "speech_text": "操作前にレイヤー一覧の mask を選択します。選択行が変更対象です。レイヤーを追加しても自動選択されるとは限りません。チェックボックスでマスクを隠したり再表示したりして、下の画像を観察します。ラベルも元の輝度測定値も変わりません。"
+          ]
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "選択したマスクの Opacity をゼロにします。色は消えますが、一覧には残り、四十四個のラベルもメモリーに残ります。表示設定であって、削除、フィルター、分割の修正ではありません。スライダーがどのレイヤーを操作しているか確認してください。",
+          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ],
-          "speech_text": "選択したマスクの Opacity をゼロにします。色は消えますが、一覧には残り、四十四個のラベルもメモリーに残ります。表示設定であって、削除、フィルター、分割の修正ではありません。スライダーがどのレイヤーを操作しているか確認してください。"
+          ]
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "マスクの Opacity を百パーセントにします。非ゼロラベルの場所ではラベル色が下の画像を覆い、背景は透明のままです。形状を調べやすくなりますが、下の輝度の模様は見えなくなります。ラベル領域から新しい測定値が作られるわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "マスクの Opacity を百パーセントにします。非ゼロラベルの場所ではラベル色が下の画像を覆い、背景は透明のままです。形状を調べやすくなりますが、下の輝度の模様は見えなくなります。ラベル領域から新しい測定値が作られるわけではありません。"
+          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Opacity を五十パーセントに戻し、合成は translucent にします。画像とラベル色の両方が重ね合わせに寄与します。独立検証は画面の標本を元の画像とラベルに照合したもので、生物学的に正しい分割の証明ではありません。境界を判断するときは元画像を見てください。",
-          "hold_after": 0.7,
-          "speech_text": "Opacity を五十パーセントに戻し、合成は translucent にします。画像とラベル色の両方が重ね合わせに寄与します。独立検証は画面の標本を元の画像とラベルに照合したもので、生物学的に正しい分割の証明ではありません。境界を判断するときは元画像を見てください。"
+          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "合成メニューから additive を選びます。ラベル色が画像に加算され、表示上の合成結果が飽和することがあります。元の輝度は変わりません。これは表示処理であり、解析用の強度正規化ではありません。他のモードを試す前にも対象レイヤーを確認します。",
-          "hold_after": 0.7,
-          "speech_text": "合成メニューから additive を選びます。ラベル色が画像に加算され、表示上の合成結果が飽和することがあります。元の輝度は変わりません。これは表示処理であり、解析用の強度正規化ではありません。他のモードを試す前にも対象レイヤーを確認します。"
+          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "multiply と minimum は異なる暗くし方をします。multiply は重ねる色で画像を減衰させ、minimum は各色チャンネルの暗い方の値を混ぜます。この場面は minimum です。同じ視野で比較し、合成が暗くなったことを測定蛍光強度の低下と解釈しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "multiply と minimum は異なる暗くし方をします。multiply は重ねる色で画像を減衰させ、minimum は各色チャンネルの暗い方の値を混ぜます。この場面は minimum です。同じ視野で比較し、合成が暗くなったことを測定蛍光強度の低下と解釈しないでください。"
+          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Opacity を五十パーセントにしたまま opaque を選びます。この二値の被覆マスクでは、同じ透明度の translucent と同じように見えます。opaque はスライダーを百に強制しません。整数ラベルでは滑らかな被覆の扱いの違いは示せません。次へ進む前に translucent に戻します。",
-          "hold_after": 0.7,
-          "speech_text": "Opacity を五十パーセントにしたまま opaque を選びます。この二値の被覆マスクでは、同じ透明度の translucent と同じように見えます。opaque はスライダーを百に強制しません。整数ラベルでは滑らかな被覆の扱いの違いは示せません。次へ進む前に translucent に戻します。"
+          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "image を選択し、カラーマップで cyan を選びます。単一チャンネル画像の色が変わり、マスクのオブジェクト色は維持されます。測定値も生物学的なチャンネルの意味も変わりません。この画面にはチャンネル選択や編集可能なコントラスト範囲はありません。他のプレビューの機能を混同せず、最後に gray に戻します。",
-          "hold_after": 0.7,
-          "speech_text": "image を選択し、カラーマップで cyan を選びます。単一チャンネル画像の色が変わり、マスクのオブジェクト色は維持されます。測定値も生物学的なチャンネルの意味も変わりません。この画面にはチャンネル選択や編集可能なコントラスト範囲はありません。他のプレビューの機能を混同せず、最後に gray に戻します。"
+          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "mask を選び、下矢印で画像の下へ移します。一覧の上の項目が手前に描画されます。不透明な画像がマスクを隠しますが、マスクの表示属性は有効でデータも残っています。観察やクリックの前に、マスクを上へ戻してください。",
-          "hold_after": 0.7,
-          "speech_text": "mask を選び、下矢印で画像の下へ移します。一覧の上の項目が手前に描画されます。不透明な画像がマスクを隠しますが、マスクの表示属性は有効でデータも残っています。観察やクリックの前に、マスクを上へ戻してください。"
+          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "見えているラベル領域をクリックします。ステータスにワールド座標と、ここではラベル九が表示されます。このファイル選択で読み込んだマスクには視野キーがないため、実験全体でのオブジェクト特定や別画面の切り抜き表示は起きません。中立的な実演用ファイル名からプレートやウェルを推定しないでください。",
+          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ],
-          "speech_text": "見えているラベル領域をクリックします。ステータスにワールド座標と、ここではラベル九が表示されます。このファイル選択で読み込んだマスクには視野キーがないため、実験全体でのオブジェクト特定や別画面の切り抜き表示は起きません。中立的な実演用ファイル名からプレートやウェルを推定しないでください。"
+          ]
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "対象の上でホイールを回すとズームします。上向き三段階で倍率は一・二の三乗になり、ポインター下のワールド座標は維持されます。ビューアーは新しい縮尺でソースレイヤーを再描画します。変わるのは表示であり、マスク、画素値、物理校正ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "対象の上でホイールを回すとズームします。上向き三段階で倍率は一・二の三乗になり、ポインター下のワールド座標は維持されます。ビューアーは新しい縮尺でソースレイヤーを再描画します。変わるのは表示であり、マスク、画素値、物理校正ではありません。"
+          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Shift を押しながら左ボタンでドラッグすると移動できます。中央ボタンでも移動できます。ここでは元の座標を変えずに表示視野を動かし、検証した操作ではズームも維持されます。別の領域を見るための表示移動を、画像データの移動や位置合わせと混同しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "Shift を押しながら左ボタンでドラッグすると移動できます。中央ボタンでも移動できます。ここでは元の座標を変えずに表示視野を動かし、検証した操作ではズームも維持されます。別の領域を見るための表示移動を、画像データの移動や位置合わせと混同しないでください。"
+          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Fit を選び、現在のペインに視野全体を戻します。この録画ではズーム前の表示が復元されます。ただしペイン形状の制限は残り、Fit だけでは縦横の表示縮尺が等しいと保証されません。ソースの間隔とキャンバスの幾何は別の概念です。スクリーンショットから推測しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "Fit を選び、現在のペインに視野全体を戻します。この録画ではズーム前の表示が復元されます。ただしペイン形状の制限は残り、Fit だけでは縦横の表示縮尺が等しいと保証されません。ソースの間隔とキャンバスの幾何は別の概念です。スクリーンショットから推測しないでください。"
+          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "プラス Points とプラス Shapes は空の補助レイヤーを作ります。ここでは空の shapes が表示されています。この画面では描画ツールは有効にならず、通常のクリックで点や領域は追加されませんでした。終わったら空レイヤーを除去します。マスク編集は Make Masks の実際の編集操作を参照してください。",
+          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ],
-          "speech_text": "プラス Points とプラス Shapes は空の補助レイヤーを作ります。ここでは空の shapes が表示されています。この画面では描画ツールは有効にならず、通常のクリックで点や領域は追加されませんでした。終わったら空レイヤーを除去します。マスク編集は Make Masks の実際の編集操作を参照してください。"
+          ]
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "mask を選び、除去コントロールを使います。この表示からレイヤーだけが消え、画像は残り、元のマスクファイルも変わりません。レイヤー除去は編集の保存でもファイル削除でもありません。両方の作業用 TIFF と取得済み元データが変更されないことを確認しました。",
-          "hold_after": 0.7,
-          "speech_text": "mask を選び、除去コントロールを使います。この表示からレイヤーだけが消え、画像は残り、元のマスクファイルも変わりません。レイヤー除去は編集の保存でもファイル削除でもありません。両方の作業用 TIFF と取得済み元データが変更されないことを確認しました。"
+          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "コードでは spaCR の Qt layer_viewer モジュールの stack_from_paths でレイヤーを読み込み、LayerStack.render_uint8 で合成画像配列を得て出力処理に渡せます。Spacing と FieldKey には既知の校正と識別情報が必要です。この画面には専用出力、解析実行、GPU パイプライン、spaCR AI コンソールはありません。表示、測定、保存するマスク編集を区別してください。",
+          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ],
-          "speech_text": "コードでは スペーカー の キュー ティー layer_viewer モジュールの stack_from_paths でレイヤーを読み込み、LayerStack.render_uint8 で合成画像配列を得て出力処理に渡せます。Spacing と FieldKey には既知の校正と識別情報が必要です。この画面には専用出力、解析実行、GPU パイプライン、スペーカー AI コンソールはありません。表示、測定、保存するマスク編集を区別してください。"
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "example_files": [
+        "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "58_graph_builder",
@@ -7551,104 +7533,96 @@
       "slug": "graph_builder",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "探索",
-      "title": "Graph Builder：実測データ、ライブフィルター、受け渡しの制限",
-      "description": "実際の測定列でグラフを作り、取得メタデータで分割し、Annotateへの選択の受け渡しにある不具合を確認します。",
+      "section": "Explore",
+      "title": "Graph Builder: plot measurements and filter objects",
+      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
       "objectives": [
-        "実例のデータベースとcellテーブルを開く。",
-        "ヒストグラム、散布図、色分け、行別パネルを作る。",
-        "フィルター前後と解除後の対象数を確認する。",
-        "内部での選択の通知と、正常な受け渡しを区別する。"
+        "Load an example measurement table.",
+        "Build a histogram, scatter plot and grouped panels.",
+        "Filter objects and choose a follow-up view."
       ],
-      "prerequisite": "リンク先の測定データベースをダウンロードして展開するか、Annotateのダウンロード済みサンプルを使います。画像切り抜きは含まれず、新しいモデル実行は不要です。",
+      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Graph Builderは既存のテーブルを探索する機能です。Homeから開きます。メインモジュールで、その中にPlate ViewerとSmall Multiplesがあります。実際のサンプル測定値を使い、モデルの学習やAIサービスによる結果の生成は行いません。",
-          "hold_after": 0.7,
-          "speech_text": "Graph Builderは既存のテーブルを探索する機能です。ホームから開きます。メインモジュールで、その中にPlate ViewerとSmall Multiplesがあります。実際のサンプル測定値を使い、モデルの学習やAIサービスによる結果の生成は行いません。"
+          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Load tableを選び、リンク先のアーカイブまたはAnnotateのサンプルにあるmeasurementsドットdbを開きます。cellテーブルには二千三百四十一行あります。アーカイブは録画で使ったデータベースをそのまま保存していますが、他のテーブルが参照する画像は含みません。",
+          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ],
-          "speech_text": "Load tableを選び、リンク先のアーカイブまたはAnnotateのサンプルにあるmeasurementsドットdbを開きます。cellテーブルには二千三百四十一行あります。アーカイブは録画で使ったデータベースをそのまま保存していますが、他のテーブルが参照する画像は含みません。"
+          ]
         },
         {
           "visual": "05_area_histogram",
-          "narration": "cell_areaを検索し、Xへドラッグします。自動描画で三十区間のヒストグラムになります。棒は各面積区間の細胞数を示し、処理条件の比較や有意性検定ではありません。保存された単位を使い、新たな物理単位の校正は行いません。",
-          "hold_after": 0.7,
-          "speech_text": "cell_areaを検索し、Xへドラッグします。自動描画で三十区間のヒストグラムになります。棒は各面積区間の細胞数を示し、処理条件の比較や有意性検定ではありません。保存された単位を使い、新たな物理単位の校正は行いません。"
+          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "cell_channel_1_mean_intensityをYへドラッグします。各点は一つの細胞の面積とチャネル一の平均輝度です。重なった点が見えなくなることはありますが、ここでは全行が表現されています。行数の表示を確認してください。大きなデータでは描画方式が変わる場合があります。",
-          "hold_after": 0.7,
-          "speech_text": "cell_channel_1_mean_intensityをYへドラッグします。各点は一つの細胞の面積とチャネル一の平均輝度です。重なった点が見えなくなることはありますが、ここでは全行が表現されています。行数の表示を確認してください。大きなデータでは描画方式が変わる場合があります。"
+          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "columnIDをColourに置き、凡例を読みます。色は取得時の列を区別し、推定クラスや既知の処理条件を表すものではありません。見た目の分離は記述的な観察であり、効果の証明ではありません。座標と色の割り当てを元の行と照合しました。",
-          "hold_after": 0.7,
-          "speech_text": "columnIDをColourに置き、凡例を読みます。色は取得時の列を区別し、推定クラスや既知の処理条件を表すものではありません。見た目の分離は記述的な観察であり、効果の証明ではありません。座標と色の割り当てを元の行と照合しました。"
+          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "rowIDを下向き矢印のfacetチャネルに置き、プレート行ごとのパネルに分けます。細胞数は千百四十と千二百一です。共通の軸は比較に役立ちますが、同じウェル内の細胞は独立した実験反復ではありません。",
-          "hold_after": 0.7,
-          "speech_text": "rowIDを下向き矢印のfacetチャネルに置き、プレート行ごとのパネルに分けます。細胞数は千百四十と千二百一です。共通の軸は比較に役立ちますが、同じウェル内の細胞は独立した実験反復ではありません。"
+          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "右のフィルターパネルでcell_areaを追加し、最小値を二万千九百二十五にします。グラフは直ちに千百七十一行へ変わります。この切り上げた中央値はフィルターの実演用で、生物学的なしきい値の推奨ではありません。軸の範囲も変わることに注意してください。",
-          "hold_after": 0.7,
-          "speech_text": "右のフィルターパネルでcell_areaを追加し、最小値を二万千九百二十五にします。グラフは直ちに千百七十一行へ変わります。この切り上げた中央値はフィルターの実演用で、生物学的なしきい値の推奨ではありません。軸の範囲も変わることに注意してください。"
+          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "フィルター側のClear allを選ぶと、二千三百四十一個の細胞がすべて戻ります。左のClear all channelsは描画への列の割り当てを消す別の操作です。数と軸を再確認しましょう。対象集団を変えても新しい測定を行ったことにはなりません。",
-          "hold_after": 0.7,
-          "speech_text": "フィルター側のClear allを選ぶと、二千三百四十一個の細胞がすべて戻ります。左のClear all channelsは描画への列の割り当てを消す別の操作です。数と軸を再確認しましょう。対象集団を変えても新しい測定を行ったことにはなりません。"
+          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "小さなバツで行facetを外し、散布図上で長方形をドラッグします。この版には不具合があります。録画の操作では内部で六百五十三個のオブジェクトキーが通知されますが、選択数はゼロのままでOpen selection in Annotateも無効です。アノテーションが開いた、または作成されたと思わないでください。",
-          "hold_after": 0.7,
-          "speech_text": "小さなバツで行facetを外し、散布図上で長方形をドラッグします。この版には不具合があります。録画の操作では内部で六百五十三個のオブジェクトキーが通知されますが、選択数はゼロのままでOpen selection in Annotateも無効です。アノテーションが開いた、または作成されたと思わないでください。"
+          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "通常のクリックで内部の選択も解除されます。この回復は確認しましたが、受け渡しを修正したわけではありません。フィルターとオブジェクトの指定は異なり、他のビューと状態が共有される場合があります。常に全データベースを見ていると考えず、対象集団を確認してください。",
-          "hold_after": 0.7,
-          "speech_text": "通常のクリックで内部の選択も解除されます。この回復は確認しましたが、受け渡しを修正したわけではありません。フィルターとオブジェクトの指定は異なり、他のビューと状態が共有される場合があります。常に全データベースを見ていると考えず、対象集団を確認してください。"
+          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "ヘッダーのショートカットから、内包されたPlate ViewerとSmall Multiplesを開けます。詳しくはそれぞれのチュートリアルをご覧ください。この画面にはグラフや仕様のエクスポートボタンはありません。リンク先のデータベースは外部の教材ダウンロードで、Graph Builderの出力ではありません。",
+          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ],
-          "speech_text": "ヘッダーのショートカットから、内包されたPlate ViewerとSmall Multiplesを開けます。詳しくはそれぞれのチュートリアルをご覧ください。この画面にはグラフや仕様のエクスポートボタンはありません。リンク先のデータベースは外部の教材ダウンロードで、Graph Builderの出力ではありません。"
+          ]
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Pythonではread_tableがデータを読み、GraphSpecがチャネルとfacetを定義します。selection APIはフィルターと明示的なオブジェクトキーを区別します。解釈とともに元データ、設定、バージョンを保存してください。これらのAPIは生物学的結論を検証せず、Annotateへの受け渡しも修正しません。",
+          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Pythonではread_tableがデータを読み、GraphSpecがチャネルとfacetを定義します。selection APIはフィルターと明示的なオブジェクトキーを区別します。解釈とともに元データ、設定、バージョンを保存してください。これらのAPIは生物学的結論を検証せず、Annotateへの受け渡しも修正しません。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "59_anndata_export",
@@ -8217,65 +8191,60 @@
       "slug": "feature_dictionary",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "探索",
-      "title": "Feature Dictionary：意味・単位・計算関数を調べる",
-      "description": "Help から実際の辞書を開き、特徴量の定義を概念と対象で絞り込み、一般的な説明とプロジェクト内で利用できる測定値を区別します。",
+      "section": "Help",
+      "title": "Feature Dictionary: find definitions and units",
+      "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
       "objectives": [
-        "Help から辞書を開き、概念や測定名で検索する。",
-        "プロジェクトのデータを変更せず、実際の概念・対象フィルターを使う。",
-        "面積と体積の違いを含め、単位・計算関数・注意事項を読む。",
-        "定義文をコピーし、この検索パネルと Python によるプロジェクト専用の書き出しを区別する。"
+        "Find a definition by name or concept.",
+        "Narrow the results with concept and object filters.",
+        "Read units and notes, then copy the definition."
       ],
-      "prerequisite": "プロジェクト、ダウンロード、モデルは不要です。このレッスンでは組み込みの定義を参照します。測定、グラフ作成、AI へのリクエスト、GPU 処理、ファイルの書き出しは行いません。例の列名は Database Browser で使った実測データベースに存在しますが、ここで辞書がそのデータベースを読み込むことはありません。現在のパネルは数百の細胞小器官の役割名を列挙しているため、通常のスクロール操作で下にある計算関数と注記を表示します。コピー先は録画用の独立したデスクトップのクリップボードだけです。",
+      "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
       "scenes": [
         {
           "visual": "01_help_dictionary",
-          "narration": "Help を開き、Feature Dictionary を選びます。これは組み込みの測定定義を調べるウィンドウで、Home の独立したワークフローでも、実行する分析処理でもありません。データセットやモデルのダウンロードは不要です。",
+          "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "Help を開き、Feature Dictionary を選びます。これは組み込みの測定定義を調べるウィンドウで、ホーム の独立したワークフローでも、実行する分析処理でもありません。データセットやモデルのダウンロードは不要です。"
+          ]
         },
         {
           "visual": "03_search_by_idea",
-          "narration": "size のような概念を入力します。入力中に結果が更新され、Area を選ぶと定義が表示されます。件数は一致した定義の数です。測定した細胞の数でも、プロジェクト内に存在すると確認された列の数でもありません。",
+          "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             550
-          ],
-          "speech_text": "size のような概念を入力します。入力中に結果が更新され、Area を選ぶと定義が表示されます。件数は一致した定義の数です。測定した細胞の数でも、プロジェクト内に存在すると確認された列の数でもありません。"
+          ]
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "narration": "実際のドロップダウンは概念と対象の種類で絞り込みます。ここでは intensity と cell を選ぶと十三件の定義が表示されます。絞り込むのは辞書であり、画像データや分析設定ではありません。別の検索をする前に Any concept と Any object に戻します。",
+          "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             450
-          ],
-          "speech_text": "実際のドロップダウンは概念と対象の種類で絞り込みます。ここでは intensity と cell を選ぶと十三件の定義が表示されます。絞り込むのは辞書であり、画像データや分析設定ではありません。別の検索をする前に Any concept と Any object に戻します。"
+          ]
         },
         {
           "visual": "05_measurement_name",
-          "narration": "画面にある正確な列名を使い、細胞のチャネル一の平均強度を検索します。選択された Mean intensity は、画素の統計量と単位を説明します。名前による検索は文書を探す操作であり、その列の値を調べたり、現在のプロジェクトに存在すると証明したりするものではありません。",
+          "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
           "hold_after": 0.7,
           "focus": [
             1620,
             265,
             1780,
             355
-          ],
-          "speech_text": "画面にある正確な列名を使い、細胞のチャネル一の平均強度を検索します。選択された Mean intensity は、画素の統計量と単位を説明します。名前による検索は文書を探す操作であり、その列の値を調べたり、現在のプロジェクトに存在すると証明したりするものではありません。"
+          ]
         },
         {
           "visual": "06_computing_function",
-          "narration": "下へスクロールして Channel、Module、Computed by を確認します。参照先は、拡張された領域属性の関数など、測定の実装を示します。辞書は定義を検索するだけで、測定値を再計算しません。Python の検索 API は feature_dict モジュールにあります。",
+          "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8285,24 +8254,22 @@
           ],
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "下へスクロールして Channel、Module、Computed by を確認します。参照先は、拡張された領域属性の関数など、測定の実装を示します。辞書は定義を検索するだけで、測定値を再計算しません。Python の検索 API は feature_dict モジュールにあります。"
+          ]
         },
         {
           "visual": "07_conditional_area_units",
-          "narration": "次に cell_area を検索します。Unit の条件付きの説明を読みましょう。二次元の処理では画素による面積を表しますが、三次元では同じ列名が体積を表します。その行の measurement_units によって、画像画素単位の三乗なのか、立方マイクロメートルなのかが決まります。列名だけから物理単位を推測しないでください。",
+          "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
           "hold_after": 0.7,
           "focus": [
             1620,
             265,
             1780,
             380
-          ],
-          "speech_text": "次に cell_area を検索します。Unit の条件付きの説明を読みましょう。二次元の処理では画素による面積を表しますが、三次元では同じ列名が体積を表します。その行の measurement_units によって、画像画素単位の三乗なのか、立方マイクロメートルなのかが決まります。列名だけから物理単位を推測しないでください。"
+          ]
         },
         {
           "visual": "08_area_caveats",
-          "narration": "見出しの定義だけでなく Note も読みます。すでに物理単位で表された三次元の値を、もう一度換算してはいけません。プロジェクト専用の文書を作る場合、Python の describe_database と export_dictionary がデータベースを調べ、記録された測定単位を解釈します。これらはこのパネルのボタンではありません。",
+          "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8313,32 +8280,34 @@
           "related_lessons": [
             "06_api",
             "34_database"
-          ],
-          "speech_text": "見出しの定義だけでなく Note も読みます。すでに物理単位で表された三次元の値を、もう一度換算してはいけません。プロジェクト専用の文書を作る場合、Python の describe_database と export_dictionary がデータベースを調べ、記録された測定単位を解釈します。これらはこのパネルのボタンではありません。"
+          ]
         },
         {
           "visual": "09_unknown_search",
-          "narration": "一致しない検索では定義が表示されません。辞書が一致する説明を見つけられなかったという意味であり、独自の特徴量がデータに存在できないという意味ではありません。既知の名前や、より広い概念で検索し直してください。文書がないことを科学的な結果として扱わないでください。",
+          "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             450
-          ],
-          "speech_text": "一致しない検索では定義が表示されません。辞書が一致する説明を見つけられなかったという意味であり、独自の特徴量がデータに存在できないという意味ではありません。既知の名前や、より広い概念で検索し直してください。文書がないことを科学的な結果として扱わないでください。"
+          ]
         },
         {
           "visual": "11_actual_text_copy",
-          "narration": "Area に戻り、詳細のテキストを選択してコピーします。この録画では、実際にコピーされた選択範囲を確認しています。画面に Run や Export 操作はありません。テキストのコピーは、Python でプロジェクト専用の辞書ファイルを作ることとは異なります。終わったらウィンドウを閉じます。分析は変更されていません。",
+          "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database"
-          ],
-          "speech_text": "Area に戻り、詳細のテキストを選択してコピーします。この録画では、実際にコピーされた選択範囲を確認しています。画面に Run や Export 操作はありません。テキストのコピーは、Python でプロジェクト専用の辞書ファイルを作ることとは異なります。終わったらウィンドウを閉じます。分析は変更されていません。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "63_small_multiples",

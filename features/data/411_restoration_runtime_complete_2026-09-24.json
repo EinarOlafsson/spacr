@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "baseline": "d5e70076e",
+  "scope": "All20 UI sources added by the incoming restoration controls, plus the shared Compare action. AI-assisted source-context review; no native-speaker sign-off.",
+  "sources": [
+    "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+    "Cells (cyto2)",
+    "Cells (cyto3)",
+    "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+    "Deblur",
+    "Deep image enhancement",
+    "Install Cellpose 3…",
+    "Load / retry model",
+    "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+    "Loading restoration model on CPU…",
+    "Nuclei",
+    "One-click restoration",
+    "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+    "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+    "Restoration diameter",
+    "Restoration model",
+    "Restoration model is not ready. Load the model before applying it.",
+    "Restoration ready: {model}. CPU processing; original intensities retained for measurements.",
+    "Restoration unavailable: {error}",
+    "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged."
+  ],
+  "languages": {
+    "sv": {
+      "new_sources_reviewed": 20,
+      "compare": "Jämför",
+      "actual_runtime_lookups": 21
+    },
+    "de": {
+      "new_sources_reviewed": 20,
+      "compare": "Vergleichen",
+      "actual_runtime_lookups": 21
+    },
+    "es": {
+      "new_sources_reviewed": 20,
+      "compare": "Comparar",
+      "actual_runtime_lookups": 21
+    },
+    "zh_CN": {
+      "new_sources_reviewed": 20,
+      "compare": "比较",
+      "actual_runtime_lookups": 21
+    },
+    "pt": {
+      "new_sources_reviewed": 20,
+      "compare": "Comparar",
+      "actual_runtime_lookups": 21
+    },
+    "hi": {
+      "new_sources_reviewed": 20,
+      "compare": "तुलना करें",
+      "actual_runtime_lookups": 21
+    },
+    "ko": {
+      "new_sources_reviewed": 20,
+      "compare": "비교하기",
+      "actual_runtime_lookups": 21
+    },
+    "is": {
+      "new_sources_reviewed": 20,
+      "compare": "Bera saman",
+      "actual_runtime_lookups": 21
+    },
+    "fr": {
+      "new_sources_reviewed": 20,
+      "compare": "Comparer",
+      "actual_runtime_lookups": 21
+    }
+  },
+  "new_source_language_pairs": 180,
+  "new_caption_delta_complete": true,
+  "tutorial_and_animation_complete": false
+}

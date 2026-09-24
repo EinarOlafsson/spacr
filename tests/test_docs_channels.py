@@ -86,7 +86,8 @@ def site(tmp_path, branch, video=b'same recording'):
     media.mkdir(parents=True)
     (media / 'video.mp4').write_bytes(video)
     (media / 'poster.jpg').write_bytes(b'poster')
-    (tutorial / 'index.html').write_text('<body><header>Fixed toolbar</header><main id="lesson-content">Player</main></body>')
+    (tutorial / 'index.html').write_text('<body><header>Fixed toolbar</header><main id="lesson-content">Player</main>'
+                                       '<script src="app_v2.js?v=unchanged-source"></script></body>')
     (tutorial / 'app_v2.js').write_text('"use strict";\n'
         'const video = `${PRODUCTION_ROOT}/${lesson.silent}`;\n'
         'const poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;\n'
@@ -123,6 +124,26 @@ def test_changed_nightly_video_cannot_change_main_video(tmp_path):
     for path, expected in [(output, b'same recording'), (output / 'nightly', b'new recording')]:
         manifest = json.loads((path / 'tutorials/published-media.json').read_text())
         assert (path / 'tutorials' / manifest['lesson/video.mp4']).read_bytes() == expected
+
+
+def test_media_only_update_changes_the_player_cache_key(tmp_path):
+    import hashlib
+    import re
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly', b'old recording')
+    original_player = (nightly / 'tutorials/app_v2.js').read_bytes()
+    before, after = tmp_path / 'before', tmp_path / 'after'
+    assemble(main, nightly, before)
+    (nightly / 'tutorials/production/lesson/video.mp4').write_bytes(b'new recording')
+    assemble(main, nightly, after)
+    versions = []
+    for output in (before, after):
+        tutorial = output / 'nightly/tutorials'
+        version = re.search(r'app_v2\.js\?v=([0-9a-f]{64})', (tutorial / 'index.html').read_text())[1]
+        assert version == hashlib.sha256((tutorial / 'app_v2.js').read_bytes()).hexdigest()
+        versions.append(version)
+    assert versions[0] != versions[1]
+    assert (nightly / 'tutorials/app_v2.js').read_bytes() == original_player
+    assert (before / 'tutorials/app_v2.js').read_bytes() == (after / 'tutorials/app_v2.js').read_bytes()
 
 
 def test_missing_main_or_oversized_site_cannot_replace_public_site(tmp_path):

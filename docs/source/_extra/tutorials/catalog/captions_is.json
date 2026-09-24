@@ -6209,23 +6209,22 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: búa til, yfirfara og flytja út drög",
+      "title": "Methods & Results: draft and export a run report",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Opnaðu innbyggða tólið, notaðu raunverulegu Regression-keyrsluna, greindu þrjú yfirferðaratriði og varðveittu Markdown-útflutning merktan óyfirfarinn.",
+      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
       "objectives": [
-        "Finna tólið innan Regression og réttar heimildir úr lokinni keyrslu.",
-        "Aðgreina skráðar staðreyndir, ályktaðar sjálfgefnar stillingar og orðalag um möguleg viðfangsefni.",
-        "Afrita og flytja út óbreytt drög með skipulögðum gögnum.",
-        "Greina árangursríkan útflutning og talnaathugun frá vísindalegu samþykki."
+        "Select the project, run journal and matching result folder.",
+        "Build a digest and review the Methods, Results and Caveats tabs.",
+        "Copy the report text or export Markdown with the run digest."
       ],
-      "prerequisite": "Ljúktu fyrst Regression-dæminu með niðurhaluðum gögnum; varðveittu upprunalegt verkefni, keyrsluskrá og guide_permutation-niðurstöður. Kennslan snýst um yfirferð og útflutning, ekki samþykkt handrit eða viðgerð á forriti. Skráin tilgreinir guide_permutation_seed=0, ekki almennt slembifræ; drögin ákvarða seed=42 sérstaklega. Slembigjafarnir eru ekki sami hluturinn og almenna fræið sem var notað hefur ekki verið sannreynt. Greiningarútgáfa spaCR 1.5.0.4, útflutningsútgáfa í drögum 1.5.0.5. Öll 325 BH-gildi voru athuguð óháð: ekkert q<0.05, lágmark 0.2708333333333333. Áhrif/p/q tíu raðaðra gena samsvara upprunanum, en ekki allar leiðsögu-RNA-talningar eða vísindalegar forsendur eru staðfestar. Copy sections og Export Markdown varðveita texta og nákvæm gögn í UNREVIEWED_methods_results.md. Inntak óbreytt; enginn þjónustuaðili, ný aðhvarfsgreining, samþykkt eða birting. API: spacr.methods_export.build_digest, render_methods, render_results. Eldri fyrirvari um vísindalega nákvæmni er varðveittur.",
+      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "Opnaðu Regression frá Home og síðan innbyggða tólið Methods and Results. Þessi kennsla er undir Regression í undireiningahlutanum. Hún notar raunverulega lokna dæmið úr Regression-kennslunni, ekki uppspunnar niðurstöður. Markmiðið er að búa til, skoða og varðveita drög, ekki samþykkja handrit sjálfkrafa.",
+          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
           "related_lessons": [
             "13_regression"
           ],
@@ -6233,7 +6232,7 @@
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Veldu verkefnamöppu, skrá viðkomandi keyrslu og möppu aðhvarfsniðurstaðna hennar. Hafðu Classifier autt: Hér er lýst aðhvarfsgreiningu, ekki varðveittu flokkunarlíkani. Varðveittu frumskrár óbreyttar. Svipuð nöfn nægja ekki: Staðfestu að keyrsluskrá og niðurstöður lýsi sömu loknu keyrslunni.",
+          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
           "focus": [
             355,
             270,
@@ -6244,12 +6243,12 @@
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Smelltu á Build digest. Methods, Results, Caveats og Run digest verða til án sambands við gervigreindarþjónustu. Kaflarnir eru upphaf yfirferðar. Hér nefnir textinn útgáfu útflutningsforritsins, en frumskráin tilgreinir aðra greiningarútgáfu. Greindu frá útgáfunni sem framkvæmdi greininguna í raun.",
+          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
           "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Lestu fyrirvarana í stað þess að jafna vel heppnaða myndun við staðfestingu. Hér segir almenna setningin um slembifræ fjörutíu og tveir. Frumskráin tilgreinir núll fyrir umröðun, en ekkert almennt fræ. Ekki skipta öllum fjörutíu og tveimur út fyrir núll: Aðgreindu fyrst slembigjafana og skráðan uppruna þeirra.",
+          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
           "focus": [
             355,
             640,
@@ -6260,7 +6259,7 @@
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Í Run digest-flipanum má skoða skipulögðu gögnin. Berðu tilgreindar stillingar og varðveitt umhverfi saman við textann. Sjálfgefið gildi ályktað við útflutning sannar ekki fyrri framkvæmd. Varðveittu viðvaranir og óleyst atriði, líka skort á gæðaeftirlitsupplýsingum; skortur á skýrslu sannar ekki að eftirlit hafi staðist.",
+          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
           "focus": [
             355,
             680,
@@ -6271,7 +6270,7 @@
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "Varðveitta genataflan inniheldur þrjú hundruð tuttugu og fimm próf og ekkert er marktækt við q-mörkin núll komma núll fimm. Lægsta q er um núll komma tuttugu og sjö. Fyrirsögnin strongest hits er því villandi: Þetta eru raðaðir möguleikar, ekki uppgötvanir. Athugaðu allan leiðrétta prófaflokkinn, ekki aðeins áhugaverðar efstu línur.",
+          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
           "focus": [
             355,
             680,
@@ -6282,12 +6281,12 @@
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Copy sections afritar sýnilega Methods og Results saman. Það leiðréttir ekki orðalag, staðfestir ekki tölur og tekur ekki skipulagða viðaukann með. Varðveittu óbreytt afrit áður en sérstaklega skráðar breytingar eru gerðar. Leystu spurningar um fræ, útgáfu og orðalag með frumgögnunum áður en textinn fer í skýrslu.",
+          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
           "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Export Markdown vistar báða kafla og keyrslugögn sem viðauka. Veldu nýtt skráarnafn, hér sérstaklega merkt óyfirfarið. Raunverulega Save-aðgerðin býr til skrána og athugun okkar staðfestir að texti og skipulögð gögn samsvari skjánum. Vel heppnaður útflutningur er ekki vísindalegt samþykki.",
+          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
           "focus": [
             1550,
             780,
@@ -6298,7 +6297,7 @@
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI er valfrjálst og er ekki notað hér. Það sendir samantektina til stillts þjónustuaðila; yfirfarðu fyrst innihald og persónuvernd. Talnaathugun sker ekki úr um hvort setning merki réttan hlut. Python býður build_digest, render_methods og render_results fyrir sama verkferli, með sömu þörf fyrir yfirferð.",
+          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
           "focus": [
             355,
             560,
@@ -6311,7 +6310,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "50_run_compare",
@@ -7231,19 +7235,18 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: raunverulegar myndir og grímur, birtingarstýringar og óbreytt frumgögn",
-      "description": "Opnaðu Layer Viewer innan QC, leggðu styrkleikamynd og samsvarandi frumugrímu saman, prófaðu sýnileika, ógagnsæi, blöndun og röð laga og aðgreindu skoðun frá breytingum og kvörðun.",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
       "objectives": [
-        "Finna undireininguna í QC og hlaða inn raunverulegu mynd–grímupari.",
-        "Stilla valið lag án þess að breyta upprunalegum mælingum.",
-        "Þekkja aflögun með Fit og sannreyna aðdrátt, hliðrun og lestur merkja.",
-        "Greina tóm hjálparlög og skort á auðkennum frá aðgerðum sem API býður."
+        "Open an image and its matching mask.",
+        "Adjust visibility, opacity, blending and layer order.",
+        "Inspect labels with zoom and pan."
       ],
-      "prerequisite": "Notaðu sannreyndu fov01-TIFF-skrárnar úr External Masks: 1994×1994 uint16-styrkleikaplan og 44 samstillt frumumerki. Þau samsvara nákvæmlega plani 1 og 4 í tekna fylkinu plate1_E01_1_1, alls 3.976.036 mynddílar án eðlisfræðilegrar kvörðunar. Hlutlaus skráarnöfn eru ekki lýsigögn myndatöku. Frumskrár og einkaeintök haldast eins. 19 litlar prófanir, ásamt vísvitandi kóðabreytingum sem sáust valda prófunarbilun, fylgja óháðri skoðun á 5.041 skjámynddíl í hverri af 26 stöðum, án RGB-bætafráviks. Heil frumfylki, 2/98-hundraðsmörk reiknuð með tíðniriti, eiginleikar laga og hreyfifræði voru einnig sannreynd. Þetta sannreynir ekki hvern skjámynddíl, handahófskennd lög, fjölrása-/3D-gögn, mjúka þekju, líffræðilega gæði grímugerðar eða kvörðun. Fit getur teygt myndina. Engin vinnslukeðja, AI-beiðni, myndbreyting, beinn útflutningur, tengt hlutaval milli glugga eða Points/Shapes-teikning var framkvæmd. Stýringar eru aðrar en í öðrum forskoðunum.",
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Opnaðu QC frá Home og veldu innfellda Layer Viewer-hnappinn. Verkefnaval tilheyrir QC-yfirlitinu; þessi skoðari hefur eigin mynd- og grímuhnappa. Við notum einkaeintök af raunverulega, sannreynda parinu úr External Masks. Layer Viewer hefur ekki sérstakt niðurhal prófunargagna.",
+          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -7252,22 +7255,22 @@
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Veldu plús Image og opnaðu TIFF-skrána með einni rás. Sviðið er 1994 mynddílar á hvorn veg með 16-bita styrkleikum. Birtingin teygir frá 2. að 98. hundraðsmarki, hér 118 til 23223. Bjartir skjámynddílar þýða ekki að frumgildi hafi verið yfirskrifuð eða mælingar færðar í 8 bita.",
+          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
           "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Í þessari útgáfu fyllir Fit myndflötinn og getur teygt ferningslaga svið í breiðum reit. Dragðu skilrúmið þar til myndreiturinn er nokkurn veginn ferningslaga og veldu Fit aftur. Ekki álykta um raunverulega lögun út frá aflagaðri sýn. Hér jafngildir ein heimshnitaeining einum mynddíl, ekki kvarðaðri míkrómetrafjarlægð.",
+          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
           "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Veldu plús Mask og hlaðaðu inn samsvarandi TIFF með frumumerkjum, ekki annarri styrkleikamynd. Hún hefur 44 merki önnur en núll, samstillt við sama svið. Núll er gagnsær bakgrunnur. Litir aðgreina merki, ekki meðferðir, frumugerðir eða sannreynd gæði grímugerðar.",
+          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
           "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Veldu mask í lagalistanum áður en þú breytir stillingum. Valin röð ræður hvaða lag breytist; nýtt lag er ekki endilega valið sjálfkrafa. Feldu og sýndu grímuna með gátreitnum til að skoða myndina undir. Merki og styrkleikamælingar breytast ekki.",
+          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -7278,7 +7281,7 @@
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Stilltu Opacity valinnar grímu á 0. Litir hverfa en lagið er áfram á listanum og öll 44 merkin í minni. Þetta er birtingarval, ekki eyðing, síun eða leiðrétting grímugerðar. Athugaðu hvaða lagi sleðinn stjórnar.",
+          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -7289,42 +7292,42 @@
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Stilltu Opacity grímunnar á 100 %. Litir hylja myndina þar sem merki er ekki núll; bakgrunnurinn helst gagnsær. Þetta auðveldar lögunarskoðun en felur styrkleikaáferðina undir. Engar nýjar mælingar verða til á merktum svæðum.",
+          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
           "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Farðu aftur í 50 % með blönduninni translucent. Bæði mynd og merkjalitur leggja til sýnilegu yfirlagningarinnar. Óháðu athuganirnar bera skjásýni saman við frumgögn; þær sanna ekki líffræðilega rétta grímugerð. Notaðu hrámyndina við mat á mörkum.",
+          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
           "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Opnaðu blöndunarvalmyndina og veldu additive. Merkjalit er bætt við myndina og sýnileg samsetning getur mettast. Frumstyrkleikar breytast ekki. Þetta eru birtingaraðgerðir, ekki styrkleikastöðlun fyrir greiningu. Veldu rétt lag áður en þú prófar aðrar blöndur.",
+          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
           "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "multiply og minimum dekkja með ólíkum hætti. multiply deyfir myndina með yfirlagningarlitnum; minimum blandar inn dekkra gildinu í hverri litarás. Hér sést minimum. Berðu saman sama svið án þess að túlka dekkri samsetningu sem minni mælda flúrljómun.",
+          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
           "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Veldu opaque en haltu Opacity í 50 %. Með þessari tvígildisþekjugrímu líkist það translucent við sama ógagnsæi: opaque þvingar ekki sleðann í 100. Heiltölumerki sýna ekki muninn á meðhöndlun mjúkrar þekju. Endurstilltu á translucent áður en þú heldur áfram.",
+          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
           "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Veldu image og síðan cyan í litakortsvalinu. Einrásarmyndin skiptir um lit en gríman heldur hlutalitunum. Mælingar og líffræðileg auðkenning rásar breytast ekki. Hér er hvorki rásaval né breytanlegt birtuskilasvið; ekki lofa stýringum úr annarri forskoðun. Settu síðan gray aftur.",
+          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
           "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Veldu mask og notaðu niðurörina til að færa hana undir myndina. Efst í listanum er teiknað fremst. Ógagnsæja myndin felur nú grímuna þótt sýnileiki hennar sé virkur og gögnin varðveitt. Færðu hana aftur upp áður en þú skoðar eða smellir á hluti.",
+          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Smelltu á sýnilegt merkt svæði. Staðan sýnir heimshnit og hér merki 9. Gríma sem er hlaðin með þessum skráarvalglugga hefur engan sviðslykil. Smellurinn auðkennir því ekki hlut í allri tilrauninni og opnar ekki útskurð hans annars staðar. Ekki álykta um plötu eða brunn út frá hlutlausa dæmisnafninu.",
+          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -7335,22 +7338,22 @@
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Snúðu músarhjólinu yfir hlutnum til að súmma. Þrjú skref upp margfalda aðdrátt með 1,2³ og halda heimshnitinu undir bendlinum. Skoðarinn endurteiknar frumlögin í nýjum kvarða. Aðdráttur breytir sýninni, ekki grímu, mynddílagildum eða kvörðun.",
+          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
           "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Haltu Shift og dragðu með vinstri músarhnappi til að hliðra sýninni; miðhnappurinn virkar líka. Sýnda sviðið færist án breytinga á frumhnitum. Prófaða hreyfingin heldur aðdrættinum. Að skoða annað svæði með hliðrun er ekki tilfærsla eða samstilling myndgagnanna.",
+          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
           "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Veldu Fit til að sjá allt sviðið í núverandi reit. Hér kemur sýnin fyrir aðdrátt aftur. Mundu takmörkun vegna lögunar reitsins: Fit tryggir ekki eitt og sér sama lárétta og lóðrétta kvarða. Frumbil og rúmfræði myndflatar eru aðskilin; ekki giska á þau út frá skjámynd.",
+          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
           "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plús Points og plús Shapes búa til tóm hjálparlög; hér sést tóma shapes-lagið. Þau virkja ekki teikniverkfæri á þessum skjá og venjulegir smellir bættu hvorki við punktum né svæðum í prófununum. Fjarlægðu tóma lagið á eftir. Sjáðu Make Masks fyrir raunveruleg grímubreytingarverkfæri.",
+          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
@@ -7358,12 +7361,12 @@
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Veldu mask og fjarlægingarhnappinn. Aðeins lagið fer úr þessari sýn; myndin helst og frumskrá grímunnar er óbreytt. Að fjarlægja lag vistar ekki breytingu og eyðir ekki skrá. Bæði einka-TIFF-eintökin og upprunalegu myndgögnin héldust óbreytt.",
+          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
           "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Í kóða hleður stack_from_paths í Qt-einingunni layer_viewer í spaCR lögunum inn; LayerStack.render_uint8 skilar samsettu myndfylki fyrir útflutningskóðann þinn. Spacing og FieldKey þurfa þekkt kvörðunar- og auðkennisgögn. Skjárinn hefur hvorki sérstakan útflutning, greiningarkeyrslu, GPU-vinnslukeðju né spaCR AI-stjórnborð. Aðskildu skoðun, mælingar og vistaðar grímubreytingar.",
+          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7372,7 +7375,15 @@
           ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "example_files": [
+        "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "58_graph_builder",
@@ -7381,27 +7392,26 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: raunverulegar mælingar, lifandi síur og takmörkun á yfirfærslu",
-      "description": "Búa til gröf úr mæligildum, skipta eftir lýsigögnum myndatöku og þekkja villuna við yfirfærslu vals í Annotate.",
+      "title": "Graph Builder: plot measurements and filter objects",
+      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
       "objectives": [
-        "Opna raunverulega gagnagrunninn og velja cell.",
-        "Búa til tíðnirit, dreifirit, litahópa og reiti eftir röðum.",
-        "Athuga þýðið eftir síun og endurheimt.",
-        "Greina innri miðlun vals frá virkri yfirfærslu."
+        "Load an example measurement table.",
+        "Build a histogram, scatter plot and grouped panels.",
+        "Filter objects and choose a follow-up view."
       ],
-      "prerequisite": "Sæktu og afþjappaðu tengda mæligagnagrunninum eða notaðu niðurhalaða Annotate-dæmið. Safnið inniheldur mælingar en ekki myndbúta; ekki þarf að keyra nýtt líkan.",
+      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Graph Builder skoðar fyrirliggjandi töflu. Opnaðu það frá Home. Þetta er aðaleining sem inniheldur Plate Viewer og Small Multiples. Við notum raunverulegar dæmimælingar, þjálfum ekki líkan og biðjum enga gervigreindarþjónustu um að búa til niðurstöður.",
+          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
           "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Veldu Load table og opnaðu measurements.db úr tengda safninu eða niðurhalaða Annotate-dæminu. Veldu cell: 2.341 lína. Safnið varðveitir nákvæmlega gagnagrunninn úr upptökunni, en inniheldur ekki myndir sem aðrar töflur vísa í.",
+          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -7410,47 +7420,47 @@
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Leitaðu að cell_area og dragðu dálkinn á X. Sjálfvirk teikning býr til tíðnirit með 30 bilum. Hver súla telur frumur á flatarmálsbili; þetta er hvorki samanburður meðferða né marktæknipróf. Vistaðar einingar haldast án nýrrar eðlisfræðilegrar kvörðunar.",
+          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Dragðu cell_channel_1_mean_intensity á Y. Hver punktur sýnir flatarmál frumu og meðalstyrk hennar í rás eitt. Punktar sem skarast geta hulið hver annan þótt allar línur séu sýndar hér. Lestu línufjöldann; stærri gagnasöfn geta verið teiknuð með öðrum hætti.",
+          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
           "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Settu columnID á Colour og lestu litaskýringuna. Litir greina dálka myndatöku, ekki áætlaða flokka eða þekktar meðferðir. Sýnilegur aðskilnaður er lýsandi athugun, ekki sönnun fyrir áhrifum. Hnit og litir voru borin saman við upprunalínurnar.",
+          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
           "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Settu rowID á skiptingarrásina með ör niður til að fá reiti eftir röðum plötunnar. Þeir innihalda 1.140 og 1.201 frumu. Sameiginlegir ásar auðvelda samanburð, en frumur í sama brunni eru ekki óháðar tilraunaendurtekningar.",
+          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
           "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "Bættu cell_area við síuna hægra megin og settu lágmarkið á 21.925. Grafið breytist strax í 1.171 línu. Miðgildið, námundað upp, sýnir virkni síunnar; það er ekki ráðlagður líffræðilegur þröskuldur. Taktu eftir að ásamörkin breytast líka.",
+          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
           "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Veldu Clear all í síunni til að endurheimta allar 2.341 frumurnar. Það er annað en Clear all channels vinstra megin, sem fjarlægir dálkatengingar grafsins. Athugaðu fjölda og ása aftur; breytt þýði er ekki ný mæling.",
+          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Fjarlægðu skiptinguna eftir röðum með litla krossinum og dragðu rétthyrning á dreifiritið. Þessi útgáfa hefur villu: hreyfingin í upptökunni miðlar 653 hlutalyklum innanhúss, en sýnir ekkert val og Open selection in Annotate er óvirkt. Ekki gera ráð fyrir að merkingar hafi opnast eða verið búnar til.",
+          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
           "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Venjulegur smellur hreinsar líka innra valið. Kennsluefnið staðfestir endurheimtina en lagar ekki yfirfærsluna. Síun og það að benda á hluti eru ólíkar aðgerðir; aðrir gluggar geta deilt stöðunni. Athugaðu virka þýðið í stað þess að gera ráð fyrir að grafið sýni alltaf allan gagnagrunninn.",
+          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Flýtileiðir í hausnum opna undireiningarnar Plate Viewer og Small Multiples, sem hafa eigið kennsluefni. Þessi skjár hefur engan hnapp til að flytja út graf eða lýsingu þess. Tengda gagnasafnið er ytra niðurhal kennsluefnis, ekki útflutningur úr Graph Builder.",
+          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
@@ -7459,13 +7469,18 @@
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Í Python les read_table gögn, GraphSpec lýsir rásum og skiptingu, og val-API greinir síur frá skýrt tilgreindum hlutalyklum. Geymdu uppruna, stillingar og útgáfu með túlkuninni. Þessi API staðfesta ekki líffræðilega niðurstöðu og laga ekki yfirfærsluna í Annotate.",
+          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "59_anndata_export",
@@ -7989,19 +8004,18 @@
       "series": 5,
       "app_key": "feature_dict",
       "section": "Help",
-      "title": "Feature Dictionary: fletta upp merkingu, einingum og reikniföllum",
-      "description": "Notaðu orðasafnið í Help til að finna skilgreiningar, þrengja leitina eftir hugtaki og hlut og greina almenna skjölun frá mælingum sem eru tiltækar í verkefni.",
+      "title": "Feature Dictionary: find definitions and units",
+      "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
       "objectives": [
-        "Finna orðasafnið í Help og leita eftir hugmynd eða heiti mælingar.",
-        "Nota raunverulegar hugtaka- og hlutasíur án þess að breyta verkefnisgögnum.",
-        "Lesa einingar, reikniföll og fyrirvara, meðal annars um muninn á flatarmáli og rúmmáli.",
-        "Afrita skilgreiningartexta og greina þennan uppflettiglugga frá útflutningi verkefnisbundins orðasafns með Python."
+        "Find a definition by name or concept.",
+        "Narrow the results with concept and object filters.",
+        "Read units and notes, then copy the definition."
       ],
-      "prerequisite": "Hvorki verkefni, niðurhal né líkan er nauðsynlegt: Í þessari kennslustund eru innbyggðar skilgreiningar skoðaðar. Engar mælingar, gröf, AI-fyrirspurnir, GPU-verk eða skráarútflutningur eru framkvæmd. Dálkaheitin í dæmunum eru í raunverulega mæligagnagrunninum sem Database Browser notar, en orðasafnið hleður ekki þeim gagnagrunni hér. Glugginn listar nú hundruð heita á hlutverkum frumulíffæra; venjuleg skrunstýring sýnir reikniföllin og athugasemdirnar þar fyrir neðan. Texti er aðeins afritaður á klippispjald sérstaka, einkarekna skjáborðsins sem er notað við upptökuna.",
+      "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
       "scenes": [
         {
           "visual": "01_help_dictionary",
-          "narration": "Opnaðu Help og veldu Feature Dictionary. Hér er flett upp innbyggðum skilgreiningum mælinga; þetta er hvorki sjálfstætt verkferli á Home né greining sem þarf að keyra. Ekki þarf að sækja gagnasafn eða líkan.",
+          "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -8009,7 +8023,7 @@
         },
         {
           "visual": "03_search_by_idea",
-          "narration": "Sláðu inn hugmynd, til dæmis size. Niðurstöðurnar uppfærast meðan þú skrifar og Area sýnir skilgreininguna sína. Fjöldinn telur skilgreiningar sem passa við leitina, ekki mældar frumur eða dálka sem staðfest hefur verið að séu í verkefninu.",
+          "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -8020,7 +8034,7 @@
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "narration": "Raunverulegu fellilistarnir sía eftir hugtaki og gerð hlutar. Hér gefa intensity og cell þrettán skilgreiningar. Síurnar þrengja orðasafnið, ekki myndgögn eða greiningarstillingar. Veldu aftur Any concept og Any object áður en þú leitar að öðru.",
+          "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -8031,7 +8045,7 @@
         },
         {
           "visual": "05_measurement_name",
-          "narration": "Leitaðu að meðalstyrk myndrásar eitt í frumu með nákvæma dálkaheitinu á skjánum. Færslan Mean intensity útskýrir tölfræðistærð mynddílanna og einingar hennar. Nafnaleit sækir skjölun; hún skoðar hvorki gildi dálksins né sannar að hann sé tiltækur í núverandi verkefni.",
+          "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
           "hold_after": 0.7,
           "focus": [
             1620,
@@ -8042,7 +8056,7 @@
         },
         {
           "visual": "06_computing_function",
-          "narration": "Skrunaðu niður að Channel, Module og Computed by. Tilvísunin auðkennir útfærslu mælingarinnar, meðal annars fallið fyrir útvíkkaða svæðiseiginleika. Orðasafnið flettir upp skilgreiningunni; það reiknar mælinguna ekki aftur. Python-viðmótin fyrir uppflettingar eru í einingunni feature_dict.",
+          "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8056,7 +8070,7 @@
         },
         {
           "visual": "07_conditional_area_units",
-          "narration": "Flettu nú upp cell_area. Lestu skilyrðin undir Unit: Tvívíð greining skilar flatarmáli í mynddílum, en sama heiti stendur fyrir rúmmál í þrívídd. Reiturinn measurement_units í röðinni segir til um hvort rúmmálið sé í mynddílaeiningum í þriðja veldi eða míkrómetrum í þriðja veldi. Ekki álykta um eðlisfræðilegar einingar út frá dálkaheitinu einu.",
+          "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
           "hold_after": 0.7,
           "focus": [
             1620,
@@ -8067,7 +8081,7 @@
         },
         {
           "visual": "08_area_caveats",
-          "narration": "Lestu líka Note, ekki aðeins aðalskilgreininguna. Þrívítt gildi sem er þegar í eðlisfræðilegum einingum má ekki umreikna aftur. Fyrir verkefnisbundna skjölun skoða Python-föllin describe_database og export_dictionary gagnagrunninn og túlka skráðar mælieiningar hans; þau eru ekki hnappar í þessum glugga.",
+          "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8082,7 +8096,7 @@
         },
         {
           "visual": "09_unknown_search",
-          "narration": "Leit án samsvörunar sýnir enga skilgreiningu. Það þýðir að orðasafnið fann ekkert sem passaði, ekki að gögnin geti ekki innihaldið sérsniðinn eiginleika. Prófaðu þekkt heiti eða víðara hugtak; líttu ekki á vöntun á skjölun sem vísindalega niðurstöðu.",
+          "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -8093,14 +8107,19 @@
         },
         {
           "visual": "11_actual_text_copy",
-          "narration": "Farðu aftur í Area, veldu nánari textann og afritaðu hann. Upptakan sannreynir textann sem var raunverulega afritaður. Viðmótið hefur hvorki Run- né Export-aðgerð: Að afrita texta er annað en að búa til verkefnisbundna orðasafnsskrá með Python. Lokaðu glugganum þegar þú ert búinn; engri greiningu hefur verið breytt.",
+          "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database"
           ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "63_small_multiples",

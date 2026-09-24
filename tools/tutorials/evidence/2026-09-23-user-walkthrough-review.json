@@ -1378,7 +1378,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1584,7 +1584,7 @@
     },
     {
       "lesson": "57_layer_viewer",
-      "english_sha256": "4b49c5193b1fdd55f2c81907ce20bee852b58a1ed1b7637a9e826b0d78273248",
+      "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
       "scene_count": 20,
       "source_revised": true,
       "newly_authored": false,
@@ -1605,7 +1605,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1631,7 +1631,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1768,7 +1768,7 @@
         "sv",
         "zh-CN"
       ],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {

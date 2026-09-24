@@ -6337,104 +6337,95 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: crear, revisar y exportar un borrador",
+      "title": "Methods & Results: draft and export a run report",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Resultados y control de calidad",
-      "description": "Abra la herramienta integrada, use la ejecución real de Regression, identifique tres problemas de revisión y conserve un Markdown explícitamente sin revisar.",
+      "section": "Regression",
+      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
       "objectives": [
-        "Encontrar la herramienta dentro de Regression y elegir las fuentes de una ejecución terminada.",
-        "Distinguir hechos registrados, valores predeterminados inferidos y lenguaje sobre candidatos.",
-        "Copiar y exportar el borrador intacto con su registro estructurado.",
-        "Distinguir exportación correcta y comprobación numérica de aprobación científica."
+        "Select the project, run journal and matching result folder.",
+        "Build a digest and review the Methods, Results and Caveats tabs.",
+        "Copy the report text or export Markdown with the run digest."
       ],
-      "prerequisite": "Complete primero el ejemplo descargado de Regression y conserve proyecto, diario y resultados guide_permutation originales. Esta lección enseña revisión y exportación, no aprueba un manuscrito ni repara la aplicación. El diario declara guide_permutation_seed=0, no una semilla global; el borrador resuelve por separado seed=42. No son generadores intercambiables y no se verificó la semilla global aplicada. El análisis registra spaCR 1.5.0.4, pero el borrador nombra al exportador 1.5.0.5. Se comprobaron independientemente los 325 valores BH: ninguno q<0.05; mínimo 0.2708333333333333. Los efectos/p/q de diez candidatos coinciden, sin certificar todos los recuentos de guías ni los supuestos científicos. Copy sections y Export Markdown conservan texto y registro exactos; el archivo nuevo se llama UNREVIEWED_methods_results.md. Entradas intactas, sin proveedor, nueva regresión, aprobación ni publicación. API: spacr.methods_export.build_digest, render_methods, render_results. Se conserva la anterior retención por exactitud científica.",
+      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "Abra Regression desde Home y después su herramienta integrada Methods and Results. Este tutorial está bajo Regression en la sección de submódulos. Usa el ejemplo real terminado de la lección de Regression, no resultados inventados. Aquí buscamos construir, examinar y conservar un borrador, no aprobar automáticamente un manuscrito.",
+          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra Regression desde Home y después su herramienta integrada Methods and Results. Este tutorial está bajo Regression en la sección de submódulos. Usa el ejemplo real terminado de la lección de Regression, no resultados inventados. Aquí buscamos construir, examinar y conservar un borrador, no aprobar automáticamente un manuscrito."
+          "hold_after": 0.7
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Elija la carpeta del proyecto, el diario de esa ejecución y su carpeta de resultados de regresión. Deje Classifier vacío: aquí se informa una regresión, no un checkpoint de clasificador. Mantenga intactos los originales. No basta con nombres parecidos: confirme que diario y resultados corresponden a la misma ejecución terminada.",
+          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7,
-          "speech_text": "Elija la carpeta del proyecto, el diario de esa ejecución y su carpeta de resultados de regresión. Deje Classifier vacío: aquí se informa una regresión, no un checkpoint de clasificador. Mantenga intactos los originales. No basta con nombres parecidos: confirme que diario y resultados corresponden a la misma ejecución terminada."
+          "hold_after": 0.7
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Pulse Build digest. Methods, Results, Caveats y Run digest se generan sin contactar con un proveedor de inteligencia artificial. Son un punto de partida para revisar. En esta grabación el texto nombra la versión del exportador, mientras el registro original indica otra versión de análisis. Informe la versión que realmente produjo el análisis.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse Build digest. Methods, Results, Caveats y Run digest se generan sin contactar con un proveedor de inteligencia artificial. Son un punto de partida para revisar. En esta grabación el texto nombra la versión del exportador, mientras el registro original indica otra versión de análisis. Informe la versión que realmente produjo el análisis."
+          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Lea las advertencias; una compilación correcta no es validación. Aquí la frase genérica sobre la semilla dice cuarenta y dos. El diario original declara explícitamente cero para las permutaciones, pero no declara una semilla global. No cambie cada cuarenta y dos por cero: primero distinga los generadores y su procedencia registrada.",
+          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7,
-          "speech_text": "Lea las advertencias; una compilación correcta no es validación. Aquí la frase genérica sobre la semilla dice cuarenta y dos. El diario original declara explícitamente cero para las permutaciones, pero no declara una semilla global. No cambie cada cuarenta y dos por cero: primero distinga los generadores y su procedencia registrada."
+          "hold_after": 0.7
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "La pestaña Run digest permite examinar esos registros estructurados. Compare ajustes declarados y entorno guardado con el texto. Un valor predeterminado inferido al exportar no demuestra la ejecución histórica. Conserve advertencias y dudas, incluida la información de control de calidad ausente; que falte un informe no demuestra que el control se superó.",
+          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7,
-          "speech_text": "La pestaña Run digest permite examinar esos registros estructurados. Compare ajustes declarados y entorno guardado con el texto. Un valor predeterminado inferido al exportar no demuestra la ejecución histórica. Conserve advertencias y dudas, incluida la información de control de calidad ausente; que falte un informe no demuestra que el control se superó."
+          "hold_after": 0.7
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "La tabla de genes guardada contiene trescientas veinticinco pruebas y ninguna es significativa con un umbral de q de cero coma cero cinco. El menor q es aproximadamente cero coma veintisiete. Por eso strongest hits resulta engañoso aquí: son candidatos ordenados, no descubrimientos. Revise toda la familia corregida, no solo las primeras filas atractivas.",
+          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7,
-          "speech_text": "La tabla de genes guardada contiene trescientas veinticinco pruebas y ninguna es significativa con un umbral de q de cero coma cero cinco. El menor q es aproximadamente cero coma veintisiete. Por eso strongest hits resulta engañoso aquí: son candidatos ordenados, no descubrimientos. Revise toda la familia corregida, no solo las primeras filas atractivas."
+          "hold_after": 0.7
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Copy sections copia conjuntamente los Methods y Results visibles. No corrige su redacción, certifica sus cifras ni incluye el apéndice estructurado. Conserve una copia sin editar antes de hacer revisiones documentadas por separado. Resuelva las cuestiones de semilla, versión y lenguaje de candidatos con los registros originales antes de usar el texto en un informe.",
-          "hold_after": 0.7,
-          "speech_text": "Copy sections copia conjuntamente los Methods y Results visibles. No corrige su redacción, certifica sus cifras ni incluye el apéndice estructurado. Conserve una copia sin editar antes de hacer revisiones documentadas por separado. Resuelva las cuestiones de semilla, versión y lenguaje de candidatos con los registros originales antes de usar el texto en un informe."
+          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Export Markdown guarda ambas secciones y el registro de ejecución como apéndice. Elija un nombre nuevo; aquí se marca explícitamente como no revisado. La acción real Save crea el archivo, y nuestra comprobación confirma que texto y registro estructurado coinciden con la pantalla. Exportar correctamente no es aprobar científicamente.",
+          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7,
-          "speech_text": "Export Markdown guarda ambas secciones y el registro de ejecución como apéndice. Elija un nombre nuevo; aquí se marca explícitamente como no revisado. La acción real Save crea el archivo, y nuestra comprobación confirma que texto y registro estructurado coinciden con la pantalla. Exportar correctamente no es aprobar científicamente."
+          "hold_after": 0.7
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI es opcional y no se usa en esta grabación. Envía el registro al proveedor configurado; revise antes contenido y privacidad. Una comprobación numérica no decide si una frase significa lo correcto. Python ofrece build_digest, render_methods y render_results para el mismo flujo, con la misma necesidad de revisión.",
+          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
           "focus": [
             355,
             560,
@@ -6445,10 +6436,14 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Draft with AI es opcional y no se usa en esta grabación. Envía el registro al proveedor configurado; revise antes contenido y privacidad. Una comprobación numérica no decide si una frase significa lo correcto. Python ofrece build_digest, render_methods y render_results para el mismo flujo, con la misma necesidad de revisión."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "50_run_compare",
@@ -7381,169 +7376,156 @@
       "slug": "layer_viewer",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explorar",
-      "title": "Layer Viewer: imágenes y máscaras reales, controles de visualización e inspección sin modificar la fuente",
-      "description": "Abra Layer Viewer dentro de QC, superponga una imagen de intensidad y su máscara celular, pruebe visibilidad, opacidad, mezcla y orden, y distinga la navegación de la edición y la calibración.",
+      "section": "Explore",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
       "objectives": [
-        "Encontrar el submódulo de QC y cargar la pareja real de imagen y máscara.",
-        "Cambiar visibilidad, opacidad, mezcla, color y orden de la capa seleccionada sin alterar mediciones.",
-        "Reconocer la distorsión de Fit y comprobar zoom, desplazamiento y selección de etiquetas.",
-        "Distinguir capas auxiliares vacías y metadatos ausentes de las funciones de edición y exportación por API."
+        "Open an image and its matching mask.",
+        "Adjust visibility, opacity, blending and layer order.",
+        "Inspect labels with zoom and pan."
       ],
-      "prerequisite": "Reutilice los TIFF fov01 verificados en External Masks: intensidad uint16 de 1994×1994 y 44 etiquetas celulares alineadas. Coinciden exactamente con los planos 1 y 4 del array adquirido plate1_E01_1_1, de 3.976.036 píxeles, sin calibración física. Los nombres neutros no son metadatos de adquisición. Originales y copias privadas quedan idénticos. Diecinueve pruebas, con mutaciones observadas fallando, acompañan la comprobación independiente de 5.041 píxeles de pantalla en 26 estados, sin discrepancias RGB; también se verifican arrays completos, percentiles 2/98 mediante histogramas, capas y geometría de los gestos. No es una validación de todos los píxeles, capas arbitrarias, datos multicanal/3D, cobertura suave, calidad biológica ni calibración. Fit puede estirar la imagen. No se ejecutaron análisis, solicitudes de IA, edición, exportación directa, selección vinculada ni dibujo de Points/Shapes. Los controles difieren de otras vistas previas.",
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Abra QC desde Home y pulse el botón anidado Layer Viewer. El selector de proyecto pertenece al panel QC; este visor tiene sus propios botones de imagen y máscara. Usamos copias privadas de la pareja real verificada en External Masks. Layer Viewer no tiene un descargador de datos de prueba propio.",
+          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ],
-          "speech_text": "Abra QC desde Home y pulse el botón anidado Layer Viewer. El selector de proyecto pertenece al panel QC; este visor tiene sus propios botones de imagen y máscara. Usamos copias privadas de la pareja real verificada en External Masks. Layer Viewer no tiene un descargador de datos de prueba propio."
+          ]
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Pulse más Image y abra el TIFF de un canal. El campo mide mil novecientos noventa y cuatro píxeles por lado, con intensidades de dieciséis bits. La pantalla estira los percentiles dos a noventa y ocho: aquí, de ciento dieciocho a veintitrés mil doscientos veintitrés. Un píxel brillante no implica que se hayan sobrescrito los valores originales ni convertido las mediciones a ocho bits.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse más Image y abra el TIFF de un canal. El campo mide mil novecientos noventa y cuatro píxeles por lado, con intensidades de dieciséis bits. La pantalla estira los percentiles dos a noventa y ocho: aquí, de ciento dieciocho a veintitrés mil doscientos veintitrés. Un píxel brillante no implica que se hayan sobrescrito los valores originales ni convertido las mediciones a ocho bits."
+          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "En esta versión, Fit llena el lienzo y puede estirar un campo cuadrado en un panel ancho. Arrastre el separador hasta que el panel sea aproximadamente cuadrado y pulse Fit de nuevo. No deduzca formas físicas de la vista distorsionada. Aquí una unidad de coordenadas equivale a un píxel, no a una distancia calibrada en micrómetros.",
-          "hold_after": 0.7,
-          "speech_text": "En esta versión, Fit llena el lienzo y puede estirar un campo cuadrado en un panel ancho. Arrastre el separador hasta que el panel sea aproximadamente cuadrado y pulse Fit de nuevo. No deduzca formas físicas de la vista distorsionada. Aquí una unidad de coordenadas equivale a un píxel, no a una distancia calibrada en micrómetros."
+          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Pulse más Mask y cargue el TIFF de etiquetas celulares correspondiente, no otra imagen de intensidad. Contiene cuarenta y cuatro etiquetas no nulas alineadas con el mismo campo. Cero representa el fondo y queda transparente. Los colores distinguen etiquetas, no tratamientos, tipos celulares ni una calidad de segmentación verificada.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse más Mask y cargue el TIFF de etiquetas celulares correspondiente, no otra imagen de intensidad. Contiene cuarenta y cuatro etiquetas no nulas alineadas con el mismo campo. Cero representa el fondo y queda transparente. Los colores distinguen etiquetas, no tratamientos, tipos celulares ni una calidad de segmentación verificada."
+          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Seleccione mask en la lista antes de ajustar sus controles. La fila seleccionada determina qué capa cambia; añadir una capa no garantiza seleccionarla. Use su casilla para ocultarla y mostrarla mientras inspecciona la imagen inferior. No cambian las etiquetas ni las intensidades medidas.",
+          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ],
-          "speech_text": "Seleccione mask en la lista antes de ajustar sus controles. La fila seleccionada determina qué capa cambia; añadir una capa no garantiza seleccionarla. Use su casilla para ocultarla y mostrarla mientras inspecciona la imagen inferior. No cambian las etiquetas ni las intensidades medidas."
+          ]
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Ponga Opacity de la máscara seleccionada en cero. Desaparecen sus colores, pero la capa sigue en la lista y sus cuarenta y cuatro etiquetas permanecen en memoria. Es una decisión visual, no borrado, filtrado ni corrección de la segmentación. Compruebe siempre qué capa controla el deslizador.",
+          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ],
-          "speech_text": "Ponga Opacity de la máscara seleccionada en cero. Desaparecen sus colores, pero la capa sigue en la lista y sus cuarenta y cuatro etiquetas permanecen en memoria. Es una decisión visual, no borrado, filtrado ni corrección de la segmentación. Compruebe siempre qué capa controla el deslizador."
+          ]
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Suba Opacity de la máscara al cien por cien. Los colores cubren la imagen donde hay etiquetas distintas de cero; el fondo sigue transparente. Esto facilita examinar las formas, pero oculta la textura de intensidad inferior. No crea nuevas mediciones de las regiones etiquetadas.",
-          "hold_after": 0.7,
-          "speech_text": "Suba Opacity de la máscara al cien por cien. Los colores cubren la imagen donde hay etiquetas distintas de cero; el fondo sigue transparente. Esto facilita examinar las formas, pero oculta la textura de intensidad inferior. No crea nuevas mediciones de las regiones etiquetadas."
+          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Devuelva Opacity al cincuenta por ciento con mezcla translucent. La imagen y el color de la etiqueta contribuyen a la superposición. Las comprobaciones independientes comparan muestras de pantalla con los datos fuente; no demuestran que la segmentación sea biológicamente correcta. Consulte la imagen sin superposición para juzgar los bordes.",
-          "hold_after": 0.7,
-          "speech_text": "Devuelva Opacity al cincuenta por ciento con mezcla translucent. La imagen y el color de la etiqueta contribuyen a la superposición. Las comprobaciones independientes comparan muestras de pantalla con los datos fuente; no demuestran que la segmentación sea biológicamente correcta. Consulte la imagen sin superposición para juzgar los bordes."
+          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+          "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Abra el menú de mezcla y elija additive. El color de la etiqueta se suma a la imagen y puede saturar el compuesto mostrado. Las intensidades originales no cambian. Son operaciones visuales, no normalización para el análisis. Seleccione la capa correcta antes de probar otros modos.",
-          "hold_after": 0.7,
-          "speech_text": "Abra el menú de mezcla y elija additive. El color de la etiqueta se suma a la imagen y puede saturar el compuesto mostrado. Las intensidades originales no cambian. Son operaciones visuales, no normalización para el análisis. Seleccione la capa correcta antes de probar otros modos."
+          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "multiply y minimum producen distintos oscurecimientos. multiply atenúa la imagen con el color superpuesto; minimum incorpora el valor más oscuro de cada canal de color. Aquí se muestra minimum. Compare sobre el mismo campo, pero no interprete un compuesto más oscuro como menor fluorescencia medida.",
-          "hold_after": 0.7,
-          "speech_text": "multiply y minimum producen distintos oscurecimientos. multiply atenúa la imagen con el color superpuesto; minimum incorpora el valor más oscuro de cada canal de color. Aquí se muestra minimum. Compare sobre el mismo campo, pero no interprete un compuesto más oscuro como menor fluorescencia medida."
+          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+          "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Elija opaque manteniendo Opacity al cincuenta por ciento. Con esta máscara de cobertura binaria se parece a translucent con la misma opacidad: opaque no fuerza el deslizador al cien. Estas etiquetas enteras no demuestran su comportamiento con cobertura suave. Restaure translucent antes de seguir.",
-          "hold_after": 0.7,
-          "speech_text": "Elija opaque manteniendo Opacity al cincuenta por ciento. Con esta máscara de cobertura binaria se parece a translucent con la misma opacidad: opaque no fuerza el deslizador al cien. Estas etiquetas enteras no demuestran su comportamiento con cobertura suave. Restaure translucent antes de seguir."
+          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+          "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Seleccione image y después cyan en el selector de color. Cambia el color de la imagen de un canal, mientras la máscara conserva sus colores de objeto. No cambian las mediciones ni la identidad biológica del canal. Esta pantalla no tiene selector de canal ni rango de contraste editable; no le atribuya controles de otras vistas. Después restaure gray.",
-          "hold_after": 0.7,
-          "speech_text": "Seleccione image y después cyan en el selector de color. Cambia el color de la imagen de un canal, mientras la máscara conserva sus colores de objeto. No cambian las mediciones ni la identidad biológica del canal. Esta pantalla no tiene selector de canal ni rango de contraste editable; no le atribuya controles de otras vistas. Después restaure gray."
+          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+          "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Seleccione mask y pulse la flecha hacia abajo para colocarla bajo la imagen. La lista muestra primero la capa superior, dibujada delante. La imagen opaca oculta la máscara aunque esta siga marcada como visible y conserve sus datos. Súbala de nuevo antes de inspeccionar o pulsar sus objetos.",
-          "hold_after": 0.7,
-          "speech_text": "Seleccione mask y pulse la flecha hacia abajo para colocarla bajo la imagen. La lista muestra primero la capa superior, dibujada delante. La imagen opaca oculta la máscara aunque esta siga marcada como visible y conserve sus datos. Súbala de nuevo antes de inspeccionar o pulsar sus objetos."
+          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+          "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Pulse una región etiquetada visible. El estado muestra su posición en coordenadas del mundo y, aquí, la etiqueta nueve. Una máscara cargada con este selector no tiene clave de campo asignada: el clic no identifica un objeto de todo el experimento ni abre su recorte en otra vista. No deduzca placa o pozo del nombre neutro del ejemplo.",
+          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ],
-          "speech_text": "Pulse una región etiquetada visible. El estado muestra su posición en coordenadas del mundo y, aquí, la etiqueta nueve. Una máscara cargada con este selector no tiene clave de campo asignada: el clic no identifica un objeto de todo el experimento ni abre su recorte en otra vista. No deduzca placa o pozo del nombre neutro del ejemplo."
+          ]
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Gire la rueda sobre el objeto para ampliar. Tres pasos hacia arriba multiplican la ampliación por uno coma dos al cubo, conservando la coordenada bajo el puntero. El visor vuelve a dibujar las capas fuente a la nueva escala. El zoom cambia la vista, no la máscara, los valores ni la calibración.",
-          "hold_after": 0.7,
-          "speech_text": "Gire la rueda sobre el objeto para ampliar. Tres pasos hacia arriba multiplican la ampliación por uno coma dos al cubo, conservando la coordenada bajo el puntero. El visor vuelve a dibujar las capas fuente a la nueva escala. El zoom cambia la vista, no la máscara, los valores ni la calibración."
+          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+          "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Mantenga Shift y arrastre con el botón izquierdo para desplazar; también puede usar el botón central. Movemos el campo mostrado sin cambiar sus coordenadas fuente. El gesto probado conserva el zoom. Desplazarse permite inspeccionar otra región; no equivale a trasladar ni registrar los datos de imagen.",
-          "hold_after": 0.7,
-          "speech_text": "Mantenga Shift y arrastre con el botón izquierdo para desplazar; también puede usar el botón central. Movemos el campo mostrado sin cambiar sus coordenadas fuente. El gesto probado conserva el zoom. Desplazarse permite inspeccionar otra región; no equivale a trasladar ni registrar los datos de imagen."
+          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+          "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Pulse Fit para volver al campo completo dentro del panel actual. En esta grabación restaura la vista anterior al zoom. Recuerde la limitación: Fit no garantiza por sí solo igual escala horizontal y vertical. El espaciado fuente y la geometría del lienzo son conceptos distintos; no los deduzca de una captura.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse Fit para volver al campo completo dentro del panel actual. En esta grabación restaura la vista anterior al zoom. Recuerde la limitación: Fit no garantiza por sí solo igual escala horizontal y vertical. El espaciado fuente y la geometría del lienzo son conceptos distintos; no los deduzca de una captura."
+          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+          "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Más Points y más Shapes crean capas auxiliares vacías; aquí se ve shapes. No activan una herramienta de dibujo en esta pantalla, y los clics normales no añadieron puntos ni regiones en las pruebas. Elimine la capa vacía al terminar. Para editar máscaras, consulte los controles reales del tutorial Make Masks.",
+          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ],
-          "speech_text": "Más Points y más Shapes crean capas auxiliares vacías; aquí se ve shapes. No activan una herramienta de dibujo en esta pantalla, y los clics normales no añadieron puntos ni regiones en las pruebas. Elimine la capa vacía al terminar. Para editar máscaras, consulte los controles reales del tutorial Make Masks."
+          ]
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Seleccione mask y pulse el control de eliminación. Solo sale de esta vista: la imagen permanece y el archivo fuente de la máscara sigue intacto. Quitar una capa no guarda una edición ni borra un archivo. Verificamos que ambos TIFF privados y los datos adquiridos originales no cambiaron.",
-          "hold_after": 0.7,
-          "speech_text": "Seleccione mask y pulse el control de eliminación. Solo sale de esta vista: la imagen permanece y el archivo fuente de la máscara sigue intacto. Quitar una capa no guarda una edición ni borra un archivo. Verificamos que ambos TIFF privados y los datos adquiridos originales no cambiaron."
+          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+          "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "En código, stack_from_paths del módulo Qt layer_viewer de spaCR carga las capas; LayerStack.render_uint8 devuelve un array compuesto para su código de exportación. Spacing y FieldKey requieren calibración e identidad conocidas. Esta pantalla no ofrece exportación propia, ejecución de análisis, pipeline GPU ni consola spaCR AI. Separe la visualización de las mediciones y la edición guardada.",
+          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ],
-          "speech_text": "En código, stack_from_paths del módulo cu te layer_viewer de espáquer carga las capas; LayerStack.render_uint8 devuelve un array compuesto para su código de exportación. Spacing y FieldKey requieren calibración e identidad conocidas. Esta pantalla no ofrece exportación propia, ejecución de análisis, pipeline GPU ni consola espáquer AI. Separe la visualización de las mediciones y la edición guardada."
+          ]
         }
       ],
-      "host_app_key": "qc_dashboard"
+      "example_files": [
+        "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "58_graph_builder",
@@ -7551,104 +7533,96 @@
       "slug": "graph_builder",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explorar",
-      "title": "Graph Builder: mediciones reales, filtros en vivo y límite de transferencia",
-      "description": "Crear gráficos con mediciones reales, agrupar por metadatos de adquisición y reconocer el fallo actual al transferir una selección a Annotate.",
+      "section": "Explore",
+      "title": "Graph Builder: plot measurements and filter objects",
+      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
       "objectives": [
-        "Cargar la base real y elegir cell.",
-        "Crear histograma, dispersión, colores y paneles por fila.",
-        "Comprobar las poblaciones al filtrar y restaurar.",
-        "Distinguir publicación interna y transferencia funcional."
+        "Load an example measurement table.",
+        "Build a histogram, scatter plot and grouped panels.",
+        "Filter objects and choose a follow-up view."
       ],
-      "prerequisite": "Descargue y descomprima la base enlazada o utilice el ejemplo descargado de Annotate. El archivo contiene mediciones, no recortes de imágenes; no necesita ejecutar otro modelo.",
+      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Graph Builder explora una tabla existente. Ábralo desde Home: es un módulo principal que contiene Plate Viewer y Small Multiples. Usaremos mediciones reales del ejemplo, sin entrenar modelos ni pedir a un servicio de inteligencia artificial que genere resultados.",
-          "hold_after": 0.7,
-          "speech_text": "Graph Builder explora una tabla existente. Ábralo desde Home: es un módulo principal que contiene Plate Viewer y Small Multiples. Usaremos mediciones reales del ejemplo, sin entrenar modelos ni pedir a un servicio de inteligencia artificial que genere resultados."
+          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Elija Load table y abra measurements punto db desde el archivo enlazado o el ejemplo descargado de Annotate. Seleccione cell: dos mil trescientas cuarenta y una filas. El archivo conserva exactamente la base grabada, pero no las imágenes referenciadas por otras tablas.",
+          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ],
-          "speech_text": "Elija Load table y abra measurements punto db desde el archivo enlazado o el ejemplo descargado de Annotate. Seleccione cell: dos mil trescientas cuarenta y una filas. El archivo conserva exactamente la base grabada, pero no las imágenes referenciadas por otras tablas."
+          ]
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Busque cell_area y arrastre la columna a X. El gráfico automático crea un histograma de treinta intervalos. Cada barra cuenta células dentro de un intervalo de área; no compara tratamientos ni prueba significación. Los valores conservan sus unidades originales, sin una nueva calibración física.",
-          "hold_after": 0.7,
-          "speech_text": "Busque cell_area y arrastre la columna a X. El gráfico automático crea un histograma de treinta intervalos. Cada barra cuenta células dentro de un intervalo de área; no compara tratamientos ni prueba significación. Los valores conservan sus unidades originales, sin una nueva calibración física."
+          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Arrastre cell_channel_1_mean_intensity a Y. Cada punto representa el área y la intensidad media del canal uno de una célula. Los puntos superpuestos pueden ocultarse visualmente, aunque aquí están representadas todas las filas. Revise el contador: las tablas grandes pueden usar otra política de representación.",
-          "hold_after": 0.7,
-          "speech_text": "Arrastre cell_channel_1_mean_intensity a Y. Cada punto representa el área y la intensidad media del canal uno de una célula. Los puntos superpuestos pueden ocultarse visualmente, aunque aquí están representadas todas las filas. Revise el contador: las tablas grandes pueden usar otra política de representación."
+          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+          "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Coloque columnID en Colour y lea la leyenda. Los colores distinguen columnas de adquisición, no clases inferidas ni tratamientos conocidos. Una separación visual es descriptiva, no prueba un efecto. Comprobamos las coordenadas y los colores frente a las filas originales.",
-          "hold_after": 0.7,
-          "speech_text": "Coloque columnID en Colour y lea la leyenda. Los colores distinguen columnas de adquisición, no clases inferidas ni tratamientos conocidos. Una separación visual es descriptiva, no prueba un efecto. Comprobamos las coordenadas y los colores frente a las filas originales."
+          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Coloque rowID en el canal de facetas con flecha hacia abajo para separar por fila de placa. Los paneles contienen mil ciento cuarenta y mil doscientas una células. Compartir ejes ayuda a comparar, pero las células de un mismo pocillo no son réplicas experimentales independientes.",
-          "hold_after": 0.7,
-          "speech_text": "Coloque rowID en el canal de facetas con flecha hacia abajo para separar por fila de placa. Los paneles contienen mil ciento cuarenta y mil doscientas una células. Compartir ejes ayuda a comparar, pero las células de un mismo pocillo no son réplicas experimentales independientes."
+          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "En el filtro de la derecha, añada cell_area y establezca el mínimo en veintiún mil novecientos veinticinco. El gráfico cambia inmediatamente a mil ciento setenta y una filas. Esta mediana redondeada ilustra el filtro; no es un umbral biológico recomendado. También cambian los límites de los ejes.",
-          "hold_after": 0.7,
-          "speech_text": "En el filtro de la derecha, añada cell_area y establezca el mínimo en veintiún mil novecientos veinticinco. El gráfico cambia inmediatamente a mil ciento setenta y una filas. Esta mediana redondeada ilustra el filtro; no es un umbral biológico recomendado. También cambian los límites de los ejes."
+          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Pulse Clear all en el filtro para recuperar las dos mil trescientas cuarenta y una células. No es Clear all channels a la izquierda, que elimina las asignaciones del gráfico. Revise el contador y los ejes: cambiar la población no genera una nueva medición.",
-          "hold_after": 0.7,
-          "speech_text": "Pulse Clear all en el filtro para recuperar las dos mil trescientas cuarenta y una células. No es Clear all channels a la izquierda, que elimina las asignaciones del gráfico. Revise el contador y los ejes: cambiar la población no genera una nueva medición."
+          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Quite la faceta de fila con su pequeña cruz y arrastre un rectángulo sobre la dispersión. Esta versión tiene un fallo: el gesto grabado publica seiscientas cincuenta y tres claves de objetos internamente, pero muestra cero seleccionados y mantiene desactivado Open selection in Annotate. No suponga que abrió o creó anotaciones.",
-          "hold_after": 0.7,
-          "speech_text": "Quite la faceta de fila con su pequeña cruz y arrastre un rectángulo sobre la dispersión. Esta versión tiene un fallo: el gesto grabado publica seiscientas cincuenta y tres claves de objetos internamente, pero muestra cero seleccionados y mantiene desactivado Open selection in Annotate. No suponga que abrió o creó anotaciones."
+          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Un clic sencillo borra también esa selección interna. El tutorial verifica esta recuperación, pero no repara la transferencia. Filtrar y señalar objetos son operaciones distintas; otras vistas pueden compartir su estado. Compruebe la población activa en lugar de asumir que el gráfico siempre representa toda la base.",
-          "hold_after": 0.7,
-          "speech_text": "Un clic sencillo borra también esa selección interna. El tutorial verifica esta recuperación, pero no repara la transferencia. Filtrar y señalar objetos son operaciones distintas; otras vistas pueden compartir su estado. Compruebe la población activa en lugar de asumir que el gráfico siempre representa toda la base."
+          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Los accesos del encabezado abren los módulos anidados Plate Viewer y Small Multiples, explicados en sus propios tutoriales. Esta pantalla no tiene botón para exportar el gráfico o su especificación. La base enlazada es una descarga externa del tutorial, no una exportación de Graph Builder.",
+          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ],
-          "speech_text": "Los accesos del encabezado abren los módulos anidados Plate Viewer y Small Multiples, explicados en sus propios tutoriales. Esta pantalla no tiene botón para exportar el gráfico o su especificación. La base enlazada es una descarga externa del tutorial, no una exportación de Graph Builder."
+          ]
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "En Python, read_table carga los datos, GraphSpec describe canales y facetas, y la API de selección distingue filtros y claves explícitas. Guarde la fuente, los ajustes y la versión junto con su interpretación. Estas API no validan conclusiones biológicas ni reparan la transferencia a Annotate.",
+          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "En Python, read_table carga los datos, GraphSpec describe canales y facetas, y la API de selección distingue filtros y claves explícitas. Guarde la fuente, los ajustes y la versión junto con su interpretación. Estas API no validan conclusiones biológicas ni reparan la transferencia a Annotate."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "59_anndata_export",
@@ -8217,65 +8191,60 @@
       "slug": "feature_dictionary",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Explorar",
-      "title": "Feature Dictionary: consultar significados, unidades y funciones de cálculo",
-      "description": "Usa el diccionario real de Help para buscar definiciones, filtrarlas por concepto y objeto, y distinguir la documentación general de las mediciones disponibles en un proyecto.",
+      "section": "Help",
+      "title": "Feature Dictionary: find definitions and units",
+      "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
       "objectives": [
-        "Encontrar el diccionario en Help y buscar por idea o nombre de medición.",
-        "Usar los filtros reales de concepto y objeto sin modificar datos del proyecto.",
-        "Leer unidades, funciones de cálculo y advertencias, incluida la diferencia entre área y volumen.",
-        "Copiar definiciones y distinguir este panel de consulta de una exportación específica del proyecto mediante Python."
+        "Find a definition by name or concept.",
+        "Narrow the results with concept and object filters.",
+        "Read units and notes, then copy the definition."
       ],
-      "prerequisite": "No hace falta un proyecto, una descarga ni un modelo: se consultan las definiciones integradas. No se realizan mediciones, gráficos, solicitudes de AI, tareas de GPU ni exportaciones de archivos. Los nombres de ejemplo existen en la base real de mediciones utilizada en Database Browser, pero aquí el diccionario no carga esa base. El panel actual enumera cientos de nombres de roles de orgánulos; el desplazamiento normal permite ver las funciones y notas situadas debajo. El texto solo se copia al portapapeles del escritorio privado de la grabación.",
+      "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
       "scenes": [
         {
           "visual": "01_help_dictionary",
-          "narration": "Abre Help y después Feature Dictionary. Esta ventana consulta definiciones de mediciones integradas; no es un flujo independiente de Home ni un procesamiento que haya que ejecutar. No necesitas descargar datos ni modelos.",
+          "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ],
-          "speech_text": "Abre Help y después Feature Dictionary. Esta ventana consulta definiciones de mediciones integradas; no es un flujo independiente de Home ni un procesamiento que haya que ejecutar. No necesitas descargar datos ni modelos."
+          ]
         },
         {
           "visual": "03_search_by_idea",
-          "narration": "Escribe una idea, como size. Los resultados se actualizan mientras escribes y, al seleccionar Area, aparece su definición. El recuento indica definiciones coincidentes, no células medidas ni columnas cuya existencia se haya confirmado en tu proyecto.",
+          "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             550
-          ],
-          "speech_text": "Escribe una idea, como size. Los resultados se actualizan mientras escribes y, al seleccionar Area, aparece su definición. El recuento indica definiciones coincidentes, no células medidas ni columnas cuya existencia se haya confirmado en tu proyecto."
+          ]
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "narration": "Los desplegables reales filtran por concepto y tipo de objeto. Aquí, intensity y cell devuelven trece definiciones. Estos filtros limitan el diccionario, no las imágenes ni los ajustes de análisis. Antes de otra consulta, restablece Any concept y Any object.",
+          "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             450
-          ],
-          "speech_text": "Los desplegables reales filtran por concepto y tipo de objeto. Aquí, intensity y cell devuelven trece definiciones. Estos filtros limitan el diccionario, no las imágenes ni los ajustes de análisis. Antes de otra consulta, restablece Any concept y Any object."
+          ]
         },
         {
           "visual": "05_measurement_name",
-          "narration": "Busca la intensidad media del canal uno de la célula usando el nombre exacto de columna que aparece en pantalla. La entrada Mean intensity explica el estadístico de píxeles y sus unidades. Buscar un nombre recupera documentación; no examina los valores de esa columna ni demuestra que exista en el proyecto actual.",
+          "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
           "hold_after": 0.7,
           "focus": [
             1620,
             265,
             1780,
             355
-          ],
-          "speech_text": "Busca la intensidad media del canal uno de la célula usando el nombre exacto de columna que aparece en pantalla. La entrada Mean intensity explica el estadístico de píxeles y sus unidades. Buscar un nombre recupera documentación; no examina los valores de esa columna ni demuestra que exista en el proyecto actual."
+          ]
         },
         {
           "visual": "06_computing_function",
-          "narration": "Desplázate hasta Channel, Module y Computed by. La referencia identifica la implementación de la medición, incluida la función de propiedades regionales ampliadas. El diccionario consulta la definición; no vuelve a calcular la medición. Las API de consulta de Python están en el módulo feature_dict.",
+          "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8285,24 +8254,22 @@
           ],
           "related_lessons": [
             "06_api"
-          ],
-          "speech_text": "Desplázate hasta Channel, Module y Computed by. La referencia identifica la implementación de la medición, incluida la función de propiedades regionales ampliadas. El diccionario consulta la definición; no vuelve a calcular la medición. Las API de consulta de Python están en el módulo feature_dict."
+          ]
         },
         {
           "visual": "07_conditional_area_units",
-          "narration": "Busca ahora cell_area. Lee el texto condicional de Unit: una ejecución bidimensional informa un área en píxeles, mientras que el mismo nombre representa un volumen en tres dimensiones. El campo measurement_units de la fila determina si ese volumen está en unidades cúbicas del píxel de imagen o en micrómetros cúbicos. No deduzcas unidades físicas solo del nombre.",
+          "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
           "hold_after": 0.7,
           "focus": [
             1620,
             265,
             1780,
             380
-          ],
-          "speech_text": "Busca ahora cell_area. Lee el texto condicional de Unit: una ejecución bidimensional informa un área en píxeles, mientras que el mismo nombre representa un volumen en tres dimensiones. El campo measurement_units de la fila determina si ese volumen está en unidades cúbicas del píxel de imagen o en micrómetros cúbicos. No deduzcas unidades físicas solo del nombre."
+          ]
         },
         {
           "visual": "08_area_caveats",
-          "narration": "Lee Note además de la definición principal. Un valor tridimensional ya expresado en unidades físicas no debe convertirse otra vez. Para documentar un proyecto concreto, las funciones de Python describe_database y export_dictionary examinan la base y resuelven las unidades registradas; no son botones de este panel.",
+          "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -8313,32 +8280,34 @@
           "related_lessons": [
             "06_api",
             "34_database"
-          ],
-          "speech_text": "Lee Note además de la definición principal. Un valor tridimensional ya expresado en unidades físicas no debe convertirse otra vez. Para documentar un proyecto concreto, las funciones de Python describe_database y export_dictionary examinan la base y resuelven las unidades registradas; no son botones de este panel."
+          ]
         },
         {
           "visual": "09_unknown_search",
-          "narration": "Una consulta sin coincidencias no muestra una definición. Significa que el diccionario no encontró una coincidencia, no que los datos no puedan contener una característica personalizada. Vuelve a un nombre conocido o a una idea más general; la ausencia de documentación no es un resultado científico.",
+          "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
           "hold_after": 0.7,
           "focus": [
             420,
             150,
             3020,
             450
-          ],
-          "speech_text": "Una consulta sin coincidencias no muestra una definición. Significa que el diccionario no encontró una coincidencia, no que los datos no puedan contener una característica personalizada. Vuelve a un nombre conocido o a una idea más general; la ausencia de documentación no es un resultado científico."
+          ]
         },
         {
           "visual": "11_actual_text_copy",
-          "narration": "Vuelve a Area, selecciona el texto de su definición y cópialo. La grabación verifica la selección realmente copiada. La interfaz no tiene acciones Run ni Export: copiar texto no equivale a crear mediante Python un archivo de diccionario específico del proyecto. Cierra la ventana al terminar; ningún análisis se ha modificado.",
+          "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database"
-          ],
-          "speech_text": "Vuelve a Area, selecciona el texto de su definición y cópialo. La grabación verifica la selección realmente copiada. La interfaz no tiene acciones Run ni Export: copiar texto no equivale a crear mediante Python un archivo de diccionario específico del proyecto. Cierra la ventana al terminar; ningún análisis se ha modificado."
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "63_small_multiples",
