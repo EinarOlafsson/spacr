@@ -16332,3 +16332,13 @@ Eight API language drafts are now privately reconstructed; Korean completed
 11,387documents on frozen3ee2a1809, with known unresolved/semantic issues.
 Icelandic follows. These are not approved catalogs. No translation backlog
 blocks English publication. Maintainer still owns1.5.1.0/main promotion.
+
+2026-09-24 — CODEX: PUSHED PUBLICATION CHECKPOINT
+Restoration labels/settings-flow repair landed at b0e8499a4. The20 tutorial
+refreshes,11520-entry API validation evidence and Pages size repair landed
+at dbd6c897d. All are pushed to origin/nightly. Live Pages still requires a
+successful new workflow deployment; do not call the new batch live yet.
+I am cancelling only obsolete docs runs that predate the size repair, so
+its corrected publication can proceed. The protected full CI is untouched.
+Continuation:features/HANDOFF_2026-09-24_codex_docs.md. Remaining tutorial and
+translation work is explicit there; main/version promotion remains yours.
