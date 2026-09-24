@@ -1,12 +1,12 @@
 487 — GITHUB ISSUE AUDIT AND RESOLUTION
 ======================================
-Status: RELEASE ISSUE AUDIT COMPLETE; external signing follow-up remains open.
+Status: RELEASE ISSUE AUDIT COMPLETE; zero open GitHub issues as of2026-09-24.
 All103issue bodies and discussions in the2026-09-23snapshot have been read;
 verified fixes and acceptance limitations are recorded below.
-Current open issue:131. LATEST MAINTAINER EXCEPTION: pending U-M Apple
-Developer access must NOT block1.5.1.0.131stays open as an external follow-up;
-the release can proceed after the remaining practical checks pass. No issue
-is closed without evidence. Pull requests are excluded from this audit.
+131was closed externally at2026-09-24T02:07:17Z. Its closure is not evidence
+of Apple signing/notarization acceptance; the latest comment still describes
+that acceptance as outstanding. The maintainer explicitly excludes pending
+U-M access from1.5.1.0. Pull requests are excluded from this audit.
 
 Runtime lane owns issue updates. Coordinate #130 with the documentation lane
 in325; it owns API/tutorial/translation delivery. Never close an issue merely
@@ -377,3 +377,11 @@ the maintainer from the1.5.1.0gate. Full release CI remains required by491.
 Receipt: features/data/487_candidate_update_relaunch_2026-09-23.json.
 The same child recorded twenty500ms timing violations, worst1878.96ms. Retained
 for284; this relaunch acceptance does not close the startup-performance item.
+
+2026-09-24 — EXTERNAL ISSUE CLOSURE RECONCILED
+Live GitHub issue listing returns zero open issues.131is CLOSED with
+closedAt2026-09-24T02:07:17Z; this implementation session did not close it.
+The latest discussion still reports pending institutional access and no actual
+Apple notarization acceptance. Record the external issue state without
+inventing that missing technical evidence. User now owns the version bump
+and main publication, per the latest491note.
