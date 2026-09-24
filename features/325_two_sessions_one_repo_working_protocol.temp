@@ -15817,3 +15817,55 @@ translation batches remain outside it. Its full-dialog/runtime-translation/
 tutorial/media/helper-caption acceptance selection is running now. Public
 source and translated catalog tests will report existing corpus defects
 honestly; item288's older coverage debt does not become a release feature.
+2026-09-24 — CODEX: RELEASE-REPAIR COMMIT AND NEXT VALIDATION
+Second batch is pushed as81a8d7472 (caption/layout/cohort/tutorial-report repairs).
+Rebased through286a11df9 with all appended notes preserved. Current work adds
+organism-specific API sections, fixes the PSF setting links to actual consumers,
+refreshes all settings-flow/consumer/notebook artifacts, and documents the five
+incoming required-parameter omissions. Exact census now9,523publiccallables /
+11,518APIentries: CellposeWorkbench.closeEvent plus newly documented PSF
+__post_init__ explain the two EnglishAPI entries since11,516. Required omissions
+fall to2,290; adding back inspect_torch:torch and removed demo_label_for_app:app_key
+reproduces the exact prior digest.15focused API/flow/PSF checks pass.
+
+The tooltip-animation entry in /tmp/spacr-e498-qt1.log was a worker crash
+(23:57:32, worker4291 lastseen2,606MiB), not an assertion showing clipped text.
+I am rerunning that exact test in a fresh capped process; no runtime layout
+change or weakened clipping check is warranted without a reproduction.
+The next three tutorial uploads passed5826/5826 SHA256 readbacks,5.89GB;
+immutable media4ab45a993e549a98dbe18a22e029b6a58f95787e. Hosted player checks
+are still running before the Pages-tree commit. Optional new media stays
+separate from your candidate repair cherry-picks.
+
+2026-09-24 — CODEX: THIRD RELEASE DOCS REPAIRS VALIDATED
+Strict English Sphinx build succeeds;11,518-entry English API audit and Help
+index currency pass. Rendered organism section IDs verified, then corrected
+all English/nine translated README and generated grid URLs to those real
+hyphenated anchors. Runtime destinations now resolve to separate practical
+Toxoplasma/Plasmodium/Candida sections. Source-bound category extraction also
+includes dynamically declared headings (76additional UI sources).
+
+All36 plaque calibration/growth heading/help translations pass actual runtime
+lookups and source gates in nine languages. Chinese nuclei_limit now includes
+the actual Replication default10; its prior review is retained as retired.
+Both cohort fixtures agree (sv1,677/fr1,673;759 later additions).10runtime/
+helper checks,32README/destination checks and15API/flow/PSF checks pass.
+The final animation/notebook batch passes403checks, including the exact
+animation-text-fit test reported as crashed in CI. No clipping reproduced;
+no tooltip implementation or test tolerance was changed. One test-sandbox
+warning reports another process writing QSettings while this process's own
+sandbox remained correct. Fifteen notebook files regenerated from current
+settings; all notebook contracts pass.
+
+Three-tutorial publication committed locally as42aa012f3: Agreement, Invasion
+and Replication.80hosted playback cases and14placeholder locale cases pass;
+5826/5826media hashes read back.76publication checks pass, the one corrected
+route-metadata assertion passes its rerun, and two translation-corpus checks
+remain registered/advisory. Canonical generated navigation supplies Toxoplasma
+breadcrumbs; the new26/27narrations also explicitly begin Home > Toxoplasma.
+
+Model Zoo's source is rewritten as seven practical steps, removing obsolete
+Cellpose-invert/recording-validation narration.28existing lesson scripts now
+rewritten; its fresh capture/narration remains owed. The source inventory
+registers352 stale localized reviews instead of treating them as current.
+No GPU job, release-candidate promotion or main push by this lane.

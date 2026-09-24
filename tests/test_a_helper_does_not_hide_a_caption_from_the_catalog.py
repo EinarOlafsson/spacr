@@ -249,3 +249,16 @@ def test_section_titles_are_extracted_without_persistence_keys(builder):
         call = ast.parse(expression, mode="eval").body
         assert [ast.literal_eval(node) for node in builder._candidate_arguments(call, "add_section")] == ["Annotation columns"]
     assert "Annotation columns" in builder.extract_static_ui_sources()
+
+
+def test_runtime_category_headings_have_source_bound_catalog_entries(builder):
+    """A Section title is translated before uppercasing it for display."""
+    import runpy
+
+    source = builder.canonical_sources()
+    english = runpy.run_path(str(QT / 'i18n_catalogs/en.py'))
+    for title in ('Scale & Time', 'Experimental Growth Estimates'):
+        assert title in source['ui']
+        assert title in english['UI_SOURCES']
+        assert english['SOURCE_HASHES'][('UI', title)] == builder._source_hash(title)
+    assert 'plaque_growth_reference_um' not in source['ui']

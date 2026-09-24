@@ -465,17 +465,6 @@
       "source_sha256": "36fffc47f5ebe1b9dcbd7e9e8d3039492175d2a1a689e8b86516474e4d39e44e",
       "text": "Load a measurement table, pivot it, and plot the summary.\n\n:param link: a private\n    :class:`~spacr.qt.linked_selection.LinkedSelection` for tests. ``None``\n    joins the process-wide one.\n:param parent: parent widget; ownership only.\n:param threaded: ``False`` runs every table read inline instead of on the\n    job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE\n    CALL; a user needs the window to keep painting while a large table\n    loads. The jobs are the same either way -- they still register, still\n    report failure through ``job_failed`` -- so only the waiting differs.\nBuild the screen: the pivot builder beside the shared filter.\n\n:param parent: parent widget, or ``None``.\n:param link: shared selection link.\n:param threaded: read the database on a worker thread. Set ``False`` in\n    tests so a load finishes before it returns."
     },
-    "378bb2e93c8866158ac97f69421efaa89a6f94932ab71138d602b7850ff36485": {
-      "source_blocks_sha256": [
-        "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
-        "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
-        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
-        "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
-        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb"
-      ],
-      "source_sha256": "378bb2e93c8866158ac97f69421efaa89a6f94932ab71138d602b7850ff36485",
-      "text": "Join each pair into one object, keeping the lower id.\n\nThe lower id survives so that a merge is stable however the pairs are\nordered, and so the object keeps the id that measurements and tracks\nalready know it by wherever that is the lower one.\n\n:param mask: the label image.\n:param pairs: pairs of ids, as :func:`split_candidates` returns them.\n:returns: a NEW mask; the one passed in is not touched."
-    },
     "386c04c8d17dfd3f15ee41f10d97903501a4c3daf6824f8b2fb75187b281c9c6": {
       "source_blocks_sha256": [
         "329ea05b2f4e1126b8af9d898a8793f8e00c43b1216256d8e9faaf4653214d50",
@@ -1129,6 +1118,15 @@
       ],
       "source_sha256": "806d469e7dade51420601194f4d72710b8c7479346a260cd366a5418e0e69d03",
       "text": "Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.\n\nUsually invoked internally by\n:func:`spacr.core.preprocess_generate_masks`, but callable directly\nwhen you only want the preprocessing half. Converts z-stacks to MIPs,\nrenames files into the Yokogawa/spacr layout, merges per-channel\nfolders into stacked ``.npy`` arrays with optional background\nsubtraction and percentile normalization, and (in ``test_mode``)\nemits example plots.\n\n:param settings: Preprocessing settings dict, canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_img_data`.\n    Key entries:\n\n    - ``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).\n    - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives\n      filename regex.\n    - ``custom_regex`` — override the built-in regex.\n    - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,\n      ``organelle_channel``, ``channels`` — channel selection.\n    - z-stacks are max-projected per field and channel during\n      ``_rename_and_organize_image_files``, before anything reaches\n      ``stack/``, so no setting gates it.\n    - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` and\n      the ``*_background`` cutoffs.\n    - ``normalize``, ``lower_percentile``, ``save_dtype``.\n    - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``,\n      ``plot``, ``cmap``, ``figuresize``.\n\n:returns: Tuple ``(settings, src)`` — ``settings`` with defaults\n    applied and ``src`` pointing at the folder containing the\n    generated ``stack/`` / ``channel_stack/`` outputs (the\n    downstream mask stage reads from here).\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import preprocess_img_data\n        settings = {\n            'src': '/data/plate01',\n            'metadata_type': 'cellvoyager',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'channels': [0, 1, 2, 3], 'normalize': True,\n        }\n        settings, src = preprocess_img_data(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — full pipeline\n    wrapper that calls this then generates masks."
+    },
+    "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5": {
+      "source_blocks_sha256": [
+        "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
+        "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d",
+        "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
+      ],
+      "source_sha256": "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5",
+      "text": "Adapt a count regressor to the object-head prediction interface.\n\n:param regressor: model with ``predict(crops)`` returning one finite,\n    nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The\n    caller selects this model's stain through ``classify_objects``'s\n    ``channels`` argument; separate models can use the same labels.\n\nCounts retain their regression values. Display classes use\n:func:`bin_parasite_count`; a regressor supplies no class probability."
     },
     "83ef50545b79dd5a83ff3ca679fec30ae7efdbe258670d0732e8e74daa53eae4": {
       "source_blocks_sha256": [
@@ -2009,6 +2007,14 @@
       ],
       "source_sha256": "d3e44fd748d5e81ff6522bce07f5fd05b875dd0147c9949974b386e614baf4fb",
       "text": "Resize a close-mark button for its current font and interface scale."
+    },
+    "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "Sourced organism guides, interactive cell diagrams and assay navigation.\n\nThe information and module panes scroll independently and share a horizontal\nsplitter. Existing assays keep their registry keys; proposals cannot run."
     },
     "d583b9ab248a802127faa65227c12fc0cbb16a275564563e055bdb28f3d57ca5": {
       "source_blocks_sha256": [

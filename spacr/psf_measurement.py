@@ -40,7 +40,11 @@ def prepare_measurement_psf(settings):
 
 
 def measurement_psf_signature(plan):
-    """Return stable JSON configuration, or None for standard intensities."""
+    """Return stable JSON configuration, or None for standard intensities.
+
+    :param plan: captured PSF processing plan, or None for original intensities.
+    :returns: deterministically ordered JSON provenance, or None without a plan.
+    """
     return (json.dumps(plan.provenance(), sort_keys=True, separators=(',', ':'))
             if plan is not None else None)
 

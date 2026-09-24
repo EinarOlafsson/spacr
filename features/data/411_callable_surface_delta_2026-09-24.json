@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "baseline": "ff4943c06b701a2f7d25f88160763f129f387ee3",
+  "source_head": "81a8d74723814733b3863dcb360d72a750647d04",
+  "before": {
+    "callables": 9494,
+    "categories": {
+      "function": 4232,
+      "dataclass_constructor": 503,
+      "constructor": 438,
+      "method": 4097,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9489,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9501,
+    "variant_buckets": {
+      "1": 9487,
+      "2": 7
+    },
+    "constructor_prose_variants": 437,
+    "constructors_with_prose": 437,
+    "parameters": 18850,
+    "required": 9708,
+    "signature_sha256": "ab8c17d3f7772de42f96c05c5d41cd463bcf82c92b14b6f2d48ab5961682f7cd"
+  },
+  "after": {
+    "callables": 9523,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4106,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9518,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9530,
+    "variant_buckets": {
+      "1": 9516,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18937,
+    "required": 9748,
+    "signature_sha256": "dbd2302745753c6368e7507dca7113f533bfeb38f8e997924b4eae3afa2681ea"
+  },
+  "added": [
+    "spacr._starplast.check_starplast_update",
+    "spacr._starplast.upgrade_starplast",
+    "spacr.plaque_growth.estimate_page",
+    "spacr.plaque_growth.estimates_from_settings",
+    "spacr.plaque_growth.largest_quarter",
+    "spacr.point_spread.PSF",
+    "spacr.point_spread.PSF.array",
+    "spacr.point_spread.PSF.provenance",
+    "spacr.point_spread.PSFResult",
+    "spacr.point_spread.ProcessingCancelled",
+    "spacr.point_spread.apply_psf",
+    "spacr.point_spread.gaussian_psf",
+    "spacr.point_spread.load_psf",
+    "spacr.point_spread.measured_psf",
+    "spacr.psf_measurement.measurement_psf_record",
+    "spacr.psf_measurement.measurement_psf_signature",
+    "spacr.psf_measurement.measurement_resume_settings",
+    "spacr.psf_measurement.prepare_measurement_psf",
+    "spacr.psf_measurement.validate_measurement_psf_history",
+    "spacr.psf_pipeline.PSFPlan",
+    "spacr.psf_pipeline.PSFPlan.apply",
+    "spacr.psf_pipeline.PSFPlan.provenance",
+    "spacr.psf_pipeline.prepare_psf",
+    "spacr.psf_pipeline.validate_psf_resume",
+    "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent",
+    "spacr.qt.starplast.StarplastUpdateCheckDialog.reject",
+    "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview",
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy"
+  ],
+  "removed": [
+    "spacr.qt.app.demo_label_for_app"
+  ],
+  "changed_signatures": {
+    "spacr.io.concatenate_and_normalize": {
+      "before": "spacr.io.concatenate_and_normalize\u0000function\u0000autoapi\u0000channels,illumination_session,save_dtype,settings,src\u0000channels,src\u0000channels,illumination_session,save_dtype,settings,src\u00000\u00001\u00000\u00000",
+      "after": "spacr.io.concatenate_and_normalize\u0000function\u0000autoapi\u0000channels,illumination_session,psf_session,save_dtype,settings,src\u0000channels,src\u0000channels,illumination_session,psf_session,save_dtype,settings,src\u00000\u00001\u00000\u00000"
+    },
+    "spacr.accelerator.capabilities": {
+      "before": "spacr.accelerator.capabilities\u0000function\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "after": "spacr.accelerator.capabilities\u0000function\u0000autoapi\u0000found\u0000\u0000found\u00000\u00001\u00000\u00000"
+    },
+    "spacr.accelerator.inspect_torch": {
+      "before": "spacr.accelerator.inspect_torch\u0000function\u0000autoapi\u0000torch\u0000torch\u0000torch\u00000\u00001\u00000\u00000",
+      "after": "spacr.accelerator.inspect_torch\u0000function\u0000autoapi\u0000device_names,include_cuda,torch\u0000torch\u0000device_names,include_cuda,torch\u00000\u00001\u00000\u00000"
+    },
+    "spacr.qt.detect_chain.Chain": {
+      "before": "spacr.qt.detect_chain.Chain\u0000namedtuple_constructor\u0000autoapi\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,sharpen,sharpen_amount,sharpen_radius,split\u0000\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,sharpen,sharpen_amount,sharpen_radius,split\u00000\u00001\u00000\u00000",
+      "after": "spacr.qt.detect_chain.Chain\u0000namedtuple_constructor\u0000autoapi\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,psf,psf_error,psf_iterations,psf_operation,psf_sampling_um,sharpen,sharpen_amount,sharpen_radius,split\u0000\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,psf,psf_error,psf_iterations,psf_operation,psf_sampling_um,sharpen,sharpen_amount,sharpen_radius,split\u00000\u00001\u00000\u00000"
+    },
+    "spacr.qt.detect_chain.prepare": {
+      "before": "spacr.qt.detect_chain.prepare\u0000function\u0000autoapi\u0000chain,image\u0000chain,image\u0000chain,image\u00000\u00001\u00000\u00000",
+      "after": "spacr.qt.detect_chain.prepare\u0000function\u0000autoapi\u0000cancel,chain,image\u0000chain,image\u0000cancel,chain,image\u00000\u00001\u00000\u00000"
+    },
+    "spacr.qt.starplast.StarplastInstallDialog": {
+      "before": "spacr.qt.starplast.StarplastInstallDialog\u0000constructor\u0000autoapi\u0000job,parent,root\u0000\u0000job,parent,root\u00000\u00001\u00000\u00001",
+      "after": "spacr.qt.starplast.StarplastInstallDialog\u0000constructor\u0000autoapi\u0000job,parent,root,upgrade\u0000\u0000job,parent,root,upgrade\u00000\u00001\u00000\u00001"
+    },
+    "spacr.qt.widgets.live_preview.PreviewRequest": {
+      "before": "spacr.qt.widgets.live_preview.PreviewRequest\u0000dataclass_constructor\u0000autoapi\u0000cellprob,channels,diameter,flow_threshold,image,model,object_types,postprocess_settings,preprocess_settings\u0000image\u0000cellprob,channels,diameter,flow_threshold,image,model,object_types,postprocess_settings,preprocess_settings\u00000\u00001\u00000\u00000",
+      "after": "spacr.qt.widgets.live_preview.PreviewRequest\u0000dataclass_constructor\u0000autoapi\u0000cancel,cellprob,channels,diameter,flow_threshold,image,model,model_note,object_types,postprocess_settings,preprocess_settings,provenance\u0000image\u0000cancel,cellprob,channels,diameter,flow_threshold,image,model,model_note,object_types,postprocess_settings,preprocess_settings,provenance\u00000\u00001\u00000\u00000"
+    },
+    "spacr.plaque_papers.Annotation": {
+      "before": "spacr.plaque_papers.Annotation\u0000dataclass_constructor\u0000autoapi\u0000approved,column,condition,conflict,conflict_terms,label_text,legend_text,near,panel,region,row,source,strength\u0000region\u0000approved,column,condition,conflict,conflict_terms,label_text,legend_text,near,panel,region,row,source,strength\u00000\u00001\u00000\u00000",
+      "after": "spacr.plaque_papers.Annotation\u0000dataclass_constructor\u0000autoapi\u0000approved,column,condition,conflict,conflict_terms,formation_hours,label_text,legend_text,near,panel,pixels_per_um,region,row,source,strength\u0000region\u0000approved,column,condition,conflict,conflict_terms,formation_hours,label_text,legend_text,near,panel,pixels_per_um,region,row,source,strength\u00000\u00001\u00000\u00000"
+    },
+    "spacr.pipeline_v2.stream_masks_from_stack": {
+      "before": "spacr.pipeline_v2.stream_masks_from_stack\u0000function\u0000autoapi\u0000batch_fields,cellprob_threshold,channels_for_cellpose,diameter,flow_threshold,illumination_session,keep_npz,mask_channel_name,min_size,model_name,npz_dir,object_type,postprocess_settings,resample,stacks\u0000stacks\u0000batch_fields,cellprob_threshold,channels_for_cellpose,diameter,flow_threshold,illumination_session,keep_npz,mask_channel_name,min_size,model_name,npz_dir,object_type,postprocess_settings,resample,stacks\u00000\u00001\u00000\u00000",
+      "after": "spacr.pipeline_v2.stream_masks_from_stack\u0000function\u0000autoapi\u0000batch_fields,cellprob_threshold,channels_for_cellpose,diameter,flow_threshold,illumination_session,keep_npz,mask_channel_name,min_size,model_name,npz_dir,object_type,postprocess_settings,psf_session,resample,stacks\u0000stacks\u0000batch_fields,cellprob_threshold,channels_for_cellpose,diameter,flow_threshold,illumination_session,keep_npz,mask_channel_name,min_size,model_name,npz_dir,object_type,postprocess_settings,psf_session,resample,stacks\u00000\u00001\u00000\u00000"
+    },
+    "spacr.object_classifier.ParasiteCountHead": {
+      "before": "spacr.object_classifier.ParasiteCountHead\u0000constructor\u0000autoapi\u0000regressor\u0000regressor\u0000regressor\u00000\u00001\u00000\u00000",
+      "after": "spacr.object_classifier.ParasiteCountHead\u0000constructor\u0000autoapi\u0000regressor\u0000regressor\u0000regressor\u00000\u00001\u00000\u00001"
+    },
+    "spacr.plaque_papers.measure_figure_folder": {
+      "before": "spacr.plaque_papers.measure_figure_folder\u0000function\u0000autoapi\u0000annotations,confidence,confirm_each,detect,detector,dst,imgsz,legends,plate_format,read_text,segment,segmenter,src,text_options\u0000src\u0000annotations,confidence,confirm_each,detect,detector,dst,imgsz,legends,plate_format,read_text,segment,segmenter,src,text_options\u00000\u00001\u00000\u00000",
+      "after": "spacr.plaque_papers.measure_figure_folder\u0000function\u0000autoapi\u0000annotations,confidence,confirm_each,detect,detector,dst,formation_hours,growth_settings,imgsz,legends,pixels_per_um,plate_format,read_text,segment,segmenter,src,text_options\u0000src\u0000annotations,confidence,confirm_each,detect,detector,dst,formation_hours,growth_settings,imgsz,legends,pixels_per_um,plate_format,read_text,segment,segmenter,src,text_options\u00000\u00001\u00000\u00000"
+    }
+  },
+  "exact_subtraction_restores_baseline": true,
+  "omissions_before": 2292,
+  "omissions_after": 2290,
+  "added_omissions": [],
+  "removed_omissions": [
+    "spacr.accelerator.inspect_torch:torch",
+    "spacr.qt.app.demo_label_for_app:app_key"
+  ],
+  "omission_repair": {
+    "remaining": 2290,
+    "omitted_callables": {
+      "method": 842,
+      "function": 754,
+      "dataclass_constructor": 42,
+      "namedtuple_constructor": 2
+    },
+    "omitted_parameters": {
+      "method": 1018,
+      "function": 1130,
+      "dataclass_constructor": 130,
+      "namedtuple_constructor": 12
+    },
+    "sha256": "ead403e647ce84d156ac790a2747c81da8da8e69f9370a92aee52606058727ee",
+    "restored_previous_digest": true
+  }
+}

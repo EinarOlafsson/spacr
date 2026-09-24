@@ -212,17 +212,6 @@ def test_find_menu_answers_none_for_a_bare_window(qtbot):
     assert find_menu(bare, "Nothing") is None
 
 
-#: The one remaining site, and why it is still here.
-#:
-#: ``AppScreen._open_demos_menu`` pops the Demos menu on click. It has the
-#: same lifetime hazard as the two fixed here — it walks the bar's action
-#: list and calls ``QAction.menu()`` — but it is inside a file this change
-#: does not own, and it survives in practice only because it uses the menu
-#: within the same statement. Named rather than silently skipped so it is a
-#: known debt with a test attached rather than a rediscovery.
-_KNOWN_MENU_WALKERS = {"app_screen.py"}
-
-
 def _menu_bar_action_walkers():
     """Every ``for x in <...>.menuBar().actions()`` in the Qt package.
 
@@ -263,31 +252,22 @@ def test_no_qt_module_reaches_a_menu_through_the_action_walk():
     ``menuBar().actions()`` — because the QMenu it hands back dies with the
     QAction wrapper it came off.
     """
-    offenders = [o for o in _menu_bar_action_walkers()
-                 if o.split(":")[0] not in _KNOWN_MENU_WALKERS]
+    offenders = _menu_bar_action_walkers()
     assert not offenders, (
         "these walk the menu bar's action list to find a menu; use "
         f"`bar.findChildren(QMenu)` instead: {offenders}")
 
 
-def test_the_known_menu_walker_is_still_the_only_one():
-    """Fails when the last site is fixed, so the exemption is removed with
-    it rather than outliving it."""
-    remaining = {o.split(":")[0] for o in _menu_bar_action_walkers()}
-    assert remaining == _KNOWN_MENU_WALKERS, (
-        f"update _KNOWN_MENU_WALKERS: it now reads {sorted(remaining)}")
-
-
 def test_the_tutorial_menu_target_uses_the_safe_lookup(window):
     from spacr.qt.tutorial.scripts import _find_menu, _menu_target
-    assert _find_menu(window, "Demos") is not None
-    bar, point = _menu_target(window, "Demos")
+    assert _find_menu(window, "Help") is not None
+    bar, point = _menu_target(window, "Help")
     assert bar is window.menuBar()
     assert point is not None and point[0] > 0
 
 
-def test_the_tutorial_demos_step_resolves_a_live_menu(window):
-    from spacr.qt.tutorial.scripts import _open_demos_menu
-    menu = _open_demos_menu(window)
-    assert menu is not None
-    assert menu.title().replace("&", "") == "Demos"
+def test_the_removed_demos_menu_is_not_offered_by_the_walkthrough(window):
+    from spacr.qt.tutorial import scripts
+
+    assert scripts._find_menu(window, "Demos") is None
+    assert scripts._open_demos_menu(window) is None

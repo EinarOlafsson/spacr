@@ -4095,6 +4095,7 @@ def canonical_sources() -> dict[str, object]:
         DEFAULT_INSTRUCTION,
     )
     from spacr.qt.screens.settings_model import (
+        _APP_CATEGORY_SPECS,
         _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
         _REGRESSION_MENU_UI_SOURCES,
@@ -4229,6 +4230,8 @@ def canonical_sources() -> dict[str, object]:
             if actual != generic:
                 labels[f"{app_key}.{key}"] = actual
     ui_sources = set(extract_static_ui_sources())
+    ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
+                      for title, _keys in sections)
     # Backend prose lives outside spacr/qt and reaches the install dialog
     # and model card through registry fields, not literal widget arguments.
     from spacr._segmentation_backends import _SPECS as backend_specs

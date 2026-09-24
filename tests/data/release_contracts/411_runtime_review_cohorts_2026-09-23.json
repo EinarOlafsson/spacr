@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1673,
+      "current_total": 1677,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 755,
+      "later_distinct_additions": 759,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -222,20 +222,26 @@
           "sha256": "db64546daf8d27be84b00c043a55148dbbdce61a6e7ce735083108354247055b"
         },
         {
+          "name": "2026-09-24-plaque-calibration.json",
+          "records": 4,
+          "sources": 4,
+          "sha256": "8a978e8ae6f30dea90d82f3813d730b03c99bcc4c75093529048c76c95510baa"
+        },
+        {
           "name": "2026-09-24-release-captions.json",
           "records": 5,
           "sources": 5,
           "sha256": "e5763aa419f5d0d8ca15cee550a4308f2873f8266673214699c22f35cef0d2a2"
         }
       ],
-      "added_sources_sha256": "ea77157ad2eb1e036174a63bedc38c0b9546e2df3d4ca0ef23095686e0112f6d"
+      "added_sources_sha256": "6c6761ae6d1b489821d6c6c67ea324ced857e810b582542115c091f590044f89"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1669,
+      "current_total": 1673,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 755,
+      "later_distinct_additions": 759,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -449,13 +455,19 @@
           "sha256": "8be13f999c8c7e96e38fade87927f77e2997ed2cac6cf9c9920749964805757b"
         },
         {
+          "name": "2026-09-24-plaque-calibration.json",
+          "records": 4,
+          "sources": 4,
+          "sha256": "514fbea73a0c08b255cf3aacc91f9ad7c96868cc570c24aec655f797cca41724"
+        },
+        {
           "name": "2026-09-24-release-captions.json",
           "records": 5,
           "sources": 5,
           "sha256": "0e79aed050f6f203550b5dcc983ead58c80087914ef704f57477f313bbe1b998"
         }
       ],
-      "added_sources_sha256": "ea77157ad2eb1e036174a63bedc38c0b9546e2df3d4ca0ef23095686e0112f6d"
+      "added_sources_sha256": "6c6761ae6d1b489821d6c6c67ea324ced857e810b582542115c091f590044f89"
     }
   }
 }

@@ -29346,10 +29346,10 @@
       "source_blocks_sha256": [
         "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
         "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d",
-        "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
+        "d662a3ce69e8b037b03499dcb3956673a3b841c37a6093913f9a6a6d4ee358ec"
       ],
-      "source_sha256": "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5",
-      "text": "Adapt a count regressor to the object-head prediction interface.\n\n:param regressor: model with ``predict(crops)`` returning one finite,\n    nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The\n    caller selects this model's stain through ``classify_objects``'s\n    ``channels`` argument; separate models can use the same labels.\n\nCounts retain their regression values. Display classes use\n:func:`bin_parasite_count`; a regressor supplies no class probability."
+      "source_sha256": "3de8cf64d115bc96cb8a735e7aeca57e3754f225bc116724cda585bc977ae8d0",
+      "text": "Adapt a count regressor to the object-head prediction interface.\n\n:param regressor: model with ``predict(crops)`` returning one finite,\n    nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The\n    caller selects this model's stain through ``classify_objects``'s\n    ``channels`` argument; separate models can use the same labels.\n\nCounts retain their regression values. Display classes use\n:func:`bin_parasite_count`; a regressor supplies no class probability.\nRetain the stain-specific count regressor without loading or fitting it."
     },
     "spacr.object_classifier.ParasiteCountHead.predict": {
       "source_blocks_sha256": [
@@ -35741,6 +35741,13 @@
       "source_sha256": "6c5c724d3f844481a4e451b5cf561f6a0eca42a9f0434c7144af144c5fb33a9e",
       "text": "An immutable, normalized kernel whose bytes identify the actual PSF.\n\n:param shape: odd spatial dimensions, YX or ZYX.\n:param sampling_um: pixel/voxel spacing in the same axis order, in µm.\n:param values: C-ordered little-endian float32 normalized kernel bytes.\n:param source: ``measured`` or ``gaussian approximation``.\n:param details_json: JSON object holding acquisition/file or calculation\n    provenance. Use :func:`measured_psf`, :func:`gaussian_psf` or\n    :func:`load_psf` to construct a kernel from ordinary arrays/files."
     },
+    "spacr.point_spread.PSF.__post_init__": {
+      "source_blocks_sha256": [
+        "3a5a6a9c097c67bb7bc68eceff8c99df8ba12f65eedee4c37eeadf8fefda0e9a"
+      ],
+      "source_sha256": "3a5a6a9c097c67bb7bc68eceff8c99df8ba12f65eedee4c37eeadf8fefda0e9a",
+      "text": "Validate serialized kernel geometry, calibration and immutable float32 values."
+    },
     "spacr.point_spread.PSF.array": {
       "source_blocks_sha256": [
         "2c8f09cc2576919eacf7a3da85b71d1a51e0f94da947b2589d63c692b90dbf5f"
@@ -35757,10 +35764,12 @@
     },
     "spacr.point_spread.PSFResult": {
       "source_blocks_sha256": [
-        "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e"
+        "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e",
+        "bedcfc78b387bef580dfc87e24fd678b013d8e3f41ae246d72258ceaedbab501",
+        "86b5ddd917e776865af70f6b2da0ba231ce0d8af64fd004ffc29658d4458631e"
       ],
-      "source_sha256": "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e",
-      "text": "Processed float32 image and a JSON-safe processing receipt."
+      "source_sha256": "c14e4bf7d18f02c61959042106137bebeea07b02771a3507b6c99e79ce4ee845",
+      "text": "Processed float32 image and a JSON-safe processing receipt.\n\n:param image: processed image with the input's spatial shape, as float32.\n:param provenance: JSON-safe kernel and processing settings for this result."
     },
     "spacr.point_spread.ProcessingCancelled": {
       "source_blocks_sha256": [
@@ -37528,10 +37537,12 @@
     },
     "spacr.psf_measurement.measurement_psf_signature": {
       "source_blocks_sha256": [
-        "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85"
+        "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85",
+        "ca2b908d57586cce1447e905b06176e9fa908126a088824d0ef6272a50f07b18",
+        "d9448e002f239f4398ffb51b576bdbdbac31f01e747869ab504efe4d59e80904"
       ],
-      "source_sha256": "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85",
-      "text": "Return stable JSON configuration, or None for standard intensities."
+      "source_sha256": "9c7dc934c21992425ae4a7f0e9b6df0a07d8055c40b6e78cdad2b5cfd0b9dd5d",
+      "text": "Return stable JSON configuration, or None for standard intensities.\n\n:param plan: captured PSF processing plan, or None for original intensities.\n:returns: deterministically ordered JSON provenance, or None without a plan."
     },
     "spacr.psf_measurement.measurement_resume_settings": {
       "source_blocks_sha256": [
@@ -59184,11 +59195,17 @@
     },
     "spacr.qt.screens.organism_screen": {
       "source_blocks_sha256": [
-        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
-        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+        "16b23bf825a6dddbe7fed8a730ad1fb22ac92a24bd33e231101c96026e518850",
+        "3118d2e8276129f10ee74636bcdb2192718366011aca521ca285e57d59657888",
+        "3ff5936a6dc0cecc6db54a2188e880f2e27a3e40bb4462514d23ef2293825b1d",
+        "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
+        "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
+        "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
+        "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
+        "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f"
       ],
-      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
-      "text": "Sourced organism guides, interactive cell diagrams and assay navigation.\n\nThe information and module panes scroll independently and share a horizontal\nsplitter. Existing assays keep their registry keys; proposals cannot run."
+      "source_sha256": "d6ea499bb323db285942caec63ac26c956f2d8652b32ca85cdd3ab8d1974ad8b",
+      "text": "Explore organism guides and open the available image-analysis modules.\n\nFrom Home, choose an organism to read its introduction, explore the cell\ndiagram and browse its assay tiles. These guide pages require no input files\nand produce no analysis files. Drag the divider to give the information or\nmodule pane more space; each pane scrolls independently. Hover over a diagram\ncomponent to read its description, select several components to keep them\nhighlighted, and use Clear components to reset the selection.\n\n.. _spacr.qt.screens.organism_screen.toxoplasma:\n\nToxoplasma\n----------\nOpen Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen,\nInvasion Assay or Replication Assay. The selected module provides its input\nselectors, settings, preview and Run controls. Use its Test data control when\nan example is available. Plaque Assay starts with images; the other assays\nuse the corresponding measurement tables and object relationships. Follow\neach module's input help before running, then open the results in its selected\noutput folder. Starplast opens a separate application for exploring the\nToxoplasma knowledge map; its first launch offers installation.\n\n.. _spacr.qt.screens.organism_screen.plasmodium:\n\nPlasmodium\n----------\nOpen Home > Plasmodium to browse blood-stage, liver-stage, motility and\ncompound-response topics. Explore the apicomplexan diagram and follow the\nPlasmoDB or UniProt links for organism-specific information. The assay tiles\ncurrently say Coming soon and are disabled; this page has no runnable\nPlasmodium-specific analysis and writes no results. To work with images now,\nreturn to Home and use the general segmentation and measurement modules with\nappropriate images, channels and masks for your experiment.\n\n.. _spacr.qt.screens.organism_screen.candida:\n\nCandida\n-------\nOpen Home > Candida to browse morphology, filamentation, biofilm and host-cell\ninteraction topics. Explore the budding-yeast diagram and follow the Candida\nGenome Database or UniProt links for gene and protein information. The assay\ntiles currently say Coming soon and are disabled; this page requires no data\nand writes no analysis files. For an available image workflow, return to Home\nand select the general segmentation and measurement modules, choosing masks\nand imaging channels suited to your species and experimental readout."
     },
     "spacr.qt.screens.organism_screen.OrganismScreen": {
       "source_blocks_sha256": [
@@ -62000,6 +62017,14 @@
       "source_sha256": "7424b3fbb3b53591c1e51c1b900a88ac71a02c7f52fb5a9849aebf0184e1cbd4",
       "text": "Point the Apply tab at the checkpoint the Train tab produced.\n\nDoes nothing until a training run has actually written one: a\n``custom_model`` naming a file that is not there stops\n:func:`spacr.spacr_cellpose.identify_masks_finetune` before it\nsegments anything, which would break \"run cpsam over this folder\"\nfor everyone who has never trained a model.\n\n:returns: the checkpoint path that was set, or ``\"\"``."
     },
+    "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "39978af95b31704b6afa7e2cf74917594ee71025b507895a7571b3c9a223d393",
+        "a872c9477219a4a627e81da1575725204e8313e16eafa2eeaaa43a3173520b64"
+      ],
+      "source_sha256": "afbfea2ba44ed9ddb4c07f6d8d12b7d3cba4e0abc737c4e040855c052ca3a33b",
+      "text": "Close both module pages before their owning workbench is destroyed.\n\n:param event: Qt close event; ignored when a page is finishing a write."
+    },
     "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.current_settings": {
       "source_blocks_sha256": [
         "0fb5fe6feaf7fe0b5160a11f1b9c7f0587f27df63088fa79d80db1a4cd861f7c"
@@ -64138,10 +64163,12 @@
     },
     "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent": {
       "source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8"
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-      "text": "Prevent destruction of an active check thread."
+      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
+      "text": "Prevent destruction of an active check thread.\n\n:param event: Qt close event; ignored while the check is being cancelled.\n:returns: None."
     },
     "spacr.qt.starplast.StarplastUpdateCheckDialog.reject": {
       "source_blocks_sha256": [
@@ -89152,10 +89179,12 @@
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy": {
       "source_blocks_sha256": [
-        "24abecb6595f86a9bd6ba59676669d4c565637d0f4ceb6bdc395579fcaf29c70"
+        "24abecb6595f86a9bd6ba59676669d4c565637d0f4ceb6bdc395579fcaf29c70",
+        "2e9149350c11ba65e5495bc503a0232f952c989f31df6464ed076872cbe4a7f1",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "24abecb6595f86a9bd6ba59676669d4c565637d0f4ceb6bdc395579fcaf29c70",
-      "text": "Keep rerun controls disabled until cancelled inference has exited."
+      "source_sha256": "a835627c92d6bfa2de11ae4b7599ad1b2ef8a793f21ab29de8ac4f40c5caa2e8",
+      "text": "Keep rerun controls disabled until cancelled inference has exited.\n\n:param busy: requested busy state; active preview jobs also keep controls\n    disabled until their workers retire.\n:returns: None."
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_propagate_callback": {
       "source_blocks_sha256": [

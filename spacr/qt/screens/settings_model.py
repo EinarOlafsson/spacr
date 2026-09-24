@@ -3678,6 +3678,9 @@ def _mapped_api_target(key: str, app_key: str = "") -> tuple[str, str]:
 #: point degrades to today's plain module link instead of producing a
 #: fragment that scrolls nowhere.
 _APP_API_ANCHOR = {
+    "toxoplasma": "spacr.qt.screens.organism_screen.toxoplasma",
+    "plasmodium": "spacr.qt.screens.organism_screen.plasmodium",
+    "candida": "spacr.qt.screens.organism_screen.candida",
     "mask": "spacr.core.preprocess_generate_masks",
     "umap": "spacr.core.generate_image_umap",
     "analyze_plaques": "spacr.submodules.analyze_plaques",
@@ -3693,7 +3696,11 @@ def _module_level_anchor(app_key: str, module: str) -> str:
     if not anchor or not module:
         return ""
     expected = f"spacr.{module.replace('/', '.')}."
-    return anchor if anchor.startswith(expected) else ""
+    if not anchor.startswith(expected):
+        return ""
+    if app_key in {"toxoplasma", "plasmodium", "candida"}:
+        return anchor.replace(".", "-").replace("_", "-")
+    return anchor
 
 
 #: Settings that begin "batch_" and have nothing to do with batch-effect
@@ -3734,7 +3741,7 @@ def api_docs_url(
         return plugin_app.docs_url
     anchor = ""
     chosen_by_hand = True
-    if app_key == "measure" and key.startswith("psf_"):
+    if key == "psf_measurement_source":
         module, anchor = "psf_measurement", "spacr.psf_measurement.prepare_measurement_psf"
     elif key.startswith("psf_"):
         module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_psf"

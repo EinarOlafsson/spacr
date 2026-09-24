@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "date": "2026-09-24",
+  "baseline": "81a8d74723814733b3863dcb360d72a750647d04",
+  "english_api": {
+    "before": 11516,
+    "after": 11518,
+    "added": [
+      "spacr.point_spread.PSF.__post_init__",
+      "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent"
+    ],
+    "removed": [],
+    "changed": [
+      "spacr.object_classifier.ParasiteCountHead",
+      "spacr.point_spread.PSFResult",
+      "spacr.psf_measurement.measurement_psf_signature",
+      "spacr.qt.screens.organism_screen",
+      "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent",
+      "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy"
+    ]
+  },
+  "callable_audit": "411_callable_surface_delta_2026-09-24.json",
+  "required_parameter_omissions": 2290,
+  "new_omissions_admitted": 0,
+  "organism_destinations": {
+    "anchors": [
+      "spacr-qt-screens-organism-screen-toxoplasma",
+      "spacr-qt-screens-organism-screen-plasmodium",
+      "spacr-qt-screens-organism-screen-candida"
+    ],
+    "rendered_html_sha256": "3520bb0fa9b2498546a4492fc1c3d08bca4d4f16d38a0a73ed996ff92a41e57c",
+    "readmes_and_generated_grid_verified": true
+  },
+  "translations": {
+    "plaque_records": 36,
+    "nuclei_limit_chinese_source_updated": true,
+    "original_chinese_review_retained": true,
+    "native_speaker_signoff": false,
+    "reviews": {
+      "sv": {
+        "records": 4,
+        "sha256": "8a978e8ae6f30dea90d82f3813d730b03c99bcc4c75093529048c76c95510baa"
+      },
+      "de": {
+        "records": 4,
+        "sha256": "c1f6c3b722116a66feb433b1b76679019073beddb86b5b2d7eb87013d98fbace"
+      },
+      "es": {
+        "records": 4,
+        "sha256": "43a98f901354f63a879349532a73305b7e955f73e14e46e955f2e181d38c7753"
+      },
+      "zh_CN": {
+        "records": 4,
+        "sha256": "5a7228b1273b98bd092be404413c537088c7b1a22bf9671c27a5f90b2a538965"
+      },
+      "pt": {
+        "records": 4,
+        "sha256": "817618cdb1df45574b60572cd76ff4176f8c0c3242d0922e92a9fdb891db4322"
+      },
+      "hi": {
+        "records": 4,
+        "sha256": "97fd85e9402b5f85c262c92c28bd2eb03fbcb1afa2d2ee3274896d1d9c28ba04"
+      },
+      "ko": {
+        "records": 4,
+        "sha256": "899ee0a2f5e2bdedf90d5d1588a82f97c9ac057be660b075236d696dcce324c6"
+      },
+      "is": {
+        "records": 4,
+        "sha256": "6baef2a4a8d84e6761d287b02782d2f9e119036d28c423029457590c8a6bb537"
+      },
+      "fr": {
+        "records": 4,
+        "sha256": "514fbea73a0c08b255cf3aacc91f9ad7c96868cc570c24aec655f797cca41724"
+      }
+    }
+  },
+  "checks": {
+    "api_flow_psf_passed": 15,
+    "readme_destinations_passed": 32,
+    "runtime_cohort_helper_passed": 10,
+    "strict_sphinx_build_passed": true,
+    "logs_sha256": {
+      "release-api-flow-final-tests.log": "c470318dc4e57f867a8d7a60d1ef8df0ce81c636518fcadf7391df0e0dce54ef",
+      "organism-readme-final-tests.log": "60a6110fadc1b1ed6297761c879b04aad20bd2967364ee6cc0305cca70eb4467",
+      "organism-api-sections-build.log": "6f1a80bf04e637cef4e9418daf9111bdc06743c327385118f96479e62f2910c8",
+      "plaque-category-cohort-tests.log": "73d3093258381eb7ecd310bdd8c7fd2ed0d1de9f7440954fb618392d0bcbeeee",
+      "plaque-category-review.log": "603300e3280b49426c59f0d502b3b778dcaf09b68bdb5900ede8fe7946603b29",
+      "assay-publication-final-tests.log": "b5e90128e16a162ebcc49e82e51278f2c2ac2cad216411dca798efa2625c8f5d",
+      "assay-route-final-rerun.log": "b099717b0f4a9f62539b63fe5a8ebc7ae0aa524d60e983fbf07d0b6e38a1bf22"
+    },
+    "animation_and_notebook_passed": 403,
+    "english_api_audit_passed": true,
+    "help_index_current": true
+  },
+  "remaining": "Four new tutorial gaps and existing source/media/translation review work remain open."
+}

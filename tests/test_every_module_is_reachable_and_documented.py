@@ -16,7 +16,6 @@ walks, so it cannot claim a fold the GUI does not install.
 """
 from __future__ import annotations
 
-from importlib import import_module
 from pathlib import Path
 
 import pytest
@@ -31,14 +30,12 @@ FOLDS_PAGE = ROOT / "docs" / "source" / "_generated" / "folded_modules.rst"
 def routes():
     """``(every key, tiled, folded, help)`` after full registration."""
     import spacr.qt
-    from spacr.qt.app import APPS, _HELP_MODULES, tiled_apps
-    from spacr.qt.screens.map_barcodes import FOLD_HOST_MODULES
+    from spacr.qt.app import APPS, _HELP_MODULES, tiled_apps, folded_children
 
     spacr.qt.register_self_registering_modules()
     folded = {}
-    for host_key, module_name in FOLD_HOST_MODULES.items():
-        module = import_module(f"spacr.qt.screens.{module_name}")
-        for key in getattr(module, "FOLDED_APPS", ()):
+    for host_key, children in folded_children().items():
+        for key in children:
             folded[key] = host_key
     return (
         {row[0] for row in APPS},

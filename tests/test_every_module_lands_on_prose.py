@@ -37,6 +37,7 @@ tomorrow that lands on nothing fails immediately.
 from __future__ import annotations
 
 import importlib
+import re
 import sys
 from pathlib import Path
 
@@ -254,7 +255,12 @@ def test_every_anchor_points_at_something_that_exists(tiles):
         except Exception as exc:                             # noqa: BLE001
             missing.append(f"{key} -> {module} will not import ({exc})")
             continue
-        if not hasattr(mod, symbol):
+        targets = re.findall(r"^\.\. _([^:]+):$", mod.__doc__ or "", re.M)
+        explicit_target = anchor in {
+            re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-")
+            for label in targets
+        }
+        if not hasattr(mod, symbol) and not explicit_target:
             missing.append(f"{key} -> {anchor} does not exist")
     assert not missing, "\n  ".join(
         ["these tile anchors name something that is not there:"] + missing)
