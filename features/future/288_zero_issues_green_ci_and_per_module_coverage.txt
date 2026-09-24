@@ -5025,3 +5025,30 @@ workflow/generator cohort passes55. These are scoped fixes; the full manual
 CI remains red. Source/translation/retirement and rendered-link evidence is
 recorded in411_pipeline_details_and_workflow_refresh_2026-09-23.json. Incoming
 linked-help changes still need post-rebase verification.
+
+2026-09-24 — COVERAGE-SHARD QT CRASH REPRODUCED AND REPAIRED
+The frozen06a7 coverage-shard0 failure is now reproduced twice under gdb:
+collect its actual32-file batch, then execute worker0's130ordered tests.
+Both fault at the same settings-CSV drop. The GUI native stack stops in
+QAbstractAnimation::stop while a QThread performs automatic generation-2
+collection; gdb identifies the cleared Python object as SettingsWidgets.
+An earlier815-test replay wrongly included the preceding fresh pytest
+process. Its passing result is NOT evidence against this reproduction.
+
+Normal app startup already installs spacr.qt.gc_policy. pytest-qt did not.
+Enabling that existing policy on frozen06a7 makes the identical130-test
+replay pass. The shared qapp fixture now installs/uninstalls the runtime
+policy; test boundaries restore it after policy-specific tests. No runtime
+source changed. The deliberate worker-collection counterexample now runs
+in a fresh Python-only subprocess, so it cannot collect earlier Qt objects.
+Its assertions are stronger: all20destructors run on the worker. A mocked
+wedged timer is restored before fixture cleanup instead of leaving a live
+policy timer with automatic GC enabled afterward.
+
+Validation on Qt6.11.2/Python3.12.4, CPU/6GiB/no swap:88focused checks pass;
+the130-test native replay passes with the actual fixture change; the complete
+original662-test batch passes with coverage and two loadfile workers in
+154.80seconds. Receipt:data/288_qt_gc_worker_replay_2026-09-24.json preserves
+collection files, exact node order, native observations and log hashes.
+This closes the reproduced shard0 crash, not all CI: other native failures
+have not individually been replayed, and the frozen full run is still red.

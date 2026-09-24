@@ -21,6 +21,10 @@ crash: **the collecting thread runs the destructors.**
 from __future__ import annotations
 
 import gc
+import inspect
+import subprocess
+import sys
+import textwrap
 import threading
 
 import pytest
@@ -29,8 +33,11 @@ from spacr.qt import gc_policy
 
 
 @pytest.fixture(autouse=True)
-def _restore_policy():
-    """Never leave automatic collection off for the rest of the suite."""
+def _restore_policy(_the_widget_tree_does_not_outgrow_the_session):
+    """Exercise installation from a clean state after the suite's setup."""
+    gc_policy.uninstall()
+    if not gc.isenabled():
+        gc.enable()
     yield
     gc_policy.uninstall()
     if not gc.isenabled():
@@ -55,45 +62,27 @@ def test_a_worker_thread_collection_runs_destructors_on_that_worker():
     thread that CREATED the object, a worker-thread collection would be
     harmless and no policy would be needed.
     """
-    destroyed_on = []
-
-    # AUTOMATIC COLLECTION IS WHAT MAKES THIS FLAKY, and it failed on CI
-    # 2026-09-12 for exactly this reason. These objects are reachable only
-    # through their own cycle, so ANY collection frees them -- including a
-    # gen-0 sweep the allocator fires on THIS thread somewhere between the
-    # constructor loop and the worker starting. When that happens the
-    # destructors run here, the worker finds nothing left to free, and the
-    # assertion below reports that the premise of gc_policy has been lost
-    # when nothing of the sort has happened. It passes alone and fails
-    # under load, which is the signature.
-    #
-    # Turning automatic collection off makes the worker's explicit
-    # `gc.collect()` the only thing that CAN free them, which is the
-    # condition this test means to set up rather than hope for.
-    was_enabled = gc.isenabled()
-    gc.disable()
-    try:
+    # The explicit sweep must not touch Qt objects left by earlier tests.
+    # A fresh interpreter keeps this deliberately unsafe counterexample
+    # entirely Python-only, regardless of the suite's collection order.
+    probe = 'import gc, sys, threading\n' + inspect.getsource(_RecordsItsDestroyingThread)
+    probe += textwrap.dedent('''
+        destroyed_on = []
+        gc.disable()
         gc.collect()
         for _ in range(20):
             _RecordsItsDestroyingThread(destroyed_on)
-        assert not destroyed_on, (
-            "something freed these before the worker ran, so this run never "
-            "measured which thread the collector destroys on -- the result "
-            "below would be about nothing")
-
-        def worker():
-            gc.collect()
-
-        thread = threading.Thread(target=worker, name="pretend-preview-worker")
+        assert not destroyed_on
+        thread = threading.Thread(target=gc.collect, name="pretend-preview-worker")
         thread.start()
         thread.join()
-    finally:
-        if was_enabled:
-            gc.enable()
-
-    assert "pretend-preview-worker" in destroyed_on, (
-        "the collector ran the destructor somewhere other than the collecting "
-        "thread, so the premise of gc_policy no longer holds")
+        assert len(destroyed_on) == 20
+        assert set(destroyed_on) == {"pretend-preview-worker"}
+        assert 'PySide6' not in sys.modules
+    ''')
+    result = subprocess.run([sys.executable, '-c', probe], capture_output=True,
+                            text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_the_policy_stops_a_worker_allocating_its_way_into_a_collection(qapp):
@@ -270,8 +259,8 @@ def test_a_timer_that_cannot_be_stopped_still_uninstalls(monkeypatch, qapp):
         def setParent(self, _parent):
             raise AssertionError("not reached; stop() raised first")
 
-    monkeypatch.setattr(gc_policy, "_timer", _Wedged())
-
-    assert gc_policy.uninstall() is True
-    assert gc_policy.is_installed() is False
-    assert gc.isenabled() is True
+    with monkeypatch.context() as patch:
+        patch.setattr(gc_policy, "_timer", _Wedged())
+        assert gc_policy.uninstall() is True
+        assert gc_policy.is_installed() is False
+        assert gc.isenabled() is True

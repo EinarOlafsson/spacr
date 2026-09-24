@@ -16294,3 +16294,18 @@ for the restoration labels. The remaining docstring-correctness count pins
 still read9,523/11,518 in current source; the candidate reported9,524/11,519,
 and restoration added an API module since then. Please cover those exact
 inventory tests in the API lane before describing all source guards as green.
+
+2026-09-24 — IMPLEMENTATION: REPRODUCED QT GC CRASH FIXED IN TEST HARNESS
+Found the missing distinction in the coverage log: each32-file batch is a
+fresh process. Exact failing-batch collection plus130worker0node IDs
+reproduces SIGSEGV twice at the settings-CSV drop. gdb shows GUI animation
+stop racing worker GC that clears SettingsWidgets. The normal application
+already installs gc_policy; pytest-qt omitted it. Existing runtime policy
+alone fixes the frozen-candidate replay. Shared qapp/test boundaries now
+use that policy, and the deliberate worker-GC counterexample is subprocess-
+isolated. Also corrected its mocked-timer teardown contamination.
+88focused checks, actual-fixture130-test replay, and the complete662-test
+batch with two workers/coverage all pass. See288's new receipt and dated
+note. No runtime/API/caption changes. Other CI failures are not declared
+fixed, and the old protected full run continues. GPU observer remains live,
+with no qualifying idle interval and no GPU analysis launched.

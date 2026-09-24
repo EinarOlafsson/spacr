@@ -26,11 +26,9 @@ def console(qapp, monkeypatch):
     timer from inside event dispatch: `tests/qt/test_track_previews.py`
     segfaulted, having done nothing wrong.
 
-    That is the same defect `spacr.qt.gc_policy` fixes for the application --
-    a Qt object destroyed at a moment nobody chose -- and it is worth noting
-    that the suite does not install that policy, so a test which leaves
-    Qt objects to the collector is the shape that produces instruction 288's
-    unattributed `tests/qt` crashes.
+    The suite now installs the application's `spacr.qt.gc_policy`, keeping
+    collection on the GUI thread. Explicit teardown still matters: the
+    policy does not choose when this panel's timers and workers should end.
     """
     panel = ConsolePanel()
     monkeypatch.setattr(panel, "_current_provider", lambda: object())
