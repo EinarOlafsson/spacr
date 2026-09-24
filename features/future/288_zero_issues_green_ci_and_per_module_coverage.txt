@@ -5052,3 +5052,18 @@ original662-test batch passes with coverage and two loadfile workers in
 collection files, exact node order, native observations and log hashes.
 This closes the reproduced shard0 crash, not all CI: other native failures
 have not individually been replayed, and the frozen full run is still red.
+
+2026-09-24 — FOLDED HEADER GUARD MEASURES THE COMPLETE ROW
+The Annotate failure compared a vertically centered label's bottom with an
+arbitrary10px allowance. Different label/button heights change that inset.
+A real60px action button reproduced its failure even with a correctly placed
+header. The check now requires the visible header controls to touch the exact
+container bottom and share a centerline within1px for pixel rounding. It
+covers native and taller action heights. All58section-folding tests pass;
+both changed cases pass again after removing an unnecessary minimum-height
+setup. A15px injected title-coordinate offset fails the centerline check.
+The earlier attempted removal of locking helpers did not move the measured
+header, so it is not used as a negative-control acceptance result.
+No runtime layout or pixel tolerance was loosened. Close-mark hover tests
+also pass in their nine-file preceding context:319checks. The original CI
+hover failure remains unreproduced, not claimed fixed by this assertion repair.

@@ -328,8 +328,10 @@ def test_folding_everything_never_shows_what_the_screen_keeps_hidden(
 
 
 @pytest.mark.qt
+@pytest.mark.parametrize('action_height', [None, 60])
 def test_annotates_console_pane_stays_hidden_until_its_switch(qtbot,
-                                                            tmp_path):
+                                                            tmp_path, action_height):
+    """The complete header sits at the bottom, with its controls centered."""
     screen = _build(qtbot, _annotate, tmp_path)
     split = screen._runtime_splitter
     console = screen._console_wrap
@@ -349,12 +351,22 @@ def test_annotates_console_pane_stays_hidden_until_its_switch(qtbot,
     _pump()
     assert not console.isHidden() and console.body.isVisible()
     assert screen._btn_copy_console.isVisible()
+    if action_height is not None:
+        screen._btn_copy_console.setMinimumHeight(action_height)
     console.set_folded(True)
     _pump()
     assert screen._btn_copy_console.isVisible(), "an action left the heading"
-    bottom = console.heading.mapTo(
-        split, console.heading.rect().bottomLeft()).y()
-    assert bottom >= split.height() - 10
+    outer = console.layout()
+    heading_row = next(outer.itemAt(i).layout() for i in range(outer.count())
+                       if outer.itemAt(i).layout() is not None
+                       and outer.itemAt(i).layout().indexOf(console.heading) >= 0)
+    controls = [heading_row.itemAt(i).widget() for i in range(heading_row.count())]
+    controls = [widget for widget in controls if widget is not None and widget.isVisible()]
+    bottom = max(widget.mapTo(split, widget.rect().bottomLeft()).y()
+                 for widget in controls)
+    assert bottom == split.contentsRect().bottom()
+    centers = [widget.mapTo(split, widget.rect().center()).y() for widget in controls]
+    assert max(centers) - min(centers) <= 1
     screen._console_switch.setChecked(False)
     assert console.isHidden()
 

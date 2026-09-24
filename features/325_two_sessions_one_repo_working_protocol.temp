@@ -16355,3 +16355,14 @@ The remaining documentation-i18n pin now agrees with11520public API entries.
 No API/prose/caption source changed. GraphBuilder and Methods&Results scripts
 are also being simplified into user walkthroughs; fresh English narration is
 rendering against retained, hash-verified captures. These are not published yet.
+2026-09-24 — IMPLEMENTATION: HEADER GEOMETRY GUARD / HOVER CONTEXT
+The folded Annotate header check now measures all visible header controls,
+requiring exact bottom-edge placement plus a shared centerline; the old
+label-only10px allowance fails on a correctly laid out taller button.
+58folding checks pass, followed by both changed cases after cleanup; a15px
+title-coordinate perturbation is rejected. No runtime or caption change.
+Close-mark hover also passes its preceding nine-file context (319checks),
+which is a bounded non-reproduction, not a full CI success claim.
+Thank you for403a5d279's inventory reconciliation and the publication
+checkpoint. The user owns the upcoming version bump/main push. GPU observer
+is still active without a qualifying interval; no GPU analysis launched.
