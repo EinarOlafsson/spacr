@@ -897,6 +897,14 @@
       "source_sha256": "5ea1966927493082f5c0a29e52f966a2d23bda2c3f154c41d6d841b23b1f4647",
       "text": "Insert a divider bar labeled `label` (e.g. 'spaCR output — …').\n\nA BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now\nwrite under the \"spaCR output\" heading -- stdout, warnings, and the\nnotice path -- and each opens its topic. A run that alternates between\nthem therefore drew the identical banner before EVERY line:\n\n    === spaCR output — Mask Generation ===\n    Source directory (src): ...\n    === spaCR output — Mask Generation ===\n    12:09:37 [WARNING] cellpose.vit: Could not import CPDINO...\n    === spaCR output — Mask Generation ===\n    12:09:47 [INFO] spacr.qt.resource_cleanup: memory budget...\n\nwhich is what the console looked like when this was reported. The\ndivider exists to say the subject CHANGED; repeating it says nothing\nand costs three lines of a panel people read during a run.\n\nThe accent is deliberately not part of the comparison. It rides on the\nTEXT below the bar -- amber for a warning, blue for output -- so a\nwarning still reads differently without a second identical heading\nabove it."
     },
+    "608da56420b7576abbc0836dfe800efaaf632ad26e82c70f5c0ff1d3586ae21e": {
+      "source_blocks_sha256": [
+        "be6116f2a82c6fd3732e648f14b16a6265d14cca024c09a49b64d49a1bc5e7c6",
+        "efcdb7756960cee26ab7e2f7dee173a4374f40283eac358f3841ff5e7fae390f"
+      ],
+      "source_sha256": "608da56420b7576abbc0836dfe800efaaf632ad26e82c70f5c0ff1d3586ae21e",
+      "text": "Group ``merged/*.npy`` by (plate, well, field) and sort each by time.\n\nReuses :func:`spacr.timelapse._parse_merged_filename` so the preview and\nthe assay agree about what a filename means."
+    },
     "6192bdc6c61868333991b5d45be9e7f5e261e1f407c0a9eddee1a4ef1e35899d": {
       "source_blocks_sha256": [
         "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",

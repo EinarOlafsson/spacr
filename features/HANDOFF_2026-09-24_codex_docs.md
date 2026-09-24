@@ -13,7 +13,7 @@ suite. Stage explicit paths, rebase before pushing, preserve other work.
 
 ## Current English sources
 
-The English API manifest contains 11,522 rendered entries; the Help index is
+The English API manifest contains 11,524 rendered entries; the Help index is
 current. Existing parameter-description debt remains. The shared module map
 is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
@@ -182,3 +182,9 @@ Final strict English Sphinx build passed for the GC/mask API refresh; log
 `gc-mask-sphinx.log`, receipt411_gc_mask_inventory_2026-09-24.json. All source
 changes are pushed through32e760991; docs run35955044338 is building both
 channels. This is deployment pending, not a failed English/translation gate.
+
+The subsequent lightweight Motility parser adds two rendered API entries
+(11524total) and updates group_merged_files. Four source/inventory guards
+pass; Help is regenerated. The locale register includes this exact delta.
+The strict Sphinx receipt covers the immediately preceding11522-entry build;
+the publication workflow rebuilds current sources. Receipt:411_motility_lightweight_api_2026-09-24.json.

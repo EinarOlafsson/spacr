@@ -1,0 +1,16 @@
+{
+  "source_head": "d4b00c95080c70ac295258111f793d6bbb13155d",
+  "before": 11522,
+  "after": 11524,
+  "added": [
+    "spacr._merged_names",
+    "spacr._merged_names.parse_merged_filename"
+  ],
+  "removed": [],
+  "changed": [
+    "spacr.qt.widgets.motility_preview.group_merged_files"
+  ],
+  "note": "Private module helper is rendered by AutoAPI, outside the unchanged public callable boundary. No new runtime caption.",
+  "focused_source_guards_passed": 4,
+  "help_index_regenerated": true
+}

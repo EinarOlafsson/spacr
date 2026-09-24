@@ -52,6 +52,23 @@
       "source_sha256": "2d965503bf375b888dd7b02d757a69705d7f7c15dd3fae31d958e3ce00e57c22",
       "text": "Collect now, or request a full sweep on the GUI's next timer tick.\n\nWorker sweeps can destroy unrelated Qt widgets on the wrong thread.\nA running GUI therefore services worker requests through\n:func:`spacr.qt.gc_policy.collect_once`. Repeated requests coalesce.\nHeadless processes and the GUI thread retain synchronous collection;\nchecking for an application does not import Qt into headless jobs.\n\n:returns: unreachable objects collected, or zero for a deferred request."
     },
+    "spacr._merged_names": {
+      "source_blocks_sha256": [
+        "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282"
+      ],
+      "source_sha256": "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282",
+      "text": "Filename grouping for merged timelapse arrays, without analysis imports."
+    },
+    "spacr._merged_names.parse_merged_filename": {
+      "source_blocks_sha256": [
+        "8ba3a421082d2eed67b65335fb7f9e15b109f5b947955215e743cceb7383be27",
+        "768a68ea745ab6159733cc2901fca9f460a58798942e051fcfd7a16bd68f9a69",
+        "d2c15a3d145ad9011dae39ac2d50dbf5c26fcda26da314523a57cf4c00264ae4",
+        "e1519a2ffff715d099b957b28e1750fc0697acb2eb039b47c2982d1e8832041b"
+      ],
+      "source_sha256": "660b52526bf01bbe562bb96d20ab638327e20002cbd1d01a0492cfdf71bca395",
+      "text": "Parse a merged filename for grouping and numeric timepoint sorting.\n\nThese are legacy display/grouping fields, not canonical database keys.\nRow IDs are letters, column/time IDs are integers, and ``prcf`` uses\nthe well rather than separate row and column keys. Use\n:func:`spacr.schema.parse_field_stem` for database identities.\n\n:param fname: path or filename in ``plate_well_field_time.npy`` form.\n:returns: plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft\n    and filename. Missing field/time values default to ``1``/``0``."
+    },
     "spacr._starplast": {
       "source_blocks_sha256": [
         "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
@@ -86823,10 +86840,10 @@
     "spacr.qt.widgets.motility_preview.group_merged_files": {
       "source_blocks_sha256": [
         "be6116f2a82c6fd3732e648f14b16a6265d14cca024c09a49b64d49a1bc5e7c6",
-        "efcdb7756960cee26ab7e2f7dee173a4374f40283eac358f3841ff5e7fae390f"
+        "86ec378aed4f92d5a6e8f57634bab575423a545539d3c2d346857d6bfd446707"
       ],
-      "source_sha256": "608da56420b7576abbc0836dfe800efaaf632ad26e82c70f5c0ff1d3586ae21e",
-      "text": "Group ``merged/*.npy`` by (plate, well, field) and sort each by time.\n\nReuses :func:`spacr.timelapse._parse_merged_filename` so the preview and\nthe assay agree about what a filename means."
+      "source_sha256": "fb0b0edd9053e526d4ca2648b1d02bbcda3745cbcb762f43a3603f6636cc6b56",
+      "text": "Group ``merged/*.npy`` by (plate, well, field) and sort each by time.\n\nShares the lightweight parser behind\n:func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with\nthe assay without importing plotting or model dependencies."
     },
     "spacr.qt.widgets.motility_preview.read_plane_count": {
       "source_blocks_sha256": [
