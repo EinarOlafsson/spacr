@@ -15680,3 +15680,13 @@ Candidate908c391ac now includes seven exact prior repair commits throughbc8,
 plus3863PSFtranslation dependency andd988docsrepair, and is pushed. Only
 conflicts were development ledgers intentionally excluded from release trees.
 No main push or public1.5.1.0publication yet.
+
+2026-09-24 AXIS CUTOFF HELP FITS AT LARGE TEXT SIZES
+Reproduced the200percent clipping in both English and German. Moving the
+wrapped explanation out of the QFormLayout row and into the outer vertical
+layout lets its actual height-for-width reach the dialog. All8targeted
+AxisCutoff/SaveFigure caption combinations pass (both locales,100/200percent),
+with no tolerance change or hidden text. Source wording and APIs unchanged.
+Fatal repository Ruff checks pass. Now checking the main-window registry
+contracts; initial failures appear to be the new Host–Pathogen row missing
+from the older explicit section/maturity tables.

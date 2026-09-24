@@ -186,14 +186,16 @@ class _AxisCutoffDialog(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle(f"{title} cutoffs")
-        form = QFormLayout(self)
+        layout = QVBoxLayout(self)
         self._explain = QLabel(
             f"How much of {column} to draw. Leave a box empty to let the "
             f"data decide that end.\n"
             f"Cutoffs change the VIEW only -- a gate keeps the objects it "
             f"already holds.", self)
         self._explain.setWordWrap(True)
-        form.addRow(self._explain)
+        layout.addWidget(self._explain)
+        form = QFormLayout()
+        layout.addLayout(form)
         self._low = QLineEdit("" if cutoff.low is None else f"{cutoff.low:g}",
                               self)
         self._low.setPlaceholderText("the smallest value drawn")
