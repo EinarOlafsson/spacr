@@ -5275,3 +5275,12 @@ The entire protected run35952253721 is now terminal/failure. All its completed
 logs have been read; a fresh protected checkpoint can now be started.
 The new mask receipt/resume adapter raises worker-module coverage to95.49%
 with29process/provenance checks. Source-module denominator remains643.
+
+2026-09-24 — Fresh Coverage11 sidecar identity contract
+Protected35966906164 job107527435677 is terminal/failure. Its sole failing
+assertion still expected _stack_for('',...) to choose an image, contrary to
+37fe8e8d9's explicit missing-identity refusal. The sidecar regression now
+asserts None for an empty identity, the exact real image for valid identifiers,
+and None for every identifier when only the AppleDouble sidecar remains.
+No runtime behavior was loosened.43measure/resume/stream checks pass in7.44s.
+Other jobs in the protected run remain active and are not restarted.

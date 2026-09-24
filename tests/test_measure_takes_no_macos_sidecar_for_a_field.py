@@ -175,8 +175,7 @@ def test_a_streamed_selection_counts_no_sidecar(tmp_path):
 
 
 def test_the_stream_never_resolves_a_field_to_a_sidecar(tmp_path):
-    """A sidecar sorts before every field. Only a stem that prefixes every
-    name (the empty stem of a row with no identifiers) reached one."""
+    """An absent identity resolves nothing; real identities ignore sidecars."""
     from spacr.stream_dataset import _stack_for
 
     merged = tmp_path / "merged"
@@ -184,6 +183,10 @@ def test_the_stream_never_resolves_a_field_to_a_sidecar(tmp_path):
     np.save(merged / FIELD, np.zeros((8, 8, 5), np.uint16))
     _with_sidecar(merged)
 
-    for stem in ("", "plate1", "plate1_A01_F001"):
+    assert _stack_for(str(merged), "") is None
+    for stem in ("plate1", "plate1_A01_F001"):
         found = _stack_for(str(merged), stem)
-        assert found is not None and not Path(found).name.startswith("."), stem
+        assert found == str(merged / FIELD), stem
+    (merged / FIELD).unlink()
+    for stem in ("", "plate1", "plate1_A01_F001"):
+        assert _stack_for(str(merged), stem) is None

@@ -16968,3 +16968,11 @@ network jobs have passed; broader suites remain live. It predates788345b79
 motility finalization and this model helper; their local checks are separate.
 GPU observer b expired unqualified; c now observes until~09:04UTC,128MiB cap.
 No GPU inference launched, no version/main promotion.
+
+2026-09-24 — IMPLEMENTATION: FRESH CI SIDECAR ASSERTION RECONCILED288
+Coverage11 in35966906164 exposed a stale test expecting an empty streamed
+field identifier to borrow the first image. The already-pushed runtime fix
+37fe8e8d9 intentionally refuses that. The sidecar test now requires None for
+missing identity, exact real-field identity for valid names and None when
+only sidecars remain.43checks pass; no runtime/API change. Protected CI's
+other jobs remain live. Worker plot delivery remains the next493integration.
