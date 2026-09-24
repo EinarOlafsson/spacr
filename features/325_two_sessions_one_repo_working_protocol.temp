@@ -16439,3 +16439,11 @@ preview load responsiveness tests disable automatic GC but leave the GUI
 collection timer active. Actual gaps were10and16ms; the collection-accounting
 assertion failed. I am fixing the benchmark isolation next, without changing
 its responsiveness budgets or the runtime GC policy. Other jobs still run.
+
+2026-09-24 — IMPLEMENTATION: MASK SAVE MEMMAP FOLLOW-UP
+Preserved save_mask's detached input copy after validation: a same-path
+memory-mapped NPY otherwise loses its backing data during destination
+truncation. Fresh-process regression reproduced the write failure;32capacity
+and I/O checks now pass. No new API signature or user-facing string beyond
+the preceding handoff. Benchmark GC isolation is still under verification;
+one measured plate-drop run reached410ms against its unchanged400ms budget.

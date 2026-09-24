@@ -1,5 +1,8 @@
 """Mask I/O and pipeline saves must never wrap or truncate object identities."""
 
+import subprocess
+import sys
+
 import numpy as np
 import pytest
 import tifffile
@@ -8,6 +11,26 @@ from spacr.mask_io import load_mask, save_mask
 from tests.test_cellpose4_model_story import _mask_settings, _write_npz
 from tests.test_cellpose4_model_story import sam_pipeline as sam_pipeline
 from tests.test_cov_object_organelle_sam import _base_settings
+
+
+def test_saving_a_memory_mapped_mask_over_itself_preserves_labels(tmp_path):
+    script = """
+import sys
+import numpy as np
+from spacr.mask_io import save_mask
+if sys.platform != 'win32':
+    import resource
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+path = sys.argv[1]
+expected = np.arange(4096, dtype=np.uint16).reshape(64, 64)
+np.save(path, expected)
+mapped = np.load(path, mmap_mode='r', allow_pickle=False)
+save_mask(path, mapped)
+np.testing.assert_array_equal(np.load(path, allow_pickle=False), expected)
+"""
+    result = subprocess.run([sys.executable, "-c", script, str(tmp_path / "mapped.npy")],
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, (result.returncode, result.stderr)
 
 
 @pytest.mark.parametrize("fmt", ["npy", "tif"])

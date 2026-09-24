@@ -100,7 +100,7 @@ def save_mask(path: PathLike, mask: np.ndarray,
     fmt = (fmt or DEFAULT_FORMAT).lower().lstrip(".")
     p = Path(path)
 
-    mask = _as_uint16_mask(mask)
+    mask = _as_uint16_mask(mask).copy()
 
     if p.suffix.lower() in (".tif", ".tiff", ".npy"):
         fmt = p.suffix.lower().lstrip(".")

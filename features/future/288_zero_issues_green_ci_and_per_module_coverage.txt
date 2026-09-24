@@ -5101,3 +5101,13 @@ invalid-save failures; a bad second mask cannot partially replace a batch.
 This is a mask-file guarantee, not a transaction over all earlier count,
 tracking or other pipeline outputs. Logs:
 /tmp/spacr-mask-label-baseline.log and /tmp/spacr-mask-label-fixed.log.
+
+2026-09-24 — MASK SAVE RETAINS ITS DETACHED INPUT COPY
+Review of the preceding range-check change caught a memory-mapped input
+edge: sharing an already-uint16 array while saving to its own NPY path
+truncated the backing file before NumPy finished reading it. A fresh-process
+regression reproduces OSError:4096requested/1984written. save_mask again
+copies validated labels before opening the destination. The atomic pipeline
+writer and read helper retain their safe existing no-copy paths. The added
+same-path mmap regression and mask capacity/I/O cohort now pass32checks.
+Logs:/tmp/spacr-mask-memmap-{baseline,fixed}.log. No signature/caption change.
