@@ -341,3 +341,11 @@ np.save; neither has a caller in the package, so they were not changed.
 Rerunning adjust_cells on masks it already adjusted re-adjusts them on
 every run (the check above does not tell adjusted from raw); not measured
 here.
+
+2026-09-24 — Match mask identities, not just file counts
+check_mask_folder now verifies a complete mask for every visible stack
+filename. An unrelated old mask can no longer stand in for a missing field;
+extra masks also no longer force complete fields back through generation.
+Three new identity regression cases fail before the fix. The complete mask
+recovery and utility cohort passes128checks in21.55s, including an interrupted
+normal Mask run. This does not infer provenance from matching filenames.

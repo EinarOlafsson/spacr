@@ -16907,3 +16907,11 @@ Resume provenance/shared finalization/control integration are next. Docs:
 private module inventory only for this batch; the preceding public SAM
 batch_paths/on_batch_done/run_qc signature update still applies. Version and
 main promotion remain with the maintainer.
+
+2026-09-24 — IMPLEMENTATION: MASK FOLDER IDENTITY REPAIR430
+spacr.utils.check_mask_folder now compares expected stack filenames with
+structurally complete masks, instead of comparing counts. Equal counts with
+a missing field and an unrelated mask no longer skip generation; unrelated
+extras do not force a complete set to run again. Public signature unchanged;
+docstring updated. Three regressions fail before/fix passes128cohort checks.
+Please reflect exact field identity in the API/resume guidance when updating.

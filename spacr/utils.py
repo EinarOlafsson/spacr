@@ -1712,8 +1712,9 @@ def check_mask_folder(src, mask_fldr, resume=False):
     :param resume: accepted for the callers that pass it. Only structurally
         complete mask arrays are counted whether or not it is set, so an
         empty or truncated array left by an interrupted run is re-queued.
-    :returns: ``True`` when the mask folder is missing or has fewer valid
-        ``.npy`` files than the stack folder.
+    :returns: ``True`` when the mask folder is missing or any expected stack
+        filename lacks a complete mask. Unrelated masks cannot substitute
+        for a missing field and do not force complete fields to run again.
     """
     from .io import _listdir_visible
     from .resume import validate_merged_field
@@ -1724,15 +1725,10 @@ def check_mask_folder(src, mask_fldr, resume=False):
     if not os.path.exists(mask_folder):
         return True
     
-    mask_paths = [
-        os.path.join(mask_folder, file)
-        for file in _listdir_visible(mask_folder) if file.endswith('.npy')
-    ]
-    mask_count = sum(
-        1 for path in mask_paths if validate_merged_field(path)[0])
-    stack_count = sum(1 for file in _listdir_visible(stack_folder) if file.endswith('.npy'))
-    
-    if mask_count == stack_count:
+    expected = [file for file in _listdir_visible(stack_folder)
+                if file.endswith('.npy')]
+    if all(validate_merged_field(os.path.join(mask_folder, file))[0]
+           for file in expected):
         print(f'All masks have been generated for {mask_fldr}')
         return False
     else:

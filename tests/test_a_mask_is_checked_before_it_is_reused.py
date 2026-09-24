@@ -113,6 +113,23 @@ def test_the_mask_count_checks_each_mask_with_resume_off(tmp_path, capsys):
 
 
 @pytest.mark.parametrize("resume", [False, True])
+def test_an_unrelated_mask_cannot_stand_in_for_a_missing_field(tmp_path, resume):
+    from spacr.utils import check_mask_folder
+
+    masks = _mask_folder(tmp_path)
+    (masks / "f2.npy").rename(masks / "other_plate.npy")
+    assert check_mask_folder(str(tmp_path), "cell_mask_stack", resume=resume)
+
+
+def test_extra_masks_do_not_force_complete_fields_to_run_again(tmp_path):
+    from spacr.utils import check_mask_folder
+
+    masks = _mask_folder(tmp_path)
+    np.save(masks / "other_plate.npy", _mask(shape=(8, 8)))
+    assert not check_mask_folder(str(tmp_path), "cell_mask_stack")
+
+
+@pytest.mark.parametrize("resume", [False, True])
 def test_a_damaged_mask_is_generated_again_and_named(tmp_path, capsys, resume):
     """The per-batch filter returns a damaged mask for segmenting, and says so."""
     from spacr.io import _check_masks
