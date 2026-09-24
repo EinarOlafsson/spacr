@@ -2119,7 +2119,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Exact source deltas and restored baseline: 411_callable_surface_delta_2026-09-24.json.
     # SaveFigureDialog.eventFilter and three optional Chain fields: exact
     # subtraction in 411_callable_final_inventory_2026-09-24.json.
-    assert len(callables) == len(by_symbol) == 9_524
+    # Toggle wrapping: two methods and one optional constructor keyword.
+    # Exact subtraction: 411_wrapping_toggle_inventory_2026-09-24.json.
+    assert len(callables) == len(by_symbol) == 9_526
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2181,7 +2183,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "function": 4_247,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_107,
+        "method": 4_109,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         "constructor": 439,
@@ -2232,7 +2234,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # that arrived in the five days is rendered by autoapi and by
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
-        "autoapi": 9_519,
+        "autoapi": 9_521,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2278,7 +2280,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,692 -> 8,705 on 2026-09-15, the same +13: each of 412's and 416's
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
-    assert sum(item.variant_count for item in callables) == 9_531
+    assert sum(item.variant_count for item in callables) == 9_533
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2290,7 +2292,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,691 -> 9,040 on 2026-09-20: every callable that arrived in
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
-        1: 9_517,
+        1: 9_519,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2473,7 +2475,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_942
+    assert sum(len(item.parameters) for item in callables) == 18_944
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2502,7 +2504,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # make_masks_example_folder have no required parameter. Subtracted, 8,812.
     # 8,830 -> 9,214 on 2026-09-20, moving with the parameter total
     # above.
-    assert sum(len(item.required_parameters) for item in callables) == 9_750
+    assert sum(len(item.required_parameters) for item in callables) == 9_751
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2594,7 +2596,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Removing twelve preview/montage arrivals and restoring montage.load's
     # prior row exactly reproduces 99126a21. Complete rows are recorded in
     # features/data/411_host_preview_montage_api_2026-09-23.json.
-) == "11d08732c28a1db3f8fad90a5a6a86efd06a3577e02b7dee68d09ee24f5fe3c8"
+) == "0c5da0b14efdfb8b78e20e0f1c2622b908e76f93a5c8b4cda2aa40dad717f176"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3077,7 +3079,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # +7 Timeflows nested helpers; source-bound catalogs exist in all locales.
     # +9 held-out validation entries with nine source-bound locale catalogs.
     # +12 inference/cursor/help/schema entries; matches the source extractor.
-    assert len(docs) == 11_524
+    assert len(docs) == 11_526
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3179,6 +3181,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert preview_callables <= rendered_documented_callables.keys()
     current_additions = {
+        'spacr.qt.widgets.toggle.Toggle.heightForWidth',
+        'spacr.qt.widgets.toggle.Toggle.minimumSizeHint',
         "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.eventFilter",
         'spacr._starplast.check_starplast_update',
         'spacr._starplast.upgrade_starplast',
@@ -3217,7 +3221,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
              - preview_callables - current_additions) | {"spacr.qt.app.demo_label_for_app"}
     assert len(prior - pipeline_callables) == 9_442
     assert len(prior - pipeline_callables - validation_functions) == 9_436
-    assert len(rendered_documented_callables) == 9_519
+    assert len(rendered_documented_callables) == 9_521
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

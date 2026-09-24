@@ -1485,6 +1485,15 @@
       "source_sha256": "a1e33a96d640175e121e340e2247251ce5b888f28f39e06ac5f96a2f968cc032",
       "text": "Build the settings dict the pipeline will actually receive.\n\nLayered lowest-to-highest: the module's own defaults, the settings file,\nthen the ``--set`` overrides.\n\n:param module: module being run.\n:param settings_path: path to the settings file, or None for defaults only.\n:param overrides: ``key=value`` strings.\n:returns: the fully-resolved settings dict.\n:raises SettingsError: on any unreadable file, unknown key or bad value."
     },
+    "a3b07fdcd397c8ba3ee40f197e93e5aff957d7f1d768b26c23f10bf139bece7d": {
+      "source_blocks_sha256": [
+        "348aeb96734bfcf27bae8d22a4a5f66c49783f80e44b5c027e93e6c1b0c85932",
+        "a295b635c99639006b1c64d19817a043f29a41549022d48f68998ab9f51898dd",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ],
+      "source_sha256": "a3b07fdcd397c8ba3ee40f197e93e5aff957d7f1d768b26c23f10bf139bece7d",
+      "text": "A compact switch that can be clicked or dragged between states.\nInitialize the switch with an optional trailing label.\n\n:param text: the label drawn after the switch. Empty leaves the\n    switch alone, which is what a settings row wants -- the caption\n    beside it is the form's, not the control's.\n:param parent: parent widget."
+    },
     "a896333e6cf2a1fe15fbff553c4d22f40cb2650cf421ce96b34cf6e40d94e860": {
       "source_blocks_sha256": [
         "9646738cee9945bfd32ff9693fac0538cac036fff04ecee571ffa02c21c3b86d",

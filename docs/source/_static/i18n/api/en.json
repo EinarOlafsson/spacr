@@ -94419,10 +94419,27 @@
       "source_blocks_sha256": [
         "348aeb96734bfcf27bae8d22a4a5f66c49783f80e44b5c027e93e6c1b0c85932",
         "a295b635c99639006b1c64d19817a043f29a41549022d48f68998ab9f51898dd",
-        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "6cd300010e9da0a349b45880229791a5e37c5207c18c7ae430c5fa039ad86303"
       ],
-      "source_sha256": "a3b07fdcd397c8ba3ee40f197e93e5aff957d7f1d768b26c23f10bf139bece7d",
-      "text": "A compact switch that can be clicked or dragged between states.\nInitialize the switch with an optional trailing label.\n\n:param text: the label drawn after the switch. Empty leaves the\n    switch alone, which is what a settings row wants -- the caption\n    beside it is the form's, not the control's.\n:param parent: parent widget."
+      "source_sha256": "e4ae726b93d50fbbed84f34ed02ccfc249e336ceeb5a5c61d10e86a89b6a99e8",
+      "text": "A compact switch that can be clicked or dragged between states.\nInitialize the switch with an optional trailing label.\n\n:param text: the label drawn after the switch. Empty leaves the\n    switch alone, which is what a settings row wants -- the caption\n    beside it is the form's, not the control's.\n:param parent: parent widget.\n:param word_wrap: let a long caption wrap to the available width.\n    False keeps the existing single-line switch layout."
+    },
+    "spacr.qt.widgets.toggle.Toggle.heightForWidth": {
+      "source_blocks_sha256": [
+        "138e12c8c4b8aab5c9367c346eea6be06b497f77f514280eb232922a2778c184",
+        "4762ce89b854d47d1018d43ca0218de2bb27987dc28b47cef86f4176d03f7f16",
+        "09ebea0079891c233b597e2842974976553c3dc45765ad0210d9cca5bc9fa2b8"
+      ],
+      "source_sha256": "e28115a7b564aabf4ef5cf59f068e42b6cffbf9a8b24bef6aad9e9abe9d45cda",
+      "text": "Return enough height to paint the complete wrapped caption.\n\n:param width: available control width in logical pixels.\n:returns: wrapped height, or the native checkbox result when disabled."
+    },
+    "spacr.qt.widgets.toggle.Toggle.minimumSizeHint": {
+      "source_blocks_sha256": [
+        "06fb37762680de4f54646aed3d7a09e4957b4cbd8f755bfb6b8a976c19bb6c38"
+      ],
+      "source_sha256": "06fb37762680de4f54646aed3d7a09e4957b4cbd8f755bfb6b8a976c19bb6c38",
+      "text": "Allow wrapped captions to shrink without making their text a width floor."
     },
     "spacr.qt.widgets.toggle.Toggle.mouseMoveEvent": {
       "source_blocks_sha256": [

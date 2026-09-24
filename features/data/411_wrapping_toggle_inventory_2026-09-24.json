@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "baseline": "070726142403cc3ac2613e8f01370af31da298ce",
+  "source_head": "7327a4444616c80ae656027f2653ba9138b6c14b",
+  "before": {
+    "callables": 9524,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4107,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9519,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9531,
+    "variant_buckets": {
+      "1": 9517,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18942,
+    "required": 9750,
+    "signature_sha256": "11d08732c28a1db3f8fad90a5a6a86efd06a3577e02b7dee68d09ee24f5fe3c8"
+  },
+  "after": {
+    "callables": 9526,
+    "categories": {
+      "function": 4247,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4109,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9521,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9533,
+    "variant_buckets": {
+      "1": 9519,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18944,
+    "required": 9751,
+    "signature_sha256": "0c5da0b14efdfb8b78e20e0f1c2622b908e76f93a5c8b4cda2aa40dad717f176"
+  },
+  "added": [
+    "spacr.qt.widgets.toggle.Toggle.heightForWidth",
+    "spacr.qt.widgets.toggle.Toggle.minimumSizeHint"
+  ],
+  "removed": [],
+  "changed_signatures": {
+    "spacr.qt.widgets.toggle.Toggle": {
+      "before": "spacr.qt.widgets.toggle.Toggle\u0000constructor\u0000autoapi\u0000parent,text\u0000\u0000parent,text\u00000\u00001\u00000\u00001",
+      "after": "spacr.qt.widgets.toggle.Toggle\u0000constructor\u0000autoapi\u0000parent,text,word_wrap\u0000\u0000parent,text,word_wrap\u00000\u00001\u00000\u00001"
+    }
+  },
+  "exact_subtraction_restores_baseline": true,
+  "omissions_before": 2290,
+  "omissions_after": 2290,
+  "added_omissions": [],
+  "removed_omissions": [],
+  "api": {
+    "before": 11524,
+    "after": 11526,
+    "added": [
+      "spacr.qt.widgets.toggle.Toggle.heightForWidth",
+      "spacr.qt.widgets.toggle.Toggle.minimumSizeHint"
+    ],
+    "removed": [],
+    "changed": [
+      "spacr.qt.widgets.toggle.Toggle"
+    ]
+  }
+}
