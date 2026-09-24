@@ -537,3 +537,12 @@ all22tests in test_pathway_walkthroughs.py now pass. Tutorial phrase banks still
 need the newer Host–Pathogen map additions; private Korean/Icelandic drafts are
 finished but unreviewed. The English site publication option allows the current
 written walkthroughs/API to ship before that complete translation/media matrix.
+
+2026-09-24 — CURRENT SHARED-MAP LINKS LIVE IN BOTH CHANNELS
+Nightly8b8458b14 publishes the current map-generated workflow guide and API
+links, including the four organism tutorials. All73 rendered module tutorial
+links preserve main/nightly; the source generator has33passing checks.
+Public API/catalog readback and real browser playback are recorded in
+features/data/411_live_current_documentation_2026-09-24.json. Complete
+translated pathway narration and the remaining user-walkthrough review are
+still open; current English publication does not wait for that full matrix.

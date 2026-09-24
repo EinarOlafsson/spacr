@@ -6690,6 +6690,12 @@ UI = {
     'Install Cellpose 3…': 'Cellpose 3 설치…',
     'Loading restoration model on CPU…': 'CPU에서 복원 모델을 불러오는 중…',
     'Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.': '순서: 백분위수 스트레칭(표시) → 배경 → PSF → 복원 → 잡음 제거 → 대비 → 선명화 → 검출 → 형태학 → 분할.',
+    'Deblur': '흐림 제거',
+    'One-click restoration': '원클릭 복원',
+    'Cells (cyto3)': '세포 (cyto3)',
+    'Cells (cyto2)': '세포 (cyto2)',
+    'Restoration ready: {model}. CPU processing; original intensities retained for measurements.': '복원 준비 완료: {model}. CPU에서 처리하며, 측정에는 원래 강도를 유지합니다.',
+    'Restoration unavailable: {error}': '복원을 사용할 수 없음: {error}',
 }
 
 MODULE_SUMMARIES = {
@@ -13504,4 +13510,10 @@ SOURCE_HASHES = {
     ('UI', 'Install Cellpose 3…'): '42bc3c35908e8e862ff4722e0cd2768754cd849d4f97232c64b06357280f3415',
     ('UI', 'Loading restoration model on CPU…'): '37cb39550e344a08857639b255183be8796f40ce86127683396840b89ae917fe',
     ('UI', 'Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.'): '91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4',
+    ('UI', 'Deblur'): '66671837dcec71a9c2cf299667d6fa6716009e961d52d0c716575d8a619073bb',
+    ('UI', 'One-click restoration'): '5f22b81d28c570f148e2d37411b7650400061016f5cf3bb348656722e73a57b3',
+    ('UI', 'Cells (cyto3)'): 'a62a0c09deca61f49867b826b130c266149a4d7ad76317c9727a3ee9364d105d',
+    ('UI', 'Cells (cyto2)'): '3defbe29858e399884d76024b701c79299d38c16e4374fea91499ed3361e2a68',
+    ('UI', 'Restoration ready: {model}. CPU processing; original intensities retained for measurements.'): '0641d1cc220b3a15e5df90d8697e4051a8c1794003b5bb3c92c2793b4f988b8f',
+    ('UI', 'Restoration unavailable: {error}'): 'f14925c5a09b7a05114ad0b75893cae6f244002fdf65d01c8c8ec1ddcefcd515',
 }

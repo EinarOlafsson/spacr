@@ -19,10 +19,10 @@ is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
 workflow pages use this same map.
 
-53 of the original 81 scripts have practical walkthrough rewrites; four more
+57 of the original 81 scripts have practical walkthrough rewrites; four more
 organism guides were authored. See the exact per-lesson audit in
 `tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json`. Rewritten
-source does not imply new native screenshots or publication. 664 older
+source does not imply new native screenshots or publication. 716 older
 translation review records are currently incompatible with their English
 sources; they remain registered work, not accepted translations.
 
@@ -36,8 +36,11 @@ ComingSoon entry.
 `W=/mnt/firecuda2/codex/workflow-authoring-20260922`
 `U=$W/user-walkthrough-stage`
 
-The last verified deployed baseline is `release-candidate-append-xw4j5buw`
-(Agreement/Invasion/Replication). Do not upload it again.
+The last verified deployed baseline is `release-candidate-append-8vaimbg8`,
+published by run35951320497 at nightly8b8458b14. Live API/catalog bytes exactly
+match the committed sources. Real browser playback and chapter seeks pass in
+both channels. Receipt:411_live_current_documentation_2026-09-24.json.
+Do not upload it again.
 
 The organism candidate is `release-candidate-append-_h__k19q`, manifest SHA256
 497ba62c9e87f1cee9daf617cdc1d5fb54f9412660967fe03ea15d8398923b0d.
@@ -77,6 +80,14 @@ checkpoint hold is lifted. It contains1603 source-compatible narration tracks.
 47 of the53 rewritten existing lessons now have matching prepared media;
 the six listed capture gaps remain. Four new organism guides are also ready.
 
+Four later rewrites are private:49Methods&Results,57LayerViewer,58GraphBuilder
+and62FeatureDictionary. Their original capture hashes and visual sequences
+are retained, with shorter practical narration. Rendering/check logs are
+`graph-reporting-media.log` and `layer-dictionary-media.log`. The new downloadable
+Layer_Viewer_real_image_mask.zip contains the exact image/mask TIFFs from the
+recording; archive readback and original hashes pass. Update publication only
+after the complete media pipeline passes.
+
 Docs run35948635800 built both branches successfully but failed assembly:
 1,081,843,213bytes exceeded the950MiB Pages budget. The publisher now uses
 immutable full-resolution video URLs only when local renditions match the
@@ -115,9 +126,19 @@ promote a full machine-generated catalog. Review and rebind to current source.
 Six restoration control labels and the updated PSF/restoration stage-order
 caption now have source-bound translations in all nine runtime languages.
 All nine actual runtime lookups and both Swedish/French review-cohort checks
-pass. Other new restoration tooltips/status text, its tutorial and animation
-remain owed; English fallback is allowed. The settings-flow page has also
+pass. English fallback is allowed. The settings-flow page has also
 been regenerated for the new Model Zoo normalization reader.
+
+Six more restoration choices/status strings now have source-bound translations
+in all nine languages, including the ready/error format placeholders. Eighteen
+formatted runtime lookups and both review-cohort checks pass. The remaining
+restoration work is the longer tooltips, tutorial and animation.
+
+All remaining API inventory guards are reconciled at403a5d279:9524callables,
+11520API entries and2290preexisting required-parameter omissions. The exact
+subtraction proof and four passing focused guards preserve the prior boundary.
+Claude's full test workflows35944548693 and35952253721 are protected and must
+be allowed to finish across pushes. No current full-CI success is claimed.
 
 No new agents were spawned. Preserve the unrelated untracked
 `tools/tutorials/authoring/project/` directory.

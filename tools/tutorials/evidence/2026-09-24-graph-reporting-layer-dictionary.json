@@ -1,0 +1,36 @@
+{
+  "baseline": "8b8458b14",
+  "scope": "User walkthrough rewrite: routes, inputs, controls, actions and outputs. Operational and interpretation caveats retained; authoring and testing explanations removed. Existing captures retained, not new runtime execution.",
+  "lessons": [
+    {
+      "lesson": "49_methods_results",
+      "old_spoken_words": 459,
+      "new_spoken_words": 292,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "57_layer_viewer",
+      "old_spoken_words": 1037,
+      "new_spoken_words": 502,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "58_graph_builder",
+      "old_spoken_words": 533,
+      "new_spoken_words": 372,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "old_spoken_words": 383,
+      "new_spoken_words": 232,
+      "existing_visual_sequence_preserved": true,
+      "new_capture": false
+    }
+  ],
+  "example": "Layer_Viewer_real_image_mask.zip",
+  "media_status": "English rendering and browser checks in progress; publication pending."
+}

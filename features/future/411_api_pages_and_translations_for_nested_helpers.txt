@@ -1976,3 +1976,14 @@ drawn-data limitation. English11465 API /5099 UI; Help index refreshed. Four
 new callable rows are measured against the preceding decoder snapshot in
 data/411_host_pathogen_example_api_2026-09-23.json; omission debt stays2292.
 Four focused source/prose/English-manifest checks pass.
+
+2026-09-24 — CURRENT API AND DOCUMENTATION VERIFIED LIVE
+Run35951320497 deployed nightly8b8458b14 and main79d71a92f. Live English
+API bytes exactly match the current11520-entry manifest; live tutorial catalog
+bytes match the accepted85-route/84-playable package. Real browser playback
+and chapter seeks pass in both channels. Receipt: data/411_live_current_
+documentation_2026-09-24.json. The Pages size failure is repaired with verified
+immutable video hosting, keeping translation incompatibilities report-only.
+All four latest callable/boundary/English-manifest/parameter-debt checks pass;
+9524callables and2290previous required-parameter omissions remain explicit.
+Translation review remains open; private machine drafts are not accepted.

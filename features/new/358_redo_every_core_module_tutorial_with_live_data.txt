@@ -2576,3 +2576,14 @@ evidence/2026-09-23-incremental-narration-selector.json under tools/tutorials.
 This is player preparation against previously recorded media, not acceptance
 of those recordings against current source. The published player is unchanged;
 reduced-voice candidate assembly, exact source/media checks and upload remain.
+
+2026-09-24 — VERIFIED INCREMENTAL WALKTHROUGHS LIVE
+Nightly8b8458b14 is publicly deployed with85routes/84playable tutorials.
+47of81existing lessons now have revised user-walkthrough text and matching
+published media; four new organism guides are also live. Source rewrites now
+cover57of81existing lessons (70.4%); four follow-up English videos are being
+rendered, while six earlier rewrites still need current captures.24existing
+scripts remain to review. Retained captures are explicitly distinguished from
+new runtime recordings.716old translation reviews now mismatch their revised
+sources and stay registered pending replacement. See the per-lesson audit in
+tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json.

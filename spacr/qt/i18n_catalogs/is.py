@@ -6623,6 +6623,12 @@ UI = {
     'Install Cellpose 3…': 'Setja upp Cellpose 3…',
     'Loading restoration model on CPU…': 'Hleð endurheimtarlíkani á CPU…',
     'Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.': 'Röð: teygja eftir hundraðshlutum (Birting) → bakgrunnur → PSF → endurheimt → suðhreinsun → birtuskil → skerping → greining → formfræði → skipting.',
+    'Deblur': 'Fjarlægja óskerpu',
+    'One-click restoration': 'Endurheimt með einum smelli',
+    'Cells (cyto3)': 'Frumur (cyto3)',
+    'Cells (cyto2)': 'Frumur (cyto2)',
+    'Restoration ready: {model}. CPU processing; original intensities retained for measurements.': 'Endurheimt tilbúin: {model}. Vinnsla á CPU; upprunalegum styrkgildum er haldið fyrir mælingar.',
+    'Restoration unavailable: {error}': 'Endurheimt er ekki tiltæk: {error}',
 }
 
 MODULE_SUMMARIES = {
@@ -13370,4 +13376,10 @@ SOURCE_HASHES = {
     ('UI', 'Install Cellpose 3…'): '42bc3c35908e8e862ff4722e0cd2768754cd849d4f97232c64b06357280f3415',
     ('UI', 'Loading restoration model on CPU…'): '37cb39550e344a08857639b255183be8796f40ce86127683396840b89ae917fe',
     ('UI', 'Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.'): '91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4',
+    ('UI', 'Deblur'): '66671837dcec71a9c2cf299667d6fa6716009e961d52d0c716575d8a619073bb',
+    ('UI', 'One-click restoration'): '5f22b81d28c570f148e2d37411b7650400061016f5cf3bb348656722e73a57b3',
+    ('UI', 'Cells (cyto3)'): 'a62a0c09deca61f49867b826b130c266149a4d7ad76317c9727a3ee9364d105d',
+    ('UI', 'Cells (cyto2)'): '3defbe29858e399884d76024b701c79299d38c16e4374fea91499ed3361e2a68',
+    ('UI', 'Restoration ready: {model}. CPU processing; original intensities retained for measurements.'): '0641d1cc220b3a15e5df90d8697e4051a8c1794003b5bb3c92c2793b4f988b8f',
+    ('UI', 'Restoration unavailable: {error}'): 'f14925c5a09b7a05114ad0b75893cae6f244002fdf65d01c8c8ec1ddcefcd515',
 }
