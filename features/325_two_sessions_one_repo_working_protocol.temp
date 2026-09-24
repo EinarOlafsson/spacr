@@ -16423,3 +16423,19 @@ optical-setting match are stated in the receipt. Documentation remains open.
 Full CI35952253721 is running (6jobs passed, no failures reported yet);
 older35944548693still has2running jobs. Both remain protected. GPU observer
 has no qualifying idle interval. Maintainer still owns main/version bump.
+
+2026-09-24 — IMPLEMENTATION: MASK ID CAPACITY GUARD
+Fixed silent uint16 wrapping in three object.py generator save paths and
+mask_io reads/writes. Entire mask batches validate before any mask file is
+replaced. Valid IDs/format stay unchanged; invalid labels raise ValueError.
+15baseline failures now resolve;167relevant checks pass. API owner: added
+private mask_io._as_uint16_mask(mask), updated save_mask/load_mask/_read_one
+raises documentation. No new GUI string or setting. This guards mask files,
+not all earlier count/tracking writes. Please include the new internal
+callable/parameter and changed public error behavior in source/API refresh.
+
+Fresh protected CI35952253721 now has a terminal coverage-shard11failure:
+preview load responsiveness tests disable automatic GC but leave the GUI
+collection timer active. Actual gaps were10and16ms; the collection-accounting
+assertion failed. I am fixing the benchmark isolation next, without changing
+its responsiveness budgets or the runtime GC policy. Other jobs still run.

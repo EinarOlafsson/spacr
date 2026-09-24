@@ -5083,3 +5083,21 @@ implementation collects the20 cycles on the GUI thread. This addresses a
 runtime hole separately from the preceding test-harness repair. Full CI
 35952253721 predates this patch and remains protected; it is not reported
 green. Private logs: /tmp/spacr-explicit-gc-{tests,pipelines,negative}.log.
+
+2026-09-24 — REFUSE MASK LABEL LOSS IN PIPELINE SAVES AND MASK I/O
+The SAM, legacy Cellpose and classical organelle generators narrowed output
+labels to uint16 without checking capacity. ID65536 therefore became zero.
+Each save now validates/converts the entire output batch before replacing
+any mask in that batch. Shared mask_io saving and loading use the same
+lossless range/integrality check; negative, fractional, nonfinite and
+oversized labels raise ValueError instead of wrapping or truncating.
+Sparse IDs and the65535boundary remain unchanged in2Dand3D TIFF/NPY files.
+No automatic relabeling, wider output format or source-image change.
+
+Before the change,23new checks produced15failures/8passes, including all
+three generator paths. Afterward,167mask I/O and generator checks pass in
+72.02seconds under6GiB, CUDA disabled. Existing target bytes and inputs survive
+invalid-save failures; a bad second mask cannot partially replace a batch.
+This is a mask-file guarantee, not a transaction over all earlier count,
+tracking or other pipeline outputs. Logs:
+/tmp/spacr-mask-label-baseline.log and /tmp/spacr-mask-label-fixed.log.

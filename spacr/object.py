@@ -3,6 +3,7 @@
 import os, torch, time
 
 from . import _gc as gc
+from .mask_io import _as_uint16_mask
 
 from . import accelerator
 import numpy as np
@@ -1078,9 +1079,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                         plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
 
             if settings['save']:
+                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    mask = mask.astype(np.uint16)
                     _save_array_atomic(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
@@ -1378,9 +1379,9 @@ def generate_cellpose_masks(src, settings, object_type):
                     plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
 
             if settings['save']:
+                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    mask = mask.astype(np.uint16)
                     _save_array_atomic(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
@@ -1613,9 +1614,10 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 )
 
             if settings['save']:
+                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_idx, mask in enumerate(mask_stack):
                     out_path = os.path.join(output_folder, batch_filenames[mask_idx])
-                    _save_array_atomic(out_path, mask.astype(np.uint16))
+                    _save_array_atomic(out_path, mask)
                 mask_stack = []
                 batch_filenames = []
 
