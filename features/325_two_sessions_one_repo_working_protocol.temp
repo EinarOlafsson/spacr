@@ -16884,3 +16884,15 @@ No remaining local render/draft jobs; all nine private drafts are complete but
 unreviewed. Remaining12scripts/seven captures/locale work is in the handoff.
 No version increment or main promotion was performed. Preserve the unrelated
 untracked tools/tutorials/authoring/project/ directory.
+2026-09-24 — IMPLEMENTATION: MASK WORKER ASSIGNMENT INTERFACE493
+spacr.object.generate_cellpose_masks_sam gains optional keyword-only
+batch_paths=None, on_batch_done=None, run_qc=True. Normal calls are unchanged.
+Explicit assignments retain the original source/output root and reuse one
+model across all assigned archives; completion callbacks follow finished
+archives, with no callback on failure. Empty assignments load no model.
+Private _assigned_mask_archives validates ownership paths before loading.
+111 CPU pipeline/assignment/capacity/intensity checks pass, including real
+saved masks and cancellation between batches. API owner: update this public
+signature/docstring and new private helper inventory. No settings/UI added.
+This is the worker integration interface, not a parallel-execution claim;
+the scheduler/resume/control and hardware acceptance portions remain open.

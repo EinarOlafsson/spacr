@@ -650,7 +650,29 @@ def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
     return result
 
 
-def generate_cellpose_masks_sam(src, settings, object_type):
+def _assigned_mask_archives(src, batch_paths):
+    """Validate an explicit worker assignment without changing output roots."""
+    if isinstance(batch_paths, (str, bytes, os.PathLike)):
+        raise ValueError('batch_paths must be a sequence of NPZ paths')
+    root = os.path.realpath(os.fspath(src))
+    selected = []
+    for value in batch_paths:
+        path = os.fspath(value)
+        if not os.path.isabs(path):
+            path = os.path.join(root, path)
+        path = os.path.abspath(path)
+        if (os.path.realpath(os.path.dirname(path)) != root
+                or os.path.basename(path).startswith('.')
+                or not path.endswith('.npz') or not os.path.isfile(path)):
+            raise ValueError(f'Mask batch is not a prepared NPZ under {root}: {path}')
+        if path in selected:
+            raise ValueError(f'Mask batch assigned more than once: {path}')
+        selected.append(path)
+    return selected
+
+
+def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
+                                on_batch_done=None, run_qc=True):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
     Loads the ``cpsam`` pretrained model — or, when
@@ -670,6 +692,13 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or
         ``'organelle'``; drives channel/threshold lookups and output folder name.
+    :param batch_paths: optional exclusive worker assignment of NPZ paths under
+        ``src``. One model is reused across the assignment; ``None`` keeps the
+        ordinary whole-directory run. An empty assignment loads no model.
+    :param on_batch_done: optional callable receiving the archive path after
+        its selected fields have completed. Failed archives are not reported.
+    :param run_qc: False lets a parallel coordinator run shared QC once after
+        every worker finishes, instead of writing reports from each worker.
     :returns: None.
     """
     from .utils import (_masks_to_masks_stack, all_elements_match,
@@ -686,6 +715,14 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .cancellation import checkpoint as cancellation_checkpoint
     from dataclasses import replace
     from .zstack import as_t_first
+
+    if on_batch_done is not None and not callable(on_batch_done):
+        raise ValueError('on_batch_done must be callable or None')
+    paths = (_assigned_mask_archives(src, batch_paths) if batch_paths is not None
+             else [os.path.join(src, file) for file in _listdir_visible(src)
+                   if file.endswith('.npz')])
+    if batch_paths is not None and not paths:
+        return
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -777,8 +814,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         model = _load_backend(segmentation_backend, z_plan=z_plan,
                               t_plan=t_plan, model_name=model_name,
                               object_type=object_type)
-    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]
-    
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
@@ -839,6 +874,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
 
         if len(stack) == 0:
+            if on_batch_done is not None:
+                on_batch_done(path)
             continue
 
         for i in range(0, stack.shape[0], batch_size):
@@ -1087,9 +1124,12 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 batch_filenames = []
 
         gc.collect()
+        if on_batch_done is not None:
+            on_batch_done(path)
 
     torch.cuda.empty_cache()
-    _run_seg_qc(src, settings, object_type)
+    if run_qc:
+        _run_seg_qc(src, settings, object_type)
     return
 
 def generate_cellpose_masks(src, settings, object_type):

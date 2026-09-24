@@ -63,3 +63,17 @@ https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/environment-va
 and AMD GPU isolation
 https://rocm.docs.amd.com/en/develop/reference/system-optimization/gpu-isolation.html
 The actual multi-GPU acceptance requirement remains unchanged and open.
+
+2026-09-24 — Normal mask generator accepts exclusive worker assignments
+The Cellpose-SAM pipeline now accepts optional batch_paths, on_batch_done and
+run_qc keyword arguments. An assigned worker keeps the original input/output
+root, loads one model for its whole path list, and reports each archive only
+after its selected fields complete. Empty assignments load no model; duplicate,
+missing, hidden and outside-root paths are refused before model loading.
+The coordinator can defer shared QC until all workers finish. Ordinary calls
+keep their existing three arguments and whole-directory/QC behavior.
+111 pipeline/assignment/label-capacity/raw-intensity checks pass. CPU model
+stand-ins verify persisted masks, no unassigned outputs, one model load,
+no completion event after a failed save, and cooperative cancellation after
+one completed archive with all inputs retained. Parallel process dispatch,
+resume ledger, controls and actual multi-GPU execution remain open.
