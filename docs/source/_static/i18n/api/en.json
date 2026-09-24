@@ -27666,13 +27666,13 @@
       "source_blocks_sha256": [
         "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
         "7f20bb964cdb7ee52d2e7c61062db7715729d574f2a3551a5c0f8b0afc185f08",
-        "e79e7de054afc600e189c6c6de74f506da646ab7ca42e76bfe60f29484db3d15",
+        "d16913d52b4af0f77301c908519ad3cbfefa3f1acea4694caec16f22ed618688",
         "73b303233ebbcac7c2202876eb3bf24cb010bd634e48cc2f57b799a1c9939991",
         "bb1b928d7d9847478938762fccb868e05d9b36f1490d299bb1618ff936b782e1",
         "a911e70676995448ffbff8b4a8626916d20976f420e17ed149d54c305b5c544a"
       ],
-      "source_sha256": "8a9431f4448b8da892a7a0f989801ce51628f20ca417c58a141a718a1edbe852",
-      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\nModel and device dependencies are loaded on demand for this call.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
+      "source_sha256": "799e738f9789122613c606523c3a0686fafac2ac00404d9bc3301d2400c8efcd",
+      "text": "Segment ``images`` with one Cellpose model. The default backend.\n\nOnly :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4\nignores never reaches ``eval`` — it is reported by the caller instead of\nbeing passed on to be silently dropped, which is the difference between a\ncomparison that explains itself and one that says \"no difference\".\n\nModel and device dependencies are loaded on demand for this call.\nCellpose versions without a separate ``invert`` argument receive that\nsetting in the normalization dictionary. Inversion requires normalization\non those versions; other normalization options are retained.\n\n:param images: 2-D or 3-D arrays, one per field.\n:param config: the model to run.\n:returns: one integer label image per input image."
     },
     "spacr.model_zoo": {
       "source_blocks_sha256": [
