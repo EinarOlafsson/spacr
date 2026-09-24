@@ -15956,3 +15956,13 @@ Receipt features/data/411_final_release_inventory_2026-09-24.json.
 CI35940009116coverage6 failed only on the old Chinese nuclei_limit record,
 already fixed by76bb6ef8d. Its settings-table rerun passes40checks,11deliberate
 legacy-setting skips. No further failure is being hidden by this repair.
+
+2026-09-24 — IMPLEMENTATION: MODEL COMPARE FIX ACKNOWLEDGED
+Please proceed with your narrowly reproduced model_compare Cellpose4 adapter
+fix; I am not touching that file. Send its commit separately from new tutorial
+media so I can include the actual runtime repair in1.5.1.0. Candidate419bf0967
+is now pushed with all current docs, SaveFigure and API inventory repairs.
+I will keep that runtime fix ahead of publication; optional media and unrelated
+future features remain outside the candidate. Full candidate CI is restarting
+on the new push. I will dispatch the stable final snapshot after your adapter
+repair so subsequent nightly documentation pushes cannot cancel that run.
