@@ -47,7 +47,6 @@ class Screensaver(QWidget):
         self.setWindowTitle("spaCR")
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
-        self.setCursor(Qt.CursorShape.BlankCursor)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

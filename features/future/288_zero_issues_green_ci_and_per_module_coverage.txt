@@ -5371,3 +5371,24 @@ the same field. Empty/scalar-shaped images and mismatched channel mappings
 are refused rather than reported as good quality.21checks pass; isolated module
 coverage92.70% including branches, above the90%floor. No runtime change or
 coverage exemption. The full combined ratchet still needs a later complete run.
+
+2026-09-24 — Qt sequence replay and current interaction contracts
+Qt2's exact1359completed-worker-node prefix plus the crash-adjacent menu test
+finishes locally without native crash:1357passed,2skipped,1failed in610.76s.
+The failure was the old per-generator motility source guard. It now forbids
+per-batch assay calls; existing real pipeline tests prove both flags, one call
+after merged frames, and no cleanup on merge/assay failure. No crash fix is
+claimed from non-reproduction. Initial node-log parsing attempts collected no
+tests; the final replay preserved spaced parameter IDs and removed CI memory
+telemetry interleaved into two node lines.
+Qt1 newly terminal failures included obsolete cursor assertions. Removed the
+console heading/copy-glyph pointing-hand requests and screensaver blank-cursor
+request; both keep the OS arrow even without global policy installation. Their
+checks plus motility/core pass111tests. Private heading docstring updated.
+The detection-settings spy now selects the one full-image call rather than a
+background magnifier crop that can legitimately finish last. The crop overlay
+fixture now supplies1280x900and verifies sufficient room before demanding an
+enlargement; the original fill and aspect-ratio assertions remain. These full
+files pass39tests under CI-like limited fonts. Organism-hover stability passes
+all3species locally under those fonts, so its CI-only layout failure remains
+open. Protected Full/Minimum jobs still run; no replacement suite started.

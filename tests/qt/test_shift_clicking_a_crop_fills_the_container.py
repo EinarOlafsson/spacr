@@ -88,7 +88,7 @@ def test_shift_click_fills_the_container_in_front_of_the_grid(open_annotate):
     """The crop takes over the container, and it is drawn over the others."""
     from spacr.qt.theme import SPACING
 
-    screen = open_annotate()
+    screen = open_annotate((1280, 900))
     tile = screen._thumbs[0]
     overlay = screen._zoom_overlay
     viewport = screen._grid_scroll.viewport()
@@ -105,6 +105,7 @@ def test_shift_click_fills_the_container_in_front_of_the_grid(open_annotate):
     # FILLS IT, at the crop's own aspect ratio: one of the two axes is as
     # large as the container allows.
     margin = float(SPACING["md"])
+    assert min(overlay.width(), overlay.height()) - 2 * margin > tile.width()
     picture = overlay.picture_rect()
     fills = (abs(picture.width() - (overlay.width() - 2 * margin)) < 1.0
              or abs(picture.height() - (overlay.height() - 2 * margin)) < 1.0)

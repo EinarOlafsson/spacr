@@ -45,11 +45,11 @@ def test_a_click_closes_it_too(qtbot):
     assert not saver.isVisible()
 
 
-def test_the_pointer_is_hidden(qtbot):
-    """What makes it read as a screensaver rather than an empty window."""
+def test_the_pointer_remains_the_operating_system_arrow(qtbot):
+    """The native-pointer preference also applies to the backdrop window."""
     saver = Screensaver()
     qtbot.addWidget(saver)
-    assert saver.cursor().shape() == Qt.CursorShape.BlankCursor
+    assert saver.cursor().shape() == Qt.CursorShape.ArrowCursor
 
 
 def test_it_is_its_own_window_and_not_the_main_one(qtbot):

@@ -17109,3 +17109,14 @@ protected full/minimum/Qt1jobs remain active; no replacement CI launched.
 21image-quality tests pass,92.70%module coverage. Invalid saved policies cannot
 replace prior exclusions, QC files or raw images; missing planes/mapping are
 rejected. Test-only change, no API/settings/tutorial updates required.
+
+2026-09-24 — IMPLEMENTATION: NATIVE POINTER + QT CONTRACTS288
+Console heading/copy glyph and screensaver no longer request hand/blank
+cursors. The native OS arrow is kept even standalone. Private _TopicBar
+constructor prose now says this; public signatures/settings unchanged.
+111console/screensaver/motility/core checks pass.39magnifier/crop-overlay
+checks pass with limited fonts after isolating full-image calls from allowed
+background crop refreshes and sizing the enlargement fixture explicitly.
+Full1360-node crash-prefix replay:1357pass,2skip,1stale motility guard(nowfixed).
+No native crash reproduced; Qt2cleanup and CI-only organism layout remain
+unresolved. Qt1is terminal/failure; Full/Minimum stilllive. No newCIrun.

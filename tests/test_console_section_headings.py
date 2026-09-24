@@ -98,7 +98,7 @@ def test_clicking_the_heading_again_folds_the_section_away(panel):
 
 def test_a_heading_is_an_interactive_control(panel):
     bar = _bars(panel)[0]
-    assert bar.cursor().shape() == Qt.PointingHandCursor
+    assert bar.cursor().shape() == Qt.ArrowCursor
     assert bar.focusPolicy() == Qt.StrongFocus
     # A toggle with no indicator is a control found by accident.
     assert bar._chevron.text() in ("▾", "▸")

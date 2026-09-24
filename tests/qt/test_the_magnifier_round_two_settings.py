@@ -512,8 +512,13 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
     assert spy.calls[-1][2] == dict(wanted, flow_threshold=1.2)
 
     screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("region"))
+    before = len(spy.calls)
     screen.run_cellpose()
-    image, used, kwargs = spy.calls[-1]
+    full_image_calls = [call for call in spy.calls[before:]
+                        if call[0].shape == screen._canvas.image.shape]
+    assert len(full_image_calls) == 1
+    # Applying the full result may also refresh the active magnifier crop.
+    image, used, kwargs = full_image_calls[0]
     assert used is model
     assert kwargs == dict(wanted, flow_threshold=1.2), (
         "Object detection is handed the very same values")
