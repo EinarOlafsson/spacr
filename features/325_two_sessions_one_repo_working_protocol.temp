@@ -16598,3 +16598,13 @@ One CI diagnosis correction: Qt1 job107483090711's animation test worker
 was terminated exactly20minutes after start, following a15minute stack dump.
 It is a timeout, not evidence of another native segmentation fault. Qt2's
 separate native crash remains unresolved. No open GitHub issues on recheck.
+
+2026-09-24 — IMPLEMENTATION: ANIMATION AUDIT TIMEOUT FIXED
+The settings tooltip layout test now groups aliases by GIF. All14125animated
+entries/85assets remain checked; old iteration required11313cold decodes
+against the eight-entry cache. The all-entry test passes46.61s, full32-case
+footer file47.97s. Runtime rendering/cache and every layout assertion are
+unchanged. This addresses Qt1's20minute timeout, not Qt2's native crash.
+Four runtime/test batches plus this audit optimization are committed/pushed.
+Version/main promotion remain with the maintainer. Protected35952253721still
+has full-control/minimum-dependency/coverage5running; no replacement run.

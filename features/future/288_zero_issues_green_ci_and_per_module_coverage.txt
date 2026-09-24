@@ -5165,3 +5165,17 @@ Forced-root baseline: 3 failures. Fixed console/thread/de-duplication cohort:
 18 pass with the root sink installed, 18 pass normally (5.29s). GUI-thread,
 worker-thread and real-console duplicate suppression checks remain active.
 Native Qt crashes and remaining protected-CI failures remain separate work.
+
+2026-09-24 — Animation layout audit avoids repeated alias decoding
+Qt1's worker stopped at the configured20minute test timeout, with its
+15minute stack dump inside Pillow resize/animation_zoom.zoom_frames. It
+was not another demonstrated native Qt crash. The real tooltip catalog
+contains14125 animated entries but only85 assets; its old order causes
+11313 cold decodes with the deliberately bounded eight-entry runtime cache.
+The test now groups entries by asset while retaining every original text,
+animation-visible, height, width and overflow assertion. Runtime cache and
+animation rendering are unchanged. Grouped all-entry check passes46.61s;
+the whole32-test tooltip-footer file passes47.97s under6GiB. No timeout
+threshold was raised, setting skipped, or cache inflated.
+Scoped Ruff comparison across all11Python files changed since7327a4444:
+98 pre-existing findings before/after, zero new findings.
