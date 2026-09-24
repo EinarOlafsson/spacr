@@ -1,0 +1,28 @@
+PLAQUE PREVIEW: OUTLINE AND BOX STYLING, THE FOUR VIEWS, AND A RULER
+
+Status: OPEN, filed 2026-09-24. Not started.
+Owner: unassigned. Related: 505 (the same views in Mask generation's live
+preview), and the plaque preview's existing overlay settings.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "in the plaque assay modual there should be settings to controll the
+    thickness and weight of the plaque outlines, and the yolo boxes. there
+    should also be the ability to show the plaques as outlines , masks, flows,
+    or cell probabilities, just like in the live preview for mask generation.
+    there shouild also be a ruler button in the live preview here as well."
+
+WHAT TO BUILD
+  * Settings for the LINE WEIGHT of the plaque outlines and of the YOLO
+    detection boxes, alongside the colour and fill options already there, and
+    remembered between sessions.
+  * The SAME FOUR VIEWS Mask generation's live preview offers -- outlines,
+    masks, flows, cell probability -- from the plaque segmentation's own
+    output, not a separate implementation; share the widget with item 505 so
+    both stay alike.
+  * A RULER BUTTON in the plaque live preview, doing what Make Masks' ruler
+    does: measure a distance on the image in pixels and in microns where the
+    pixel size is known.
+
+DONE WHEN
+Outline and box thickness are adjustable and persist, the four views are
+selectable on a real plaque field, and the ruler measures in both units.
