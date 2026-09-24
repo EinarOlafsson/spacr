@@ -21,12 +21,6 @@
     {
       "visual": "01_measure_host",
       "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
-      "focus": [
-        3570,
-        1900,
-        220,
-        90
-      ],
       "related_lessons": [
         "08_measure",
         "17_timelapse"
@@ -36,111 +30,51 @@
     {
       "visual": "03_actual_setting_src",
       "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
-      "focus": [
-        250,
-        305,
-        1185,
-        285
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "07_actual_preview",
       "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
-      "focus": [
-        1440,
-        305,
-        2375,
-        550
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "09_actual_plane_and_unit_settings",
       "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
-      "focus": [
-        1455,
-        395,
-        2340,
-        300
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "10_actual_uncalibrated_preview",
       "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
-      "focus": [
-        1455,
-        1600,
-        2340,
-        200
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "12_actual_length_restored",
       "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
-      "focus": [
-        1455,
-        690,
-        2340,
-        1110
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "13_actual_straightness_filter",
       "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
-      "focus": [
-        1455,
-        405,
-        2340,
-        1390
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "16_actual_hypothetical_calibration",
       "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
-      "focus": [
-        1455,
-        405,
-        2340,
-        1390
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "03_actual_setting_pixels_per_um",
       "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
-      "focus": [
-        250,
-        600,
-        1185,
-        150
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "03_actual_setting_infection_intensity_qc_graphs",
       "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
-      "focus": [
-        250,
-        810,
-        1185,
-        760
-      ],
       "hold_after": 0.7
     },
     {
       "visual": "05_actual_finished",
       "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
-      "focus": [
-        1440,
-        305,
-        2375,
-        850
-      ],
       "hold_after": 0.7
     }
   ]

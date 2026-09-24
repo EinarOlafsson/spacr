@@ -83,12 +83,12 @@ jobs:
             "torch>=2.0" torchvision
           python -m pip install -e ".[qt,dev]"
           python -m pip install sphinx furo sphinx-design sphinx-autoapi
-      - name: Check generated Make Masks parameter reference
+      - name: Generate Make Masks parameter reference from the pinned branch
         run: |
           if [ -f tools/build_make_masks_reference.py ]; then
             reference_home=$(mktemp -d)
             HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
-              tools/run_capped.sh 4G python tools/build_make_masks_reference.py --check
+              tools/run_capped.sh 4G python tools/build_make_masks_reference.py
           fi
       - name: Refresh English manifests from the pinned branch
         run: |

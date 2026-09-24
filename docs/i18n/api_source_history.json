@@ -286,6 +286,19 @@
       "source_sha256": "27f801065f6bfce391fde9cdbed5b72d128123122e29932c8965cb7a8f268373",
       "text": "One model the zoo knows about, wherever it lives.\n\nFrozen because an entry is a *record of a file at a moment* — the hash, the\nsize and the provenance describe those bytes. Changing one in place would\nsilently invalidate the other two; :func:`dataclasses.replace` makes the\nnew record explicit.\n\n:param key: stable id, unique within a listing. For a local file this is\n    derived from the filename; for a catalogue entry it is whatever the\n    catalogue declared.\n:param name: the filename (or the published name) — what a human reads.\n:param kind: ``'cellpose'`` or ``'classifier'``; see :data:`KINDS`.\n:param source: ``'bundled'`` (ships with spaCR), ``'local'`` (found on this\n    machine) or ``'remote'`` (declared in a catalogue, not yet fetched).\n:param path: absolute path on this machine, or ``''`` for a remote entry.\n:param uri: where a remote entry is fetched from, or ``''``.\n:param version: the zoo's own version number for a filename. ``'1'`` for a\n    plain name, ``'2'`` for ``foo_v2.CP_model`` (see\n    :func:`versioned_path`), or whatever a catalogue declared.\n:param sha256: hex digest. For a downloaded model this is the digest of the\n    bytes that were actually written; for a catalogue entry it is the\n    published digest to check against; ``''`` means \"no checksum known\",\n    which :func:`fetch` treats as a refusal rather than a pass.\n:param size_bytes: file size, ``0`` when unknown.\n:param trained_on: what data produced this model, in prose, or\n    :data:`UNKNOWN`. Never ``''``.\n:param trained_by: who produced it, or :data:`UNKNOWN`. Never ``''``.\n:param metrics: whatever numbers came with it — for a classifier, the\n    best/last epoch metrics :func:`spacr.train_compare.load_run` recovered.\n    Excluded from equality: two records of the same bytes are the same\n    model whether or not somebody attached numbers to one of them.\n:param notes: everything the reader needs to know that is not a field:\n    missing provenance, an unverified download, a file that does not look\n    like a checkpoint.\n:param verified: True only when :attr:`sha256` was checked against a\n    published digest. A downloaded file whose hash was merely *recorded* is\n    not verified, and says so.\n:param settings_path: where the provenance came from, for the reader who\n    wants to go and look at it."
     },
+    "29ad7863ba376e8d3949b950a84d966d87b3888c04df68fcb4fc8f7e79d9eb05": {
+      "source_blocks_sha256": [
+        "43ef95f7d4e99afb7dd373fd6b0395d4eb82dfbe49d255339dd730b80259b6db",
+        "82af79ca7a4a623bb7031444f9f13a9a974ac6d2abf7b517325b9785be2122e7",
+        "5458f62a9296e8ae1f1173f6c901fecc048177f05748daaf52d67bccbbcc883b",
+        "af8fc9662f5de3f75d4a6b9b06fd9e20ca1115fcc030d085b5a158ce40829be5",
+        "2fcd646ce73927add46cf8862671bee36121f00b117baaec2dd730d9af89c2cd",
+        "f05f70295e0e5f35322f61fa314a2509d7de305acb8b866f21461c76814b6671",
+        "a2c91e070e21a67ff316a0df2cf72d3696eba86c809b8e158c3fdcab740622fe"
+      ],
+      "source_sha256": "29ad7863ba376e8d3949b950a84d966d87b3888c04df68fcb4fc8f7e79d9eb05",
+      "text": "Concatenate, optionally correct, and normalise V1 field arrays.\n\n:param src: directory containing per-field ``.npy`` channel arrays.\n:param channels: channel indices retained in the output archives.\n:param save_dtype: NumPy dtype for normalised arrays. Defaults to float32.\n:param settings: required preprocessing settings mapping.\n:param illumination_session: optional segmentation-only correction\n    session. Corrected archives are staged privately and published as one\n    complete set; the staging directory is removed on success or failure.\n:returns: the ``masks/`` directory containing normalised NPZ archives."
+    },
     "2bf9a0caca9d71b13e2ee88b2a235d72eea6b38084598ebb7e86ed755314bde8": {
       "source_blocks_sha256": [
         "7159a2ef5f9d165342a4a18f2090a3ddf2babcc495c186f4f9c2dafc862fd94d",
@@ -391,6 +404,15 @@
       ],
       "source_sha256": "3415ac1e8592c5fbaeab6c74544147aa1d667846212d67844976452109302b82",
       "text": "One nucleus, numbered for the whole well. The join key for sampling.\n\nThe field names are the ``ops_objects`` columns the storage contract\nspecifies, so the table is written from these without a translation\nlayer.\n\n:param object_id: the well-wide number. Unique across the whole well,\n    which is the entire reason this type exists -- per-window numbering\n    gives two windows an object #1 apiece.\n:param centroid_x: column of the centroid, in well-frame pixels.\n:param centroid_y: row of the centroid, same frame.\n:param area: pixel count of the mask that was kept, which is the\n    UNCLIPPED observation wherever one exists.\n:param bbox: ``(top, left, bottom, right)`` in well-frame pixels,\n    bottom/right exclusive.\n:param window: the window whose observation was kept, as ``(row, col)``.\n    Recorded so a suspect object can be traced back to the pixels it was\n    segmented from.\n:param n_observations: how many windows saw this nucleus. Greater than\n    one means it sat in an overlap and the observations were sewn."
+    },
+    "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174": {
+      "source_blocks_sha256": [
+        "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
+        "a7f7a6a6bb252b0fe58d0189634b4a19c8f0f605674e595b09ed55f034f37b6c",
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+      ],
+      "source_sha256": "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174",
+      "text": "``(task, accelerated, detail)`` for what this machine can actually do.\n\nWHAT THE SETUP SCREEN IS FOR. \"Compatible GPU\" on its own answers a\nquestion nobody asked: users want to know whether THE SLOW STEP will\nbe slow. So this reports per task, and it reports the truth per\nbackend rather than one verdict for all of them -- on Metal the\nsegmentation and the classifier are accelerated while the cuML\nreductions are not, and a single green tick would be a lie about the\nsecond.\n\nOrdered by how much the acceleration is worth: segmentation on the CPU\ntook 444 s for one 256x256 image on the machine this was written on,\nand 3.2 s on its Radeon."
     },
     "3559e6ef26b4b3a291e9c669e0c65f84a64e9f6b0cf7016f30c308edbb6990f2": {
       "source_blocks_sha256": [
@@ -936,6 +958,14 @@
       "source_sha256": "6506ee0f317ae94803d9e249d758832dcb4a6569ca726919fcc20a17b2771eea",
       "text": "Image classification dataset that reads class subfolders under ``data_dir``.\n\n:param data_dir: Root directory containing one subdirectory per class.\n:param loader_classes: Ordered list of class names — the index in\n    this list becomes the integer label.\n:param transform: Optional callable applied to each PIL image.\n:param shuffle: If True, shuffle files+labels at construction.\n:param pin_memory: If True, eagerly load every image into RAM via a\n    multiprocessing pool.\n:param specific_files: Optional explicit list of image paths. If\n    supplied together with ``specific_labels``, directory scanning\n    is skipped.\n:param specific_labels: Labels paired with ``specific_files``.\n:raises ValueError: If no non-hidden image files are found for any\n    requested class.\nBuild the filename/label lists and optionally preload images."
     },
+    "66a279344bf2b6cfb32d93f7b1f2d99ece564a8435533ad3a3ba75fc4c3d7545": {
+      "source_blocks_sha256": [
+        "3bb165ea1eba854d3349c51e94bce594dae17064806695e83eabe08d14131f80",
+        "22263a22b0248c8dcded57631fadecfcf8fd42ea23fc7a8baa2e77f7e832ea77"
+      ],
+      "source_sha256": "66a279344bf2b6cfb32d93f7b1f2d99ece564a8435533ad3a3ba75fc4c3d7545",
+      "text": "CUDA is not merely reported as present but is actually usable.\n\n:param ctx: only ``ctx.probe_gpu`` is read, and only on the path where\n    CUDA already reports at least one device. Left ``True`` (the default,\n    cleared by ``--no-gpu-probe``) the check allocates an 8x8 tensor on\n    ``cuda``, multiplies it and synchronises, which is what catches the\n    driver/runtime mismatch that ``torch.cuda.is_available()`` cheerfully\n    reports as fine. Set it ``False`` on a card that is full or shared:\n    the row then repeats what torch claims, says the probe was skipped,\n    and can therefore pass on a GPU that would fail at the first\n    allocation."
+    },
     "682b1b8683b05d98a6f5c19d7e81513f0a2e5a837892fb5a00447186377cc371": {
       "source_blocks_sha256": [
         "1d597f81ca4d8d05642d70ca1498b162471a706075a10d549af347f798829f18",
@@ -1052,6 +1082,20 @@
       ],
       "source_sha256": "770d6354abaecdf1e514733c07494503e502ae6cb7cd69661e120cf2182790f8",
       "text": "Synthetic datasets + saved settings for exercising every pipeline app.\n\nThe goal: give a developer (or a bug reporter) a one-line way to\ngenerate a demo folder that flows cleanly through every spacr\npipeline — mask, measure, crop, classify, timelapse, map_barcodes —\nplus a matching settings CSV that plugs into the \"Import settings…\"\nbutton on each app screen.\n\nEverything is reverse-engineered from what the pipelines actually\nconsume:\n\n* Filenames match the cellvoyager regex in\n  `spacr.utils._get_regex('.tif', 'cellvoyager')`::\n\n      <plateID>_<wellID>_T<timeID>F<fieldID>L<laserID>A<AID>Z<sliceID>C<chanID>.tif\n\n* Channels are laid out in the order every mask default expects::\n\n      C0 = nucleus, C1 = cell, C2 = pathogen, C3 = organelle\n\n* Images are 16-bit uint16. Every channel of a field is drawn from\n  *one shared cell layout*, so the nucleus really is inside the cell\n  and the pathogen really is inside the same cell — the relationships\n  measure_crop goes looking for when it links objects.\n* Measure/crop demos ship the `merged/*.npy` stacks measure_crop\n  actually reads (image planes first, then the label-mask planes),\n  not a stand-in.\n* Settings CSVs are written in the two-column ``Key,Value`` format, the\n  first of the header pairs `spacr.qt.screens.app_screen.AppScreen\n  ._load_settings_csv` tries, so the \"Import settings…\" button restores\n  every value into the form. Reading one straight from Python means\n  naming the columns —\n  ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` —\n  because `spacr.utils.load_settings` *defaults* to the other spelling\n  (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db`\n  writes) and raises rather than guessing.\n\nEvery generator is *reproducible*: identical inputs give byte-identical\noutput on any machine. That is not decoration. Two people comparing\n\"the demo fails here\" have to be looking at the same pixels, and the\nprevious seeding (``hash((well, field, time, chan))``) was salted by\nPYTHONHASHSEED, so it changed on every interpreter start.\n\nPublic API:\n    generate_mask_demo(dst, ...) -> DemoLayout\n    generate_measure_demo(dst, ...) -> DemoLayout\n    generate_crop_demo(dst, ...) -> DemoLayout\n    generate_classify_demo(dst, ...) -> DemoLayout\n    generate_timelapse_demo(dst, ...) -> DemoLayout\n    generate_map_barcodes_demo(dst, ...) -> DemoLayout\n    save_settings_csv(dst, settings) -> Path\n    demo_settings(app_key, src, channels=None) -> Dict[str, Any]\n\nCLI:\n    python -m spacr.qt.synthetic mask /tmp/demo\n    python -m spacr.qt.synthetic all  /tmp/demo"
+    },
+    "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672": {
+      "source_blocks_sha256": [
+        "91455fc7710e049946d626dd378a456af29f31d4f6ed2015061f5ff26c772071",
+        "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
+        "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
+        "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
+        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
+        "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
+        "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
+      ],
+      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
+      "text": "Optional image enhancement before detection and label cleanup afterward.\n\nIn Make Masks, Apply enables the configured chain for detection and display;\nCompare previews it without enabling it. Processing uses copies: files on disk\nand the original values reported by the hover readout remain unchanged.\n\n:data:`CHAIN_ORDER` fixes the sequence::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nThe optional percentile stretch belongs to Make Masks, outside :class:`Chain`.\nIts levels come from the whole field before a magnifier region is cropped, so\nmoving the box does not redefine the percentile levels.\n\nBackground subtraction precedes denoising. Denoising precedes contrast to\navoid amplifying noise; contrast precedes sharpening to avoid stretching its\nhalos. Morphology precedes splitting because it changes which pixels are\nconnected. :func:`prepare` runs background, denoise, contrast and sharpen;\n:func:`finish` runs morphology and split after the selected detector.\n\nDisabled steps return their input unchanged. :func:`heavy_steps` identifies\nenabled steps that warrant a progress warning; non-local means can take\nminutes on a 2,000 px field. Whole-image runs retain progress and Cancel\ncontrols. Selecting a background method does not enable denoising.\n\nThe Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch`\napplies rolling ball then CLAHE to organelle batches using\n``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings\n``remove_background``, ``background`` and ``signal_to_noise`` instead apply\nper-channel intensity floors. This Make Masks chain configures neither route.\n\nEnhancement changes the objects proposed for curation. Models trained on\nenhanced images require matching preprocessing at inference; this module does\nnot configure the training or inference pipeline."
     },
     "78d31cfab8a3560a2ec253e9150b0208780e99079d0da558785057c191a38298": {
       "source_blocks_sha256": [
@@ -1191,6 +1235,14 @@
       "source_sha256": "893fde9faf389e5edb8eb72158932e5f149202b71e9598b87c0492fd69eff6e4",
       "text": "Upgrade ``spacr`` in place, capturing what the packaging tool said.\n\n:param pre_release: pass ``--pre`` so pre-releases and ``.postN``\n    versions are considered.\n:returns: ``(exit_code, output)`` with combined stdout and stderr. Captured\n    output remains available to desktop installations launched without a\n    terminal."
     },
+    "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9": {
+      "source_blocks_sha256": [
+        "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+      ],
+      "source_sha256": "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9",
+      "text": "Resolve against a SPECIFIC torch module, without touching the cache.\n\nFor callers that already hold a torch handle and must be answered about\nthat one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch\nthrough its own indirection so the diagnosis can be exercised against a\nstand-in, and a cached answer about the real machine would defeat that\nentirely. Same probes and same order as :func:`resolve`, so the two\ncannot drift."
+    },
     "8c7a0a20b25bf625ef1976d170a18d801d72cd82194354f484a810d58a8cf9ee": {
       "source_blocks_sha256": [
         "8c7a0a20b25bf625ef1976d170a18d801d72cd82194354f484a810d58a8cf9ee"
@@ -1233,6 +1285,17 @@
       ],
       "source_sha256": "8d79a2d1f49afc78361a6920d2ae9b8df890db0c425e511c529b190598d873b0",
       "text": "An interactive volcano: click a point, restyle it, export it.\n\n:param results: the fitted table to plot. Copied with the index reset, so\n    the row numbers a clicked point reports are positions in the plot\n    rather than whatever index the caller happened to carry.\n:param style: the styling to open with. A fresh :class:`VolcanoStyle` is\n    used when none is given.\n:param parent: parent widget.\nBuild the volcano, its style controls and its detail panel.\n\n:param results: the fitted table to plot.\n:param style: how to draw it.\n:param parent: parent widget."
+    },
+    "8e39941dffd36d6929c995f0c62423145e8935d7ca13626d00d0c658747fd2bd": {
+      "source_blocks_sha256": [
+        "22706cc2b741c59df46fa7fb51a230a626d6a7e1a67f2c0796e7c8e60a51c414",
+        "fae19218413791dd90429e1d7349a7861a347729802bf2a653dc457c30e5d9cf",
+        "46b255912c04219e7403be7a8cc3a6608837573f9a25d395f5d70ce78ea51b29",
+        "fad6bec91382ecfdd8ed503d20248361e21d9251db47961309277791a795807a",
+        "e86258df87939ff2b65414695610e12992a34de54db3aec7ec935f73b1ce741d"
+      ],
+      "source_sha256": "8e39941dffd36d6929c995f0c62423145e8935d7ca13626d00d0c658747fd2bd",
+      "text": "Check a settings dict against the data it points at.\n\nNothing is loaded beyond one ``.npy`` header and a directory listing, so\nthis is safe to call before committing a GPU to a run.\n\n:param settings: the settings dict about to be handed to a pipeline.\n:param app_key: which pipeline, e.g. ``'mask'``, ``'measure'``,\n    ``'classify'``, ``'umap'``, ``'map_barcodes'``. The\n    ``settings_type`` strings used by the GUI all work, as do a few\n    aliases (``'sequencing'``, ``'measure_crop'``, ...).\n:returns: list of :class:`Problem`; empty means nothing was found."
     },
     "8f8ddbb332c6bbba7d1579396fb33e34ef98ca94027674c47b7ceb0b43f56c3c": {
       "source_blocks_sha256": [
@@ -2125,6 +2188,23 @@
       ],
       "source_sha256": "e4136727c7cc41792dae7b1e36a6a1de58e007a3bb3a7839f38972b74000025d",
       "text": "Build the settings dict this job's module will actually receive.\n\nLayered exactly as ``spacr-run`` layers them — module defaults, then the\nsettings file (or the inline dict), then the ``--set`` overrides — using\n:mod:`spacr.cli`'s own loader and coercion so a value the CLI accepts is a\nvalue the queue accepts.\n\n:param job: the job.\n:returns: the resolved settings.\n:raises SettingsError: on an unknown module, an unreadable settings file,\n    an unknown override key or an uncoercible override value."
+    },
+    "e4d2dc5d54d8496b5812113828bcfc6b25282d567fb55a0abc3c62aca3fa1c7e": {
+      "source_blocks_sha256": [
+        "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+        "8fb1f2dd3a42d5076632d19933596a2b92359382f89c7a967f421191c784b936",
+        "e20254d539f028a99014f2257c3e476aff48bf6ffdab24e4d114c7d9e8de6baf",
+        "981286e57fbc8c1233dc6f0904dd716f2b532cf74a6f7b51603c94b908de41a4",
+        "d25c4df14b7da55e01664619369baaddb396553597fcb58e49a1b440998c3f9a",
+        "82170a84e8b055cd9b4d5ac0c524f3602fbae48774a31d2b2e52eec705f03bf2",
+        "e98c1e9684be349aaebc43fad4ac56335f6e1c26af0c05721866b799477352af",
+        "d5a1ac80dceb2da05694d37fc60468aff2c4187d20b5abf256f14fa9d3d7e637",
+        "b41e260f3f9259b4c111b9edc1db4cbbfc716f3ba8b4efc188ddb19a00cef301",
+        "f3740c4e162a81304f7dc17f9d11b87f18ca455db2f5e9346bfc2b3a93bddd2d",
+        "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05"
+      ],
+      "source_sha256": "e4d2dc5d54d8496b5812113828bcfc6b25282d567fb55a0abc3c62aca3fa1c7e",
+      "text": "Batch the field stacks through Cellpose, then append the mask\nchannel(s) to the SAME npy files.\n\n:param stacks: list produced by :func:`stream_originals_to_stack`.\n:param model_name: Cellpose model to use (``\"cyto\"``, ``\"nuclei\"``, …).\n:param channels_for_cellpose: C-axis indices selected out of each\n    assembled stack before it is handed to Cellpose — taken modulo the\n    channel count and de-duplicated in order. It is NOT forwarded as\n    Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a\n    single plane, not a grayscale pair. The first selected channel is\n    the object's own channel for absolute mean-intensity filtering.\n:param diameter: expected object diameter in px (None → Cellpose\n    auto).\n:param batch_fields: how many field stacks to load into memory at\n    once. Larger = faster but more RAM.\n:param mask_channel_name: human name to record for the appended\n    mask channel (default ``\"mask\"``).\n:param keep_npz: the intermediate batch is compressed to an NPZ under\n    ``npz_dir`` on every batch regardless; this flag only decides\n    whether that file and the scratch folder survive the run.\n:param npz_dir: where to write the (optional) intermediate NPZ\n    files. Defaults to a scratch subfolder under the stack folder.\n:param illumination_session: optional\n    :class:`spacr.illumination.SegmentationIlluminationSession`. Its\n    corrector sees private selected-channel copies immediately before\n    normalisation/Cellpose; persisted intensity planes and scratch NPZs\n    remain raw, and completion is recorded only after the combined stack\n    has been atomically replaced.\n:returns: the same list, with each :class:`StackFile.shape` /\n    ``.channels`` updated to reflect the appended mask channel."
     },
     "e6d4c12b5975fa80129efe2c64cc65e9a51374fc7e65d26c238c1bbf9473a38f": {
       "source_blocks_sha256": [

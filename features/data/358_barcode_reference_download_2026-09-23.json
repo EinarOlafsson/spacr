@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "dataset": "SRR33531217 paired-read tutorial example",
+  "archive": "docs/source/_extra/tutorials/examples/SRR33531217_barcode_references.zip",
+  "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf",
+  "records": [
+    {
+      "path": "primers_3_column_barecodes.csv",
+      "sha256": "417feffa96992838f76b25e6830cf6b3d3b16d0c0d8b8f72f6b8580e2adcc6f4",
+      "bytes": 317
+    },
+    {
+      "path": "primers_3_column_barecodes_RC.csv",
+      "sha256": "19e6fa729fbe449c34043328c387a3c5915035d54dc91b9550072e63bdcab09d",
+      "bytes": 317
+    },
+    {
+      "path": "primers_3_row_barecodes.csv",
+      "sha256": "272d7fddef9062cb6198cd727a6e0db3817eb2c9699a6d3bded4b0dd2b574916",
+      "bytes": 213
+    },
+    {
+      "path": "primers_3_row_barecodes_RC.csv",
+      "sha256": "c876e1781bc227b72d13eb0316e3a4ffc9cfeb0b91169f771b1ca4068806db6b",
+      "bytes": 213
+    },
+    {
+      "path": "grna_barcodes.csv",
+      "sha256": "00b2b02cc1d470d4b51ad901f9e4d5cd676aa124c7d5ce9a55030e520287dffd",
+      "bytes": 51126
+    },
+    {
+      "path": "grna_barcodes_RC.csv",
+      "sha256": "f5fb505cec66c80b1442275d1483647c90bc6f4f99996c5b2d1bfcd01b24f418",
+      "bytes": 51126
+    }
+  ],
+  "checks": [
+    {
+      "reference": "primers_3_column_barecodes",
+      "rows": 24,
+      "names_preserved": true,
+      "reverse_complements_exact": true
+    },
+    {
+      "reference": "primers_3_row_barecodes",
+      "rows": 16,
+      "names_preserved": true,
+      "reverse_complements_exact": true
+    },
+    {
+      "reference": "grna_barcodes",
+      "rows": 1385,
+      "names_preserved": true,
+      "reverse_complements_exact": true
+    }
+  ],
+  "all_checks_passed": true,
+  "source": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/map-current-v2/source_references",
+  "scope": "Package existing tutorial reference bytes and verify every reverse-complement row; no new mapping run."
+}

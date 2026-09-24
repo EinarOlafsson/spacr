@@ -224,10 +224,12 @@
       "source_blocks_sha256": [
         "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
         "a7f7a6a6bb252b0fe58d0189634b4a19c8f0f605674e595b09ed55f034f37b6c",
-        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb",
+        "ad800e0d4267521ed9dd9ee88a1f337b521e6dd643e17a40f8d5105dcd3711e7",
+        "f5df687222d3686862c1f8d68106723d3d533f4e4d1e0c00499b610cfbd20540"
       ],
-      "source_sha256": "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174",
-      "text": "``(task, accelerated, detail)`` for what this machine can actually do.\n\nWHAT THE SETUP SCREEN IS FOR. \"Compatible GPU\" on its own answers a\nquestion nobody asked: users want to know whether THE SLOW STEP will\nbe slow. So this reports per task, and it reports the truth per\nbackend rather than one verdict for all of them -- on Metal the\nsegmentation and the classifier are accelerated while the cuML\nreductions are not, and a single green tick would be a lie about the\nsecond.\n\nOrdered by how much the acceleration is worth: segmentation on the CPU\ntook 444 s for one 256x256 image on the machine this was written on,\nand 3.2 s on its Radeon."
+      "source_sha256": "fed3fbf11a9b8983212860c71fd98f8c68890173558ec295142b67d98c413038",
+      "text": "``(task, accelerated, detail)`` for what this machine can actually do.\n\nWHAT THE SETUP SCREEN IS FOR. \"Compatible GPU\" on its own answers a\nquestion nobody asked: users want to know whether THE SLOW STEP will\nbe slow. So this reports per task, and it reports the truth per\nbackend rather than one verdict for all of them -- on Metal the\nsegmentation and the classifier are accelerated while the cuML\nreductions are not, and a single green tick would be a lie about the\nsecond.\n\nOrdered by how much the acceleration is worth: segmentation on the CPU\ntook 444 s for one 256x256 image on the machine this was written on,\nand 3.2 s on its Radeon.\n\n:param found: optional existing accelerator snapshot. Providing it avoids\n    another resolution and any dtype-probe allocations, as required by\n    the doctor's metadata-only check.\n:returns: task, accelerated flag and explanation for each capability."
     },
     "spacr.accelerator.cellpose_gpu": {
       "source_blocks_sha256": [
@@ -274,10 +276,14 @@
     "spacr.accelerator.inspect_torch": {
       "source_blocks_sha256": [
         "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
-        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d",
+        "d01f030800874f4e31a4043311f06e82d2444e0a8b9631249b6d1ebbcbddff0a",
+        "987c8012dc7950af266bc25c33e1483250fcc19af77fbf1ae38e55c2c693cb91",
+        "41587a71851fa5e5c3059c7d8025e4687c213f76616897cf72ea8500ebcddf11",
+        "66d3841f19faa82a28101145ba864ee54ef072644335950e8a81f151b7f238f5"
       ],
-      "source_sha256": "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9",
-      "text": "Resolve against a SPECIFIC torch module, without touching the cache.\n\nFor callers that already hold a torch handle and must be answered about\nthat one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch\nthrough its own indirection so the diagnosis can be exercised against a\nstand-in, and a cached answer about the real machine would defeat that\nentirely. Same probes and same order as :func:`resolve`, so the two\ncannot drift."
+      "source_sha256": "f87e5c9556eaa529efa002781006dbe6097d2e6ae4ba141458cf97fdf37d5c35",
+      "text": "Resolve against a SPECIFIC torch module, without touching the cache.\n\nFor callers that already hold a torch handle and must be answered about\nthat one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch\nthrough its own indirection so the diagnosis can be exercised against a\nstand-in, and a cached answer about the real machine would defeat that\nentirely. Same probes and same order as :func:`resolve`, so the two\ncannot drift.\n\n:param torch: torch module whose availability metadata should be inspected.\n:param device_names: False avoids CUDA/XPU property queries that can\n    initialize their runtime. Availability queries still run.\n:param include_cuda: False skips CUDA/ROCm entirely, for a process whose\n    environment deliberately hides those devices. Other backends remain\n    eligible. This function does not allocate dtype-probe tensors.\n:returns: accelerator described by the supplied torch module."
     },
     "spacr.accelerator.is_cuda": {
       "source_blocks_sha256": [
@@ -12397,10 +12403,10 @@
     "spacr.doctor.check_gpu": {
       "source_blocks_sha256": [
         "3bb165ea1eba854d3349c51e94bce594dae17064806695e83eabe08d14131f80",
-        "22263a22b0248c8dcded57631fadecfcf8fd42ea23fc7a8baa2e77f7e832ea77"
+        "3ff38082e485fb7d7b6ba6a2abfcaa291b6addb052b829885a4c21835ff67656"
       ],
-      "source_sha256": "66a279344bf2b6cfb32d93f7b1f2d99ece564a8435533ad3a3ba75fc4c3d7545",
-      "text": "CUDA is not merely reported as present but is actually usable.\n\n:param ctx: only ``ctx.probe_gpu`` is read, and only on the path where\n    CUDA already reports at least one device. Left ``True`` (the default,\n    cleared by ``--no-gpu-probe``) the check allocates an 8x8 tensor on\n    ``cuda``, multiplies it and synchronises, which is what catches the\n    driver/runtime mismatch that ``torch.cuda.is_available()`` cheerfully\n    reports as fine. Set it ``False`` on a card that is full or shared:\n    the row then repeats what torch claims, says the probe was skipped,\n    and can therefore pass on a GPU that would fail at the first\n    allocation."
+      "source_sha256": "22e5be84a741531abf3ef7cefe8da08da0a23db20b390fde7cc986b99ee2164f",
+      "text": "CUDA is not merely reported as present but is actually usable.\n\n:param ctx: ``probe_gpu=True`` permits explicit CUDA initialization and\n    an 8x8 tensor allocation/multiplication probe. False reports metadata\n    without initialization, device-name or dtype-allocation probes; it\n    cannot prove that a reported device would accept a tensor. Explicitly\n    hidden CUDA devices are reported as skipped, while other backends\n    remain eligible. A forced CPU selection is also reported as skipped."
     },
     "spacr.doctor.check_installer_backend": {
       "source_blocks_sha256": [
@@ -21817,10 +21823,11 @@
         "af8fc9662f5de3f75d4a6b9b06fd9e20ca1115fcc030d085b5a158ce40829be5",
         "2fcd646ce73927add46cf8862671bee36121f00b117baaec2dd730d9af89c2cd",
         "f05f70295e0e5f35322f61fa314a2509d7de305acb8b866f21461c76814b6671",
+        "7b60c9125c109b14524d6e7802a402d4846422aa88381dd18a1a8d8ed0e82291",
         "a2c91e070e21a67ff316a0df2cf72d3696eba86c809b8e158c3fdcab740622fe"
       ],
-      "source_sha256": "29ad7863ba376e8d3949b950a84d966d87b3888c04df68fcb4fc8f7e79d9eb05",
-      "text": "Concatenate, optionally correct, and normalise V1 field arrays.\n\n:param src: directory containing per-field ``.npy`` channel arrays.\n:param channels: channel indices retained in the output archives.\n:param save_dtype: NumPy dtype for normalised arrays. Defaults to float32.\n:param settings: required preprocessing settings mapping.\n:param illumination_session: optional segmentation-only correction\n    session. Corrected archives are staged privately and published as one\n    complete set; the staging directory is removed on success or failure.\n:returns: the ``masks/`` directory containing normalised NPZ archives."
+      "source_sha256": "b5c0397821d35543a794736376846e0a356eabbe58ab605b1aaaaab01aab66d9",
+      "text": "Concatenate, optionally correct, and normalise V1 field arrays.\n\n:param src: directory containing per-field ``.npy`` channel arrays.\n:param channels: channel indices retained in the output archives.\n:param save_dtype: NumPy dtype for normalised arrays. Defaults to float32.\n:param settings: required preprocessing settings mapping.\n:param illumination_session: optional segmentation-only correction\n    session. Corrected archives are staged privately and published as one\n    complete set; the staging directory is removed on success or failure.\n:param psf_session: optional PSF session from ``spacr.psf_pipeline``.\n    Uses the same complete-set publication; cancellation leaves its\n    provenance incomplete and prevents reuse of partially processed data.\n:returns: the ``masks/`` directory containing normalised NPZ archives."
     },
     "spacr.io.convert_numpy_to_tiff": {
       "source_blocks_sha256": [
@@ -33396,10 +33403,11 @@
         "d5a1ac80dceb2da05694d37fc60468aff2c4187d20b5abf256f14fa9d3d7e637",
         "b41e260f3f9259b4c111b9edc1db4cbbfc716f3ba8b4efc188ddb19a00cef301",
         "f3740c4e162a81304f7dc17f9d11b87f18ca455db2f5e9346bfc2b3a93bddd2d",
+        "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
         "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05"
       ],
-      "source_sha256": "e4d2dc5d54d8496b5812113828bcfc6b25282d567fb55a0abc3c62aca3fa1c7e",
-      "text": "Batch the field stacks through Cellpose, then append the mask\nchannel(s) to the SAME npy files.\n\n:param stacks: list produced by :func:`stream_originals_to_stack`.\n:param model_name: Cellpose model to use (``\"cyto\"``, ``\"nuclei\"``, …).\n:param channels_for_cellpose: C-axis indices selected out of each\n    assembled stack before it is handed to Cellpose — taken modulo the\n    channel count and de-duplicated in order. It is NOT forwarded as\n    Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a\n    single plane, not a grayscale pair. The first selected channel is\n    the object's own channel for absolute mean-intensity filtering.\n:param diameter: expected object diameter in px (None → Cellpose\n    auto).\n:param batch_fields: how many field stacks to load into memory at\n    once. Larger = faster but more RAM.\n:param mask_channel_name: human name to record for the appended\n    mask channel (default ``\"mask\"``).\n:param keep_npz: the intermediate batch is compressed to an NPZ under\n    ``npz_dir`` on every batch regardless; this flag only decides\n    whether that file and the scratch folder survive the run.\n:param npz_dir: where to write the (optional) intermediate NPZ\n    files. Defaults to a scratch subfolder under the stack folder.\n:param illumination_session: optional\n    :class:`spacr.illumination.SegmentationIlluminationSession`. Its\n    corrector sees private selected-channel copies immediately before\n    normalisation/Cellpose; persisted intensity planes and scratch NPZs\n    remain raw, and completion is recorded only after the combined stack\n    has been atomically replaced.\n:returns: the same list, with each :class:`StackFile.shape` /\n    ``.channels`` updated to reflect the appended mask channel."
+      "source_sha256": "a3e3f27dec7e5b5c3fea7894f87fb755034e3275aab810428b12cd904c32bdd0",
+      "text": "Batch the field stacks through Cellpose, then append the mask\nchannel(s) to the SAME npy files.\n\n:param stacks: list produced by :func:`stream_originals_to_stack`.\n:param model_name: Cellpose model to use (``\"cyto\"``, ``\"nuclei\"``, …).\n:param channels_for_cellpose: C-axis indices selected out of each\n    assembled stack before it is handed to Cellpose — taken modulo the\n    channel count and de-duplicated in order. It is NOT forwarded as\n    Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a\n    single plane, not a grayscale pair. The first selected channel is\n    the object's own channel for absolute mean-intensity filtering.\n:param diameter: expected object diameter in px (None → Cellpose\n    auto).\n:param batch_fields: how many field stacks to load into memory at\n    once. Larger = faster but more RAM.\n:param mask_channel_name: human name to record for the appended\n    mask channel (default ``\"mask\"``).\n:param keep_npz: the intermediate batch is compressed to an NPZ under\n    ``npz_dir`` on every batch regardless; this flag only decides\n    whether that file and the scratch folder survive the run.\n:param npz_dir: where to write the (optional) intermediate NPZ\n    files. Defaults to a scratch subfolder under the stack folder.\n:param illumination_session: optional\n    :class:`spacr.illumination.SegmentationIlluminationSession`. Its\n    corrector sees private selected-channel copies immediately before\n    normalisation/Cellpose; persisted intensity planes and scratch NPZs\n    remain raw, and completion is recorded only after the combined stack\n    has been atomically replaced.\n:param psf_session: optional captured PSF session. Processes selected\n    intensities after illumination and before normalization, padding or\n    Cellpose. Stored image channels stay raw; only the appended labels\n    depend on PSF processing.\n:returns: the same list, with each :class:`StackFile.shape` /\n    ``.channels`` updated to reflect the appended mask channel."
     },
     "spacr.pipeline_v2.stream_originals_to_stack": {
       "source_blocks_sha256": [
@@ -35710,6 +35718,106 @@
       "source_sha256": "120c2a81e9cfc6d500b2e4d025da6e95120a3c23718127caeb249993f401fe8d",
       "text": "Radii worth computing K at, for this window.\n\n:param mask: boolean array of where a point was allowed to be.\n:param spacing: pixel size, so the radii come back as real lengths.\n:param count: how many radii.\n:returns: ``count`` radii, evenly spaced, ending at\n    :data:`MAX_RADIUS_FRACTION` of the window's shorter side.\n\nNOT STARTING AT ZERO. K(0) is 0 by construction and carries no\ninformation; including it only puts a point where every curve agrees."
     },
+    "spacr.point_spread": {
+      "source_blocks_sha256": [
+        "75fd5047ba07cd6fa46e5d78367d51cd968ced8228021ae5c7948293b185c9d7",
+        "99895911d6370d9239b9a5f6836ccb7af2bc198cd355d1866eb0c909a7f0c2e1",
+        "3ce87579c13f561edb29080f5c82de5745c081fb4292cb486a0e32cf90983c6a",
+        "80fa3ceaa2d10a19bfbebda326c0fd945cdd74a15e293d5ad9e1e5c29e74d1ad"
+      ],
+      "source_sha256": "bc6bb15a70e08336245b7e990eb9471776e06bbd9988f257f68617e0fc57568c",
+      "text": "Calibrated point-spread kernels and reproducible CPU image processing.\n\nCalculated kernels are sampled Gaussian approximations with explicitly supplied\nFWHM and pixel/voxel spacing, not estimates of a microscope's optical PSF.\nMeasured kernels retain their supplied centre pixel as the optical origin.\nProcessing uses half-sample symmetric boundaries, independently per channel.\nRichardson–Lucy uses the transpose of that same boundary operator, including\nits sensitivity normalization for asymmetric kernels. More iterations may\namplify noise; this is not a claim of recovered biological structure.\n\nThe original image is never modified. Results are float32 in the input's\nintensity units, with no percentile stretch, integer rounding or clipping to\n0..1. Kernels, sampling and settings are included in a JSON-safe receipt.\n\nReferences: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html\nand https://scikit-image.org/docs/stable/api/skimage.restoration.html#skimage.restoration.richardson_lucy"
+    },
+    "spacr.point_spread.PSF": {
+      "source_blocks_sha256": [
+        "75330411bedaa82d776fdbfed3773f0168f32bde774c71adb18f6aafa436928b",
+        "7f811d0828558e33d365d7d1adb688904d843fc1554de87228f6c108e425f3bb",
+        "45a544cc3410c94d365b4560ba50be252c8d4532ff59a0d8e8a1649dbdfa6130",
+        "69b00e5461148021d1a06885f11e6a85e8d34c35d9cb5228b7d51b600034c97b",
+        "5fc3a66a990efc0115d893abe7764d6e84943c610d0b10b28a934311a12a1bcc",
+        "9f6de2fa1656b75d1b333544272d2d163d61319ea1754bdfc1101caaa6aaa429"
+      ],
+      "source_sha256": "6c5c724d3f844481a4e451b5cf561f6a0eca42a9f0434c7144af144c5fb33a9e",
+      "text": "An immutable, normalized kernel whose bytes identify the actual PSF.\n\n:param shape: odd spatial dimensions, YX or ZYX.\n:param sampling_um: pixel/voxel spacing in the same axis order, in µm.\n:param values: C-ordered little-endian float32 normalized kernel bytes.\n:param source: ``measured`` or ``gaussian approximation``.\n:param details_json: JSON object holding acquisition/file or calculation\n    provenance. Use :func:`measured_psf`, :func:`gaussian_psf` or\n    :func:`load_psf` to construct a kernel from ordinary arrays/files."
+    },
+    "spacr.point_spread.PSF.array": {
+      "source_blocks_sha256": [
+        "2c8f09cc2576919eacf7a3da85b71d1a51e0f94da947b2589d63c692b90dbf5f"
+      ],
+      "source_sha256": "2c8f09cc2576919eacf7a3da85b71d1a51e0f94da947b2589d63c692b90dbf5f",
+      "text": "Return a read-only float32 view of the normalized kernel."
+    },
+    "spacr.point_spread.PSF.provenance": {
+      "source_blocks_sha256": [
+        "6fb33becbb75cf3ca4ce36036d61f2c1c9c000766371beed302178e48eb7c6c6"
+      ],
+      "source_sha256": "6fb33becbb75cf3ca4ce36036d61f2c1c9c000766371beed302178e48eb7c6c6",
+      "text": "Return a fresh JSON-safe record of the kernel and its identity."
+    },
+    "spacr.point_spread.PSFResult": {
+      "source_blocks_sha256": [
+        "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e"
+      ],
+      "source_sha256": "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e",
+      "text": "Processed float32 image and a JSON-safe processing receipt."
+    },
+    "spacr.point_spread.ProcessingCancelled": {
+      "source_blocks_sha256": [
+        "818f85df594de0515acfe2a8f0fa21082b81025c2ade91a6358007c888daa33f"
+      ],
+      "source_sha256": "818f85df594de0515acfe2a8f0fa21082b81025c2ade91a6358007c888daa33f",
+      "text": "A caller cancelled processing; no partial image should be applied."
+    },
+    "spacr.point_spread.apply_psf": {
+      "source_blocks_sha256": [
+        "19e42c80f76139d7b1f733ec7101df38605f2d70c6fd8dae8aa026bad90ac99c",
+        "814a78fa3c53c53e18e152e7117aff104d4e42b4020d0377c044920a3e924cf0",
+        "c972ee032a0d464114119931d8449efa2aadc4e92debd9ff877d01e5b5b46509",
+        "863267e54d671176470917408ecbda1b2217fed479b22f7227ce380fbd107953",
+        "2036df22080d5225a636f8a71ac5aec5e37d5be913dc6523bda19a98901c1a4b",
+        "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
+        "f23d7556d025eb4c9016a5d261afdd6c07684a16c863c5968ea847c1da29251e",
+        "7d90c6406016ff06e993212b83b3619bbd4388de2d11133675d681b1ba0ef85d",
+        "7c8555a1353d52dc2c37de8e054c10410c71d2ab6d02c725516e0760e4bbf0eb",
+        "c788c6ff071684368d42cdddb0759cdcc13e5912ef1552ffbf4be272ed12ed0f"
+      ],
+      "source_sha256": "642c3d1ce996cead198c731db7fc3dbb57278ffa38a50ee4455a7cd9067589eb",
+      "text": "Convolve or Richardson–Lucy deconvolve each channel with a known PSF.\n\n:param image: finite nonnegative real YX/ZYX data, optionally with one\n    explicitly identified channel axis. Input pixels are never changed.\n:param kernel: calibrated immutable :class:`PSF`.\n:param operation: ``convolve`` (blur) or ``deconvolve`` (Richardson–Lucy).\n:param image_sampling_um: image spacing matching kernel spacing in spatial\n    axis order. Mismatches raise; no implicit kernel resampling is done.\n:param iterations: deconvolution iterations, integer 1..200, default20.\n:param channel_axis: None for a spatial image, otherwise the channel axis;\n    channels are processed independently and returned in their original order.\n:param cancel: callable or Event; checked between channels, convolutions\n    and iterations. Cancellation raises :class:`ProcessingCancelled`.\n:param progress: optional worker-thread callback(channel, completed, total),\n    with zero-based channel and one-based completed iteration.\n:returns: :class:`PSFResult`, float32 image in original intensity units and\n    provenance. Half-sample symmetric boundaries do not wrap opposite edges.\n    Richardson–Lucy assumes nonnegative Poisson-like intensities; it is\n    unregularized and can amplify noise. Output is not clipped to the input\n    range. Dimensionality/channel identity are preserved."
+    },
+    "spacr.point_spread.gaussian_psf": {
+      "source_blocks_sha256": [
+        "ca6e1fc0c371c2f3e410587ea927f0edb2553f5774a613e8ffcf1783c7b2ead1",
+        "f24ebeec953d4f59faa94576740aaca677fe30763a4c289dcbac38c83201980c",
+        "f5835c130e6ddd1094a644872cfa24c1d4234fab0dd6973a2673432877c44c5d",
+        "f8c19e2214665b386aee68dd2c9d37d66ae792a8f9d926d7ddf3f49dccbe1475",
+        "80de11ca01a9baa1d8c49d1b8487304ec2cd2c993e4fbf3e0572d6bee782bc6c",
+        "9765be401c961784a62830dfce6d0e232484048a1448af36657cd57c01650dba"
+      ],
+      "source_sha256": "4acf0b4bed13fb9090e473f14b28771d70c8e97ac3b560eb84944fb472e0d4d0",
+      "text": "Calculate a sampled Gaussian approximation from declared physical widths.\n\n:param fwhm_um: full width at half maximum per spatial axis, or one value.\n:param sampling_um: pixel/voxel spacing per axis in µm, or one value.\n:param ndim: two (YX) or three (ZYX) spatial dimensions.\n:param truncate: radius in standard deviations, between two and eight.\n:returns: normalized :class:`PSF`. Sigma is FWHM/sqrt(8*ln(2)); radius is\n    ceil(truncate*sigma/sampling). No optical parameters are inferred."
+    },
+    "spacr.point_spread.load_psf": {
+      "source_blocks_sha256": [
+        "372eba12e80831842d066b5da891fb2f4cdc632c193094bcf1fddb44352db190",
+        "239d10fb73d070f76c19c107265ce6b6628b73f61c2eaf7892cd29bcd07bdbd5",
+        "4d63035d3f9d11b8173483f093ed72b07e13c7e5460bdbb8a4320c1e2832887f",
+        "1ebdea5959b1a89e0d741fd8faae3603eaf6a5c181be12df8875336fe0e35d96",
+        "ff84aae3b0be3aa5dcabd53c574b3e3f291f77d9ea2991b61761150f8e94a84c"
+      ],
+      "source_sha256": "b7ae4346f9eaa35cfbeb9a090277b10e828ca89c6eb22faf22bcc5abe77aa36b",
+      "text": "Read a calibrated measured kernel from NPY or a single TIFF series.\n\n:param path: .npy, .tif or .tiff file, at most 64 MiB. Pickled/object\n    arrays, RGB/channel axes, multiple TIFF series and even axes are\n    rejected. TIFF YX/ZYX (or a plane stack) is supported.\n:param sampling_um: explicitly supplied measured kernel spacing in µm;\n    TIFF metadata is not silently assumed to describe the target image.\n:param cancel: optional callable or threading.Event checked around reads.\n:returns: immutable :class:`PSF`, including SHA-256 of the exact file bytes\n    decoded. Subsequent edits to the source file do not change this PSF."
+    },
+    "spacr.point_spread.measured_psf": {
+      "source_blocks_sha256": [
+        "850fd7814b64c5bf02b84c4404d8034ce5f6474beb161ec37dc0a26b04b98ab4",
+        "c1f4bc9ce244d7402aad202c580fc67573d856d006734583265711911bf3b100",
+        "5334ef87a08a4b9a56636146562f52fc1f1270c39297aff4d08908dfdf828394",
+        "c62e9da0dbd2ed9e9ed7c6f6e46fd62b57ba4a083e5868d8c4c6acfc38f33731",
+        "7c2923abd2b45c30dad2fc4fed431c1247fd73ca320072886f4c6e0268886e33"
+      ],
+      "source_sha256": "b0a83ec9ba534a0a55b9565124065a8a52da14f8a9bc63836818c9a0fb2f088d",
+      "text": "Normalize a measured 2-D/3-D kernel, preserving its centre as origin.\n\n:param data: real nonnegative kernel with positive signal and odd axes.\n    Background must already be removed; negative values are rejected.\n:param sampling_um: calibrated YX or ZYX spacing in µm, or one isotropic\n    spacing. Sampling must match the image when processing it.\n:param source_name: acquisition identifier retained in provenance.\n:returns: immutable normalized :class:`PSF`; input data stay unchanged."
+    },
     "spacr.portable_paths": {
       "source_blocks_sha256": [
         "3572011e229dac9e9401a111bd863f9df90a554f9aae244edfe7de6811feea3a",
@@ -37396,6 +37504,65 @@
       ],
       "source_sha256": "799d8c7dd7a2192ba2b0f627b53db68b7ea613dece6fff9888d3f5284cbcb446",
       "text": "Summarise one project. The whole of :mod:`spacr.projects` in one call.\n\n:param root: the project root. It does not have to be a project, and it\n    does not have to be in the registry — that is the point.\n:param registry: an open registry to read through. Omit and the project's\n    own is opened when a file exists; a project with none is summarised\n    anyway, with :attr:`ProjectSummary.known` False.\n:param usage: a :class:`spacr.data_manager.ProjectUsage` already taken for\n    this root, to be reused rather than re-walked. The browser has none;\n    the Data Manager screen, which has just walked the same project, does.\n:param with_next_steps: compute what could run next. Off skips one\n    :func:`spacr.ports.check_ready` per successor, which is the only part\n    of this that globs a second time.\n:returns: a :class:`ProjectSummary`. Never raises for a folder that is\n    missing, unreadable or not a project: \"there is nothing here\" is an\n    answer a browser has to be able to show."
+    },
+    "spacr.psf_pipeline": {
+      "source_blocks_sha256": [
+        "31e6889602fbd7e8eba8e47cb0a57235447c2a688f7e0cf5fddbd9407a92cd4d",
+        "b55ee15c1cec5f8ee686fedde07b50efa6e2d5347a163e4cbf8d5c8b6753ce25"
+      ],
+      "source_sha256": "8beca79660fcf37c459f2e5f62cd7dd41546a51c7df4cf59addf453f49c13d54",
+      "text": "Opt-in PSF preparation and provenance for segmentation inputs.\n\nKernels are captured once per run. Only private intensity arrays are processed;\nraw stacks and mask labels are never rewritten by this module. V1 reuse checks\nboth the requested kernel/settings and the exact completed archive bytes."
+    },
+    "spacr.psf_pipeline.PSFPlan": {
+      "source_blocks_sha256": [
+        "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
+        "b8aa4b7698950309145d07853b7084b514dfd12fe5b6d994d2067d145a90b2a3",
+        "653611cbf7185649817283e8ce659cfff84987353e3d638b0b33fcacd1fdd69c",
+        "f69becc2911ddbbc24cdc5d8d8ad2502bf8f4b30b9133666acf325b78e6c9744",
+        "007f63926151f8a923ae38dd26103f2b85ac7991ce9ae936609dd5bd72465f80"
+      ],
+      "source_sha256": "32b930e1fe4236b1893bedea7a6c072c70889f8761d1bd6b22b9041b9b286c3f",
+      "text": "Immutable calibrated processing configuration, safe to pass to workers.\n\n:param operation: ``convolve`` or ``deconvolve``.\n:param kernel: captured immutable measured or Gaussian kernel.\n:param sampling_um: image spacing in spatial array order, in micrometers.\n:param iterations: Richardson–Lucy iterations; unused for convolution."
+    },
+    "spacr.psf_pipeline.PSFPlan.apply": {
+      "source_blocks_sha256": [
+        "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
+        "4ab8a6d54da8592a7ee8542caf64064ef6a86f73a34506cf6c6dc0966b84edae",
+        "2df3016acaaf11f6c40f4e2aeb6e9b475ec1c7627795e521a73fe06d157566bb"
+      ],
+      "source_sha256": "8fbb0689772774030c48dbadb398c37a5dd55f7322dd4cf30532649135bbff74",
+      "text": "Process one spatial image with an explicit last channel axis.\n\n:param image: YXC or ZYXC intensity array, never a merged label stack.\n:returns: float32 processed intensities without source mutation."
+    },
+    "spacr.psf_pipeline.PSFPlan.provenance": {
+      "source_blocks_sha256": [
+        "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b"
+      ],
+      "source_sha256": "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b",
+      "text": "Return JSON-safe identity of every scientifically relevant setting."
+    },
+    "spacr.psf_pipeline.prepare_psf": {
+      "source_blocks_sha256": [
+        "8021585a712bee27b6910717266643dd30d94637ba46fe2a164d6133baa07ed9",
+        "70c1bfa0e36be428a863fff7a0df3e547ae00f6d9a476272d7dca8d1872dffd4",
+        "20cdc63f7a6c21ec37d76c0c4f267c1e6ca6893e19e95ec060d5774110a9d3c1",
+        "b9748bcffeb638fccc77ad5f03c8fc167637a0ae266c537f7c990bf46e0a1f78",
+        "363ccee623c5c416c421f60edef229cec64db2a068ab69a4d468340941e28850"
+      ],
+      "source_sha256": "0c20d4274a0f463996341b0a9c6f648ecb4a8286b4698b7c2e0534ba1a74da8e",
+      "text": "Capture and validate an optional PSF before processing starts.\n\n:param settings: ``psf_operation`` (none/convolve/deconvolve), source\n    (gaussian/measured), image sampling, Gaussian FWHM or measured path\n    and kernel sampling, and iteration count. Lengths are in micrometers,\n    YX for two dimensions or ZYX for three. No calibration is inferred.\n:param ndim: number of spatial dimensions, two or three.\n:returns: immutable :class:`PSFPlan`, or None when disabled (the default).\n:raises ValueError: for invalid operations, calibration or kernels."
+    },
+    "spacr.psf_pipeline.validate_psf_resume": {
+      "source_blocks_sha256": [
+        "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
+        "43871661afe7edd4576e2e43df2d61c919eab921825fae7386df48e6d12b285e",
+        "aa6e55fc154187caa4e41e4b1ef1c8c1b0354853f9c11cd30f99e37ee83eeada",
+        "3208329337e12f76f40920021aa2e01770f5c644860ae29a7269ca39a26dda32",
+        "78d1ff8b47b50743e6854f90c90064b86d8b298610f535f3d6ca5d02be6bba03",
+        "7ad77eedfccd0d4103d965f337ca53daacc8b1dda9c9022abc975d9e57b97e0a",
+        "625777c1f1ecbd97f9c77bdcfcf4b6b0f91dad592a627fed1cb127d25a3a9c38"
+      ],
+      "source_sha256": "bce9cc0072f8b3517f4a23c21a8723ebb362bcc8a79d912ca3008e3380ed280e",
+      "text": "Refuse V1 archive reuse after a PSF change or incomplete processing.\n\n:param settings: requested PSF settings; off also checks a prior PSF run.\n:param root: experiment root containing masks/ and psf/.\n:param channels: source intensity indices in archive order.\n:param expected_fields: exact field stems carried by the input archives.\n:returns: None for a compatible completed set or untouched legacy inputs.\n:raises ValueError: if archives cannot be proven to match this request."
     },
     "spacr.qc_quarantine": {
       "source_blocks_sha256": [
@@ -41122,18 +41289,18 @@
         "e6b92d5cc1ce20d71118036ee3b151e9e34d7363f4609d1bd481c3bd8a5664d9",
         "d5a03e822d3fb92113f1c45d3549a8bae8905d86b41bc2fc074ef91ca38f0e9e",
         "55093a445e4cca650fda05f440b8b80b9bbfc4550cbdba107c24899b7d9ad4d0",
-        "e0d61fe42bdbfd437ab26337c608b863a1799478b0b846b1bb93fec2a2c38810",
+        "393ad74c4a9f2b8c4cc3ca3e9bf3c5577cf4696c37a62b425ed3f57f74e854bf",
         "c48249b63c948748b47ad99961db01284a97d5868c7eb6431f8a3a1639c1dd8b",
         "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
         "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87"
       ],
-      "source_sha256": "77e0120296b26970e9884424109eb9f83ceeee6580b729323ac07b749fb52672",
-      "text": "Optional image enhancement before detection and label cleanup afterward.\n\nIn Make Masks, Apply enables the configured chain for detection and display;\nCompare previews it without enabling it. Processing uses copies: files on disk\nand the original values reported by the hover readout remain unchanged.\n\n:data:`CHAIN_ORDER` fixes the sequence::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nThe optional percentile stretch belongs to Make Masks, outside :class:`Chain`.\nIts levels come from the whole field before a magnifier region is cropped, so\nmoving the box does not redefine the percentile levels.\n\nBackground subtraction precedes denoising. Denoising precedes contrast to\navoid amplifying noise; contrast precedes sharpening to avoid stretching its\nhalos. Morphology precedes splitting because it changes which pixels are\nconnected. :func:`prepare` runs background, denoise, contrast and sharpen;\n:func:`finish` runs morphology and split after the selected detector.\n\nDisabled steps return their input unchanged. :func:`heavy_steps` identifies\nenabled steps that warrant a progress warning; non-local means can take\nminutes on a 2,000 px field. Whole-image runs retain progress and Cancel\ncontrols. Selecting a background method does not enable denoising.\n\nThe Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch`\napplies rolling ball then CLAHE to organelle batches using\n``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings\n``remove_background``, ``background`` and ``signal_to_noise`` instead apply\nper-channel intensity floors. This Make Masks chain configures neither route.\n\nEnhancement changes the objects proposed for curation. Models trained on\nenhanced images require matching preprocessing at inference; this module does\nnot configure the training or inference pipeline."
+      "source_sha256": "ea496352913dfc2560df17c2b06e259961f66d3a64bbf3494221b111d6ae8cd0",
+      "text": "Optional image enhancement before detection and label cleanup afterward.\n\nIn Make Masks, Apply enables the configured chain for detection and display;\nCompare previews it without enabling it. Processing uses copies: files on disk\nand the original values reported by the hover readout remain unchanged.\n\n:data:`CHAIN_ORDER` fixes the sequence::\n\n    percentile stretch -> background -> PSF -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nThe optional percentile stretch belongs to Make Masks, outside :class:`Chain`.\nIts levels come from the whole field before a magnifier region is cropped, so\nmoving the box does not redefine the percentile levels.\n\nBackground subtraction precedes PSF processing, then denoising. Denoising precedes contrast to\navoid amplifying noise; contrast precedes sharpening to avoid stretching its\nhalos. Morphology precedes splitting because it changes which pixels are\nconnected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen;\n:func:`finish` runs morphology and split after the selected detector.\n\nDisabled steps return their input unchanged. :func:`heavy_steps` identifies\nenabled steps that warrant a progress warning; non-local means can take\nminutes on a 2,000 px field. Whole-image runs retain progress and Cancel\ncontrols. Selecting a background method does not enable denoising.\n\nThe Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch`\napplies rolling ball then CLAHE to organelle batches using\n``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings\n``remove_background``, ``background`` and ``signal_to_noise`` instead apply\nper-channel intensity floors. This Make Masks chain configures neither route.\n\nEnhancement changes the objects proposed for curation. Models trained on\nenhanced images require matching preprocessing at inference; this module does\nnot configure the training or inference pipeline."
     },
     "spacr.qt.detect_chain.Chain": {
       "source_blocks_sha256": [
         "264f88b244ad0f3358e15f83e115cd158f78bba25f33b21e021ef93063233a37",
-        "a67f1885e9dc7b6f7b612b673995e50e281fe24f408b8a918477e91e0a5bd04b",
+        "2c33f9e7a66ed32201858ba3082e3c7ecfeb7a91cf55aec246e15316ba92a5ec",
         "247b69142f5c228609738770f88a63d6c9b658786500cdc07ad3e142aabd30e9",
         "9fe10fb8de82d62d750a24229f1d1eb998374073f8749039340e8fd0bd298bc3",
         "a7e6629de96d48105c1bf9460384bc8c3d3db4adf6365e5f9e4acfa15f02a32b",
@@ -41150,10 +41317,15 @@
         "6308c394745f5ae94e3e66619b465c839640e51f78b535e2f6fb6e9945f04dbb",
         "6a37a1882422e9457f95e67a01a795bf608267ba17dd45ef0c53e26989fc0607",
         "cd1fd64c5bf6f5e76c52edbe39d3aa0fc3c60b11c6c506f85d2d979415f86ebc",
-        "a3540c0286531774dd6d53541390eae48d16e3d80e8f8905ae93e29eba0eee42"
+        "a3540c0286531774dd6d53541390eae48d16e3d80e8f8905ae93e29eba0eee42",
+        "582d0aea6b500af4bf3dae4f1b296e5201be452cc821434c027c92039fa72870",
+        "0e8716155b6532f58c0ab4d28206675dccb02b862f5de4e425338f00e9aafad0",
+        "e7eff7834d85b753d9d9e475a4d0298e3e67258808f287273de55f63b9c1bc13",
+        "6e8a4e94b179c0c84a8cd16d0f67d2a78454439b561176d3291da7990edc4529",
+        "80ab1df81b2e457c6e065fa6e0579a3d20795d3b6117225dd8fb2f9a7b6fbd02"
       ],
-      "source_sha256": "d909403ac9299e4061f86131c42b9ed043caedd476edb360e827498832dc9558",
-      "text": "One pre- and post-detection chain, as a value a request can carry.\n\nA plain tuple of scalars, so it is hashable and goes into the\nmagnifier's request key: the same box under two different chains is two\ndifferent questions and must not be answered from one cached result.\n\nEvery field's default is the step switched off, so\n:data:`NO_CHAIN` is \"detect the image as it is\" and an old session that\nknows nothing about this chain keeps behaving as it did.\n\n:param background: one of :data:`BACKGROUND_METHODS`.\n:param background_radius: the ball's or the top-hat disk's radius, in\n    pixels. Set it comfortably larger than the largest object: a radius\n    under the object size eats the objects along with the background.\n:param background_scale: the fraction of full size the background is\n    ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what\n    that buys and what it costs; 1.0 is scikit-image's own answer,\n    exactly.\n:param denoise: one of :data:`DENOISE_METHODS`.\n:param denoise_strength: the Gaussian's sigma in pixels, the median's\n    and the bilateral's disk radius, or the non-local means' cut-off in\n    multiples of the estimated noise.\n:param gamma: the exponent the intensities are raised to on 0..1. Below\n    1 lifts the dim end (faint objects become visible), above 1 pushes\n    it down. 1.0 is off.\n:param clahe: contrast-limited adaptive histogram equalisation.\n:param clahe_tile: the side of one CLAHE tile, in pixels.\n:param clahe_clip: CLAHE's clip limit, 0..1. Higher is more contrast\n    and more amplified noise.\n:param equalize: global histogram equalisation.\n:param sharpen: an unsharp mask.\n:param sharpen_radius: the blur radius the mask is built from, in\n    pixels: about the scale of the edges to sharpen.\n:param sharpen_amount: how much of the mask is added back.\n:param morphology: one of :data:`MORPHOLOGY_OPS`, applied to what was\n    detected. ``open`` separates objects joined by a thin bridge,\n    ``close`` joins objects broken into pieces, ``open_close`` does\n    both in that order.\n:param morphology_radius: the disk radius, in pixels.\n:param split: a distance-transform watershed on what was detected,\n    cutting an object with two centres in two. It is the Otsu mode's\n    \"Split objects that touch\", offered to every other method."
+      "source_sha256": "8eb4e4fc7a34351f7202bd0fa36cccfb38b65ef24a38bae944746e6e57011f1f",
+      "text": "One pre- and post-detection chain, as a value a request can carry.\n\nAn immutable tuple including any captured PSF kernel, so it is hashable and goes into the\nmagnifier's request key: the same box under two different chains is two\ndifferent questions and must not be answered from one cached result.\n\nEvery field's default is the step switched off, so\n:data:`NO_CHAIN` is \"detect the image as it is\" and an old session that\nknows nothing about this chain keeps behaving as it did.\n\n:param background: one of :data:`BACKGROUND_METHODS`.\n:param background_radius: the ball's or the top-hat disk's radius, in\n    pixels. Set it comfortably larger than the largest object: a radius\n    under the object size eats the objects along with the background.\n:param background_scale: the fraction of full size the background is\n    ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what\n    that buys and what it costs; 1.0 is scikit-image's own answer,\n    exactly.\n:param denoise: one of :data:`DENOISE_METHODS`.\n:param denoise_strength: the Gaussian's sigma in pixels, the median's\n    and the bilateral's disk radius, or the non-local means' cut-off in\n    multiples of the estimated noise.\n:param gamma: the exponent the intensities are raised to on 0..1. Below\n    1 lifts the dim end (faint objects become visible), above 1 pushes\n    it down. 1.0 is off.\n:param clahe: contrast-limited adaptive histogram equalisation.\n:param clahe_tile: the side of one CLAHE tile, in pixels.\n:param clahe_clip: CLAHE's clip limit, 0..1. Higher is more contrast\n    and more amplified noise.\n:param equalize: global histogram equalisation.\n:param sharpen: an unsharp mask.\n:param sharpen_radius: the blur radius the mask is built from, in\n    pixels: about the scale of the edges to sharpen.\n:param sharpen_amount: how much of the mask is added back.\n:param morphology: one of :data:`MORPHOLOGY_OPS`, applied to what was\n    detected. ``open`` separates objects joined by a thin bridge,\n    ``close`` joins objects broken into pieces, ``open_close`` does\n    both in that order.\n:param morphology_radius: the disk radius, in pixels.\n:param split: a distance-transform watershed on what was detected,\n    cutting an object with two centres in two. It is the Otsu mode's\n    \"Split objects that touch\", offered to every other method.\n:param psf_operation: ``none``, ``convolve`` or ``deconvolve``. Runs after\n    background subtraction and before denoising. Off by default.\n:param psf: immutable calibrated two-dimensional kernel. Required when\n    PSF processing is enabled; missing/invalid kernels stop detection.\n:param psf_sampling_um: image pixel spacing in YX order, in micrometers.\n    Must match the kernel; no implicit resampling is performed.\n:param psf_iterations: Richardson–Lucy iterations, 1..200.\n:param psf_error: actionable loading/validation error when no kernel is ready."
     },
     "spacr.qt.detect_chain.background_surface": {
       "source_blocks_sha256": [
@@ -41225,15 +41397,16 @@
     },
     "spacr.qt.detect_chain.prepare": {
       "source_blocks_sha256": [
-        "18f57ad30323388a3a2f122828469d23062cefbbae337d579362e8f31c0702ac",
-        "ed4edf6f1c195a7558a7a465e14ddc05721f64e1445d82e22f8664c5d2b4ecc8",
-        "d38916036c07cec63a34e00e00b66191cd7c207db5c85e72283c0dae6183aa7c",
+        "569df97fb769e210c50e9f7de22a23ce9d21693887f832e1f33df49c22dd3642",
+        "08bdec8edb5f31639900061d05b79256cbb9eb4b3b38fd2b5097370d7176577c",
+        "fd8a7851e0b538c83761e358d569f3b51136e13e2dfb75c4b40404a4ca4bf54b",
         "deea43efa4d59fa4f506620103fbf3a0bb8cf271219440f7e88769b1887ec90c",
         "58b93d8483397ff3b4c9a19b9a698634c12613f5a3a1685a742801eb2a1c9e11",
+        "d8e8f883fbb38a717d4b825ceb4af51bec179ff3d983b6006f1f49c815b6b27d",
         "3776c55de19a5437406c74c6c1bbb7412186af032e59be86f79ca53ee970a78e"
       ],
-      "source_sha256": "b35d0232fa62a90294b8031c32eab1fb0aea384cef9e840695efb407d2967a11",
-      "text": "The image a detector is to read: the first four stages of the chain.\n\nBackground, then denoise, then contrast, then sharpen --\n:data:`CHAIN_ORDER`, whose docstring says why that order and not\nanother. The percentile stretch is the screen's, applied to the whole\nfield before ``image`` was cut from it.\n\nA STEP THAT CANNOT RUN IS SKIPPED, NOT RAISED. This is reached from a\nmouse-move (the readout under the cursor) and from the magnifier, so\nan exception here is one per mouse event: a missing optional package\nfilled the console with tracebacks once (PyWavelets, 2026-09-22) and\nmade the screen unusable. The detector then reads the image as far as\nthe chain got, and the log says which step was dropped.\n\n:param image: the field, or the magnifier's box region cut from it.\n    Never modified.\n:param chain: what to do to it.\n:returns: ``image`` itself when nothing is switched on -- so a detector\n    reading an untouched field reads the very array and not a float\n    copy -- and otherwise a new float32 array of the same shape."
+      "source_sha256": "40ed74baaf7cd02705a4eab94cf8ac3d9c66ff885c21ccddecd864698bd06d3b",
+      "text": "The image a detector is to read, with optional cooperative cancellation.\n\nBackground, then PSF, then denoise, then contrast, then sharpen --\n:data:`CHAIN_ORDER`, whose docstring says why that order and not\nanother. The percentile stretch is the screen's, applied to the whole\nfield before ``image`` was cut from it.\n\nLegacy filter failures are logged and skipped. PSF failures and cancellation\npropagate so detection cannot silently use an unprocessed image when an\nexplicitly calibrated operation was requested. This is reached from a\nmouse-move (the readout under the cursor) and from the magnifier, so\nan exception here is one per mouse event: a missing optional package\nfilled the console with tracebacks once (PyWavelets, 2026-09-22) and\nmade the screen unusable. The detector then reads the image as far as\nthe chain got, and the log says which step was dropped.\n\n:param image: the field, or the magnifier's box region cut from it.\n    Never modified.\n:param chain: what to do to it.\n:param cancel: callable or Event; checked between stages and inside PSF\n    iterations. Cancellation raises :class:`spacr.point_spread.ProcessingCancelled`.\n:returns: ``image`` itself when nothing is switched on -- so a detector\n    reading an untouched field reads the very array and not a float\n    copy -- and otherwise a new float32 array of the same shape."
     },
     "spacr.qt.detect_chain.provenance": {
       "source_blocks_sha256": [
@@ -90777,6 +90950,13 @@
       "source_sha256": "0a740e13308275efc0b04efba25caf9b18fce89690873ca2e3c3d0c48ad8fb33",
       "text": "The path for ``code`` inside ``box``, or None for an unknown one."
     },
+    "spacr.qt.widgets.psf_controls": {
+      "source_blocks_sha256": [
+        "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343"
+      ],
+      "source_sha256": "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343",
+      "text": "Calibrated, asynchronous PSF configuration for Make Masks enhancement."
+    },
     "spacr.qt.widgets.qc_field_browser": {
       "source_blocks_sha256": [
         "28d3f72d2a85644d0014696170a18a8b4e6c9f6f22b9483db7257158f1c3b1ea",
@@ -110816,13 +110996,13 @@
     "spacr.validate.validate_settings": {
       "source_blocks_sha256": [
         "22706cc2b741c59df46fa7fb51a230a626d6a7e1a67f2c0796e7c8e60a51c414",
-        "fae19218413791dd90429e1d7349a7861a347729802bf2a653dc457c30e5d9cf",
+        "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
         "46b255912c04219e7403be7a8cc3a6608837573f9a25d395f5d70ce78ea51b29",
         "fad6bec91382ecfdd8ed503d20248361e21d9251db47961309277791a795807a",
         "e86258df87939ff2b65414695610e12992a34de54db3aec7ec935f73b1ce741d"
       ],
-      "source_sha256": "8e39941dffd36d6929c995f0c62423145e8935d7ca13626d00d0c658747fd2bd",
-      "text": "Check a settings dict against the data it points at.\n\nNothing is loaded beyond one ``.npy`` header and a directory listing, so\nthis is safe to call before committing a GPU to a run.\n\n:param settings: the settings dict about to be handed to a pipeline.\n:param app_key: which pipeline, e.g. ``'mask'``, ``'measure'``,\n    ``'classify'``, ``'umap'``, ``'map_barcodes'``. The\n    ``settings_type`` strings used by the GUI all work, as do a few\n    aliases (``'sequencing'``, ``'measure_crop'``, ...).\n:returns: list of :class:`Problem`; empty means nothing was found."
+      "source_sha256": "878a77fe03b849569546e5516ab39b2fce9b4853688e0956f3dc5c0abd5f93d7",
+      "text": "Check a settings dict against the data it points at.\n\nImage data are checked through headers and directory listings. An enabled\nPSF also loads its size-limited kernel to validate calibration and values;\nno image processing or GPU inference is run.\n\n:param settings: the settings dict about to be handed to a pipeline.\n:param app_key: which pipeline, e.g. ``'mask'``, ``'measure'``,\n    ``'classify'``, ``'umap'``, ``'map_barcodes'``. The\n    ``settings_type`` strings used by the GUI all work, as do a few\n    aliases (``'sequencing'``, ``'measure_crop'``, ...).\n:returns: list of :class:`Problem`; empty means nothing was found."
     },
     "spacr.version": {
       "source_blocks_sha256": [

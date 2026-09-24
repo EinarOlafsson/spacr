@@ -2,157 +2,391 @@
   "policy": "report-only; English fallback",
   "entries": [
     {
-      "lesson": "09_annotate",
+      "lesson": "79_module_inputs_outputs",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "Missing or mismatched translation review"
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "01_pypi_github",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "es",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "fr",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "hi",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "it",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "ja",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "pt-BR",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "da",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "de",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "is",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "ko",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "nb",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "09_annotate",
+      "lesson": "01_pypi_github",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
     },
     {
-      "lesson": "41_classify",
+      "lesson": "05_home",
       "language": "sv",
       "status": "english_fallback",
       "reason": "English changed after the translation review"

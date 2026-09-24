@@ -28,114 +28,75 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI、GitHub、conda-forge",
+      "title": "Find spaCR on GitHub, PyPI and conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "公式パッケージとインストーラーの入手先を確認し、各チャネルの公開バージョンを比較して、対応するインストールチュートリアルを選びます。",
+      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
       "objectives": [
-        "spaCR の公式 PyPI、GitHub、conda-forge ページを確認する。",
-        "リリースの配布ファイル、開発中のソース、個別に更新されるパッケージチャネルを区別する。",
-        "インストール方法を選び、実際にインストールされたバージョンを確認する。"
+        "Find the official download pages.",
+        "Choose the installation route for your computer.",
+        "Open the matching installation tutorial."
       ],
-      "prerequisite": "この概要ではインストールを実行しません。ページの撮影日は 2026 年 9 月 10 日です。PyPI と GitHub は 1.5.0.5、conda-forge は 1.5.0.4 を提供しています。チャネルのバージョンやファイルは変わるため、現在のページとインストール済みバージョンを確認してください。匿名のブラウザープロファイルを使用し、ページの文章、バッジ、リリース履歴は変更していません。プラットフォーム別の手順やハードウェアの選択は、リンク先のインストールチュートリアルで説明します。",
+      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "spaCR をインストールする前に、公式の配布元を選びます。PyPI と conda-forge は Python パッケージを、GitHub はソースコード、リリース記録、デスクトップ用インストーラーを提供します。これらは関連していますが、必ずしも同じバージョンを同時に公開するわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "スペーカー をインストールする前に、公式の配布元を選びます。パイプ と Conda Forge は Python パッケージを、GitHub はソースコード、リリース記録、デスクトップ用インストーラーを提供します。これらは関連していますが、必ずしも同じバージョンを同時に公開するわけではありません。"
+          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "PyPI では、リリースの見出しとインストールコマンドを読みます。ここでは spaCR のバージョン、一点五点零点五が表示されています。古いスクリーンショット、バッジ、チュートリアルの日付から推測せず、現在のページにある値を確認してください。",
-          "hold_after": 0.7,
-          "focus": [
-            770,
-            237,
-            2300,
-            305
-          ],
-          "speech_text": "パイプ では、リリースの見出しとインストールコマンドを読みます。ここでは スペーカー のバージョン、一点五点零点五が表示されています。古いスクリーンショット、バッジ、チュートリアルの日付から推測せず、現在のページにある値を確認してください。"
+          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Project links からドキュメント、ホームページ、問題の報告先、ソースリポジトリへ移動できます。公式の情報源を行き来するときは、これらのリンクを使います。パッケージのページは公開済みのその版を説明しており、開発中の全機能が含まれることを保証しません。",
-          "hold_after": 0.7,
-          "focus": [
-            2510,
-            798,
-            500,
-            399
-          ],
-          "speech_text": "Project links からドキュメント、ホームページ、問題の報告先、ソースリポジトリへ移動できます。公式の情報源を行き来するときは、これらのリンクを使います。パッケージのページは公開済みのその版を説明しており、開発中の全機能が含まれることを保証しません。"
+          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "GitHub のブランチ選択欄は、どのソースの系列を見ているかを示します。main はリリース系列、nightly は進行中の開発です。通常のインストールには公開済みリリースを選び、新しい開発内容が必要だと判断し、変更を受け入れられる場合だけ nightly を使ってください。",
-          "hold_after": 0.7,
-          "focus": [
-            704,
-            412,
-            214,
-            64
-          ],
-          "speech_text": "GitHub のブランチ選択欄は、どのソースの系列を見ているかを示します。main はリリース系列、nightly は進行中の開発です。通常のインストールには公開済みリリースを選び、新しい開発内容が必要だと判断し、変更を受け入れられる場合だけ nightly を使ってください。"
+          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "リリースを開き、Assets を展開します。Windows、macOS、Linux に合うインストーラーを選んでください。wheel とソース配布物は Python パッケージのファイルであり、デスクトップ用インストーラーではありません。別チャネルのハッシュと比較せず、選んだリリースとファイルに対応するチェックサム一覧を取得します。",
+          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
           "hold_after": 0.7,
-          "focus": [
-            738,
-            1103,
-            2364,
-            758
-          ],
           "related_lessons": [
             "04_platform_installers"
-          ],
-          "speech_text": "リリースを開き、Assets を展開します。Windows、macOS、Linux に合うインストーラーを選んでください。wheel とソース配布物は Python パッケージのファイルであり、デスクトップ用インストーラーではありません。別チャネルのハッシュと比較せず、選んだリリースとファイルに対応するチェックサム一覧を取得します。"
+          ]
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "conda-forge のページには独自のバージョン選択欄があります。撮影時には一点五点零点四を提供し、PyPI は一点五点零点五を提供しています。この実際の違いをそのまま示しています。チャネルの更新が既に届いていると思い込まないでください。",
-          "hold_after": 0.7,
-          "focus": [
-            60,
-            710,
-            2435,
-            635
-          ],
-          "speech_text": "Conda Forge のページには独自のバージョン選択欄があります。撮影時には一点五点零点四を提供し、パイプ は一点五点零点五を提供しています。この実際の違いをそのまま示しています。チャネルの更新が既に届いていると思い込まないでください。"
+          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "チャネルを明示するコマンドは conda install conda-forge にコロン二つと spacr を続けたものです。使用予定の環境内で実行します。この方法は Conda チュートリアルで説明します。Conda 環境を作って pip でインストールする方法とは別であり、どちらも環境管理ツールを使うからといって同じではありません。",
+          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
           "hold_after": 0.7,
-          "focus": [
-            60,
-            710,
-            2435,
-            635
-          ],
           "related_lessons": [
             "02_conda_install"
-          ],
-          "speech_text": "チャネルを明示するコマンドは conda install Conda Forge にコロン二つと スペーカー を続けたものです。使用予定の環境内で実行します。この方法は Conda チュートリアルで説明します。Conda 環境を作って pip でインストールする方法とは別であり、どちらも環境管理ツールを使うからといって同じではありません。"
+          ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Python 仮想環境には pip のレッスン、チャネルのパッケージには Conda のレッスン、インストーラーが専用ランタイムを管理する方法には Platform installers を選びます。その後、インストール済みバージョンを確認し、spacr-doctor を実行してからモジュールのチュートリアルへ進みましょう。",
+          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
-          ],
-          "speech_text": "Python 仮想環境には pip のレッスン、チャネルのパッケージには Conda のレッスン、インストーラーが専用ランタイムを管理する方法には Platform installers を選びます。その後、インストール済みバージョンを確認し、スペーカー-doctor を実行してからモジュールのチュートリアルへ進みましょう。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "02_conda_install",
@@ -389,27 +350,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home画面とナビゲーション",
+      "title": "Home screen and navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Coreの6つの工程とHomeの現在のカテゴリを確認し、関連ツールを親モジュールの中から見つけます。",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
       "objectives": [
-        "画像から回帰分析の結果まで、Coreの分析の流れを理解する。",
-        "Data、Tools、Assaysを見つけ、モジュール内に統合された機能を、なくなったモジュールと混同しない。",
-        "ダウンロードする実データと生成されたデモを区別し、対応する専門チュートリアルを見つける。"
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Load an example, find help and open a pipeline overview."
       ],
-      "prerequisite": "spaCRをインストールし、デスクトップアプリを開いてください。録画ではダークテーマと拡大したインターフェース文字を使用しています。",
+      "prerequisite": "Install spaCR and open the desktop application.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Homeでは、spaCRがCore、Data、Tools、Assaysに分かれています。これらは作業の流れに応じたカテゴリです。関連ツールが親モジュールの中にある場合もあるため、Homeのボタンがすべての機能を表しているわけではありません。",
-          "hold_after": 0.7,
-          "speech_text": "ホームでは、スペーカーがCore、Data、Tools、Assaysに分かれています。これらは作業の流れに応じたカテゴリです。関連ツールが親モジュールの中にある場合もあるため、ホームのボタンがすべての機能を表しているわけではありません。"
+          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "Coreはスクリーニングの分析工程に沿って、Mask、Measure、Annotate、Classify、Map Barcodes、Regressionと並んでいます。手元の入力データに合った工程から始めてください。対応する測定データや切り出し画像がすでにある場合、セグメンテーションをやり直す必要はありません。",
+          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -426,15 +386,15 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ],
-          "speech_text": "Coreはスクリーニングの分析工程に沿って、Mask、Measure、Annotate、Classify、Map Barcodes、Regressionと並んでいます。手元の入力データに合った工程から始めてください。対応する測定データや切り出し画像がすでにある場合、セグメンテーションをやり直す必要はありません。"
+          ]
         },
         {
-          "visual": "02_data  (6)",
-          "narration": "DataにはImport、Run Compare、Experiment Design、Power and Design、Dose Response、品質管理がまとまっています。Importは、Import Images、Format Converter、External Masksへの入り口でもあります。これらの機能を使うときは、まず親モジュールを開いてください。",
+          "visual": "02_data  (7)",
+          "narration": "Open Data to bring existing files into a project or work with results. Import accepts images, masks and measurement tables. Use Run Compare to compare runs, Experiment Design to prepare plate layouts, and QC to inspect recorded quality checks. Choose the tile that matches your next task.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
+            "embeddings",
             "run_compare",
             "experiment_design",
             "power",
@@ -444,13 +404,13 @@
           "related_lessons": [
             "36_import",
             "35_converter",
-            "31_external_masks"
-          ],
-          "speech_text": "DataにはImport、Run Compare、Experiment Design、Power and Design、Dose Response、品質管理がまとまっています。Importは、Import Images、Format Converter、External Masksへの入り口でもあります。これらの機能を使うときは、まず親モジュールを開いてください。"
+            "31_external_masks",
+            "77_embeddings"
+          ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "ToolsにはMake Masks、Align and Stitch、Image UMAP、Gate Editor、Graph Builderがあります。それぞれに関連する操作がまとまっています。例えば、Make Masksにはモデルの学習と比較があり、Graph BuilderにはPlate ViewerとSmall Multiplesがあります。",
+          "narration": "Open Tools for image editing and exploration. Make Masks lets you edit masks and open the Cellpose Workbench. Align and Stitch combines overlapping image tiles. Image UMAP, Gate Editor and Graph Builder help you explore measurements and make plots. Open a module to find its related tools in the toolbar.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -465,47 +425,37 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ],
-          "speech_text": "ToolsにはMake Masks、Align and Stitch、Image ユーマップ、ゲートエディタ、Graph Builderがあります。それぞれに関連する操作がまとまっています。例えば、Make Masksにはモデルの学習と比較があり、Graph BuilderにはPlate ViewerとSmall Multiplesがあります。"
+          ]
         },
         {
-          "visual": "04_assays  (4)",
-          "narration": "AssaysにはPlaque Assay、Recruitment、Invasion Assay、Replication Assayがあります。実験内容と必要な入力データに合ったワークフローを選んでください。モジュールの成熟度を示す色はカテゴリとは別です。実験的な機能を利用する前に、ツールチップを確認してください。",
+          "visual": "04_assays  (3)",
+          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
           "hold_after": 0.7,
           "focus_modules": [
-            "analyze_plaques",
-            "recruitment",
-            "invasion",
-            "replication"
+            "toxoplasma",
+            "plasmodium",
+            "candida"
           ],
           "related_lessons": [
             "24_plaque",
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ],
-          "speech_text": "AssaysにはPlaque Assay、Recruitment、Invasion Assay、Replication Assayがあります。実験内容と必要な入力データに合ったワークフローを選んでください。モジュールの成熟度を示す色はカテゴリとは別です。実験的な機能を利用する前に、ツールチップを確認してください。"
+          ]
         },
         {
           "visual": "05_classify_host",
-          "narration": "Classifyは1つのモジュールです。Classifier familyという設定で、画像を使うコンピュータビジョンか、測定した特徴量を使う機械学習かを選びます。従来のコンピュータビジョンと機械学習のチュートリアルは、この2つの方法を詳しく説明するものです。Homeに別々のボタンがあるという意味ではありません。",
+          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
           "hold_after": 0.7,
-          "focus": [
-            345,
-            540,
-            1160,
-            170
-          ],
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "speech_text": "Classifyは1つのモジュールです。Classifier familyという設定で、画像を使うコンピュータビジョンか、測定した特徴量を使う機械学習かを選びます。従来のコンピュータビジョンと機械学習のチュートリアルは、この2つの方法を詳しく説明するものです。ホームに別々のボタンがあるという意味ではありません。"
+          ]
         },
         {
           "visual": "05_classify_host",
-          "narration": "Classifyの上部のアイコンから、Classifier Evaluation、Explain CV Model、Activation、Training Runs、Feature Explorerを開けます。アイコンにポインタを合わせると、名前と説明が表示されます。学習済みモデルやその結果を確認するときは、リンク先の専門チュートリアルを参照してください。",
+          "narration": "The toolbar in Classify opens Classifier Evaluation, Explain CV Model, Activation, Training Runs and Feature Explorer. Hover over an icon to see its name, then click it to open the tool. Use these views to inspect a model, compare training runs or explore important features.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -514,29 +464,49 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ],
-          "speech_text": "Classifyの上部のアイコンから、Classifier Evaluation、Explain CV Model、Activation、Training Runs、Feature Explorerを開けます。アイコンにポインタを合わせると、名前と説明が表示されます。学習済みモデルやその結果を確認するときは、リンク先の専門チュートリアルを参照してください。"
+          ]
         },
         {
           "visual": "06_mask_host",
-          "narration": "Coreのチュートリアルでは、Load test dataから入手できる実データを使います。ダウンロードすると、必要な入力と対応する設定が読み込まれます。Helpで生成するデモは、それとは別の選択肢です。MaskのTimeと3Dスイッチは時系列と立体データのワークフローを表示し、Liveはプレビューを開きます。",
+          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ],
-          "speech_text": "Coreのチュートリアルでは、Load test dataから入手できる実データを使います。ダウンロードすると、必要な入力と対応する設定が読み込まれます。Helpで生成するデモは、それとは別の選択肢です。MaskのTimeとスリーディースイッチは時系列と立体データのワークフローを表示し、Liveはプレビューを開きます。"
+          ]
         },
         {
-          "visual": "07_help",
-          "narration": "操作ガイドやチュートリアルに戻るにはHelpを使います。使用中のモジュールのチュートリアルをアプリと並べて開き、データ、設定、出力結果の確認に従ってください。次のレッスンでは、同じワークフローをPython APIやコマンドラインから利用する方法を紹介します。",
+          "visual": "08_help_search",
+          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_performance",
+          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "00_home",
+          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
           ],
-          "speech_text": "操作ガイドやチュートリアルに戻るにはHelpを使います。使用中のモジュールのチュートリアルをアプリと並べて開き、データ、設定、出力結果の確認に従ってください。次のレッスンでは、同じワークフローをPython APIやコマンドラインから利用する方法を紹介します。"
+          "focus": [
+            3341,
+            180,
+            499,
+            96
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "06_api",
@@ -11445,6 +11415,1260 @@
           "narration": "Regressionの前に、画像スコア、シーケンシングのカウント、実験レイアウトでプレートとウェルの識別子が一致していることを確認します。オブジェクト識別子、アノテーション列、分類器の設定、バーコードの参照配列を実行記録と一緒に保存してください。各手順の実例はリンクされたモジュールのレッスンを参照してください。Homeに画面の移動を案内してもらうには、プール型スクリーニングのウォークスルーを選びます。",
           "hold_after": 0.7,
           "speech_text": "Regressionの前に、画像スコア、シーケンシングのカウント、実験レイアウトでプレートとウェルの識別子が一致していることを確認します。オブジェクト識別子、アノテーション列、分類器の設定、バーコードの参照配列を実行記録と一緒に保存してください。各手順の実例はリンクされたモジュールのレッスンを参照してください。ホームに画面の移動を案内してもらうには、プール型スクリーニングのウォークスルーを選びます。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "79_module_inputs_outputs",
+      "number": 79,
+      "slug": "module_inputs_outputs",
+      "title": "モジュールの入力と出力",
+      "series": 1,
+      "app_key": null,
+      "section": "ワークフロー",
+      "description": "Home モジュール内のツールも含め、現在の各モジュールの入力データ、保存する出力、上流の生成元、下流の利用先を確認します。",
+      "objectives": [
+        "すでにあるデータに応じて、開始するモジュールを選びます。",
+        "各モジュールが何を読み書きするかを把握します。",
+        "次の手順では、リンクされたモジュールのレッスンと API の入出力仕様を参照します。"
+      ],
+      "prerequisite": "spaCR をインストールし、Home を開きます。このレッスンでは操作の流れとデータの受け渡しを説明します。具体的なデータ例は、リンク先の各モジュールのレッスンを参照してください。入力と出力には条件付きの選択肢があり、各モジュールで説明します。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "手元のデータと必要な結果に応じてモジュールを選びます。Home には主要モジュールが表示され、関連ツールは親モジュール内から開けます。このリファレンスでは、現在のすべての経路を章ごとに説明します。入力と出力は条件によって異なる場合があります。画像分類器と特徴量分類器は異なるデータを必要とし、ビューアーが表示内容をすべて自動保存するわけではありません。各モジュールの説明でこれらの違いを示します。元のファイルを保持し、モジュール間で結果を渡すときには、記録されたオブジェクト、プレート、ウェルの識別情報を使用してください。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "手元のデータと必要な結果に応じてモジュールを選びます。ホーム には主要モジュールが表示され、関連ツールは親モジュール内から開けます。このリファレンスでは、現在のすべての経路を章ごとに説明します。入力と出力は条件によって異なる場合があります。画像分類器と特徴量分類器は異なるデータを必要とし、ビューアーが表示内容をすべて自動保存するわけではありません。各モジュールの説明でこれらの違いを示します。元のファイルを保持し、モジュール間で結果を渡すときには、記録されたオブジェクト、プレート、ウェルの識別情報を使用してください。"
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Home から Mask を開きます。 チャネルとモデルを選び、プレビューを確認してから Mask を実行します。Measure が使うのは統合配列です。カウントデータベースは、まだ特徴量テーブルではありません。 入力データ: 顕微鏡画像; セグメンテーションのチェックポイント. 顕微鏡画像: 元画像のフォルダ。元のファイル、対応するメーカー形式のファイル、またはインポートした TIFF。 セグメンテーションのチェックポイント: 保存された Cellpose 互換のチェックポイント、または固有の設定で選択した互換性のあるインストール済みバックエンド。 出力データ: 画像とラベルマスク; ラベルマスク; オブジェクト数. 画像とラベルマスク: プロジェクト内の merged/*.npy。チャネルと整数ラベル平面は、各視野の配列を共有します。 ラベルマスク: 保持した場合の masks/、または明示的に保存した画像とマスクのペア。中間マスクはクリーンアップで削除される場合があります。 オブジェクト数: measurements/measurements.db。Mask のカウントだけでは、オブジェクトごとの特徴量測定にはなりません。 Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。 Cellpose Workbench から Mask へ：Mask で保存済みの互換性のあるチェックポイントを選びます。 Import Images から Mask へ：インポートした画像平面と識別情報を使用します。画像だけのインポートでは、なおセグメンテーションが必要です。 Format Converter から Mask へ：変換後の配置を使い、元データの識別対応を保持します。 Mask から Timelapse へ：関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。 Import から Mask へ：画像のみをインポートする場合は Import Images または Format Converter を使用し、Mask に整形済み画像プロジェクトを指定します。外部測定値だけではセグメンテーションの入力にはなりません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "17_timelapse",
+            "19_train_cellpose",
+            "35_converter",
+            "36_import",
+            "74_import_images"
+          ],
+          "speech_text": "ホーム から Mask を開きます。 チャネルとモデルを選び、プレビューを確認してから Mask を実行します。Measure が使うのは統合配列です。カウントデータベースは、まだ特徴量テーブルではありません。 入力データ: 顕微鏡画像; セグメンテーションのチェックポイント. 顕微鏡画像: 元画像のフォルダ。元のファイル、対応するメーカー形式のファイル、またはインポートした TIFF。 セグメンテーションのチェックポイント: 保存された セルポーズ 互換のチェックポイント、または固有の設定で選択した互換性のあるインストール済みバックエンド。 出力データ: 画像とラベルマスク; ラベルマスク; オブジェクト数. 画像とラベルマスク: プロジェクト内の merged/*.npy。チャネルと整数ラベル平面は、各視野の配列を共有します。 ラベルマスク: 保持した場合の masks/、または明示的に保存した画像とマスクのペア。中間マスクはクリーンアップで削除される場合があります。 オブジェクト数: measurements/メジャメンツ・ドット・ディービー。Mask のカウントだけでは、オブジェクトごとの特徴量測定にはなりません。 Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。 セルポーズ Workbench から Mask へ：Mask で保存済みの互換性のあるチェックポイントを選びます。 Import Images から Mask へ：インポートした画像平面と識別情報を使用します。画像だけのインポートでは、なおセグメンテーションが必要です。 Format Converter から Mask へ：変換後の配置を使い、元データの識別対応を保持します。 Mask から Timelapse へ：関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。 Import から Mask へ：画像のみをインポートする場合は Import Images または Format Converter を使用し、Mask に整形済み画像プロジェクトを指定します。外部測定値だけではセグメンテーションの入力にはなりません。"
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Home から Measure を開きます。 Measure は画像とラベル平面を一緒に読み込みます。PNG ファイルが必要なら切り出し画像の保存を有効にします。ストリーミングで切り出す場合は、データベースと元のプロジェクトを一緒に保持します。 入力データ: 画像とラベルマスク; ラベルマスク. 出力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 測定済みオブジェクト: measurements/measurements.db。オブジェクトのテーブルは、有効にした細胞、核、病原体、オルガネラのマスクによって異なります。 関連するテーブルは選択した経路によって異なります：cell, nucleus, pathogen, cytoplasm。 関連する列は選択した経路によって異なります：plateID, rowID, columnID, fieldID。 オブジェクトの切り出し画像: save_png が有効な場合は data/**/*_png に保存され、png_list が保存済みの切り出し画像を索引付けします。対応するワークフローでは、代わりに統合配列とマスクから切り出し画像をストリーミングで読み込めます。 関連するテーブルは選択した経路によって異なります：png_list。 関連する列は選択した経路によって異なります：png_path, prcfo。 Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。 Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 External Masks から Measure へ：必要な場合だけ再測定します。External Masks でも測定を実行できます。 Measure から Image UMAP へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Measure から Gate Editor へ：実際に測定した特徴量の定義と単位を使用します。 Measure から Graph Builder へ：変数、グループ、フィルターを明示的に選びます。 Measure から QC へ：利用可能なチェックと不足している根拠を確認します。 Measure から Recruitment へ：対象区画の強度と識別情報が必要です。 Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。 Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。 Timelapse から Measure へ：フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。 Measure から Motility Assay へ：測定済みオブジェクトを対応する軌跡と組み合わせます。 Measure から Feature Explorer へ：比較するクラスを定義し、フィルタリングを確認します。 Measure から Database Browser へ：エクスポート前に実際のテーブルを確認します。 Measure から AnnData Export へ：互換性のある特徴量列とメタデータ列をエクスポートします。 Measure から Dose–Response へ：測定した応答を、明示的な用量と対照に結合します。 Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。 Import から Measure へ：対応する画像と外部の整数マスクをインポートして結合済みプロジェクト配列を作成し、そのプロジェクトで Measure を開きます。互換性のある測定値がすでにインポートまたは計算されている場合は、この手順を省略します。既存のインポート済みテーブルに重複する測定値を追加しないでください。 Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "14_make_masks",
+            "15_image_umap",
+            "17_timelapse",
+            "18_motility",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication",
+            "31_external_masks",
+            "34_database",
+            "36_import",
+            "41_classify",
+            "54_qc_dashboard",
+            "58_graph_builder",
+            "59_anndata_export",
+            "64_gate_editor",
+            "65_feature_explorer",
+            "69_dose_response",
+            "77_embeddings"
+          ],
+          "speech_text": "ホーム から Measure を開きます。 Measure は画像とラベル平面を一緒に読み込みます。PNG ファイルが必要なら切り出し画像の保存を有効にします。ストリーミングで切り出す場合は、データベースと元のプロジェクトを一緒に保持します。 入力データ: 画像とラベルマスク; ラベルマスク. 出力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 測定済みオブジェクト: measurements/メジャメンツ・ドット・ディービー。オブジェクトのテーブルは、有効にした細胞、核、病原体、オルガネラのマスクによって異なります。 関連するテーブルは選択した経路によって異なります：cell, nucleus, pathogen, cytoplasm。 関連する列は選択した経路によって異なります：plateID, rowID, columnID, fieldID。 オブジェクトの切り出し画像: save_png が有効な場合は data/**/*_png に保存され、png_list が保存済みの切り出し画像を索引付けします。対応するワークフローでは、代わりに統合配列とマスクから切り出し画像をストリーミングで読み込めます。 関連するテーブルは選択した経路によって異なります：png_list。 関連する列は選択した経路によって異なります：png_path, prcfo。 Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。 Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 External Masks から Measure へ：必要な場合だけ再測定します。External Masks でも測定を実行できます。 Measure から Image ユーマップ へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Measure から ゲートエディタ へ：実際に測定した特徴量の定義と単位を使用します。 Measure から Graph Builder へ：変数、グループ、フィルターを明示的に選びます。 Measure から QC へ：利用可能なチェックと不足している根拠を確認します。 Measure から Recruitment へ：対象区画の強度と識別情報が必要です。 Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。 Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。 Timelapse から Measure へ：フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。 Measure から Motility Assay へ：測定済みオブジェクトを対応する軌跡と組み合わせます。 Measure から Feature Explorer へ：比較するクラスを定義し、フィルタリングを確認します。 Measure から Database Browser へ：エクスポート前に実際のテーブルを確認します。 Measure から AnnData Export へ：互換性のある特徴量列とメタデータ列をエクスポートします。 Measure から Dose–Response へ：測定した応答を、明示的な用量と対照に結合します。 Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。 Import から Measure へ：対応する画像と外部の整数マスクをインポートして結合済みプロジェクト配列を作成し、そのプロジェクトで Measure を開きます。互換性のある測定値がすでにインポートまたは計算されている場合は、この手順を省略します。既存のインポート済みテーブルに重複する測定値を追加しないでください。 Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。"
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Home から Annotate を開きます。 教師あり学習の前に、png_list で代表的なオブジェクトにラベルを付けます。異なる問いには別々の注釈を使い、学習グループと評価グループを独立させます。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 再利用可能なゲート. 再利用可能なゲート: 保存された閾値ゲートまたは多角形ゲートの定義、あるいは選択したオブジェクト集合。ゲートは同じ特徴量定義に適用します。 出力データ: 学習用の注釈. 学習用の注釈: measurements/measurements.db の png_list テーブルで選択した注釈列。ラベルはオブジェクトの識別情報に対応します。 関連するテーブルは選択した経路によって異なります：png_list。 関連する列は選択した経路によって異なります：prcfo。 Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 External Masks から Annotate へ：新しく測定したプロジェクトと切り出し画像のインデックスを一緒に保持します。 Import から Annotate へ：インポートするテーブルには、列とオブジェクト識別情報の明示的な対応付けが必要です。 Gate Editor から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。 Annotate から Annotator Agreement へ：同じオブジェクトに対する独立した注釈列を選びます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "23_agreement",
+            "31_external_masks",
+            "36_import",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "ホーム から Annotate を開きます。 教師あり学習の前に、png_list で代表的なオブジェクトにラベルを付けます。異なる問いには別々の注釈を使い、学習グループと評価グループを独立させます。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 再利用可能なゲート. 再利用可能なゲート: 保存された閾値ゲートまたは多角形ゲートの定義、あるいは選択したオブジェクト集合。ゲートは同じ特徴量定義に適用します。 出力データ: 学習用の注釈. 学習用の注釈: measurements/メジャメンツ・ドット・ディービー の png_list テーブルで選択した注釈列。ラベルはオブジェクトの識別情報に対応します。 関連するテーブルは選択した経路によって異なります：png_list。 関連する列は選択した経路によって異なります：prcfo。 Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 External Masks から Annotate へ：新しく測定したプロジェクトと切り出し画像のインデックスを一緒に保持します。 Import から Annotate へ：インポートするテーブルには、列とオブジェクト識別情報の明示的な対応付けが必要です。 ゲートエディタ から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。 Annotate から Annotator Agreement へ：同じオブジェクトに対する独立した注釈列を選びます。"
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Home から Classify を開きます。 切り出し画像やストリーミングで読み込むオブジェクト画像には Computer Vision を、測定した特徴量の列には Tabular Machine Learning を選びます。この二つの系統では入力が異なります。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み画像分類器; 学習済み特徴量分類器; 分類器の評価結果一式. オブジェクトの分類スコア: 保存されたスコア CSV と、結合した場合の measurements/measurements.db 内の png_list テーブル。 関連するテーブルは選択した経路によって異なります：png_list。 関連する列は選択した経路によって異なります：pred, cv_predictions, ml_pred, predictions。 学習済み画像分類器: 保存された分類器のチェックポイント、モデル設定、対応するチャネルと前処理の設定。 学習済み特徴量分類器: 学習済みの表形式データ分類器と、記録された特徴量リスト、学習設定、検証結果。 分類器の評価結果一式: 保存した分類器実行のホールドアウト予測、ラベル、データ分割のメタデータ、および校正・データ漏洩の指標。 Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。 Classify から Classifier Evaluation へ：対応するホールドアウト予測とデータ分割のメタデータを使用します。 Classify から Activation へ：対応する切り出し画像とチャネルの前処理も提供します。 Classify から Explain CV Model へ：CV の予測と対応する測定済みオブジェクトを選びます。 Gate Editor から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。 Image UMAP から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "15_image_umap",
+            "16_activation",
+            "39_classifier_evaluation",
+            "41_classify",
+            "64_gate_editor",
+            "70_explain_cv"
+          ],
+          "speech_text": "ホーム から Classify を開きます。 切り出し画像やストリーミングで読み込むオブジェクト画像には Computer Vision を、測定した特徴量の列には Tabular Machine Learning を選びます。この二つの系統では入力が異なります。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み画像分類器; 学習済み特徴量分類器; 分類器の評価結果一式. オブジェクトの分類スコア: 保存されたスコア CSV と、結合した場合の measurements/メジャメンツ・ドット・ディービー 内の png_list テーブル。 関連するテーブルは選択した経路によって異なります：png_list。 関連する列は選択した経路によって異なります：pred, cv_predictions, ml_pred, predictions。 学習済み画像分類器: 保存された分類器のチェックポイント、モデル設定、対応するチャネルと前処理の設定。 学習済み特徴量分類器: 学習済みの表形式データ分類器と、記録された特徴量リスト、学習設定、検証結果。 分類器の評価結果一式: 保存した分類器実行のホールドアウト予測、ラベル、データ分割のメタデータ、および校正・データ漏洩の指標。 Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。 Classify から Classifier Evaluation へ：対応するホールドアウト予測とデータ分割のメタデータを使用します。 Classify から Activation へ：対応する切り出し画像とチャネルの前処理も提供します。 Classify から Explain CV Model へ：CV の予測と対応する測定済みオブジェクトを選びます。 ゲートエディタ から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。 Image ユーマップ から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。"
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Home から Map Barcodes を開きます。 実験情報を符号化した参照データを提供します。ウェル単位のガイドカウントを表現型スコアと対応付ける前に、マッピング済みカウントとバーコード QC を確認します。 入力データ: シーケンシングリード. シーケンシングリード: シングルエンドまたはペアの FASTQ ファイルと、それに対応するバーコード参照テーブル。 出力データ: ウェルごとのガイドカウント. ウェルごとのガイドカウント: Map Barcodes の実行フォルダ：unique_combinations.csv と annotated_reads.h5。ウェルの識別には、対応するバーコードの参照データが必要です。 関連する列は選択した経路によって異なります：count。 Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントを表現型スコアと対応付けます。 Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "47_barcode_qc"
+          ],
+          "speech_text": "ホーム から Map Barcodes を開きます。 実験情報を符号化した参照データを提供します。ウェル単位のガイドカウントを表現型スコアと対応付ける前に、マッピング済みカウントとバーコード QC を確認します。 入力データ: シーケンシングリード. シーケンシングリード: シングルエンドまたはペアの FASTQ ファイルと、それに対応するバーコード参照テーブル。 出力データ: ウェルごとのガイドカウント. ウェルごとのガイドカウント: Map Barcodes の実行フォルダ：unique_combinations.csv と annotated_reads.h5。ウェルの識別には、対応するバーコードの参照データが必要です。 関連する列は選択した経路によって異なります：count。 Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントを表現型スコアと対応付けます。 Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。"
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Home から Regression を開きます。 表現型とガイドカウントの入力間でプレートおよびウェルの識別子を一致させ、応答と対照を選び、ヒットを解釈する前に診断を確認します。実測応答の直接入力にも対応しています。 入力データ: オブジェクトの分類スコア; ウェルごとのガイドカウント; 光学バーコードの割り当て; 測定済みオブジェクト. 光学バーコードの割り当て: OPS の出力先にある measurements.db：ウェルごとの形状、表現型の位置合わせ、核、バーコードのテーブル。サイクルごとのリードは任意です。 関連するテーブルは選択した経路によって異なります：ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads。 出力データ: 回帰結果とヒット. 回帰結果とヒット: 選択した実行の結果フォルダ：係数や結果の CSV、ヒットテーブル、設定、診断図。 Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。 Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントを表現型スコアと対応付けます。 OPS から Regression へ：Regression の前に、デコード済みオブジェクトを表現型とガイドの入力に明示的に結合または集計します。これは CSV をそのまま渡す処理ではありません。 Regression から Run Compare へ：互換性のある保存済み結果セットと、その設定を比較します。 Regression から Hit List へ：順位付けされたヒットとガイド間の一致度を確認します。 Regression から Volcano Explorer へ：保存された効果と補正済みの有意性を確認します。 Regression から Diagnostics へ：この実行で実際に書き出された診断を開きます。 Regression から Methods & Results へ：エクスポートした文章と、追跡可能な各結果を確認します。 Regression から Investigate Hit へ：選択したヒットについて、互換性のある表現型データとオブジェクトデータを結合します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "48_hit_list",
+            "49_methods_results",
+            "50_run_compare",
+            "72_volcano_explorer",
+            "75_regression_diagnostics",
+            "76_ops"
+          ],
+          "speech_text": "ホーム から Regression を開きます。 表現型とガイドカウントの入力間でプレートおよびウェルの識別子を一致させ、応答と対照を選び、ヒットを解釈する前に診断を確認します。実測応答の直接入力にも対応しています。 入力データ: オブジェクトの分類スコア; ウェルごとのガイドカウント; 光学バーコードの割り当て; 測定済みオブジェクト. 光学バーコードの割り当て: OPS の出力先にある メジャメンツ・ドット・ディービー：ウェルごとの形状、表現型の位置合わせ、核、バーコードのテーブル。サイクルごとのリードは任意です。 関連するテーブルは選択した経路によって異なります：ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads。 出力データ: 回帰結果とヒット. 回帰結果とヒット: 選択した実行の結果フォルダ：係数や結果の CSV、ヒットテーブル、設定、診断図。 Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。 Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントを表現型スコアと対応付けます。 OPS から Regression へ：Regression の前に、デコード済みオブジェクトを表現型とガイドの入力に明示的に結合または集計します。これは CSV をそのまま渡す処理ではありません。 Regression から Run Compare へ：互換性のある保存済み結果セットと、その設定を比較します。 Regression から Hit List へ：順位付けされたヒットとガイド間の一致度を確認します。 Regression から Volcano Explorer へ：保存された効果と補正済みの有意性を確認します。 Regression から Diagnostics へ：この実行で実際に書き出された診断を開きます。 Regression から Methods & Results へ：エクスポートした文章と、追跡可能な各結果を確認します。 Regression から Investigate Hit へ：選択したヒットについて、互換性のある表現型データとオブジェクトデータを結合します。"
+        },
+        {
+          "visual": "module_feature_explorer",
+          "narration": "Home から Classify を開き、Feature Explorer を選びます。 選んだクラス比較について測定した特徴量を順位付けします。順位を解釈する前に、フィルタリングとクラスの定義を確認します。 入力データ: 測定済みオブジェクト; 学習用の注釈. 出力データ: 図とテーブルのエクスポート. 図とテーブルのエクスポート: ツールが選んだ出力先。エクスポート内容は選択したデータとフィルターを表します。 Measure から Feature Explorer へ：比較するクラスを定義し、フィルタリングを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "65_feature_explorer"
+          ],
+          "speech_text": "ホーム から Classify を開き、Feature Explorer を選びます。 選んだクラス比較について測定した特徴量を順位付けします。順位を解釈する前に、フィルタリングとクラスの定義を確認します。 入力データ: 測定済みオブジェクト; 学習用の注釈. 出力データ: 図とテーブルのエクスポート. 図とテーブルのエクスポート: ツールが選んだ出力先。エクスポート内容は選択したデータとフィルターを表します。 Measure から Feature Explorer へ：比較するクラスを定義し、フィルタリングを確認します。"
+        },
+        {
+          "visual": "module_convert",
+          "narration": "Home から Import を開き、Format Converter を選びます。 対応する顕微鏡ファイル形式を、元データとの対応関係を保持しながら設定済みの TIFF 配置に変換します。変換ではオブジェクトの測定値は生成されません。 入力データ: 顕微鏡画像. 出力データ: 顕微鏡画像. Format Converter から Mask へ：変換後の配置を使い、元データの識別対応を保持します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "35_converter"
+          ],
+          "speech_text": "ホーム から Import を開き、Format Converter を選びます。 対応する顕微鏡ファイル形式を、元データとの対応関係を保持しながら設定済みの TIFF 配置に変換します。変換ではオブジェクトの測定値は生成されません。 入力データ: 顕微鏡画像. 出力データ: 顕微鏡画像. Format Converter から Mask へ：変換後の配置を使い、元データの識別対応を保持します。"
+        },
+        {
+          "visual": "module_foreign",
+          "narration": "Home から Import を開きます。 オブジェクトと列の対応を明示して外部の測定データをインポートするか、Import Images、Format Converter、External Masks を選びます。測定データのインポートは Measure の新規実行ではありません。対応する元画像と外部の整数マスクがあれば、Import は Measure が使う結合済みプロジェクト配列を作成します。ファイルに合う経路を選び、測定前にオブジェクトの識別情報を確認してください。インポートした特徴量テーブルに必要な測定値がすでにあれば、そのまま使用できます。 入力データ: 顕微鏡画像; ラベルマスク; 外部の測定データ. 外部の測定データ: サードパーティーの測定 CSV またはデータベースのテーブルと、その画像、マスク、オブジェクト識別情報の対応付け。 出力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 画像とラベルマスク; ラベルマスク. Import から Annotate へ：インポートするテーブルには、列とオブジェクト識別情報の明示的な対応付けが必要です。 Import から Measure へ：対応する画像と外部の整数マスクをインポートして結合済みプロジェクト配列を作成し、そのプロジェクトで Measure を開きます。互換性のある測定値がすでにインポートまたは計算されている場合は、この手順を省略します。既存のインポート済みテーブルに重複する測定値を追加しないでください。 Import から Mask へ：画像のみをインポートする場合は Import Images または Format Converter を使用し、Mask に整形済み画像プロジェクトを指定します。外部測定値だけではセグメンテーションの入力にはなりません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "36_import"
+          ],
+          "speech_text": "ホーム から Import を開きます。 オブジェクトと列の対応を明示して外部の測定データをインポートするか、Import Images、Format Converter、External Masks を選びます。測定データのインポートは Measure の新規実行ではありません。対応する元画像と外部の整数マスクがあれば、Import は Measure が使う結合済みプロジェクト配列を作成します。ファイルに合う経路を選び、測定前にオブジェクトの識別情報を確認してください。インポートした特徴量テーブルに必要な測定値がすでにあれば、そのまま使用できます。 入力データ: 顕微鏡画像; ラベルマスク; 外部の測定データ. 外部の測定データ: サードパーティーの測定 CSV またはデータベースのテーブルと、その画像、マスク、オブジェクト識別情報の対応付け。 出力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 画像とラベルマスク; ラベルマスク. Import から Annotate へ：インポートするテーブルには、列とオブジェクト識別情報の明示的な対応付けが必要です。 Import から Measure へ：対応する画像と外部の整数マスクをインポートして結合済みプロジェクト配列を作成し、そのプロジェクトで Measure を開きます。互換性のある測定値がすでにインポートまたは計算されている場合は、この手順を省略します。既存のインポート済みテーブルに重複する測定値を追加しないでください。 Import から Mask へ：画像のみをインポートする場合は Import Images または Format Converter を使用し、Mask に整形済み画像プロジェクトを指定します。外部測定値だけではセグメンテーションの入力にはなりません。"
+        },
+        {
+          "visual": "module_external_masks",
+          "narration": "Home から Import を開き、External Masks を選びます。 対応する画像と既存の整数ラベルマスクを指定し、セグメンテーションを再実行せずに spaCR プロジェクトを作成して測定します。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 画像とラベルマスク; 測定済みオブジェクト; オブジェクトの切り出し画像. External Masks から Measure へ：必要な場合だけ再測定します。External Masks でも測定を実行できます。 External Masks から Annotate へ：新しく測定したプロジェクトと切り出し画像のインデックスを一緒に保持します。 Direct Cellpose mask generation から External Masks へ：保存したラベル TIFF と元の画像を External Masks に渡し、オブジェクトの役割を指定して、Measure の前に統合プロジェクトを作成します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "31_external_masks"
+          ],
+          "speech_text": "ホーム から Import を開き、External Masks を選びます。 対応する画像と既存の整数ラベルマスクを指定し、セグメンテーションを再実行せずに スペーカー プロジェクトを作成して測定します。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 画像とラベルマスク; 測定済みオブジェクト; オブジェクトの切り出し画像. External Masks から Measure へ：必要な場合だけ再測定します。External Masks でも測定を実行できます。 External Masks から Annotate へ：新しく測定したプロジェクトと切り出し画像のインデックスを一緒に保持します。 Direct セルポーズ mask generation から External Masks へ：保存したラベル TIFF と元の画像を External Masks に渡し、オブジェクトの役割を指定して、Measure の前に統合プロジェクトを作成します。"
+        },
+        {
+          "visual": "module_queue",
+          "narration": "アプリケーションの Help またはツールのメニューで Plate Queue を探します。 選択したパイプラインを複数のプレートに実行します。出力はキュー内の各モジュールのものであり、各プレートとその設定を別々に保持します。 入力データ: 実行キュー. 実行キュー: 保存されたモジュール、プレート、設定のジョブ定義と依存順序。 出力データ: 実行履歴と成果物. 実行履歴と成果物: プロジェクトの実行記録、設定、出力パス、成果物の来歴、状態、ログ。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "30_plate_queue"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Plate Queue を探します。 選択したパイプラインを複数のプレートに実行します。出力はキュー内の各モジュールのものであり、各プレートとその設定を別々に保持します。 入力データ: 実行キュー. 実行キュー: 保存されたモジュール、プレート、設定のジョブ定義と依存順序。 出力データ: 実行履歴と成果物. 実行履歴と成果物: プロジェクトの実行記録、設定、出力パス、成果物の来歴、状態、ログ。"
+        },
+        {
+          "visual": "module_batch",
+          "narration": "アプリケーションの Help またはツールのメニューで Batch Runner を探します。 依存順序に従ってモジュールのジョブを検証し、実行します。各ジョブは自身のモジュールの出力とログを書き出します。 入力データ: 実行キュー. 出力データ: 実行履歴と成果物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "37_batch"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Batch Runner を探します。 依存順序に従ってモジュールのジョブを検証し、実行します。各ジョブは自身のモジュールの出力とログを書き出します。 入力データ: 実行キュー. 出力データ: 実行履歴と成果物."
+        },
+        {
+          "visual": "module_distributed_jobs",
+          "narration": "アプリケーションの Help またはツールのメニューで Distributed Jobs を探します。 設定済みの実行をリモートの実行先へ送信し、その状態とログを確認します。後続の解析の前に、実際のモジュール成果物を取得します。 入力データ: 実行キュー. 出力データ: 実行履歴と成果物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "38_distributed_jobs"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Distributed Jobs を探します。 設定済みの実行をリモートの実行先へ送信し、その状態とログを確認します。後続の解析の前に、実際のモジュール成果物を取得します。 入力データ: 実行キュー. 出力データ: 実行履歴と成果物."
+        },
+        {
+          "visual": "module_db_browser",
+          "narration": "アプリケーションの Help またはツールのメニューで Database Browser を探します。 選択したテーブルを閲覧し、行をエクスポートします。テーブルの確認では画像解析は再実行されません。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート. Measure から Database Browser へ：エクスポート前に実際のテーブルを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "34_database"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Database Browser を探します。 選択したテーブルを閲覧し、行をエクスポートします。テーブルの確認では画像解析は再実行されません。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート. Measure から Database Browser へ：エクスポート前に実際のテーブルを確認します。"
+        },
+        {
+          "visual": "module_run_history",
+          "narration": "アプリケーションの Help またはツールのメニューで Run History を探します。 保存された実行状態、設定、出力、ログを確認します。実行の完了は生物学的な妥当性を示すものではありません。 入力データ: 実行履歴と成果物. 出力データ: 実行履歴と成果物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "40_run_history"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Run History を探します。 保存された実行状態、設定、出力、ログを確認します。実行の完了は生物学的な妥当性を示すものではありません。 入力データ: 実行履歴と成果物. 出力データ: 実行履歴と成果物."
+        },
+        {
+          "visual": "module_report",
+          "narration": "アプリケーションの Help またはツールのメニューで Report を探します。 記録された結果、設定、QC を共有可能なレポートにまとめます。解析を暗黙に再実行することはありません。 入力データ: 実行履歴と成果物; 品質管理の結果; 図とテーブルのエクスポート. 品質管理の結果: 保存されたプロジェクトのチェックと QC レポート。チェックがないことは合格を意味しません。 出力データ: 共有可能なレポート. 共有可能なレポート: 記録された解析出力からエクスポートした HTML/PDF または方法・結果の文書。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "29_report"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Report を探します。 記録された結果、設定、QC を共有可能なレポートにまとめます。解析を暗黙に再実行することはありません。 入力データ: 実行履歴と成果物; 品質管理の結果; 図とテーブルのエクスポート. 品質管理の結果: 保存されたプロジェクトのチェックと QC レポート。チェックがないことは合格を意味しません。 出力データ: 共有可能なレポート. 共有可能なレポート: 記録された解析出力からエクスポートした HTML/PDF または方法・結果の文書。"
+        },
+        {
+          "visual": "module_data_manager",
+          "narration": "アプリケーションの Help またはツールのメニューで Data Manager を探します。 プロジェクトのファイルとディスク使用量を確認します。派生成果物を削除すると、そのファイルを使う下流の処理は成立しなくなります。元の画像は復元できる状態に保つ必要があります。 入力データ: 実行履歴と成果物. 出力データ: 実行履歴と成果物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "44_data_manager"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Data Manager を探します。 プロジェクトのファイルとディスク使用量を確認します。派生成果物を削除すると、そのファイルを使う下流の処理は成立しなくなります。元の画像は復元できる状態に保つ必要があります。 入力データ: 実行履歴と成果物. 出力データ: 実行履歴と成果物."
+        },
+        {
+          "visual": "module_pipeline_graph",
+          "narration": "アプリケーションの Help またはツールのメニューで Pipeline Graph を探します。 記録された成果物の依存関係と、古いまたは欠落した状態を読み込みます。グラフは来歴を示すもので、欠落した成果物を再生成しません。 入力データ: 実行履歴と成果物. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "52_pipeline_graph"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Pipeline Graph を探します。 記録された成果物の依存関係と、古いまたは欠落した状態を読み込みます。グラフは来歴を示すもので、欠落した成果物を再生成しません。 入力データ: 実行履歴と成果物. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "Home から QC を開きます。 保存されたセグメンテーション、単位、データ漏洩、プレート効果のチェックを確認します。詳細は内包されたビューアーを開いて確認します。 入力データ: 測定済みオブジェクト; 品質管理の結果. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Measure から QC へ：利用可能なチェックと不足している根拠を確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "54_qc_dashboard"
+          ],
+          "speech_text": "ホーム から QC を開きます。 保存されたセグメンテーション、単位、データ漏洩、プレート効果のチェックを確認します。詳細は内包されたビューアーを開いて確認します。 入力データ: 測定済みオブジェクト; 品質管理の結果. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Measure から QC へ：利用可能なチェックと不足している根拠を確認します。"
+        },
+        {
+          "visual": "module_lineage",
+          "narration": "Help の検索から Database Browser を開き、Lineage を選びます。 記録された細胞、核、病原体、オルガネラの包含関係を確認します。これはオブジェクトの包含関係であり、時系列の系譜推定ではありません。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "56_lineage"
+          ],
+          "speech_text": "Help の検索から Database Browser を開き、Lineage を選びます。 記録された細胞、核、病原体、オルガネラの包含関係を確認します。これはオブジェクトの包含関係であり、時系列の系譜推定ではありません。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Home から Experiment Design を開きます。 条件、対照、反復、プレートの制約を入力し、取得前に実験配置をエクスポートします。 入力データ: スクリーニング設計と検出力の推定. スクリーニング設計と検出力の推定: 明示的に選んだ効果量、変動性、サンプリングの仮定に基づく、保存済みの計画テーブルまたは図。 出力データ: 実験配置. 実験配置: エクスポートしたプレート、条件、対照、反復の配置図。プレートとウェルの識別子を取得データと一致させてください。 Experiment Design から Power / Design へ：実験配置からサンプリングの仮定を定義し、その後で設計を見直します。 Experiment Design から Dose–Response へ：まず実験データを取得して測定し、用量と条件の識別情報を保持します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ],
+          "speech_text": "ホーム から Experiment Design を開きます。 条件、対照、反復、プレートの制約を入力し、取得前に実験配置をエクスポートします。 入力データ: スクリーニング設計と検出力の推定. スクリーニング設計と検出力の推定: 明示的に選んだ効果量、変動性、サンプリングの仮定に基づく、保存済みの計画テーブルまたは図。 出力データ: 実験配置. 実験配置: エクスポートしたプレート、条件、対照、反復の配置図。プレートとウェルの識別子を取得データと一致させてください。 Experiment Design から Power / Design へ：実験配置からサンプリングの仮定を定義し、その後で設計を見直します。 Experiment Design から Dose–Response へ：まず実験データを取得して測定し、用量と条件の識別情報を保持します。"
+        },
+        {
+          "visual": "module_layer_viewer",
+          "narration": "Home から QC を開き、Layer Viewer を選びます。 選択した視野について、位置合わせされた画像、ラベル、点または ROI のレイヤーを確認します。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "57_layer_viewer"
+          ],
+          "speech_text": "ホーム から QC を開き、Layer Viewer を選びます。 選択した視野について、位置合わせされた画像、ラベル、点または ROI のレイヤーを確認します。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_power",
+          "narration": "Home から Power / Design を開きます。 選択した効果量と変動性から必要なサンプリングを推定します。予備測定は仮定の根拠として任意で利用できます。 入力データ: スクリーニング設計と検出力の推定; 測定済みオブジェクト; 実験配置. 出力データ: スクリーニング設計と検出力の推定. Experiment Design から Power / Design へ：実験配置からサンプリングの仮定を定義し、その後で設計を見直します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design"
+          ],
+          "speech_text": "ホーム から Power / Design を開きます。 選択した効果量と変動性から必要なサンプリングを推定します。予備測定は仮定の根拠として任意で利用できます。 入力データ: スクリーニング設計と検出力の推定; 測定済みオブジェクト; 実験配置. 出力データ: スクリーニング設計と検出力の推定. Experiment Design から Power / Design へ：実験配置からサンプリングの仮定を定義し、その後で設計を見直します。"
+        },
+        {
+          "visual": "module_run_compare",
+          "narration": "Home から Run Compare を開きます。 互換性のある保存済み設定、カウント、ヒットリストを比較します。入力データが変わった比較を、条件を統制したモデル比較として扱わないでください。 入力データ: 実行履歴と成果物; 回帰結果とヒット. 出力データ: 実行とモデルの比較. 実行とモデルの比較: 互換性のある保存済み実行やマスクから作成した比較テーブルと図。一致度は正解ラベルに対する精度ではありません。 Regression から Run Compare へ：互換性のある保存済み結果セットと、その設定を比較します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "50_run_compare"
+          ],
+          "speech_text": "ホーム から Run Compare を開きます。 互換性のある保存済み設定、カウント、ヒットリストを比較します。入力データが変わった比較を、条件を統制したモデル比較として扱わないでください。 入力データ: 実行履歴と成果物; 回帰結果とヒット. 出力データ: 実行とモデルの比較. 実行とモデルの比較: 互換性のある保存済み実行やマスクから作成した比較テーブルと図。一致度は正解ラベルに対する精度ではありません。 Regression から Run Compare へ：互換性のある保存済み結果セットと、その設定を比較します。"
+        },
+        {
+          "visual": "module_tabulate",
+          "narration": "Help の検索から Database Browser を開き、Tabulate を選びます。 グループ化の変数と測定列を選び、ピボットテーブルとグループごとのサンプル数を確認します。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "61_tabulate"
+          ],
+          "speech_text": "Help の検索から Database Browser を開き、Tabulate を選びます。 グループ化の変数と測定列を選び、ピボットテーブルとグループごとのサンプル数を確認します。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_dose_response",
+          "narration": "Home から Dose–Response を開きます。 曲線を適合させる前に、用量列、応答列、対照、単位を提供します。この経路にはシーケンシングは不要です。 入力データ: 測定済みオブジェクト; 実験配置. 出力データ: アッセイ結果; 図とテーブルのエクスポート. アッセイ結果: 設定した出力先に保存される、アッセイ固有の結果テーブルと図。ウェルと条件の識別情報を保持します。 Experiment Design から Dose–Response へ：まず実験データを取得して測定し、用量と条件の識別情報を保持します。 Measure から Dose–Response へ：測定した応答を、明示的な用量と対照に結合します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "67_experiment_design",
+            "69_dose_response"
+          ],
+          "speech_text": "ホーム から Dose–Response を開きます。 曲線を適合させる前に、用量列、応答列、対照、単位を提供します。この経路にはシーケンシングは不要です。 入力データ: 測定済みオブジェクト; 実験配置. 出力データ: アッセイ結果; 図とテーブルのエクスポート. アッセイ結果: 設定した出力先に保存される、アッセイ固有の結果テーブルと図。ウェルと条件の識別情報を保持します。 Experiment Design から Dose–Response へ：まず実験データを取得して測定し、用量と条件の識別情報を保持します。 Measure から Dose–Response へ：測定した応答を、明示的な用量と対照に結合します。"
+        },
+        {
+          "visual": "module_project_browser",
+          "narration": "アプリケーションの Help またはツールのメニューで Project Browser を探します。 プロジェクトを探し、その段階、最後の実行、ディスク使用量、古くなった出力を確認します。 入力データ: 実行履歴と成果物. 出力データ: 実行履歴と成果物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "45_project_browser"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Project Browser を探します。 プロジェクトを探し、その段階、最後の実行、ディスク使用量、古くなった出力を確認します。 入力データ: 実行履歴と成果物. 出力データ: 実行履歴と成果物."
+        },
+        {
+          "visual": "module_outliers",
+          "narration": "Home から QC を開き、Outliers を選びます。 フィルタリング後のデータを解析に使う前に、オブジェクトとウェルの頑健な外れ値スコア、および選択した除外ルールを確認します。 入力データ: 測定済みオブジェクト. 出力データ: 品質管理の結果; 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "66_outliers"
+          ],
+          "speech_text": "ホーム から QC を開き、Outliers を選びます。 フィルタリング後のデータを解析に使う前に、オブジェクトとウェルの頑健な外れ値スコア、および選択した除外ルールを確認します。 入力データ: 測定済みオブジェクト. 出力データ: 品質管理の結果; 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Home から Embeddings を開きます。 選択したモデルとチャネル方針でオブジェクト画像をエンコードします。後続の探索に特徴量を渡すときは、オブジェクトの識別情報とエンコーダーの来歴を保持します。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 出力データ: 画像の埋め込み表現. 画像の埋め込み表現: オブジェクトで索引付けしたエンコーダー特徴量。チャネル方針とエンコーダーの来歴を伴います。エンコード API は特徴量を返し、永続保存するかどうかは呼び出し側によります。 Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Embeddings から Image UMAP へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "77_embeddings"
+          ],
+          "speech_text": "ホーム から Embeddings を開きます。 選択したモデルとチャネル方針でオブジェクト画像をエンコードします。後続の探索に特徴量を渡すときは、オブジェクトの識別情報とエンコーダーの来歴を保持します。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 出力データ: 画像の埋め込み表現. 画像の埋め込み表現: オブジェクトで索引付けしたエンコーダー特徴量。チャネル方針とエンコーダーの来歴を伴います。エンコード API は特徴量を返し、永続保存するかどうかは呼び出し側によります。 Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Embeddings から Image ユーマップ へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。"
+        },
+        {
+          "visual": "module_control_chart",
+          "narration": "Home から QC を開き、Control Charts を選びます。 プレート間で指定した対照を比較し、ドリフトを確認します。対照の定義は実験に基づきます。 入力データ: 測定済みオブジェクト; 実験配置. 出力データ: 品質管理の結果; 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "51_control_charts"
+          ],
+          "speech_text": "ホーム から QC を開き、Control Charts を選びます。 プレート間で指定した対照を比較し、ドリフトを確認します。対照の定義は実験に基づきます。 入力データ: 測定済みオブジェクト; 実験配置. 出力データ: 品質管理の結果; 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_train_compare",
+          "narration": "Home から Classify を開き、Training Runs を選びます。 互換性のあるモデル実行で保存した学習履歴、指標、設定を比較します。 入力データ: 実行履歴と成果物. 出力データ: 実行とモデルの比較.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "28_training_runs"
+          ],
+          "speech_text": "ホーム から Classify を開き、Training Runs を選びます。 互換性のあるモデル実行で保存した学習履歴、指標、設定を比較します。 入力データ: 実行履歴と成果物. 出力データ: 実行とモデルの比較."
+        },
+        {
+          "visual": "module_align",
+          "narration": "Home から Align & Stitch を開きます。 タイルの形状、重なり、チャネルの対応付けを確認し、座標記録とともにモザイクを保存します。OPS には元のサイクルと撮像位置の識別情報も必要です。 入力データ: 顕微鏡画像. 出力データ: 位置合わせ済みモザイクと座標. 位置合わせ済みモザイクと座標: Align & Stitch の出力先：合成画像と、その解釈に必要なタイル座標および配置の記録。 Align & Stitch から OPS へ：タイル座標と元のシーケンシングサイクル情報を OPS に渡します。平坦化したモザイクだけでは不十分です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch",
+            "76_ops"
+          ],
+          "speech_text": "ホーム から Align & Stitch を開きます。 タイルの形状、重なり、チャネルの対応付けを確認し、座標記録とともにモザイクを保存します。OPS には元のサイクルと撮像位置の識別情報も必要です。 入力データ: 顕微鏡画像. 出力データ: 位置合わせ済みモザイクと座標. 位置合わせ済みモザイクと座標: Align & Stitch の出力先：合成画像と、その解釈に必要なタイル座標および配置の記録。 Align & Stitch から OPS へ：タイル座標と元のシーケンシングサイクル情報を OPS に渡します。平坦化したモザイクだけでは不十分です。"
+        },
+        {
+          "visual": "module_make_masks",
+          "narration": "Home から Make Masks を開きます。 セグメンテーション学習用の画像とマスクのペアを整えるか、FEATURES で画像とマスクを指定して測定を呼び出します。マスクを保存しても分類器は学習されません。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 確認・修正済みの学習視野; ラベルマスク. 確認・修正済みの学習視野: 視野の識別情報が一致する、別々の画像ファイルと整数マスクファイル。元の画像とラベルを保持します。 Make Masks から Cellpose Workbench へ：独立に確認した画像とマスクのペアを使用します。 Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "14_make_masks",
+            "19_train_cellpose",
+            "24_plaque"
+          ],
+          "speech_text": "ホーム から Make Masks を開きます。 セグメンテーション学習用の画像とマスクのペアを整えるか、FEATURES で画像とマスクを指定して測定を呼び出します。マスクを保存しても分類器は学習されません。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 確認・修正済みの学習視野; ラベルマスク. 確認・修正済みの学習視野: 視野の識別情報が一致する、別々の画像ファイルと整数マスクファイル。元の画像とラベルを保持します。 Make Masks から セルポーズ Workbench へ：独立に確認した画像とマスクのペアを使用します。 Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。"
+        },
+        {
+          "visual": "module_plate_view",
+          "narration": "Home から Graph Builder を開き、Plate Viewer を選びます。 選択した測定値をウェルごとに集計し、プレート上の分布と対照を確認します。 入力データ: 測定済みオブジェクト; 実験配置. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "ホーム から Graph Builder を開き、Plate Viewer を選びます。 選択した測定値をウェルごとに集計し、プレート上の分布と対照を確認します。 入力データ: 測定済みオブジェクト; 実験配置. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_umap",
+          "narration": "Home から Image UMAP を開きます。 測定した特徴量または提供されたエンコーダー特徴量を投影し、代表的な切り出し画像を確認します。クラスターは候補となるグループ分けであり、検証済みの表現型ではありません。投げ縄とアノテーションの操作を使い、確認済みの選択結果を対応する測定データベースのアノテーション列に書き込みます。幾何学的な選択だけで生物学的表現型が確定するわけではありません。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 画像の埋め込み表現. 出力データ: 投影とクラスター; 学習用の注釈. 投影とクラスター: 読み込んだ測定データに対する Image UMAP/PCA の座標テーブル、選択したクラスター、図。 Measure から Image UMAP へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Embeddings から Image UMAP へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。 Image UMAP から Gate Editor へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 Image UMAP から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor",
+            "77_embeddings"
+          ],
+          "speech_text": "ホーム から Image ユーマップ を開きます。 測定した特徴量または提供されたエンコーダー特徴量を投影し、代表的な切り出し画像を確認します。クラスターは候補となるグループ分けであり、検証済みの表現型ではありません。投げ縄とアノテーションの操作を使い、確認済みの選択結果を対応する測定データベースのアノテーション列に書き込みます。幾何学的な選択だけで生物学的表現型が確定するわけではありません。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 画像の埋め込み表現. 出力データ: 投影とクラスター; 学習用の注釈. 投影とクラスター: 読み込んだ測定データに対する Image ユーマップ/PCA の座標テーブル、選択したクラスター、図。 Measure から Image ユーマップ へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Embeddings から Image ユーマップ へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。 Image ユーマップ から ゲートエディタ へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 Image ユーマップ から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。"
+        },
+        {
+          "visual": "module_profiler",
+          "narration": "Home から Regression を開き、Prediction Profiler を選びます。 入力特徴量を変えたときに学習済みモデルがどう応答するかを確認します。予測は因果効果を示すものではありません。 入力データ: 学習済み特徴量分類器. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "53_prediction_profiler"
+          ],
+          "speech_text": "ホーム から Regression を開き、Prediction Profiler を選びます。 入力特徴量を変えたときに学習済みモデルがどう応答するかを確認します。予測は因果効果を示すものではありません。 入力データ: 学習済み特徴量分類器. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_graph_builder",
+          "narration": "Home から Graph Builder を開きます。 読み込んだテーブルから変数、グループ、作図設定を選び、解析の背景情報とともに図をエクスポートします。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート. Measure から Graph Builder へ：変数、グループ、フィルターを明示的に選びます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "58_graph_builder"
+          ],
+          "speech_text": "ホーム から Graph Builder を開きます。 読み込んだテーブルから変数、グループ、作図設定を選び、解析の背景情報とともに図をエクスポートします。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート. Measure から Graph Builder へ：変数、グループ、フィルターを明示的に選びます。"
+        },
+        {
+          "visual": "module_investigate_hit",
+          "narration": "Home から Regression を開き、Investigate Hit を選びます。 回帰のヒットを候補オブジェクトとウェル単位の定量的な根拠に結び付けます。これだけでヒットが独立に検証されるわけではありません。 入力データ: 回帰結果とヒット; オブジェクトの分類スコア; 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート. Regression から Investigate Hit へ：選択したヒットについて、互換性のある表現型データとオブジェクトデータを結合します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression"
+          ],
+          "speech_text": "ホーム から Regression を開き、Investigate Hit を選びます。 回帰のヒットを候補オブジェクトとウェル単位の定量的な根拠に結び付けます。これだけでヒットが独立に検証されるわけではありません。 入力データ: 回帰結果とヒット; オブジェクトの分類スコア; 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート. Regression から Investigate Hit へ：選択したヒットについて、互換性のある表現型データとオブジェクトデータを結合します。"
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Home から Gate Editor を開きます。 実際の特徴量列や座標列に閾値ゲートまたは多角形ゲートを定義し、保存したゲートを互換性のあるオブジェクトに適用します。Annotate を使って表示中のゲートをアノテーション列に書き込みます。選択したオブジェクトを確認し、二値または多クラスのラベルを選びます。 入力データ: 測定済みオブジェクト; 投影とクラスター. 出力データ: 再利用可能なゲート; 学習用の注釈. Image UMAP から Gate Editor へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 Gate Editor から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。 Measure から Gate Editor へ：実際に測定した特徴量の定義と単位を使用します。 Gate Editor から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "ホーム から ゲートエディタ を開きます。 実際の特徴量列や座標列に閾値ゲートまたは多角形ゲートを定義し、保存したゲートを互換性のあるオブジェクトに適用します。Annotate を使って表示中のゲートをアノテーション列に書き込みます。選択したオブジェクトを確認し、二値または多クラスのラベルを選びます。 入力データ: 測定済みオブジェクト; 投影とクラスター. 出力データ: 再利用可能なゲート; 学習用の注釈. Image ユーマップ から ゲートエディタ へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 ゲートエディタ から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。 Measure から ゲートエディタ へ：実際に測定した特徴量の定義と単位を使用します。 ゲートエディタ から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。"
+        },
+        {
+          "visual": "module_feature_dict",
+          "narration": "アプリケーションの Help またはツールのメニューで Feature Dictionary を探します。 測定列を選ぶ前に、特徴量の定義と単位を調べます。 入力データ: 特徴量の定義. 特徴量の定義: インストール済みの特徴量辞書。定義は既存の測定値を説明するもので、それらを計算するものではありません。 出力データ: 特徴量の定義.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "62_feature_dictionary"
+          ],
+          "speech_text": "アプリケーションの Help またはツールのメニューで Feature Dictionary を探します。 測定列を選ぶ前に、特徴量の定義と単位を調べます。 入力データ: 特徴量の定義. 特徴量の定義: インストール済みの特徴量辞書。定義は既存の測定値を説明するもので、それらを計算するものではありません。 出力データ: 特徴量の定義."
+        },
+        {
+          "visual": "module_trellis",
+          "narration": "Home から Graph Builder を開き、Small Multiples を選びます。 軸を共有するか独立させるかを明示した、小分けの複数グラフでグループを比較します。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "63_small_multiples"
+          ],
+          "speech_text": "ホーム から Graph Builder を開き、Small Multiples を選びます。 軸を共有するか独立させるかを明示した、小分けの複数グラフでグループを比較します。 入力データ: 測定済みオブジェクト. 出力データ: 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_analyze_plaques",
+          "narration": "Home から Toxoplasma を開き、Plaque Assay を選びます。 設定したプラークモデルで、プラーク画像または既存のマスクを解析します。この経路は Measure を経由する必要がありません。専用のプラーク例を参照してください。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: アッセイ結果; ラベルマスク. Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks",
+            "24_plaque"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Plaque Assay を選びます。 設定したプラークモデルで、プラーク画像または既存のマスクを解析します。この経路は Measure を経由する必要がありません。専用のプラーク例を参照してください。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: アッセイ結果; ラベルマスク. Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。"
+        },
+        {
+          "visual": "module_recruitment",
+          "narration": "Home から Toxoplasma を開き、Recruitment を選びます。 区画の強度測定値と、対応する宿主・病原体の識別情報を使って、動員比を計算します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Recruitment へ：対象区画の強度と識別情報が必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "25_recruitment"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Recruitment を選びます。 区画の強度測定値と、対応する宿主・病原体の識別情報を使って、動員比を計算します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Recruitment へ：対象区画の強度と識別情報が必要です。"
+        },
+        {
+          "visual": "module_host_pathogen",
+          "narration": "Home から Toxoplasma を開き、Host–Pathogen Analysis を選びます。 液胞全体と宿主の参照区画を測定し、感染割合の分母に非感染宿主細胞も含めます。マーカーチャネルと、対照を用いて較正した比率のしきい値を選択します。必要に応じて、液胞との明示的な対応関係または測定済みの個数列を使い、個別にセグメント化された寄生虫を数えます。液胞・宿主・ウェルの各表、マーカーの組み合わせ状態、増殖数の分布、対応先のない寄生虫のリンクを確認します。不明な測定値は不明のまま扱います。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Host–Pathogen Analysis を選びます。 液胞全体と宿主の参照区画を測定し、感染割合の分母に非感染宿主細胞も含めます。マーカーチャネルと、対照を用いて較正した比率のしきい値を選択します。必要に応じて、液胞との明示的な対応関係または測定済みの個数列を使い、個別にセグメント化された寄生虫を数えます。液胞・宿主・ウェルの各表、マーカーの組み合わせ状態、増殖数の分布、対応先のない寄生虫のリンクを確認します。不明な測定値は不明のまま扱います。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。"
+        },
+        {
+          "visual": "module_invasion",
+          "narration": "Home から Toxoplasma を開き、Invasion Assay を選びます。 必要な二色の鑑別染色の測定値と染色のベースライン対照を使い、付着と侵入を区別します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "26_invasion"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Invasion Assay を選びます。 必要な二色の鑑別染色の測定値と染色のベースライン対照を使い、付着と侵入を区別します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。"
+        },
+        {
+          "visual": "module_replication",
+          "narration": "Home から Toxoplasma を開き、Replication Assay を選びます。 明示的な液胞の識別情報を使って寄生体を数え、条件間の分布を比較します。宿主の識別情報だけでは液胞を定義できません。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "27_replication"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Replication Assay を選びます。 明示的な液胞の識別情報を使って寄生体を数え、条件間の分布を比較します。宿主の識別情報だけでは液胞を定義できません。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。"
+        },
+        {
+          "visual": "module_train_cellpose",
+          "narration": "Home から Make Masks を開き、Cellpose Workbench を選びます。 Make Masks 内で Cellpose Workbench を開き、確認済みの画像とマスクのペアで学習します。Mask でチェックポイントを選ぶ前に、別の視野で評価します。 入力データ: 確認・修正済みの学習視野. 出力データ: セグメンテーションのチェックポイント. Make Masks から Cellpose Workbench へ：独立に確認した画像とマスクのペアを使用します。 Cellpose Workbench から Mask へ：Mask で保存済みの互換性のあるチェックポイントを選びます。 Cellpose Workbench から Direct Cellpose mask generation へ：学習済みチェックポイントを custom_model として渡し、画像チャネルと前処理を一致させます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "14_make_masks",
+            "19_train_cellpose"
+          ],
+          "speech_text": "ホーム から Make Masks を開き、セルポーズ Workbench を選びます。 Make Masks 内で セルポーズ Workbench を開き、確認済みの画像とマスクのペアで学習します。Mask でチェックポイントを選ぶ前に、別の視野で評価します。 入力データ: 確認・修正済みの学習視野. 出力データ: セグメンテーションのチェックポイント. Make Masks から セルポーズ Workbench へ：独立に確認した画像とマスクのペアを使用します。 セルポーズ Workbench から Mask へ：Mask で保存済みの互換性のあるチェックポイントを選びます。 セルポーズ Workbench から Direct セルポーズ mask generation へ：学習済みチェックポイントを custom_model として渡し、画像チャネルと前処理を一致させます。"
+        },
+        {
+          "visual": "module_cellpose_all",
+          "narration": "Home から Make Masks を開き、Mask the whole folder を選びます。 Make Masks を通じて、選択したセグメンテーションモデルを開いている画像フォルダに適用します。測定前に保存したラベルを確認します。 入力データ: 顕微鏡画像; セグメンテーションのチェックポイント. 出力データ: ラベルマスク.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "speech_text": "ホーム から Make Masks を開き、Mask the whole folder を選びます。 Make Masks を通じて、選択したセグメンテーションモデルを開いている画像フォルダに適用します。測定前に保存したラベルを確認します。 入力データ: 顕微鏡画像; セグメンテーションのチェックポイント. 出力データ: ラベルマスク."
+        },
+        {
+          "visual": "module_model_compare",
+          "narration": "Home から Make Masks を開き、Model Compare を選びます。 同じ視野でモデルのマスクを比較します。独立した参照ラベルがなければ、一致度はセグメンテーション精度を測るものではありません。 入力データ: 顕微鏡画像; ラベルマスク; セグメンテーションのチェックポイント. 出力データ: 実行とモデルの比較.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "21_model_compare"
+          ],
+          "speech_text": "ホーム から Make Masks を開き、Model Compare を選びます。 同じ視野でモデルのマスクを比較します。独立した参照ラベルがなければ、一致度はセグメンテーション精度を測るものではありません。 入力データ: 顕微鏡画像; ラベルマスク; セグメンテーションのチェックポイント. 出力データ: 実行とモデルの比較."
+        },
+        {
+          "visual": "module_model_zoo",
+          "narration": "Home から Make Masks を開き、Model Zoo を選びます。 モデルの来歴を確認し、互換性のあるチェックポイントやバックエンドをダウンロードまたはインストールします。一覧のバックエンド自体がチェックポイントファイルなのではありません。 入力データ: セグメンテーションのチェックポイント. 出力データ: セグメンテーションのチェックポイント.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "22_model_zoo"
+          ],
+          "speech_text": "ホーム から Make Masks を開き、Model Zoo を選びます。 モデルの来歴を確認し、互換性のあるチェックポイントやバックエンドをダウンロードまたはインストールします。一覧のバックエンド自体がチェックポイントファイルなのではありません。 入力データ: セグメンテーションのチェックポイント. 出力データ: セグメンテーションのチェックポイント."
+        },
+        {
+          "visual": "module_curate",
+          "narration": "Home から Make Masks を開き、Curate を選びます。 編集記録を残しながら、ラベルと軌跡の割り当てを修正します。 入力データ: 顕微鏡画像; ラベルマスク; 関連付けられた時系列オブジェクト. 関連付けられた時系列オブジェクト: 時系列プロジェクトから得た追跡ラベルとフレーム・オブジェクトの対応関係。フレーム間隔と単位を伴います。 出力データ: ラベルマスク; 関連付けられた時系列オブジェクト.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "42_curate"
+          ],
+          "speech_text": "ホーム から Make Masks を開き、Curate を選びます。 編集記録を残しながら、ラベルと軌跡の割り当てを修正します。 入力データ: 顕微鏡画像; ラベルマスク; 関連付けられた時系列オブジェクト. 関連付けられた時系列オブジェクト: 時系列プロジェクトから得た追跡ラベルとフレーム・オブジェクトの対応関係。フレーム間隔と単位を伴います。 出力データ: ラベルマスク; 関連付けられた時系列オブジェクト."
+        },
+        {
+          "visual": "module_napari_bridge",
+          "narration": "Home から Make Masks を開き、Napari Bridge を選びます。 対応する画像とラベルを napari に送り、視野の識別情報を保持したまま修正したラベルを再インポートします。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: ラベルマスク.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "46_napari_bridge"
+          ],
+          "speech_text": "ホーム から Make Masks を開き、Napari Bridge を選びます。 対応する画像とラベルを napari に送り、視野の識別情報を保持したまま修正したラベルを再インポートします。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: ラベルマスク."
+        },
+        {
+          "visual": "module_import_images",
+          "narration": "Home から Import を開き、Import Images を選びます。 別のプロジェクトに書き込む前に、視野の識別情報、画像チャネル、任意の外部マスクを確認します。画像だけをインポートした場合、測定前にセグメンテーションが必要です。 入力データ: 顕微鏡画像. 出力データ: 顕微鏡画像; 画像とラベルマスク; ラベルマスク. Import Images から Mask へ：インポートした画像平面と識別情報を使用します。画像だけのインポートでは、なおセグメンテーションが必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "74_import_images"
+          ],
+          "speech_text": "ホーム から Import を開き、Import Images を選びます。 別のプロジェクトに書き込む前に、視野の識別情報、画像チャネル、任意の外部マスクを確認します。画像だけをインポートした場合、測定前にセグメンテーションが必要です。 入力データ: 顕微鏡画像. 出力データ: 顕微鏡画像; 画像とラベルマスク; ラベルマスク. Import Images から Mask へ：インポートした画像平面と識別情報を使用します。画像だけのインポートでは、なおセグメンテーションが必要です。"
+        },
+        {
+          "visual": "module_barcode_qc",
+          "narration": "Home から Map Barcodes を開き、Barcode QC を選びます。 ガイドカウントをフィルタリングする前に、マッピング深度、カバレッジ、衝突、位置効果を確認します。 入力データ: ウェルごとのガイドカウント. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "47_barcode_qc"
+          ],
+          "speech_text": "ホーム から Map Barcodes を開き、Barcode QC を選びます。 ガイドカウントをフィルタリングする前に、マッピング深度、カバレッジ、衝突、位置効果を確認します。 入力データ: ウェルごとのガイドカウント. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。"
+        },
+        {
+          "visual": "module_image_scatter",
+          "narration": "Home から Image UMAP を開き、Image Scatter を選びます。 選択した測定列を作図し、オブジェクトの切り出し画像を確認します。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 出力データ: 投影とクラスター; 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "55_image_scatter"
+          ],
+          "speech_text": "ホーム から Image ユーマップ を開き、Image Scatter を選びます。 選択した測定列を作図し、オブジェクトの切り出し画像を確認します。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 出力データ: 投影とクラスター; 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_pca",
+          "narration": "Home から Image UMAP を開き、PCA を選びます。 選択した測定済みオブジェクトの主成分と特徴量の負荷量を確認します。 入力データ: 測定済みオブジェクト. 出力データ: 投影とクラスター; 図とテーブルのエクスポート.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "60_pca"
+          ],
+          "speech_text": "ホーム から Image ユーマップ を開き、PCA を選びます。 選択した測定済みオブジェクトの主成分と特徴量の負荷量を確認します。 入力データ: 測定済みオブジェクト. 出力データ: 投影とクラスター; 図とテーブルのエクスポート."
+        },
+        {
+          "visual": "module_volcano_explorer",
+          "narration": "Home から Regression を開き、Volcano Explorer を選びます。 保存した回帰結果を開き、効果量、補正済みの有意性、個々のヒットの記録を確認します。 入力データ: 回帰結果とヒット. 出力データ: 図とテーブルのエクスポート. Regression から Volcano Explorer へ：保存された効果と補正済みの有意性を確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "72_volcano_explorer"
+          ],
+          "speech_text": "ホーム から Regression を開き、Volcano Explorer を選びます。 保存した回帰結果を開き、効果量、補正済みの有意性、個々のヒットの記録を確認します。 入力データ: 回帰結果とヒット. 出力データ: 図とテーブルのエクスポート. Regression から Volcano Explorer へ：保存された効果と補正済みの有意性を確認します。"
+        },
+        {
+          "visual": "module_hit_list",
+          "narration": "Home から Regression を開き、Hit List を選びます。 保存したヒットを、効果、FDR、ガイド間の一致度に基づいてフィルタリングし、順位付けします。 入力データ: 回帰結果とヒット. 出力データ: 図とテーブルのエクスポート. Regression から Hit List へ：順位付けされたヒットとガイド間の一致度を確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "speech_text": "ホーム から Regression を開き、Hit List を選びます。 保存したヒットを、効果、FDR、ガイド間の一致度に基づいてフィルタリングし、順位付けします。 入力データ: 回帰結果とヒット. 出力データ: 図とテーブルのエクスポート. Regression から Hit List へ：順位付けされたヒットとガイド間の一致度を確認します。"
+        },
+        {
+          "visual": "module_methods_export",
+          "narration": "Home から Regression を開き、Methods & Results を選びます。 記録された設定と結果から方法・結果の文章を下書きし、公開前にすべての主張を確認します。 入力データ: 実行履歴と成果物; 回帰結果とヒット. 出力データ: 共有可能なレポート. Regression から Methods & Results へ：エクスポートした文章と、追跡可能な各結果を確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "49_methods_results"
+          ],
+          "speech_text": "ホーム から Regression を開き、Methods & Results を選びます。 記録された設定と結果から方法・結果の文章を下書きし、公開前にすべての主張を確認します。 入力データ: 実行履歴と成果物; 回帰結果とヒット. 出力データ: 共有可能なレポート. Regression から Methods & Results へ：エクスポートした文章と、追跡可能な各結果を確認します。"
+        },
+        {
+          "visual": "module_regression_diagnostics",
+          "narration": "Home から Regression を開き、Diagnostics を選びます。 選択した回帰実行が保存した診断パネルを確認します。診断がないことと、仮定のチェックに合格したことを区別してください。 入力データ: 回帰結果とヒット. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Regression から Diagnostics へ：この実行で実際に書き出された診断を開きます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "75_regression_diagnostics"
+          ],
+          "speech_text": "ホーム から Regression を開き、Diagnostics を選びます。 選択した回帰実行が保存した診断パネルを確認します。診断がないことと、仮定のチェックに合格したことを区別してください。 入力データ: 回帰結果とヒット. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Regression から Diagnostics へ：この実行で実際に書き出された診断を開きます。"
+        },
+        {
+          "visual": "module_illumination",
+          "narration": "Home から Measure を開き、Illumination を選びます。 設定した段階でフラットフィールド補正を推定して適用します。補正した表示値と生の測定値を区別し、適用した方針を記録します。 入力データ: 顕微鏡画像. 出力データ: 顕微鏡画像.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ],
+          "speech_text": "ホーム から Measure を開き、Illumination を選びます。 設定した段階でフラットフィールド補正を推定して適用します。補正した表示値と生の測定値を区別し、適用した方針を記録します。 入力データ: 顕微鏡画像. 出力データ: 顕微鏡画像."
+        },
+        {
+          "visual": "module_anndata_export",
+          "narration": "Home から Measure を開き、AnnData Export を選びます。 オブジェクトのメタデータと測定した特徴量を含む AnnData .h5ad ファイルを、後続の単一細胞解析用にエクスポートします。 入力データ: 測定済みオブジェクト. 出力データ: AnnData のエクスポート. AnnData のエクスポート: 測定した特徴量とオブジェクトのメタデータを含む、エクスポートされた .h5ad ファイル。 Measure から AnnData Export へ：互換性のある特徴量列とメタデータ列をエクスポートします。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "59_anndata_export"
+          ],
+          "speech_text": "ホーム から Measure を開き、AnnData Export を選びます。 オブジェクトのメタデータと測定した特徴量を含む AnnData .h5ad ファイルを、後続の単一細胞解析用にエクスポートします。 入力データ: 測定済みオブジェクト. 出力データ: AnnData のエクスポート. AnnData のエクスポート: 測定した特徴量とオブジェクトのメタデータを含む、エクスポートされた .h5ad ファイル。 Measure から AnnData Export へ：互換性のある特徴量列とメタデータ列をエクスポートします。"
+        },
+        {
+          "visual": "module_motility",
+          "narration": "Home から Measure を開き、Motility Assay を選びます。 明示的なフレーム間隔とピクセル校正を用いて、軌跡の速度と感染関連の測定値を確認します。 入力データ: 関連付けられた時系列オブジェクト; 測定済みオブジェクト. 出力データ: アッセイ結果; 図とテーブルのエクスポート. Timelapse から Motility Assay へ：フレーム間隔とピクセル校正を提供します。 Measure から Motility Assay へ：測定済みオブジェクトを対応する軌跡と組み合わせます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "17_timelapse",
+            "18_motility"
+          ],
+          "speech_text": "ホーム から Measure を開き、Motility Assay を選びます。 明示的なフレーム間隔とピクセル校正を用いて、軌跡の速度と感染関連の測定値を確認します。 入力データ: 関連付けられた時系列オブジェクト; 測定済みオブジェクト. 出力データ: アッセイ結果; 図とテーブルのエクスポート. Timelapse から Motility Assay へ：フレーム間隔とピクセル校正を提供します。 Measure から Motility Assay へ：測定済みオブジェクトを対応する軌跡と組み合わせます。"
+        },
+        {
+          "visual": "module_timelapse",
+          "narration": "Home から Mask を開き、Timelapse を選びます。 Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。 入力データ: 顕微鏡画像. 出力データ: 画像とラベルマスク; ラベルマスク; 関連付けられた時系列オブジェクト. Mask から Timelapse へ：関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。 Timelapse から Measure へ：フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。 Timelapse から Motility Assay へ：フレーム間隔とピクセル校正を提供します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "17_timelapse",
+            "18_motility"
+          ],
+          "speech_text": "ホーム から Mask を開き、Timelapse を選びます。 Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。 入力データ: 顕微鏡画像. 出力データ: 画像とラベルマスク; ラベルマスク; 関連付けられた時系列オブジェクト. Mask から Timelapse へ：関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。 Timelapse から Measure へ：フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。 Timelapse から Motility Assay へ：フレーム間隔とピクセル校正を提供します。"
+        },
+        {
+          "visual": "module_ops",
+          "narration": "Home から Mask を開き、OPS を選びます。 シーケンシングサイクルの画像と表現型の位置合わせを使い、核ごとにバーコードをデコードします。Regression の前に、デコードした識別情報を互換性のある表現型入力に集計または結合します。OPS データベースは FASTQ カウント CSV の直接の代替ではありません。 入力データ: 顕微鏡画像; 位置合わせ済みモザイクと座標. 出力データ: 光学バーコードの割り当て. Align & Stitch から OPS へ：タイル座標と元のシーケンシングサイクル情報を OPS に渡します。平坦化したモザイクだけでは不十分です。 OPS から Regression へ：Regression の前に、デコード済みオブジェクトを表現型とガイドの入力に明示的に結合または集計します。これは CSV をそのまま渡す処理ではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "32_align_stitch",
+            "76_ops"
+          ],
+          "speech_text": "ホーム から Mask を開き、OPS を選びます。 シーケンシングサイクルの画像と表現型の位置合わせを使い、核ごとにバーコードをデコードします。Regression の前に、デコードした識別情報を互換性のある表現型入力に集計または結合します。OPS データベースは FASTQ カウント CSV の直接の代替ではありません。 入力データ: 顕微鏡画像; 位置合わせ済みモザイクと座標. 出力データ: 光学バーコードの割り当て. Align & Stitch から OPS へ：タイル座標と元のシーケンシングサイクル情報を OPS に渡します。平坦化したモザイクだけでは不十分です。 OPS から Regression へ：Regression の前に、デコード済みオブジェクトを表現型とガイドの入力に明示的に結合または集計します。これは CSV をそのまま渡す処理ではありません。"
+        },
+        {
+          "visual": "module_classifier_evaluation",
+          "narration": "Home から Classify を開き、Classifier Evaluation を選びます。 対応する分類器のホールドアウト予測、校正、データ分割および漏洩に関する根拠を確認します。 入力データ: 分類器の評価結果一式. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Classify から Classifier Evaluation へ：対応するホールドアウト予測とデータ分割のメタデータを使用します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "41_classify"
+          ],
+          "speech_text": "ホーム から Classify を開き、Classifier Evaluation を選びます。 対応する分類器のホールドアウト予測、校正、データ分割および漏洩に関する根拠を確認します。 入力データ: 分類器の評価結果一式. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Classify から Classifier Evaluation へ：対応するホールドアウト予測とデータ分割のメタデータを使用します。"
+        },
+        {
+          "visual": "module_explain_cv",
+          "narration": "Home から Classify を開き、Explain CV Model を選びます。 識別情報による結合を保持しながら、既存のコンピュータービジョンスコアに対する代理モデルを測定した特徴量から適合させます。代理モデルによる説明は因果関係を示すものではありません。 入力データ: 測定済みオブジェクト; オブジェクトの分類スコア. 出力データ: 学習済み特徴量分類器; 図とテーブルのエクスポート. Classify から Explain CV Model へ：CV の予測と対応する測定済みオブジェクトを選びます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "70_explain_cv"
+          ],
+          "speech_text": "ホーム から Classify を開き、Explain CV Model を選びます。 識別情報による結合を保持しながら、既存のコンピュータービジョンスコアに対する代理モデルを測定した特徴量から適合させます。代理モデルによる説明は因果関係を示すものではありません。 入力データ: 測定済みオブジェクト; オブジェクトの分類スコア. 出力データ: 学習済み特徴量分類器; 図とテーブルのエクスポート. Classify から Explain CV Model へ：CV の予測と対応する測定済みオブジェクトを選びます。"
+        },
+        {
+          "visual": "module_activation",
+          "narration": "Home から Classify を開き、Activation を選びます。 対応する画像分類器と前処理を適用し、顕著性マップやモデル応答マップを確認します。 入力データ: 学習済み画像分類器; オブジェクトの切り出し画像. 出力データ: 画像の寄与度マップ. 画像の寄与度マップ: 対応する分類器と入力前処理について保存された、モデル応答または顕著性の画像。 Classify から Activation へ：対応する切り出し画像とチャネルの前処理も提供します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "16_activation",
+            "41_classify"
+          ],
+          "speech_text": "ホーム から Classify を開き、Activation を選びます。 対応する画像分類器と前処理を適用し、顕著性マップやモデル応答マップを確認します。 入力データ: 学習済み画像分類器; オブジェクトの切り出し画像. 出力データ: 画像の寄与度マップ. 画像の寄与度マップ: 対応する分類器と入力前処理について保存された、モデル応答または顕著性の画像。 Classify から Activation へ：対応する切り出し画像とチャネルの前処理も提供します。"
+        },
+        {
+          "visual": "module_agreement",
+          "narration": "Home から Annotate を開き、Annotator Agreement を選びます。 独立した注釈列を比較し、不一致のオブジェクトを確認します。一致度と分類精度は別のものです。 入力データ: 学習用の注釈; オブジェクトの切り出し画像. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Annotate から Annotator Agreement へ：同じオブジェクトに対する独立した注釈列を選びます。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "09_annotate",
+            "23_agreement"
+          ],
+          "speech_text": "ホーム から Annotate を開き、Annotator Agreement を選びます。 独立した注釈列を比較し、不一致のオブジェクトを確認します。一致度と分類精度は別のものです。 入力データ: 学習用の注釈; オブジェクトの切り出し画像. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Annotate から Annotator Agreement へ：同じオブジェクトに対する独立した注釈列を選びます。"
+        },
+        {
+          "visual": "module_classify",
+          "narration": "Home から Classify を開き、Computer Vision を選びます。 ラベル付きのオブジェクト切り出し画像、アーカイブ、または対応するストリーミング切り出し画像から画像分類器を学習します。チェックポイントを適用するときは、チャネルと前処理を一致させます。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み画像分類器; 分類器の評価結果一式.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "10_classify_cv"
+          ],
+          "speech_text": "ホーム から Classify を開き、Computer Vision を選びます。 ラベル付きのオブジェクト切り出し画像、アーカイブ、または対応するストリーミング切り出し画像から画像分類器を学習します。チェックポイントを適用するときは、チャネルと前処理を一致させます。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み画像分類器; 分類器の評価結果一式."
+        },
+        {
+          "visual": "module_ml_analyze",
+          "narration": "Home から Classify を開き、Tabular Machine Learning を選びます。 測定済みオブジェクトとラベルから、特徴量に基づく分類器を学習します。スコアを使う前に、特徴量の欠損による除外と、グループ単位のホールドアウト性能を確認します。 入力データ: 測定済みオブジェクト; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み特徴量分類器; 分類器の評価結果一式.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "speech_text": "ホーム から Classify を開き、Tabular Machine Learning を選びます。 測定済みオブジェクトとラベルから、特徴量に基づく分類器を学習します。スコアを使う前に、特徴量の欠損による除外と、グループ単位のホールドアウト性能を確認します。 入力データ: 測定済みオブジェクト; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み特徴量分類器; 分類器の評価結果一式."
+        },
+        {
+          "visual": "module_parameter_sweep",
+          "narration": "Home から Regression を開き、Parameter Sweep を選びます。 明示的に選択した回帰設定を実行し、その診断を比較します。入力データと評価する問いを固定します。 入力データ: オブジェクトの分類スコア; ウェルごとのガイドカウント. 出力データ: 実行とモデルの比較; 回帰結果とヒット.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "73_parameter_sweep"
+          ],
+          "speech_text": "ホーム から Regression を開き、Parameter Sweep を選びます。 明示的に選択した回帰設定を実行し、その診断を比較します。入力データと評価する問いを固定します。 入力データ: オブジェクトの分類スコア; ウェルごとのガイドカウント. 出力データ: 実行とモデルの比較; 回帰結果とヒット."
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "Home から Toxoplasma を開きます。 Home から生物ガイドを開いて区画図を確認し、Plaque Assay、Recruitment、Invasion Assay、Replication Assay のいずれかを選びます。近日公開と表示された四つのタイルは提案中の機能を説明するもので、実行できません。ガイド自体はプロジェクトを解析せず、測定テーブルも生成しません。 入力データ: 同梱の生物リファレンス. 同梱の生物リファレンス: インストール済みの生物の説明と SwissBioPics の細胞図。プロジェクトの入力は不要です。 出力データ: 生物ガイドとアッセイの選択. 生物ガイドとアッセイの選択: GUI 上だけの区画の強調表示と、利用可能なアッセイへの移動。測定値やファイルは生成されません。",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "ホーム から Toxoplasma を開きます。 ホーム から生物ガイドを開いて区画図を確認し、Plaque Assay、Recruitment、Invasion Assay、Replication Assay のいずれかを選びます。近日公開と表示された四つのタイルは提案中の機能を説明するもので、実行できません。ガイド自体はプロジェクトを解析せず、測定テーブルも生成しません。 入力データ: 同梱の生物リファレンス. 同梱の生物リファレンス: インストール済みの生物の説明と SwissBioPics の細胞図。プロジェクトの入力は不要です。 出力データ: 生物ガイドとアッセイの選択. 生物ガイドとアッセイの選択: GUI 上だけの区画の強調表示と、利用可能なアッセイへの移動。測定値やファイルは生成されません。"
+        },
+        {
+          "visual": "module_plasmodium",
+          "narration": "Home から Plasmodium spp. を開きます。 Home から生物ガイドを開き、計画中のマラリアイメージングのワークフローを読み、共通のアピコンプレックス門の図を確認します。八つのアッセイタイルはすべて近日公開と表示され、解析を開始したり結果を生成したりするものではありません。 入力データ: 同梱の生物リファレンス. 出力データ: 生物ガイドとアッセイの選択.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "ホーム から Plasmodium spp. を開きます。 ホーム から生物ガイドを開き、計画中のマラリアイメージングのワークフローを読み、共通のアピコンプレックス門の図を確認します。八つのアッセイタイルはすべて近日公開と表示され、解析を開始したり結果を生成したりするものではありません。 入力データ: 同梱の生物リファレンス. 出力データ: 生物ガイドとアッセイの選択."
+        },
+        {
+          "visual": "module_candida",
+          "narration": "Home から Candida spp. を開きます。 Home から生物ガイドを開き、計画中の真菌イメージングのワークフローを読み、一般的な出芽酵母の図を確認します。八つのアッセイタイルはすべて近日公開と表示され、解析を開始したり結果を生成したりするものではありません。 入力データ: 同梱の生物リファレンス. 出力データ: 生物ガイドとアッセイの選択.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "ホーム から Candida spp. を開きます。 ホーム から生物ガイドを開き、計画中の真菌イメージングのワークフローを読み、一般的な出芽酵母の図を確認します。八つのアッセイタイルはすべて近日公開と表示され、解析を開始したり結果を生成したりするものではありません。 入力データ: 同梱の生物リファレンス. 出力データ: 生物ガイドとアッセイの選択."
+        },
+        {
+          "visual": "module_endodyogeny",
+          "narration": "Python から spacr.submodules.analyze_endodyogeny を通じて Endodyogeny size proxy を使用します。この API 専用ワークフローには、Home のタイルやメニュー項目はありません。 測定した区画面積を読み込み、条件を注釈し、area ** 1.5 を log2 のサイズ倍増区間に分けます。既定では病原体面積を液胞ごとではなく宿主細胞ごとに集計するため、一つの細胞内にある複数の液胞は合算されます。これは面積から求めたサイズの代替指標であり、測定体積や寄生体数ではありません。液胞当たりの寄生体数には、明示的な液胞識別情報とともに Replication Assay を使用します。API を呼び出す前に compartment、面積フィルター、校正、条件、グループ化を設定してください。保存は任意です。 入力データ: 宿主細胞ごとに集計した区画面積. 宿主細胞ごとに集計した区画面積: 各 src プロジェクトのルートにある measurements/measurements.db。tables の既定値は cell、nucleus、pathogen、cytoplasm で、結合用に png_list が追加されます。compartment 設定で面積列を選択し、既定では pathogen_area を宿主細胞ごとに合計します。 関連するテーブルは選択した経路によって異なります：cell, nucleus, pathogen, cytoplasm, png_list。 関連する列は選択した経路によって異なります：cell_id, pathogen_area。 出力データ: 面積から求めたサイズ代替指標の結果. 面積から求めたサイズ代替指標の結果: 返される data と chi_squared の DataFrames。save=True の場合は、最初のプロジェクトのルートにある results/analyze_endodyogeny/ の下に data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv と図も書き出します。 関連する列は選択した経路によって異なります：pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index。 Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "Python から スペーカー.submodules.analyze_endodyogeny を通じて Endodyogeny size proxy を使用します。この API 専用ワークフローには、ホーム のタイルやメニュー項目はありません。 測定した区画面積を読み込み、条件を注釈し、area ** 1.5 を log2 のサイズ倍増区間に分けます。既定では病原体面積を液胞ごとではなく宿主細胞ごとに集計するため、一つの細胞内にある複数の液胞は合算されます。これは面積から求めたサイズの代替指標であり、測定体積や寄生体数ではありません。液胞当たりの寄生体数には、明示的な液胞識別情報とともに Replication Assay を使用します。API を呼び出す前に compartment、面積フィルター、校正、条件、グループ化を設定してください。保存は任意です。 入力データ: 宿主細胞ごとに集計した区画面積. 宿主細胞ごとに集計した区画面積: 各 src プロジェクトのルートにある measurements/メジャメンツ・ドット・ディービー。tables の既定値は cell、nucleus、pathogen、cytoplasm で、結合用に png_list が追加されます。compartment 設定で面積列を選択し、既定では pathogen_area を宿主細胞ごとに合計します。 関連するテーブルは選択した経路によって異なります：cell, nucleus, pathogen, cytoplasm, png_list。 関連する列は選択した経路によって異なります：cell_id, pathogen_area。 出力データ: 面積から求めたサイズ代替指標の結果. 面積から求めたサイズ代替指標の結果: 返される data と chi_squared の DataFrames。save=True の場合は、最初のプロジェクトのルートにある results/analyze_endodyogeny/ の下に data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv と図も書き出します。 関連する列は選択した経路によって異なります：pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index。 Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。"
+        },
+        {
+          "visual": "module_cellpose_masks",
+          "narration": "Python から spacr.spacr_cellpose.identify_masks_finetune を通じて Direct Cellpose mask generation を使用します。この API 専用ワークフローには、Home のタイルやメニュー項目はありません。 Python API を通じて、TIFF 視野に標準またはカスタムの Cellpose モデルを実行します。従来の名前は identify_masks_finetune ですが、この関数が行うのは学習ではなく推論です。正規化、チャネル、サイズ変更、モデルのパラメーターを確認してください。マスクが書き出されるのは save が有効な場合だけです。Measure の前に External Masks を通じて互換性のある画像とマスクのペアをインポートするか、学習前にペアを確認・修正します。この呼び出しは、Measure ですぐに使える統合プロジェクトを作成しません。 入力データ: Cellpose で直接推論するための TIFF 視野; セグメンテーションのチェックポイント. Cellpose で直接推論するための TIFF 視野: src の最上位にある、小文字の拡張子 .tif のファイル。src/masks に同名ファイルがすでにある場合はスキップされます。設定したチャネルと、互換性のある標準の model_name または custom_model チェックポイントを提供します。 出力データ: 直接生成する Cellpose TIFF マスク. 直接生成する Cellpose TIFF マスク: save=True の場合、src/masks/<image-name>.tif に整数ラベルが格納されます。呼び出しは None を返し、統合配列や measurements.db は生成しません。 Cellpose Workbench から Direct Cellpose mask generation へ：学習済みチェックポイントを custom_model として渡し、画像チャネルと前処理を一致させます。 Direct Cellpose mask generation から External Masks へ：保存したラベル TIFF と元の画像を External Masks に渡し、オブジェクトの役割を指定して、Measure の前に統合プロジェクトを作成します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "19_train_cellpose",
+            "31_external_masks"
+          ],
+          "speech_text": "Python から スペーカー.スペーカー_セルポーズ.identify_masks_finetune を通じて Direct セルポーズ mask generation を使用します。この API 専用ワークフローには、ホーム のタイルやメニュー項目はありません。 Python API を通じて、TIFF 視野に標準またはカスタムの セルポーズ モデルを実行します。従来の名前は identify_masks_finetune ですが、この関数が行うのは学習ではなく推論です。正規化、チャネル、サイズ変更、モデルのパラメーターを確認してください。マスクが書き出されるのは save が有効な場合だけです。Measure の前に External Masks を通じて互換性のある画像とマスクのペアをインポートするか、学習前にペアを確認・修正します。この呼び出しは、Measure ですぐに使える統合プロジェクトを作成しません。 入力データ: セルポーズ で直接推論するための TIFF 視野; セグメンテーションのチェックポイント. セルポーズ で直接推論するための TIFF 視野: src の最上位にある、小文字の拡張子 .tif のファイル。src/masks に同名ファイルがすでにある場合はスキップされます。設定したチャネルと、互換性のある標準の model_name または custom_model チェックポイントを提供します。 出力データ: 直接生成する セルポーズ TIFF マスク. 直接生成する セルポーズ TIFF マスク: save=True の場合、src/masks/<image-name>.tif に整数ラベルが格納されます。呼び出しは None を返し、統合配列や メジャメンツ・ドット・ディービー は生成しません。 セルポーズ Workbench から Direct セルポーズ mask generation へ：学習済みチェックポイントを custom_model として渡し、画像チャネルと前処理を一致させます。 Direct セルポーズ mask generation から External Masks へ：保存したラベル TIFF と元の画像を External Masks に渡し、オブジェクトの役割を指定して、Measure の前に統合プロジェクトを作成します。"
+        },
+        {
+          "visual": "module_simulation",
+          "narration": "Python から spacr.sim.run_multiple_simulations を通じて Pooled-screen simulation sweep を使用します。この API 専用ワークフローには、Home のタイルやメニュー項目はありません。 Python のパラメーター探索 API を使い、明示したスクリーニング設計の仮定を調べます。組み合わせを展開し、プロセスプールでシミュレーションを実行して、合成の要約統計量を書き出します。戻り値は None です。実行前に、明示的で小さい max_workers の値と、範囲を限定したパラメーターグリッドを設定してください。出力は、実験の Regression に必要な測定値やバーコードカウントの代わりにはなりません。仮定を記録したうえで、結果を計画の根拠として使います。計画上の仮定を選ぶときに合成の要約を確認し、それらの仮定を Power / Design または Experiment Design に手動で転記します。どちらのツールもこのシミュレーションデータベースをインポートせず、シミュレーション設定のグリッドもエクスポートしません。 入力データ: プール型スクリーニングのシミュレーション仮定. プール型スクリーニングのシミュレーション仮定: Python の設定辞書：スクリーニング規模、占有率、分類精度、シーケンシングの仮定を変化させる反復可能な値、および replicates、src、name、variable、plot、max_workers。generate_parameters がそれらの直積を展開します。小規模な探索と明示的なワーカー数の上限から始めてください。 出力データ: 合成スクリーニングシミュレーションの要約. 合成スクリーニングシミュレーションの要約: src/<YYMMDD>/<name>/simulations.db。パラメーター探索は simulations に要約行を追加し、任意でグラフを書き出します。これらは合成の性能推定値であり、測定された実験ヒットではありません。 関連するテーブルは選択した経路によって異なります：simulations。",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "Python から スペーカー.sim.run_multiple_simulations を通じて Pooled-screen simulation sweep を使用します。この API 専用ワークフローには、ホーム のタイルやメニュー項目はありません。 Python のパラメーター探索 API を使い、明示したスクリーニング設計の仮定を調べます。組み合わせを展開し、プロセスプールでシミュレーションを実行して、合成の要約統計量を書き出します。戻り値は None です。実行前に、明示的で小さい max_workers の値と、範囲を限定したパラメーターグリッドを設定してください。出力は、実験の Regression に必要な測定値やバーコードカウントの代わりにはなりません。仮定を記録したうえで、結果を計画の根拠として使います。計画上の仮定を選ぶときに合成の要約を確認し、それらの仮定を Power / Design または Experiment Design に手動で転記します。どちらのツールもこのシミュレーションデータベースをインポートせず、シミュレーション設定のグリッドもエクスポートしません。 入力データ: プール型スクリーニングのシミュレーション仮定. プール型スクリーニングのシミュレーション仮定: Python の設定辞書：スクリーニング規模、占有率、分類精度、シーケンシングの仮定を変化させる反復可能な値、および replicates、src、name、variable、plot、max_workers。generate_parameters がそれらの直積を展開します。小規模な探索と明示的なワーカー数の上限から始めてください。 出力データ: 合成スクリーニングシミュレーションの要約. 合成スクリーニングシミュレーションの要約: src/<YYMMDD>/<name>/simulations.db。パラメーター探索は simulations に要約行を追加し、任意でグラフを書き出します。これらは合成の性能推定値であり、測定された実験ヒットではありません。 関連するテーブルは選択した経路によって異なります：simulations。"
+        },
+        {
+          "visual": "home_summary",
+          "narration": "完了済みの作業を繰り返さず、次のデータ成果物に対応する章へ戻ります。カウントテーブルは測定特徴量のテーブルではなく、投影は学習済み分類器ではなく、比較は新しい実験ではありません。リンク先の API ページには同じファイル、テーブル、列の仕様があり、専門のレッスンでは個々の操作を示します。",
+          "hold_after": 0.7,
+          "speech_text": "完了済みの作業を繰り返さず、次のデータ成果物に対応する章へ戻ります。カウントテーブルは測定特徴量のテーブルではなく、投影は学習済み分類器ではなく、比較は新しい実験ではありません。リンク先の API ページには同じファイル、テーブル、列の仕様があり、専門のレッスンでは個々の操作を示します。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "80_image_analysis_pathways",
+      "number": 80,
+      "slug": "image_analysis_pathways",
+      "title": "画像解析モジュールとその関係",
+      "series": 1,
+      "app_key": null,
+      "section": "ワークフロー",
+      "description": "セグメンテーション、測定、注釈、分類、投影、ゲート、画像位置合わせ、品質管理、アッセイを通る画像解析経路を選びます。",
+      "objectives": [
+        "すでにあるデータに応じて、開始するモジュールを選びます。",
+        "各モジュールが何を読み書きするかを把握します。",
+        "次の手順では、リンクされたモジュールのレッスンと API の入出力仕様を参照します。"
+      ],
+      "prerequisite": "spaCR をインストールし、Home を開きます。このレッスンでは操作の流れとデータの受け渡しを説明します。具体的なデータ例は、リンク先の各モジュールのレッスンを参照してください。入力と出力には条件付きの選択肢があり、各モジュールで説明します。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Home で、手元にあるのが生画像、既存のマスク、測定済みオブジェクトのどれかを判断するところから始めます。Mask はセグメンテーション結果を生成し、Make Masks は個々の視野を修正します。Measure は互換性のある画像とラベルからオブジェクトの測定値を生成し、必要に応じて切り出し画像も作成します。その後は、科学的な問いに応じて、分類、投影の探索、ゲートの定義、アッセイの実行を選びます。共通の座標系が必要な解析の前には、タイル画像の位置を合わせます。ここで示す経路は選択肢や分岐であり、すべてのモジュールを実行する必要はありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "ホーム で、手元にあるのが生画像、既存のマスク、測定済みオブジェクトのどれかを判断するところから始めます。Mask はセグメンテーション結果を生成し、Make Masks は個々の視野を修正します。Measure は互換性のある画像とラベルからオブジェクトの測定値を生成し、必要に応じて切り出し画像も作成します。その後は、科学的な問いに応じて、分類、投影の探索、ゲートの定義、アッセイの実行を選びます。共通の座標系が必要な解析の前には、タイル画像の位置を合わせます。ここで示す経路は選択肢や分岐であり、すべてのモジュールを実行する必要はありません。"
+        },
+        {
+          "visual": "module_mask",
+          "narration": "Home から Mask を開きます。 チャネルとモデルを選び、プレビューを確認してから Mask を実行します。Measure が使うのは統合配列です。カウントデータベースは、まだ特徴量テーブルではありません。 入力データ: 顕微鏡画像; セグメンテーションのチェックポイント. 出力データ: 画像とラベルマスク; ラベルマスク; オブジェクト数. Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ],
+          "speech_text": "ホーム から Mask を開きます。 チャネルとモデルを選び、プレビューを確認してから Mask を実行します。Measure が使うのは統合配列です。カウントデータベースは、まだ特徴量テーブルではありません。 入力データ: 顕微鏡画像; セグメンテーションのチェックポイント. 出力データ: 画像とラベルマスク; ラベルマスク; オブジェクト数. Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。"
+        },
+        {
+          "visual": "module_make_masks",
+          "narration": "Home から Make Masks を開きます。 セグメンテーション学習用の画像とマスクのペアを整えるか、FEATURES で画像とマスクを指定して測定を呼び出します。マスクを保存しても分類器は学習されません。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 確認・修正済みの学習視野; ラベルマスク. Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "14_make_masks",
+            "24_plaque"
+          ],
+          "speech_text": "ホーム から Make Masks を開きます。 セグメンテーション学習用の画像とマスクのペアを整えるか、FEATURES で画像とマスクを指定して測定を呼び出します。マスクを保存しても分類器は学習されません。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: 確認・修正済みの学習視野; ラベルマスク. Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。"
+        },
+        {
+          "visual": "module_measure",
+          "narration": "Home から Measure を開きます。 Measure は画像とラベル平面を一緒に読み込みます。PNG ファイルが必要なら切り出し画像の保存を有効にします。ストリーミングで切り出す場合は、データベースと元のプロジェクトを一緒に保持します。 入力データ: 画像とラベルマスク; ラベルマスク. 出力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。 Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 Measure から Image UMAP へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Measure から Gate Editor へ：実際に測定した特徴量の定義と単位を使用します。 Measure から QC へ：利用可能なチェックと不足している根拠を確認します。 Measure から Recruitment へ：対象区画の強度と識別情報が必要です。 Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。 Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。 Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。 Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "14_make_masks",
+            "15_image_umap",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication",
+            "41_classify",
+            "54_qc_dashboard",
+            "64_gate_editor",
+            "77_embeddings"
+          ],
+          "speech_text": "ホーム から Measure を開きます。 Measure は画像とラベル平面を一緒に読み込みます。PNG ファイルが必要なら切り出し画像の保存を有効にします。ストリーミングで切り出す場合は、データベースと元のプロジェクトを一緒に保持します。 入力データ: 画像とラベルマスク; ラベルマスク. 出力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. Mask から Measure へ：同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。 Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Make Masks から Measure へ：FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。 Measure から Image ユーマップ へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Measure から ゲートエディタ へ：実際に測定した特徴量の定義と単位を使用します。 Measure から QC へ：利用可能なチェックと不足している根拠を確認します。 Measure から Recruitment へ：対象区画の強度と識別情報が必要です。 Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。 Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。 Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。 Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。"
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "Home から Annotate を開きます。 教師あり学習の前に、png_list で代表的なオブジェクトにラベルを付けます。異なる問いには別々の注釈を使い、学習グループと評価グループを独立させます。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 再利用可能なゲート. 出力データ: 学習用の注釈. Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 Gate Editor から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "ホーム から Annotate を開きます。 教師あり学習の前に、png_list で代表的なオブジェクトにラベルを付けます。異なる問いには別々の注釈を使い、学習グループと評価グループを独立させます。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 再利用可能なゲート. 出力データ: 学習用の注釈. Measure から Annotate へ：オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 ゲートエディタ から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。"
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "Home から Classify を開きます。 切り出し画像やストリーミングで読み込むオブジェクト画像には Computer Vision を、測定した特徴量の列には Tabular Machine Learning を選びます。この二つの系統では入力が異なります。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み画像分類器; 学習済み特徴量分類器; 分類器の評価結果一式. Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。 Gate Editor から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。 Image UMAP から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "ホーム から Classify を開きます。 切り出し画像やストリーミングで読み込むオブジェクト画像には Computer Vision を、測定した特徴量の列には Tabular Machine Learning を選びます。この二つの系統では入力が異なります。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 学習用の注釈. 出力データ: オブジェクトの分類スコア; 学習済み画像分類器; 学習済み特徴量分類器; 分類器の評価結果一式. Measure から Classify へ：入力に合う画像系または表形式データ系を選びます。 Annotate から Classify へ：ラベル付きの学習グループと評価グループを分離します。 Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。 ゲートエディタ から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。 Image ユーマップ から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。"
+        },
+        {
+          "visual": "module_umap",
+          "narration": "Home から Image UMAP を開きます。 測定した特徴量または提供されたエンコーダー特徴量を投影し、代表的な切り出し画像を確認します。クラスターは候補となるグループ分けであり、検証済みの表現型ではありません。投げ縄とアノテーションの操作を使い、確認済みの選択結果を対応する測定データベースのアノテーション列に書き込みます。幾何学的な選択だけで生物学的表現型が確定するわけではありません。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 画像の埋め込み表現. 出力データ: 投影とクラスター; 学習用の注釈. Measure から Image UMAP へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Embeddings から Image UMAP へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。 Image UMAP から Gate Editor へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 Image UMAP から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor",
+            "77_embeddings"
+          ],
+          "speech_text": "ホーム から Image ユーマップ を開きます。 測定した特徴量または提供されたエンコーダー特徴量を投影し、代表的な切り出し画像を確認します。クラスターは候補となるグループ分けであり、検証済みの表現型ではありません。投げ縄とアノテーションの操作を使い、確認済みの選択結果を対応する測定データベースのアノテーション列に書き込みます。幾何学的な選択だけで生物学的表現型が確定するわけではありません。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像; 画像の埋め込み表現. 出力データ: 投影とクラスター; 学習用の注釈. Measure から Image ユーマップ へ：特徴量の列を選び、代表的な切り出し画像を確認します。 Embeddings から Image ユーマップ へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。 Image ユーマップ から ゲートエディタ へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 Image ユーマップ から Classify へ：確認済みの投げ縄選択を対応するオブジェクトデータベースのアノテーション列に書き込み、Classify でその列を選択します。切り出し画像を確認してラベルを検証してください。埋め込み空間のクラスターは正解ラベルではありません。"
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "Home から Gate Editor を開きます。 実際の特徴量列や座標列に閾値ゲートまたは多角形ゲートを定義し、保存したゲートを互換性のあるオブジェクトに適用します。Annotate を使って表示中のゲートをアノテーション列に書き込みます。選択したオブジェクトを確認し、二値または多クラスのラベルを選びます。 入力データ: 測定済みオブジェクト; 投影とクラスター. 出力データ: 再利用可能なゲート; 学習用の注釈. Image UMAP から Gate Editor へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 Gate Editor から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。 Measure から Gate Editor へ：実際に測定した特徴量の定義と単位を使用します。 Gate Editor から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "ホーム から ゲートエディタ を開きます。 実際の特徴量列や座標列に閾値ゲートまたは多角形ゲートを定義し、保存したゲートを互換性のあるオブジェクトに適用します。Annotate を使って表示中のゲートをアノテーション列に書き込みます。選択したオブジェクトを確認し、二値または多クラスのラベルを選びます。 入力データ: 測定済みオブジェクト; 投影とクラスター. 出力データ: 再利用可能なゲート; 学習用の注釈. Image ユーマップ から ゲートエディタ へ：選択範囲を定義するときは、対応する座標列または特徴量列を提供します。 ゲートエディタ から Annotate へ：互換性のあるゲートを適用し、候補ラベルを確認します。 Measure から ゲートエディタ へ：実際に測定した特徴量の定義と単位を使用します。 ゲートエディタ から Classify へ：確認済みのゲート選択をアノテーション列に書き込み、Classify で同じ列とオブジェクト集団を選択します。検証用オブジェクトは学習ラベルと分離してください。"
+        },
+        {
+          "visual": "module_align",
+          "narration": "Home から Align & Stitch を開きます。 タイルの形状、重なり、チャネルの対応付けを確認し、座標記録とともにモザイクを保存します。OPS には元のサイクルと撮像位置の識別情報も必要です。 入力データ: 顕微鏡画像. 出力データ: 位置合わせ済みモザイクと座標.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ],
+          "speech_text": "ホーム から Align & Stitch を開きます。 タイルの形状、重なり、チャネルの対応付けを確認し、座標記録とともにモザイクを保存します。OPS には元のサイクルと撮像位置の識別情報も必要です。 入力データ: 顕微鏡画像. 出力データ: 位置合わせ済みモザイクと座標."
+        },
+        {
+          "visual": "module_analyze_plaques",
+          "narration": "Home から Toxoplasma を開き、Plaque Assay を選びます。 設定したプラークモデルで、プラーク画像または既存のマスクを解析します。この経路は Measure を経由する必要がありません。専用のプラーク例を参照してください。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: アッセイ結果; ラベルマスク. Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks",
+            "24_plaque"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Plaque Assay を選びます。 設定したプラークモデルで、プラーク画像または既存のマスクを解析します。この経路は Measure を経由する必要がありません。専用のプラーク例を参照してください。 入力データ: 顕微鏡画像; ラベルマスク. 出力データ: アッセイ結果; ラベルマスク. Make Masks から Plaque Assay へ：対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。"
+        },
+        {
+          "visual": "module_recruitment",
+          "narration": "Home から Toxoplasma を開き、Recruitment を選びます。 区画の強度測定値と、対応する宿主・病原体の識別情報を使って、動員比を計算します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Recruitment へ：対象区画の強度と識別情報が必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "25_recruitment"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Recruitment を選びます。 区画の強度測定値と、対応する宿主・病原体の識別情報を使って、動員比を計算します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Recruitment へ：対象区画の強度と識別情報が必要です。"
+        },
+        {
+          "visual": "module_host_pathogen",
+          "narration": "Home から Toxoplasma を開き、Host–Pathogen Analysis を選びます。 液胞全体と宿主の参照区画を測定し、感染割合の分母に非感染宿主細胞も含めます。マーカーチャネルと、対照を用いて較正した比率のしきい値を選択します。必要に応じて、液胞との明示的な対応関係または測定済みの個数列を使い、個別にセグメント化された寄生虫を数えます。液胞・宿主・ウェルの各表、マーカーの組み合わせ状態、増殖数の分布、対応先のない寄生虫のリンクを確認します。不明な測定値は不明のまま扱います。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Host–Pathogen Analysis を選びます。 液胞全体と宿主の参照区画を測定し、感染割合の分母に非感染宿主細胞も含めます。マーカーチャネルと、対照を用いて較正した比率のしきい値を選択します。必要に応じて、液胞との明示的な対応関係または測定済みの個数列を使い、個別にセグメント化された寄生虫を数えます。液胞・宿主・ウェルの各表、マーカーの組み合わせ状態、増殖数の分布、対応先のない寄生虫のリンクを確認します。不明な測定値は不明のまま扱います。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Host–Pathogen Analysis へ：Measure では非感染細胞も保持してください。液胞全体のマスク、宿主の参照強度、および必要に応じて寄生虫から液胞への明示的な対応関係を指定します。宿主の識別情報だけでは液胞を特定できません。"
+        },
+        {
+          "visual": "module_invasion",
+          "narration": "Home から Toxoplasma を開き、Invasion Assay を選びます。 必要な二色の鑑別染色の測定値と染色のベースライン対照を使い、付着と侵入を区別します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "26_invasion"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Invasion Assay を選びます。 必要な二色の鑑別染色の測定値と染色のベースライン対照を使い、付着と侵入を区別します。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Invasion Assay へ：二色染色の測定値と適切なベースライン対照が必要です。"
+        },
+        {
+          "visual": "module_replication",
+          "narration": "Home から Toxoplasma を開き、Replication Assay を選びます。 明示的な液胞の識別情報を使って寄生体を数え、条件間の分布を比較します。宿主の識別情報だけでは液胞を定義できません。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "27_replication"
+          ],
+          "speech_text": "ホーム から Toxoplasma を開き、Replication Assay を選びます。 明示的な液胞の識別情報を使って寄生体を数え、条件間の分布を比較します。宿主の識別情報だけでは液胞を定義できません。 入力データ: 測定済みオブジェクト. 出力データ: アッセイ結果. Measure から Replication Assay へ：寄生体から液胞への明示的な識別対応が必要です。"
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "Home から QC を開きます。 保存されたセグメンテーション、単位、データ漏洩、プレート効果のチェックを確認します。詳細は内包されたビューアーを開いて確認します。 入力データ: 測定済みオブジェクト; 品質管理の結果. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Measure から QC へ：利用可能なチェックと不足している根拠を確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "54_qc_dashboard"
+          ],
+          "speech_text": "ホーム から QC を開きます。 保存されたセグメンテーション、単位、データ漏洩、プレート効果のチェックを確認します。詳細は内包されたビューアーを開いて確認します。 入力データ: 測定済みオブジェクト; 品質管理の結果. 出力データ: 品質管理の結果; 図とテーブルのエクスポート. Measure から QC へ：利用可能なチェックと不足している根拠を確認します。"
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "Home から Embeddings を開きます。 選択したモデルとチャネル方針でオブジェクト画像をエンコードします。後続の探索に特徴量を渡すときは、オブジェクトの識別情報とエンコーダーの来歴を保持します。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 出力データ: 画像の埋め込み表現. Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Embeddings から Image UMAP へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "77_embeddings"
+          ],
+          "speech_text": "ホーム から Embeddings を開きます。 選択したモデルとチャネル方針でオブジェクト画像をエンコードします。後続の探索に特徴量を渡すときは、オブジェクトの識別情報とエンコーダーの来歴を保持します。 入力データ: 測定済みオブジェクト; オブジェクトの切り出し画像. 出力データ: 画像の埋め込み表現. Measure から Embeddings へ：エンコーダーとチャネル方針の来歴を保持します。 Embeddings から Image ユーマップ へ：一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。"
+        },
+        {
+          "visual": "module_endodyogeny",
+          "narration": "Python から spacr.submodules.analyze_endodyogeny を通じて Endodyogeny size proxy を使用します。この API 専用ワークフローには、Home のタイルやメニュー項目はありません。 測定した区画面積を読み込み、条件を注釈し、area ** 1.5 を log2 のサイズ倍増区間に分けます。既定では病原体面積を液胞ごとではなく宿主細胞ごとに集計するため、一つの細胞内にある複数の液胞は合算されます。これは面積から求めたサイズの代替指標であり、測定体積や寄生体数ではありません。液胞当たりの寄生体数には、明示的な液胞識別情報とともに Replication Assay を使用します。API を呼び出す前に compartment、面積フィルター、校正、条件、グループ化を設定してください。保存は任意です。 入力データ: 宿主細胞ごとに集計した区画面積. 出力データ: 面積から求めたサイズ代替指標の結果. Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "Python から スペーカー.submodules.analyze_endodyogeny を通じて Endodyogeny size proxy を使用します。この API 専用ワークフローには、ホーム のタイルやメニュー項目はありません。 測定した区画面積を読み込み、条件を注釈し、area ** 1.5 を log2 のサイズ倍増区間に分けます。既定では病原体面積を液胞ごとではなく宿主細胞ごとに集計するため、一つの細胞内にある複数の液胞は合算されます。これは面積から求めたサイズの代替指標であり、測定体積や寄生体数ではありません。液胞当たりの寄生体数には、明示的な液胞識別情報とともに Replication Assay を使用します。API を呼び出す前に compartment、面積フィルター、校正、条件、グループ化を設定してください。保存は任意です。 入力データ: 宿主細胞ごとに集計した区画面積. 出力データ: 面積から求めたサイズ代替指標の結果. Measure から Endodyogeny size proxy へ：測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。"
+        },
+        {
+          "visual": "module_cellpose_masks",
+          "narration": "Python から spacr.spacr_cellpose.identify_masks_finetune を通じて Direct Cellpose mask generation を使用します。この API 専用ワークフローには、Home のタイルやメニュー項目はありません。 Python API を通じて、TIFF 視野に標準またはカスタムの Cellpose モデルを実行します。従来の名前は identify_masks_finetune ですが、この関数が行うのは学習ではなく推論です。正規化、チャネル、サイズ変更、モデルのパラメーターを確認してください。マスクが書き出されるのは save が有効な場合だけです。Measure の前に External Masks を通じて互換性のある画像とマスクのペアをインポートするか、学習前にペアを確認・修正します。この呼び出しは、Measure ですぐに使える統合プロジェクトを作成しません。 入力データ: Cellpose で直接推論するための TIFF 視野; セグメンテーションのチェックポイント. 出力データ: 直接生成する Cellpose TIFF マスク.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "Python から スペーカー.スペーカー_セルポーズ.identify_masks_finetune を通じて Direct セルポーズ mask generation を使用します。この API 専用ワークフローには、ホーム のタイルやメニュー項目はありません。 Python API を通じて、TIFF 視野に標準またはカスタムの セルポーズ モデルを実行します。従来の名前は identify_masks_finetune ですが、この関数が行うのは学習ではなく推論です。正規化、チャネル、サイズ変更、モデルのパラメーターを確認してください。マスクが書き出されるのは save が有効な場合だけです。Measure の前に External Masks を通じて互換性のある画像とマスクのペアをインポートするか、学習前にペアを確認・修正します。この呼び出しは、Measure ですぐに使える統合プロジェクトを作成しません。 入力データ: セルポーズ で直接推論するための TIFF 視野; セグメンテーションのチェックポイント. 出力データ: 直接生成する セルポーズ TIFF マスク."
+        },
+        {
+          "visual": "home_summary",
+          "narration": "ハイコンテント解析では Mask から Measure に進み、その後で問いに答える手法を選びます。セグメンテーション学習では、Train Cellpose の前に Make Masks で画像とマスクのペアを整え、保存したモデルを Mask で試します。互換性のある既存のマスクや測定データがあれば、後の段階から始められます。チャネルの識別情報、単位、オブジェクトキー、各結果の作成に使った設定を保持し、選んだ経路の専用ウォークスルーを参照してください。",
+          "hold_after": 0.7,
+          "speech_text": "ハイコンテント解析では Mask から Measure に進み、その後で問いに答える手法を選びます。セグメンテーション学習では、Train セルポーズ の前に Make Masks で画像とマスクのペアを整え、保存したモデルを Mask で試します。互換性のある既存のマスクや測定データがあれば、後の段階から始められます。チャネルの識別情報、単位、オブジェクトキー、各結果の作成に使った設定を保持し、選んだ経路の専用ウォークスルーを参照してください。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "81_sequencing_pathways",
+      "number": 81,
+      "slug": "sequencing_pathways",
+      "title": "シーケンシングモジュールとそのつながり",
+      "series": 1,
+      "app_key": null,
+      "section": "ワークフロー",
+      "description": "シーケンシングと光学バーコードのワークフローを、表現型スコア、回帰、実験計画、検出力の推定、用量反応解析、実行結果の比較につなげます。",
+      "objectives": [
+        "手元にあるデータに応じて開始モジュールを選ぶ。",
+        "各モジュールが読み込むデータと書き出すデータを把握する。",
+        "リンクされたモジュールのレッスンとAPIの説明を使って次の手順に進む。"
+      ],
+      "prerequisite": "spaCRをインストールしてHomeを開いてください。このレッスンでは画面の移動とデータの受け渡しを説明します。実際のデータを使った操作例は、リンクされたモジュールのレッスンで扱います。入力と出力には条件によって選ぶ代替経路があり、各モジュールで説明します。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "Home で、研究上の問いとバーコードデータの種類を確認するところから始めます。Map Barcodes はシーケンシングファイルを読み込み、光学プールスクリーニングは OPS を通じて位置合わせ済みの各サイクルの画像を読み込みます。どちらも、バーコードの識別情報と実験との対応を明示する必要があります。Regression は互換性のある摂動のカウントと表現型スコアを関連付けるもので、バーコードのデコードを代替しません。スクリーニングを計画する際、Experiment Design と Power はデータ取得前に使い、Dose-Response と Run Compare は取得後の適切な結果を調べるために使います。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "ホーム で、研究上の問いとバーコードデータの種類を確認するところから始めます。Map Barcodes はシーケンシングファイルを読み込み、光学プールスクリーニングは OPS を通じて位置合わせ済みの各サイクルの画像を読み込みます。どちらも、バーコードの識別情報と実験との対応を明示する必要があります。Regression は互換性のある摂動のカウントと表現型スコアを関連付けるもので、バーコードのデコードを代替しません。スクリーニングを計画する際、Experiment Design と Power はデータ取得前に使い、Dose-Response と Run Compare は取得後の適切な結果を調べるために使います。"
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "Home から Map Barcodes を開きます。実験を符号化する参照データを指定します。ウェルごとのガイドカウントと表現型スコアを対応付ける前に、マッピングされたカウントとバーコードの品質管理結果を確認します。入力データ：シーケンシングリード。出力データ：ウェルごとのガイドカウント。Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントと表現型スコアを対応付けます。Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "47_barcode_qc"
+          ],
+          "speech_text": "ホーム から Map Barcodes を開きます。実験を符号化する参照データを指定します。ウェルごとのガイドカウントと表現型スコアを対応付ける前に、マッピングされたカウントとバーコードの品質管理結果を確認します。入力データ：シーケンシングリード。出力データ：ウェルごとのガイドカウント。Map Barcodes から Regression へ：一貫したプレートとウェルのキーを使い、ガイドカウントと表現型スコアを対応付けます。Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。"
+        },
+        {
+          "visual": "module_barcode_qc",
+          "narration": "Home から Map Barcodes を開き、Barcode QC を選びます。ガイドカウントをフィルタリングする前に、マッピングの深さ、カバレッジ、衝突、位置による影響を調べます。入力データ：ウェルごとのガイドカウント。出力データ：品質管理結果、図と表のエクスポート。Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "47_barcode_qc"
+          ],
+          "speech_text": "ホーム から Map Barcodes を開き、Barcode QC を選びます。ガイドカウントをフィルタリングする前に、マッピングの深さ、カバレッジ、衝突、位置による影響を調べます。入力データ：ウェルごとのガイドカウント。出力データ：品質管理結果、図と表のエクスポート。Map Barcodes から Barcode QC へ：ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。"
+        },
+        {
+          "visual": "module_ops",
+          "narration": "Home から Mask を開き、OPS を選びます。シーケンシングサイクルの画像と表現型画像の位置合わせを用いて、核ごとにバーコードをデコードします。Regression に進む前に、デコードした識別情報を集約または結合し、互換性のある表現型入力に対応させます。OPS データベースは、FASTQ 由来のカウント CSV をそのまま置き換えるものではありません。入力データ：顕微鏡画像、位置合わせ済みのモザイクと座標。出力データ：光学バーコードの割り当て。OPS から Regression へ：Regression の前に、デコードしたオブジェクトを表現型とガイドの入力に明示的に結合または集約します。CSV を直接受け渡す手順ではありません。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "76_ops"
+          ],
+          "speech_text": "ホーム から Mask を開き、OPS を選びます。シーケンシングサイクルの画像と表現型画像の位置合わせを用いて、核ごとにバーコードをデコードします。Regression に進む前に、デコードした識別情報を集約または結合し、互換性のある表現型入力に対応させます。OPS データベースは、FASTQ 由来のカウント CSV をそのまま置き換えるものではありません。入力データ：顕微鏡画像、位置合わせ済みのモザイクと座標。出力データ：光学バーコードの割り当て。OPS から Regression へ：Regression の前に、デコードしたオブジェクトを表現型とガイドの入力に明示的に結合または集約します。CSV を直接受け渡す手順ではありません。"
+        },
+        {
+          "visual": "module_regression",
+          "narration": "Home から Regression を開きます。表現型入力とガイドカウント入力のプレートおよびウェル識別子を一致させ、応答と対照を選び、ヒットを解釈する前に診断結果を確認します。直接測定した応答にも対応しています。入力データ：オブジェクト分類スコア、ウェルごとのガイドカウント、光学バーコードの割り当て、測定済みオブジェクト。出力データ：回帰結果とヒット。Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。Map Barcodes から Regression へ：一貫したプレートとウェルのキーで、ガイドカウントと表現型スコアを対応付けます。OPS から Regression へ：Regression の前に、デコードしたオブジェクトを表現型とガイドの入力に明示的に結合または集約します。CSV を直接受け渡す手順ではありません。Regression から Run Compare へ：互換性のある保存済み結果セットとその設定を比較します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "50_run_compare",
+            "76_ops"
+          ],
+          "speech_text": "ホーム から Regression を開きます。表現型入力とガイドカウント入力のプレートおよびウェル識別子を一致させ、応答と対照を選び、ヒットを解釈する前に診断結果を確認します。直接測定した応答にも対応しています。入力データ：オブジェクト分類スコア、ウェルごとのガイドカウント、光学バーコードの割り当て、測定済みオブジェクト。出力データ：回帰結果とヒット。Classify から Regression へ：目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。Map Barcodes から Regression へ：一貫したプレートとウェルのキーで、ガイドカウントと表現型スコアを対応付けます。OPS から Regression へ：Regression の前に、デコードしたオブジェクトを表現型とガイドの入力に明示的に結合または集約します。CSV を直接受け渡す手順ではありません。Regression から Run Compare へ：互換性のある保存済み結果セットとその設定を比較します。"
+        },
+        {
+          "visual": "module_power",
+          "narration": "Home から Power / Design を開きます。選択した効果量とばらつきから必要なサンプリング量を推定します。予備実験の測定値は、必要に応じて仮定を裏付ける資料として使えます。入力データ：スクリーニング設計と検出力の推定、測定済みオブジェクト、実験配置。出力データ：スクリーニング設計と検出力の推定。Experiment Design から Power / Design へ：実験配置を使ってサンプリングの仮定を定め、設計を見直します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design"
+          ],
+          "speech_text": "ホーム から Power / Design を開きます。選択した効果量とばらつきから必要なサンプリング量を推定します。予備実験の測定値は、必要に応じて仮定を裏付ける資料として使えます。入力データ：スクリーニング設計と検出力の推定、測定済みオブジェクト、実験配置。出力データ：スクリーニング設計と検出力の推定。Experiment Design から Power / Design へ：実験配置を使ってサンプリングの仮定を定め、設計を見直します。"
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "Home から Experiment Design を開きます。条件、対照、反復、プレートの制約を入力し、データ取得前に実験配置をエクスポートします。入力データ：スクリーニング設計と検出力の推定。出力データ：実験配置。Experiment Design から Power / Design へ：実験配置を使ってサンプリングの仮定を定め、設計を見直します。Experiment Design から Dose–Response へ：まず実験を実施して測定し、用量と条件の識別情報を保持します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ],
+          "speech_text": "ホーム から Experiment Design を開きます。条件、対照、反復、プレートの制約を入力し、データ取得前に実験配置をエクスポートします。入力データ：スクリーニング設計と検出力の推定。出力データ：実験配置。Experiment Design から Power / Design へ：実験配置を使ってサンプリングの仮定を定め、設計を見直します。Experiment Design から Dose–Response へ：まず実験を実施して測定し、用量と条件の識別情報を保持します。"
+        },
+        {
+          "visual": "module_dose_response",
+          "narration": "Home から Dose–Response を開きます。曲線を当てはめる前に、用量列と応答列、対照、単位を指定します。この経路にシーケンシングは必要ありません。入力データ：測定済みオブジェクト、実験配置。出力データ：アッセイ結果、図と表のエクスポート。Experiment Design から Dose–Response へ：まず実験を実施して測定し、用量と条件の識別情報を保持します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "69_dose_response"
+          ],
+          "speech_text": "ホーム から Dose–Response を開きます。曲線を当てはめる前に、用量列と応答列、対照、単位を指定します。この経路にシーケンシングは必要ありません。入力データ：測定済みオブジェクト、実験配置。出力データ：アッセイ結果、図と表のエクスポート。Experiment Design から Dose–Response へ：まず実験を実施して測定し、用量と条件の識別情報を保持します。"
+        },
+        {
+          "visual": "module_run_compare",
+          "narration": "Home から Run Compare を開きます。互換性のある保存済みの設定、カウント、ヒットリストを比較します。入力データを変更した場合、それを条件を統制したモデル比較として扱わないでください。入力データ：実行履歴と成果物、回帰結果とヒット。出力データ：実行またはモデルの比較。Regression から Run Compare へ：互換性のある保存済み結果セットとその設定を比較します。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "50_run_compare"
+          ],
+          "speech_text": "ホーム から Run Compare を開きます。互換性のある保存済みの設定、カウント、ヒットリストを比較します。入力データを変更した場合、それを条件を統制したモデル比較として扱わないでください。入力データ：実行履歴と成果物、回帰結果とヒット。出力データ：実行またはモデルの比較。Regression から Run Compare へ：互換性のある保存済み結果セットとその設定を比較します。"
+        },
+        {
+          "visual": "module_simulation",
+          "narration": "Python から spacr.sim.run_multiple_simulations を通じて、プールスクリーニングのシミュレーションでパラメータ探索を行います。このワークフローは API 専用で、Home のタイルやメニュー項目はありません。Python のパラメータ探索 API を使い、明示したスクリーニング設計の仮定を検討します。パラメータの組み合わせを展開し、プロセスプールでシミュレーションを実行して、合成データの要約統計量を書き出します。戻り値は None です。実行前に max_workers を明示的に小さな値に設定し、パラメータグリッドの範囲を限定してください。出力は、実験データの Regression に必要な測定値やバーコードカウントを代替しません。仮定を記録し、得られた知見を計画の根拠として使います。計画上の仮定を選ぶ際にシミュレーションの要約を確認し、その仮定を Power / Design または Experiment Design に手動で移します。どちらのツールもこのシミュレーションデータベースを読み込まず、シミュレーション設定のグリッドも書き出しません。入力データ：プールスクリーニングのシミュレーションの仮定。出力データ：合成スクリーニングシミュレーションの要約。",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "Python から スペーカー.sim.run_multiple_simulations を通じて、プールスクリーニングのシミュレーションでパラメータ探索を行います。このワークフローは API 専用で、ホーム のタイルやメニュー項目はありません。Python のパラメータ探索 API を使い、明示したスクリーニング設計の仮定を検討します。パラメータの組み合わせを展開し、プロセスプールでシミュレーションを実行して、合成データの要約統計量を書き出します。戻り値は None です。実行前に max_workers を明示的に小さな値に設定し、パラメータグリッドの範囲を限定してください。出力は、実験データの Regression に必要な測定値やバーコードカウントを代替しません。仮定を記録し、得られた知見を計画の根拠として使います。計画上の仮定を選ぶ際にシミュレーションの要約を確認し、その仮定を Power / Design または Experiment Design に手動で移します。どちらのツールもこのシミュレーションデータベースを読み込まず、シミュレーション設定のグリッドも書き出しません。入力データ：プールスクリーニングのシミュレーションの仮定。出力データ：合成スクリーニングシミュレーションの要約。"
+        },
+        {
+          "visual": "home_summary",
+          "narration": "シーケンシングの参照データとプレート配置をカウントと一緒に保存し、回帰を解釈する前に画像由来のスコアとの結合を確認します。光学的な割り当てには専用のオブジェクト結合と集約が必要で、シーケンシングカウントファイルを自動的にそのまま置き換えることはできません。計画上の仮定、当てはめで得た効果、完了した実行間の比較は、別々の結果として扱います。リンク先のレッスンと Home からの操作ガイドで、実験の種類に応じた経路を確認できます。",
+          "hold_after": 0.7,
+          "speech_text": "シーケンシングの参照データとプレート配置をカウントと一緒に保存し、回帰を解釈する前に画像由来のスコアとの結合を確認します。光学的な割り当てには専用のオブジェクト結合と集約が必要で、シーケンシングカウントファイルを自動的にそのまま置き換えることはできません。計画上の仮定、当てはめで得た効果、完了した実行間の比較は、別々の結果として扱います。リンク先のレッスンと ホーム からの操作ガイドで、実験の種類に応じた経路を確認できます。"
         }
       ],
       "narration_voices": {

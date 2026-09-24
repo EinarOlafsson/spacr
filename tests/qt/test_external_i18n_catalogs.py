@@ -288,7 +288,7 @@ def test_dynamic_text_templates_enter_the_runtime_source_inventory():
         source.startswith("{available:.0f} GiB available")
         for source in sources
     )
-    assert "Settings recipes…" in sources
+    assert "Settings templates…" in sources
     assert "Feature Dictionary…" in sources
 
 

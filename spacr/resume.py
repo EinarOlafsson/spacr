@@ -1998,7 +1998,10 @@ def plan_measure_resume(settings: Any,
 
     recorded = read_recorded_settings(db_path)
     if recorded:
-        check_settings_compatible(recorded, dict(settings), source=db_path)
+        from .psf_measurement import measurement_resume_settings
+        check_settings_compatible(
+            measurement_resume_settings(recorded, recorded=True),
+            measurement_resume_settings(settings), source=db_path)
 
     rejected: Dict[str, str] = {}
     usable = completed_fields_in_merged(src, min_planes=min_planes,

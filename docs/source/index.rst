@@ -136,6 +136,7 @@ Contents
    features
    make_masks
    cellpose_training
+   point_spread
    recruitment
    image_quality
    host_pathogen

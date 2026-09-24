@@ -1,0 +1,90 @@
+{
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-published-download/merged/PLATE1_E01_1_1.npy",
+  "source_sha256": "3e0476f47ee841697e0f06f6e0fe876a02c7fc22bf6cdf1f573048c168844214",
+  "source_unchanged": true,
+  "project_copy_unchanged": true,
+  "source_shape": [
+    1998,
+    1998,
+    7
+  ],
+  "channels": [
+    0,
+    2
+  ],
+  "device": "cpu",
+  "gpu_used": false,
+  "measure_seconds": 22.054395006009145,
+  "resume_seconds": 0.3696736370038707,
+  "row_counts": {
+    "cell": 104,
+    "nucleus": 120,
+    "pathogen": 37,
+    "cytoplasm": 104
+  },
+  "cell_means_checked": 104,
+  "max_mean_absolute_error": 0.0003894266737916041,
+  "field_provenance": {
+    "channels": [
+      0,
+      2
+    ],
+    "crop_intensity_source": "source image after standard rescaling; PSF and preprocessing hooks not applied",
+    "input_dtype": "uint16",
+    "input_modified": false,
+    "input_shape": [
+      1998,
+      1998,
+      2
+    ],
+    "output_dtype": "float32",
+    "preprocessing_hooks": [],
+    "processing": {
+      "algorithm": "spacr.reflect_psf.v1",
+      "boundary": "half-sample symmetric",
+      "epsilon_relative": 1e-07,
+      "image_sampling_um": [
+        1.0,
+        1.0
+      ],
+      "initialization": "channel mean",
+      "intensity_units": "input units",
+      "iterations": 20,
+      "kernel": {
+        "details": {
+          "formula": "sigma=FWHM/sqrt(8*ln(2))",
+          "fwhm_um": [
+            2.0,
+            2.0
+          ],
+          "optical_model": false,
+          "truncate_sigma": 4.0
+        },
+        "kernel_dtype": "float32 little-endian",
+        "kernel_sha256": "69718a920d3e99a7776b21edefd7854eaf18e003fc3a485405c0d3cecddf34b3",
+        "normalization": "sum=1",
+        "origin": "centre pixel",
+        "sampling_um": [
+          1.0,
+          1.0
+        ],
+        "shape": [
+          9,
+          9
+        ],
+        "source": "gaussian approximation"
+      },
+      "method": "Richardson-Lucy",
+      "operation": "deconvolve",
+      "output_dtype": "float32",
+      "regularization": null,
+      "sensitivity_normalization": true
+    },
+    "source": "processed",
+    "stage": "after standard intensity rescaling and preprocessing hooks"
+  },
+  "resume_counts_unchanged": true,
+  "changed_kernel_refused": true,
+  "calibration_note": "1 um/px and Gaussian FWHM 2 um are verification geometry, not measured microscope calibration.",
+  "scope": "Real quantitative Measure/SQLite/resume acceptance. No claim of optical or biological recovery."
+}

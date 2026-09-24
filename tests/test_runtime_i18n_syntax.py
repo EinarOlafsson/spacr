@@ -1,6 +1,7 @@
 """Focused syntax contracts for generated runtime localization catalogs."""
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -37,9 +38,9 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         ("2026-09-22-view-gate-tooltip.json", 1),
         ("2026-09-22-download-status.json", 13),
         ("2026-09-22-shared-controls.json", 27),
-        ("2026-09-22-workflow-pathways.json", 47),
+        ("2026-09-22-workflow-pathways.json", 43),
         ("2026-09-22-figure-settings.json", 41),
-        ("2026-09-22-home-sample-project.json", 6),
+        ("2026-09-22-home-sample-project.json", 2),
         ("2026-09-22-inversion-controls.json", 2 if language == "sv" else 1),
     ):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
@@ -49,7 +50,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         assert added <= reviewed.keys()
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (150 if language == "sv" else 149)
+    assert len(sources) == (142 if language == "sv" else 141)
     overlay = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                           "2026-09-22-plaque-overlays.json").read_text())
     overlay_sources = {record["source"] for record in overlay["records"]}
@@ -59,7 +60,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert overlay_sources <= reviewed.keys()
     assert not overlay_sources & sources
     sources.update(overlay_sources)
-    assert len(sources) == (161 if language == "sv" else 160)
+    assert len(sources) == (153 if language == "sv" else 152)
     panel = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                         "2026-09-22-detection-panel.json").read_text())
     panel_sources = {record["source"] for record in panel["records"]}
@@ -67,9 +68,9 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert panel_sources <= reviewed.keys()
     assert not panel_sources & sources
     sources.update(panel_sources)
-    assert len(sources) == (167 if language == "sv" else 166)
+    assert len(sources) == (159 if language == "sv" else 158)
     for filename, expected in (("form-labels-a", 78), ("sign-in-status", 1),
-                               ("enhancement-and-scale", 10),
+                               ("enhancement-and-scale", 9),
                                ("organism-identities", 2),
                                ("threshold-and-histogram", 13)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
@@ -83,8 +84,28 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (270 if language == "sv" else 269)
-    return sources
+    assert len(sources) == (261 if language == "sv" else 260)
+    report = json.loads((ROOT / "features/data/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
+    folder = ROOT / "docs/i18n/reviewed/runtime" / language
+    later_sources: set[str] = set()
+    later_names = {row["name"] for row in report["files"]}
+    for row in report["files"]:
+        path = folder / row["name"]
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == row["sha256"]
+        records = json.loads(path.read_text())["records"]
+        values = {record["source"] for record in records}
+        assert len(records) == row["records"] and len(values) == row["sources"]
+        assert values <= reviewed.keys()
+        later_sources.update(values)
+    earlier_sources = {
+        record["source"] for path in folder.glob("*.json") if path.name not in later_names
+        for record in json.loads(path.read_text())["records"]
+    }
+    additions = later_sources - earlier_sources
+    assert len(additions) == report["later_distinct_additions"] == 698
+    assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
+    assert not sources & additions
+    return sources | additions
 
 
 def _compact_tooltip_sources(language: str) -> set[str]:
@@ -304,19 +325,20 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not scientific_sources & (added_sources | background_sources)
     assert not sample_sources & scientific_sources
     older_sources = reviewed.keys() - scientific_sources - sample_sources
-    assert len(older_sources - added_sources - background_sources) == 317
+    # Four retired chrome/template sources are preserved in the September 23 archive.
+    assert len(older_sources - added_sources - background_sources) == 313
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(older_sources - background_sources) == 324
-    assert len(older_sources) == 332
-    assert len(reviewed.keys() - sample_sources) == 371  # +39 scientific sources.
-    assert len(reviewed) == 374  # Features, Controls and Quality use compact rows.
+    assert len(older_sources - background_sources) == 320
+    assert len(older_sources) == 328
+    assert len(reviewed.keys() - sample_sources) == 367  # +39 scientific sources.
+    assert len(reviewed) == 370  # Features, Controls and Quality use compact rows.
     # The new panel cohort also reuses the earlier whole-field model tooltip.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 633
-    assert len(older_all_sources - preview_sources - normalized_sources) == 640
-    assert len(older_all_sources - normalized_sources) == 645
-    assert len(older_all_sources) == 650
-    assert len(all_reviewed.keys() - subsequent_sources) == 661
-    assert len(all_reviewed) == 931  # Thirteen new sources replace three archived ones.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 629
+    assert len(older_all_sources - preview_sources - normalized_sources) == 636
+    assert len(older_all_sources - normalized_sources) == 641
+    assert len(older_all_sources) == 646
+    assert len(all_reviewed.keys() - subsequent_sources) == 657
+    assert len(all_reviewed) == 1616  # 931 - 9 - 4 + 698; source identities pinned above.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -530,17 +552,18 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
     assert not sample_sources & (added_sources | background_sources)
-    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 308
+    # Three retired chrome/template sources are preserved in the September 23 archive.
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 305
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources - sample_sources) == 315
-    assert len(reviewed.keys() - sample_sources) == 323
-    assert len(reviewed) == 326  # Features, Controls and Quality use compact rows.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 333
-    assert len(older_all_sources - normalized_sources) == 338
-    assert len(older_all_sources) == 343
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 354
-    assert len(all_reviewed.keys() - subsequent_sources) == 657
-    assert len(all_reviewed) == 926  # Thirteen new sources replace three archived ones.
+    assert len(reviewed.keys() - background_sources - sample_sources) == 312
+    assert len(reviewed.keys() - sample_sources) == 320
+    assert len(reviewed) == 323  # Features, Controls and Quality use compact rows.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 330
+    assert len(older_all_sources - normalized_sources) == 335
+    assert len(older_all_sources) == 340
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 351
+    assert len(all_reviewed.keys() - subsequent_sources) == 654
+    assert len(all_reviewed) == 1612  # 926 - 9 - 3 + 698; source identities pinned above.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

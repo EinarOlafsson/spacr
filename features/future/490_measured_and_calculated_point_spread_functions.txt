@@ -1,6 +1,7 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: IN PROGRESS. Numerical engine validated2026-09-23; UI/pipeline wiring remains.
+Status: IN PROGRESS. Engine, Make Masks, Mask, Measure and Mask Live preview
+validated2026-09-23; measured optical acceptance and documentation remain.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -47,3 +48,149 @@ measured optical PSF/application acceptance; docs/API/tooltips/translations.
 Do not mark490complete from numerical checks alone.
 Primary references: SciPy fftconvolve documentation and scikit-image
 Richardson–Lucy documentation, linked in spacr.point_spread's module docstring.
+
+2026-09-23 — MAKE MASKS CONTROLS AND COMPARE/APPLY IMPLEMENTED
+Image enhancement now offers off-by-default PSF convolution or Richardson–Lucy,
+a Gaussian approximation with explicit Y/X FWHM, or a measured2D TIFF/NPY.
+Image and measured-kernel pixel spacing are explicit; zero/unset or mismatched
+calibration refuses processing. Kernel loading/generation runs off-thread,
+with generation guards. Captured immutable bytes remain unchanged if a file
+changes on disk; Reload explicitly reads the new version. Controls wrap in a
+narrow settings column and link to point_spread.apply_psf API help.
+
+The fixed chain order is stretch/background/PSF/denoise/contrast/sharpen before
+detection. PSF failures propagate instead of silently skipping the operation.
+Compare and Apply run in background; cancellation reaches deconvolution's
+iteration checks. Whole-image detection reuses the scientific float result
+from the background Apply worker, rather than recomputing PSF on the GUI thread.
+Wand uses those scientific intensities too; display scaling is separate.
+Mask history records operation, image spacing, kernel/file identity, iterations,
+boundary/algorithm and the fact that measurements still use original pixels.
+
+182 focused numerical/Qt/help/normalization/cancellation checks passed.
+Full1998x1998public THP1 Hoechst field passed Compare, Apply, detection, Save
+and sidecar readback:364labels, source pixels/file unchanged, both PSF calls
+off the GUI thread,867Qt ticks over11.94s; maximum event gap0.715s includes
+subsequent synchronous classical detection/save. Verification geometry1um/px
+and Gaussian FWHM2um are not measured optical calibration. This is software/UI
+acceptance, not biological recovery or segmentation accuracy. Receipt:
+features/data/490_psf_make_masks_acceptance_2026-09-23.json.
+
+Remaining: Mask/Measure pipeline settings and processing with explicit measured
+intensity-source choice; measured optical PSF validation; documentation,
+translations and an appropriate PSF animation.490remains IN PROGRESS.
+
+2026-09-23 — MASK PIPELINE INTEGRATION VERIFIED
+Mask and Timelapse now offer Point Spread Function settings: psf_operation
+(none/convolve/deconvolve), psf_source (gaussian/measured), psf_path,
+psf_image_sampling_um, psf_kernel_sampling_um, psf_fwhm_um and psf_iterations.
+Off by default; explicit Y/X calibration is required. A single captured kernel
+applies independently to all selected segmentation channels, so its calibration
+must suit every selected channel. These pipelines process projected2D fields;
+this does not reconstruct a3D optical volume. Preflight validates the kernel.
+
+V1 and V2 process private intensities after illumination and before background,
+normalization and model inference. V1 handles each field before batch padding;
+time-series frames are processed independently. Float intensities remain float,
+raw stacks remain unchanged, and PSFs never operate on saved mask-label planes.
+V1 publishes a complete staged archive set and invalidates old derived masks.
+The application record captures channel order, exact kernel/file identity,
+calibration, algorithm, RL parameters and completed fields. SHA256 checks of
+all completed V1 NPZ files guard reuse; changed settings, tampered archives,
+incomplete runs and switching PSF off require rebuilding with preprocessing on.
+Cancellation leaves no partial published archive set or false completion record.
+V2 preserves stored raw intensities and marks fields after durable mask writes.
+
+216 focused PSF/GUI/preflight/illumination checks pass. Another104 settings,
+Cellpose4training and host–pathogen checks pass (two GUI cases overlap the216).
+During these checks, repaired missing shared categories for training inputs,
+sampling and checkpoints, and moved Host–Pathogen settings into the canonical
+category registry so cached category lists and help headings agree.
+
+Full1998x1998public microscopy field processed with RL20on channels0and2 in
+25.02s CPU; source/raw-stack bytes unchanged and archive reuse verified.
+Actual Cellpose SAM CPU inference on a256x256crop completed in295.17s with
+three labels. No GPU used. Explicit1um/px and2um Gaussian FWHM are verification
+geometry, not measured microscope optics; no accuracy/recovery claim.
+Receipt: features/data/490_psf_mask_pipeline_acceptance_2026-09-23.json.
+Remaining: Measure intensity-source selection and durable quantitative provenance;
+measured optical PSF/application acceptance; docs/translations/tutorial animation.
+
+2026-09-23 — QUANTITATIVE MEASURE PSF INTEGRATION VERIFIED
+Measure now has the same calibrated PSF parameters plus psf_measurement_source:
+original (default) retains normal Measure intensities, including its standard
+rescaling and registered preprocessing hooks; processed applies the captured
+PSF after those stages before quantitative features. Original ignores stored
+PSF parameters. Source files, mask labels and exported crops keep their existing
+pixels. Fractional processed values remain float, including before GLCM texture
+scaling; they are not truncated to integers.2D YX and3D ZYX kernels are supported;
+a volume's PSF sampling must agree with Measure voxel calibration/anisotropy.
+
+The immutable captured plan reaches spawned workers, rather than reopening a
+possibly changed kernel file for every field. Stop is relayed through a process-
+safe event while the parent awaits the field; cancellation escapes as cancelled,
+not as an ordinary failed field. The existing intensity_rescale table gains
+psf_measurement_source, psf_signature and psf_provenance through safe migration.
+Every new field records channel order, actual input/output dtype, hooks/stage,
+kernel/file identity, calibration, algorithm/RL settings and crop intensity source.
+Existing base rescaling provenance remains separate and intact.
+
+Changed kernels (including changed bytes at the same measured path), processed
+versus original choices and algorithm settings cannot mix with existing
+quantitative rows, even if resume is off. A project holding only crops can
+start its first quantitative run. Resume compares captured active identity;
+dormant new defaults do not block legacy original-intensity projects.
+
+260pipeline/hook/resume/3D checks and275settings/GUI/preflight/Mask/numerical
+checks passed. Focused follow-up checks cover process-safe cancellation, measured
+file replacement, preprocessing order, legacy table migration and crop-only
+projects. Actual spawned Measure run on the public1998x1998field completed in
+22.05s CPU:104cells,120nuclei,37vacuoles and104cytoplasm rows. All104cell means
+across channels0and2 matched independent processed-pixel means (maximum absolute
+error0.0003894 intensity units). Original source and project copy unchanged;
+resume0.37s added no rows, changed kernel refused. No GPU used.1um/px and2um
+Gaussian FWHM remain declared verification geometry, not microscope calibration.
+Receipt: features/data/490_psf_measure_acceptance_2026-09-23.json.
+
+Remaining: ensure Mask Live preview honors PSF settings with its own cancellation
+and provenance; measured optical PSF/application acceptance; documentation,
+translations and the matching PSF tutorial/animation. Measure crop preview is
+intentionally still a preview of unchanged exported source crops.
+Final Measure follow-ups:33provenance/migration checks pass;5targeted cancellation/
+full-entry checks pass, including an actual spawned worker stopped during RL.
+An unresponsive worker gets a five-second cooperative grace period before the
+parent exits through normal pipeline cancellation and cleans up the pool.
+
+2026-09-23 — MASK LIVE PREVIEW PSF INTEGRATION
+The background worker captures one calibrated kernel per request and applies
+it to each selected intensity channel before background thresholding and
+model normalization. Channels shared by several objects are processed once;
+each segmenter receives its own copy. Invalid calibration fails before model
+construction. Classical organelle previews need no Cellpose model at all.
+Requests snapshot nested settings. Original loaded pixels and intensity filters
+remain unchanged; labels never pass through PSF processing.
+
+Cancel reaches PSF iteration/convolution boundaries. Native inference is allowed
+to finish, with its obsolete result discarded. Closing the preview detaches and
+parks an unfinished thread safely rather than destroying a running QThread.
+Every new run has its own generation. Only accepted masks acquire the captured
+processing/model details; failed or cancelled reruns cannot relabel old masks.
+History stores complete PSF/kernel/settings identity, channel mapping and stage;
+status and history tooltips expose the record. Classical history names its
+algorithm rather than implying that Cellpose ran.
+
+Preview normalization remains field-local, and the loaded field receives no
+full-pipeline illumination correction. Both limits are stated explicitly in
+the provenance and tooltip; this integration does not claim exact plate-run
+mask equality. Real CPU Cellpose-SAM preview of a128x128public microscopy crop
+completed in21.84s and returned two labels. Its exact model input matched the
+PSF engine, source bytes stayed unchanged, and1956Qt ticks ran (maximum gap
+0.557s). No GPU used.1um/px and Gaussian FWHM2um are verification geometry,
+not microscope calibration. Receipt:
+features/data/490_psf_live_preview_acceptance_2026-09-23.json.
+Remaining: measured optical PSF/application acceptance, documentation,
+translations and the matching PSF tutorial/animation.490remains in progress.
+Validation:162preview/model/channel checks passed; additional coverage run had
+197passes and one old shared-request identity regression, fixed by retaining
+one captured pre/post mapping. Final15focused PSF/request checks all pass.
+Earlier stale-token test failure was fixed; no failing check is claimed green.

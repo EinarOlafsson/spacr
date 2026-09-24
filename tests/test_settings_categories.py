@@ -340,6 +340,21 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    "psf_measurement_source",
+    "mask_src", "test_src", "test_mask_src", "save_path", "channel_axis",
+    "min_train_masks", "max_train_images", "nimg_per_epoch", "nimg_test_per_epoch",
+    "scale_range", "save_every", "save_each",
+    "hp_vacuole_table", "hp_vacuole_prefix", "hp_reference_table",
+    "hp_reference_prefix", "hp_marker_channels", "hp_marker_thresholds",
+    "hp_parasite_table", "hp_parasite_parent", "hp_count_column",
+    "image_qc_mode", "image_qc_channels", "image_qc_min_focus",
+    "image_qc_max_saturation", "image_qc_saturation_level", "image_qc_max_nonfinite",
+    "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
+    "plaque_growth_reference_um", "plaque_growth_reference_hours",
+    "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
+    "tta_vertical_flip", "tta_aggregation", "tta_min_agreement", "tta_max_std",
+    "psf_operation", "psf_source", "psf_path", "psf_image_sampling_um",
+    "psf_kernel_sampling_um", "psf_fwhm_um", "psf_iterations",
     # 468, 2026-09-21: Plaque Assay's Plaque/Figure mode and the Figure
     # mode's detector, text reading and review switch.
     "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",
@@ -1280,7 +1295,7 @@ def test_every_qt_section_hint_names_a_real_category():
         # tooltips: they were deleted as unreachable on 2026-08-12 because
         # no app in this list rendered them. It renders both.
         "classify", "classify_merged", "train_cellpose", "cellpose_masks",
-        "analyze_plaques", "recruitment", "invasion",
+        "analyze_plaques", "recruitment", "invasion", "host_pathogen",
         # Curated layouts of their own whose headings exist nowhere else.
         # Barcode QC and Illumination register settings that are in no
         # shared category at all, and Power draws its own screen; leaving
@@ -1365,7 +1380,7 @@ def _rendered_sections(app_key):
             ("mask", [
                 "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
                 'Image Quality',
-                "Illumination Correction",
+                "Illumination Correction", "Point Spread Function",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
@@ -1389,7 +1404,7 @@ def _rendered_sections(app_key):
         # same reason: that is the order the run executes them in.
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
-            "Illumination Correction",
+            "Illumination Correction", "Point Spread Function",
             "Measurement Features", "Object Filtering", "Crop Output",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
@@ -1397,7 +1412,7 @@ def _rendered_sections(app_key):
             ("timelapse", [
                 "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
                 'Image Quality',
-                "Illumination Correction",
+                "Illumination Correction", "Point Spread Function",
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",

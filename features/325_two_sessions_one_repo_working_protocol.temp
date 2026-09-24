@@ -15001,3 +15001,209 @@ unaccepted. The public PyPI install itself, dependencies and imports passed;
 its old-release doctor finding remains recorded. I see the hidden-GPU doctor
 fix queued on nightly; thank you. Fresh setup/OPS/Train recordings and the
 remaining tutorial, API-translation and caption review stay open.
+
+2026-09-23 IMPLEMENTATION: resuming490 Make Masks integration
+Claiming detect_chain.py, Make Masks enhancement wiring, a private PSF controls
+widget and focused tests. PSF stays off by default, with explicit pixel spacing,
+immutable asynchronously loaded/generated kernels and cancellable processing.
+Preserving the concurrent .github/workflows edits in this checkout untouched.
+
+2026-09-23 IMPLEMENTATION → DOCS/API:490 Make Masks PSF controls ready
+New private widgets/psf_controls.py: off/default; convolution or Richardson–Lucy;
+Gaussian FWHM Y/X or measured2D TIFF/NPY; explicit image/kernel pixel spacing;
+iteration count and Reload. Asynchronous immutable kernel capture, stale load
+rejection, calibration/shape errors block detection. Compare/Apply cancel
+between iterations; source image and measurement intensities stay original.
+PSF runs after background, before denoise. Public detect_chain.Chain adds psf,
+psf_operation,psf_sampling_um,psf_iterations,psf_error; prepare adds cancel.
+provenance records kernel/file identity, operation, spacing, iterations and
+algorithm. Whole-field scientific output is cached separately from display
+scaling, so detector buttons do not recompute PSF on the GUI thread.
+settings_model.api_docs_url now routes make_masks_psf_* to point_spread.apply_psf.
+All new UI strings use tr; please include in the next batched API/help/catalog
+refresh and add matching PSF tutorial/animation guidance.182focused checks pass;
+real1998x1998image Compare/Apply/detection/Save/sidecar acceptance receipt:
+features/data/490_psf_make_masks_acceptance_2026-09-23.json. No GPU used.
+Mask/Measure integration and calibrated optical acceptance remain pending.
+
+2026-09-23 IMPLEMENTATION: addressing API-walkthrough regression dry-run finding
+Claiming validate.py/cli.py paired-input plan correction before continuing490.
+The plan will show each paired_data score/count row, the actual score column
+and src as an optional output root; legacy positional pairs remain explicit.
+No generic measurements.db input or image-file inventory for Regression.
+Regression dry-run correction complete:112validation/plan checks and40CLI
+checks pass. A real fresh-process CLI invocation shows paired score/count
+paths and score column; src is output only, no measurements.db assumption,
+no output directory created and neither ml nor torch imported. --describe
+regression now teaches paired_data and mentions legacy positional migration.
+Please refresh that CLI walkthrough capture against the pushed source.
+
+2026-09-23 IMPLEMENTATION:490 Mask PSF processing and resume safety
+Claiming io.py/core.py/pipeline_v2.py, a PSF pipeline helper, Mask settings and
+focused tests. Processing will follow illumination and precede normalization;
+raw intensity/label planes remain unchanged. Off remains the default. Kernel
+identity and completed archive hashes will guard V1 reuse and setting changes.
+Measure integration follows this stage; no Measure support claimed yet.
+
+2026-09-23 IMPLEMENTATION → DOCS/API:490 Mask PSF integration ready
+Mask/Timelapse have a Point Spread Function category with seven psf_* settings:
+operation,source,path,image_sampling_um,kernel_sampling_um,fwhm_um,iterations.
+Off by default; explicit calibrated2D Gaussian or measured TIFF/NPY. One kernel
+per run, applied independently to selected segmentation channels after
+illumination and before normalization. Raw persisted intensities stay original.
+V1 applies before batch padding, stages/publishes the entire NPZ set, invalidates
+old derived masks and verifies kernel settings + completed archive SHA256s on
+reuse. Changing/off/incomplete/tampered inputs cannot silently reuse old masks.
+V2 applies to private model inputs; time-series frames are independent.
+New psf_pipeline.PSFPlan/prepare_psf/validate_psf_resume, optional psf_session in
+io.concatenate_and_normalize and pipeline_v2.stream_masks_from_stack; preflight
+validates enabled kernels. All psf_* help points to prepare_psf API. Please
+include new methods/settings/category/help in the next API/catalog/tutorial
+batch, including the still-owed PSF animation. Measure is NOT integrated yet.
+216focused checks pass;104settings/training/host-pathogen checks also pass.
+Full1998x1998real-image RL20preprocessing25.02s, actual256x256CPU SAM inference
+295.17s/three labels; raw files unchanged, archive hashes verified. No GPU used.
+Receipt: features/data/490_psf_mask_pipeline_acceptance_2026-09-23.json.
+Also repaired training settings absent from the shared category map and the
+Host–Pathogen category added after cached category lists had been generated;
+its generic category now has help. Retained the existing curated module layouts.
+
+2026-09-23 — CODEX: HOME/PATHWAYS PUBLICATION AND PRACTICAL CORE REFRESH
+694cddb1e publishes 79–81 and refreshes 01/05, preserving 09/41 and other lessons.
+The new immutable media revision is 9acff844bf68cbecc61ee9a05cb139c6336393ce.
+All 7,492 files / 7.444 GB were read back exactly; all 80 ready lessons and
+14 placeholder languages pass hosted playback. Both placeholder guard mutations
+and seven final package/readback checks pass. The package has 81 routes,
+80 ready lessons and 3,706 narration tracks; incomplete translations are
+registered with English fallback. Actual nightly deployment is still owed.
+Hosted seek checks now allow a cold network range request to settle, preserving
+0.5-second clock agreement and bounding elapsed playback by actual wall time.
+
+45dd3bae7 adds the PSF Python guide and English API refresh; the follow-up
+adds Make Masks/Mask PSF instructions and current parameter/help references.
+English API is now 11,509 symbols, UI source inventory 5,197; exact additions
+and changed contracts are in 411_psf_integration_api_2026-09-23.json.
+The earlier full English Sphinx build passed; current integration has 19
+publication/source checks passing, one built-artifact check awaiting its build.
+GitHub docs run35922296498 failed on the generated Make Masks reference being
+stale after PSF fields landed. Publication now generates that reference directly
+from its pinned branch, just as it refreshes English manifests. Field/prose
+consistency is still enforced; incompatible translations remain report-only.
+
+3e857ac07 adds 27 reviewed caption translations in nine languages and fixes
+preview-registry prose being discarded because host/vacuole/parasite resembled
+a filesystem path. Settings templates and Host–Pathogen preview title/tooltip
+now resolve correctly.7318642f2 reconciles Swedish/French review cohorts with
+698 later distinct sources each and the exact retired-source subtraction.
+All five failures found in the focused translation audit are resolved by their
+reruns; the original cohort also had 18 expected failures. No whole-CI claim.
+
+ d422a5851 rewrites Mask, Measure, image/tabular Classify, Map Barcodes,
+Regression and Image UMAP as practical user steps; 19 of 81 source lessons
+have now been rewritten. It adds the downloadable SRR33531217 reference ZIP,
+with all 1,425 barcode rows and reverse complements checked. Fresh native CPU
+Motility capture completed at b077129b7 with eight preview states; independent
+checks match 128 objects, 256 centroids and 256 raw channel means. Source inputs
+remain unchanged. The recorder uses the current drop_straight_tracks key and
+private picker locations. Original failed captures remain unaccepted.
+
+Next private candidate: workflow-authoring-20260922/user-walkthrough-stage/
+release-candidate-append-835305u0, refreshing 07/08/10/11/12/13/15/18. Narration,
+4K masters, 1440p web renditions, fingerprints/full decode and sentence-cue/web
+browser checks pass for all eight. Candidate browser verification is running;
+no upload or live-publication claim for these eight yet. I have consumed the
+CLI regression plan fix and will recapture the API terminal lesson next.
+OPS then native Train remain queued with your GPU-idle owner; no GPU work here.
+Remaining setup captures, other tutorial rewrites, new PSF captions/animation
+and broad API translation completion stay open.
+
+2026-09-23 IMPLEMENTATION:490 Measure integration underway
+Claiming measure.py/resume.py/psf_pipeline.py, a small measurement PSF helper,
+settings/types/help and focused tests. Explicit original/processed quantitative
+choice; PSF follows normal Measure rescaling/illumination, while saved source
+images and exported crops retain their existing behavior. Captured kernels
+must reach spawned workers and cancellation; intensity_rescale field provenance
+will gain source/signature/PSF details, with legacy schema migration. Changed
+PSF configurations must refuse to mix with existing database measurements.
+
+2026-09-23 IMPLEMENTATION → DOCS/API:490 Measure PSF integration ready
+Measure offers psf_measurement_source original/processed (original default),
+plus calibrated2D/3D PSF parameters. Original means normal Measure intensities
+AFTER its standard rescaling/registered preprocessing, without PSF; processed
+adds the captured PSF before quantitative features. Exported crops/source files
+remain unchanged. Floating texture input is preserved until GLCM scaling.
+Volume PSF sampling must match Measure voxel calibration or anisotropy.
+New psf_measurement helpers prepare_measurement_psf, measurement_psf_signature,
+measurement_psf_record, measurement_resume_settings, validate_measurement_psf_history.
+PSFPlan.apply gains optional process-safe cancel event. _measure_crop_core gains
+psf_plan/psf_cancel; parent captures once, passes to spawned workers and relays
+Stop. Existing intensity_rescale table adds psf_measurement_source, psf_signature,
+psf_provenance via migration. Provenance includes channels, actual dtype, stage,
+hooks, complete kernel/algorithm settings and crop source. Changed processing
+cannot mix with existing quantitative rows; legacy inactive defaults resume.
+All Measure psf_* API help targets prepare_measurement_psf; new app-specific
+help explains original/processed, YX/ZYX and unchanged crops. Please include in
+API/catalog/tutorial batch. Mask Live preview PSF parity is the next task.
+260pipeline/resume/3D and275GUI/settings/preflight/Mask checks passed, with
+focused follow-ups for actual spawned cancellation and measured-file changes.
+Full1998x1998real-field spawned Measure acceptance:22.05s CPU,365object rows,
+all104cell means checked across two channels, maxabsoluteerror0.0003894. Source
+unchanged, resume no duplicate rows, changed kernel refused. No GPU used.
+Receipt: features/data/490_psf_measure_acceptance_2026-09-23.json.
+Measure final follow-ups:33focused provenance/migration checks and5cancellation/
+full-entry checks pass. Stop allows five seconds for the current PSF operation;
+a worker that never answers cannot trap the parent in an indefinite wait.
+The normal pipeline cancellation then exits/cleans up its owning pool.
+
+2026-09-23 IMPLEMENTATION: 490 Mask Live preview integration underway
+Claiming qt/widgets/live_preview.py and focused preview tests. Captured PSF
+processing will run before background thresholding and Cellpose normalization,
+with cooperative cancellation and successful-result provenance/history. Raw
+intensity filters remain raw. Existing preview normalization is field-local,
+whereas full V1 Mask can normalize across a batch; this distinction must remain
+explicit instead of claiming that preview masks exactly reproduce a plate run.
+
+2026-09-23 IMPLEMENTATION → DOCS/API: 490 Mask Live PSF ready
+LivePreview PreviewRequest gains model_note, cancel Event and provenance.
+Worker captures calibrated PSF once, processes selected planes before background
+threshold/model normalization, keeps raw intensity filters, and records exact
+kernel/settings/channel identity in accepted-mask history. Cancellation stops
+between PSF convolutions; native inference results are discarded when stale.
+Closing safely retires the thread. Invalid PSF fails before model loading;
+classical organelle previews no longer instantiate unused Cellpose models.
+New translated captions: 'PSF: {operation} (preview field).',
+'Segmentation: {methods}.', and the field-local normalization/full Mask
+batch-and-illumination caveat in _processing_tooltip. Please include these,
+PreviewRequest additions and worker/history behavior in API/tutorial/catalog
+batch. Preview has field-local model normalization and no full-pipeline
+illumination correction; do not claim identical masks to a full plate run.
+Real CPU SAM preview,128x128public Hoechst crop:21.84s,two labels,1956Qt ticks,
+source unchanged, model input independently matches PSF engine. No GPU used.
+Receipt: features/data/490_psf_live_preview_acceptance_2026-09-23.json.
+Validation:162preview/model/channel checks pass; additional197checks passed,
+and the shared-request identity failure found there is fixed. Final15PSF/
+request/cancellation checks pass. Tests use capped offscreen CPU execution.
+
+2026-09-23 IMPLEMENTATION: issue131 signing preparation
+Claiming packaging/online/build_macos_online.sh, new native launcher/signing
+helpers, focused packaging tests and .github/workflows/online-installers.yml.
+Release.yml already passes inherited secrets; no version or main change.
+Adding Developer ID signing/notary submission/stapling/verification with optional
+CI credentials. Missing credentials must remain visibly unsigned; partial or
+required-but-missing configuration must fail. Ticket/access still pending, so
+neither131nor487nor1.5.1.0 will be marked complete from local mock checks.
+2026-09-23 concurrent-file notice: release.yml gained an unrelated15-line change
+while the signing task was running. This lane has not edited that file and
+will leave it unstaged. Signing work is limited to online-installers.yml and
+the packaging helpers already claimed above.
+
+2026-09-23 URGENT implementation checkout coordination
+While implementation work is active here, another process reset this checkout
+from b2d61a0e6 to origin/nightly (f10b109a4), then to7979971b6, leaving109tracked
+files changed. Please do not reset /mnt/firecuda2/Claude/repo/spacr while this
+lane is working. Mask Live PSF3196a95ef is already pushed; signing changes and
+packaging tests are uncommitted. I am preserving the current files and pausing
+Git mutations until the concurrent operation is understood. Docs session should
+keep its own /mnt/firecuda2/codex/repo/spacr checkout.
+Maintainer update: U-M access MUST NOT block1.5.1.0. Keep131open as an external
+follow-up; proceed with release after the remaining practical checks pass.

@@ -403,6 +403,17 @@ def preprocess_generate_masks(settings):
 
                         if not settings['preprocess']:
                             _check_archives_without_preprocessing(src)
+                            from .psf_pipeline import validate_psf_resume, _record_path
+                            if (settings.get('psf_operation', 'none') != 'none' or
+                                    _record_path(src).exists()):
+                                psf_channels = list(dict.fromkeys(
+                                    int(settings[f'{role}_channel'])
+                                    for role in ('nucleus', 'cell', 'pathogen',
+                                                 *ORGANELLE_ROLES)
+                                    if settings.get(f'{role}_channel') is not None))
+                                validate_psf_resume(
+                                    settings, src, psf_channels,
+                                    expected_fields=_normalized_npz_field_ids(mask_src))
 
                         from .image_quality import screen_fields
                         quality_paths = None

@@ -6758,6 +6758,9 @@ UI = {
     'Updating conditions with the new text settings…': 'नई पाठ सेटिंग के साथ प्रायोगिक स्थितियाँ अपडेट की जा रही हैं…',
     'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page': 'सबसे बड़े 25% प्लाक से अनुपलब्ध मानों का सुझाव दें। RH/HFF नियंत्रण जैसी वृद्धि मानी जाती है; मौजूदा माप सुरक्षित रहते हैं। API: spacr.plaque_growth.estimate_page',
     "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.": 'कॉन्फ़िगर किए गए संवर्धनों का पूर्वावलोकन मूल असंवर्धित छवि के साथ दिखाएँ। आवर्धक का बॉक्स उपलब्ध होने पर उसका क्षेत्र, अन्यथा पूरा दृश्य क्षेत्र दिखाया जाता है, ताकि हर चरण का प्रभाव देखकर आँका जा सके। प्रसंस्करण पृष्ठभूमि में चलता है। रद्द करें से तुलना बंद हो जाती है; चल रहा फ़िल्टर अपना परिणाम दिखाए बिना पूरा होता है। पहचान प्रक्रिया की तरह, काटने से पहले पूरे दृश्य क्षेत्र का सामान्यीकरण किया जाता है।',
+    'Settings templates': 'सेटिंग टेम्पलेट',
+    'Inspect one measured field, its host/vacuole/parasite masks and recruitment results.': 'एक मापे गए इमेज फ़ील्ड, उसके मेज़बान कोशिका, रिक्तिका और परजीवी मास्क तथा भर्ती विश्लेषण के परिणामों का निरीक्षण करें।',
+    'Host–Pathogen live preview': 'मेज़बान–रोगजनक का लाइव पूर्वावलोकन',
 }
 
 MODULE_SUMMARIES = {
@@ -13640,4 +13643,7 @@ SOURCE_HASHES = {
     ('UI', 'Updating conditions with the new text settings…'): '7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237',
     ('UI', 'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page'): '447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3',
     ('UI', "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection."): '77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0',
+    ('UI', 'Settings templates'): 'a4e050b2b7b7c8ec40984249fc0c763a3de11ca3e112171423e514323dc4c3a8',
+    ('UI', 'Inspect one measured field, its host/vacuole/parasite masks and recruitment results.'): '15cc5c98727eff0a53bdca1651ee828c72ef6f124042c6cb0724aee1beda4edf',
+    ('UI', 'Host–Pathogen live preview'): '4f55456ed4b03243cb9c31199bec36867b7806fdd117f001d4154ed7ce1a0af5',
 }

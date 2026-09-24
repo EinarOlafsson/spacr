@@ -28,114 +28,75 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI、GitHub 和 conda-forge",
+      "title": "Find spaCR on GitHub, PyPI and conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择相应的安装教程。",
+      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
       "objectives": [
-        "识别 spaCR 在 PyPI、GitHub 和 conda-forge 上的官方页面。",
-        "区分发行文件、开发中的源代码以及独立更新的软件包渠道。",
-        "选择安装方式，并核实实际安装的版本。"
+        "Find the official download pages.",
+        "Choose the installation route for your computer.",
+        "Open the matching installation tutorial."
       ],
-      "prerequisite": "本概览不执行安装。页面截取于 2026 年 9 月 10 日：PyPI 和 GitHub 提供 1.5.0.5，conda-forge 提供 1.5.0.4。各渠道版本和可用文件可能变化，请阅读当前页面并核实已安装版本。浏览器使用匿名配置，保留页面文字、徽章和发行历史，不作修改。各平台的安装步骤及硬件选择见链接的安装教程。",
+      "prerequisite": "Open a web browser and decide whether you want a desktop installer or a Python environment.",
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "安装 spaCR 前，先选择官方分发来源。PyPI 和 conda-forge 提供 Python 软件包；GitHub 提供源代码、发行记录和桌面安装程序。这些途径彼此相关，但不一定同时发布同一个版本。",
-          "hold_after": 0.7,
-          "speech_text": "安装 斯佩克尔 前，先选择官方分发来源。派普 和 Conda Forge 提供 Python 软件包；GitHub 提供源代码、发行记录和桌面安装程序。这些途径彼此相关，但不一定同时发布同一个版本。"
+          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "在 PyPI 上，阅读发行版标题和安装命令。这里的标题是 spaCR 一点五点零点五。请核实当前页面显示的版本，不要根据旧截图、徽章或教程日期推断版本。",
-          "hold_after": 0.7,
-          "focus": [
-            770,
-            237,
-            2300,
-            305
-          ],
-          "speech_text": "在 派普 上，阅读发行版标题和安装命令。这里的标题是 斯佩克尔 一点五点零点五。请核实当前页面显示的版本，不要根据旧截图、徽章或教程日期推断版本。"
+          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_pypi_project_links",
-          "narration": "Project links 将软件包连接到文档、主页、问题跟踪和源代码仓库。通过这些链接在官方资源之间切换。软件包页面描述的是该已发布版本，并不保证所有正在开发的功能都已包含在内。",
-          "hold_after": 0.7,
-          "focus": [
-            2510,
-            798,
-            500,
-            399
-          ],
-          "speech_text": "Project links 将软件包连接到文档、主页、问题跟踪和源代码仓库。通过这些链接在官方资源之间切换。软件包页面描述的是该已发布版本，并不保证所有正在开发的功能都已包含在内。"
+          "narration": "Use Project links to open the documentation, source repository or issue tracker. Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_github_main_branch",
-          "narration": "在 GitHub 上，分支选择器标明你正在阅读哪条代码分支。main 是发行分支，nightly 包含正在进行的开发。日常安装请选择已发布版本；只有明确需要较新开发内容且能接受变化时，才使用 nightly。",
-          "hold_after": 0.7,
-          "focus": [
-            704,
-            412,
-            214,
-            64
-          ],
-          "speech_text": "在 GitHub 上，分支选择器标明你正在阅读哪条代码分支。main 是发行分支，nightly 包含正在进行的开发。日常安装请选择已发布版本；只有明确需要较新开发内容且能接受变化时，才使用 nightly。"
+          "narration": "On GitHub, open the spaCR repository. Main contains the release source, and nightly contains the latest development work. For a packaged desktop installation, open Releases and choose a release.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_github_current_assets",
-          "narration": "打开一个发行版并展开 Assets。选择适合 Windows、macOS 或 Linux 的安装程序。wheel 和源码分发包是 Python 软件包文件，不是桌面安装程序。请下载与所选版本及文件完全对应的校验和清单，不要拿另一渠道的哈希值来比较。",
+          "narration": "Expand Assets and download the installer for Windows, macOS or Linux. Keep the checksum file from the same release if you want to verify the download. The Platform installers lesson walks through launching the installer and opening spaCR.",
           "hold_after": 0.7,
-          "focus": [
-            738,
-            1103,
-            2364,
-            758
-          ],
           "related_lessons": [
             "04_platform_installers"
-          ],
-          "speech_text": "打开一个发行版并展开 Assets。选择适合 Windows、macOS 或 Linux 的安装程序。wheel 和源码分发包是 Python 软件包文件，不是桌面安装程序。请下载与所选版本及文件完全对应的校验和清单，不要拿另一渠道的哈希值来比较。"
+          ]
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "conda-forge 页面有自己的版本选择器。录制时，它提供一点五点零点四，而 PyPI 提供一点五点零点五。演示特意保留了这一真实差异，不要假定某个渠道的更新已经到达。",
-          "hold_after": 0.7,
-          "focus": [
-            60,
-            710,
-            2435,
-            635
-          ],
-          "speech_text": "Conda Forge 页面有自己的版本选择器。录制时，它提供一点五点零点四，而 派普 提供一点五点零点五。演示特意保留了这一真实差异，不要假定某个渠道的更新已经到达。"
+          "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_conda_current_package",
-          "narration": "明确指定渠道的命令是 conda install conda-forge，接两个冒号，再接 spacr。请在你打算使用的环境中运行。Conda 教程介绍这条途径；创建 Conda 环境后用 pip 安装是另一条途径，虽然两者都使用环境管理器。",
+          "narration": "The conda-forge command installs spaCR into your active Conda environment. Follow the Conda lesson to create that environment, install the package and launch the application.",
           "hold_after": 0.7,
-          "focus": [
-            60,
-            710,
-            2435,
-            635
-          ],
           "related_lessons": [
             "02_conda_install"
-          ],
-          "speech_text": "明确指定渠道的命令是 conda install Conda Forge，接两个冒号，再接 斯佩克尔。请在你打算使用的环境中运行。Conda 教程介绍这条途径；创建 Conda 环境后用 pip 安装是另一条途径，虽然两者都使用环境管理器。"
+          ]
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "使用 Python 虚拟环境请选择 pip 教程，安装渠道软件包请选择 Conda 教程，需要由安装程序管理的私有运行环境则选择 Platform installers。随后核实已安装版本并运行 spacr-doctor，再继续学习模块教程。",
+          "narration": "Continue with pip, Conda or Platform installers. Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_conda_install",
             "03_pip_install",
             "04_platform_installers"
-          ],
-          "speech_text": "使用 Python 虚拟环境请选择 pip 教程，安装渠道软件包请选择 Conda 教程，需要由安装程序管理的私有运行环境则选择 Platform installers。随后核实已安装版本并运行 斯佩克尔-doctor，再继续学习模块教程。"
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "02_conda_install",
@@ -389,27 +350,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home 页面与导航",
+      "title": "Home screen and navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "了解 Core 的六个步骤和 Home 当前的分类，并在所属的主模块中找到相关工具。",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
       "objectives": [
-        "了解从图像到回归分析结果的 Core 工作流程。",
-        "找到 Data、Tools 和 Assays，避免把已整合的功能误认为缺失的模块。",
-        "区分可下载的真实数据与生成的演示数据，并找到对应的专题教程。"
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Load an example, find help and open a pipeline overview."
       ],
-      "prerequisite": "安装 spaCR 并打开桌面应用。录制使用深色主题和放大的界面文字。",
+      "prerequisite": "Install spaCR and open the desktop application.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home 将 spaCR 分为 Core、Data、Tools 和 Assays。这些分类对应不同的工作流程。相关工具也可能位于某个主模块内部，因此 Home 上的按钮并不代表全部功能。",
-          "hold_after": 0.7,
-          "speech_text": "主页 将 斯佩克尔 分为 Core、Data、Tools 和 Assays。这些分类对应不同的工作流程。相关工具也可能位于某个主模块内部，因此 主页 上的按钮并不代表全部功能。"
+          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "Core 按筛选实验的分析流程排列：Mask、Measure、Annotate、Classify、Map Barcodes 和 Regression。请从适合现有输入数据的步骤开始。如果已经有兼容的测量数据或裁剪图像，就不必重新进行分割。",
+          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -426,15 +386,15 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ],
-          "speech_text": "Core 按筛选实验的分析流程排列：Mask、Measure、Annotate、Classify、Map Barcodes 和 Regression。请从适合现有输入数据的步骤开始。如果已经有兼容的测量数据或裁剪图像，就不必重新进行分割。"
+          ]
         },
         {
-          "visual": "02_data  (6)",
-          "narration": "Data 集合了 Import、Run Compare、Experiment Design、Power and Design、Dose Response 和质量控制。Import 也是 Import Images、Format Converter 和 External Masks 的入口。要找到这些功能，请先打开所属的主模块。",
+          "visual": "02_data  (7)",
+          "narration": "Open Data to bring existing files into a project or work with results. Import accepts images, masks and measurement tables. Use Run Compare to compare runs, Experiment Design to prepare plate layouts, and QC to inspect recorded quality checks. Choose the tile that matches your next task.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
+            "embeddings",
             "run_compare",
             "experiment_design",
             "power",
@@ -444,13 +404,13 @@
           "related_lessons": [
             "36_import",
             "35_converter",
-            "31_external_masks"
-          ],
-          "speech_text": "Data 集合了 Import、Run Compare、Experiment Design、Power and Design、Dose Response 和质量控制。Import 也是 Import Images、Format Converter 和 External Masks 的入口。要找到这些功能，请先打开所属的主模块。"
+            "31_external_masks",
+            "77_embeddings"
+          ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools 包含 Make Masks、Align and Stitch、Image UMAP、Gate Editor 和 Graph Builder。每个模块都集合了相关操作。例如，Make Masks 提供模型训练和比较，Graph Builder 提供 Plate Viewer 和 Small Multiples。",
+          "narration": "Open Tools for image editing and exploration. Make Masks lets you edit masks and open the Cellpose Workbench. Align and Stitch combines overlapping image tiles. Image UMAP, Gate Editor and Graph Builder help you explore measurements and make plots. Open a module to find its related tools in the toolbar.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -465,47 +425,37 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ],
-          "speech_text": "Tools 包含 Make Masks、Align and Stitch、Image 优麦普、门控编辑器 和 Graph Builder。每个模块都集合了相关操作。例如，Make Masks 提供模型训练和比较，Graph Builder 提供 Plate Viewer 和 Small Multiples。"
+          ]
         },
         {
-          "visual": "04_assays  (4)",
-          "narration": "Assays 包含 Plaque Assay、Recruitment、Invasion Assay 和 Replication Assay。请选择符合实验内容和所需输入数据的工作流程。模块的成熟度颜色与它所属的分类无关；在依赖实验性功能之前，请先阅读工具提示。",
+          "visual": "04_assays  (3)",
+          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
           "hold_after": 0.7,
           "focus_modules": [
-            "analyze_plaques",
-            "recruitment",
-            "invasion",
-            "replication"
+            "toxoplasma",
+            "plasmodium",
+            "candida"
           ],
           "related_lessons": [
             "24_plaque",
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ],
-          "speech_text": "Assays 包含 Plaque Assay、Recruitment、Invasion Assay 和 Replication Assay。请选择符合实验内容和所需输入数据的工作流程。模块的成熟度颜色与它所属的分类无关；在依赖实验性功能之前，请先阅读工具提示。"
+          ]
         },
         {
           "visual": "05_classify_host",
-          "narration": "Classify 是一个模块。通过 Classifier family 设置，可以选择基于图像的计算机视觉，或基于测量特征的机器学习。原有的计算机视觉和机器学习教程仍然分别讲解这两条路线，并不代表 Home 上有两个独立的模块按钮。",
+          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
           "hold_after": 0.7,
-          "focus": [
-            345,
-            540,
-            1160,
-            170
-          ],
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "speech_text": "Classify 是一个模块。通过 Classifier family 设置，可以选择基于图像的计算机视觉，或基于测量特征的机器学习。原有的计算机视觉和机器学习教程仍然分别讲解这两条路线，并不代表 主页 上有两个独立的模块按钮。"
+          ]
         },
         {
           "visual": "05_classify_host",
-          "narration": "Classify 顶部的图标可打开 Classifier Evaluation、Explain CV Model、Activation、Training Runs 和 Feature Explorer。将鼠标指针停在图标上，即可查看名称和说明。准备检查训练好的模型或其结果时，请打开链接中的相应专题教程。",
+          "narration": "The toolbar in Classify opens Classifier Evaluation, Explain CV Model, Activation, Training Runs and Feature Explorer. Hover over an icon to see its name, then click it to open the tool. Use these views to inspect a model, compare training runs or explore important features.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -514,29 +464,49 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ],
-          "speech_text": "Classify 顶部的图标可打开 Classifier Evaluation、Explain CV Model、Activation、Training Runs 和 Feature Explorer。将鼠标指针停在图标上，即可查看名称和说明。准备检查训练好的模型或其结果时，请打开链接中的相应专题教程。"
+          ]
         },
         {
           "visual": "06_mask_host",
-          "narration": "Core 教程使用 Load test data 提供的真实数据集。下载后会填入相关输入和兼容的设置。Help 中生成的演示数据是另一种选择。在 Mask 中，Time 和 3D 开关显示时序及三维数据的工作流程；Live 打开预览。",
+          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ],
-          "speech_text": "Core 教程使用 Load test data 提供的真实数据集。下载后会填入相关输入和兼容的设置。Help 中生成的演示数据是另一种选择。在 Mask 中，Time 和 三维 开关显示时序及三维数据的工作流程；Live 打开预览。"
+          ]
         },
         {
-          "visual": "07_help",
-          "narration": "使用 Help 可返回操作引导和教程。把当前模块的教程与应用并排打开，按照教程检查数据、设置和输出。下一课将介绍如何通过 Python API 和命令行使用同样的工作流程。",
+          "visual": "08_help_search",
+          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_performance",
+          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "00_home",
+          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
           ],
-          "speech_text": "使用 Help 可返回操作引导和教程。把当前模块的教程与应用并排打开，按照教程检查数据、设置和输出。下一课将介绍如何通过 Python API 和命令行使用同样的工作流程。"
+          "focus": [
+            3341,
+            180,
+            499,
+            96
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "06_api",
@@ -11445,6 +11415,1260 @@
           "narration": "在 Regression 之前，检查图像评分、测序计数和实验布局是否使用相匹配的板和孔标识。将对象标识、标注列、分类器设置和条形码参考序列与本次运行一起保存。通过链接的模块课程查看每一步的完整操作示例；如果希望 Home 引导你进行界面导航，请选择混合池筛选的交互式导览。",
           "hold_after": 0.7,
           "speech_text": "在 Regression 之前，检查图像评分、测序计数和实验布局是否使用相匹配的板和孔标识。将对象标识、标注列、分类器设置和条形码参考序列与本次运行一起保存。通过链接的模块课程查看每一步的完整操作示例；如果希望 主页 引导你进行界面导航，请选择混合池筛选的交互式导览。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "79_module_inputs_outputs",
+      "number": 79,
+      "slug": "module_inputs_outputs",
+      "title": "模块输入与输出",
+      "series": 1,
+      "app_key": null,
+      "section": "工作流程",
+      "description": "查找每个当前模块的输入数据、保存的输出、上游生成模块和下游使用模块，包括嵌套在 Home 模块中的工具。",
+      "objectives": [
+        "根据已有数据选择起始模块。",
+        "明确每个模块读取和写入的内容。",
+        "下一步请参阅链接的模块教程和 API 输入输出约定。"
+      ],
+      "prerequisite": "安装 spaCR 并打开 Home。本教程说明导航和数据传递；链接的模块教程提供完整数据示例。输入和输出包含取决于条件的不同情况，各模块中均有说明。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "根据已有数据和所需结果选择模块。Home 展示主要模块；相关工具可在上级模块内打开。本参考教程逐章介绍所有当前路径。输入和输出可能取决于条件：图像分类器和特征分类器需要不同数据，查看器也不会自动保存显示的所有内容。每个模块的说明解释这些差异。保留原始文件，并在模块间传递结果时使用记录的对象、孔板和孔标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "根据已有数据和所需结果选择模块。主页 展示主要模块；相关工具可在上级模块内打开。本参考教程逐章介绍所有当前路径。输入和输出可能取决于条件：图像分类器和特征分类器需要不同数据，查看器也不会自动保存显示的所有内容。每个模块的说明解释这些差异。保留原始文件，并在模块间传递结果时使用记录的对象、孔板和孔标识。"
+        },
+        {
+          "visual": "module_mask",
+          "narration": "从 Home 打开 Mask。 选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。 输入数据: 显微镜图像; 分割检查点. 显微镜图像: 源图像文件夹；原始文件、受支持的厂商文件或导入的 TIFF 文件。 分割检查点: 已保存的 Cellpose 兼容检查点，或根据其自身配置选定的兼容已安装后端。 输出数据: 图像和标签掩膜; 标签掩膜; 对象计数. 图像和标签掩膜: 项目中的 merged/*.npy；通道和整数标签平面共用每个视野的数组。 标签掩膜: 保留时为 masks/，或明确保存的图像与掩膜对。中间掩膜可能在清理时被删除。 对象计数: measurements/measurements.db；仅有 Mask 计数并不构成逐对象特征测量。 Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Cellpose Workbench 到 Mask：在 Mask 中选择已保存的兼容检查点。 Import Images 到 Mask：使用导入的图像平面和标识；仅导入图像时仍需分割。 Format Converter 到 Mask：使用转换后的布局，并保留源标识映射。 Mask 到 Timelapse：生成关联标签前，启用嵌套的时间序列路径。 Import 到 Mask：仅导入图像时，使用 Import Images 或 Format Converter，并将 Mask 指向格式化后的图像项目。仅有外部测量数据不能作为分割输入。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "17_timelapse",
+            "19_train_cellpose",
+            "35_converter",
+            "36_import",
+            "74_import_images"
+          ],
+          "speech_text": "从 主页 打开 Mask。 选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。 输入数据: 显微镜图像; 分割检查点. 显微镜图像: 源图像文件夹；原始文件、受支持的厂商文件或导入的 TIFF 文件。 分割检查点: 已保存的 塞尔波斯 兼容检查点，或根据其自身配置选定的兼容已安装后端。 输出数据: 图像和标签掩膜; 标签掩膜; 对象计数. 图像和标签掩膜: 项目中的 merged/*.npy；通道和整数标签平面共用每个视野的数组。 标签掩膜: 保留时为 masks/，或明确保存的图像与掩膜对。中间掩膜可能在清理时被删除。 对象计数: measurements/测量数据库文件；仅有 Mask 计数并不构成逐对象特征测量。 Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 塞尔波斯 Workbench 到 Mask：在 Mask 中选择已保存的兼容检查点。 Import Images 到 Mask：使用导入的图像平面和标识；仅导入图像时仍需分割。 Format Converter 到 Mask：使用转换后的布局，并保留源标识映射。 Mask 到 Timelapse：生成关联标签前，启用嵌套的时间序列路径。 Import 到 Mask：仅导入图像时，使用 Import Images 或 Format Converter，并将 Mask 指向格式化后的图像项目。仅有外部测量数据不能作为分割输入。"
+        },
+        {
+          "visual": "module_measure",
+          "narration": "从 Home 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 输入数据: 图像和标签掩膜; 标签掩膜. 输出数据: 已测量对象; 对象裁剪图. 已测量对象: measurements/measurements.db；对象表取决于启用的细胞、细胞核、病原体和细胞器掩膜。 相关表取决于所选路径：cell, nucleus, pathogen, cytoplasm。 相关列取决于所选路径：plateID, rowID, columnID, fieldID。 对象裁剪图: 启用 save_png 时为 data/**/*_png；png_list 索引已保存的裁剪图像。受支持的工作流程也可从合并数组和掩膜流式读取裁剪图像。 相关表取决于所选路径：png_list。 相关列取决于所选路径：png_path, prcfo。 Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 External Masks 到 Measure：仅在需要时重新测量；External Masks 本身已可执行测量。 Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Measure 到 Graph Builder：明确选择变量、分组和过滤条件。 Measure 到 QC：检查可用的检查结果和缺失证据。 Measure 到 Recruitment：需要目标区室的强度测量值和标识。 Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。 Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。 Timelapse 到 Measure：使用具有稳定帧和对象标识的时间序列项目。 Measure 到 Motility Assay：将已测量对象与匹配的轨迹关联。 Measure 到 Feature Explorer：定义类别比较并检查过滤设置。 Measure 到 Database Browser：导出前检查实际表格。 Measure 到 AnnData Export：导出兼容的特征列和元数据列。 Measure 到 Dose–Response：将实测响应与明确的剂量及对照关联。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 Import 到 Measure：导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "14_make_masks",
+            "15_image_umap",
+            "17_timelapse",
+            "18_motility",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication",
+            "31_external_masks",
+            "34_database",
+            "36_import",
+            "41_classify",
+            "54_qc_dashboard",
+            "58_graph_builder",
+            "59_anndata_export",
+            "64_gate_editor",
+            "65_feature_explorer",
+            "69_dose_response",
+            "77_embeddings"
+          ],
+          "speech_text": "从 主页 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 输入数据: 图像和标签掩膜; 标签掩膜. 输出数据: 已测量对象; 对象裁剪图. 已测量对象: measurements/测量数据库文件；对象表取决于启用的细胞、细胞核、病原体和细胞器掩膜。 相关表取决于所选路径：cell, nucleus, pathogen, cytoplasm。 相关列取决于所选路径：plateID, rowID, columnID, fieldID。 对象裁剪图: 启用 save_png 时为 data/**/*_png；png_list 索引已保存的裁剪图像。受支持的工作流程也可从合并数组和掩膜流式读取裁剪图像。 相关表取决于所选路径：png_list。 相关列取决于所选路径：png_path, prcfo。 Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 External Masks 到 Measure：仅在需要时重新测量；External Masks 本身已可执行测量。 Measure 到 Image 优麦普：选择特征列并检查有代表性的裁剪图像。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Measure 到 门控编辑器：使用实际实测特征的定义和单位。 Measure 到 Graph Builder：明确选择变量、分组和过滤条件。 Measure 到 QC：检查可用的检查结果和缺失证据。 Measure 到 Recruitment：需要目标区室的强度测量值和标识。 Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。 Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。 Timelapse 到 Measure：使用具有稳定帧和对象标识的时间序列项目。 Measure 到 Motility Assay：将已测量对象与匹配的轨迹关联。 Measure 到 Feature Explorer：定义类别比较并检查过滤设置。 Measure 到 Database Browser：导出前检查实际表格。 Measure 到 AnnData Export：导出兼容的特征列和元数据列。 Measure 到 Dose–Response：将实测响应与明确的剂量及对照关联。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 Import 到 Measure：导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。"
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "从 Home 打开 Annotate。 监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。 输入数据: 已测量对象; 对象裁剪图; 可复用门控. 可复用门控: 已保存的阈值门控或多边形门控定义，或选定的对象集合；门控规则应应用于相同的特征定义。 输出数据: 训练标注. 训练标注: measurements/measurements.db 中 png_list 表内选定的标注列；标签对应对象标识。 相关表取决于所选路径：png_list。 相关列取决于所选路径：prcfo。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 External Masks 到 Annotate：将新测量的项目和裁剪图像索引保存在一起。 Import 到 Annotate：导入的表需要明确的列映射和对象标识映射。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Annotate 到 Annotator Agreement：为同一批对象选择相互独立的标注列。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "23_agreement",
+            "31_external_masks",
+            "36_import",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "从 主页 打开 Annotate。 监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。 输入数据: 已测量对象; 对象裁剪图; 可复用门控. 可复用门控: 已保存的阈值门控或多边形门控定义，或选定的对象集合；门控规则应应用于相同的特征定义。 输出数据: 训练标注. 训练标注: measurements/测量数据库文件 中 png_list 表内选定的标注列；标签对应对象标识。 相关表取决于所选路径：png_list。 相关列取决于所选路径：prcfo。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 External Masks 到 Annotate：将新测量的项目和裁剪图像索引保存在一起。 Import 到 Annotate：导入的表需要明确的列映射和对象标识映射。 门控编辑器 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Annotate 到 Annotator Agreement：为同一批对象选择相互独立的标注列。"
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "从 Home 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. 对象分类评分: 已保存的评分 CSV 文件，以及合并后位于 measurements/measurements.db 中的 png_list 表。 相关表取决于所选路径：png_list。 相关列取决于所选路径：pred, cv_predictions, ml_pred, predictions。 已训练的图像分类器: 已保存的分类器检查点、模型设置以及匹配的通道和预处理配置。 已拟合的特征分类器: 已拟合的表格分类器，以及记录的特征列表、训练设置和验证结果。 分类器评估文件集: 已保存分类器运行的留出集预测、标签、数据划分元数据以及校准和数据泄漏指标。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 Classify 到 Classifier Evaluation：使用匹配的留出集预测和数据划分元数据。 Classify 到 Activation：同时提供匹配的裁剪图像及通道预处理配置。 Classify 到 Explain CV Model：选择 CV 预测及匹配的已测量对象。 Gate Editor 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。 Image UMAP 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "15_image_umap",
+            "16_activation",
+            "39_classifier_evaluation",
+            "41_classify",
+            "64_gate_editor",
+            "70_explain_cv"
+          ],
+          "speech_text": "从 主页 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. 对象分类评分: 已保存的评分 CSV 文件，以及合并后位于 measurements/测量数据库文件 中的 png_list 表。 相关表取决于所选路径：png_list。 相关列取决于所选路径：pred, cv_predictions, ml_pred, predictions。 已训练的图像分类器: 已保存的分类器检查点、模型设置以及匹配的通道和预处理配置。 已拟合的特征分类器: 已拟合的表格分类器，以及记录的特征列表、训练设置和验证结果。 分类器评估文件集: 已保存分类器运行的留出集预测、标签、数据划分元数据以及校准和数据泄漏指标。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 Classify 到 Classifier Evaluation：使用匹配的留出集预测和数据划分元数据。 Classify 到 Activation：同时提供匹配的裁剪图像及通道预处理配置。 Classify 到 Explain CV Model：选择 CV 预测及匹配的已测量对象。 门控编辑器 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。 Image 优麦普 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。"
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "从 Home 打开 Map Barcodes。 提供编码实验信息的参考表。将孔级向导计数与表型评分配对前，检查映射计数和条形码 QC。 输入数据: 测序读段. 测序读段: 单端或双端 FASTQ 文件，以及匹配的条形码参考表。 输出数据: 各孔的向导计数. 各孔的向导计数: Map Barcodes 运行文件夹：unique_combinations.csv 和 annotated_reads.h5。确定孔标识需要对应的条形码参考表。 相关列取决于所选路径：count。 Map Barcodes 到 Regression：使用一致的孔板和孔键，将向导计数与表型评分配对。 Map Barcodes 到 Barcode QC：过滤向导计数前检查映射情况和覆盖度。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "47_barcode_qc"
+          ],
+          "speech_text": "从 主页 打开 Map Barcodes。 提供编码实验信息的参考表。将孔级向导计数与表型评分配对前，检查映射计数和条形码 QC。 输入数据: 测序读段. 测序读段: 单端或双端 FASTQ 文件，以及匹配的条形码参考表。 输出数据: 各孔的向导计数. 各孔的向导计数: Map Barcodes 运行文件夹：unique_combinations.csv 和 annotated_reads.h5。确定孔标识需要对应的条形码参考表。 相关列取决于所选路径：count。 Map Barcodes 到 Regression：使用一致的孔板和孔键，将向导计数与表型评分配对。 Map Barcodes 到 Barcode QC：过滤向导计数前检查映射情况和覆盖度。"
+        },
+        {
+          "visual": "module_regression",
+          "narration": "从 Home 打开 Regression。 匹配表型输入与向导计数输入的孔板和孔标识，选择响应和对照，并在解释命中结果前检查诊断。也支持直接使用实测响应。 输入数据: 对象分类评分; 各孔的向导计数; 光学条形码分配结果; 已测量对象. 光学条形码分配结果: OPS 输出目录中的 measurements.db：按孔组织的几何、表型对齐、细胞核和条形码表；可选的逐轮次读段。 相关表取决于所选路径：ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads。 输出数据: 回归结果和命中项. 回归结果和命中项: 所选运行的结果文件夹：系数和结果 CSV 文件、命中表、设置和诊断图。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 Map Barcodes 到 Regression：使用一致的孔板和孔键，将向导计数与表型评分配对。 OPS 到 Regression：在 Regression 前，将解码对象与表型和向导输入明确关联或汇总；这不是直接传递 CSV 文件。 Regression 到 Run Compare：比较兼容的已保存结果集及其设置。 Regression 到 Hit List：检查排序后的命中结果和向导间一致性。 Regression 到 Volcano Explorer：检查保存的效应和经校正的显著性。 Regression 到 Diagnostics：打开本次运行实际写出的诊断结果。 Regression 到 Methods & Results：审核导出的文字和每项可追溯结果。 Regression 到 Investigate Hit：为所选命中结果关联兼容的表型数据和对象数据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "48_hit_list",
+            "49_methods_results",
+            "50_run_compare",
+            "72_volcano_explorer",
+            "75_regression_diagnostics",
+            "76_ops"
+          ],
+          "speech_text": "从 主页 打开 Regression。 匹配表型输入与向导计数输入的孔板和孔标识，选择响应和对照，并在解释命中结果前检查诊断。也支持直接使用实测响应。 输入数据: 对象分类评分; 各孔的向导计数; 光学条形码分配结果; 已测量对象. 光学条形码分配结果: OPS 输出目录中的 测量数据库文件：按孔组织的几何、表型对齐、细胞核和条形码表；可选的逐轮次读段。 相关表取决于所选路径：ops_geometry, ops_phenotype, ops_objects, ops_barcodes, ops_reads。 输出数据: 回归结果和命中项. 回归结果和命中项: 所选运行的结果文件夹：系数和结果 CSV 文件、命中表、设置和诊断图。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 Map Barcodes 到 Regression：使用一致的孔板和孔键，将向导计数与表型评分配对。 OPS 到 Regression：在 Regression 前，将解码对象与表型和向导输入明确关联或汇总；这不是直接传递 CSV 文件。 Regression 到 Run Compare：比较兼容的已保存结果集及其设置。 Regression 到 Hit List：检查排序后的命中结果和向导间一致性。 Regression 到 Volcano Explorer：检查保存的效应和经校正的显著性。 Regression 到 Diagnostics：打开本次运行实际写出的诊断结果。 Regression 到 Methods & Results：审核导出的文字和每项可追溯结果。 Regression 到 Investigate Hit：为所选命中结果关联兼容的表型数据和对象数据。"
+        },
+        {
+          "visual": "module_feature_explorer",
+          "narration": "从 Home 打开 Classify，然后选择 Feature Explorer。 针对所选类别比较对实测特征进行排序；解释排名前检查过滤设置和类别定义。 输入数据: 已测量对象; 训练标注. 输出数据: 图形和表格导出. 图形和表格导出: 工具选择的输出位置；导出内容描述所选数据和过滤条件。 Measure 到 Feature Explorer：定义类别比较并检查过滤设置。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "65_feature_explorer"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Feature Explorer。 针对所选类别比较对实测特征进行排序；解释排名前检查过滤设置和类别定义。 输入数据: 已测量对象; 训练标注. 输出数据: 图形和表格导出. 图形和表格导出: 工具选择的输出位置；导出内容描述所选数据和过滤条件。 Measure 到 Feature Explorer：定义类别比较并检查过滤设置。"
+        },
+        {
+          "visual": "module_convert",
+          "narration": "从 Home 打开 Import，然后选择 Format Converter。 将受支持的显微镜文件格式转换为配置的 TIFF 布局，同时保留源文件映射。格式转换不会生成对象测量值。 输入数据: 显微镜图像. 输出数据: 显微镜图像. Format Converter 到 Mask：使用转换后的布局，并保留源标识映射。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "35_converter"
+          ],
+          "speech_text": "从 主页 打开 Import，然后选择 Format Converter。 将受支持的显微镜文件格式转换为配置的 TIFF 布局，同时保留源文件映射。格式转换不会生成对象测量值。 输入数据: 显微镜图像. 输出数据: 显微镜图像. Format Converter 到 Mask：使用转换后的布局，并保留源标识映射。"
+        },
+        {
+          "visual": "module_foreign",
+          "narration": "从 Home 打开 Import。 通过明确的对象和列映射导入外部测量数据，或选择 Import Images、Format Converter 或 External Masks。导入测量数据不等于重新运行 Measure。有匹配的源图像和外部整数掩膜时，Import 会构建供 Measure 使用的合并项目数组。选择与文件相符的路径，并在测量前检查对象身份；若导入的特征表已包含所需测量值，则可直接使用。 输入数据: 显微镜图像; 标签掩膜; 外部测量数据. 外部测量数据: 第三方测量 CSV 或数据库表，以及对应的图像、掩膜和对象标识映射。 输出数据: 已测量对象; 对象裁剪图; 图像和标签掩膜; 标签掩膜. Import 到 Annotate：导入的表需要明确的列映射和对象标识映射。 Import 到 Measure：导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 Import 到 Mask：仅导入图像时，使用 Import Images 或 Format Converter，并将 Mask 指向格式化后的图像项目。仅有外部测量数据不能作为分割输入。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "36_import"
+          ],
+          "speech_text": "从 主页 打开 Import。 通过明确的对象和列映射导入外部测量数据，或选择 Import Images、Format Converter 或 External Masks。导入测量数据不等于重新运行 Measure。有匹配的源图像和外部整数掩膜时，Import 会构建供 Measure 使用的合并项目数组。选择与文件相符的路径，并在测量前检查对象身份；若导入的特征表已包含所需测量值，则可直接使用。 输入数据: 显微镜图像; 标签掩膜; 外部测量数据. 外部测量数据: 第三方测量 CSV 或数据库表，以及对应的图像、掩膜和对象标识映射。 输出数据: 已测量对象; 对象裁剪图; 图像和标签掩膜; 标签掩膜. Import 到 Annotate：导入的表需要明确的列映射和对象标识映射。 Import 到 Measure：导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 Import 到 Mask：仅导入图像时，使用 Import Images 或 Format Converter，并将 Mask 指向格式化后的图像项目。仅有外部测量数据不能作为分割输入。"
+        },
+        {
+          "visual": "module_external_masks",
+          "narration": "从 Home 打开 Import，然后选择 External Masks。 指定对应图像和现有整数标签掩膜，然后创建并测量 spaCR 项目，无需重新分割。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 图像和标签掩膜; 已测量对象; 对象裁剪图. External Masks 到 Measure：仅在需要时重新测量；External Masks 本身已可执行测量。 External Masks 到 Annotate：将新测量的项目和裁剪图像索引保存在一起。 Direct Cellpose mask generation 到 External Masks：向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "31_external_masks"
+          ],
+          "speech_text": "从 主页 打开 Import，然后选择 External Masks。 指定对应图像和现有整数标签掩膜，然后创建并测量 斯佩克尔 项目，无需重新分割。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 图像和标签掩膜; 已测量对象; 对象裁剪图. External Masks 到 Measure：仅在需要时重新测量；External Masks 本身已可执行测量。 External Masks 到 Annotate：将新测量的项目和裁剪图像索引保存在一起。 Direct 塞尔波斯 mask generation 到 External Masks：向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。"
+        },
+        {
+          "visual": "module_queue",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Plate Queue。 在多个孔板上运行所选流程。输出来自各个排队模块；分别保留每个孔板及其设置。 输入数据: 运行队列. 运行队列: 已保存的模块、孔板和设置作业定义及依赖顺序。 输出数据: 运行历史和产物. 运行历史和产物: 项目运行记录、设置、输出路径、产物来源、状态和日志。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "30_plate_queue"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Plate Queue。 在多个孔板上运行所选流程。输出来自各个排队模块；分别保留每个孔板及其设置。 输入数据: 运行队列. 运行队列: 已保存的模块、孔板和设置作业定义及依赖顺序。 输出数据: 运行历史和产物. 运行历史和产物: 项目运行记录、设置、输出路径、产物来源、状态和日志。"
+        },
+        {
+          "visual": "module_batch",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Batch Runner。 按依赖顺序验证并执行模块作业。每个作业写出各自模块的输出和日志。 输入数据: 运行队列. 输出数据: 运行历史和产物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "37_batch"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Batch Runner。 按依赖顺序验证并执行模块作业。每个作业写出各自模块的输出和日志。 输入数据: 运行队列. 输出数据: 运行历史和产物."
+        },
+        {
+          "visual": "module_distributed_jobs",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Distributed Jobs。 将配置好的运行提交到远程执行目标，并检查其状态和日志。后续分析前应取回实际模块产物。 输入数据: 运行队列. 输出数据: 运行历史和产物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "38_distributed_jobs"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Distributed Jobs。 将配置好的运行提交到远程执行目标，并检查其状态和日志。后续分析前应取回实际模块产物。 输入数据: 运行队列. 输出数据: 运行历史和产物."
+        },
+        {
+          "visual": "module_db_browser",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Database Browser。 浏览所选表并导出行；查看表格不会重新运行图像分析。 输入数据: 已测量对象. 输出数据: 图形和表格导出. Measure 到 Database Browser：导出前检查实际表格。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "34_database"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Database Browser。 浏览所选表并导出行；查看表格不会重新运行图像分析。 输入数据: 已测量对象. 输出数据: 图形和表格导出. Measure 到 Database Browser：导出前检查实际表格。"
+        },
+        {
+          "visual": "module_run_history",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Run History。 检查保存的运行状态、设置、输出和日志；运行完成不能证明生物学有效性。 输入数据: 运行历史和产物. 输出数据: 运行历史和产物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "40_run_history"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Run History。 检查保存的运行状态、设置、输出和日志；运行完成不能证明生物学有效性。 输入数据: 运行历史和产物. 输出数据: 运行历史和产物."
+        },
+        {
+          "visual": "module_report",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Report。 将记录的结果、设置和 QC 打包为可分享的报告，而不在后台悄悄重新运行分析。 输入数据: 运行历史和产物; 质量控制结果; 图形和表格导出. 质量控制结果: 已存储的项目检查结果和 QC 报告；缺少检查不代表通过。 输出数据: 可分享报告. 可分享报告: 根据记录的分析输出导出的 HTML/PDF 或方法与结果文档。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "29_report"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Report。 将记录的结果、设置和 QC 打包为可分享的报告，而不在后台悄悄重新运行分析。 输入数据: 运行历史和产物; 质量控制结果; 图形和表格导出. 质量控制结果: 已存储的项目检查结果和 QC 报告；缺少检查不代表通过。 输出数据: 可分享报告. 可分享报告: 根据记录的分析输出导出的 HTML/PDF 或方法与结果文档。"
+        },
+        {
+          "visual": "module_data_manager",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Data Manager。 检查项目文件和磁盘使用量。删除派生产物会使依赖这些文件的下游用途失效；原始图像必须保持可恢复。 输入数据: 运行历史和产物. 输出数据: 运行历史和产物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "44_data_manager"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Data Manager。 检查项目文件和磁盘使用量。删除派生产物会使依赖这些文件的下游用途失效；原始图像必须保持可恢复。 输入数据: 运行历史和产物. 输出数据: 运行历史和产物."
+        },
+        {
+          "visual": "module_pipeline_graph",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Pipeline Graph。 读取记录的产物依赖关系及过期或缺失状态。该图描述来源关系，不会重新生成缺失产物。 输入数据: 运行历史和产物. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "52_pipeline_graph"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Pipeline Graph。 读取记录的产物依赖关系及过期或缺失状态。该图描述来源关系，不会重新生成缺失产物。 输入数据: 运行历史和产物. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "从 Home 打开 QC。 检查存储的分割、单位、数据泄漏和孔板效应检查结果。打开其中嵌套的查看器进行详细检查。 输入数据: 已测量对象; 质量控制结果. 输出数据: 质量控制结果; 图形和表格导出. Measure 到 QC：检查可用的检查结果和缺失证据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "54_qc_dashboard"
+          ],
+          "speech_text": "从 主页 打开 QC。 检查存储的分割、单位、数据泄漏和孔板效应检查结果。打开其中嵌套的查看器进行详细检查。 输入数据: 已测量对象; 质量控制结果. 输出数据: 质量控制结果; 图形和表格导出. Measure 到 QC：检查可用的检查结果和缺失证据。"
+        },
+        {
+          "visual": "module_lineage",
+          "narration": "通过 Help 搜索打开 Database Browser，然后选择 Lineage。 检查记录的细胞、细胞核、病原体和细胞器包含关系；这是对象包含关系，并非时间序列谱系推断。 输入数据: 已测量对象. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "56_lineage"
+          ],
+          "speech_text": "通过 Help 搜索打开 Database Browser，然后选择 Lineage。 检查记录的细胞、细胞核、病原体和细胞器包含关系；这是对象包含关系，并非时间序列谱系推断。 输入数据: 已测量对象. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "从 Home 打开 Experiment Design。 输入条件、对照、重复数和孔板约束，然后在采集前导出实验布局。 输入数据: 筛选设计和统计功效估计. 筛选设计和统计功效估计: 根据明确选定的效应大小、变异性和采样假设保存的规划表或图形。 输出数据: 实验布局. 实验布局: 导出的孔板、条件、对照和重复布局图。其孔板和孔标识应与采集数据保持一致。 Experiment Design 到 Power / Design：根据实验布局定义采样假设，然后修订设计。 Experiment Design 到 Dose–Response：先采集并测量实验数据，保留剂量和条件标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ],
+          "speech_text": "从 主页 打开 Experiment Design。 输入条件、对照、重复数和孔板约束，然后在采集前导出实验布局。 输入数据: 筛选设计和统计功效估计. 筛选设计和统计功效估计: 根据明确选定的效应大小、变异性和采样假设保存的规划表或图形。 输出数据: 实验布局. 实验布局: 导出的孔板、条件、对照和重复布局图。其孔板和孔标识应与采集数据保持一致。 Experiment Design 到 Power / Design：根据实验布局定义采样假设，然后修订设计。 Experiment Design 到 Dose–Response：先采集并测量实验数据，保留剂量和条件标识。"
+        },
+        {
+          "visual": "module_layer_viewer",
+          "narration": "从 Home 打开 QC，然后选择 Layer Viewer。 检查所选视野中已对齐的图像层、标签层以及点或 ROI 层。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "57_layer_viewer"
+          ],
+          "speech_text": "从 主页 打开 QC，然后选择 Layer Viewer。 检查所选视野中已对齐的图像层、标签层以及点或 ROI 层。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_power",
+          "narration": "从 Home 打开 Power / Design。 根据选定的效应大小和变异性估计采样需求；预实验测量可作为假设的可选依据。 输入数据: 筛选设计和统计功效估计; 已测量对象; 实验布局. 输出数据: 筛选设计和统计功效估计. Experiment Design 到 Power / Design：根据实验布局定义采样假设，然后修订设计。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design"
+          ],
+          "speech_text": "从 主页 打开 Power / Design。 根据选定的效应大小和变异性估计采样需求；预实验测量可作为假设的可选依据。 输入数据: 筛选设计和统计功效估计; 已测量对象; 实验布局. 输出数据: 筛选设计和统计功效估计. Experiment Design 到 Power / Design：根据实验布局定义采样假设，然后修订设计。"
+        },
+        {
+          "visual": "module_run_compare",
+          "narration": "从 Home 打开 Run Compare。 比较兼容的已保存设置、计数和命中列表；输入数据发生变化时，不应将比较视为受控的模型比较。 输入数据: 运行历史和产物; 回归结果和命中项. 输出数据: 运行与模型比较. 运行与模型比较: 由兼容的已保存运行或掩膜生成的比较表和图形；一致性不等于相对于真实标签的准确率。 Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "50_run_compare"
+          ],
+          "speech_text": "从 主页 打开 Run Compare。 比较兼容的已保存设置、计数和命中列表；输入数据发生变化时，不应将比较视为受控的模型比较。 输入数据: 运行历史和产物; 回归结果和命中项. 输出数据: 运行与模型比较. 运行与模型比较: 由兼容的已保存运行或掩膜生成的比较表和图形；一致性不等于相对于真实标签的准确率。 Regression 到 Run Compare：比较兼容的已保存结果集及其设置。"
+        },
+        {
+          "visual": "module_tabulate",
+          "narration": "通过 Help 搜索打开 Database Browser，然后选择 Tabulate。 选择分组变量和测量列，然后检查透视表及各组样本量。 输入数据: 已测量对象. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "61_tabulate"
+          ],
+          "speech_text": "通过 Help 搜索打开 Database Browser，然后选择 Tabulate。 选择分组变量和测量列，然后检查透视表及各组样本量。 输入数据: 已测量对象. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_dose_response",
+          "narration": "从 Home 打开 Dose–Response。 曲线拟合前提供剂量列、响应列、对照和单位；此路径不需要测序。 输入数据: 已测量对象; 实验布局. 输出数据: 实验分析结果; 图形和表格导出. 实验分析结果: 配置的输出目录中的实验专用结果表和图形，保留孔和条件标识。 Experiment Design 到 Dose–Response：先采集并测量实验数据，保留剂量和条件标识。 Measure 到 Dose–Response：将实测响应与明确的剂量及对照关联。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "67_experiment_design",
+            "69_dose_response"
+          ],
+          "speech_text": "从 主页 打开 Dose–Response。 曲线拟合前提供剂量列、响应列、对照和单位；此路径不需要测序。 输入数据: 已测量对象; 实验布局. 输出数据: 实验分析结果; 图形和表格导出. 实验分析结果: 配置的输出目录中的实验专用结果表和图形，保留孔和条件标识。 Experiment Design 到 Dose–Response：先采集并测量实验数据，保留剂量和条件标识。 Measure 到 Dose–Response：将实测响应与明确的剂量及对照关联。"
+        },
+        {
+          "visual": "module_project_browser",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Project Browser。 定位项目并检查其阶段、最近一次运行、磁盘使用量和过期输出。 输入数据: 运行历史和产物. 输出数据: 运行历史和产物.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "45_project_browser"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Project Browser。 定位项目并检查其阶段、最近一次运行、磁盘使用量和过期输出。 输入数据: 运行历史和产物. 输出数据: 运行历史和产物."
+        },
+        {
+          "visual": "module_outliers",
+          "narration": "从 Home 打开 QC，然后选择 Outliers。 将过滤后的数据用于分析前，检查对象和孔的稳健异常值评分以及所选排除规则。 输入数据: 已测量对象. 输出数据: 质量控制结果; 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "66_outliers"
+          ],
+          "speech_text": "从 主页 打开 QC，然后选择 Outliers。 将过滤后的数据用于分析前，检查对象和孔的稳健异常值评分以及所选排除规则。 输入数据: 已测量对象. 输出数据: 质量控制结果; 图形和表格导出."
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "从 Home 打开 Embeddings。 使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 图像嵌入. 图像嵌入: 按对象索引的编码器特征，附带通道策略和编码器来源信息。编码 API 返回特征；是否持久保存取决于调用方。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "77_embeddings"
+          ],
+          "speech_text": "从 主页 打开 Embeddings。 使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 图像嵌入. 图像嵌入: 按对象索引的编码器特征，附带通道策略和编码器来源信息。编码 API 返回特征；是否持久保存取决于调用方。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Embeddings 到 Image 优麦普：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。"
+        },
+        {
+          "visual": "module_control_chart",
+          "narration": "从 Home 打开 QC，然后选择 Control Charts。 跨孔板比较指定对照并检查漂移；对照的定义来自实验设计。 输入数据: 已测量对象; 实验布局. 输出数据: 质量控制结果; 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "51_control_charts"
+          ],
+          "speech_text": "从 主页 打开 QC，然后选择 Control Charts。 跨孔板比较指定对照并检查漂移；对照的定义来自实验设计。 输入数据: 已测量对象; 实验布局. 输出数据: 质量控制结果; 图形和表格导出."
+        },
+        {
+          "visual": "module_train_compare",
+          "narration": "从 Home 打开 Classify，然后选择 Training Runs。 比较兼容模型运行中保存的训练历史、指标和设置。 输入数据: 运行历史和产物. 输出数据: 运行与模型比较.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "28_training_runs"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Training Runs。 比较兼容模型运行中保存的训练历史、指标和设置。 输入数据: 运行历史和产物. 输出数据: 运行与模型比较."
+        },
+        {
+          "visual": "module_align",
+          "narration": "从 Home 打开 Align & Stitch。 检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。 输入数据: 显微镜图像. 输出数据: 对齐后的拼接图像和坐标. 对齐后的拼接图像和坐标: Align & Stitch 的输出目录：拼接图像，以及解释该图像所需的图块坐标和布局记录。 Align & Stitch 到 OPS：将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch",
+            "76_ops"
+          ],
+          "speech_text": "从 主页 打开 Align & Stitch。 检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。 输入数据: 显微镜图像. 输出数据: 对齐后的拼接图像和坐标. 对齐后的拼接图像和坐标: Align & Stitch 的输出目录：拼接图像，以及解释该图像所需的图块坐标和布局记录。 Align & Stitch 到 OPS：将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。"
+        },
+        {
+          "visual": "module_make_masks",
+          "narration": "从 Home 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 整理后的训练视野; 标签掩膜. 整理后的训练视野: 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。 Make Masks 到 Cellpose Workbench：使用经过独立核查的图像与掩膜对。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "14_make_masks",
+            "19_train_cellpose",
+            "24_plaque"
+          ],
+          "speech_text": "从 主页 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 整理后的训练视野; 标签掩膜. 整理后的训练视野: 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。 Make Masks 到 塞尔波斯 Workbench：使用经过独立核查的图像与掩膜对。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+        },
+        {
+          "visual": "module_plate_view",
+          "narration": "从 Home 打开 Graph Builder，然后选择 Plate Viewer。 按孔汇总所选测量值，并检查孔板上的分布模式和对照。 输入数据: 已测量对象; 实验布局. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "从 主页 打开 Graph Builder，然后选择 Plate Viewer。 按孔汇总所选测量值，并检查孔板上的分布模式和对照。 输入数据: 已测量对象; 实验布局. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_umap",
+          "narration": "从 Home 打开 Image UMAP。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类; 训练标注. 投影和聚类: 已加载测量数据的 Image UMAP/PCA 坐标表、所选聚类和图形。 Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Image UMAP 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor",
+            "77_embeddings"
+          ],
+          "speech_text": "从 主页 打开 Image 优麦普。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类; 训练标注. 投影和聚类: 已加载测量数据的 Image 优麦普/PCA 坐标表、所选聚类和图形。 Measure 到 Image 优麦普：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image 优麦普：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image 优麦普 到 门控编辑器：定义选择范围时，提供匹配的坐标列或特征列。 Image 优麦普 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。"
+        },
+        {
+          "visual": "module_profiler",
+          "narration": "从 Home 打开 Regression，然后选择 Prediction Profiler。 检查输入特征变化时已拟合模型的响应；预测不能证明因果效应。 输入数据: 已拟合的特征分类器. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "53_prediction_profiler"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Prediction Profiler。 检查输入特征变化时已拟合模型的响应；预测不能证明因果效应。 输入数据: 已拟合的特征分类器. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_graph_builder",
+          "narration": "从 Home 打开 Graph Builder。 从已加载的表中选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 输入数据: 已测量对象. 输出数据: 图形和表格导出. Measure 到 Graph Builder：明确选择变量、分组和过滤条件。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "58_graph_builder"
+          ],
+          "speech_text": "从 主页 打开 Graph Builder。 从已加载的表中选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 输入数据: 已测量对象. 输出数据: 图形和表格导出. Measure 到 Graph Builder：明确选择变量、分组和过滤条件。"
+        },
+        {
+          "visual": "module_investigate_hit",
+          "narration": "从 Home 打开 Regression，然后选择 Investigate Hit。 将回归命中结果与候选对象及孔级定量证据关联。这本身并不能独立验证该命中结果。 输入数据: 回归结果和命中项; 对象分类评分; 已测量对象. 输出数据: 图形和表格导出. Regression 到 Investigate Hit：为所选命中结果关联兼容的表型数据和对象数据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Investigate Hit。 将回归命中结果与候选对象及孔级定量证据关联。这本身并不能独立验证该命中结果。 输入数据: 回归结果和命中项; 对象分类评分; 已测量对象. 输出数据: 图形和表格导出. Regression 到 Investigate Hit：为所选命中结果关联兼容的表型数据和对象数据。"
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控; 训练标注. Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Gate Editor 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "从 主页 打开 门控编辑器。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控; 训练标注. Image 优麦普 到 门控编辑器：定义选择范围时，提供匹配的坐标列或特征列。 门控编辑器 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 门控编辑器：使用实际实测特征的定义和单位。 门控编辑器 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。"
+        },
+        {
+          "visual": "module_feature_dict",
+          "narration": "在应用程序的 Help 或工具菜单中查找 Feature Dictionary。 选择测量列前，查阅特征定义和单位。 输入数据: 特征定义. 特征定义: 已安装的特征字典；定义用于描述已有测量值，并不计算这些测量值。 输出数据: 特征定义.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "62_feature_dictionary"
+          ],
+          "speech_text": "在应用程序的 Help 或工具菜单中查找 Feature Dictionary。 选择测量列前，查阅特征定义和单位。 输入数据: 特征定义. 特征定义: 已安装的特征字典；定义用于描述已有测量值，并不计算这些测量值。 输出数据: 特征定义."
+        },
+        {
+          "visual": "module_trellis",
+          "narration": "从 Home 打开 Graph Builder，然后选择 Small Multiples。 使用明确共享或独立坐标轴的分面图比较各组。 输入数据: 已测量对象. 输出数据: 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "63_small_multiples"
+          ],
+          "speech_text": "从 主页 打开 Graph Builder，然后选择 Small Multiples。 使用明确共享或独立坐标轴的分面图比较各组。 输入数据: 已测量对象. 输出数据: 图形和表格导出."
+        },
+        {
+          "visual": "module_analyze_plaques",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 实验分析结果; 标签掩膜. Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks",
+            "24_plaque"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 实验分析结果; 标签掩膜. Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+        },
+        {
+          "visual": "module_recruitment",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Recruitment。 使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Recruitment：需要目标区室的强度测量值和标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "25_recruitment"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Recruitment。 使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Recruitment：需要目标区室的强度测量值和标识。"
+        },
+        {
+          "visual": "module_host_pathogen",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Host–Pathogen Analysis。 测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Host–Pathogen Analysis。 测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。"
+        },
+        {
+          "visual": "module_invasion",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Invasion Assay。 使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "26_invasion"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Invasion Assay。 使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。"
+        },
+        {
+          "visual": "module_replication",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Replication Assay。 使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "27_replication"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Replication Assay。 使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。"
+        },
+        {
+          "visual": "module_train_cellpose",
+          "narration": "从 Home 打开 Make Masks，然后选择 Cellpose Workbench。 在 Make Masks 中打开 Cellpose Workbench，并使用核查过的图像与掩膜对训练。在 Mask 中选择检查点前，先在独立视野上评估。 输入数据: 整理后的训练视野. 输出数据: 分割检查点. Make Masks 到 Cellpose Workbench：使用经过独立核查的图像与掩膜对。 Cellpose Workbench 到 Mask：在 Mask 中选择已保存的兼容检查点。 Cellpose Workbench 到 Direct Cellpose mask generation：将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "14_make_masks",
+            "19_train_cellpose"
+          ],
+          "speech_text": "从 主页 打开 Make Masks，然后选择 塞尔波斯 Workbench。 在 Make Masks 中打开 塞尔波斯 Workbench，并使用核查过的图像与掩膜对训练。在 Mask 中选择检查点前，先在独立视野上评估。 输入数据: 整理后的训练视野. 输出数据: 分割检查点. Make Masks 到 塞尔波斯 Workbench：使用经过独立核查的图像与掩膜对。 塞尔波斯 Workbench 到 Mask：在 Mask 中选择已保存的兼容检查点。 塞尔波斯 Workbench 到 Direct 塞尔波斯 mask generation：将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。"
+        },
+        {
+          "visual": "module_cellpose_all",
+          "narration": "从 Home 打开 Make Masks，然后选择 Mask the whole folder。 通过 Make Masks 将所选分割模型应用于已打开的图像文件夹；测量前检查保存的标签。 输入数据: 显微镜图像; 分割检查点. 输出数据: 标签掩膜.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "speech_text": "从 主页 打开 Make Masks，然后选择 Mask the whole folder。 通过 Make Masks 将所选分割模型应用于已打开的图像文件夹；测量前检查保存的标签。 输入数据: 显微镜图像; 分割检查点. 输出数据: 标签掩膜."
+        },
+        {
+          "visual": "module_model_compare",
+          "narration": "从 Home 打开 Make Masks，然后选择 Model Compare。 在相同视野上比较模型掩膜。没有独立参考标签时，一致性不能衡量分割准确率。 输入数据: 显微镜图像; 标签掩膜; 分割检查点. 输出数据: 运行与模型比较.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "21_model_compare"
+          ],
+          "speech_text": "从 主页 打开 Make Masks，然后选择 Model Compare。 在相同视野上比较模型掩膜。没有独立参考标签时，一致性不能衡量分割准确率。 输入数据: 显微镜图像; 标签掩膜; 分割检查点. 输出数据: 运行与模型比较."
+        },
+        {
+          "visual": "module_model_zoo",
+          "narration": "从 Home 打开 Make Masks，然后选择 Model Zoo。 检查模型来源并下载或安装兼容的检查点或后端。列出的后端本身并不是检查点文件。 输入数据: 分割检查点. 输出数据: 分割检查点.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "22_model_zoo"
+          ],
+          "speech_text": "从 主页 打开 Make Masks，然后选择 Model Zoo。 检查模型来源并下载或安装兼容的检查点或后端。列出的后端本身并不是检查点文件。 输入数据: 分割检查点. 输出数据: 分割检查点."
+        },
+        {
+          "visual": "module_curate",
+          "narration": "从 Home 打开 Make Masks，然后选择 Curate。 修正标签和轨迹分配，同时保留编辑记录。 输入数据: 显微镜图像; 标签掩膜; 已关联的时间序列对象. 已关联的时间序列对象: 时间序列项目中的跟踪标签及帧与对象关联，附带帧间隔和单位。 输出数据: 标签掩膜; 已关联的时间序列对象.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "42_curate"
+          ],
+          "speech_text": "从 主页 打开 Make Masks，然后选择 Curate。 修正标签和轨迹分配，同时保留编辑记录。 输入数据: 显微镜图像; 标签掩膜; 已关联的时间序列对象. 已关联的时间序列对象: 时间序列项目中的跟踪标签及帧与对象关联，附带帧间隔和单位。 输出数据: 标签掩膜; 已关联的时间序列对象."
+        },
+        {
+          "visual": "module_napari_bridge",
+          "narration": "从 Home 打开 Make Masks，然后选择 Napari Bridge。 将匹配的图像和标签发送到 napari，再导回修改后的标签，同时保留视野标识。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 标签掩膜.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "46_napari_bridge"
+          ],
+          "speech_text": "从 主页 打开 Make Masks，然后选择 Napari Bridge。 将匹配的图像和标签发送到 napari，再导回修改后的标签，同时保留视野标识。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 标签掩膜."
+        },
+        {
+          "visual": "module_import_images",
+          "narration": "从 Home 打开 Import，然后选择 Import Images。 写入独立项目前，核查视野标识、图像通道和可选的外部掩膜。仅导入图像时，测量前仍需分割。 输入数据: 显微镜图像. 输出数据: 显微镜图像; 图像和标签掩膜; 标签掩膜. Import Images 到 Mask：使用导入的图像平面和标识；仅导入图像时仍需分割。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "74_import_images"
+          ],
+          "speech_text": "从 主页 打开 Import，然后选择 Import Images。 写入独立项目前，核查视野标识、图像通道和可选的外部掩膜。仅导入图像时，测量前仍需分割。 输入数据: 显微镜图像. 输出数据: 显微镜图像; 图像和标签掩膜; 标签掩膜. Import Images 到 Mask：使用导入的图像平面和标识；仅导入图像时仍需分割。"
+        },
+        {
+          "visual": "module_barcode_qc",
+          "narration": "从 Home 打开 Map Barcodes，然后选择 Barcode QC。 过滤向导计数前，检查映射深度、覆盖度、冲突和位置效应。 输入数据: 各孔的向导计数. 输出数据: 质量控制结果; 图形和表格导出. Map Barcodes 到 Barcode QC：过滤向导计数前检查映射情况和覆盖度。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "47_barcode_qc"
+          ],
+          "speech_text": "从 主页 打开 Map Barcodes，然后选择 Barcode QC。 过滤向导计数前，检查映射深度、覆盖度、冲突和位置效应。 输入数据: 各孔的向导计数. 输出数据: 质量控制结果; 图形和表格导出. Map Barcodes 到 Barcode QC：过滤向导计数前检查映射情况和覆盖度。"
+        },
+        {
+          "visual": "module_image_scatter",
+          "narration": "从 Home 打开 Image UMAP，然后选择 Image Scatter。 绘制所选测量列，并结合对象裁剪图像进行检查。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 投影和聚类; 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "55_image_scatter"
+          ],
+          "speech_text": "从 主页 打开 Image 优麦普，然后选择 Image Scatter。 绘制所选测量列，并结合对象裁剪图像进行检查。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 投影和聚类; 图形和表格导出."
+        },
+        {
+          "visual": "module_pca",
+          "narration": "从 Home 打开 Image UMAP，然后选择 PCA。 检查所选已测量对象的主成分和特征载荷。 输入数据: 已测量对象. 输出数据: 投影和聚类; 图形和表格导出.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "60_pca"
+          ],
+          "speech_text": "从 主页 打开 Image 优麦普，然后选择 PCA。 检查所选已测量对象的主成分和特征载荷。 输入数据: 已测量对象. 输出数据: 投影和聚类; 图形和表格导出."
+        },
+        {
+          "visual": "module_volcano_explorer",
+          "narration": "从 Home 打开 Regression，然后选择 Volcano Explorer。 打开已保存的回归结果，检查效应大小、经校正的显著性和各项命中记录。 输入数据: 回归结果和命中项. 输出数据: 图形和表格导出. Regression 到 Volcano Explorer：检查保存的效应和经校正的显著性。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "72_volcano_explorer"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Volcano Explorer。 打开已保存的回归结果，检查效应大小、经校正的显著性和各项命中记录。 输入数据: 回归结果和命中项. 输出数据: 图形和表格导出. Regression 到 Volcano Explorer：检查保存的效应和经校正的显著性。"
+        },
+        {
+          "visual": "module_hit_list",
+          "narration": "从 Home 打开 Regression，然后选择 Hit List。 根据效应、FDR 和向导间一致性过滤并排序已保存的命中结果。 输入数据: 回归结果和命中项. 输出数据: 图形和表格导出. Regression 到 Hit List：检查排序后的命中结果和向导间一致性。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Hit List。 根据效应、FDR 和向导间一致性过滤并排序已保存的命中结果。 输入数据: 回归结果和命中项. 输出数据: 图形和表格导出. Regression 到 Hit List：检查排序后的命中结果和向导间一致性。"
+        },
+        {
+          "visual": "module_methods_export",
+          "narration": "从 Home 打开 Regression，然后选择 Methods & Results。 根据记录的设置和结果起草方法与结果文本；发表前核查每项论断。 输入数据: 运行历史和产物; 回归结果和命中项. 输出数据: 可分享报告. Regression 到 Methods & Results：审核导出的文字和每项可追溯结果。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "49_methods_results"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Methods & Results。 根据记录的设置和结果起草方法与结果文本；发表前核查每项论断。 输入数据: 运行历史和产物; 回归结果和命中项. 输出数据: 可分享报告. Regression 到 Methods & Results：审核导出的文字和每项可追溯结果。"
+        },
+        {
+          "visual": "module_regression_diagnostics",
+          "narration": "从 Home 打开 Regression，然后选择 Diagnostics。 检查所选回归运行保存的诊断面板；区分缺少诊断与假设已通过检查。 输入数据: 回归结果和命中项. 输出数据: 质量控制结果; 图形和表格导出. Regression 到 Diagnostics：打开本次运行实际写出的诊断结果。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "75_regression_diagnostics"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Diagnostics。 检查所选回归运行保存的诊断面板；区分缺少诊断与假设已通过检查。 输入数据: 回归结果和命中项. 输出数据: 质量控制结果; 图形和表格导出. Regression 到 Diagnostics：打开本次运行实际写出的诊断结果。"
+        },
+        {
+          "visual": "module_illumination",
+          "narration": "从 Home 打开 Measure，然后选择 Illumination。 在配置的阶段估计并应用平场校正。区分校正后的显示值与原始测量值，并记录所用策略。 输入数据: 显微镜图像. 输出数据: 显微镜图像.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ],
+          "speech_text": "从 主页 打开 Measure，然后选择 Illumination。 在配置的阶段估计并应用平场校正。区分校正后的显示值与原始测量值，并记录所用策略。 输入数据: 显微镜图像. 输出数据: 显微镜图像."
+        },
+        {
+          "visual": "module_anndata_export",
+          "narration": "从 Home 打开 Measure，然后选择 AnnData Export。 导出包含对象元数据和实测特征的 AnnData .h5ad 文件，用于后续单细胞分析。 输入数据: 已测量对象. 输出数据: AnnData 导出. AnnData 导出: 导出的 .h5ad 文件，包含实测特征和对象元数据。 Measure 到 AnnData Export：导出兼容的特征列和元数据列。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "59_anndata_export"
+          ],
+          "speech_text": "从 主页 打开 Measure，然后选择 AnnData Export。 导出包含对象元数据和实测特征的 AnnData .h5ad 文件，用于后续单细胞分析。 输入数据: 已测量对象. 输出数据: AnnData 导出. AnnData 导出: 导出的 .h5ad 文件，包含实测特征和对象元数据。 Measure 到 AnnData Export：导出兼容的特征列和元数据列。"
+        },
+        {
+          "visual": "module_motility",
+          "narration": "从 Home 打开 Measure，然后选择 Motility Assay。 结合明确的帧间隔和像素标定，检查轨迹速度及感染相关测量值。 输入数据: 已关联的时间序列对象; 已测量对象. 输出数据: 实验分析结果; 图形和表格导出. Timelapse 到 Motility Assay：提供帧间隔和像素标定。 Measure 到 Motility Assay：将已测量对象与匹配的轨迹关联。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "17_timelapse",
+            "18_motility"
+          ],
+          "speech_text": "从 主页 打开 Measure，然后选择 Motility Assay。 结合明确的帧间隔和像素标定，检查轨迹速度及感染相关测量值。 输入数据: 已关联的时间序列对象; 已测量对象. 输出数据: 实验分析结果; 图形和表格导出. Timelapse 到 Motility Assay：提供帧间隔和像素标定。 Measure 到 Motility Assay：将已测量对象与匹配的轨迹关联。"
+        },
+        {
+          "visual": "module_timelapse",
+          "narration": "从 Home 打开 Mask，然后选择 Timelapse。 在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。 输入数据: 显微镜图像. 输出数据: 图像和标签掩膜; 标签掩膜; 已关联的时间序列对象. Mask 到 Timelapse：生成关联标签前，启用嵌套的时间序列路径。 Timelapse 到 Measure：使用具有稳定帧和对象标识的时间序列项目。 Timelapse 到 Motility Assay：提供帧间隔和像素标定。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "17_timelapse",
+            "18_motility"
+          ],
+          "speech_text": "从 主页 打开 Mask，然后选择 Timelapse。 在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。 输入数据: 显微镜图像. 输出数据: 图像和标签掩膜; 标签掩膜; 已关联的时间序列对象. Mask 到 Timelapse：生成关联标签前，启用嵌套的时间序列路径。 Timelapse 到 Measure：使用具有稳定帧和对象标识的时间序列项目。 Timelapse 到 Motility Assay：提供帧间隔和像素标定。"
+        },
+        {
+          "visual": "module_ops",
+          "narration": "从 Home 打开 Mask，然后选择 OPS。 使用测序轮次图像和表型对齐，为每个细胞核解码条形码。在 Regression 前，将解码标识汇总或关联到兼容的表型输入；OPS 数据库不能直接替代 FASTQ 计数 CSV。 输入数据: 显微镜图像; 对齐后的拼接图像和坐标. 输出数据: 光学条形码分配结果. Align & Stitch 到 OPS：将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。 OPS 到 Regression：在 Regression 前，将解码对象与表型和向导输入明确关联或汇总；这不是直接传递 CSV 文件。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "32_align_stitch",
+            "76_ops"
+          ],
+          "speech_text": "从 主页 打开 Mask，然后选择 OPS。 使用测序轮次图像和表型对齐，为每个细胞核解码条形码。在 Regression 前，将解码标识汇总或关联到兼容的表型输入；OPS 数据库不能直接替代 FASTQ 计数 CSV。 输入数据: 显微镜图像; 对齐后的拼接图像和坐标. 输出数据: 光学条形码分配结果. Align & Stitch 到 OPS：将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。 OPS 到 Regression：在 Regression 前，将解码对象与表型和向导输入明确关联或汇总；这不是直接传递 CSV 文件。"
+        },
+        {
+          "visual": "module_classifier_evaluation",
+          "narration": "从 Home 打开 Classify，然后选择 Classifier Evaluation。 检查匹配分类器的留出集预测、校准以及数据划分和泄漏证据。 输入数据: 分类器评估文件集. 输出数据: 质量控制结果; 图形和表格导出. Classify 到 Classifier Evaluation：使用匹配的留出集预测和数据划分元数据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "41_classify"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Classifier Evaluation。 检查匹配分类器的留出集预测、校准以及数据划分和泄漏证据。 输入数据: 分类器评估文件集. 输出数据: 质量控制结果; 图形和表格导出. Classify 到 Classifier Evaluation：使用匹配的留出集预测和数据划分元数据。"
+        },
+        {
+          "visual": "module_explain_cv",
+          "narration": "从 Home 打开 Classify，然后选择 Explain CV Model。 用实测特征拟合现有计算机视觉评分的代理模型，并保留标识关联。代理模型的解释不代表因果关系。 输入数据: 已测量对象; 对象分类评分. 输出数据: 已拟合的特征分类器; 图形和表格导出. Classify 到 Explain CV Model：选择 CV 预测及匹配的已测量对象。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "70_explain_cv"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Explain CV Model。 用实测特征拟合现有计算机视觉评分的代理模型，并保留标识关联。代理模型的解释不代表因果关系。 输入数据: 已测量对象; 对象分类评分. 输出数据: 已拟合的特征分类器; 图形和表格导出. Classify 到 Explain CV Model：选择 CV 预测及匹配的已测量对象。"
+        },
+        {
+          "visual": "module_activation",
+          "narration": "从 Home 打开 Classify，然后选择 Activation。 使用匹配的图像分类器和预处理配置，检查显著性图或模型响应图。 输入数据: 已训练的图像分类器; 对象裁剪图. 输出数据: 图像归因图. 图像归因图: 为匹配的分类器和输入预处理保存的模型响应图或显著性图。 Classify 到 Activation：同时提供匹配的裁剪图像及通道预处理配置。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "16_activation",
+            "41_classify"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Activation。 使用匹配的图像分类器和预处理配置，检查显著性图或模型响应图。 输入数据: 已训练的图像分类器; 对象裁剪图. 输出数据: 图像归因图. 图像归因图: 为匹配的分类器和输入预处理保存的模型响应图或显著性图。 Classify 到 Activation：同时提供匹配的裁剪图像及通道预处理配置。"
+        },
+        {
+          "visual": "module_agreement",
+          "narration": "从 Home 打开 Annotate，然后选择 Annotator Agreement。 比较独立标注列并检查不一致的对象；一致性与分类准确率是不同概念。 输入数据: 训练标注; 对象裁剪图. 输出数据: 质量控制结果; 图形和表格导出. Annotate 到 Annotator Agreement：为同一批对象选择相互独立的标注列。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "09_annotate",
+            "23_agreement"
+          ],
+          "speech_text": "从 主页 打开 Annotate，然后选择 Annotator Agreement。 比较独立标注列并检查不一致的对象；一致性与分类准确率是不同概念。 输入数据: 训练标注; 对象裁剪图. 输出数据: 质量控制结果; 图形和表格导出. Annotate 到 Annotator Agreement：为同一批对象选择相互独立的标注列。"
+        },
+        {
+          "visual": "module_classify",
+          "narration": "从 Home 打开 Classify，然后选择 Computer Vision。 根据带标签的对象裁剪图像、归档文件或受支持的流式裁剪图像训练图像分类器。应用其检查点时，应匹配通道和预处理配置。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 分类器评估文件集.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "10_classify_cv"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Computer Vision。 根据带标签的对象裁剪图像、归档文件或受支持的流式裁剪图像训练图像分类器。应用其检查点时，应匹配通道和预处理配置。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 分类器评估文件集."
+        },
+        {
+          "visual": "module_ml_analyze",
+          "narration": "从 Home 打开 Classify，然后选择 Tabular Machine Learning。 根据已测量对象和标签训练基于特征的分类器。使用评分前，检查因缺失特征而被排除的对象，以及按组留出评估的性能。 输入数据: 已测量对象; 训练标注. 输出数据: 对象分类评分; 已拟合的特征分类器; 分类器评估文件集.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "speech_text": "从 主页 打开 Classify，然后选择 Tabular Machine Learning。 根据已测量对象和标签训练基于特征的分类器。使用评分前，检查因缺失特征而被排除的对象，以及按组留出评估的性能。 输入数据: 已测量对象; 训练标注. 输出数据: 对象分类评分; 已拟合的特征分类器; 分类器评估文件集."
+        },
+        {
+          "visual": "module_parameter_sweep",
+          "narration": "从 Home 打开 Regression，然后选择 Parameter Sweep。 运行明确选定的回归设置并比较其诊断。保持输入数据和评估问题不变。 输入数据: 对象分类评分; 各孔的向导计数. 输出数据: 运行与模型比较; 回归结果和命中项.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "73_parameter_sweep"
+          ],
+          "speech_text": "从 主页 打开 Regression，然后选择 Parameter Sweep。 运行明确选定的回归设置并比较其诊断。保持输入数据和评估问题不变。 输入数据: 对象分类评分; 各孔的向导计数. 输出数据: 运行与模型比较; 回归结果和命中项."
+        },
+        {
+          "visual": "module_toxoplasma",
+          "narration": "从 Home 打开 Toxoplasma。 从 Home 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Invasion Assay 或 Replication Assay。四个标记为即将推出的入口描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。 输入数据: 内置生物体参考资料. 内置生物体参考资料: 已安装的生物体描述和 SwissBioPics 细胞示意图；无需项目输入。 输出数据: 生物体指南和实验分析选择. 生物体指南和实验分析选择: 仅在 GUI 中显示的区室高亮及可用实验分析的导航；不会生成测量值或文件。",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "从 主页 打开 Toxoplasma。 从 主页 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Invasion Assay 或 Replication Assay。四个标记为即将推出的入口描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。 输入数据: 内置生物体参考资料. 内置生物体参考资料: 已安装的生物体描述和 SwissBioPics 细胞示意图；无需项目输入。 输出数据: 生物体指南和实验分析选择. 生物体指南和实验分析选择: 仅在 GUI 中显示的区室高亮及可用实验分析的导航；不会生成测量值或文件。"
+        },
+        {
+          "visual": "module_plasmodium",
+          "narration": "从 Home 打开 Plasmodium spp.。 从 Home 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 输入数据: 内置生物体参考资料. 输出数据: 生物体指南和实验分析选择.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "从 主页 打开 Plasmodium spp.。 从 主页 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 输入数据: 内置生物体参考资料. 输出数据: 生物体指南和实验分析选择."
+        },
+        {
+          "visual": "module_candida",
+          "narration": "从 Home 打开 Candida spp.。 从 Home 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 输入数据: 内置生物体参考资料. 输出数据: 生物体指南和实验分析选择.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "从 主页 打开 Candida spp.。 从 主页 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 输入数据: 内置生物体参考资料. 输出数据: 生物体指南和实验分析选择."
+        },
+        {
+          "visual": "module_endodyogeny",
+          "narration": "在 Python 中通过 spacr.submodules.analyze_endodyogeny 使用 Endodyogeny size proxy。这条仅限 API 的工作流程没有 Home 入口或菜单项。 读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。 输入数据: 按宿主细胞汇总的区室面积. 按宿主细胞汇总的区室面积: 每个 src 项目根目录下的 measurements/measurements.db；tables 默认为 cell、nucleus、pathogen 和 cytoplasm，并加入 png_list 用于合并。compartment 设置选择面积列；默认按宿主细胞汇总 pathogen_area。 相关表取决于所选路径：cell, nucleus, pathogen, cytoplasm, png_list。 相关列取决于所选路径：cell_id, pathogen_area。 输出数据: 由面积推算的大小代理指标结果. 由面积推算的大小代理指标结果: 返回 data 和 chi_squared DataFrames；save=True 还会在第一个项目根目录的 results/analyze_endodyogeny/ 下写出 data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv 和图形。 相关列取决于所选路径：pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "在 Python 中通过 斯佩克尔.submodules.analyze_endodyogeny 使用 Endodyogeny size proxy。这条仅限 API 的工作流程没有 主页 入口或菜单项。 读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。 输入数据: 按宿主细胞汇总的区室面积. 按宿主细胞汇总的区室面积: 每个 src 项目根目录下的 measurements/测量数据库文件；tables 默认为 cell、nucleus、pathogen 和 cytoplasm，并加入 png_list 用于合并。compartment 设置选择面积列；默认按宿主细胞汇总 pathogen_area。 相关表取决于所选路径：cell, nucleus, pathogen, cytoplasm, png_list。 相关列取决于所选路径：cell_id, pathogen_area。 输出数据: 由面积推算的大小代理指标结果. 由面积推算的大小代理指标结果: 返回 data 和 chi_squared DataFrames；save=True 还会在第一个项目根目录的 results/analyze_endodyogeny/ 下写出 data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv 和图形。 相关列取决于所选路径：pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。"
+        },
+        {
+          "visual": "module_cellpose_masks",
+          "narration": "在 Python 中通过 spacr.spacr_cellpose.identify_masks_finetune 使用 Direct Cellpose mask generation。这条仅限 API 的工作流程没有 Home 入口或菜单项。 通过 Python API，在 TIFF 视野上运行标准或自定义 Cellpose 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。 输入数据: 用于直接 Cellpose 推理的 TIFF 视野; 分割检查点. 用于直接 Cellpose 推理的 TIFF 视野: src 顶层中扩展名为小写 .tif 的文件；跳过 src/masks 中已存在同名文件的图像。提供配置的通道及兼容的标准 model_name 或 custom_model 检查点。 输出数据: 直接生成的 Cellpose TIFF 掩膜. 直接生成的 Cellpose TIFF 掩膜: 当 save=True 时，src/masks/<image-name>.tif 包含整数标签。调用返回 None，不会生成合并数组或 measurements.db。 Cellpose Workbench 到 Direct Cellpose mask generation：将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。 Direct Cellpose mask generation 到 External Masks：向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "19_train_cellpose",
+            "31_external_masks"
+          ],
+          "speech_text": "在 Python 中通过 斯佩克尔.斯佩克尔_塞尔波斯.identify_masks_finetune 使用 Direct 塞尔波斯 mask generation。这条仅限 API 的工作流程没有 主页 入口或菜单项。 通过 Python API，在 TIFF 视野上运行标准或自定义 塞尔波斯 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。 输入数据: 用于直接 塞尔波斯 推理的 TIFF 视野; 分割检查点. 用于直接 塞尔波斯 推理的 TIFF 视野: src 顶层中扩展名为小写 .tif 的文件；跳过 src/masks 中已存在同名文件的图像。提供配置的通道及兼容的标准 model_name 或 custom_model 检查点。 输出数据: 直接生成的 塞尔波斯 TIFF 掩膜. 直接生成的 塞尔波斯 TIFF 掩膜: 当 save=True 时，src/masks/<image-name>.tif 包含整数标签。调用返回 None，不会生成合并数组或 测量数据库文件。 塞尔波斯 Workbench 到 Direct 塞尔波斯 mask generation：将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。 Direct 塞尔波斯 mask generation 到 External Masks：向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。"
+        },
+        {
+          "visual": "module_simulation",
+          "narration": "在 Python 中通过 spacr.sim.run_multiple_simulations 使用 Pooled-screen simulation sweep。这条仅限 API 的工作流程没有 Home 入口或菜单项。 使用 Python 扫描 API 探索明确陈述的筛选设计假设。它展开参数组合，在进程池中运行模拟，并写出合成汇总统计；返回值为 None。运行前设置明确且较小的 max_workers 值和有界参数网格。输出不能代替实验 Regression 所需的测量值或条形码计数。将结果作为规划依据，并记录其假设。选择规划假设时，检查合成摘要；手动将这些假设转入 Power / Design 或 Experiment Design。两个工具都不导入此模拟数据库，也不导出模拟设置网格。 输入数据: 混合筛选模拟假设. 混合筛选模拟假设: Python 设置字典：筛选规模、占据率、分类器准确率和测序假设的可迭代扫描值，以及 replicates、src、name、variable、plot 和 max_workers。generate_parameters 展开它们的笛卡尔积；请从小规模扫描和明确的工作进程上限开始。 输出数据: 合成筛选模拟摘要. 合成筛选模拟摘要: src/<YYMMDD>/<name>/simulations.db；扫描将汇总行追加到 simulations，并可选地写出图形。这些是合成的性能估计，并非实测实验命中结果。 相关表取决于所选路径：simulations。",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "在 Python 中通过 斯佩克尔.sim.run_multiple_simulations 使用 Pooled-screen simulation sweep。这条仅限 API 的工作流程没有 主页 入口或菜单项。 使用 Python 扫描 API 探索明确陈述的筛选设计假设。它展开参数组合，在进程池中运行模拟，并写出合成汇总统计；返回值为 None。运行前设置明确且较小的 max_workers 值和有界参数网格。输出不能代替实验 Regression 所需的测量值或条形码计数。将结果作为规划依据，并记录其假设。选择规划假设时，检查合成摘要；手动将这些假设转入 Power / Design 或 Experiment Design。两个工具都不导入此模拟数据库，也不导出模拟设置网格。 输入数据: 混合筛选模拟假设. 混合筛选模拟假设: Python 设置字典：筛选规模、占据率、分类器准确率和测序假设的可迭代扫描值，以及 replicates、src、name、variable、plot 和 max_workers。generate_parameters 展开它们的笛卡尔积；请从小规模扫描和明确的工作进程上限开始。 输出数据: 合成筛选模拟摘要. 合成筛选模拟摘要: src/<YYMMDD>/<name>/simulations.db；扫描将汇总行追加到 simulations，并可选地写出图形。这些是合成的性能估计，并非实测实验命中结果。 相关表取决于所选路径：simulations。"
+        },
+        {
+          "visual": "home_summary",
+          "narration": "返回与下一项数据产物对应的章节，避免重复已完成的工作。计数表不是实测特征表，投影不是训练好的分类器，比较也不是新实验。链接的 API 页面说明相同的文件、表和列约定，专门教程则演示各个控件。",
+          "hold_after": 0.7,
+          "speech_text": "返回与下一项数据产物对应的章节，避免重复已完成的工作。计数表不是实测特征表，投影不是训练好的分类器，比较也不是新实验。链接的 API 页面说明相同的文件、表和列约定，专门教程则演示各个控件。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "80_image_analysis_pathways",
+      "number": 80,
+      "slug": "image_analysis_pathways",
+      "title": "图像分析模块及其关系",
+      "series": 1,
+      "app_key": null,
+      "section": "工作流程",
+      "description": "选择一条图像分析路径，涵盖分割、测量、标注、分类、投影、门控、图像配准、质量控制和专项实验分析。",
+      "objectives": [
+        "根据已有数据选择起始模块。",
+        "明确每个模块读取和写入的内容。",
+        "下一步请参阅链接的模块教程和 API 输入输出约定。"
+      ],
+      "prerequisite": "安装 spaCR 并打开 Home。本教程说明导航和数据传递；链接的模块教程提供完整数据示例。输入和输出包含取决于条件的不同情况，各模块中均有说明。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "从 Home 开始，先确定已有的是原始图像、现有掩膜还是已测量对象。Mask 生成分割输出；Make Masks 用于整理单个视野；Measure 将兼容的图像和标签转换为对象测量值，并可生成裁剪图像。随后，根据科学问题选择分类、探索投影、定义门控或开展专项实验分析。需要共同坐标系的分析应先对齐图块。这里的路径是可选路线和分支，并不要求运行所有模块。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "从 主页 开始，先确定已有的是原始图像、现有掩膜还是已测量对象。Mask 生成分割输出；Make Masks 用于整理单个视野；Measure 将兼容的图像和标签转换为对象测量值，并可生成裁剪图像。随后，根据科学问题选择分类、探索投影、定义门控或开展专项实验分析。需要共同坐标系的分析应先对齐图块。这里的路径是可选路线和分支，并不要求运行所有模块。"
+        },
+        {
+          "visual": "module_mask",
+          "narration": "从 Home 打开 Mask。 选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。 输入数据: 显微镜图像; 分割检查点. 输出数据: 图像和标签掩膜; 标签掩膜; 对象计数. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ],
+          "speech_text": "从 主页 打开 Mask。 选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。 输入数据: 显微镜图像; 分割检查点. 输出数据: 图像和标签掩膜; 标签掩膜; 对象计数. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。"
+        },
+        {
+          "visual": "module_make_masks",
+          "narration": "从 Home 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 整理后的训练视野; 标签掩膜. Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "14_make_masks",
+            "24_plaque"
+          ],
+          "speech_text": "从 主页 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 整理后的训练视野; 标签掩膜. Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+        },
+        {
+          "visual": "module_measure",
+          "narration": "从 Home 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 输入数据: 图像和标签掩膜; 标签掩膜. 输出数据: 已测量对象; 对象裁剪图. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Measure 到 QC：检查可用的检查结果和缺失证据。 Measure 到 Recruitment：需要目标区室的强度测量值和标识。 Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。 Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "14_make_masks",
+            "15_image_umap",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication",
+            "41_classify",
+            "54_qc_dashboard",
+            "64_gate_editor",
+            "77_embeddings"
+          ],
+          "speech_text": "从 主页 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 输入数据: 图像和标签掩膜; 标签掩膜. 输出数据: 已测量对象; 对象裁剪图. Mask 到 Measure：使用同一项目及正确的图像和掩膜通道索引。 Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Measure 到 Classify：根据输入选择图像方法或表格方法。 Make Masks 到 Measure：使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Measure 到 Image 优麦普：选择特征列并检查有代表性的裁剪图像。 Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Measure 到 门控编辑器：使用实际实测特征的定义和单位。 Measure 到 QC：检查可用的检查结果和缺失证据。 Measure 到 Recruitment：需要目标区室的强度测量值和标识。 Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。 Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。 Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。"
+        },
+        {
+          "visual": "module_annotate",
+          "narration": "从 Home 打开 Annotate。 监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。 输入数据: 已测量对象; 对象裁剪图; 可复用门控. 输出数据: 训练标注. Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "从 主页 打开 Annotate。 监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。 输入数据: 已测量对象; 对象裁剪图; 可复用门控. 输出数据: 训练标注. Measure 到 Annotate：保存或流式读取裁剪图像，并保持对象标识稳定。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 门控编辑器 到 Annotate：应用兼容的门控规则，然后检查候选标签。"
+        },
+        {
+          "visual": "module_classify_merged",
+          "narration": "从 Home 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 Gate Editor 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。 Image UMAP 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "13_regression",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "从 主页 打开 Classify。 对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。 输入数据: 已测量对象; 对象裁剪图; 训练标注. 输出数据: 对象分类评分; 已训练的图像分类器; 已拟合的特征分类器; 分类器评估文件集. Measure 到 Classify：根据输入选择图像方法或表格方法。 Annotate 到 Classify：保持带标签的训练组和评估组相互独立。 Classify 到 Regression：选择目标 CV 或 ML 评分列，并保留孔板和孔标识。 门控编辑器 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。 Image 优麦普 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。"
+        },
+        {
+          "visual": "module_umap",
+          "narration": "从 Home 打开 Image UMAP。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类; 训练标注. Measure 到 Image UMAP：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Image UMAP 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor",
+            "77_embeddings"
+          ],
+          "speech_text": "从 主页 打开 Image 优麦普。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。 输入数据: 已测量对象; 对象裁剪图; 图像嵌入. 输出数据: 投影和聚类; 训练标注. Measure 到 Image 优麦普：选择特征列并检查有代表性的裁剪图像。 Embeddings 到 Image 优麦普：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 Image 优麦普 到 门控编辑器：定义选择范围时，提供匹配的坐标列或特征列。 Image 优麦普 到 Classify：将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。"
+        },
+        {
+          "visual": "module_gate_editor",
+          "narration": "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控; 训练标注. Image UMAP 到 Gate Editor：定义选择范围时，提供匹配的坐标列或特征列。 Gate Editor 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 Gate Editor：使用实际实测特征的定义和单位。 Gate Editor 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "09_annotate",
+            "15_image_umap",
+            "41_classify",
+            "64_gate_editor"
+          ],
+          "speech_text": "从 主页 打开 门控编辑器。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 输入数据: 已测量对象; 投影和聚类. 输出数据: 可复用门控; 训练标注. Image 优麦普 到 门控编辑器：定义选择范围时，提供匹配的坐标列或特征列。 门控编辑器 到 Annotate：应用兼容的门控规则，然后检查候选标签。 Measure 到 门控编辑器：使用实际实测特征的定义和单位。 门控编辑器 到 Classify：将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。"
+        },
+        {
+          "visual": "module_align",
+          "narration": "从 Home 打开 Align & Stitch。 检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。 输入数据: 显微镜图像. 输出数据: 对齐后的拼接图像和坐标.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ],
+          "speech_text": "从 主页 打开 Align & Stitch。 检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。 输入数据: 显微镜图像. 输出数据: 对齐后的拼接图像和坐标."
+        },
+        {
+          "visual": "module_analyze_plaques",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 实验分析结果; 标签掩膜. Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks",
+            "24_plaque"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 输入数据: 显微镜图像; 标签掩膜. 输出数据: 实验分析结果; 标签掩膜. Make Masks 到 Plaque Assay：使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+        },
+        {
+          "visual": "module_recruitment",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Recruitment。 使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Recruitment：需要目标区室的强度测量值和标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "25_recruitment"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Recruitment。 使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Recruitment：需要目标区室的强度测量值和标识。"
+        },
+        {
+          "visual": "module_host_pathogen",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Host–Pathogen Analysis。 测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Host–Pathogen Analysis。 测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Host–Pathogen Analysis：在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。"
+        },
+        {
+          "visual": "module_invasion",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Invasion Assay。 使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "26_invasion"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Invasion Assay。 使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Invasion Assay：需要双色染色测量值和适当的基线对照。"
+        },
+        {
+          "visual": "module_replication",
+          "narration": "从 Home 打开 Toxoplasma，然后选择 Replication Assay。 使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "27_replication"
+          ],
+          "speech_text": "从 主页 打开 Toxoplasma，然后选择 Replication Assay。 使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。 输入数据: 已测量对象. 输出数据: 实验分析结果. Measure 到 Replication Assay：需要明确的寄生虫到液泡的标识对应关系。"
+        },
+        {
+          "visual": "module_qc_dashboard",
+          "narration": "从 Home 打开 QC。 检查存储的分割、单位、数据泄漏和孔板效应检查结果。打开其中嵌套的查看器进行详细检查。 输入数据: 已测量对象; 质量控制结果. 输出数据: 质量控制结果; 图形和表格导出. Measure 到 QC：检查可用的检查结果和缺失证据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "54_qc_dashboard"
+          ],
+          "speech_text": "从 主页 打开 QC。 检查存储的分割、单位、数据泄漏和孔板效应检查结果。打开其中嵌套的查看器进行详细检查。 输入数据: 已测量对象; 质量控制结果. 输出数据: 质量控制结果; 图形和表格导出. Measure 到 QC：检查可用的检查结果和缺失证据。"
+        },
+        {
+          "visual": "module_embeddings",
+          "narration": "从 Home 打开 Embeddings。 使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 图像嵌入. Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Embeddings 到 Image UMAP：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure",
+            "15_image_umap",
+            "77_embeddings"
+          ],
+          "speech_text": "从 主页 打开 Embeddings。 使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。 输入数据: 已测量对象; 对象裁剪图. 输出数据: 图像嵌入. Measure 到 Embeddings：保留编码器和通道策略的来源信息。 Embeddings 到 Image 优麦普：提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。"
+        },
+        {
+          "visual": "module_endodyogeny",
+          "narration": "在 Python 中通过 spacr.submodules.analyze_endodyogeny 使用 Endodyogeny size proxy。这条仅限 API 的工作流程没有 Home 入口或菜单项。 读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。 输入数据: 按宿主细胞汇总的区室面积. 输出数据: 由面积推算的大小代理指标结果. Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "在 Python 中通过 斯佩克尔.submodules.analyze_endodyogeny 使用 Endodyogeny size proxy。这条仅限 API 的工作流程没有 主页 入口或菜单项。 读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。 输入数据: 按宿主细胞汇总的区室面积. 输出数据: 由面积推算的大小代理指标结果. Measure 到 Endodyogeny size proxy：提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。"
+        },
+        {
+          "visual": "module_cellpose_masks",
+          "narration": "在 Python 中通过 spacr.spacr_cellpose.identify_masks_finetune 使用 Direct Cellpose mask generation。这条仅限 API 的工作流程没有 Home 入口或菜单项。 通过 Python API，在 TIFF 视野上运行标准或自定义 Cellpose 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。 输入数据: 用于直接 Cellpose 推理的 TIFF 视野; 分割检查点. 输出数据: 直接生成的 Cellpose TIFF 掩膜.",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "在 Python 中通过 斯佩克尔.斯佩克尔_塞尔波斯.identify_masks_finetune 使用 Direct 塞尔波斯 mask generation。这条仅限 API 的工作流程没有 主页 入口或菜单项。 通过 Python API，在 TIFF 视野上运行标准或自定义 塞尔波斯 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。 输入数据: 用于直接 塞尔波斯 推理的 TIFF 视野; 分割检查点. 输出数据: 直接生成的 塞尔波斯 TIFF 掩膜."
+        },
+        {
+          "visual": "home_summary",
+          "narration": "对于高内涵分析，先运行 Mask，再运行 Measure，然后选择能够回答研究问题的方法。对于分割训练，先在 Make Masks 中整理图像与掩膜对，再运行 Train Cellpose，并在 Mask 中测试保存的模型。已有兼容掩膜或测量数据时，可从后面的步骤开始。保留通道标识、单位、对象键以及生成各项结果所用的设置；请参阅所选路径的专门演示。",
+          "hold_after": 0.7,
+          "speech_text": "对于高内涵分析，先运行 Mask，再运行 Measure，然后选择能够回答研究问题的方法。对于分割训练，先在 Make Masks 中整理图像与掩膜对，再运行 Train 塞尔波斯，并在 Mask 中测试保存的模型。已有兼容掩膜或测量数据时，可从后面的步骤开始。保留通道标识、单位、对象键以及生成各项结果所用的设置；请参阅所选路径的专门演示。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
+    },
+    {
+      "id": "81_sequencing_pathways",
+      "number": 81,
+      "slug": "sequencing_pathways",
+      "title": "测序模块及其关联",
+      "series": 1,
+      "app_key": null,
+      "section": "工作流程",
+      "description": "将测序和光学条形码流程与表型评分、回归分析、实验设计、统计功效估计、剂量反应分析及运行比较连接起来。",
+      "objectives": [
+        "根据已有数据选择起始模块。",
+        "确定每个模块读取和写出哪些数据。",
+        "通过链接的模块课程和 API 说明了解下一步。"
+      ],
+      "prerequisite": "安装 spaCR 并打开 Home。本课程解释界面导航和数据交接；链接的模块课程提供完整的数据操作示例。输入和输出包含有条件的替代方案，各模块会分别说明。",
+      "scenes": [
+        {
+          "visual": "home",
+          "narration": "从 Home 开始，先明确研究问题和条形码数据类型。Map Barcodes 读取测序文件；光学混池筛选通过 OPS 读取已配准的多轮图像。两者都需要明确建立条形码身份与实验之间的对应关系。Regression 将兼容的扰动计数与表型评分关联起来，不能替代条形码解码。规划筛选时，应在采集数据之前使用 Experiment Design 和 Power；而 Dose-Response 和 Run Compare 则用于在采集之后检查适用的结果。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "05_home"
+          ],
+          "speech_text": "从 主页 开始，先明确研究问题和条形码数据类型。Map Barcodes 读取测序文件；光学混池筛选通过 OPS 读取已配准的多轮图像。两者都需要明确建立条形码身份与实验之间的对应关系。Regression 将兼容的扰动计数与表型评分关联起来，不能替代条形码解码。规划筛选时，应在采集数据之前使用 Experiment Design 和 Power；而 Dose-Response 和 Run Compare 则用于在采集之后检查适用的结果。"
+        },
+        {
+          "visual": "module_map_barcodes",
+          "narration": "从 Home 打开 Map Barcodes。提供编码实验信息的参考数据。先检查映射后的计数和条形码质控，再将每孔向导序列计数与表型评分配对。输入数据：测序读段。输出数据：每孔向导序列计数。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "47_barcode_qc"
+          ],
+          "speech_text": "从 主页 打开 Map Barcodes。提供编码实验信息的参考数据。先检查映射后的计数和条形码质控，再将每孔向导序列计数与表型评分配对。输入数据：测序读段。输出数据：每孔向导序列计数。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。"
+        },
+        {
+          "visual": "module_barcode_qc",
+          "narration": "从 Home 打开 Map Barcodes，然后选择 Barcode QC。在过滤向导序列计数之前，检查映射深度、覆盖度、条形码冲突和位置效应。输入数据：每孔向导序列计数。输出数据：质量控制结果；图表和表格导出文件。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "47_barcode_qc"
+          ],
+          "speech_text": "从 主页 打开 Map Barcodes，然后选择 Barcode QC。在过滤向导序列计数之前，检查映射深度、覆盖度、条形码冲突和位置效应。输入数据：每孔向导序列计数。输出数据：质量控制结果；图表和表格导出文件。Map Barcodes 到 Barcode QC：过滤向导序列前，检查映射情况和覆盖度。"
+        },
+        {
+          "visual": "module_ops",
+          "narration": "从 Home 打开 Mask，然后选择 OPS。使用测序循环图像和表型图像对齐结果，对每个细胞核的条形码进行解码。进入 Regression 之前，先将解码后的身份信息聚合或连接到兼容的表型输入；OPS 数据库不能直接替代由 FASTQ 生成的计数 CSV 文件。输入数据：显微镜图像；已对齐的拼接图和坐标。输出数据：光学条形码分配结果。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "76_ops"
+          ],
+          "speech_text": "从 主页 打开 Mask，然后选择 OPS。使用测序循环图像和表型图像对齐结果，对每个细胞核的条形码进行解码。进入 Regression 之前，先将解码后的身份信息聚合或连接到兼容的表型输入；OPS 数据库不能直接替代由 FASTQ 生成的计数 CSV 文件。输入数据：显微镜图像；已对齐的拼接图和坐标。输出数据：光学条形码分配结果。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。"
+        },
+        {
+          "visual": "module_regression",
+          "narration": "从 Home 打开 Regression。匹配表型输入和向导序列计数输入中的板号与孔位标识，选择响应变量和对照，并在解释命中结果前检查诊断信息。也支持直接测量的响应值。输入数据：对象分类评分；每孔向导序列计数；光学条形码分配结果；测量后的对象。输出数据：回归结果和命中项。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板号和孔位身份。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "12_map_barcodes",
+            "13_regression",
+            "41_classify",
+            "50_run_compare",
+            "76_ops"
+          ],
+          "speech_text": "从 主页 打开 Regression。匹配表型输入和向导序列计数输入中的板号与孔位标识，选择响应变量和对照，并在解释命中结果前检查诊断信息。也支持直接测量的响应值。输入数据：对象分类评分；每孔向导序列计数；光学条形码分配结果；测量后的对象。输出数据：回归结果和命中项。Classify 到 Regression：选择所需的 CV 或 ML 评分列，并保留板号和孔位身份。Map Barcodes 到 Regression：使用一致的板号和孔位键，将向导序列计数与表型评分配对。OPS 到 Regression：进入 Regression 之前，明确将解码对象连接或聚合到表型和向导序列输入；这不是直接传递 CSV 文件的流程。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。"
+        },
+        {
+          "visual": "module_power",
+          "narration": "从 Home 打开 Power / Design。根据选定的效应量和变异程度估计采样需求；可选择使用预实验测量结果来支持假设。输入数据：筛选设计和统计功效估计；测量后的对象；实验布局。输出数据：筛选设计和统计功效估计。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design"
+          ],
+          "speech_text": "从 主页 打开 Power / Design。根据选定的效应量和变异程度估计采样需求；可选择使用预实验测量结果来支持假设。输入数据：筛选设计和统计功效估计；测量后的对象；实验布局。输出数据：筛选设计和统计功效估计。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。"
+        },
+        {
+          "visual": "module_experiment_design",
+          "narration": "从 Home 打开 Experiment Design。输入实验条件、对照、重复和板布局限制，然后在数据采集之前导出实验布局。输入数据：筛选设计和统计功效估计。输出数据：实验布局。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response"
+          ],
+          "speech_text": "从 主页 打开 Experiment Design。输入实验条件、对照、重复和板布局限制，然后在数据采集之前导出实验布局。输入数据：筛选设计和统计功效估计。输出数据：实验布局。Experiment Design 到 Power / Design：用实验布局确定采样假设，然后修订设计。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。"
+        },
+        {
+          "visual": "module_dose_response",
+          "narration": "从 Home 打开 Dose–Response。在曲线拟合之前，提供剂量列、响应列、对照和单位；这条路径不需要测序。输入数据：测量后的对象；实验布局。输出数据：实验分析结果；图表和表格导出文件。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "67_experiment_design",
+            "69_dose_response"
+          ],
+          "speech_text": "从 主页 打开 Dose–Response。在曲线拟合之前，提供剂量列、响应列、对照和单位；这条路径不需要测序。输入数据：测量后的对象；实验布局。输出数据：实验分析结果；图表和表格导出文件。Experiment Design 到 Dose–Response：先开展实验并完成测量，同时保留剂量和条件标识。"
+        },
+        {
+          "visual": "module_run_compare",
+          "narration": "从 Home 打开 Run Compare。比较兼容的已保存设置、计数和命中列表，不要把输入数据发生变化的情况当成受控的模型比较。输入数据：运行历史和产物；回归结果和命中项。输出数据：运行或模型比较。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "50_run_compare"
+          ],
+          "speech_text": "从 主页 打开 Run Compare。比较兼容的已保存设置、计数和命中列表，不要把输入数据发生变化的情况当成受控的模型比较。输入数据：运行历史和产物；回归结果和命中项。输出数据：运行或模型比较。Regression 到 Run Compare：比较兼容的已保存结果集及其设置。"
+        },
+        {
+          "visual": "module_simulation",
+          "narration": "在 Python 中通过 spacr.sim.run_multiple_simulations 使用混池筛选模拟参数扫描。这个流程仅通过 API 提供，没有 Home 磁贴或菜单入口。使用 Python 参数扫描 API 探索明确陈述的筛选设计假设。它会展开参数组合，在进程池中运行模拟，并写出合成数据的汇总统计量；返回值为 None。运行前，显式设置较小的 max_workers 值，并限定参数网格的规模。输出不能替代实验性 Regression 所需的测量结果或条形码计数。将模拟发现用作规划依据，并记录其假设。选择规划假设时，检查模拟汇总结果；再将这些假设手动输入 Power / Design 或 Experiment Design。这两个工具都不导入此模拟数据库，也都不导出模拟设置网格。输入数据：混池筛选模拟假设。输出数据：合成筛选模拟汇总结果。",
+          "hold_after": 0.7,
+          "related_lessons": [],
+          "speech_text": "在 Python 中通过 斯佩克尔.sim.run_multiple_simulations 使用混池筛选模拟参数扫描。这个流程仅通过 API 提供，没有 主页 磁贴或菜单入口。使用 Python 参数扫描 API 探索明确陈述的筛选设计假设。它会展开参数组合，在进程池中运行模拟，并写出合成数据的汇总统计量；返回值为 None。运行前，显式设置较小的 max_workers 值，并限定参数网格的规模。输出不能替代实验性 Regression 所需的测量结果或条形码计数。将模拟发现用作规划依据，并记录其假设。选择规划假设时，检查模拟汇总结果；再将这些假设手动输入 Power / Design 或 Experiment Design。这两个工具都不导入此模拟数据库，也都不导出模拟设置网格。输入数据：混池筛选模拟假设。输出数据：合成筛选模拟汇总结果。"
+        },
+        {
+          "visual": "home_summary",
+          "narration": "将测序参考数据和板布局与计数一起保存，并在解释回归结果之前，检查与图像评分的连接。光学分配结果需要专门的对象连接和聚合，不能自动充当可直接替换的测序计数文件。应将规划假设、拟合效应和已完成运行之间的比较视为不同类型的结果。关联课程和从 Home 开始的操作指南展示了各类实验的路径。",
+          "hold_after": 0.7,
+          "speech_text": "将测序参考数据和板布局与计数一起保存，并在解释回归结果之前，检查与图像评分的连接。光学分配结果需要专门的对象连接和聚合，不能自动充当可直接替换的测序计数文件。应将规划假设、拟合效应和已完成运行之间的比较视为不同类型的结果。关联课程和从 主页 开始的操作指南展示了各类实验的路径。"
         }
       ],
       "narration_voices": {

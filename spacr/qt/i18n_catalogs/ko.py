@@ -6618,6 +6618,9 @@ UI = {
     'Updating conditions with the new text settings…': '새 텍스트 설정으로 실험 조건을 업데이트하는 중…',
     'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page': '가장 큰 25%의 플라크에서 누락된 값을 추정합니다. RH/HFF 대조군의 성장을 가정하며 기존 측정값은 유지됩니다. API: spacr.plaque_growth.estimate_page',
     "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.": '설정한 이미지 향상 결과를 향상 전 이미지 옆에 미리 표시합니다. 돋보기 영역이 있으면 해당 영역을, 없으면 전체 시야를 표시하여 각 처리 단계의 효과를 눈으로 확인할 수 있습니다. 처리는 백그라운드에서 실행됩니다. 취소하면 비교 창이 닫히며 실행 중인 필터는 결과를 표시하지 않고 완료됩니다. 검출할 때와 마찬가지로 자르기 전에 전체 시야를 정규화합니다.',
+    'Settings templates': '설정 템플릿',
+    'Inspect one measured field, its host/vacuole/parasite masks and recruitment results.': '측정된 시야 하나와 해당 숙주 세포, 액포, 기생충 마스크 및 모집 분석 결과를 살펴봅니다.',
+    'Host–Pathogen live preview': '숙주–병원체 실시간 미리보기',
 }
 
 MODULE_SUMMARIES = {
@@ -13360,4 +13363,7 @@ SOURCE_HASHES = {
     ('UI', 'Updating conditions with the new text settings…'): '7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237',
     ('UI', 'Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page'): '447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3',
     ('UI', "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection."): '77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0',
+    ('UI', 'Settings templates'): 'a4e050b2b7b7c8ec40984249fc0c763a3de11ca3e112171423e514323dc4c3a8',
+    ('UI', 'Inspect one measured field, its host/vacuole/parasite masks and recruitment results.'): '15cc5c98727eff0a53bdca1651ee828c72ef6f124042c6cb0724aee1beda4edf',
+    ('UI', 'Host–Pathogen live preview'): '4f55456ed4b03243cb9c31199bec36867b7806fdd117f001d4154ed7ce1a0af5',
 }

@@ -51,7 +51,9 @@ def _mask_arrived(panel, model_box_text=None):
         _offer(panel, model_box_text)
     mask = np.zeros((8, 8), dtype=np.uint16)
     mask[0:4, 0:4] = 1
-    panel._build_request()          # this is what decides the model for a pass
+    request = panel._build_request()
+    panel._on_processing_provenance(
+        {'model': request.model, 'model_note': request.model_note}, -1)
     panel._on_worker_done({"cell": mask}, "", -1)
 
 

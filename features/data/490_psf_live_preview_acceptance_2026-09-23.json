@@ -1,0 +1,138 @@
+{
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-published-download/merged/PLATE1_E01_1_1.npy",
+  "source_sha256": "3e0476f47ee841697e0f06f6e0fe876a02c7fc22bf6cdf1f573048c168844214",
+  "source_shape": [
+    1998,
+    1998,
+    7
+  ],
+  "roi": [
+    146,
+    274,
+    742,
+    870
+  ],
+  "selected_channel": 0,
+  "device": "cpu",
+  "gpu_used": false,
+  "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "elapsed_seconds": 21.839130125998054,
+  "mask_labels": 2,
+  "qt_ticks": 1956,
+  "max_qt_gap_seconds": 0.5565849790000357,
+  "gui_thread": 125434350990848,
+  "inference_threads": [
+    125433692501696
+  ],
+  "source_unchanged": true,
+  "model_input_matches_psf_engine": true,
+  "provenance": {
+    "processing": {
+      "operation": "deconvolve",
+      "kernel": {
+        "source": "gaussian approximation",
+        "shape": [
+          9,
+          9
+        ],
+        "sampling_um": [
+          1.0,
+          1.0
+        ],
+        "kernel_sha256": "69718a920d3e99a7776b21edefd7854eaf18e003fc3a485405c0d3cecddf34b3",
+        "kernel_dtype": "float32 little-endian",
+        "normalization": "sum=1",
+        "origin": "centre pixel",
+        "details": {
+          "formula": "sigma=FWHM/sqrt(8*ln(2))",
+          "fwhm_um": [
+            2.0,
+            2.0
+          ],
+          "optical_model": false,
+          "truncate_sigma": 4.0
+        }
+      },
+      "image_sampling_um": [
+        1.0,
+        1.0
+      ],
+      "iterations": 20,
+      "algorithm": "spacr.reflect_psf.v1",
+      "boundary": "half-sample symmetric",
+      "output_dtype": "float32",
+      "intensity_units": "input units",
+      "method": "Richardson-Lucy",
+      "regularization": null,
+      "epsilon_relative": 1e-07,
+      "initialization": "channel mean",
+      "sensitivity_normalization": true
+    },
+    "stage": "loaded preview field, before background and model normalization",
+    "normalization": "field-local Cellpose defaults; classical method specific",
+    "illumination": "no preview illumination correction",
+    "input_modified": false,
+    "filter_intensity_source": "original loaded preview field",
+    "input_shape": [
+      128,
+      128,
+      4
+    ],
+    "input_dtype": "uint16",
+    "channels": {
+      "cell": 0
+    },
+    "methods": {
+      "cell": "cellpose"
+    },
+    "preprocess_settings": {
+      "psf_operation": "deconvolve",
+      "psf_source": "gaussian",
+      "psf_image_sampling_um": [
+        1.0,
+        1.0
+      ],
+      "psf_fwhm_um": [
+        2.0,
+        2.0
+      ],
+      "psf_iterations": 20,
+      "cell_min_area": 0,
+      "cell_max_area": 0,
+      "cell_min_intensity": 0.0,
+      "cell_max_intensity": 0.0,
+      "cell_perimeter_fraction": 0.0,
+      "cell_remove_border_objects": false,
+      "nucleus_min_area": 0,
+      "nucleus_max_area": 0,
+      "nucleus_min_intensity": 0.0,
+      "nucleus_max_intensity": 0.0,
+      "nucleus_perimeter_fraction": 0.0,
+      "nucleus_remove_border_objects": false,
+      "pathogen_min_area": 0,
+      "pathogen_max_area": 0,
+      "pathogen_min_intensity": 0.0,
+      "pathogen_max_intensity": 0.0,
+      "pathogen_perimeter_fraction": 0.0,
+      "pathogen_remove_border_objects": false,
+      "organelle_min_area": 10,
+      "organelle_max_area": null,
+      "organelle_min_intensity": 0.0,
+      "organelle_max_intensity": 0.0,
+      "organelle_perimeter_fraction": 0.0,
+      "organelle_remove_border_objects": false,
+      "organelle_remove_border": false,
+      "cell_signal_to_noise": 10,
+      "remove_background_cell": false,
+      "cell_background": 100,
+      "adjust_cells": false
+    },
+    "diameter": 30.0,
+    "flow_threshold": 0.4,
+    "cellprob_threshold": 0.0,
+    "model": "/home/olafsson/.cellpose/models/cpsam",
+    "model_note": ""
+  },
+  "calibration_note": "1 um/px and Gaussian FWHM 2 um are verification geometry, not measured optical calibration.",
+  "scope": "Actual offscreen preview and CPU Cellpose inference; no optical recovery or segmentation accuracy claim. Preview retains field-local model normalization and does not apply full-pipeline illumination correction."
+}

@@ -3888,9 +3888,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
             if keyword.arg not in {"title", "subtitle", "cta_label"}:
                 continue
             found.update(_literal_strings(keyword.value, {}))
+    preview_sources: set[str] = set()
     for spec in PREVIEWS.values():
-        found.add(str(spec.title))
-        found.add(
+        preview_sources.add(str(spec.title))
+        preview_sources.add(
             str(spec.tooltip)
             if str(spec.tooltip).strip()
             else "Show a preview of what these settings produce."
@@ -3907,7 +3908,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
-    return {value.strip() for value in chooser_sources | _workflow_ui_sources()} | {
+    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources()
+            if value.strip()} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 

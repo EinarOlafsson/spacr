@@ -155,3 +155,18 @@ or restore values from the current session.
 
 ``split`` — default ``False``
     a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's "Split objects that touch", offered to every other method.
+
+``psf_operation`` — default ``'none'``
+    ``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default.
+
+``psf`` — default ``None``
+    immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection.
+
+``psf_sampling_um`` — default ``(1.0, 1.0)``
+    image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed.
+
+``psf_iterations`` — default ``20``
+    Richardson–Lucy iterations, 1..200.
+
+``psf_error`` — default ``''``
+    actionable loading/validation error when no kernel is ready.
