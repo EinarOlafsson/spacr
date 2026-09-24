@@ -47,10 +47,10 @@
     },
     {
       "table": "ui",
-      "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
-      "translation": "순서: 백분위수 스트레칭(표시) → 배경 → PSF → 잡음 제거 → 대비 → 선명화 → 검출 → 형태학 → 분할."
+      "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
+      "translation": "순서: 백분위수 스트레칭(표시) → 배경 → PSF → 복원 → 잡음 제거 → 대비 → 선명화 → 검출 → 형태학 → 분할."
     },
     {
       "table": "ui",
@@ -79,6 +79,18 @@
       "source": "Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.",
       "source_sha256": "28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c",
       "translation": "전체 액포를 숙주 세포와 연결하고 명시적인 숙주 기준 구획과 표지자 강도를 비교합니다. 선택적으로 연결된 기생충 수는 복제를 나타내며, 누락된 수와 유효하지 않은 기준 강도는 미상으로 남습니다. 실험 대조군을 사용해 표지자 임계값을 보정하세요."
+    }
+  ],
+  "superseded_records": [
+    {
+      "reason": "Restoration was inserted after PSF in the current runtime order; original review retained.",
+      "record": {
+        "table": "ui",
+        "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
+        "translation": "순서: 백분위수 스트레칭(표시) → 배경 → PSF → 잡음 제거 → 대비 → 선명화 → 검출 → 형태학 → 분할."
+      }
     }
   ]
 }

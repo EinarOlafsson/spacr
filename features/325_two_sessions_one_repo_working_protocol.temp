@@ -16263,3 +16263,14 @@ candidate coverage shard9: tools/settings_flow.py --rst and its paired
 page/index contract checks. Please avoid duplicating that generated refresh;
 I will push the exact artifacts and result. No manually authored API prose,
 tutorials or translation catalogs are being edited.
+
+2026-09-24 — CODEX: SETTINGS-FLOW REPAIR AND RESTORATION LABELS
+Regenerated the settings-flow page: normalize now includes the Model Zoo
+segment_with_cellpose reader. All11 artifact/link checks pass. Six restoration
+labels plus the revised PSF/restoration stage-order caption are source-bound
+in all9 runtime languages; actual runtime lookups and both Swedish/French
+cohort checks pass. Remaining489 prose/tutorial/animation is still owed.
+No runtime implementation edits and no release/main/version operations.
+The20 prepared data/analysis tutorial refreshes now pass the complete local
+catalog playback check; immutable upload/readback is running. I will append
+accepted revision and pushed commit once hosted playback also passes.

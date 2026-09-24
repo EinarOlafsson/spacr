@@ -9632,6 +9632,7 @@ normalize
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.model_compare.segment_with_cellpose` **-- reads it**
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 | ``_crop_choice_warnings`` **-- reads it**
@@ -9651,7 +9652,7 @@ normalize
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.crops.crop_spec_from_settings`, ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_crop_shape_overrides``, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.plot.plot_merged`, ``_crop_choice_warnings``, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.measure_preview.apply_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``__init__``, :py:func:`~spacr.submodules.train_cellpose`, ``_check_app_specific``.
+Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.crops.crop_spec_from_settings`, ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_crop_shape_overrides``, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.model_compare.segment_with_cellpose`, :py:func:`~spacr.plot.plot_merged`, ``_crop_choice_warnings``, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.measure_preview.apply_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``__init__``, :py:func:`~spacr.submodules.train_cellpose`, ``_check_app_specific``.
 
 .. _setting-flow-normalize_by:
 

@@ -47,10 +47,10 @@
     },
     {
       "table": "ui",
-      "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
-      "translation": "Reihenfolge: Perzentilspreizung (Anzeige) → Hintergrund → PSF → Entrauschen → Kontrast → Schärfen → Erkennen → Morphologie → Teilen."
+      "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
+      "translation": "Reihenfolge: Perzentilspreizung (Anzeige) → Hintergrund → PSF → Wiederherstellung → Entrauschen → Kontrast → Schärfen → Erkennen → Morphologie → Teilen."
     },
     {
       "table": "ui",
@@ -79,6 +79,18 @@
       "source": "Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.",
       "source_sha256": "28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c",
       "translation": "Ordnen Sie ganze Vakuolen ihren Wirtszellen zu und vergleichen Sie Markerintensitäten mit einem ausdrücklich gewählten Referenzkompartiment des Wirts. Optionale zugeordnete Parasitenzahlen beschreiben die Replikation; fehlende Zahlen und ungültige Referenzintensitäten bleiben unbekannt. Kalibrieren Sie Markerschwellen anhand der Versuchskontrollen."
+    }
+  ],
+  "superseded_records": [
+    {
+      "reason": "Restoration was inserted after PSF in the current runtime order; original review retained.",
+      "record": {
+        "table": "ui",
+        "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
+        "translation": "Reihenfolge: Perzentilspreizung (Anzeige) → Hintergrund → PSF → Entrauschen → Kontrast → Schärfen → Erkennen → Morphologie → Teilen."
+      }
     }
   ]
 }

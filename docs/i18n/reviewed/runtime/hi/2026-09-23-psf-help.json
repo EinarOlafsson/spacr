@@ -47,10 +47,10 @@
     },
     {
       "table": "ui",
-      "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
-      "translation": "क्रम: प्रतिशतक विस्तार (प्रदर्शन) → पृष्ठभूमि → PSF → शोर हटाना → कंट्रास्ट → तीक्ष्णता → पहचान → आकारिकी → विभाजन।"
+      "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
+      "translation": "क्रम: प्रतिशतक विस्तार (प्रदर्शन) → पृष्ठभूमि → PSF → पुनर्स्थापन → शोर हटाना → कंट्रास्ट → तीक्ष्णता → पहचान → आकारिकी → विभाजन।"
     },
     {
       "table": "ui",
@@ -79,6 +79,18 @@
       "source": "Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.",
       "source_sha256": "28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c",
       "translation": "पूरी रिक्तिकाओं को उनकी मेज़बान कोशिकाओं से जोड़ें और मार्कर तीव्रताओं की तुलना स्पष्ट मेज़बान संदर्भ खंड से करें। वैकल्पिक संबद्ध परजीवी गणनाएँ प्रतिकृति का वर्णन करती हैं; अनुपस्थित गणनाएँ और अमान्य संदर्भ तीव्रताएँ अज्ञात रहती हैं। प्रयोग के नियंत्रण नमूनों से मार्कर सीमाएँ अंशांकित करें।"
+    }
+  ],
+  "superseded_records": [
+    {
+      "reason": "Restoration was inserted after PSF in the current runtime order; original review retained.",
+      "record": {
+        "table": "ui",
+        "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
+        "translation": "क्रम: प्रतिशतक विस्तार (प्रदर्शन) → पृष्ठभूमि → PSF → शोर हटाना → कंट्रास्ट → तीक्ष्णता → पहचान → आकारिकी → विभाजन।"
+      }
     }
   ]
 }

@@ -5,10 +5,10 @@
   "languages": {
     "sv": {
       "previous_total": 931,
-      "current_total": 1679,
+      "current_total": 1685,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 761,
+      "later_distinct_additions": 767,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -159,7 +159,7 @@
           "name": "2026-09-23-psf-help.json",
           "records": 11,
           "sources": 11,
-          "sha256": "88bcd604980236768385e327cab16f29b74f7df835523f2d799a17ca567159e8"
+          "sha256": "2b74b16add25765967adad4e629e20a689479fd02f3cbc4d0875440477dcbc54"
         },
         {
           "name": "2026-09-23-psf-measure-live.json",
@@ -244,16 +244,22 @@
           "records": 5,
           "sources": 5,
           "sha256": "e5763aa419f5d0d8ca15cee550a4308f2873f8266673214699c22f35cef0d2a2"
+        },
+        {
+          "name": "2026-09-24-restoration-labels.json",
+          "records": 7,
+          "sources": 7,
+          "sha256": "412801bcc2b4fe7de563632c5747a46deb8c6d007ec8d5c19e642af468a6eb38"
         }
       ],
-      "added_sources_sha256": "8e57b878ac5f9b017891d008f262d672c72a0725f259f0ccd182ea8aba06445c"
+      "added_sources_sha256": "4ee60b46936eb67ceffe4e3a02c3a6e0aaac7d2e2f270c5312cf7a6af82e6ad2"
     },
     "fr": {
       "previous_total": 926,
-      "current_total": 1675,
+      "current_total": 1681,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 761,
+      "later_distinct_additions": 767,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -404,7 +410,7 @@
           "name": "2026-09-23-psf-help.json",
           "records": 11,
           "sources": 11,
-          "sha256": "3034a559535f6219c1043a5e0bdee102bff561d3d2aee0439640c6e9d615a226"
+          "sha256": "1775a953e87b0a0525471be92b9d64f4c62e9ee4aa0b0d9dca2a08501515f41d"
         },
         {
           "name": "2026-09-23-psf-measure-live.json",
@@ -489,9 +495,15 @@
           "records": 5,
           "sources": 5,
           "sha256": "0e79aed050f6f203550b5dcc983ead58c80087914ef704f57477f313bbe1b998"
+        },
+        {
+          "name": "2026-09-24-restoration-labels.json",
+          "records": 7,
+          "sources": 7,
+          "sha256": "34dbaba9af7682b44a53e3ad8f20541bd6eae64302a748d4328efbbf412e33f0"
         }
       ],
-      "added_sources_sha256": "8e57b878ac5f9b017891d008f262d672c72a0725f259f0ccd182ea8aba06445c"
+      "added_sources_sha256": "4ee60b46936eb67ceffe4e3a02c3a6e0aaac7d2e2f270c5312cf7a6af82e6ad2"
     }
   }
 }

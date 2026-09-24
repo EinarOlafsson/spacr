@@ -47,10 +47,10 @@
     },
     {
       "table": "ui",
-      "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
-      "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
-      "translation": "顺序：百分位拉伸（显示）→ 背景 → PSF → 去噪 → 对比度 → 锐化 → 检测 → 形态学 → 分割。"
+      "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
+      "translation": "顺序：百分位拉伸（显示）→ 背景 → PSF → 恢复 → 去噪 → 对比度 → 锐化 → 检测 → 形态学 → 分割。"
     },
     {
       "table": "ui",
@@ -79,6 +79,18 @@
       "source": "Relate whole vacuoles to their host cells and compare marker intensities against an explicit host reference compartment. Optional linked parasite counts describe replication; absent counts and invalid reference intensities remain unknown. Calibrate marker thresholds using assay controls.",
       "source_sha256": "28137388155a74f509595a9446b6d56ae5ca9ac0fd95d3315d56f7a34fa2540c",
       "translation": "将完整液泡与其宿主细胞关联，并将标记物强度与明确指定的宿主参考区室进行比较。可选的关联寄生虫计数用于描述复制；缺失计数和无效参考强度仍标记为未知。使用实验对照校准标记物阈值。"
+    }
+  ],
+  "superseded_records": [
+    {
+      "reason": "Restoration was inserted after PSF in the current runtime order; original review retained.",
+      "record": {
+        "table": "ui",
+        "key": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
+        "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
+        "translation": "顺序：百分位拉伸（显示）→ 背景 → PSF → 去噪 → 对比度 → 锐化 → 检测 → 形态学 → 分割。"
+      }
     }
   ]
 }

@@ -7,13 +7,13 @@ private drafts, old captures or unfinished narration as reviewed completion.
 
 Work only in `/mnt/firecuda2/codex/repo/spacr`, branch nightly. Read the END of
 `325_two_sessions_one_repo_working_protocol.temp` before acting. Claude owns
-release promotion and GPU jobs. All Python, including probes and pytest, must
+GPU jobs; the maintainer owns the version bump and main promotion. All Python, including probes and pytest, must
 use `tools/run_capped.sh`; probes need private HOME/XDG_CONFIG_HOME. No whole
 suite. Stage explicit paths, rebase before pushing, preserve other work.
 
 ## Current English sources
 
-The English API manifest contains 11,519 public entries; the Help index is
+The English API manifest contains 11,520 public entries; the Help index is
 current. Existing parameter-description debt remains. The shared module map
 is `spacr/resources/module_workflows.json`. Four new guides are linked there:
 82 Toxoplasma, 83 Plasmodium, 84 Candida, 85 Host–Pathogen. Generated API and
@@ -39,14 +39,17 @@ ComingSoon entry.
 The last verified deployed baseline is `release-candidate-append-xw4j5buw`
 (Agreement/Invasion/Replication). Do not upload it again.
 
-The next candidate is `release-candidate-append-_h__k19q`, manifest SHA256
+The organism candidate is `release-candidate-append-_h__k19q`, manifest SHA256
 497ba62c9e87f1cee9daf617cdc1d5fb54f9412660967fe03ea15d8398923b0d.
 It contains 85 routes, 84 playable entries, 4 new guides, and refreshes 22,24,25,
 29,30,31. All 84 playable checks and 14 localized unavailable views passed.
 The media upload uses branch `candidate-organisms-20260924-hk19q` and tag
 `tutorials-organisms-20260924-hk19q`; check the publication receipt and
 `organism-candidate-upload.log` before any retry. Never upload to main or reuse
-an existing media branch. Pipeline79/80 links changed without changing prose,
+an existing media branch. It was accepted and pushed at61688f2d6: all5250
+hosted files SHA256matched revision931a7e95feac3730cde47f02d6a76f805aa59038,
+and all84 hosted playback cases plus14 placeholder views passed. Do not
+re-upload it. Pipeline79/80 links changed without changing prose,
 translations, audio or timing; rebinding evidence records exact equivalence.
 
 Additional staged practical lessons:
@@ -58,12 +61,14 @@ Additional staged practical lessons:
 - 50 Run Compare,51 Control Charts,52 Pipeline Graph,53 Profiler,54 QC,
   55 Image Scatter: `analysis-views-media.log`.
 
-Each renderer performs source-bound English narration checks, creates the
-master and 1440p rendition, and checks both in Chromium. Inspect final status;
-an output file alone is not completion. After the first candidate is published,
-build one refresh candidate for the ready lessons against that exact baseline.
-Do not overwrite or reuse the prior candidate. Publish through the existing
-upload/readback/pages/browser/checkpoint/record tools.
+All20 additional lessons finished their narration, master, rendition and
+Chromium checks. Their combined candidate is
+`release-candidate-append-8vaimbg8`, built against the exact organism baseline.
+All84 local playback cases and14 placeholder views passed, and both mutation
+guards observed red. Upload/readback is in `data-candidate-upload.log` using
+branch `candidate-data-tools-20260924-8vaimbg8` and tag
+`tutorials-data-tools-20260924-8vaimbg8`. Inspect receipts before any retry;
+never overwrite or reuse an existing media branch.
 
 New example downloads: `Align_Stitch_nine_tiles.zip` (nine original pixel crops,
 row-major3x3,overlap0.25,reference channel1) and
@@ -81,10 +86,18 @@ These are execution examples, not biological accuracy claims. Source evidence
 is in `tools/tutorials/evidence/2026-09-24-*`.
 
 Frozen API translation drafting runs in a separate checkout at3ee2a1809.
-Seven languages have complete private drafts. Korean continues in
-`api-full-draft-20260923-ko-continuation.log`, then Icelandic. These drafts
+Seven languages have complete private drafts. Korean reached3355/3355 batches in
+`api-full-draft-20260923-ko-continuation.log`; confirm its final output receipt
+before counting it complete. Icelandic follows. These drafts
 contain known semantic errors and are NOT approved translations. Do not
 promote a full machine-generated catalog. Review and rebind to current source.
+
+Six restoration control labels and the updated PSF/restoration stage-order
+caption now have source-bound translations in all nine runtime languages.
+All nine actual runtime lookups and both Swedish/French review-cohort checks
+pass. Other new restoration tooltips/status text, its tutorial and animation
+remain owed; English fallback is allowed. The settings-flow page has also
+been regenerated for the new Model Zoo normalization reader.
 
 No new agents were spawned. Preserve the unrelated untracked
 `tools/tutorials/authoring/project/` directory.

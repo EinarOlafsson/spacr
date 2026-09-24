@@ -6973,7 +6973,6 @@ UI = {
     'Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.': 'Chargez un noyau 2D TIFF ou NPY, jusqu’à 64 MiB. Les empreintes du fichier et du noyau normalisé identifient les données chargées. Rechargez pour lire le contenu modifié du fichier.',
     'Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.': 'Relisez le fichier du noyau. Un fichier modifié sur le disque ne change pas silencieusement un noyau déjà chargé.',
     'Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.': 'Itérations de Richardson–Lucy. Davantage d’itérations peuvent amplifier le bruit. Cette méthode n’utilise aucune régularisation.',
-    'Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.': 'Ordre : étirement par percentiles (Affichage) → arrière-plan → PSF → débruitage → contraste → netteté → détection → morphologie → séparation.',
     'Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.': 'Calculez une gaussienne avec un échantillonnage explicite ou chargez un noyau 2D mesuré de dimensions impaires et de valeurs finies non négatives. Le pixel central est l’origine. Le noyau chargé est normalisé pour que sa somme soit égale à un.',
     'Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.': 'Appliquez une fonction d’étalement du point étalonnée après soustraction de l’arrière-plan. La convolution ajoute du flou ; la déconvolution Richardson–Lucy peut amplifier le bruit. Une gaussienne est une approximation, pas une PSF mesurée du microscope.',
     'Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.': 'Appliquez une PSF mesurée et étalonnée ou une approximation gaussienne explicite aux canaux de segmentation avant normalisation. La convolution ajoute du flou ; Richardson–Lucy tente une déconvolution et peut amplifier le bruit. Les images brutes et les intensités mesurées restent inchangées. Laissez cette option désactivée sauf si le même noyau et le même étalonnage des pixels conviennent à tous les canaux sélectionnés.',
@@ -6993,6 +6992,13 @@ UI = {
     'Experimental Growth Estimates': 'ESTIMATIONS EXPÉRIMENTALES DE CROISSANCE',
     'Enable normalization to invert images with this Cellpose version.': 'Activez la normalisation pour inverser les images avec cette version de Cellpose.',
     'Combine vacuole marker recruitment, parasite counts and host infection denominators.': 'Combinez le recrutement de marqueurs dans les vacuoles, le nombre de parasites et les dénominateurs des mesures d’infection des cellules hôtes.',
+    'Deep image enhancement': 'Amélioration d’image par apprentissage profond',
+    'Restoration model': 'Modèle de restauration',
+    'Restoration diameter': 'Diamètre des objets pour la restauration',
+    'Load / retry model': 'Charger le modèle / réessayer',
+    'Install Cellpose 3…': 'Installer Cellpose 3…',
+    'Loading restoration model on CPU…': 'Chargement du modèle de restauration sur le CPU…',
+    'Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.': 'Ordre : étirement par percentiles (Affichage) → arrière-plan → PSF → restauration → débruitage → contraste → netteté → détection → morphologie → séparation.',
 }
 
 MODULE_SUMMARIES = {
@@ -14080,7 +14086,6 @@ SOURCE_HASHES = {
     ('UI', 'Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.'): '259ae344e708c9e3fd2b72e19353df48af840a47727f3fb15323cd2df567bd16',
     ('UI', 'Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.'): '927dbe2f53b7cd6b789961c2eca3873eb4e0f95b662009a2dafb0f3dd567fee2',
     ('UI', 'Richardson–Lucy iterations. More iterations may amplify noise. This method has no regularization.'): '106b3569af9fcfdfda314d926413c143f044cc9a0ecafa58afdf84d322657c19',
-    ('UI', 'Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.'): '1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53',
     ('UI', 'Calculate an explicitly sampled Gaussian, or load a measured 2D kernel with odd dimensions and finite nonnegative values. The centre pixel is the origin. The loaded kernel is normalized to sum to one.'): 'e2ef517d3e5cc82863b56eb018c1dac8bb5c260f55d9c5fb8ae78d1ee01fd71b',
     ('UI', 'Apply a calibrated point spread function after background subtraction. Convolution adds blur; Richardson–Lucy deconvolution can amplify noise. A Gaussian is an approximation, not a measured microscope PSF.'): '2f868de51239c86c703286d5f1c1ed1fd08867d8628c512dc21b5347beef9aab',
     ('UI', 'Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.'): '1d82ed921610db9d2f793be4dc119116d5b5556b78d901afe08c60a879e3edeb',
@@ -14110,4 +14115,11 @@ SOURCE_HASHES = {
     ('UI', 'Experimental Growth Estimates'): '52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54',
     ('UI', 'Enable normalization to invert images with this Cellpose version.'): '1ecdf92a913436762551ab950c1b8ff682816e84e519eae4421983a3be811d12',
     ('UI', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.'): '5120ec4571177f07d8e93ab43163195162dc238e2b9cda0da55ef0c5a7bdcc12',
+    ('UI', 'Deep image enhancement'): 'fb8f13f88e4cbe61be3c95ed28087e90910e824c80ee7a94a20b89bc29ad1e58',
+    ('UI', 'Restoration model'): '0ed67d7cba3682f17785d4f8f467a040eca12d7e8381004647769c89e6eefb1f',
+    ('UI', 'Restoration diameter'): '47420493c2bba1cbca374e80c2f6712f5dfe5f66f2f6f753f9c71fbcb69425ee',
+    ('UI', 'Load / retry model'): '0062cf2fd11334252ba44c352e11e2bc959260f0a0d3d01206de948e478c3d01',
+    ('UI', 'Install Cellpose 3…'): '42bc3c35908e8e862ff4722e0cd2768754cd849d4f97232c64b06357280f3415',
+    ('UI', 'Loading restoration model on CPU…'): '37cb39550e344a08857639b255183be8796f40ce86127683396840b89ae917fe',
+    ('UI', 'Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.'): '91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4',
 }
