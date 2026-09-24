@@ -15758,3 +15758,10 @@ Agreement/Invasion/Replication candidate playback and both mutation checks pass;
 its immutable upload is undergoing full readback before publication. API boundary
 audit proves29 new callables and one removed callable against ff4943c06; five
 new parameter omissions will be documented, not admitted as additional debt.
+
+2026-09-24 BACKDROP LOCK TEST MEASURES THE LOCKED INTERVAL
+The assertion checked frames_shaded() after finally released the engine lock
+and joined the holding thread. A valid new frame could then race the assertion.
+Captured the after-counter inside the locked interval, alongside painted/repeat
+counts. Both lock-boundary tests pass, retaining byte-identical repeated frames
+and the existing responsiveness ceiling. No animation runtime change needed.

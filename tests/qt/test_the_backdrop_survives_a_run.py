@@ -282,6 +282,7 @@ def test_a_frame_that_is_not_ready_is_repeated_and_never_waited_for(qtbot):
 
         painted = widget.frames_painted - before_painted
         repeated = widget.repeated_frames - before_repeated
+        after_shaded = widget.frames_shaded()
     finally:
         release.set()
         hog.join(timeout=10.0)
@@ -289,7 +290,7 @@ def test_a_frame_that_is_not_ready_is_repeated_and_never_waited_for(qtbot):
     assert painted >= 10, "the GUI thread stopped painting"
     assert repeated == painted, \
         "a paint with nothing new to show was not counted as a repeat"
-    assert widget.frames_shaded() == before_shaded, \
+    assert after_shaded == before_shaded, \
         "something shaded a frame while the engine was locked away"
     assert bytes(last.constBits()) == bytes(first.constBits()), \
         "a repeated frame is supposed to be the same frame"
