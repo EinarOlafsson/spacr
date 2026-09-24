@@ -1,7 +1,7 @@
 {
   "language": "nb",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "92c427b7b58d393bd75277eb295b0fb5e35c5e40fbfe4a248240704fb8a476f6",
+  "english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
   "title": "Modulenes inndata og utdata",
   "section": "Arbeidsflyter",
   "description": "Finn inndata, lagrede utdata, tidligere produsenter og senere brukere for hver nåværende modul, også verktøy inne i en Home-modul.",
@@ -96,11 +96,16 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+    "workflow_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
     "phrase_bank_sha256": "ae2e3ea3b9fd96ac46ecb975c8e8767ccc8ee6d27dca3efa84375e3b4a72c13d",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ]
+    ],
+    "link_only_rebinding": {
+      "previous_english_sha256": "92c427b7b58d393bd75277eb295b0fb5e35c5e40fbfe4a248240704fb8a476f6",
+      "current_english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
+      "reason": "Only related_lessons changed; every prose, identity and timing field compared equal."
+    }
   }
 }

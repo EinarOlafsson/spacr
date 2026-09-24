@@ -25,7 +25,7 @@ from stage_lesson import REPO, read, write
 from validate_candidate import validate
 
 
-def append_catalogs(published, lessons, voices, reviews, *, replace=False):
+def append_catalogs(published, lessons, voices, reviews, *, replace=False, current_hosts=None):
     """Preserve published objects and bind each added translation to its source."""
     existing = published['lessons_en.json']['lessons']
     identities = {item['id'] for item in existing}
@@ -37,8 +37,13 @@ def append_catalogs(published, lessons, voices, reviews, *, replace=False):
         for item in lessons:
             if item['id'] not in positions or any(
                     item.get(key) != existing[positions[item['id']]].get(key)
-                    for key in ('number', 'app_key', 'host_app_key')):
+                    for key in ('number', 'app_key')):
                 raise ValueError('A refresh must preserve the existing lesson identity and route')
+            old_host = existing[positions[item['id']]].get('host_app_key')
+            if (item.get('host_app_key') != old_host
+                    and (current_hosts is None or item['id'] not in current_hosts
+                         or item.get('host_app_key') != current_hosts[item['id']])):
+                raise ValueError('A changed host must match the current GUI route')
     elif ([item['number'] for item in lessons] != numbers
             or any(item['id'] in identities for item in lessons)):
         raise ValueError('Append new, unique lessons in contiguous number order')
@@ -102,7 +107,7 @@ def verify_tracks(stage, lesson, catalogs):
     return declared, records
 
 
-def update_catalogs(published, lessons, voices, reviews, refresh_ids):
+def update_catalogs(published, lessons, voices, reviews, refresh_ids, *, current_hosts=None):
     """Append new lessons and refresh selected existing lessons in one release."""
     identities = [lesson['id'] for lesson in lessons]
     if (not identities or len(identities) != len(set(identities))
@@ -116,7 +121,8 @@ def update_catalogs(published, lessons, voices, reviews, refresh_ids):
     for replace in (False, True):
         selected = [lesson for lesson in lessons if (lesson['id'] in refresh_ids) == replace]
         if selected:
-            result, records = append_catalogs(result, selected, voices, reviews, replace=replace)
+            result, records = append_catalogs(result, selected, voices, reviews, replace=replace,
+                                               current_hosts=current_hosts)
             compatibility.extend(records)
     return result, compatibility
 
@@ -211,7 +217,37 @@ def copy_preserved_web(published, baseline, root, manifest, *, replacements=()):
     return records
 
 
-def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
+def synchronize_links(catalogs, lessons):
+    """Update chapter links only after proving all canonical prose is unchanged.
+
+    Localized prose, media declarations and timing stay as published. Removing
+    link fields from the comparison permits new destinations without requiring
+    a new recording of otherwise identical narration.
+    """
+    result = deepcopy(catalogs)
+    english = {row['id']: row for row in catalogs['lessons_en.json']['lessons']}
+    for source in lessons:
+        identity = source['id']
+        old = english[identity]
+        before = {key: deepcopy(old.get(key)) for key in source}
+        after = deepcopy(source)
+        for lesson in (before, after):
+            for scene in lesson['scenes']:
+                scene.pop('related_lessons', None)
+        if before != after:
+            raise ValueError(f'Link-only update changes lesson content: {identity}')
+        for catalog in result.values():
+            target = next(row for row in catalog['lessons'] if row['id'] == identity)
+            if len(target['scenes']) != len(source['scenes']):
+                raise ValueError(f'Localized chapter count differs: {identity}')
+            for scene, current in zip(target['scenes'], source['scenes']):
+                scene.pop('related_lessons', None)
+                if 'related_lessons' in current:
+                    scene['related_lessons'] = deepcopy(current['related_lessons'])
+    return result
+
+
+def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=()):
     """Create a new private candidate; never upload or modify the published tree."""
     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
     if replace and refresh_ids:
@@ -229,6 +265,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
         raise ValueError('Baseline media revision is not the currently published revision')
     catalogs = {name: read(published / 'catalog' / name) for name in CATALOGS}
     previous_navigation = navigation(catalogs['lessons_en.json'])
+    current_hosts = {identity: route.get('host_app_key')
+                     for identity, route in previous_navigation['routes'].items()}
     for name in CATALOGS:
         if catalogs[name] != read(baseline / 'web/catalog' / name):
             raise ValueError('Published lesson sources differ from the verified media baseline')
@@ -246,13 +284,20 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
             if path.exists():
                 reviews[lesson['id'], language] = read(path)
     planned = {lesson['id']: {'en': ['af_heart']} for lesson in lessons}
-    provisional, _ = update_catalogs(catalogs, lessons, planned, reviews, refresh_ids)
+    provisional, _ = update_catalogs(catalogs, lessons, planned, reviews, refresh_ids,
+                                      current_hosts=current_hosts)
     checks, voices = {}, {}
     for lesson in lessons:
         identity = lesson['id']
         voices[identity], checks[identity] = verify_tracks(stage, lesson, provisional)
         print(identity, len(checks[identity]), 'current audio tracks verified', flush=True)
-    catalogs, compatibility = update_catalogs(catalogs, lessons, voices, reviews, refresh_ids)
+    catalogs, compatibility = update_catalogs(catalogs, lessons, voices, reviews, refresh_ids,
+                                             current_hosts=current_hosts)
+    if len(link_ids) != len(set(link_ids)) or set(link_ids) & set(identities):
+        raise ValueError('Link updates must select unique, otherwise preserved lessons')
+    link_lessons = [read(REPO / 'tools/tutorials/lessons' / (identity + '.json'))
+                    for identity in link_ids]
+    catalogs = synchronize_links(catalogs, link_lessons)
     compatibility = complete_translation_compatibility(
         catalogs, compatibility,
         read(baseline / 'web/translation-compatibility.json').get('entries', []))
@@ -294,7 +339,13 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
     if refresh_ids:
         js_catalog = append_javascript_catalog(js_catalog, catalogs['lessons_en.json'],
                                                len(refresh_ids), replacements=refresh_ids)
+    if link_lessons:
+        js_catalog = synchronize_links({'lessons_en.json': js_catalog}, link_lessons)['lessons_en.json']
     nav = navigation(catalogs['lessons_en.json'])
+    for lesson in lessons:
+        host = lesson.get('host_app_key')
+        if host and nav['routes'].get(lesson['id'], {}).get('host_app_key') != host:
+            raise ValueError(f'Lesson host differs from current GUI: {lesson["id"]}')
     require_no_new_route_gaps(previous_navigation, nav)
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
                                  ('module_navigation.js', 'SPACR_TUTORIAL_NAVIGATION', nav)]:
@@ -326,6 +377,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=()):
                   preserved_lessons=len(english)-len(lessons),
                   appended_lessons=appended,
                   refreshed_lessons=refresh_ids,
+                  link_only_updates=list(link_ids),
                   outstanding_module_tutorials=nav['missing_tutorials'],
                   new_lesson_tracks=checks, translation_incompatibilities=compatibility,
                   all_workflows_demonstrated=False, native_speaker_signoff=False,
@@ -345,6 +397,8 @@ if __name__ == '__main__':
                         help='Refresh only the selected existing lessons; keep all other lesson media and prose')
     parser.add_argument('--refresh-lesson', action='append', default=[],
                         help='Refresh an existing lesson alongside the new lessons being appended')
+    parser.add_argument('--refresh-links', action='append', default=[],
+                        help='Update only chapter destinations; require unchanged prose and preserve media')
     args = parser.parse_args()
     build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
-          refresh_ids=args.refresh_lesson)
+          refresh_ids=args.refresh_lesson, link_ids=args.refresh_links)

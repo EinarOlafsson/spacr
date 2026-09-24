@@ -1,0 +1,54 @@
+{
+  "organism": "toxoplasma",
+  "home_tile_clicked": true,
+  "selected_components": [
+    "rhoptries 1",
+    "micronemes"
+  ],
+  "clear_components_verified": true,
+  "analysis_started": false,
+  "external_application_started": false,
+  "tiles": [
+    {
+      "key": "starplast",
+      "enabled": true
+    },
+    {
+      "key": "analyze_plaques",
+      "enabled": true
+    },
+    {
+      "key": "recruitment",
+      "enabled": true
+    },
+    {
+      "key": "host_pathogen",
+      "enabled": true
+    },
+    {
+      "key": "invasion",
+      "enabled": true
+    },
+    {
+      "key": "replication",
+      "enabled": true
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    }
+  ],
+  "host_pathogen_tile_clicked": true
+}

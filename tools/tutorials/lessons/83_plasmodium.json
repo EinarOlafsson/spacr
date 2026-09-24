@@ -1,0 +1,43 @@
+{
+  "id": "83_plasmodium",
+  "number": 83,
+  "slug": "plasmodium",
+  "title": "Plasmodium: explore the organism guide",
+  "series": 3,
+  "app_key": "plasmodium",
+  "section": "Organisms and assays",
+  "description": "Browse the Plasmodium guide, explore the cell diagram and find available general image-analysis workflows.",
+  "objectives": [
+    "Open the page from Home and find its main controls.",
+    "Identify the available inputs, actions and outputs.",
+    "Choose the next available analysis or reference."
+  ],
+  "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Plasmodium-specific assay tiles currently show Coming soon.",
+  "scenes": [
+    {
+      "visual": "00_home",
+      "narration": "From Home, choose Plasmodium. Open this guide to browse organism information, cell compartments and the planned assay topics.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_organism",
+      "narration": "Scroll the information pane to read the blood-stage, liver-stage and motility sections. Drag the divider to adjust the space beside the module tiles.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_diagram",
+      "narration": "Hover over the apicomplexan diagram for compartment descriptions. Select components to highlight them together, then use Clear components to reset the view.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_modules",
+      "narration": "The assay tiles currently show Coming soon and are disabled. Browse their descriptions to see the intended readouts. For an available image workflow, return to Home and open Mask or Measure with your own images and suitable channel settings.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_references",
+      "narration": "Use the PlasmoDB and UniProt links to open organism resources in your browser. The guide requires no dataset, has no Run action and creates no output files.",
+      "hold_after": 0.7
+    }
+  ]
+}

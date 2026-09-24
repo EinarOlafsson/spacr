@@ -211,13 +211,14 @@ def verify(root, *, placeholders_only=False, published=None):
                     page.evaluate('(seconds) => seekTo(seconds)', requested)
                     page.wait_for_timeout(1500)
                     page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
-                    # A cold hosted seek can still be fetching an audio range.
+                    # A cold seek may still be loading media or decoding a frame,
+                    # including local files while other media jobs are active.
                     # Keep the clock tolerance unchanged while waiting for it.
                     page.wait_for_function('''!videoClockCorrectionPending &&
                         !elements.video.seeking && !elements.audio.seeking &&
                         Math.abs(elements.video.currentTime -
                             videoTimeFromAudio(elements.audio.currentTime)) < .5''',
-                        timeout=15000 if published else 1000, polling=50)
+                        timeout=15000, polling=50)
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
                         video: elements.video.currentTime, expected: videoTimeFromAudio(elements.audio.currentTime),
                         width: elements.video.videoWidth, height: elements.video.videoHeight,

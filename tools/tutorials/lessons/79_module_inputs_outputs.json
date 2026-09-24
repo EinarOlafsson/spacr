@@ -61,7 +61,8 @@
         "64_gate_editor",
         "65_feature_explorer",
         "69_dose_response",
-        "77_embeddings"
+        "77_embeddings",
+        "85_host_pathogen"
       ]
     },
     {
@@ -451,7 +452,8 @@
       "narration": "Open Toxoplasma from Home, then choose Host–Pathogen Analysis. Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown. Input data: Measured objects. Output data: Assay results. Measure to Host–Pathogen Analysis: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
       "hold_after": 0.7,
       "related_lessons": [
-        "08_measure"
+        "08_measure",
+        "85_host_pathogen"
       ]
     },
     {
@@ -704,19 +706,25 @@
       "visual": "module_toxoplasma",
       "narration": "Open Toxoplasma from Home. Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table. Input data: Bundled organism reference. Bundled organism reference: Installed organism descriptions and SwissBioPics cell diagrams; no project input is required. Output data: Organism guide and assay selection. Organism guide and assay selection: GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
       "hold_after": 0.7,
-      "related_lessons": []
+      "related_lessons": [
+        "82_toxoplasma"
+      ]
     },
     {
       "visual": "module_plasmodium",
       "narration": "Open Plasmodium spp. from Home. Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Input data: Bundled organism reference. Output data: Organism guide and assay selection.",
       "hold_after": 0.7,
-      "related_lessons": []
+      "related_lessons": [
+        "83_plasmodium"
+      ]
     },
     {
       "visual": "module_candida",
       "narration": "Open Candida spp. from Home. Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Input data: Bundled organism reference. Output data: Organism guide and assay selection.",
       "hold_after": 0.7,
-      "related_lessons": []
+      "related_lessons": [
+        "84_candida"
+      ]
     },
     {
       "visual": "module_endodyogeny",

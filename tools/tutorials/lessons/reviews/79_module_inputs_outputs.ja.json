@@ -1,7 +1,7 @@
 {
   "language": "ja",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "92c427b7b58d393bd75277eb295b0fb5e35c5e40fbfe4a248240704fb8a476f6",
+  "english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
   "title": "モジュールの入力と出力",
   "section": "ワークフロー",
   "description": "Home モジュール内のツールも含め、現在の各モジュールの入力データ、保存する出力、上流の生成元、下流の利用先を確認します。",
@@ -96,11 +96,16 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+    "workflow_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
     "phrase_bank_sha256": "dd4491aac126265c2d3ae8beaaa9a691a5682487ba0dd8763e8c5576d25816b3",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ]
+    ],
+    "link_only_rebinding": {
+      "previous_english_sha256": "92c427b7b58d393bd75277eb295b0fb5e35c5e40fbfe4a248240704fb8a476f6",
+      "current_english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
+      "reason": "Only related_lessons changed; every prose, identity and timing field compared equal."
+    }
   }
 }

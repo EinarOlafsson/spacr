@@ -57,7 +57,8 @@
         "41_classify",
         "54_qc_dashboard",
         "64_gate_editor",
-        "77_embeddings"
+        "77_embeddings",
+        "85_host_pathogen"
       ]
     },
     {
@@ -139,7 +140,8 @@
       "narration": "Open Toxoplasma from Home, then choose Host–Pathogen Analysis. Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown. Input data: Measured objects. Output data: Assay results. Measure to Host–Pathogen Analysis: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
       "hold_after": 0.7,
       "related_lessons": [
-        "08_measure"
+        "08_measure",
+        "85_host_pathogen"
       ]
     },
     {

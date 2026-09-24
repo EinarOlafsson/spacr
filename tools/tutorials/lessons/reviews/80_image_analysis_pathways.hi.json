@@ -1,7 +1,7 @@
 {
   "language": "hi",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "00037134e5928a3237bb53b0a3be7e681641dd1f209102a142c239747649d07a",
+  "english_sha256": "65a138e271ce58cd0566ea8d421e6f28327ea7a86e5446fea17a2c95ef3bb309",
   "title": "छवि विश्लेषण मॉड्यूल और उनके संबंध",
   "section": "कार्यप्रवाह",
   "description": "विभाजन, मापन, एनोटेशन, वर्गीकरण, प्रक्षेपण, गेट, छवि पंजीकरण, गुणवत्ता नियंत्रण और असे से होकर छवि विश्लेषण का रास्ता चुनें।",
@@ -35,11 +35,16 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+    "workflow_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
     "phrase_bank_sha256": "f5569af330bf51d4080d221f87a2ee53e40608ba6e69c9ba4592aab1ba51dbda",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ]
+    ],
+    "link_only_rebinding": {
+      "previous_english_sha256": "00037134e5928a3237bb53b0a3be7e681641dd1f209102a142c239747649d07a",
+      "current_english_sha256": "65a138e271ce58cd0566ea8d421e6f28327ea7a86e5446fea17a2c95ef3bb309",
+      "reason": "Only related_lessons changed; every prose, identity and timing field compared equal."
+    }
   }
 }

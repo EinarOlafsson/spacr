@@ -9,95 +9,56 @@
   "section": "Segmentation models",
   "description": "Open Model Zoo, find or download a checkpoint, inspect its details, and choose a small image set for a trial.",
   "objectives": [
-    "Open Model Zoo from Make Masks and scan a local model folder.",
-    "Choose a checkpoint and download remote weights to a model folder.",
-    "Select representative fields for a trial and find the resulting masks and quality summaries."
+    "Open Model Zoo and scan a local model folder.",
+    "Choose a model family and version, then inspect its details.",
+    "Run a small image trial and inspect the resulting masks and quality summaries."
   ],
-  "prerequisite": "Have a local model folder or choose a downloadable catalog entry. To try a segmentation model, prepare a few TIFF, PNG, NPY or NPZ images; the Model Compare lesson includes example fields. Keep the downloaded checkpoint path for the module that will use it.",
+  "prerequisite": "Extract the linked example and use its images folder for the three-field trial. Choose an installed Cellpose segmentation model, or download a suitable checkpoint through Model Zoo. For your own trial, prepare a few representative TIFF, PNG, NPY or NPZ images.",
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "From Home, open Make Masks, then choose Model Zoo. Start by finding a model for your image type. You can scan an existing model folder or download a checkpoint from the catalog.",
+      "narration": "From Home, open Make Masks, then choose Model Zoo. Use this page to find a segmentation model and try it on a small image set.",
+      "hold_after": 0.7,
       "focus_modules": [
         "make_masks"
-      ],
-      "related_lessons": [
-        "14_make_masks"
-      ],
+      ]
+    },
+    {
+      "visual": "03_current_catalogue_and_local_models",
+      "narration": "Click Choose folder and select your model directory to scan it. If you type the path instead, click Scan. Turn on the source headings you want to browse, such as Cellpose or local models.",
       "hold_after": 0.7
     },
     {
-      "visual": "02_model_library",
-      "narration": "The table lists model names, kinds and sources. Select a row to see its details. Check whether it is a segmentation model or a classifier, and choose a model whose image type and intended task match your workflow.",
-      "focus": [
-        350,
-        210,
-        3450,
-        560
-      ],
+      "visual": "04_actual_cpsam_provenance",
+      "narration": "Select a model family and use its Version control to choose the checkpoint. Read the details for its image type, training information and local path. For a remote checkpoint, choose a Save to folder and click Download before trying it.",
       "hold_after": 0.7
     },
     {
-      "visual": "03_cache_path",
-      "narration": "Click Choose folder, select your model directory, then click Scan. You can also enter the folder path directly. The table adds the local checkpoints it finds; select the file you want to use.",
-      "focus": [
-        350,
-        340,
-        3450,
-        410
-      ],
+      "visual": "06_three_verified_real_fields",
+      "narration": "Extract the linked example and choose its images folder under Test on fields. Set the field count to three. For your own images, start with a small set that includes typical fields and difficult cases.",
       "hold_after": 0.7
     },
     {
-      "visual": "04_scanned_models",
-      "narration": "Read the source and availability columns to distinguish a local checkpoint from a catalog entry that still needs downloading. Use the full path in the details panel to identify your local model, especially when several files have similar names.",
-      "focus": [
-        350,
-        400,
-        3450,
-        380
-      ],
+      "visual": "07_actual_test_started",
+      "narration": "Select the local segmentation model and click Test on fields. Wait for the trial to finish. Larger images and models can take longer, especially on a CPU.",
       "hold_after": 0.7
     },
     {
-      "visual": "05_selected_provenance",
-      "narration": "The details panel shows available training information, file size and checksum information. Use the recorded image and object information to judge whether the model is a suitable starting point. When information is missing, try the model on representative images before a larger run.",
-      "focus": [
-        350,
-        1050,
-        3450,
-        210
-      ],
+      "visual": "08_actual_preview_02",
+      "narration": "Select a result row to inspect its mask preview. Check boundaries, touching objects and missed objects against the image. Use the object count and quality flags to help find fields that need closer inspection.",
       "hold_after": 0.7
     },
     {
-      "visual": "06_download_controls_not_started",
-      "narration": "To obtain a remote model, select its catalog row, choose a Save to folder, then click Download. Wait for the progress to finish and keep the resulting local path. A published checksum lets the download verify the file; an entry without one requires your explicit choice to proceed.",
-      "focus": [
-        350,
-        1220,
-        3450,
-        170
-      ],
-      "related_lessons": [
-        "24_plaque"
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "07_benchmark_controls_not_run",
-      "narration": "In Test on fields, choose a small image folder and set the number of fields. Select one local segmentation model and click Test on fields. Inspect the mask previews and per-field quality summaries. To compare two local models on the same images, select both and click Compare the two selected. Use your chosen checkpoint path in the analysis module.",
-      "focus": [
-        350,
-        1380,
-        3450,
-        650
-      ],
+      "visual": "09_actual_benchmark_summary",
+      "narration": "Review the field summaries, then keep the chosen checkpoint path for your analysis module. To compare two different model families on the same images, select both rows and choose Compare the two selected. Use the version control to try another version of one family.",
+      "hold_after": 0.7,
       "related_lessons": [
         "21_model_compare",
         "14_make_masks"
-      ],
-      "hold_after": 0.7
+      ]
     }
+  ],
+  "example_files": [
+    "Apply_Cellpose_stock_example.zip"
   ]
 }

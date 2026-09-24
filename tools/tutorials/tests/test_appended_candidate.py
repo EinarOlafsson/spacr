@@ -12,7 +12,7 @@ from build_appended_candidate import (append_catalogs, append_javascript_catalog
                                      copy_preserved_web,
                                      complete_translation_compatibility,
                                      require_baseline_receipt, require_no_new_route_gaps,
-                                     update_catalogs)
+                                     update_catalogs, synchronize_links)
 from audit_staged_catalogs import CATALOGS
 
 
@@ -50,6 +50,33 @@ def sources():
                objectives=['Objective'], prerequisite='Prerequisite', scenes=[{'narration': 'Current text'}])
     voices = {'02_new': {'en': ['af_heart']}}
     return published, new, voices
+
+
+def test_link_sync_preserves_translated_prose_and_media():
+    source = dict(id='01_workflow', scenes=[dict(narration='Open Home', related_lessons=['82_new'])])
+    old = dict(id='01_workflow', scenes=[dict(narration='Open Home', related_lessons=['05_home'])],
+               narration_voices={'en': ['af_heart']})
+    localized = deepcopy(old)
+    localized['scenes'][0]['narration'] = 'Öffnen Sie Home'
+    catalogs = {'lessons_en.json': {'lessons': [old]}, 'captions_de.json': {'lessons': [localized]}}
+    before = deepcopy(catalogs)
+    result = synchronize_links(catalogs, [source])
+    assert catalogs == before
+    assert result['captions_de.json']['lessons'][0]['scenes'][0] == dict(
+        narration='Öffnen Sie Home', related_lessons=['82_new'])
+    assert result['lessons_en.json']['lessons'][0]['narration_voices'] == old['narration_voices']
+
+
+@pytest.mark.parametrize('change', ['narration', 'hold_after', 'visual', 'chapter_count'])
+def test_link_sync_rejects_content_or_timing_changes(change):
+    source = dict(id='01_workflow', scenes=[dict(narration='Open Home', hold_after=0.7, visual='home')])
+    catalogs = {'lessons_en.json': {'lessons': [deepcopy(source)]}}
+    if change == 'chapter_count':
+        source['scenes'].append(deepcopy(source['scenes'][0]))
+    else:
+        source['scenes'][0][change] = 'changed'
+    with pytest.raises(ValueError, match='changes lesson content'):
+        synchronize_links(catalogs, [source])
 
 
 def test_missing_translations_do_not_block_but_remain_registered(sources):
@@ -236,6 +263,18 @@ def test_refresh_rejects_identity_changes_and_missing_english(sources, change):
     with pytest.raises(ValueError):
         append_catalogs(published, selection, voices, {}, replace=True)
     assert published == before
+
+
+def test_refresh_can_repair_host_metadata_only_against_current_gui(sources):
+    published, new, _ = sources
+    fresh = {**new, 'id': '01_existing', 'number': 1, 'host_app_key': 'toxoplasma'}
+    voices = {fresh['id']: {'en': ['af_heart']}}
+    result, _ = append_catalogs(published, [fresh], voices, {}, replace=True,
+                               current_hosts={'01_existing': 'toxoplasma'})
+    assert result['lessons_en.json']['lessons'][0]['host_app_key'] == 'toxoplasma'
+    with pytest.raises(ValueError, match='current GUI'):
+        append_catalogs(published, [fresh], voices, {}, replace=True,
+                        current_hosts={'01_existing': 'measure'})
 
 
 def test_javascript_refresh_preserves_unselected_historical_objects(sources):

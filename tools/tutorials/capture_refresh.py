@@ -262,7 +262,7 @@ def main() -> int:
     spacr.qt.register_self_registering_modules()
     from spacr.qt import app as gui
     from spacr.qt.first_run import mark_tour_seen
-    from spacr.qt.preferences import apply_preferences_to_app, set_font_scale, set_preload_policy
+    from spacr.qt.preferences import apply_preferences_to_app, set_font_scale, set_preload_policy, set_ai_on_by_default
     from spacr.qt.walkthrough import mark_seen
     from spacr.qt.widgets.fold_strip import folded_modules
 
@@ -281,6 +281,7 @@ def main() -> int:
     for key in folded_modules():
         mark_seen(key)
     set_preload_policy('on_demand')
+    set_ai_on_by_default(False)
     configure_appearance(args.theme, args.backdrop)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
@@ -423,6 +424,12 @@ def main() -> int:
         finally:
             if browser is not None:
                 browser.close()
+    elif args.module in ('toxoplasma', 'plasmodium', 'candida'):
+        from capture_organisms import record_organism
+        record_organism(app, window, stage, captures, capture, settle, write_json, args.module)
+    elif args.module == 'host_pathogen':
+        from capture_host_pathogen import record_host_pathogen
+        record_host_pathogen(app, window, stage, captures, capture, settle, write_json, args.timeout)
     elif args.module == 'db_browser':
         # The retained Database narration is still accurate. Capture its
         # current Help route and real controls without pre-opening it through

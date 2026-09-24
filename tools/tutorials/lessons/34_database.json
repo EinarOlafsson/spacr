@@ -2,73 +2,65 @@
   "id": "34_database",
   "number": 34,
   "slug": "database",
-  "title": "Database Browser",
+  "title": "Database Browser: filter and export measurements",
   "series": 4,
   "app_key": "db_browser",
   "section": "Data",
-  "description": "Browse, filter, and export spaCR measurement databases without a command line.",
+  "description": "Open a measurement database, select columns and rows, and export the result.",
   "objectives": [
-    "Open and page through a database safely.",
-    "Filter a complete table without confusing it with the preview.",
-    "Export a traceable subset."
+    "Open and browse a measurement table.",
+    "Select columns and filter rows.",
+    "Export the matching records."
   ],
-  "prerequisite": "Have a spaCR SQLite database or run folder available.",
+  "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
   "scenes": [
     {
-      "narration": "Database Browser inspects large spaCR databases in a bounded, read-only view.",
+      "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
       "visual": "01_overview",
       "hold_after": 0.7,
-      "focus_key": "screen",
-      "speech_text": "Database Browser inspects large spacer databases in a bounded, read-only view."
+      "focus_key": "screen"
     },
     {
-      "narration": "Choose a measurements database or its run folder and open it.",
+      "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
       "visual": "02_open",
       "hold_after": 0.7,
-      "focus_key": "source",
-      "speech_text": "Choose a measurements database or its run folder and open it."
+      "focus_key": "source"
     },
     {
-      "narration": "Select a table after reviewing its purpose and read-only status.",
+      "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
       "visual": "03_tables",
       "hold_after": 0.7,
-      "focus_key": "tables",
-      "speech_text": "Select a table after reviewing its purpose and read-only status."
+      "focus_key": "tables"
     },
     {
-      "narration": "The preview loads a bounded page while reporting the complete row and column counts separately.",
+      "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
       "visual": "04_cell_table",
       "hold_after": 0.7,
-      "focus_key": "preview",
-      "speech_text": "The preview loads a bounded page while reporting the complete row and column counts separately."
+      "focus_key": "preview"
     },
     {
-      "narration": "Search columns to make wide feature tables readable without changing the underlying rows.",
+      "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
       "visual": "05_column_search",
       "hold_after": 0.7,
-      "focus_key": "column_search",
-      "speech_text": "Search columns to make wide feature tables readable without changing the underlying rows."
+      "focus_key": "column_search"
     },
     {
-      "narration": "Build a structured filter. Column names and operators are validated, and values are bound safely.",
+      "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
       "visual": "08_filter",
       "hold_after": 0.7,
-      "focus_key": "filter",
-      "speech_text": "Build a structured filter. Column names and operators are validated, and values are bound safely."
+      "focus_key": "filter"
     },
     {
-      "narration": "The exact filtered count describes the full query even though only one page is drawn.",
+      "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
       "visual": "09_filtered",
       "hold_after": 0.7,
-      "focus_key": "status",
-      "speech_text": "The exact filtered count describes the full query even though only one page is drawn."
+      "focus_key": "status"
     },
     {
-      "narration": "Export the complete current filter and visible-column selection. The source database remains unchanged.",
+      "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
       "visual": "10_export",
       "hold_after": 0.7,
-      "focus_key": "export",
-      "speech_text": "Export the complete current filter and visible-column selection. The source database remains unchanged."
+      "focus_key": "export"
     }
   ]
 }

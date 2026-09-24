@@ -2,22 +2,22 @@
   "id": "43_illumination",
   "number": 43,
   "slug": "illumination",
-  "title": "Illumination",
+  "title": "Illumination: estimate and inspect a correction model",
   "series": 5,
   "app_key": "illumination",
   "host_app_key": "measure",
   "section": "Data",
-  "description": "Estimate a flat-field from downloaded images through Measure’s Illumination page, inspect its actual exported QC, and keep numerical improvement separate from biological validation.",
+  "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
   "objectives": [
-    "Open the nested Illumination page and select real merged-field intensity channels.",
-    "Compare correction off and on, and inspect the saved model and exported QC image.",
-    "Reuse a reviewed model deliberately without confusing in-sample diagnostics with independent validation."
+    "Select representative fields and intensity channels.",
+    "Estimate and inspect an illumination model.",
+    "Reuse the model in Mask or Measure."
   ],
-  "prerequisite": "This lesson uses new byte-identical copies of all sixteen downloaded plate1 merged fields, each 1994 by 1994 pixels with seven stored planes. Channel zero is a persisted intensity-axis index, not a claimed stain identity; label planes must not be used as intensities. The native off/on runs preserve all originals and copies. An independent formula checks 7,952,072 corrected pixels through the public API after the GUI run, not as substituted GUI output. The model and QC are estimated from the same sixteen fields: the diagnostics are in-sample, not biological or optical ground truth. Dark zero is the demonstration setting, not a measured camera calibration. The current embedded Figures panel remains empty; the real saved PNG is opened in the separate system image viewer. No application code, generated measurements or original images are modified. The old five-scene in-memory simulation does not demonstrate the current nested page and is replaced, not merely relocated.",
+  "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
   "scenes": [
     {
       "visual": "01_measure_host",
-      "narration": "Open Measure, then its Illumination button. This nested page estimates a correction model before a larger analysis. It is different from simply enabling correction inside a measurement run, and it does not turn the whole application into an automatically corrected session.",
+      "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
       "focus": [
         3625,
         65,
@@ -31,7 +31,7 @@
     },
     {
       "visual": "05_setting_src",
-      "narration": "Point Source at the merged folder containing the image arrays, not the measurements database. We use new copies of all sixteen fields from the downloadable plate example. The originals remain unchanged, and the saved illumination model goes beside this merged folder.",
+      "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
       "focus": [
         363,
         375,
@@ -46,7 +46,7 @@
     },
     {
       "visual": "05_setting_channels",
-      "narration": "The Channels setting names positions in the stored intensity array. Here we select channel zero. Check your own acquisition mapping instead of assuming that zero always means the same stain, and never select a label-mask plane as if it were fluorescence intensity.",
+      "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
       "focus": [
         374,
         475,
@@ -57,7 +57,7 @@
     },
     {
       "visual": "04_correction_off_finished",
-      "narration": "First, correction is off. Run finishes, but the console explicitly says that no field was estimated. We verified that no model was created. A successful completion message alone therefore does not prove that correction happened.",
+      "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
       "focus": [
         1518,
         405,
@@ -68,7 +68,7 @@
     },
     {
       "visual": "05_setting_illumination_degree",
-      "narration": "Turn Illumination correction on. This example uses the polynomial estimator with degree four and leaves Illumination model empty to estimate a new field. More flexibility is not automatically better: a correction that follows cells or treatment patterns can remove the biology you wanted to measure.",
+      "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
       "focus": [
         363,
         550,
@@ -79,7 +79,7 @@
     },
     {
       "visual": "05_setting_illumination_max_fields",
-      "narration": "Keep acquisition groups separate with Illumination per plate. We sample all sixteen available fields here. Representative coverage matters more than increasing a number blindly; a model fitted from one crowded corner can confuse biological structure with uneven illumination.",
+      "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
       "focus": [
         363,
         858,
@@ -90,7 +90,7 @@
     },
     {
       "visual": "05_setting_illumination_dark",
-      "narration": "Illumination dark is an additive camera offset in raw counts, not a learned biological background. Zero is the setting used for this demonstration, not a calibration result. Choose the offset from appropriate acquisition controls rather than adjusting it until a desired phenotype disappears.",
+      "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
       "focus": [
         374,
         775,
@@ -101,7 +101,7 @@
     },
     {
       "visual": "05_setting_illumination_on_missing",
-      "narration": "Keep Illumination QC enabled and check the missing-model policy. We use error so an unavailable plate correction stops the operation instead of silently mixing corrected and uncorrected fields. These checks do not replace examining the estimated field.",
+      "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
       "focus": [
         363,
         1020,
@@ -112,7 +112,7 @@
     },
     {
       "visual": "06_correction_on_finished",
-      "narration": "Run again with correction enabled. The console now reports the fitted field, the diagnostic slopes and the saved model path. This standalone step leaves the image files unchanged; it has not rerun segmentation or produced new cell measurements.",
+      "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
       "focus": [
         1518,
         405,
@@ -123,7 +123,7 @@
     },
     {
       "visual": "08_exported_qc_system_viewer",
-      "narration": "In this build, the QC image is saved but does not appear in the embedded Figures panel. Open illumination underscore QC underscore plate one dot PNG from the illumination folder in your image viewer. This is the actual exported figure in a separate viewer, not a simulated spaCR panel.",
+      "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
       "focus": [
         200,
         100,
@@ -134,7 +134,7 @@
     },
     {
       "visual": "08_exported_qc_system_viewer",
-      "narration": "The left panel shows the estimated, mean-one illumination field. Correction subtracts the camera offset and divides by this field. Although the title calls it gain, do not multiply intensities by that displayed map: the correction uses its reciprocal. Check for biological structures leaking into the estimate.",
+      "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
       "focus": [
         400,
         680,
@@ -145,7 +145,7 @@
     },
     {
       "visual": "08_exported_qc_system_viewer",
-      "narration": "The radial slope changes from approximately minus zero point one eight one to plus zero point zero two six. The reported eighty-five point four percent reduction matches our independent calculation, but the after curve is not flat. These are the same fields used to fit the model, so this is not independent validation.",
+      "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
       "focus": [
         1270,
         680,
@@ -156,7 +156,7 @@
     },
     {
       "visual": "09_return_to_illumination",
-      "narration": "For later reuse, provide the saved model path and explicitly enable correction in the intended Mask or Measure workflow. Preserve the model, channel mapping, plate identities and settings together. Review independent fields and avoid applying correction twice to already corrected intensities before interpreting biological differences.",
+      "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
       "focus": [
         363,
         370,

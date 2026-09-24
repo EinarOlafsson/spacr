@@ -1635,7 +1635,7 @@
       "home": "toxoplasma",
       "parent": null,
       "api_module": "spacr.qt.screens.organism_screen",
-      "lesson": null,
+      "lesson": "82_toxoplasma",
       "inputs": [
         "organism_reference"
       ],
@@ -1649,7 +1649,7 @@
       "home": "plasmodium",
       "parent": null,
       "api_module": "spacr.qt.screens.organism_screen",
-      "lesson": null,
+      "lesson": "83_plasmodium",
       "inputs": [
         "organism_reference"
       ],
@@ -1663,7 +1663,7 @@
       "home": "candida",
       "parent": null,
       "api_module": "spacr.qt.screens.organism_screen",
-      "lesson": null,
+      "lesson": "84_candida",
       "inputs": [
         "organism_reference"
       ],
@@ -1742,7 +1742,7 @@
       "home": "toxoplasma",
       "parent": "toxoplasma",
       "api_module": "spacr.host_pathogen",
-      "lesson": null,
+      "lesson": "85_host_pathogen",
       "inputs": [
         "measurements"
       ],

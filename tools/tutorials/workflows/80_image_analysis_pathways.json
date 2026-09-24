@@ -447,7 +447,7 @@
       "home": "toxoplasma",
       "parent": "toxoplasma",
       "api_module": "spacr.host_pathogen",
-      "lesson": null,
+      "lesson": "85_host_pathogen",
       "inputs": [
         "measurements"
       ],

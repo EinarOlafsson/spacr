@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
 from pathlib import Path
 import tempfile
 import time
@@ -16,9 +17,11 @@ import time
 
 AUTHOR = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
 SOURCE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged')
-FIELDS = AUTHOR / 'derived/cellpose_masks'
+FIELDS = Path(os.environ.get('SPACR_TUTORIAL_MODEL_FIELDS',
+                             str(AUTHOR / 'derived/cellpose_masks')))
 TRAIN_IMAGES = AUTHOR / 'derived/train_cellpose/train/images'
-MODELS = Path('/home/olafsson/.cellpose/models')
+MODELS = Path(os.environ.get('SPACR_TUTORIAL_MODEL_DIRECTORY',
+                             '/home/olafsson/.cellpose/models'))
 PRIMARY = MODELS / 'cpsam'
 SECONDARY = MODELS / 'cpsam_v2'
 # Frozen preparation recipe and independently checked TIFF file identities.
@@ -197,19 +200,38 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                 raise RuntimeError(f'{label}: {widget.last_error}')
 
         def model_item(path):
-            entries = zoo.entries()
+            from spacr import model_zoo as catalogue
+            from spacr.qt.widgets.model_zoo_picker import _SourceHeading
+
             matches = []
             for row in range(zoo._table.rowCount()):
                 item = zoo._table.item(row, 0)
                 index = None if item is None else item.data(Qt.UserRole)
-                if index is None or not 0 <= int(index) < len(entries):
+                if index is None or not 0 <= int(index) < len(zoo._groups):
                     continue
-                entry = entries[int(index)]
-                if entry.path and Path(entry.path).resolve() == path.resolve():
-                    matches.append(item)
+                for version, (_, entry) in enumerate(zoo._groups[int(index)][1]):
+                    if entry.path and Path(entry.path).resolve() == path.resolve():
+                        matches.append((int(index), version))
             if len(matches) != 1:
                 raise RuntimeError(f'Expected one displayed row for the exact checkpoint: {path}')
-            return matches[0]
+            group, version = matches[0]
+            source = catalogue.source_of(zoo.chosen_entry(group))
+            if not zoo.sources.is_on(source):
+                heading = next(item for item in zoo.sources.findChildren(_SourceHeading)
+                               if item.source_name == source)
+                click(heading)
+            row = zoo._row_of_group(group)
+            combo = zoo._table.cellWidget(row, 4)
+            zoo._table.scrollTo(zoo._table.model().index(row, 4))
+            expose(combo)
+            combo.setFocus()
+            QTest.keyClick(combo, Qt.Key_Home)
+            for _ in range(version):
+                QTest.keyClick(combo, Qt.Key_Down)
+            settle(.3)
+            if Path(zoo.chosen_entry(group).path).resolve() != path.resolve():
+                raise RuntimeError('The version control did not select the requested checkpoint')
+            return zoo._table.item(zoo._row_of_group(group), 0)
 
         def select_model(path, add=False):
             item = model_item(path)
@@ -408,7 +430,18 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
         write_json(captures / 'actual_benchmark.json', evidence['benchmark'])
 
         evidence['comparison_handoff'] = {'performed': False, 'comparison_run': False}
-        if SECONDARY in checkpoints:
+        primary_group = next(index for index, (_, pairs) in enumerate(zoo._groups)
+                             if any(entry.path and Path(entry.path).resolve() == PRIMARY.resolve()
+                                    for _, entry in pairs))
+        secondary_group = next((index for index, (_, pairs) in enumerate(zoo._groups)
+                               if any(entry.path and Path(entry.path).resolve() == SECONDARY.resolve()
+                                      for _, entry in pairs)), None)
+        if secondary_group == primary_group:
+            select_model(SECONDARY)
+            capture('10_actual_alternate_version')
+            evidence['comparison_handoff']['reason'] = (
+                'Both checkpoints belong to one model family; the current table selects one version per family.')
+        elif SECONDARY in checkpoints:
             select_model(PRIMARY)
             select_model(SECONDARY, add=True)
             chosen = {Path(item.path).resolve() for item in zoo.selected_entries()}

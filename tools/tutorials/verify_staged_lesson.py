@@ -291,11 +291,12 @@ def main():
                 '(nodes) => [...new Set(nodes.map(n => n.dataset.relatedLesson))].sort()')
             check_related_links(actual, expected)
             page.evaluate('elements.audio.muted = true; elements.video.muted = true')
-            page.locator('.chapter-button').nth(5).click()
+            seek_index = min(5, len(lesson['scenes']) - 1)
+            page.locator('.chapter-button').nth(seek_index).click()
             try:
-                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > chapterData[5].start + 1', timeout=15000)
+                page.wait_for_function('(index) => !elements.audio.paused && elements.audio.currentTime > chapterData[index].start + 1', arg=seek_index, timeout=15000)
             except Exception:
-                diagnostic = page.evaluate('({audio: {time: elements.audio.currentTime, paused: elements.audio.paused, ready: elements.audio.readyState, src: elements.audio.currentSrc, error: elements.audio.error?.message}, video: {time: elements.video.currentTime, paused: elements.video.paused, ready: elements.video.readyState, src: elements.video.currentSrc, error: elements.video.error?.message}, voice: elements.voice.value, available: narrationAudioAvailable, status: elements.status.textContent, chapter: chapterData[5]})')
+                diagnostic = page.evaluate('(index) => ({audio: {time: elements.audio.currentTime, paused: elements.audio.paused, ready: elements.audio.readyState, src: elements.audio.currentSrc, error: elements.audio.error?.message}, video: {time: elements.video.currentTime, paused: elements.video.paused, ready: elements.video.readyState, src: elements.video.currentSrc, error: elements.video.error?.message}, voice: elements.voice.value, available: narrationAudioAvailable, status: elements.status.textContent, chapter: chapterData[index]})', seek_index)
                 write(output / 'playback-failure.json', diagnostic)
                 print(json.dumps(diagnostic, indent=2), flush=True)
                 page.screenshot(path=str(output / 'playback-failure.png'))

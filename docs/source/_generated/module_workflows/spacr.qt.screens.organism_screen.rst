@@ -20,6 +20,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
+`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=82_toxoplasma>`__.
+
 Plasmodium spp.
 ~~~~~~~~~~~~~~~
 
@@ -39,6 +41,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
+`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=83_plasmodium>`__.
+
 Candida spp.
 ~~~~~~~~~~~~
 
@@ -57,4 +61,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
+
+`Module tutorial <https://einarolafsson.github.io/spacr/tutorials/#lesson=84_candida>`__.
 

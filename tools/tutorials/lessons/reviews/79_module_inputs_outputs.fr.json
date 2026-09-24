@@ -1,7 +1,7 @@
 {
   "language": "fr",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "92c427b7b58d393bd75277eb295b0fb5e35c5e40fbfe4a248240704fb8a476f6",
+  "english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
   "title": "Entrées et sorties des modules",
   "section": "Parcours de travail",
   "description": "Retrouvez les données d’entrée, les sorties enregistrées, les producteurs en amont et les consommateurs en aval de chaque module actuel, y compris les outils imbriqués dans un module de Home.",
@@ -96,11 +96,16 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+    "workflow_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
     "phrase_bank_sha256": "67052e009289f47ced5baf58c65bcf2d8ef8b4e59c717546f2c17a1de79dfb8d",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ]
+    ],
+    "link_only_rebinding": {
+      "previous_english_sha256": "92c427b7b58d393bd75277eb295b0fb5e35c5e40fbfe4a248240704fb8a476f6",
+      "current_english_sha256": "39f6eab14df40f15861396e178ccba100819cb4a6257a277cd05a91a70f1634f",
+      "reason": "Only related_lessons changed; every prose, identity and timing field compared equal."
+    }
   }
 }

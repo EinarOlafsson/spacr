@@ -2326,6 +2326,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
+`Module tutorial <tutorials/#lesson=82_toxoplasma>`__.
+
 .. _workflow-module-plasmodium:
 
 Plasmodium spp.
@@ -2347,6 +2349,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 
+`Module tutorial <tutorials/#lesson=83_plasmodium>`__.
+
 .. _workflow-module-candida:
 
 Candida spp.
@@ -2367,6 +2371,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.
 
 :doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
+
+`Module tutorial <tutorials/#lesson=84_candida>`__.
 
 .. _workflow-module-endodyogeny:
 
@@ -2474,4 +2480,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Measure <workflow-module-measure>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.
 
 :doc:`API reference </api/spacr/host_pathogen/index>`.
+
+`Module tutorial <tutorials/#lesson=85_host_pathogen>`__.
 

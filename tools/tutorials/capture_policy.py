@@ -136,4 +136,5 @@ def verify_visible_paths(windows, prepared_root):
                     if path != allowed and not path.startswith(allowed + "/"):
                         raise RuntimeError(
                             "Capture refused: a visible text surface contains a personal "
-                            "or mounted path outside the prepared capture directory")
+                            "or mounted path outside the prepared capture directory: "
+                            f"{type(widget).__name__} {widget.objectName()!r}: {path}")
