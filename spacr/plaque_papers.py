@@ -360,7 +360,7 @@ def _doi_candidates(text: str) -> List[str]:
     """The DOIs a stretch of PDF text may name, likeliest first.
 
     A PDF's text layer breaks a DOI wherever the line did --
-    ``https://d oi.org/10.1371/j ournal.\nppat.1011009`` is what one PLOS
+    ``https://d oi.org/10.1371/j ournal.\\nppat.1011009`` is what one PLOS
     first page gives -- so the DOI is looked for twice: as printed, and with
     the whitespace taken out, which rejoins it and also glues it to the next
     word (``...1011009Editor:``). A glued run is cut where a digit meets a

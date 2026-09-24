@@ -132,7 +132,7 @@ def _assert_split(out, expected_classes):
 
     def _names(root):
         return {(cls, f) for cls in os.listdir(root)
-                for f in os.listdir(os.path.join(root, cls))}
+                for f in os.listdir(os.path.join(root, cls)) if f.endswith('.png')}
 
     tr, te = _names(train), _names(test)
     assert tr and te
@@ -209,7 +209,9 @@ def test_generate_dataset_with_sample_subsets(train_src):
                  if f.endswith(".tar") and "exp2" in f]
     assert tars
     with tarfile.open(tars[0]) as t:
-        assert len(t.getnames()) == 5
+        names = t.getnames()
+        assert sum(name.endswith('.png') for name in names) == 5
+        assert '.spacr_crop_format.json' in names
 
 
 def test_generate_dataset_file_metadata_filter(train_src):

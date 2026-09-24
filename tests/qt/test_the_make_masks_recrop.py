@@ -418,7 +418,12 @@ def test_recrop_is_one_of_the_tools_in_the_one_row(qtbot, qt_theme_applied, fold
     assert screen._tool_row_layout.indexOf(button) >= 0
     modes = [m for m, _l, _i in tool_row_entries()]
     assert modes[-2:] == [MODE_RECROP, MODE_RULER]
-    assert button.toolTip() == RECROP_TOOLTIP
+    from PySide6.QtGui import QTextDocument
+
+    help_document = QTextDocument()
+    help_document.setHtml(button.toolTip())
+    assert RECROP_TOOLTIP in help_document.toPlainText()
+    assert 'href=' in button.toolTip() and '/api/' in button.toolTip()
     button.click()
     assert screen._canvas.mode == MODE_RECROP
     ruler = screen._mode_buttons[MODE_RULER]

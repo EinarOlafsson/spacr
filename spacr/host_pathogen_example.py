@@ -137,7 +137,7 @@ def build_example(destination, *, progress=None, cancelled=None):
     """
     import numpy as np
     import pandas as pd
-    import tifffile
+    from .tiff_io import write_tiff
     from PIL import Image
     from .database_schema import ensure_database_schema
     from .host_pathogen import default_settings
@@ -160,10 +160,10 @@ def build_example(destination, *, progress=None, cancelled=None):
             stack, rows, expected = _field(column, field)
             stem = f'synthetic_hp_A0{column}_{field}_1'
             np.save(root / 'merged' / f'{stem}.npy', stack)
-            tifffile.imwrite(root / 'images' / f'{stem}.tif', stack[..., :4].transpose(2, 0, 1),
+            write_tiff(root / 'images' / f'{stem}.tif', stack[..., :4].transpose(2, 0, 1),
                               metadata={'axes': 'CYX'}, photometric='minisblack')
             for offset, name in enumerate(('cell', 'nucleus', 'vacuole', 'parasite'), 4):
-                tifffile.imwrite(root / 'masks' / f'{stem}_{name}.tif', stack[..., offset])
+                write_tiff(root / 'masks' / f'{stem}_{name}.tif', stack[..., offset])
             rgb = np.stack([stack[..., 0] / 300, stack[..., 1] / 300,
                             np.maximum(stack[..., 2], stack[..., 3]) / 2400], axis=-1)
             Image.fromarray(np.uint8(np.clip(rgb, 0, 1) * 255)).save(root / 'previews' / f'{stem}.png')
